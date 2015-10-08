@@ -1,0 +1,64 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="shop.trackingCode" />
+    <c:set var="focusElement" value="trackingCodeForm:marketplace" />
+    <c:set var="dirty" value="false" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{trackingCodeCtrl.initializeTrackingCode}"/>
+    <h:form id="trackingCodeForm">
+      <adm:outputStep value="#{msg['shop.trackingCode.step1']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['service.marketplace']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu id="marketplace" value="#{trackingCodeModel.selectedMarketplace}" styleClass="select"
+            onclick="AdmUtils.storeValue(this);">
+            <a4j:ajax event="change" listener="#{trackingCodeCtrl.marketplaceChanged}"
+              render="trackingCodePanel,buttonPanel,mainTmplMessagesPanel"
+              onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
+              oncomplete="AdmUtils.setUIElements();AdmUtils.emitResizeEvent();" />
+            <adm:selectItemPleaseSelect itemValue="#{null}" />
+            <f:selectItems value="#{trackingCodeModel.marketplaces}" />
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message id="marketplaceErrorMsg" for="marketplace" />
+      </adm:panelGrid>
+
+      <a4j:outputPanel id="trackingCodePanel">
+        <adm:outputStep value="#{msg['shop.trackingCode.step2']}" />
+        <adm:collapsibleSection sectionId="trackingCodeSection" label="#{msg['shop.trackingCode.label']}">
+          <table width="100%">
+            <tr>
+              <td><h:inputTextarea id="trackingCode" value="#{trackingCodeModel.trackingCodeValue}"
+                  onchange="setDirty(true);" rows="5" style="min-height: 100px; resize: none;"
+                  disabled="#{trackingCodeCtrl.fieldsDisabled}" />
+              </td>
+            </tr>
+          </table>
+        </adm:collapsibleSection>
+      </a4j:outputPanel>
+
+      <a4j:outputPanel id="buttonPanel">
+        <adm:buttonPanel>
+          <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{trackingCodeCtrl}" action="save"
+            buttonType="save" disabled="#{trackingCodeCtrl.fieldsDisabled}" />
+        </adm:buttonPanel>
+      </a4j:outputPanel>
+    </h:form>
+
+    <script type="text/javascript">
+      AdmUtils.registerTrackingCodeEvents();
+    </script>
+
+  </ui:define>
+</ui:composition>

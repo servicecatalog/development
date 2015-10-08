@@ -1,0 +1,122 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="shop.editStage" />
+    <c:set var="focusElement" value="marketplaceSelectForm:selectMarketplaceId" />
+  </ui:define>
+  <ui:define name="body">
+    <script type="text/javascript">  
+    jQuery().ready(function(){
+      setDirty(#{translationBean.dirtyStage});
+    })  
+    </script>
+
+    <script type="text/javascript">
+     function focusLocale() {
+              var element = document.getElementById('stageForm:srcLocale');
+              if (element) {
+                element.focus();
+                AdmUtils.setFocus(element, true);
+               }
+              AdmUtils.setUIElements();
+     }
+     </script>
+
+    <adm:outputStep value="#{msg['marketplace.select']}" />
+
+    <adm:selectMarketplace id="selectMarketplace" listenerBean="#{translationBean}" render=":stageForm"
+      items="#{marketplaceBean.marketplacesOwned}" />
+
+    <adm:outputStep value="#{msg['marketplace.stage.define']}" />
+    
+    <h:form id="stageForm">
+      
+      <a4j:jsFunction name="changeLocale" render=":stageForm" oncomplete="focusLocale();">
+        <a4j:param name="param1" assignTo="#{translationBean.locale}" />
+      </a4j:jsFunction>
+
+      <adm:panelGrid >
+        <adm:outputLabel value="#{msg['common.locale']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="srcLocale" disabled="#{marketplaceBean.disabledForEdit}" value="#{translationBean.locale}"
+	          styleClass="select" immediate="true"
+	          onchange="if (AdmUtils.isNotDirtyOrConfirmed()) { changeLocale(this.value); } else { AdmUtils.resetSelect(this); }">
+	          <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <h:panelGroup>
+          <adm:message for="srcLocale" />
+        </h:panelGroup>
+      </adm:panelGrid>
+
+      <h:inputHidden id="dirty" value="#{translationBean.dirtyStage}" />
+ 
+      <adm:collapsibleSection sectionId="stageSection" label="#{msg['marketplace.stage']}">
+        <table width="100%">
+          <tr>
+            <td><h:inputTextarea id="stage" value="#{translationBean.stage}"
+                onchange="setDirty(true); #{rich:element('dirty')}.value=getDirty();" rows="5"
+                style="width: 99.6%; height: 100px;" disabled="#{marketplaceBean.disabledForEdit}" />
+            </td>
+          </tr>
+        </table>
+      </adm:collapsibleSection>
+      <h:outputText styleClass="stepDescription" value="#{msg['marketplace.stage.example']}" />
+
+      <h:commandButton style="display:none;" id="changeLocaleButton" value="" action="#{translationBean.changeLocale}" />
+      <h:commandButton style="display:none;" id="saveButton" value="" action="#{translationBean.saveStage}" />
+      <h:commandButton style="display:none;" id="cancelPreview" value="" action="#{translationBean.cancelPreview}" />
+      
+      <adm:buttonPanel columns="1">
+        <adm:button id="preview" value="#{msg['button.preview']}" bean="#{translationBean}" action="preview"
+          disabled="#{marketplaceBean.disabledForEdit}" buttonType="preview" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+    <rich:popupPanel id="previewPanel" show="#{translationBean.showConfirm}" style="max-height:700px;" width="980" autosized="true"
+      resizeable="false" onresize="return false;" trimOverlayedElements="false">
+      <f:facet name="header">
+        <h:outputText value="#{msg['marketplace.stage.preview']}" />
+      </f:facet>
+      <f:facet name="controls">
+        <h:panelGroup>
+          <span class="headerIcon" id="previewClose"
+            onclick="setDirty(false);#{rich:element('cancelPreview')}.click();return false;">
+           	<h:graphicImage value="/img/transparentPixel.png" styleClass="close" />
+           </span>
+        </h:panelGroup>
+      </f:facet>
+
+      <!-- non functional header -->
+      <h:graphicImage value="/img/mpheader.JPG" />
+
+      <h:form id="previewForm">
+        <!-- and now the stage -->
+        <a4j:outputPanel layout="block" id="featurestory" style="margin-bottom:16px; width:980px; max-height:485px;"
+          styleClass="scrollAuto">
+          <h:outputText id="stagePreview" value="#{translationBean.stagePreview}" escape="false" />
+        </a4j:outputPanel>
+        <hr />
+        <b><h:outputText styleClass="stepDescription" value="#{msg['marketplace.stage.publish']}" /> </b>
+        <adm:buttonPanel columns="2">
+          <adm:buttonCustomizedOnClick id="okButton" value="#{msg['button.yes']}" buttonType="confirm"
+            onclick="setDirty(false);AdmUtils.showProgress(true);#{rich:element('saveButton')}.click();return false;" />
+          <adm:buttonCustomizedOnClick id="cancelButton" value="#{msg['button.no']}" buttonType="cancel"
+            onclick="setDirty(false);#{rich:element('cancelPreview')}.click();return false;" />
+        </adm:buttonPanel>
+      </h:form>
+    </rich:popupPanel>
+
+  </ui:define>
+</ui:composition>

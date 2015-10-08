@@ -1,0 +1,83 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testShowingDiscount" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="testShowingDiscount" depends="testShowingDiscountSetup,testShowingDiscountSubscriptionPages,testShowingDiscountDiscountEmpty,testShowingDiscountCleanUp" />
+
+  <target name="testShowingDiscountSetup">
+    <webtest name="testShowingDiscountSetup">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierBaseUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="supplierOrgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierOrgId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="MP_ID_LOCAL" ownerId="${supplierOrgId}" baseurl="${supplierBaseUrl}" name="LocalMP" />
+      <mail.cleanInbox />
+      <login.initialLoginAndChangePassword url="${supplierOrgUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${MP_ID_LOCAL}" />
+
+      <user.registerCustomer marketplaceId="${MP_ID_LOCAL}" userId="customer" />
+      <organization.managePayment rowNr="1" paymentType="cust0" />
+      <login.logout />
+
+      <setup:store.settings userkey="${supplierUserKey}" password="${common.password}" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey" techServiceId="Example_with_roles 1.00" serviceId="ExampleService" name="ExampleService" description="ExSvc description" shortDescription="ExSvc short description" marketplaceId="${MP_ID_LOCAL}" publicService="true" />
+
+      <setup:pricemodel.define serviceId="ExampleService" isFree="false" />
+      <setup:service.activate serviceIds="ExampleService" />
+
+      <storeProperty name="createdSubscriptionName" value="ExampleService" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerOrgId" value="#{orgId}" propertyType="ant" />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="${createdSubscriptionName}" marketplaceId="${MP_ID_LOCAL}" serviceKey="${svcKey}" bcId="bc1" piId="Invoice" />
+    </webtest>
+  </target>
+
+  <target name="testShowingDiscountSubscriptionPages">
+    <webtest name="testShowingDiscountSubscriptionPages">
+
+      <login.loginAsSupplier url="${supplierOrgUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="${customerOrgId}" value="99.99" from="01/1970" thru="12/9999" />
+
+      <!-- verify View subscription page -->
+      <common.clickAndVerfyLink label="${subscription.view.title}" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${createdSubscriptionName}')]" />
+      <verifyXPath xpath="//*[@id='viewForm:discount']/*[@class='margin10px']" regex="true" text=".*${priceModel.text.discountLabel}.*99.99.*01/1970.*12/9999.*" />
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="testShowingDiscountDiscountEmpty">
+    <webtest name="testShowingDiscountDiscountEmpty">
+
+      <login.loginAsSupplier url="${supplierOrgUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="${customerOrgId}" value="" from="" thru="" />
+
+      <!-- verify View subscription page -->
+      <common.clickAndVerfyLink label="${subscription.view.title}" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'ExampleService')]" />
+      <not>
+        <verifyXPath xpath="//*[@id='viewForm:discount']" />
+      </not>
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="testShowingDiscountCleanUp">
+    <webtest name="testShowingDiscountFinalCleanUp">
+      <setup:store.settings userkey="${supplierUserKey}" password="${common.password}" />
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+</project>

@@ -1,0 +1,140 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testTechServiceImport" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testTechServiceImport">
+
+    <webtest name="testTechServiceImport_EmptyImportFile">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <techservice.import.fail file="data/TechnicalServiceImportEmptyFile.xml" errorLabel="${error.upload.fileNotNullNorEmpty}" verifyFieldError="true" />
+    </webtest>
+
+    <webtest name="testTechServiceImport">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant"/>
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant"/>
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+
+      <!-- 3.  Register new technical service  -->
+      <techservice.import file="data/TechnicalServices.xml" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ImportException}" att0=".*options.*" />
+      <techservice.import.fail file="data/TechnicalServices-fail-defaultOptionRemove.xml" errorLabel="#{errorMsg}" />
+
+      <!-- 4.  Update technical services sucess -->
+      <techservice.import file="data/TechnicalServicesUpdate.xml" />
+      <techservice.import file="data/TechnicalServices.xml" />
+
+      <!-- 5.  Update technical service fail -->
+      <common.handleMessageParameters property="errorMsg" value="${ex.ImportException}" att0=".*accessType.*" />
+      <techservice.import.fail file="data/TechnicalServices-fail-invalid.xml" errorLabel="#{errorMsg}" />
+
+      <common.handleMessageParameters property="errorMsg" value="${ex.ImportException}" att0=".*modificationType.*" />
+      <techservice.import.fail file="data/TechnicalServices-fail-onetimeParamsInvalid.xml" errorLabel="#{errorMsg}" />
+
+      <common.handleMessageParameters property="errorMsg" value="${ex.ImportException}" att0=".*facet-valid.*" />
+      <!-- 6.  Update technical service fail -->
+      <techservice.import.fail file="data/TechnicalServices-fail-invalidaccesstype.xml" errorLabel="#{errorMsg}" />
+
+      <!-- 7.  Define service -->
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" configurablechecked="true" serviceId="#{marketServiceName}" />
+
+      <!-- 8. Define price model -->
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="false" />
+      
+      <!-- 9. Activate service -->
+      <setup:service.activate serviceIds="#{marketServiceName}" />
+
+      <!-- 10. Customer registration by supplier (local authentication) User B  -->
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <!-- activate at least one paymentType for the customer to allow entering a payment info -->
+      <organization.managePayment rowNr="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="#{subscriptionName}" marketplaceId="${mId}" serviceKey="${svcKey}" bcId="bc1" piId="Invoice" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+
+      <!-- No more fail for license changes. -->
+      <techservice.import file="data/TechnicalServices-licChanged.xml" />
+
+      <common.handleMessageParameters property="errorMsg" value="${ex.UpdateConstraintException.TECHNICAL_SERVICE}" att0="Example 1.00" />
+      <!-- 14.  Update technical service fail -->
+      <techservice.import.fail file="data/TechnicalServices-fail-eventsReduced.xml" errorLabel="#{errorMsg}" />
+      <techservice.import.fail file="data/TechnicalServices-fail-paramsReduced.xml" errorLabel="#{errorMsg}" />
+      <techservice.import.fail file="data/TechnicalServices-fail-rolesRemoved.xml" errorLabel="#{errorMsg}" />
+
+      <!-- 15.  Update technical service success -->
+      <techservice.import file="data/TechnicalServices-succ-eventsExtended.xml" />
+      <techservice.import file="data/TechnicalServices-succ-paramsExtended.xml" />
+      <techservice.import file="data/TechnicalServices-succ-rolesExtended.xml" />
+      <techservice.import file="data/TechnicalServices-succ-descriptionChanged.xml" />
+      <techservice.import file="data/TechnicalServices-succ-onetimeParamsExtended.xml" />
+
+      <!-- 16. supplier logout + login Customer-->
+      <login.logout />
+
+      <setup:subscription.unsubscribe subId="#{subscriptionName}" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+
+      <!-- 19.  Update technical service success -->
+      <techservice.import file="data/TechnicalServices-licChanged.xml" />
+
+      <!-- 20.  Update technical service fail -->
+      <techservice.import.fail file="data/TechnicalServices-fail-eventsReduced.xml" errorLabel="#{errorMsg}" />
+      <techservice.import.fail file="data/TechnicalServices-fail-rolesRemoved.xml" errorLabel="#{errorMsg}" />
+      <techservice.import.fail file="data/TechnicalServices-fail-paramsReduced.xml" errorLabel="#{errorMsg}" />
+      
+      <!-- 21.  Delete the marketable service and -->
+      <service.deActivate active="false" />
+      <service.delete serviceId="#{marketServiceName}" />
+
+      <!-- 22.  Update technical product success -->
+      <techservice.import file="data/TechnicalServices-fail-paramsReduced.xml" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="Bug10152_testTechServiceDelete">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+  	  <techservice.import file="${techService.import.file}" />
+      <clickElement xpath="//*[contains(@id, 'importForm:techServiceTable:0:techServiceId')]" />
+      <verifyXPath xpath="//*[contains(@class, 'scrollAuto contentPanel')]" />
+      <common.clickAndVerfyLink label="${techService.delete.title}" />
+      <setSelectField htmlId="selectForm:techServiceKey" text="Example 1.00" />
+  	  <storeXPath property="token" xpath="//input[@id='deleteForm:token']/@value" />
+  	  <storeXPath property="jsfViewState" xpath="//input[@id='javax.faces.ViewState']/@value" />
+      <clickButton htmlId="deleteForm:confirmedButton" />
+      <common.verifySuccess label="." />
+  	  <!-- Resend the request, mock "Press F5 to refresh the page" action -->
+  	  <invoke url="${supplierUrl}/techservice/delete.jsf" method="POST" content="deleteForm=deleteForm%26deleteForm%3AconfirmedButton=Delete%26deleteForm%3Atoken=#{token}%26javax.faces.ViewState=#{jsfViewState}" />
+  	  <not>
+  		<verifyXPath xpath="//dl[@id='errorMessages']//span[@class='rich-messages-label']" />
+  	  </not>
+    </webtest>
+  </target>
+</project>

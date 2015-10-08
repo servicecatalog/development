@@ -1,0 +1,166 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testStory3" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testStory3">
+    <webtest name="testStory3">
+      <mail.cleanInbox />
+
+      <!-- Supplier -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="story3localMP" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Global Marketplace" mIdProperty="story3globalMP" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${story3localMP}" />
+      <landingpage.setSortOrderForLandingpage mId="${story3globalMP}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey1" serviceId="ExampleTrial" name="Trial" marketplaceId="${story3localMP}" description="Trial description" concurrentUser="3" namedUser="2"/>
+      <setup:service.define serviceId="ExampleStarter" name="Starter" marketplaceId="${story3localMP}" description="Starter description"/>
+      <setup:service.define serviceId="ExampleProfessional" name="Professional" marketplaceId="${story3localMP}" description="Professional description"/>
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" description="Completely free"/>
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" description="Completely free"/>
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="false" description="Not free"/>
+
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="0" checked="true" concurrencyCheck="true" />
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="1" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="0" checked="true" concurrencyCheck="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="1" checked="true" />
+      <common.ignorePageScriptError />
+      <service.localize serviceId="ExampleStarter" name="Trial" description="Trial description" />
+      <service.localize serviceId="ExampleStarter" name="Starter" description="Starter description" />
+
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <service.deActivate rowNr="2" active="true" />
+
+      <customize.termsAndPrivacyPolicy mId="${story3globalMP}" />
+      <common.verifySuccess label="3.*1" />
+      <customize.texts file="data/story3.xls" label="10.*2" />
+      <common.clickAndVerfyLink label="${shop.translations.title}" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${story3globalMP}" />
+      <clickLink htmlId="exportForm:downloadButtonLink" />
+      <closeWindow />
+
+      <user.registerCustomer marketplaceId="${story3localMP}" userId="${common.userId}" />
+      <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+      <storeXPath description="Extract table index of created customer " xpath="substring(//span[normalize-space(text())='#{orgId}']/@id, string-length('managePayment:customerTable:0'), 1)" property="idx" />
+      <!-- activate at least one paymentType for the customer to allow entering a payment info -->
+      <setCheckbox htmlId="managePayment:customerTable:#{idx}:cust0" checked="true" />
+      <setCheckbox htmlId="managePayment:customerTable:#{idx}:cust2" checked="true" />
+      <!-- activate the same for the service -->
+      <setCheckbox htmlId="managePayment:serviceTable:0:service0" checked="true" />
+      <setCheckbox htmlId="managePayment:serviceTable:0:service2" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <login.logout />
+
+      <!-- Customer -->
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:subscription.create subId="Modified" marketplaceId="${story3localMP}" userIds="#{customerUserId}" serviceKey="${svcKey1}" />
+
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" password="${common.password}" />
+      <!-- Assign a service to the global marketplace and click on first on "Cancel" and then "OK" in the confirmation box. -->
+      <service.deActivate rowNr="0" active="false" />
+      <service.deActivate rowNr="1" active="false" />
+      <service.deActivate rowNr="2" active="false" />
+
+      <clickLink href="/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="ExampleStarter" />
+      <setSelectField htmlId="editForm:marketplace" value="${story3globalMP}" />
+      <clickElement htmlId="editForm:saveButton" />
+      <clickElement htmlId="confirmForm:cancelButton" />
+
+      <clickLink href="/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="ExampleStarter" />
+      <setSelectField htmlId="editForm:marketplace" value="${story3globalMP}" />
+      <clickElement htmlId="editForm:saveButton" />
+      <clickElement htmlId="confirmForm:okButton" />
+      <clickLink htmlId="confirmForm:okButton" />
+      <common.verifySuccess label="ExampleStarter" />
+
+      <!-- Now check that the services table in up/downgrade options of "ExampleStarter" is empty. -->
+      <clickLink href="/service/upgradeoptions.jsf" />
+      <setSelectField name="editForm:srcServiceId" text="ExampleStarter" />
+      <common.tableEmpty tableId="editForm:serviceTable" />
+      <setSelectField name="editForm:srcServiceId" text="ExampleTrial" />
+      <verifyCheckbox htmlId="editForm:serviceTable:0:selected" checked="true" />
+      <verifyXPath xpath="//td//span[@id='editForm:serviceTable:0:serviceId' and .='ExampleProfessional']" />
+      <login.logout />
+
+      <!-- Supplier -->
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" password="${common.password}" />
+
+      <!-- Register some subscription udas -->
+      <setup:udaDef.create numOfUdas="3" defaultValue="def" forCustomer="false" runAs="#{supplierUserKey}" />
+
+      <common.clickAndVerfyLink label="${subscription.view.title}" />
+      <clickElement xpath="//*[@id='subscriptionListForm:subscriptionsTable:subscriptionId']" />
+      <verifyElementText htmlId="viewForm:licensePanel" text="" regex="true" />
+
+      <!-- Edit customer udas -->
+      <udas.updateSubscriptionUda subscriptionId="Modified" newValue="value0" oldValueToCheck="def" rowNr="0" concurrencyCheck="true" />
+      <udas.updateSubscriptionUda subscriptionId="Modified" newValue="value1" oldValueToCheck="def" rowNr="1" />
+      <udas.updateSubscriptionUda subscriptionId="Modified" newValue="value2" oldValueToCheck="def" rowNr="2" />
+      <udas.updateSubscriptionUda subscriptionId="Modified" newValue="some completeley new with special characters: ?=)(/%$§" oldValueToCheck="value0" rowNr="0" />
+
+      <!-- Now delete the first uda definition ... -->
+      <setup:udaDef.delete udaIds="uda0" runAs="#{supplierUserKey}" />
+      <!-- ... and check that there is one instance deleted -->
+      <common.clickAndVerfyLink label="${subscription.view.title}" />
+      <udas.checkSubscriptionUdaCount subscriptionId="Modified" expectedCount="2" />
+
+      <service.deActivate rowNr="0" active="false" />
+      <service.deActivate rowNr="1" active="false" />
+      <service.deActivate rowNr="2" active="false" />
+
+      <service.delete serviceId="ExampleTrial" />
+      <service.delete serviceId="ExampleStarter" />
+      <service.delete serviceId="ExampleProfessional" />
+
+      <vat.enable />
+
+      <!-- add a country but don't enter a vat rate -->
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of country td elements." xpath="count(//td[contains(@id,&quot;vatForm:countryTable&quot;)])" property="num" propertyType="dynamic" />
+      <storeProperty name="idx" value="(#{num} / 2 )- 1" eval="true" />
+      <setSelectField htmlId="vatForm:countryTable:#{idx}:countrySelect" optionIndex="1" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="vatForm:saveButton"/>
+      <common.verifySuccess label="${info.vat.saved}" />
+
+      <vat.addCountryVat />
+      <vat.addCountryVat />
+      <vat.removeCountryVat />
+      <vat.updateCountryVat concurrencyCheck="true" />
+
+      <!-- add a customer but don't enter a vat rate -->
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of customer td elements." xpath="count(//td[contains(@id,&quot;vatForm:customerTable&quot;)])" property="num" propertyType="dynamic" />
+      <storeProperty name="idx" value="(#{num} / 2 )- 1" eval="true" />
+      <setSelectField htmlId="vatForm:customerTable:#{idx}:customerSelect" optionIndex="1" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="vatForm:saveButton"/>
+      <common.verifySuccess label="${info.vat.saved}" />
+
+      <vat.addCustomerVat />
+      <vat.removeCustomerVat />
+      <vat.disable />
+      <login.logout />
+    </webtest>
+  </target>
+
+</project>

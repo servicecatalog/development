@@ -1,0 +1,78 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="customize.texts">
+    <attribute name="file" />
+    <attribute name="label" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${shop.translations.title}" />
+      <!-- TODO adapt if not the first entry in the drop down should be selected -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" optionIndex="1" />
+      <setFileField htmlId="importForm:file" fileName="@{file}" />
+      <clickLink htmlId="importForm:uploadButtonLink" />
+      <common.verifySuccess label="@{label}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="customize.termsAndPrivacyPolicy">
+    <attribute name="mId" />
+    <attribute name="locale" default="en" />
+    <attribute name="terms" default="Terms" />
+    <attribute name="privacyPolicy" default="Privacy policy" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${shop.translations.title}" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{mId}" />
+      <setSelectField description="select locale" xpath="//*[@id='exportForm:srcLocale']" value="@{locale}" />
+      <common.setEditorValue htmlId="exportForm:terms" value="@{terms}" />
+      <common.setEditorValue htmlId="exportForm:privacypolicy" value="@{privacyPolicy}" />
+      <clickLink htmlId="exportForm:saveButtonLink" />
+      <common.reSetPageScriptError />
+    </sequential>
+  </macrodef>
+
+  <!-- set the imprint in the customize texts page -->
+  <macrodef name="customize.texts.setImprintUrl">
+    <attribute name="locale" />
+    <attribute name="url" />
+    <sequential>
+      <setSelectField description="select locale" xpath="//*[@id='exportForm:srcLocale']" text="@{locale}" />
+      <setInputField description="set url" htmlId="exportForm:imprint" value="@{url}" />
+      <clickLink description="save" htmlId="exportForm:saveButtonLink" />
+      <common.verifySuccess description="verify success" label="." />
+    </sequential>
+  </macrodef>
+
+  <!-- check the imprint in the customize texts page -->
+  <macrodef name="customize.texts.checkImprintUrl">
+    <attribute name="locale" />
+    <attribute name="url" />
+    <sequential>
+      <setSelectField description="select locale" xpath="//*[@id='exportForm:srcLocale']" text="@{locale}" />
+      <verifySelectField description="check locale" xpath="//*[@id='exportForm:srcLocale']" text="@{locale}" />
+      <verifyInputField description="check url" htmlId="exportForm:imprint" value="@{url}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Checks the imprint footer on the marketplace -->
+  <macrodef name="customize.texts.checkImprintFooter_mpl">
+    <attribute name="url" />
+    <attribute name="imprintText" default="${public.imprint.title}" />
+    <sequential>
+      <storeXPath description="retrieve url" xpath="//*[@id='imprintLink']/@href" property="imprintUrl" propertyType="dynamic" />
+      <verifyProperty description="check url" name="imprintUrl" text="@{url}" />
+
+      <storeXPath description="retrieve titel" xpath="//*[@id='imprintLink']/text()" property="imprintTitle" propertyType="dynamic" />
+      <verifyProperty description="check titel" name="imprintTitle" text="@{imprintText}" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- exist imprint footer -->
+  <macrodef name="customize.texts.existImprintFooter">
+    <sequential>
+      <verifyXPath description="exit footer" xpath="//span[@id='footer']//." />
+    </sequential>
+  </macrodef>
+
+</project>

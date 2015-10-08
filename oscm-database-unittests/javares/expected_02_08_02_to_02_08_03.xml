@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <RevenueShareModel tkey="6" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+  <Organization tkey="3" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="1" />
+  <MarketPlace tkey="10002" creationdate="1234" version="0" organization_tkey="3" marketplaceid="supplierMarketplace"
+    pricemodel_tkey="6" brokerpricemodel_tkey="6" resellerpricemodel_tkey="6" />
+  <Catalogentry tkey="10" version="0" marketplace_tkey="10002" />
+  <Categoryhistory tkey="1100" modType="ADD" modUser="1000" objkey="1000" objversion="0"
+    marketplaceobjkey="10004" categoryid="flower" />
+  <Categorytocatalogentryhistory tkey="2000" modType="ADD" modUser="1000" objkey="1189"
+    objversion="0" catalogentry_tkey="10" category_tkey="1000" />
+  <Categoryhistory tkey="1101" modType="DELETE" modUser="1000" objkey="1000" objversion="1"
+    marketplaceobjkey="10004" categoryid="flower" />
+  <Categorytocatalogentryhistory tkey="2001" modType="DELETE" modUser="1000" objkey="1189"
+    objversion="1" catalogentry_tkey="10" category_tkey="1000" />
+</dataset>
+  

@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- A role assignment is created for the user with the admin flag -->
+  <RoleAssignment tkey="1" user_tkey="10000" userrole_tkey="1" />
+  <!-- Every user from organization supplier must have role service manager -->
+  <RoleAssignment tkey="2" user_tkey="10002" userrole_tkey="2" />
+  <!-- Every user from organization technology provider must have role technology manager -->
+  <RoleAssignment tkey="3" user_tkey="10003" userrole_tkey="3" />
+  <!-- Every user from platform operator must have the roles platform operator, service manager and technology manager -->
+  <RoleAssignment tkey="4" user_tkey="10004" userrole_tkey="4" />
+</dataset>

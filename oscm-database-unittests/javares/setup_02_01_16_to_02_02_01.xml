@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1100" version="0" organizationid="SUPP0" name="SUPP0" registrationdate="1234" locale="de"/>
+  <organizationhistory tkey="1101" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2012-01-01 01:02:34" organizationId="orgId" registrationdate="0" />
+</dataset>

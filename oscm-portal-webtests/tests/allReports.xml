@@ -1,0 +1,57 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="allReports">
+  <import file="../macros/all.xml" />
+  <target name="allReports">
+    <macrodef name="report">
+      <attribute name="index" />
+      <sequential>
+        <login.login url="http://estpock2.dyn.lan.est.fujitsu.de:8180/oscm-portal/?oId=EST" userId="admin"
+          password="secret" />
+        <common.clickAndVerfyLink label="${organization.report.title}" />
+        <clickElement htmlId="reportsTable:@{index}:report" />
+        <retry maxcount="20">
+          <sleep seconds="1" />
+          <followFrame htmlId="reportFrame" />
+        </retry>
+        <verifyText description="Check header content in report frame." text="Showing page" />
+      </sequential>
+    </macrodef>
+    <webtest name="R0">
+      <report index="0" />
+    </webtest>
+    <webtest name="R1">
+      <report index="1" />
+    </webtest>
+    <webtest name="R2">
+      <report index="2" />
+    </webtest>
+    <webtest name="R3">
+      <report index="3" />
+    </webtest>
+    <webtest name="R4">
+      <report index="4" />
+    </webtest>
+    <webtest name="R5">
+      <report index="5" />
+    </webtest>
+    <webtest name="R6">
+      <report index="6" />
+    </webtest>
+    <webtest name="R7">
+      <report index="7" />
+    </webtest>
+    <webtest name="R8">
+      <report index="8" />
+    </webtest>
+    <webtest name="R9">
+      <report index="9" />
+    </webtest>
+    <webtest name="R10">
+      <report index="10" />
+    </webtest>
+    <webtest name="R11">
+      <report index="11" />
+    </webtest>
+  </target>
+</project>

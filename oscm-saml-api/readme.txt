@@ -1,0 +1,1 @@
+This project contains API for generating and parsing SAML authentication and authorization data.

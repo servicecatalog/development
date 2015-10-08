@@ -1,0 +1,562 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testWithTriggerDefinitions" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+  <target name="testWithTriggerDefinitions" depends="
+    testWithTriggerDefinitions_ACTIVATE_SERVICE,
+    testWithTriggerDefinitions_DEACTIVATE_SERVICE,
+    testWithTriggerDefinitions_REGISTER_CUSTOMER_FOR_SUPPLIER,
+    testWithTriggerDefinitions_SAVE_PAYMENT_CONFIGURATION,
+    testWithTriggerDefinitions_START_BILLING_RUN,
+    testTriggerManagement,
+    testManageTrigger_bug_8991
+    " />
+
+  <target name="testWithTriggerDefinitionsSetup">
+    <webtest name="testWithTriggerDefinitionsSetup">
+      <mail.cleanInbox />
+
+      <!-- Supplier -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePasswordAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />      
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="INVOICE" />
+
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExampleProfessional" name="Professional" description="Professional description" configurableChecked="true" concurrentUser="10" marketplaceId="${mId}" />
+      <setup:service.define serviceId="ExampleStarter" name="Starter" description="Starter description" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <service.defineMigrationOption srcServiceId="ExampleProfessional" trgServiceIndex="0" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="0" checked="true" />
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <!-- TriggerDefinitions for Technology Provider and Supplier -->
+  <target name="testWithTriggerDefinitions_ACTIVATE_SERVICE" depends="testWithTriggerDefinitionsSetup,testWithTriggerDefinitions_DEACTIVATE_SERVICE">
+    <webtest name="testWithTriggerDefinitions_ACTIVATE_SERVICE">
+
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="ACTIVATE_SERVICE" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <service.deActivate rowNr="0" active="true" suspended="true" />
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="false" />
+
+      <this.verifyStatusAndReject userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="false" />
+      <service.deActivate rowNr="0" active="true" suspended="true" />
+
+      <service.deActivate rowNr="0" active="true" reExecution="true" />
+	  <common.waitForJavaScript />
+      <this.verifyStatusAndApprove userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testWithTriggerDefinitions_DEACTIVATE_SERVICE" depends="testWithTriggerDefinitionsSetup">
+    <webtest name="testWithTriggerDefinitions_DEACTIVATE_SERVICE">
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="DEACTIVATE_SERVICE" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <service.deActivate rowNr="0" active="false" suspended="true" />
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+
+      <!--for bug 11060-->
+      <clickLink label="${organization.manageTriggers.title}" />
+      <clickElement htmlId="listForm:triggerDefinitionTable:0:displayName" />
+
+      <storeElementAttribute htmlId="editForm:type" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="editForm:targetType" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="editForm:target" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="editForm:suspendProcess" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="editForm:deleteButtonDisabled" attributeName="class" propertyName="class" />
+      <verifyProperty name="class" text="buttonDisabled" regex="true" />
+
+      <this.verifyStatusAndReject userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <service.deActivate rowNr="0" active="false" suspended="true" />
+
+      <service.deActivate rowNr="0" active="false" reExecution="true" />
+
+      <this.verifyStatusAndApprove userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <clickLink label="${service.activation.title}" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="false" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testWithTriggerDefinitions_REGISTER_CUSTOMER_FOR_SUPPLIER" depends="testWithTriggerDefinitionsSetup">
+    <webtest name="testWithTriggerDefinitions_REGISTER_CUSTOMER_FOR_SUPPLIER">
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="REGISTER_CUSTOMER_FOR_SUPPLIER" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer suspended="true" marketplaceId="${mId}" />
+      <this.verifyStatusAndReject userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <user.registerCustomer suspended="true" marketplaceId="${mId}" />
+
+      <user.registerCustomer reExecution="true" userId="#{uniqueUserId}" createUniqueId="false" marketplaceId="${mId}" />
+
+      <this.verifyStatusAndApprove userId="${supplierUserId}" url="${supplierUrl}" userKey="${supplierUserKey}" />
+
+      <clickLink label="${organization.editCustomer.title}" />
+      <!-- we only verify that there a two customers -->
+      <setSelectField name="selectForm:organizationId" optionIndex="2" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testWithTriggerDefinitions_SAVE_PAYMENT_CONFIGURATION" depends="testWithTriggerDefinitionsSetup,testWithTriggerDefinitions_REGISTER_CUSTOMER_FOR_SUPPLIER">
+    <webtest name="testWithTriggerDefinitions_SAVE_PAYMENT_CONFIGURATION">
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="SAVE_PAYMENT_CONFIGURATION" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink label="${organization.managePaymentEnablement.title}" />
+      <setCheckbox htmlId="managePayment:serviceTable:0:service0" checked="true" />
+      <setCheckbox htmlId="managePayment:customerTable:1:cust0" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" suspended="true" />
+      <verifyCheckbox htmlId="managePayment:serviceTable:0:service0" checked="false" />
+      <verifyCheckbox htmlId="managePayment:customerTable:1:cust0" checked="false" />
+
+      <!-- 1 service, 1 customers - only real changes, so no defaults -->
+      <this.verifyStatus rowNr="0" />
+      <this.verifyStatus rowNr="1" />
+      <login.logout />
+
+      <!-- reject all requests -->
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.clickQuickLink name="reject" back="0" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+      <mock.clickQuickLink name="reject" back="2" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:0:state" text="${TriggerProcessStatus.REJECTED}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:1:state" text="${TriggerProcessStatus.REJECTED}" />
+
+      <!-- delete entries in the trigger process table -->
+      <setCheckbox htmlId="editForm:triggerProcessTable:allCheckboxes" checked="true" />
+      <clickElement htmlId="editForm:deleteButtonLink" />
+
+      <clickLink label="${organization.managePaymentEnablement.title}" />
+      <!-- verify that the previously selected boxes are still unchecked -->
+      <verifyCheckbox htmlId="managePayment:serviceTable:0:service0" checked="false" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust0" checked="false" />
+      <!-- now configure payment again -->
+      <setCheckbox htmlId="managePayment:serviceTable:0:service1" checked="true" />
+      <setCheckbox htmlId="managePayment:customerTable:0:cust1" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" suspended="true" />
+      <verifyCheckbox htmlId="managePayment:serviceTable:0:service1" checked="false" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust1" checked="false" />
+
+      <setCheckbox htmlId="managePayment:serviceTable:0:service1" checked="true" />
+      <setCheckbox htmlId="managePayment:customerTable:0:cust1" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifyError label="${ex.OperationPendingException.SAVE_PAYMENT_CONFIGURATION}" />
+
+      <!-- 1 services, 1 customers - only real changes -->
+      <this.verifyStatus rowNr="0" />
+      <this.verifyStatus rowNr="1" />
+      <login.logout />
+
+      <!-- approve all requests -->
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.clickQuickLink name="approve" back="0" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+      <mock.clickQuickLink name="approve" back="2" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:0:state" text="${TriggerProcessStatus.APPROVED}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:1:state" text="${TriggerProcessStatus.APPROVED}" />
+      <clickLink label="${organization.managePaymentEnablement.title}" />
+
+      <!-- verify that payment configuration is saved -->
+      <verifyCheckbox htmlId="managePayment:serviceTable:0:service1" checked="true" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust1" checked="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testWithTriggerDefinitions_ActionsVisibility" description="Only administrators may see all actions of all users in the organization">
+      <!-- See Bug#8863 -->
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <verifyXPath xpath="//input[@id='editForm:filterProcessesChooser']" description="Verify that the 'myProcessesOnly' checkbox is shown for a administrator" />
+      <user.register userId="nonAdmin" isSvcMgr="true" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierNonAdminUserId" value="#{userId}" propertyType="ant" />
+      <login.initialLoginAndChangePasswordAsSupplier url="${supplierUrl}" userId="${supplierNonAdminUserId}" password="#{userPwd}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <not>
+        <verifyXPath xpath="//input[@id='selectForm:myProcessesOnly']" description="Verify that the 'myProcessesOnly' checkbox is not shown for a non-administrator" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testWithTriggerDefinitions_START_BILLING_RUN" depends="testWithTriggerDefinitionsSetup">
+    <webtest name="testWithTriggerDefinitions_START_BILLING_RUN">
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="START_BILLING_RUN" />
+
+      <operator.startBillingRun />
+
+      <sleep seconds="10" />
+      <mock.requestlog />
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <not>
+        <verifyElementText htmlId="logentry:#{requestCount}" text=".*NotificationService.billingPerformed.*" regex="true" />
+      </not>
+    </webtest>
+  </target>
+
+
+  <!-- TriggerDefinitions for Customer -->
+  <target name="setupForTestTriggerManagement">
+    <webtest name="setup_supplier">
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <operator.createMarketplace mIdProperty="mId2" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId2}" />      
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
+    </webtest>
+  </target>
+
+  <target name="testTriggerManagement" depends="setupForTestTriggerManagement">
+
+    <webtest name="testCreateTrigger">
+
+      <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+      <clickLink href="/organization/manageTriggers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+
+      <clickElement htmlId="listForm:hiddenAddButton" />
+      <verifySelectField htmlId="editForm:targetType" value="WEB_SERVICE" />
+      <verifyInputField htmlId="editForm:target" value="" />
+      <!-- check if delete button is disabled -->
+      <common.isButtonDisabled buttonId="editForm:deleteButton" />
+      <setInputField htmlId="editForm:target" value="http://test1.de" />
+      <setInputField htmlId="editForm:triggerName" value="Triggername" />
+      <setSelectField name="editForm:type" text="Subscribe to service" />
+      <setCheckbox htmlId="editForm:suspendProcess" checked="true" />
+      <clickElement htmlId="editForm:saveButton" />
+      <common.verifySuccess label="${info.triggerDefinition.created}" />
+      <!-- redirect to main page again -->
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <verifyXPath description="Trigger list should have a new entry" xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="triggers.updateTriggerDefinition">
+      <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+      <clickLink href="/organization/manageTriggers.jsf" />
+
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+
+      <verifyXPath description="Trigger list should have the entry" xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      <!-- select the entry for edit -->
+      <clickElement htmlId="listForm:triggerDefinitionTable:0:type" />
+      <!-- edit form and save again -->
+      <setInputField htmlId="editForm:target" value="http://updated.de" />
+      <setInputField htmlId="editForm:triggerName" value="updated" />
+      <not description="delete button should be enabled">
+        <common.isButtonDisabled buttonId="editForm:deleteButton" />
+      </not>
+      <clickElement htmlId="editForm:saveButton" />
+      <common.verifySuccess label="${info.triggerDefinition.saved}" />
+      <!--redirect to main page again -->
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <verifyXPath description="Trigger list should have the updated entry" xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      <verifyElementText htmlId="listForm:triggerDefinitionTable:0:displayName" text="updated" />
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="triggers.deleteTriggerDefinition">
+      <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+      <clickLink href="/organization/manageTriggers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+
+      <verifyXPath description="Trigger list should have the entry" xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      <verifyElementText htmlId="listForm:triggerDefinitionTable:0:displayName" text="updated" />
+      <!-- select the entry for delete -->
+      <clickElement htmlId="listForm:triggerDefinitionTable:0:displayName" />
+      <!-- edit form and click delete -->
+      <clickElement htmlId="editForm:deleteButton" />
+      <clickElement htmlId="confirmForm:okButton" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <common.verifySuccess label="${info.triggerDefinition.deleted}" />
+      <!--redirect to main page again -->
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <not>
+        <verifyXPath xpath="//*[@href='/oscm-portal/triggerprocess/list.jsf']" />
+      </not>
+      <not description="Trigger list is empty,the entity has been deleted">
+        <verifyXPath xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      </not>
+      <not description="add button should be enabled ">
+        <common.isButtonDisabled buttonId="listForm:addButton" />
+      </not>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageTrigger_AllowedTriggerTypes_Supplier">
+
+      <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+      <clickLink href="/organization/manageTriggers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+
+      <clickElement htmlId="listForm:addButton" />
+      <!-- verify correct content of select box for supplier -->
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='ACTIVATE_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='DEACTIVATE_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='REGISTER_CUSTOMER_FOR_SUPPLIER']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='SAVE_PAYMENT_CONFIGURATION']" />
+      <!-- verify correct content of select box for customer -->
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='SUBSCRIBE_TO_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='UNSUBSCRIBE_FROM_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='UPGRADE_SUBSCRIPTION']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='ADD_REVOKE_USER']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='MODIFY_SUBSCRIPTION']" />
+      <!-- verify correct content of select box for customer or supplier -->
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='START_BILLING_RUN']" />
+
+
+    </webtest>
+
+    <webtest name="testManageTrigger_AllowedTriggerTypes_Customer">
+      <!-- as supplier create a userOrganization -->
+      <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer userId="userA" marketplaceId="${mId2}" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customerUserA" value="#{userId}" />
+      <mpl_login.loginWithChangePassword mid="${mId2}" oldPassword="#{userPwd}" userId="#{userId}" />
+      <mpl_goto.account.processes />
+      <!-- test bug 11047 -->
+      <verifyXPath xpath="//span[@id='processListForm:abortProcessDisabled']/@class='buttonDisabled rightSpace'" />
+      <verifyXPath xpath="//span[@id='processListForm:deleteProcessDisabled']/@class='buttonDisabled rightSpace'" />
+      <verifyXPath xpath="//input[@id='processListForm:filterProcessesChooser']/@class='space'" />
+      
+      <common.clickAjaxLink htmlId="triggerDefinitionListForm:addTriggerDefinition" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <!-- verify correct content of select box for customer -->
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="SUBSCRIBE_TO_SERVICE" />
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="UNSUBSCRIBE_FROM_SERVICE" />
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="UPGRADE_SUBSCRIPTION" />
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="ADD_REVOKE_USER" />
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="MODIFY_SUBSCRIPTION" />
+      <!-- verify correct content of select box for customer or supplier -->
+      <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="START_BILLING_RUN" />
+
+      <!-- verify content of select box NOT containing supplier-only entries -->
+      <not>
+        <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="ACTIVATE_SERVICE" />
+      </not>
+      <not>
+        <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="DEACTIVATE_SERVICE" />
+      </not>
+      <not>
+        <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="REGISTER_CUSTOMER_FOR_SUPPLIER" />
+      </not>
+      <not>
+        <setSelectField htmlId="triggerDefinitionPanelForm:triggerType" value="SAVE_PAYMENT_CONFIGURATION" />
+      </not>
+    </webtest>
+
+    <webtest name="testManageTrigger_AllowedTriggerTypes_Operator">
+      <operatorLogin />
+      <clickLink href="/organization/manageTriggers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+
+      <clickElement htmlId="listForm:addButton" />
+      <!-- verify correct content of select box for customer -->
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='SUBSCRIBE_TO_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='UNSUBSCRIBE_FROM_SERVICE']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='UPGRADE_SUBSCRIPTION']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='ADD_REVOKE_USER']" />
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='MODIFY_SUBSCRIPTION']" />
+      <!-- verify correct content of select box for customer or supplier -->
+      <verifyXPath xpath="//*[@id='editForm:type']/option[@value='START_BILLING_RUN']" />
+
+      <!-- verify content of select box NOT containing supplier-only entries -->
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:type']/option[@value='ACTIVATE_SERVICE']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:type']/option[@value='DEACTIVATE_SERVICE']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:type']/option[@value='REGISTER_CUSTOMER_FOR_SUPPLIER']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:type']/option[@value='SAVE_PAYMENT_CONFIGURATION']" />
+      </not>
+    </webtest>
+  </target>
+
+  <target name="testManageTrigger_bug_8991">
+    <webtest name="testManageTrigger_concurrentModification">
+      <selectWebClient name="blue">
+        <login.loginAsSupplier url="${orgUrl}" userId="${supplierUserId}" />
+        <clickLink href="/organization/manageTriggers.jsf" />
+
+        <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+        <clickElement htmlId="listForm:addButton" />
+        <setInputField htmlId="editForm:target" value="http://trigger1.de" />
+        <setInputField htmlId="editForm:triggerName" value="trigger1" />
+        <setSelectField name="editForm:type" value="SUBSCRIBE_TO_SERVICE" />
+        <setCheckbox htmlId="editForm:suspendProcess" checked="true" />
+        <clickElement htmlId="editForm:saveButton" />
+        <common.verifySuccess label="${info.triggerDefinition.created}" />
+        <!-- select the entry for edit -->
+        <clickElement htmlId="listForm:triggerDefinitionTable:0:type" />
+        <!-- we should go to the second(edit) page -->
+        <setSelectField name="editForm:type" value="START_BILLING_RUN" />
+      </selectWebClient>
+
+      <selectWebClient name="red">
+        <!-- concurrently change trigger via read portal -->
+        
+        <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+        <common.ignorePageScriptError />
+        <mpl_goto.account.processes />
+        <common.reSetPageScriptError />
+        <clickElement xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/*[1]/*[1]//*[@id='editProcessTriggerImage']" />
+        <verifyXPath xpath="//*[@id='triggerDefinitionPanelRerenderPanel']" description="modalDialog is shown" />
+        <setSelectField name="triggerDefinitionPanelForm:triggerType" value="UNSUBSCRIBE_FROM_SERVICE" />
+
+        <clickButton label="Save" />
+
+        <mpl_verify.success label="${info.triggerDefinition.saved}" matchWithWildCard="false" />
+
+        <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:type']/text()" text="${TriggerType.UNSUBSCRIBE_FROM_SERVICE.enum}" />
+        <mpl_login.logout />
+      </selectWebClient>
+      <selectWebClient name="blue">
+        <clickElement htmlId="editForm:saveButton" />
+        <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+        <common.verifyError label="${ex.ConcurrentModificationException}" regex="false" />
+
+        <cleanup_trigger />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <!-- Local macro definitions -->
+
+  <macrodef name="this.verifyStatus">
+    <attribute name="rowNr" default="0" />
+    <sequential>
+      <clickLink label="${triggerProcess.list.title}" />
+      <ifStep>
+        <condition>
+          <verifyElementText htmlId="editForm:triggerProcessTable:@{rowNr}:state" text="${TriggerProcessStatus.INITIAL}" />
+        </condition>
+        <else>
+          <verifyElementText htmlId="editForm:triggerProcessTable:@{rowNr}:state" text="${TriggerProcessStatus.WAITING_FOR_APPROVAL}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.verifyStatusAndApprove">
+    <attribute name="userId" />
+    <attribute name="url" />
+    <attribute name="userKey" />
+    <attribute name="rowNr" default="0" />
+    <sequential>
+      <this.verifyStatus rowNr="@{rowNr}" />
+      <login.logout />
+      <trigger.approve userKey="@{userKey}" />
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:@{rowNr}:state" text="${TriggerProcessStatus.APPROVED}" />
+      <setCheckbox htmlId="editForm:triggerProcessTable:allCheckboxes" checked="true" />
+      <clickElement htmlId="editForm:deleteButtonLink" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.verifyStatusAndReject">
+    <attribute name="userId" />
+    <attribute name="url" />
+    <attribute name="userKey" />
+    <attribute name="rowNr" default="0" />
+    <attribute name="reason" default="I don't need any reason to reject this." />
+    <sequential>
+      <this.verifyStatus rowNr="@{rowNr}" />
+      <login.logout />
+      <trigger.reject userKey="@{userKey}" reason="@{reason}" />
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+      <clickLink label="${triggerProcess.list.title}" />
+      <verifyElementText htmlId="editForm:triggerProcessTable:@{rowNr}:state" text="${TriggerProcessStatus.REJECTED}" />
+      <setCheckbox htmlId="editForm:triggerProcessTable:allCheckboxes" checked="true" />
+      <clickElement htmlId="editForm:deleteButtonLink" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorLogin">
+    <sequential>
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <storeProperty name="orgId" value="PLATFORM_OPERATOR" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="cleanup_trigger">
+    <sequential>
+      <clickElement htmlId="listForm:triggerDefinitionTable:0:displayName" />
+      <clickElement htmlId="editForm:deleteButton" />
+      <clickLink htmlId="confirmForm:okButton" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <common.verifySuccess label="${info.triggerDefinition.deleted}" />
+    </sequential>
+  </macrodef>
+</project>

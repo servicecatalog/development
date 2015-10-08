@@ -1,0 +1,133 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails key="10001">
+  <Period endDate="1320102000000" endDateIsoFormat="2011-10-31T23:00:00.000Z" startDate="1317420000000"
+    startDateIsoFormat="2011-09-30T22:00:00.000Z"/>
+
+  <OrganizationDetails>
+    <Email>sven.kulle@est.fujitsu.com</Email>
+    <Name>fujitsu billing</Name>
+    <Address>street nr
+      zip city
+    </Address>
+    <Paymenttype>INVOICE</Paymenttype>
+  </OrganizationDetails>
+
+  <Subscriptions>
+    <Subscription id="Php Product (silver)" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="10001" calculationMode="PRO_RATA">
+          <UsagePeriod endDate="1320102000000" endDateIsoFormat="2011-10-31T23:00:00.000Z" startDate="1318491957323"
+            startDateIsoFormat="2011-10-13T07:45:57.323Z"/>
+
+          <GatheredEvents>
+            <Event id="USER_LOGOUT_FROM_SERVICE">
+              <Description xml:lang="en">Logout of a user from the service.</Description>
+              <Description xml:lang="ja">サービスからのユーザーのログアウト</Description>
+              <Description xml:lang="de">Abmeldung eines Benutzers von dem Service.</Description>
+              <SingleCost amount="0.001"/>
+              <NumberOfOccurrence amount="2"/>
+              <CostForEventType amount="0.002"/>
+            </Event>
+            <Event id="TEST">
+              <Description xml:lang="en">Test event</Description>
+              <SteppedPrices amount="0.80">
+                <SteppedPrice additionalPrice="0.00" basePrice="0.80" freeAmount="0" limit="1" 
+                  stepAmount="0.80" stepEntityCount="1"/>
+                <SteppedPrice additionalPrice="0.80" basePrice="0.00" freeAmount="1" limit="null"
+                  stepAmount="0.00" stepEntityCount="2"/>
+              </SteppedPrices>
+              <NumberOfOccurrence amount="3"/>
+              <CostForEventType amount="0.80"/>
+            </Event>
+            <Event id="USER_LOGIN_TO_SERVICE">
+              <Description xml:lang="en">Login of a user to the service.</Description>
+              <Description xml:lang="de">Anmeldung eines Benutzers bei dem Service.</Description>
+              <Description xml:lang="ja">サービスへのユーザーのログイン</Description>
+              <SingleCost amount="0.01"/>
+              <NumberOfOccurrence amount="2"/>
+              <CostForEventType amount="0.02"/>
+            </Event>
+            <GatheredEventsCosts amount="0.82"/>
+          </GatheredEvents>
+
+          <PeriodFee basePeriod="HOUR" basePrice="10.00" factor="447.23407694444444" price="4472.34"/>
+
+          <UserAssignmentCosts basePeriod="HOUR" factor="893.4891288888889" numberOfUsersTotal="2"
+            price="2.00">
+            <UserAssignmentCostsByUser factor="446.2570322222222" userId="user1"/>
+            <UserAssignmentCostsByUser factor="447.2320966666667" userId="admin"/>
+            <SteppedPrices amount="2.00">
+              <SteppedPrice additionalPrice="0.00" basePrice="2.00" freeAmount="0" limit="1" stepAmount="2.00"
+                stepEntityCount="1"/>
+              <SteppedPrice additionalPrice="2.00" basePrice="0.00" freeAmount="1" limit="null" stepAmount="0.00"
+                stepEntityCount="892.4891288888889"/>
+            </SteppedPrices>
+          </UserAssignmentCosts>
+
+          <OneTimeFee amount="299.00" baseAmount="299.00" factor="1"/>
+
+          <Parameters>
+            <Parameter id="NAMED_USER">
+              <ParameterUsagePeriod endDate="1320102000000" endDateIsoFormat="2011-10-31T23:00:00.000Z"
+                startDate="1318491957323" startDateIsoFormat="2011-10-13T07:45:57.323Z"/>
+              <ParameterValue amount="2" type="LONG"/>
+              <PeriodFee basePeriod="HOUR" basePrice="1.00" factor="447.23407694444444" price="894.47"
+                valueFactor="2.0"/>
+              <UserAssignmentCosts basePeriod="HOUR" basePrice="1.00" factor="447.2320966666667"
+                price="894.46" total="894.46" valueFactor="2.0">
+                <RoleCosts total="0.00">
+                  <RoleCost basePrice="0" factor="0.0" id="USER" price="0.00"/>
+                  <RoleCost basePrice="0" factor="447.2320966666667" id="GUEST" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="1788.93"/>
+            </Parameter>
+            <Parameter id="DISK_SPACE">
+              <ParameterUsagePeriod endDate="1320102000000" endDateIsoFormat="2011-10-31T23:00:00.000Z"
+                startDate="1318491957323" startDateIsoFormat="2011-10-13T07:45:57.323Z"/>
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+                <Option id="1">
+                  <PeriodFee basePeriod="HOUR" basePrice="1.00" factor="447.23407694444444" price="447.23"/>
+                  <UserAssignmentCosts basePeriod="HOUR" basePrice="10.00" factor="447.2320966666667"
+                    price="4472.32" total="4472.32">
+                    <RoleCosts total="0.00">
+                      <RoleCost basePrice="0" factor="0.0" id="USER" price="0.00"/>
+                      <RoleCost basePrice="0" factor="447.2320966666667" id="GUEST" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="4919.55"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="4919.55"/>
+            </Parameter>
+            <Parameter id="CONCURRENT_USER">
+              <ParameterUsagePeriod endDate="1320102000000" endDateIsoFormat="2011-10-31T23:00:00.000Z"
+                startDate="1318508172132" startDateIsoFormat="2011-10-13T12:16:12.132Z"/>
+              <ParameterValue amount="4" type="LONG"/>
+              <PeriodFee basePeriod="HOUR" factor="442.72996333333333" price="442.73" valueFactor="4.0">
+                <SteppedPrices amount="1.00">
+                  <SteppedPrice additionalPrice="0.00" basePrice="1.00" freeAmount="0" limit="1"
+                    stepAmount="1.00" stepEntityCount="1"/>
+                  <SteppedPrice additionalPrice="1.00" basePrice="0.00" freeAmount="1" limit="null"
+                    stepAmount="0.00" stepEntityCount="3"/>
+                </SteppedPrices>
+              </PeriodFee>
+              <UserAssignmentCosts basePeriod="HOUR" basePrice="1.00" factor="885.4547661111111"
+                price="3541.82" total="3541.82" valueFactor="4.0">
+                <RoleCosts total="0.00">
+                  <RoleCost basePrice="0" factor="0.0" id="USER" price="0.00"/>
+                  <RoleCost basePrice="0" factor="885.4547661111111" id="GUEST" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="3984.55"/>
+            </Parameter>
+            <ParametersCosts amount="8497.41"/>
+          </Parameters>
+          <PriceModelCosts amount="13718.80" currency="EUR" grossAmount="13718.80"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts currency="EUR" grossAmount="13718.80" netAmount="13718.80"/>
+</BillingDetails>

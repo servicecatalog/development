@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Web service unit tests" default="unittests" basedir=".">
+
+  <description>
+		Default build script for all projects. Projects that define their own
+		build files should import this build file and overwrite specific targets
+		only. Note that this script is always invoked from the build.xml master.
+	</description>
+  
+  <macrodef name="createtestreport">
+    <sequential>
+      <mkdir dir="${result.work.testreport.summary.dir}" />
+      <junitreport todir="${result.work.testreport.summary.dir}">
+        <fileset dir="${result.work.testreport.dir}">
+          <include name="*.xml" />
+        </fileset>
+        <report format="noframes" todir="${result.work.testreport.summary.dir}" />
+      </junitreport>
+    </sequential>
+  </macrodef>
+
+  <target name="_init">
+    <property name="result.log.dir" value="${basedir}/log" />
+    <property name="result.log.file" value="${result.log.dir}/wstests.log" />
+    <property name="result.work.testreport.dir" value="${result.log.dir}/report" />
+    <property name="result.work.testreport.summary.dir" value="${result.log.dir}/summary" />
+    <property name="lib.dir" value="${basedir}/../lib" />
+    <property name="bin.dir" value="${basedir}/../bin" />
+    <property name="javasrc.dir" value="${basedir}/../javasrc" />
+
+    <path id="ws-dependencies">
+      <fileset dir="${lib.dir}" includes="*.jar"/>
+      <fileset dir="${bin.dir}" includes="*.jar"/>
+    </path>
+
+    <mkdir dir="${result.log.dir}" />
+    <record action="start" name="${result.log.file}" />
+  </target>
+
+  <target name="unittests" depends="_init">
+    <mkdir dir="${result.work.testreport.dir}" />
+    <junit fork="yes" forkmode="once" dir="${basedir}">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <classpath refid="ws-dependencies" />
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.dir}">
+        <fileset dir="${javasrc.dir}">
+          <include name="**/*Test.java" />
+          <include name="**/*Test?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <createtestreport />
+  </target>
+
+
+</project>

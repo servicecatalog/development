@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>mock-psp-service</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+    <welcome-file>index.htm</welcome-file>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>default.html</welcome-file>
+    <welcome-file>default.htm</welcome-file>
+    <welcome-file>default.jsp</welcome-file>
+  </welcome-file-list>
+  <servlet>
+    <description></description>
+    <display-name>PSPMockService</display-name>
+    <servlet-name>PSPMockService</servlet-name>
+    <servlet-class>org.oscm.mockpsp.servlet.PSPMockService</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PSPMockService</servlet-name>
+    <url-pattern>/PSPMockService</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>PSPMockRegistrationEntry</display-name>
+    <servlet-name>PSPMockRegistrationEntry</servlet-name>
+    <servlet-class>org.oscm.mockpsp.servlet.PSPMockRegistrationEntry</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PSPMockRegistrationEntry</servlet-name>
+    <url-pattern>/PSPMockRegistrationEntry</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>PSPMockDeregistration</display-name>
+    <servlet-name>PSPMockDeregistration</servlet-name>
+    <servlet-class>org.oscm.mockpsp.servlet.PSPMockDeregistration</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PSPMockDeregistration</servlet-name>
+    <url-pattern>/PSPMockDeregistration</url-pattern>
+  </servlet-mapping>
+</web-app>

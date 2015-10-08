@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <Paymenttype tkey="1" version="0" collectiontype="PAYMENT_SERVICE_PROVIDER" paymenttypeid="CREDIT_CARD" />
+  <Paymenttype tkey="2" version="0" collectiontype="PAYMENT_SERVICE_PROVIDER" paymenttypeid="DIRECT_DEBIT" />
+  <Paymenttype tkey="3" version="0" collectiontype="ORGANIZATION" paymenttypeid="INVOICE" />
+
+  <Organization tkey="100" version="0" organizationid="TestOrgA" registrationdate="1234" />
+  <Organization tkey="200" version="0" organizationid="TestOrgB" registrationdate="1234" />
+  <Organization tkey="300" version="0" organizationid="TestOrgC" registrationdate="1234" />
+
+  <OrganizationReference tkey="10" version="1" targetkey="300" sourcekey="100" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationRefToPaymentType tkey="999" version="1" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="10" paymenttype_tkey="3" />
+  <PaymentInfo tkey="44" version="1" paymenttype_tkey="3" organization_tkey="300" paymentinfoid="INVOICE" />
+  <PaymentInfoHistory tkey="28" objkey="44" objversion="1" modtype="ADD" moduser="Admin"
+    paymenttypeobjkey="3" organizationobjkey="300" paymentinfoid="INVOICE" />
+  <PaymentInfoHistory tkey="29" objkey="44" objversion="2" modtype="MODIFY" moduser="Admin"
+    paymenttypeobjkey="3" organizationobjkey="300" paymentinfoid="INVOICE" />
+
+  <OrganizationReference tkey="11" version="1" targetkey="200" sourcekey="100" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationRefToPaymentType tkey="1000" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="11" paymenttype_tkey="1" />
+  <PaymentInfo tkey="45" version="1" paymenttype_tkey="1" organization_tkey="200" paymentinfoid="CREDIT_CARD"
+    externalidentifier="externalidentifier" providername="unknown" accountnumber="********" />
+  <PaymentInfoHistory tkey="30" objkey="45" objversion="1" modtype="ADD" moduser="Admin"
+    paymenttypeobjkey="1" organizationobjkey="200" paymentinfoid="CREDIT_CARD" externalidentifier="externalidentifier"
+    providername="unknown" accountnumber="********" />
+
+  <!-- the created invoice payments... -->
+  <PaymentInfo tkey="46" version="1" paymenttype_tkey="3" paymentinfoid="INVOICE" organization_tkey="100" />
+  <PaymentInfo tkey="47" version="1" paymenttype_tkey="3" paymentinfoid="INVOICE" organization_tkey="200" />
+  <!-- ...and their history entries -->
+  <PaymentInfoHistory tkey="31" objkey="46" objversion="1" modtype="ADD" moduser="ANONYMOUS"
+    paymenttypeobjkey="3" organizationobjkey="100" paymentinfoid="INVOICE" />
+  <PaymentInfoHistory tkey="32" objkey="47" objversion="1" modtype="ADD" moduser="ANONYMOUS"
+    paymenttypeobjkey="3" organizationobjkey="200" paymentinfoid="INVOICE" />
+
+  <BillingContact tkey="257" address="Nirvana 1" companyname="Customer 1"
+    email="someverylongemailadresslongerthanfourtycharacters@someverylonghost.de" orgaddressused="false" version="0"
+    organization_tkey="100" billingcontactid="someverylongemailadresslongerthanfourtyc" />
+  <BillingContactHistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" email="myAdress@test.com" orgaddressused="0" organizationobjkey="100" invocationDate="2011-01-01 01:02:34"
+    billingcontactid="myAdress@test.com" />
+
+  <TechnicalProduct tkey="1" technicalproductid="tpid1" version="0" provisioningurl="url"
+    organizationkey="100" />
+  <Product tkey="12" version="0" productid="pid12" provisioningdate="1234" status="ACTIVE" supplierkey="100"
+    technicalproduct_tkey="1" />
+  <Subscription tkey="1" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0" version="0"
+    organizationkey="200" product_tkey="12" paymentinfo_tkey="45" billingcontact_tkey="257" />
+
+</dataset>

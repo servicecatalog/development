@@ -1,0 +1,24 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:f="http://java.sun.com/jsf/core" xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+  <c:choose>
+    <c:when test="#{empty preview}">
+      <h:commandLink style="font-size:#{tag.weight}px;" disabled="false" id="cloudlink#{status.index}" styleClass="tagCloud tag" value="" action="#{serviceListingBean.showServiceList}">
+        <f:setPropertyActionListener target="#{servicePagingBean.filterTag}" value="#{tag.language},#{tag.name}" />
+        <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}" value="" />
+        <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}" value="" />
+        <h:outputText value="#{tag.name}" escape="true" />
+      </h:commandLink>
+    </c:when>
+    <c:otherwise>
+      <h:outputLink style="font-size:#{tag.weight}px;" disabled="true" id="cloudlink#{status.index}" styleClass="tagCloud tag preview" value="">
+        <h:outputText value="#{tag.name}" escape="true" />
+      </h:outputLink>
+    </c:otherwise>
+  </c:choose>
+  
+  <h:outputText value=" " />
+  
+</ui:composition>

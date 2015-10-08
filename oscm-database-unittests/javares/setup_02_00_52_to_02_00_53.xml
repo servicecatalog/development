@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="TP1" name="TP1" registrationdate="1234" locale="EN"/>
+  <Organization tkey="2" version="0" organizationid="TP2" name="TP2" registrationdate="1234" locale="EN"/>
+  <Organization tkey="3" version="0" organizationid="TP3" name="TP3" registrationdate="1234" locale="EN"/>
+  <Organization tkey="4" version="0" organizationid="TP4" name="TP4" registrationdate="1234" locale="EN"/>
+  <Organization tkey="5" version="0" organizationid="TP5" name="TP5" registrationdate="1234" locale="EN"/>
+  <Organization tkey="6" version="0" organizationid="TP6" name="TP6" registrationdate="1234" locale="EN"/>
+
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER"/>
+  <OrganizationRole tkey="2" version="0" rolename="TECHNOLOGY_PROVIDER"/>
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER"/>
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR"/>
+
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="2" version="0" organization_tkey="2" organizationrole_tkey="2"/>
+  <OrganizationToRole tkey="3" version="0" organization_tkey="3" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="4" version="0" organization_tkey="4" organizationrole_tkey="4"/>
+  <OrganizationToRole tkey="5" version="0" organization_tkey="5" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="6" version="0" organization_tkey="5" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="7" version="0" organization_tkey="6" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="8" version="0" organization_tkey="6" organizationrole_tkey="2"/>
+
+</dataset>

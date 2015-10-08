@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- Setup platform operator org. After the execution of the script the new role should have been assigned to this org -->
+  <Organization tkey="1" version="0" organizationid="PLATFORM_OPERATOR" registrationdate="1234" />
+
+  <!-- This resources should be removed by the db script -->
+  <LocalizedResource tkey="10" locale="en" objectkey="1" objecttype="MARKETPLACE_DESCRIPTION" value="Fujitsu Marketplacejaja"
+    version="0" />
+  <LocalizedResource tkey="11" locale="de" objectkey="1" objecttype="MARKETPLACE_DESCRIPTION" value="Fujitsu Marktplatz"
+    version="0" />
+  <LocalizedResource tkey="12" locale="ja" objectkey="1" objecttype="MARKETPLACE_DESCRIPTION" value="Fujitsu Marketplace"
+    version="0" />
+
+</dataset>

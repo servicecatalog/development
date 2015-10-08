@@ -1,0 +1,216 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCaseOperator" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="init">
+    <webtest name="setupSupplierAndTechnicalService">
+      <mail.cleanInbox />
+
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="supplierId" value="#{orgId}" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <techservice.import file="${techService.import.file}" />
+      <property name="serviceIdAndName" value="ExampleService" />
+      <setup:service.define svcKeyProperty="svcKey1" serviceId="${serviceIdAndName}" name="${serviceIdAndName}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+  
+  <target name="testBadCaseOperator" depends="init">
+
+    <webtest name="testBadCaseOperator_SaveTriggerDefinitionTarget">
+      <operatorPortal.login />
+      <operatorPortal.createOrganization />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <operatorPortal.login />
+      <clickLink href="/organization/manageTriggers.jsf" />
+	  <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <clickElement htmlId="listForm:addButton" />  
+      <clickElement htmlId="listForm:hiddenAddButton" />
+      <setSelectField htmlId="editForm:type" optionIndex="1" />
+      <storeProperty name="fieldId" value="editForm:target" propertyType="dynamic" />
+      <storeProperty name="fieldType" value="URL" propertyType="dynamic" />
+      <storeProperty name="required" value="true" propertyType="dynamic" />
+      <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${saveTriggerDefinitionTarget.att0}"/>
+        <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseOperator_ExportBillingData">
+      <operatorPortal.login />
+      <dataDriven tableContainer="data/pageFields/operatorExportBillingDataFields.xls">
+        <clickLink href="/operator/exportBillingData.jsf" />
+        <!-- set required fields to a valid value - otherwise validation will fail already for 
+            this field when testing the other ones -->
+        <setInputField htmlId="getBillingData:organizationIdInput" value="0987654" />
+        <setInputField htmlId="getBillingData:fromDateInputDate" value="1/1/2011" />
+        <setInputField htmlId="getBillingData:toDateInputDate" value="1/2/2011" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+      	<storeProperty name="errorId" value="${errorId}" propertyType="dynamic" />
+        <ifStep>
+          <condition>
+            <verifyProperty description="Check if calendar is used" name="fieldType" text="CALENDAR" />
+          </condition>
+          <then>
+            <!-- special handling for calendar fields - if the calendar field gets the id 'a' then the error message field is 
+              'aErrorMsg' but the input that is rendered gets the id 'aInputDate' because the date picker itself gets the id 'a' -->
+            <ifStep description="Test if required" test="#{required}">
+              <this.testFieldValidation fieldId="#{fieldId}InputDate" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="getBillingData:hiddenBillingDataButton" errorFieldId="getBillingData:organizationId" />
+            </ifStep>
+            <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+              <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${operatorExportBillingDataFields.att0}"/>
+              <this.testFieldValidation fieldId="#{fieldId}InputDate" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="getBillingData:hiddenBillingDataButton" errorFieldId="#{fieldId}" />
+            </dataDriven>
+          </then>
+          <else>
+            <ifStep description="Test if required" test="#{required}">
+              <this.testFieldValidation fieldId="#{fieldId}" errorId="#{errorId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="getBillingData:hiddenBillingDataButton" />
+            </ifStep>
+            <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+              <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+              <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="getBillingData:hiddenBillingDataButton" />
+            </dataDriven>
+          </else>
+        </ifStep>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseOperator_CreateOrganization_OperatorRevenueShare">
+      <operatorPortal.login />
+      <clickLink href="/operator/createOrganization.jsf" />
+      <user.createUniqueName userId="${common.userId}" />
+
+      <dataDriven tableContainer="data/pageFields/operatorCreateOrganizationFields.xls">
+
+        <!-- set all mandatory fields to valid input -->
+        <setInputField htmlId="editForm:administratorEmail" value="${common.email}" />
+        <setInputField htmlId="editForm:administratorUserId" value="#{uniqueUserId}" />
+        <setSelectField htmlId="editForm:administratorLocale" value="en" />
+        <setSelectField htmlId="editForm:organizationCountry" value="DE" />
+        <setInputField htmlId="editForm:organizationName" value="${test.organization.name}" />
+        <setInputField htmlId="editForm:organizationAddress" value="${test.organization.address}" />
+        <setInputField htmlId="editForm:organizationEmail" value="${common.email}" />
+        <setInputField htmlId="editForm:organizationPhone" value="${test.organization.phone}" />
+        <setInputField htmlId="editForm:organizationUrl" value="${test.organization.url}" />
+        <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="true" />
+        <setCheckbox htmlId="editForm:checkboxRoleTechnologyProvider" checked="false" />
+        <setCheckbox htmlId="editForm:checkboxRoleBroker" checked="false" />
+        <setCheckbox htmlId="editForm:checkboxRoleReseller" checked="false" />
+        <setInputField htmlId="editForm:operatorRevenueShare" value="${test.supplier.operatorrevenueshare}" />
+
+        <storeProperty name="fieldName" value="${Name}" propertyType="dynamic" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="fieldRequired" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="check if field is mandatory" test="#{fieldRequired}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+    
+    <webtest name="testBadCaseOperator_ManageOrganization">
+      <operatorPortal.login />
+      <dataDriven tableContainer="data/pageFields/operatorManageOrganizationFields.xls">
+        <clickLink href="/operator/manageOrganizations.jsf" />
+        <operatorPortal.manageOrganizationSelectOrg orgId="${supplierId}" />
+        
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="fieldRequired" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="check if field is mandatory" test="#{fieldRequired}">
+          <common.testFieldValidation fieldId="#{fieldId}" buttonLinkId="manageOrganizationsForm:hiddenSaveButton" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" buttonLinkId="manageOrganizationsForm:hiddenSaveButton" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+    
+    <webtest name="testBadCaseOperator_ManageOperatorRevenueShare" >
+      <operatorPortal.login />
+      <dataDriven tableContainer="data/pageFields/operatorManageOperatorRevenueShareFields.xls">
+        <clickLink href="/operator/manageOperatorRevenueShare.jsf" />
+        <setSelectField htmlId="selectForm:templateKey" value="${svcKey1}" />
+        
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="fieldRequired" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="check if field is mandatory" test="#{fieldRequired}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+	
+  <macrodef name="this.testFieldValidation">
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <attribute name="error" />
+    <attribute name="buttonLabel" default="${button.save}" />
+    <attribute name="buttonLinkId" default="true" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <attribute name="errorId" default="errorMessages" />
+    <attribute name="topErrorMessage" default="true" />
+    <attribute name="steppedPrice" default="false" />
+    <attribute name="regex" default="true" />
+
+	<sequential>
+	  <setInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+
+	  <ifStep description="If htmlid for save link is set" test="@{buttonLinkId}">
+	    <then>
+	      <clickButton label="@{buttonLabel}" />
+	    </then>
+	    <else>
+	    <ifStep description="Is stepped price" test="@{steppedPrice}">
+	      <clickButton label="@{buttonLabel}" />
+	    </ifStep>
+	    <clickElement htmlId="@{buttonLinkId}" />
+	    </else>
+	  </ifStep>
+
+	  <ifStep test="@{topErrorMessage}" description="If the error message can be displayed on the top">
+	    <then description="test both of the beside of field and the top message">
+	      <ifStep>
+	        <condition>
+	          <common.verifyFieldError fieldId="@{errorId}" label="@{error}" regex="@{regex}" />
+	        </condition>
+	        <else>
+	          <common.verifyError label="${error.text.fields}" errorFieldId="@{errorFieldId}" regex="@{regex}" />
+	        </else>
+	      </ifStep>
+	    </then>
+	    <else description="test only the beside of field">
+	      <common.verifyFieldError fieldId="@{errorId}" label="@{error}" regex="@{regex}" />
+	    </else>
+	  </ifStep>
+	</sequential>
+  </macrodef>
+</project>

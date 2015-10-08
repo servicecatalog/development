@@ -1,0 +1,174 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.manageUdas" />
+  </ui:define>
+
+  <ui:define name="body">
+      <!-- UDAs for customers -->
+      <h:form id="udaDefinitionsCustomerForm">
+        <adm:outputStep value="#{msg['organization.manageUdas.customer.title']}" />
+        <a4j:outputPanel layout="block" styleClass="tablePanel">
+          <adm:dataTable tableId="customerUdaTable" value="#{manageUdaDefinitionBean.customerUdas}" var="cumstomerUda"
+            columnsWidth="10%,20%,0*,10%,10%" height="#{sessionBean.tableHeightMap[290]/2}px"
+            emptyText="#{msg['organization.manageUdas.noData']}" label="#{msg['organization.manageUdas.table.header']}">
+
+            <rich:column style="text-align:center">
+              <f:facet name="header" style="text-align:center">
+                <h:outputText value="#{msg['button.edit']}" />
+              </f:facet>
+              <a4j:commandLink id="editCustomerUdaLink" 
+                oncomplete="#{rich:component('updateCustomUda')}.show()" render="updateUdaIdInput,updateUdaDefaultValueInput,updateUdaUserOptionCheckBox,updateUdaMandatoryCheckBox">
+                <h:graphicImage value="../img/transparentPixel.png" styleClass="editPen" />
+                <f:setPropertyActionListener value="CUSTOMER" target="#{manageUdaDefinitionBean.udaType}" />
+                <f:setPropertyActionListener value="#{rowKey}" target="#{manageUdaDefinitionBean.currentUdaIndex}" />
+              </a4j:commandLink>
+              <adm:message id="udaEditErrorMsg" for="udaEdit" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.udaId']}" />
+              </f:facet>
+              <h:outputText id="udaId" value="#{rowItem.udaId}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+              <adm:message id="udaIdErrorMsg" for="udaId" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.defaultValue']}" />
+              </f:facet>
+              <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
+                required="#{!empty param['udaDefinitionsCustomerForm:confirmedButton'] and empty param[checkboxId]}"
+                maxlength="#{appBean.descriptionLen}" />
+              <adm:message id="defaultValueErrorMsg" for="defaultValue" />
+            </rich:column>
+
+            <!-- User Option -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.userOption']}" />
+              </f:facet>
+              <h:graphicImage id="isUserOption" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.userOption}" />
+              <!-- <h:selectBooleanCheckbox value="TRUE" id="isUserOption" disabled="true" /> -->
+              <adm:message id="userOptionMsg" for="isUserOption" />
+            </rich:column>
+
+            <!-- Mandatory -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.mandatory']}" />
+              </f:facet>
+              <h:graphicImage id="isMandatory" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.mandatory}" />
+              <adm:message id="mandatoryMsg" for="isMandatory" />
+            </rich:column>
+          </adm:dataTable>
+        </a4j:outputPanel>
+
+        <adm:buttonPanel>
+          <a4j:commandButton style="display:none;" id="createUdaHiddenButton"
+            oncomplete="#{rich:component('createCustomUda')}.show()">
+            <f:setPropertyActionListener value="CUSTOMER" target="#{manageUdaDefinitionBean.udaType}" />
+          </a4j:commandButton>
+
+          <adm:buttonCustomizedOnClick id="createDefinition" value="#{msg['button.add']}" buttonType="add"
+            onclick="#{rich:element('udaDefinitionsCustomerForm:createUdaHiddenButton')}.click();" />
+        </adm:buttonPanel>
+      </h:form>
+
+      <!-- UDAs for subscriptions -->
+      <h:form id="udaDefinitionsSubscriptionForm">
+        <adm:outputStep value="#{msg['organization.manageUdas.subscription.title']}" />
+        <a4j:outputPanel layout="block" styleClass="tablePanel">
+          <adm:dataTable tableId="subscriptionUdaTable" value="#{manageUdaDefinitionBean.subscriptionUdas}"
+            var="subscriptionUda" columnsWidth="10%,20%,0*,10%,10%" height="#{sessionBean.tableHeightMap[290]/2}px"
+            emptyText="#{msg['organization.manageUdas.noData']}" label="#{msg['organization.manageUdas.table.header']}">
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['button.edit']}" />
+              </f:facet>
+              <a4j:commandLink id="editSubscriptionUdaLink"
+                oncomplete="#{rich:component('updateCustomUda')}.show()" render="updateUdaIdInput,updateUdaDefaultValueInput,updateUdaUserOptionCheckBox,updateUdaMandatoryCheckBox">
+                <h:graphicImage value="../img/transparentPixel.png" styleClass="editPen" />
+                <f:setPropertyActionListener value="CUSTOMER_SUBSCRIPTION" target="#{manageUdaDefinitionBean.udaType}" />
+                <f:setPropertyActionListener value="#{rowKey}" target="#{manageUdaDefinitionBean.currentUdaIndex}" />
+              </a4j:commandLink>
+              <adm:message id="udaEditErrorMsg" for="udaEdit" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.udaId']}" />
+              </f:facet>
+              <h:outputText id="udaId" value="#{rowItem.udaId}" styleClass="fieldS" maxlength="#{appBean.idLen}" />
+              <adm:message id="udaIdErrorMsg" for="udaId" />
+            </rich:column>
+
+            <rich:column>
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.defaultValue']}" />
+              </f:facet>
+              <h:outputText id="defaultValue" value="#{rowItem.defaultValue}" styleClass="field"
+                required="#{!empty param['udaDefinitionsSubscriptionForm:confirmedButton'] and empty param[checkboxId]}"
+                maxlength="#{appBean.descriptionLen}" />
+              <adm:message id="defaultValueErrorMsg" for="defaultValue" />
+            </rich:column>
+
+            <!-- User Option -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.userOption']}" />
+              </f:facet>
+              <h:graphicImage id="isUserOption" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.userOption}" />
+              <!-- <h:selectBooleanCheckbox value="TRUE" id="isUserOption" disabled="true" /> -->
+              <adm:message id="userOptionMsg" for="isUserOption" />
+            </rich:column>
+
+            <!-- Mandatory -->
+            <rich:column style="text-align:center">
+              <f:facet name="header">
+                <h:outputText value="#{msg['udaDefinition.mandatory']}" />
+              </f:facet>
+              <h:graphicImage id="isMandatory" value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.mandatory}" />
+              <adm:message id="mandatoryMsg" for="isMandatory" />
+            </rich:column>
+          </adm:dataTable>
+        </a4j:outputPanel>
+
+        <adm:buttonPanel>
+          <a4j:commandButton style="display:none;" id="createUdaHiddenButton"
+            oncomplete="#{rich:component('createCustomUda')}.show()">
+            <f:setPropertyActionListener value="CUSTOMER_SUBSCRIPTION" target="#{manageUdaDefinitionBean.udaType}" />
+          </a4j:commandButton>
+
+          <adm:buttonCustomizedOnClick id="createDefinition" value="#{msg['button.add']}" buttonType="add"
+            onclick="#{rich:element('udaDefinitionsSubscriptionForm:createUdaHiddenButton')}.click();" />
+        </adm:buttonPanel>
+     
+
+      <adm:spacer height="14" />
+
+    </h:form>
+
+      <ui:include src="createUdaDefinition.xhtml">
+        <ui:param name="dialogId" value="createCustomUda" />
+        <ui:param name="dialogHeight" value="260" />
+        <ui:param name="dialogWidth" value="500" />
+      </ui:include>
+
+      <ui:include src="updateUdaDefinition.xhtml">
+        <ui:param name="dialogId" value="updateCustomUda" />
+        <ui:param name="dialogHeight" value="260" />
+        <ui:param name="dialogWidth" value="500" />
+      </ui:include>
+    </ui:define>
+
+</ui:composition>

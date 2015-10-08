@@ -1,0 +1,41 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+<h:head>
+<ui:insert name="pageId" />
+</h:head>
+
+<h:body style="width: 100%; margin: 0;">
+	<a4j:outputPanel id="rpErrorPanel" layout="block" styleClass="rich-panel-header">
+		<c:set var="msgKey" value="#{pageId}.title" />
+		<h2 style="padding-left: 10px;">
+			<h:graphicImage value="/img/error.png" style="vertical-align:middle;" />
+			<h:outputText id="rpErrorMessage" value=" #{msg[msgKey]}" style="vertical-align:top;" />
+		</h2>
+	</a4j:outputPanel>
+
+	<rich:panel style="border:none;">
+		<a4j:outputPanel id="rpErrorPage" layout="block">
+			<h3>
+				<c:choose>
+					<c:when test="#{empty param['errorcode']}">
+						<h:outputFormat value="#{msg['error.cssConnection']}" />
+					</c:when>
+
+					<c:otherwise>
+						<h:outputFormat value="#{msg['error.reverseproxy.message']}">
+							<f:param value="#{param['errorcode']}" />
+						</h:outputFormat>
+					</c:otherwise>
+				</c:choose>
+			</h3>
+		</a4j:outputPanel>
+	</rich:panel>
+</h:body>
+
+</html>

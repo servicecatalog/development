@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Catalogentry tkey="1" marketplace_tkey="10" version="0" position="1" anonymousvisible="true"
+    organization_tkey="1" />
+
+  <CatalogentryHistory tkey="30" modtype="t1" moduser="u1" objkey="1" objversion="0" position="1"
+    anonymousvisible="true" marketplaceobjkey="10" />
+
+  <CatalogentryHistory tkey="31" modtype="t1" moduser="u1" objkey="1" objversion="0" position="1"
+    anonymousvisible="true" marketplaceobjkey="11" />
+
+</dataset>

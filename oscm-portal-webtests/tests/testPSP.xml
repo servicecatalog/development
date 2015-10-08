@@ -1,0 +1,310 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- ########################################################################### -->
+<!-- This webtest tests the operator psp functionality, like:                    -->
+<!-- 'Create service payment provider' and 'Manage payment service provider'     -->
+<!-- ########################################################################### -->
+
+<project default="runAllPspTests">
+  <import file="../macros/all.xml" />
+  <target name="runAllPspTests" depends="create_psp,manage_psp" />
+
+
+
+  <!-- Tests for the 'create psp dialog' from the operation menu entry -->
+  <target name="create_psp">
+
+    <!-- checks all the lables -->
+    <webtest name="testCreatePSP_checkLabels">
+      <operatorPortal.login />
+      <clickLink href="/operator/createPSP.jsf" />
+
+      <verifyElementText htmlId="pagelabel" text="${operator.createPSP.title}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='descriptionPanel']//text())" text="${operator.createPSP.description}" />
+
+      <verifyElementText htmlId="editForm:idCreatePsp" text="${operator.createPSP.label}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='editForm:labelpspIdentifier']/text())" text="${operator.createPSP.identifier}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='editForm:labelpspWsdl']/text())" text="${operator.createPSP.wsdl}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='editForm:labelpspDistinguishedName']/text())" text="${operator.createPSP.distinguishedName}" />
+
+      <login.logout />
+    </webtest>
+
+
+    <!-- all fiels should initially be empty -->
+    <webtest name="testCreatePSP_checkInitialEmptyFields">
+      <operatorPortal.login />
+      <clickLink href="/operator/createPSP.jsf" />
+
+      <verifyInputField htmlId="editForm:pspIdentifier" value="" />
+      <verifyInputField htmlId="editForm:pspWsdl" value="" />
+      <verifyTextarea htmlId="editForm:pspDistinguishedName" text="" />
+
+      <login.logout />
+    </webtest>
+
+
+    <!-- fill mandatory fields with valid data -->
+    <webtest name="testCreatePSP_verifyMandatoryFields">
+      <operatorPortal.login />
+      <clickLink href="/operator/createPSP.jsf" />
+
+      <timestamp name="suffix_timestamp" />
+      <storeProperty name="pspid" value="pspIdentifier_${suffix_timestamp}" />
+      <setInputField htmlId="editForm:pspIdentifier" value="#{pspid}" />
+      <setInputField htmlId="editForm:pspWsdl" value="http://localhost/pathtowsdl?wsdl" />
+      <setInputField htmlId="editForm:pspDistinguishedName" value="some text" />
+
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.handleMessageParameters property="msg" value="${info.psp.created}" att0="#{pspid}" />
+      <common.verifySuccess label="#{msg}" />
+
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="testCreatePSP_verifyMandatoryFieldsError">
+      <operatorPortal.login />
+
+      <clickLink href="/operator/createPSP.jsf" />
+
+      <!-- iterate over all mandatory fields -->
+      <dataDriven tableContainer="data/pageFields/pspFields.xls">
+
+        <!-- fill all fields with vaild values -->
+        <this.fillFields />
+
+        <!-- test empty input for current field -->
+        <setInputField htmlId="${fieldId}" value="" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+        <!-- iterate over some input for the current field -->
+        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+
+          <!-- fill all fields with vaild values -->
+          <this.fillFields />
+
+          <!-- set wrong input for current field -->
+          <setInputField htmlId="${fieldId}" value="${value}" />
+
+          <!-- save and verify error message -->
+          <clickLink htmlId="editForm:saveButtonLink" />
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${createPSP.att0}" />
+          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+
+      <login.logout />
+    </webtest>
+
+
+    <!-- register a psp 2 times => exception -->
+    <webtest name="testCreatePSP_noneUniqueId">
+      <operatorPortal.login />
+      <clickLink href="/operator/createPSP.jsf" />
+
+      <timestamp name="pspIdentifier" />
+      <setInputField htmlId="editForm:pspIdentifier" value="${pspIdentifier}" />
+      <setInputField htmlId="editForm:pspWsdl" value="http://localhost/pathtowsdl?wsdl" />
+      <setInputField htmlId="editForm:pspDistinguishedName" value="some text" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.handleMessageParameters property="msg" value="${info.psp.created}" att0="${pspIdentifier}" />
+      <common.verifySuccess label="#{msg}" />
+
+      <!-- register psp again-->
+      <echo level="info" message="register same psp again" />
+      <setInputField htmlId="editForm:pspIdentifier" value="${pspIdentifier}" />
+      <setInputField htmlId="editForm:pspWsdl" value="http://localhost/pathtowsdl?wsdl" />
+      <setInputField htmlId="editForm:pspDistinguishedName" value="some text" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.handleMessageParameters property="msg" value="${ex.NonUniqueBusinessKeyException.PSP}" att0="${pspIdentifier}" />
+      <storeXPath property="propErrorMsg" xpath="//*[@id='errorMessages']//*[contains(@class, 'rf-msgs-sum')]/text()" />
+      <verifyProperty name="propErrorMsg" value="#{msg}" regex="true" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+
+  <!-- Tests for the 'manage psp dialog' from the operation menu entry -->
+  <target name="manage_psp">
+
+    <webtest name="testManagePSP_checkLabels">
+      <operatorPortal.login />
+      <clickLink href="/operator/managePSPs.jsf" />
+
+      <verifyElementText htmlId="pagelabel" text="${operator.managePSPs.title}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='descriptionPanel']//text())" text="${operator.managePSPs.description}" />
+
+      <verifyElementText htmlId="selectPSPForm:idPspSelect" text="${operator.managePSPs.select}" />
+      <verifyElementText htmlId="selectPSPForm:idSelectTitle" text="${operator.managePSPs.select.title}" />
+
+      <verifyElementText htmlId="idPspLabel" text="${operator.managePSPs.label}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='managePSPsForm:labelpspIdentifier']/text())" text="${operator.createPSP.identifier}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='managePSPsForm:labelpspWsdl']/text())" text="${operator.createPSP.wsdl}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='managePSPsForm:labelpspDistinguishedName']/text())" text="${operator.createPSP.distinguishedName}" />
+
+      <verifyXPath xpath="normalize-space(//*[@id='managePSPsForm:idPspAttributesTitle']/text())" text="${operator.managePSPs.definePSPAttributes.title}" />
+
+      <verifyElementText htmlId="managePSPsForm:idPspPaymentTypes" text="${operator.managePSPs.definePSPPaymentTypes.title}" />
+
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="testManagePSP_addRemoveSettings">
+      <operatorPortal.login />
+      <clickLink href="/operator/managePSPs.jsf" />
+
+      <!-- set values of other fields -->
+      <setSelectField htmlId="selectPSPForm:pspId" text='heidelpay'/>
+      <setInputField htmlId="managePSPsForm:pspIdentifier" value="  heidelpay  " />
+      <setInputField htmlId="managePSPsForm:pspWsdl" value="http://xyz.de" />
+      <setInputField htmlId="managePSPsForm:pspDistinguishedName" value="some text" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="1" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:1:pspSettingValue" value="2" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:2:pspSettingValue" value="3" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:3:pspSettingValue" value="4" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:4:pspSettingValue" value="5" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:5:pspSettingValue" value="6" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:6:pspSettingValue" value="7" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:7:pspSettingValue" value="8" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:8:pspSettingValue" value="9" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:9:pspSettingValue" value="10" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:10:pspSettingValue" value="11" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:11:pspSettingValue" value="12" />
+
+      <!-- add one new setting... -->
+      <!-- First try with a missing mandatory field (retest bugfix 8603) -->
+      <!-- ==> Pressing the add button must not lead to validation! -->
+      <clickLink htmlId="managePSPsForm:addPSPSettingRow" />
+      <not>
+        <common.verifyError label="." />
+      </not>
+      <verifyInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingKey" value="" />
+      <verifyInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="" />
+      
+	  <!-- Now add missing WDSL URL field -->
+      <setInputField htmlId="managePSPsForm:pspWsdl" value="http://localhost/pathtowsdl?wsdl" />
+
+      <!-- try to save setting with empty values -->
+      <clickLink htmlId="managePSPsForm:saveButton" />
+      <storeXPath property="selectedPsp" xpath="//select[@id='selectPSPForm:pspId']//option[@selected='selected']/text()" />
+      <common.handleMessageParameters property="msg" value="${info.psp.saved}" att0="#{selectedPsp}" />
+      <common.verifyError label="${error.text.fields}" />
+
+      <!-- add some values to the new setting -->
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingKey" value="key1" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="value1" />
+      <clickLink htmlId="managePSPsForm:saveButton" />
+      <common.verifySuccess label="#{msg}" />
+
+      <!-- Bug #8553: add a duplicate setting and check the error message. -->
+      <clickLink htmlId="managePSPsForm:addPSPSettingRow" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingKey" value="key1" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="value2" />
+      <clickLink htmlId="managePSPsForm:saveButton" />
+
+      <!-- Verify error message about duplicate psp setting. -->
+      <common.handleMessageParameters property="msg" value="${ex.ValidationException.DUPLICATE_VALUE}" att0="key1" />
+      <storeXPath property="propErrorMsg" xpath="//*[@id='errorMessages']//*[contains(@class, 'rf-msgs-sum')]/text()" />
+      <verifyProperty name="propErrorMsg" value="#{msg}" regex="true" />
+
+      <!-- create second setting-->
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingKey" value="key2" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="value2" />
+      <clickLink htmlId="managePSPsForm:saveButton" />
+      <storeXPath property="selectedPsp" xpath="//select[@id='selectPSPForm:pspId']//option[@selected='selected']/text()" />
+      <common.handleMessageParameters property="msg" value="${info.psp.saved}" att0="#{selectedPsp}" />
+      <common.verifySuccess label="#{msg}" />
+
+      <!-- remove second setting -->
+      <setCheckbox htmlId="managePSPsForm:pspSettingsTable:0:deletePSPSetting" checked="true" />
+      <clickLink htmlId="confirmForm:okButton" />
+      <common.handleMessageParameters property="msg" value="${info.psp.saved}" att0="#{selectedPsp}" />
+      <common.verifySuccess label="#{msg}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManagePSP_addPaymentType">
+      <operatorPortal.login />
+      <clickLink href="/operator/managePSPs.jsf" />
+      <setSelectField htmlId="selectPSPForm:pspId" text="${pspIdentifier}" />
+      <verifyText description="Check no payment types defined label" text="${operator.managePSPs.noPaymentTypesDefined}"/>
+      <clickLink htmlId="managePSPsForm:addPSPPaymentType" />
+      <common.waitForJavaScript />
+      <setInputField htmlId="paymentTypePSPForm:paymentTypeName" value="AutoPay" />
+      <setInputField htmlId="paymentTypePSPForm:paymentTypeId" value="AUTO_PAY" />
+      <clickLink htmlId="paymentTypePSPForm:paymentTypePSPConfirmButton" />
+      <common.waitForJavaScript />
+      <common.verifySuccess label="${info.paymentType.saved}" />
+
+      <clickLink htmlId="managePSPsForm:addPSPPaymentType" />
+      <verifyInputField htmlId="paymentTypePSPForm:paymentTypeName" value="" />
+      <verifyInputField htmlId="paymentTypePSPForm:paymentTypeId" value="" />
+      <login.logout />
+    </webtest>
+
+    <!-- Bug 8525: Missing input must lead to concerning validation errors -->
+    <webtest name="testManagePSP_addPaymentType_MissingInput">
+      <operatorPortal.login />
+      <clickLink href="/operator/managePSPs.jsf" />
+      <setSelectField htmlId="selectPSPForm:pspId" text='heidelpay'/>
+      <clickLink htmlId="managePSPsForm:addPSPPaymentType" />
+      <common.waitForJavaScript />
+      <setInputField htmlId="paymentTypePSPForm:paymentTypeName" value="   " />
+      <setInputField htmlId="paymentTypePSPForm:paymentTypeId" value="   " />
+      <clickLink htmlId="paymentTypePSPForm:paymentTypePSPConfirmButton" />
+      <common.waitForJavaScript />
+      <common.verifyModalFieldError errorFieldId="paymentTypePSPForm:paymentTypeIdErrorMsg" modalPanelId="paymentTypePSP" fieldId="paymentTypePSPForm:paymentTypeId" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <common.verifyModalFieldError errorFieldId="paymentTypePSPForm:paymentTypeNameErrorMsg" modalPanelId="paymentTypePSP" fieldId="paymentTypePSPForm:paymentTypeName" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <login.logout />
+    </webtest>
+
+    <!-- Bug 8525: Payment type must be validated as ID -->
+    <webtest name="testManagePSP_addPaymentType_InvalidInput">
+      <operatorPortal.login />
+      <dataDriven tableContainer="data/invalidInput/ID.xls">
+        <clickLink href="/operator/managePSPs.jsf" />
+        <setSelectField htmlId="selectPSPForm:pspId" text='heidelpay'/>
+        <clickLink htmlId="managePSPsForm:addPSPPaymentType" />
+        <common.waitForJavaScript />
+        <setInputField htmlId="paymentTypePSPForm:paymentTypeName" value="Name" />
+        <setInputField htmlId="paymentTypePSPForm:paymentTypeId" value="${value}" />
+        <clickLink htmlId="paymentTypePSPForm:paymentTypePSPConfirmButton" />
+        <common.waitForJavaScript />
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+        <common.verifyModalFieldError errorFieldId="paymentTypePSPForm:paymentTypeIdErrorMsg" modalPanelId="paymentTypePSP" fieldId="paymentTypePSPForm:paymentTypeId" label="${expectedMessage}" />
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+  </target>
+
+
+  <!-- ######################################################################################### -->
+  <!-- 									 MACROS 												 -->
+  <!-- ######################################################################################### -->
+  <macrodef name="this.fillFields">
+    <attribute name="pspId" default="psp identifier" />
+    <attribute name="wsdl" default="http://localhost/pathtowsdl?wsdl" />
+    <attribute name="distinguishedName" default="distinguished name" />
+    <sequential>
+      <timestamp name="suffix_timestamp" />
+      <setInputField htmlId="editForm:pspIdentifier" value="@{pspId}_${suffix_timestamp}" />
+      <setInputField htmlId="editForm:pspWsdl" value="@{wsdl}" />
+      <setInputField htmlId="editForm:pspDistinguishedName" value="@{distinguishedName}" />
+    </sequential>
+  </macrodef>
+
+</project>
+

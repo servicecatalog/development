@@ -1,0 +1,44 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.manageTimers" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="manageTimers">
+
+      <adm:outputStep value="#{msg['operator.timerExpirationInformation']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="timerTable" value="#{timerBean.expirationInfo}"
+          label="#{msg['operator.timerExpirationInformation']}" emptyText="#{msg['timer.none']}">
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['timer.id']}" />
+            </f:facet>
+            <h:outputText id="timerId" value="#{rowItem.timerType}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['timer.date']}" />
+            </f:facet>
+            <h:outputText id="timerDate" value="#{rowItem.expirationDate}">
+              <f:convertDateTime pattern="#{msg[appBean.dateTimePattern]}" timeZone="#{appBean.timeZoneId}" />
+            </h:outputText>
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel>
+        <adm:button id="reInitTimers" value="#{msg['operator.reInitTimers']}" bean="#{timerBean}" action="reInitTimers" buttonType="reset" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

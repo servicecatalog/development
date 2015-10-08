@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="3" organizationid="supplierWithShop" localmarketplace_tkey="10" />
+  <Organization tkey="2" organizationid="customer1" />
+
+  <OrganizationHistory tkey="9" objkey="2" modtype="ADD" organizationid="customer1" />
+  <OrganizationHistory tkey="10" objkey="3" modtype="ADD" organizationid="supplierWithShop"
+    localmarketplaceobjkey="10" />
+  <OrganizationHistory tkey="11" objkey="3" modtype="UPDATE" organizationid="supplierWithShop"
+    localmarketplaceobjkey="10" />
+</dataset>

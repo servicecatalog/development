@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Configurationsetting tkey="1" context_id="0" information_id="DUMMY" env_value="1234" version="0" />
+  <Configurationsetting tkey="2" context_id="0" information_id="MAIL_SERVER" env_value="1234" version="0" />
+  <Configurationsetting tkey="3" context_id="0" information_id="MAIL_PORT" env_value="1234" version="0" />
+  <Configurationsetting tkey="4" context_id="0" information_id="MAIL_USER" env_value="1234" version="0" />
+  <Configurationsetting tkey="5" context_id="0" information_id="MAIL_USER_PWD" env_value="1234" version="0" />
+  <Configurationsetting tkey="6" context_id="0" information_id="MAIL_RESPONSE_ADDRESS" env_value="1234" version="0" />
+  <Configurationsetting tkey="7" context_id="0" information_id="SEARCH_INDEX_MASTER_HOST" env_value="1234" version="0" />
+  <Configurationsetting tkey="8" context_id="0" information_id="SEARCH_INDEX_MASTER_PORT" env_value="1234" version="0" />
+  
+</dataset>

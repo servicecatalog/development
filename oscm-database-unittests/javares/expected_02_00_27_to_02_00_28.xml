@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- setup -->
+  <Organization tkey="1000" version="0" organizationid="PLATFORM_OPERATOR" name="" registrationdate="1234" />
+  <TechnicalProduct tkey="1" provisioningurl="url" technicalproductid="1" version="0" organizationkey="1000" />
+  <Product tkey="1" productid="pr1" provisioningdate="1234" status="status" version="0" supplierkey="1000"
+    technicalproduct_tkey="1" />
+
+  <!-- catalog visibility-flag needs to be added to the catalog, default=true -->
+  <Catalogentry tkey="1" version="0" position="1" organization_tkey="1000" product_tkey="1"
+    visibleincatalog="true" />
+  <CatalogentryHistory tkey="1" modtype="t1" moduser="u1" objkey="1" objversion="0" position="1"
+    anonymousvisible="true" marketplaceobjkey="11" visibleincatalog="true" />
+</dataset>

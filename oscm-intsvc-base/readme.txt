@@ -1,0 +1,1 @@
+This projects contains objects used by all internal service projects.

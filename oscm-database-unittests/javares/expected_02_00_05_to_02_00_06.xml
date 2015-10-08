@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" />
+  <Organization tkey="2" version="0" organizationid="TestOrgB" registrationdate="1234" />
+
+  <TechnicalProduct tkey="5" version="0" provisioningurl="someurl" technicalproductid="tpid"
+    technicalproductversion="1.0" organizationkey="1" />
+  <TechnicalProduct tkey="10" version="0" provisioningurl="someurl2" technicalproductid="tpid2"
+    technicalproductversion="1.0" organizationkey="2" />
+  <TechnicalProduct tkey="8" version="0" provisioningurl="someurl3" technicalproductid="tpid3"
+    technicalproductversion="1.0" organizationkey="2" />
+
+  <Product tkey="12" version="0" productid="pid12" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="5" />
+  <Product tkey="7" version="0" productid="pid7" provisioningdate="1234" status="ACTIVE" supplierkey="2"
+    technicalproduct_tkey="10" />
+  <Product tkey="9" version="0" productid="pid9" provisioningdate="1234" status="ACTIVE" supplierkey="2"
+    technicalproduct_tkey="8" />
+  <Product tkey="8" version="0" productid="pid8" provisioningdate="1234" status="ACTIVE" supplierkey="2"
+    technicalproduct_tkey="10" />
+  <Product tkey="5" version="0" productid="pid5" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="5" />
+
+  <OrganizationHistory tkey="1" moduser="10000" modtype="ADD" objkey="1" objversion="0"
+    organizationid="TestOrgA" registrationdate="1234" />
+  <OrganizationHistory tkey="2" moduser="10000" modtype="ADD" objkey="2" objversion="0"
+    organizationid="TestOrgA" registrationdate="1234" />
+
+  <TechnicalProductHistory tkey="1" moduser="10000" modtype="ADD" objkey="5" objversion="0"
+    provisioningurl="someurl" technicalproductid="tpid" technicalproductversion="1.0" organizationobjkey="1" />
+  <TechnicalProductHistory tkey="2" moduser="10000" modtype="ADD" objkey="10" objversion="0"
+    provisioningurl="someurl2" technicalproductid="tpid2" technicalproductversion="1.0" organizationobjkey="2" />
+  <TechnicalProductHistory tkey="3" moduser="10000" modtype="ADD" objkey="8" objversion="0"
+    provisioningurl="someurl3" technicalproductid="tpid3" technicalproductversion="1.0" organizationobjkey="2" />
+
+  <ProductHistory tkey="1" moduser="10000" modtype="ADD" objkey="12" objversion="0" productid="pid12"
+    provisioningdate="1234" status="ACTIVE" supplierobjkey="1" technicalproductobjkey="5" />
+  <ProductHistory tkey="2" moduser="10000" modtype="ADD" objkey="5" objversion="0" productid="pid5"
+    provisioningdate="1234" status="ACTIVE" supplierobjkey="1" technicalproductobjkey="5" />
+  <ProductHistory tkey="3" moduser="10000" modtype="ADD" objkey="7" objversion="0" productid="pid7"
+    provisioningdate="1234" status="ACTIVE" supplierobjkey="2" technicalproductobjkey="10" />
+  <ProductHistory tkey="4" moduser="10000" modtype="ADD" objkey="9" objversion="0" productid="pid9"
+    provisioningdate="1234" status="ACTIVE" supplierobjkey="2" technicalproductobjkey="8" />
+  <ProductHistory tkey="5" moduser="10000" modtype="ADD" objkey="8" objversion="0" productid="pid8"
+    provisioningdate="1234" status="ACTIVE" supplierobjkey="2" technicalproductobjkey="10" />
+
+  <CatalogEntry tkey="5" version="0" position="1" organization_tkey="1" product_tkey="5" />
+  <CatalogEntry tkey="12" version="0" position="2" organization_tkey="1" product_tkey="12" />
+  <CatalogEntry tkey="7" version="0" position="1" organization_tkey="2" product_tkey="7" />
+  <CatalogEntry tkey="8" version="0" position="2" organization_tkey="2" product_tkey="8" />
+  <CatalogEntry tkey="9" version="0" position="3" organization_tkey="2" product_tkey="9" />
+
+  <CatalogEntryHistory tkey="5" moduser="1000" modtype="ADD" objkey="5" objversion="0" position="1"
+    organizationobjkey="1" productobjkey="5" />
+  <CatalogEntryHistory tkey="12" moduser="1000" modtype="ADD" objkey="12" objversion="0" position="2"
+    organizationobjkey="1" productobjkey="12" />
+  <CatalogEntryHistory tkey="7" moduser="1000" modtype="ADD" objkey="7" objversion="0" position="1"
+    organizationobjkey="2" productobjkey="7" />
+  <CatalogEntryHistory tkey="8" moduser="1000" modtype="ADD" objkey="8" objversion="0" position="2"
+    organizationobjkey="2" productobjkey="8" />
+  <CatalogEntryHistory tkey="9" moduser="1000" modtype="ADD" objkey="9" objversion="0" position="3"
+    organizationobjkey="2" productobjkey="9" />
+
+</dataset>

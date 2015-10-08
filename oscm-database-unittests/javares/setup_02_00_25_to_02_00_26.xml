@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <OrganizationRole tkey="2" version="0" rolename="TECHNOLOGY_PROVIDER" />
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER" />
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR" />
+
+  <Organization tkey="1" version="0" organizationid="SUPPLIER1" name="OrgA" registrationdate="1234" />
+  <Organization tkey="2" version="0" organizationid="TECHNOLOGY_PROVIDER1" name="OrgB" registrationdate="1234" />
+  <Organization tkey="3" version="0" organizationid="CUSTOMER1" name="OrgC" registrationdate="1234" />
+  <Organization tkey="4" version="0" organizationid="PLATFORM_OPERATOR1" name="OrgD" registrationdate="1234" />
+
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="2" version="0" organization_tkey="2" organizationrole_tkey="2" />
+  <OrganizationToRole tkey="3" version="0" organization_tkey="3" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="4" version="0" organization_tkey="4" organizationrole_tkey="4" />
+
+  <!-- Prepare users for migration of admin flag. One has admin flag, the other not -->
+  <Platformuser tkey="10000" userid="admin" organizationadmin="true" organizationkey="3" creationdate="1301302701269" failedlogincounter="0" locale="de" salutation="MR" status="ACTIVE" version="0" />
+  <Platformuser tkey="10001" userid="no-admin" organizationadmin="false" organizationkey="3" creationdate="1301302701269" failedlogincounter="0" locale="de" salutation="MR" status="ACTIVE" version="0" />
+
+  <!-- Prepare users for migration of organization role. -->
+  <Platformuser tkey="10002" userid="user-of-supplier" organizationkey="1" creationdate="1301302701269" failedlogincounter="0" locale="de" salutation="MR" status="ACTIVE" version="0" organizationadmin="false" />
+  <Platformuser tkey="10003" userid="user-of-technology-provider" organizationkey="2" creationdate="1301302701269" failedlogincounter="0" locale="de" salutation="MR" status="ACTIVE" version="0" organizationadmin="false" />
+  <Platformuser tkey="10004" userid="user-of-platform-operator" organizationkey="4" creationdate="1301302701269" failedlogincounter="0" locale="de" salutation="MR" status="ACTIVE" version="0" organizationadmin="false" />
+
+</dataset>

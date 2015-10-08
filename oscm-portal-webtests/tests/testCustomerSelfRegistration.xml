@@ -1,0 +1,103 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testSelfRegistration">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testSelfRegistration" depends="setup">
+    <webtest name="2140 UC#1: Set the configuration setting CUSTOMER_SELF_REGISTRATION">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <!-- 1.  PO selects the menu "Update configuration settings". -->
+      <storeXPath property="inputFieldId" xpath="//td[text()='CUSTOMER_SELF_REGISTRATION_ENABLED']/..//input/@id" />
+      <!-- 2. PO disables CUSTOMER_SELF_REGISTRATION_ENABLED.-->
+      <setInputField htmlId="#{inputFieldId}" value="false" />
+      <!-- 3. PO clicks Save.-->
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifySuccess label="${info.configuration.saved}" />
+      <login.logout />
+      <!--The system has stored the configuration setting and no user can self-register. -->
+    </webtest>
+
+    <webtest name="2140 UC#4: User logs in to the platform">
+      <!-- 1. U accesses a marketplace. -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+      <!-- 2. U clicks on "Login". -->
+      <clickLink label="${login}" />
+      <!-- 3. The system does not allow the user to register as new customer.  -->
+      <not>
+        <verifyXPath xpath="//*[@id='register']" />
+      </not>
+      <!-- 4. U enters his credentials. -->
+      <mpl_login.operator mid="${mId}" />
+      <!-- 5. Verify the Login is successful by mpl_logout -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="2140 UC#2: Set the configuration setting CUSTOMER_SELF_REGISTRATION">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <!-- 1.  PO selects the menu "Update configuration settings". -->
+      <storeXPath property="inputFieldId" xpath="//td[text()='CUSTOMER_SELF_REGISTRATION_ENABLED']/..//input/@id" />
+      <!-- 2. PO enables CUSTOMER_SELF_REGISTRATION_ENABLED.-->
+      <setInputField htmlId="#{inputFieldId}" value="true" />
+      <!-- 3. PO clicks Save.-->
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifySuccess label="${info.configuration.saved}" />
+      <login.logout />
+
+      <!--The system has stored the configuration setting and any user can self-register again. -->
+    </webtest>
+
+    <webtest name="2140 UC#3: User registers himself to the platform">
+      <!-- 1. U accesses a marketplace. -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+      <!-- 2. U clicks on "Login". -->
+      <clickLink label="${login}" />
+      <!-- 3. The system does allow the user to register as new customer. -->
+      <verifyXPath xpath="//*[@id='register']" />
+      <clickLink htmlId="register" />
+      <!-- 4. U registers as new customer. -->
+      <this.registration />
+    </webtest>
+  </target>
+
+  <macrodef name="this.registration">
+    <sequential>
+      <user.createUniqueName userId="${common.userId}" />
+      <setInputField htmlId="registrationForm:userEmail" value="${common.email}" />
+      <setInputField htmlId="registrationForm:userId" value="#{uniqueUserId}" />
+      <setInputField htmlId="registrationForm:regPassword" value="${common.password}" />
+      <setInputField htmlId="registrationForm:regPassword2" value="${common.password}" />
+      <setSelectField htmlId="registrationForm:country" optionIndex="1" />
+      <setInputField htmlId="registrationForm:verificationCode" value="pp09" />
+      <setCheckbox htmlId="registrationForm:acceptTerms" checked="true" />
+      <clickElement htmlId="registrationForm:registerButton" />
+    </sequential>
+  </macrodef>
+</project>

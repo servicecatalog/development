@@ -1,0 +1,176 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+  <!-- these macros are used for setup of test cases in CLASSIC Portal and MARKETPLACE (MPL) -->
+
+  <!-- uses classic portal to enable/disable the given payment options for first REGISTERED  customer -->
+  <!-- leaves those payment types that are not specified as param/attribute unchanged. -->
+  <!-- PRE-CONDITION: login as supplier is required, ${orgUrl} must be set -->
+  <macrodef name="paymentTypeSetup.enablePaymentTypes">
+    <attribute name="invoice" default="" />
+    <attribute name="cc" default="" />
+    <attribute name="dd" default="" />
+    <sequential>
+      <invoke url="${orgUrl}/organization/managePaymentEnablement.jsf" />
+      <storeProperty name="param.invoice" value="@{invoice}" />
+      <ifStep description="parameter invoice is set">
+        <condition>
+          <verifyProperty name="param.invoice" value="true|false" regex="true" />
+        </condition>
+        <then>
+          <setCheckbox htmlId="managePayment:customerTable:0:cust2" checked="@{invoice}" />
+        </then>
+      </ifStep>
+      <storeProperty name="param.cc" value="@{cc}" />
+      <ifStep description="parameter cc is set">
+        <condition>
+          <verifyProperty name="param.cc" value="true|false" regex="true" />
+        </condition>
+        <then>
+          <setCheckbox htmlId="managePayment:customerTable:0:cust0" checked="@{cc}" />
+        </then>
+      </ifStep>
+      <storeProperty name="param.dd" value="@{dd}" />
+      <ifStep description="parameter dd is set">
+        <condition>
+          <verifyProperty name="param.dd" value="true|false" regex="true" />
+        </condition>
+        <then>
+          <setCheckbox htmlId="managePayment:customerTable:0:cust1" checked="@{dd}" />
+        </then>
+      </ifStep>
+      <clickLink description="click save Button" htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+
+    </sequential>
+  </macrodef>
+
+  <!-- PRE-CONDITION: ${orgUrl} is required; login as supplier is required -->
+  <macrodef name="paymentTypeSetup.enableInvoiceForNEWCustomers">
+    <sequential>
+      <invoke url="${orgUrl}/organization/managePaymentEnablement.jsf" />
+      <setCheckbox htmlId="managePayment:default2" checked="true" />
+      <clickLink description="click save Button" htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+    </sequential>
+  </macrodef>
+
+  <!-- add a default billing contact -->
+  <macrodef name="paymentTypeSetup.addBillingContact">
+    <attribute name="companyName" default="Orga" />
+    <attribute name="displayName" default="main billing contact" />
+    <sequential>
+      <setInputField htmlId="billingContactPanelForm:companyName" value="@{companyName}" />
+      <setInputField htmlId="billingContactPanelForm:displayName" value="@{displayName}" />
+      <setInputField htmlId="billingContactPanelForm:email" value="mail@mail.de" />
+      <setInputField htmlId="billingContactPanelForm:address" value="ABC" />
+      <clickButton htmlId="billingContactPanelForm:saveBillingContactButton" />
+    </sequential>
+  </macrodef>
+
+  <!-- create payment info (instead of modal dialog)  -->
+  <macrodef name="paymentTypeSetup.createPaymentInfo">
+    <attribute name="userkey" />
+    <attribute name="id" />
+    <attribute name="paymentType" />
+    <attribute name="trustStorePath" />
+    <attribute name="keyStorePath" />
+    <sequential>
+      <setup:store.settings userkey="@{userKey}" password="secret" />
+      <setup:paymentinfo.define id="@{id}" paymentType="@{paymentType}" trustStorePath="@{trustStorePath}" keyStorePath="@{keyStorePath}" />
+    </sequential>
+  </macrodef>
+
+  <!-- create required basic setup -->
+  <!-- POST-CONDITION: pt.supplierId and pt.supplierUserKey are set -->
+  <!-- POST-CONDITION: user is logged in -->
+  <macrodef name="paymentTypeSetup.initialSetup">
+    <attribute name="globalMpId" />
+    <attribute name="createLocalMP" default="false" />
+    <sequential>
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization userid="paymentTestUser" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="pt.supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="pt.supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="createMP" value="@{createLocalMP}" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${pt.supplierId}" marketplaceId="@{globalMpId}" />
+      <operator.addAvailablePaymentTypes orgId="${pt.supplierId}" />
+      <ifStep description="Create local MP?">
+        <condition>
+          <verifyProperty name="createMP" text="true" regex="false" />
+        </condition>
+        <then>
+          <operator.createMarketplace ownerId="${pt.supplierId}" baseurl="${bes.http.url}/oscm-portal" name="Local Marketplace" mIdProperty="mId" />
+        </then>
+      </ifStep>
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${pt.supplierUserKey}" password="secret" />
+      <ifStep description="Create local MP?">
+        <condition>
+          <verifyProperty name="createMP" text="true" regex="false" />
+        </condition>
+        <then>
+          <landingpage.setSortOrderForLandingpage mId="${mId}" />
+        </then>
+      </ifStep>
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <setup:techservice.createProxy id="BASIC_TECH_SERVICE" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+      <service.defineWithoutParameter marketplaceId="${mId}" techServiceId="BASIC_TECH_SERVICE" publicService="true" serviceId="chargeableService" name="MarketService1" description="public Service for PaymentOptionTests." />
+      <service.defineWithoutParameter marketplaceId="${mId}" techServiceId="BASIC_TECH_SERVICE" publicService="true" serviceId="chargeableupgradeService" name="MarketService1" description="public UpgradeService for PaymentOptionTests." />
+      <setup:pricemodel.define serviceId="chargeableService" isFree="false" description="chargeableService" basePrice="50"/> 
+      <setup:pricemodel.define serviceId="chargeableupgradeService" isFree="false" description="chargeableupgradeService" basePrice="700"/> 
+      <setup:service.activate serviceIds="chargeableService" />
+
+    </sequential>
+  </macrodef>
+
+  <!-- set PSP settings of heidelpay -->
+  <macrodef name="paymentTypeSetup.setPSPSettings">
+    <attribute name="selectedPspId" default="heidelpay" />
+    <sequential>
+      <login.login url="${orgUrl}" userId="administrator" password="admin123" />
+      <clickLink href="/operator/managePSPs.jsf" />
+      <setSelectField htmlId="selectPSPForm:pspId" text='@{selectedPspId}'/>
+      <setInputField htmlId="managePSPsForm:pspWsdl" value="http://${example.fullhostname}:${example.http.port}/oscm-psp-heidelpay/PaymentServiceProvider?wsdl" />
+      <setInputField htmlId="managePSPsForm:pspDistinguishedName" value="CN=${example.fullhostname}-instance, OU=GlassFish, O=Oracle Corporation, L=Santa Clara, ST=California, C=US" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:0:pspSettingValue" value="http://${example.fullhostname}:${example.http.port}/mock-psp-service/PSPMockRegistrationEntry" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:1:pspSettingValue" value="http://${example.fullhostname}:${example.http.port}/oscm-psp-heidelpay/HeidelpayResponseServlet" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:8:pspSettingValue" value="${bes.http.url}/oscm-portal" />
+      <setInputField htmlId="managePSPsForm:pspSettingsTable:11:pspSettingValue" value="${bes.https.url}PaymentRegistrationService/v1.3/CLIENTCERT?wsdl" />
+      <clickLink htmlId="managePSPsForm:saveButton" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+
+  <!-- create new customer -->
+  <!-- POST-CONDITION: pt.customerOrgUrl and pt.customerUserId are set -->
+  <macrodef name="paymentTypeSetup.createNewCustomer">
+    <sequential>
+      <!--      <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" /> -->
+      <operator.createorganization userid="paymentTest_Customer" roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <storeProperty name="pt.customerOrgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="pt.customerUserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="paymentTypeSetup.prepareUpgrade">
+    <sequential>
+      <!-- define service as upgrade option -->
+      <service.deActivate rowNr="0" active="false" />
+      <service.defineMigrationOption srcServiceId="chargeableService" trgServiceIndex="0" />
+      <!-- reactivate both services -->
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" concurrencyCheck="true" />
+    </sequential>
+  </macrodef>
+
+</project>

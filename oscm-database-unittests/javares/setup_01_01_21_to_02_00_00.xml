@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  
+  <Organization TKEY="5" VERSION="0" ORGANIZATIONID="TestOrgA" registrationdate="1234"/>
+
+</dataset>

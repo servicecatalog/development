@@ -1,0 +1,21 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project name="Execute webtests" default="webtest">
+
+	<property environment="env" />
+	<property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+	<property file="../oscm-devruntime/javares/local/${env.HOSTNAME}/test.properties" />
+
+	<condition property="webtest.fileExtension" value="sh">
+		<os family="unix" />
+	</condition>
+	<condition property="webtest.fileExtension" value="bat">
+		<os family="windows" />
+	</condition>
+
+	<target name="webtest">
+		<exec executable="${webtest.home}/bin/webtest.${webtest.fileExtension}" failonerror="true">
+			<env key="JAVA_HOME" value="${java.home}" />
+		</exec>
+	</target>
+	
+</project>

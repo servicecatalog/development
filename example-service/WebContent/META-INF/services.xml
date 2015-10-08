@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- This file was auto-generated from WSDL --><!-- by the Apache Axis2 version: 1.5.1  Built on : Oct 19, 2009 (10:59:00 EDT) --><serviceGroup>
+    <service name="ProvisioningService">
+        <messageReceivers>
+            <messageReceiver mep="http://www.w3.org/ns/wsdl/in-out" class="org.oscm.example.server.ProvisioningServiceMessageReceiverInOut"/>
+        </messageReceivers>
+        <parameter name="ServiceClass">org.oscm.example.server.ProvisioningServiceSkeleton</parameter>
+        <parameter name="useOriginalwsdl">true</parameter>
+        <parameter name="modifyUserWSDLPortAddress">true</parameter>
+        <operation name="modifySubscription" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:modifySubscription</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/modifySubscriptionResponse</outputActionMapping>
+        </operation>
+        <operation name="deactivateInstance" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:deactivateInstance</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/deactivateInstanceResponse</outputActionMapping>
+        </operation>
+        <operation name="updateUsers" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:updateUsers</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/updateUsersResponse</outputActionMapping>
+        </operation>
+        <operation name="sendPing" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:sendPing</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/sendPingResponse</outputActionMapping>
+        </operation>
+        <operation name="asyncModifySubscription" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:asyncModifySubscription</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/asyncModifySubscriptionResponse</outputActionMapping>
+        </operation>
+        <operation name="upgradeSubscription" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:upgradeSubscription</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/upgradeSubscriptionResponse</outputActionMapping>
+        </operation>
+        <operation name="deleteInstance" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:deleteInstance</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/deleteInstanceResponse</outputActionMapping>
+        </operation>
+        <operation name="asyncCreateInstance" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:asyncCreateInstance</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/asyncCreateInstanceResponse</outputActionMapping>
+        </operation>
+        <operation name="activateInstance" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:activateInstance</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/activateInstanceResponse</outputActionMapping>
+        </operation>
+        <operation name="deleteUsers" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:deleteUsers</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/deleteUsersResponse</outputActionMapping>
+        </operation>
+        <operation name="createInstance" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:createInstance</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/createInstanceResponse</outputActionMapping>
+        </operation>
+        <operation name="createUsers" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:createUsers</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/createUsersResponse</outputActionMapping>
+        </operation>
+        <operation name="asyncUpgradeSubscription" mep="http://www.w3.org/ns/wsdl/in-out" namespace="http://oscm.org/xsd">
+            <actionMapping>urn:asyncUpgradeSubscription</actionMapping>
+            <outputActionMapping>http://oscm.org/xsd/ProvisioningService/asyncUpgradeSubscriptionResponse</outputActionMapping>
+        </operation>
+    </service>
+</serviceGroup>

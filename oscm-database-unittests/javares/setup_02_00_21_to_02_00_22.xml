@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="11000" version="0" organizationid="CUSTOMER1" name="OrgA" registrationdate="1234"/>
+  <Organization tkey="12000" version="0" organizationid="CUSTOMER2" name="OrgB" registrationdate="1234"/>
+  <Organization tkey="13000" version="0" organizationid="CUSTOMER3" name="OrgC" registrationdate="1234"/>
+  <Organization tkey="1000" version="0" organizationid="PLATFORM_OPERATOR" name="" registrationdate="1234"/>
+  
+  <!-- 0. Test -->
+  <!-- user with unique user name ==> no changes -->
+  <Platformuser tkey="10000" additionalname="" address="" creationdate="1301302701269" email="usera@orga.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="usera" version="0" organizationkey="11000" />
+    
+  <!-- 1. Test -->
+  <!-- test that the platformuser should be unchanged -->
+  <Platformuser tkey="2" additionalname="" address="" creationdate="1301302701269" email="admin@orga" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="administrator" version="0" organizationkey="11000" />
+  <Platformuser tkey="3" additionalname="" address="" creationdate="1301302701269" email="admin@orgb" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="administrator" version="0" organizationkey="12000" />
+  <Platformuser tkey="1" additionalname="" address="" creationdate="1301302701269" email="platform" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="administrator" version="0" organizationkey="1000" />
+    
+  <!-- 2. Test -->
+  <!-- two user with same user name but different email ==> 2. user id should be changed to email -->
+  <Platformuser tkey="20000" additionalname="" address="" creationdate="1301302701269" email="userbemail@orga.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userb" version="0" organizationkey="11000" />
+  <Platformuser tkey="21000" additionalname="" address="" creationdate="1301302701269" email="userbemail@orgb.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userb" version="0" organizationkey="12000" />
+  
+  <!-- 3. Test -->
+  <!-- two user with same user name and same email ==> 2.user id should be changed to "userid@orgid" -->
+  <Platformuser tkey="30000" additionalname="" address="" creationdate="1301302701269" email="usercemail@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userc" version="0" organizationkey="11000" />
+  <Platformuser tkey="31000" additionalname="" address="" creationdate="1301302701269" email="usercemail@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userc" version="0" organizationkey="12000" />
+  
+  <!-- 4. Test -->
+  <!-- three users, two with same userid whereas the 3. uses the email adress of the 3. as userid-->
+  <Platformuser tkey="40000" additionalname="" address="" creationdate="1301302701269" email="xyz@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="emailasusername@orgx.com" version="0" organizationkey="12000" />
+  <Platformuser tkey="41000" additionalname="" address="" creationdate="1301302701269" email="xyz@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userd" version="0" organizationkey="11000" />
+  <Platformuser tkey="42000" additionalname="" address="" creationdate="1301302701269" email="emailasusername@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userd" version="0" organizationkey="13000" />
+  
+  <!-- initial history entry (should be unchaged) -->
+  <Platformuserhistory tkey="11000" additionalname="" address="" creationdate="1301302701269" email="userbemail@orga.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userb" moddate="2011-01-01 01:02:34" modtype="ADD" moduser="ANONYMOUS" objkey="21000" objversion="0" organizationobjkey="11000"/>
+  <Platformuserhistory tkey="12000" additionalname="" address="" creationdate="1301302701269" email="usercemail@orgx.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="userc" moddate="2011-01-01 01:02:34" modtype="ADD" moduser="ANONYMOUS" objkey="31000" objversion="0" organizationobjkey="12000"/>  
+</dataset>

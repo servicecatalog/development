@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" cutoffday="1"/>
+  <PlatformUser tkey="10000" creationdate="98765432" failedlogincounter="0" locale="en" status="ACTIVE"
+    passwordsalt="324" userid="admin" version="0" organizationkey="11001" />
+  <TriggerDefinition tkey="98762" version="0" target="http://someNotificationServiceURL2" targettype="WEB_SERVICE"
+    type="DEACTIVATE_SERVICE" organization_tkey="11001" suspendprocess="true" name="xyz"/>
+  <TriggerProcess tkey="96003" version="0" activationdate="12345678" status="WAITING_FOR_APPROVAL"
+    triggerdefinition_tkey="98762" user_tkey="10000" />
+  <TriggerProcessParameter tkey="47003" version="0" name="USER_ID" triggerprocess_tkey="96003"/>
+</dataset>

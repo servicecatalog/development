@@ -1,0 +1,277 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testOnetimeParamTechnicalService" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testOnetimeParamTechnicalService">
+
+    <webtest name="testOnetimeParamTechnicalService_init">
+      <storeProperty name="marketServiceName1" value="MarketService Trial" propertyType="dynamic" />
+      <storeProperty name="marketServiceName2" value="MarketService Starter" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName" propertyType="dynamic" />
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <!-- 3.  Register new technical service with ONE_TIME modificationType
+            	*ENUMERATION:	MEMORY_STORAGE
+            	*INTEGER:		MAX_FOLDER_NUMBER2
+            	*STRING:		STRING_DATA_TYPE
+            	*BOOLEAN:		RENAME_FOLDER
+             -->
+      <techservice.import file="data/TechnicalServices_modificationType.xml" />
+      <!-- 4.1 Publish and Activate the TS on Local Markeplace-->
+      <!-- Define Market Service, check that no user based parameters are available -->
+      <common.ignorePageScriptError />
+      <service.defineForOnetimeParameter serviceId="#{marketServiceName1}" isTrial="true" name="Mega Office Trial" />
+      <service.getKey serviceId="#{marketServiceName1}" keyProperty="serviceKey1" />
+      <!-- Define Market Service price model and check that no user prices can be defined -->
+      <pricemodel.define serviceId="#{marketServiceName1}" isFree="true" />
+      <!-- Publish Market Service -->
+      <service.publish serviceId="#{marketServiceName1}" marketplaceId="${mId}" />
+      <!-- 4.2 Publish and Activate the TS on Local Markeplace-->
+      <!-- Define Market Service, check that no user based parameters are available -->
+      <service.defineForOnetimeParameter serviceId="#{marketServiceName2}" techServiceId="Example 1.00" isTrial="false" name="Mega Office Starter" />
+
+      <service.getKey serviceId="#{marketServiceName2}" keyProperty="serviceKey2" />
+      <!-- Define Market Service price model and check that no user prices can be defined -->
+      <pricemodel.define serviceId="#{marketServiceName2}" isFree="true" />
+      <!-- Publish Market Service -->
+      <service.publish serviceId="#{marketServiceName2}" marketplaceId="${mId}" />
+      <!-- 5.1. Define the upgrade: Trial => Starter-->
+      <service.upgradeDef fromServiceId="#{marketServiceName1}" toServiceIndex="0" />
+      <!-- 5.2. Define the downgrade:  Starter => Trial-->
+      <service.upgradeDef fromServiceId="#{marketServiceName2}" toServiceIndex="0" />
+      <!-- 6. Activate Market Service  -->
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <!-- 7. Register a Customer for the marketplace -->
+      <user.registerCustomer userId="${common.userId}" marketplaceID="${mId}" />
+      <storeProperty name="customerUserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testOnetimeParamTechnicalService_verifyOnetimeParam_subscribe" description="A service S containing an optional 'oneTime' parameter exists. Can not be changed when update.">
+      <!-- 1. Customer goto a marketplace and choose a service to buy -->
+      <mpl_login.user mId="${mId}" userId="${customerUserId}" />
+      <common.ignorePageScriptError />
+      <chooseService marketplaceId="${mId}" buttonId="//div[@id='servicePanel1']" svcName="Mega Office Trial" isFree="true" />
+      <!-- 2. Customer sets the value of the parameters of the subscription -->
+      <verifyAndUpdateParameterOption form="configurationForm" name="Minimum Storage (1GB)" isEditable="true" />
+      <verifyAndUpdateParameterOption form="configurationForm" name="Maximum storage (400GB)" isEditable="true" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of folders that can be created (mandatory, one time)." valueType="integerValue" isEditable="true" value="123" defaultValue="200" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Folder name (optional, one time)." valueType="stringValue" isEditable="true" value="thousand" defaultValue="" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of files that can be uploaded." valueType="integerValue" isEditable="true" value="101" defaultValue="200" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of folders that can be created." valueType="integerValue" isEditable="true" value="102" defaultValue="200" />
+      <verifyAndUpdateParameterCheckBox form="configurationForm" name="Rename any user folder" isEditable="true" checked="true" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Defines the time interval to wait" valueType="integerValue" isEditable="true" value="1" defaultValue="0" />
+      <clickElement htmlId="configurationForm:next" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <mpl_verify.success label="" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testOnetimeParamTechnicalService_verifyOnetimeParam_update" description="A service S containing an optional 'oneTime' parameter exists. Can not be changed when update.">
+      <!-- 1. Customer goto a marketplace and choose a service to administrate -->
+      <mpl_login.user mId="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account.subscriptions />
+      <common.ignorePageScriptError />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <!-- 2. Ensure the "ONE_TIME" parameter is disabled and the others are editable -->
+      <verifyAndUpdateParameterOption form="configurationForm" name="Minimum Storage (1GB)" isEditable="false" />
+      <verifyAndUpdateParameterOption form="configurationForm" name="Optimum storage (200GB)" isEditable="true" />
+      <verifyAndUpdateParameterOption form="configurationForm" name="Number of folders that can be created (mandatory, one time)." isEditable="false"/>
+      <verifyReadOnlyParameter form="configurationForm" name="Folder name (optional, one time)." valueType="stringValue" isEditable="false" value="thousand" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of files that can be uploaded." valueType="integerValue" isEditable="true" value="201" defaultValue="101" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of folders that can be created." valueType="integerValue" isEditable="true" value="202" defaultValue="102" />
+      <verifyAndUpdateParameterCheckBox form="configurationForm" name="Rename any user folder" isEditable="false" checked="true" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Defines the time interval to wait" valueType="integerValue" isEditable="true" value="2" defaultValue="1" />
+
+      <clickLink htmlId="configurationForm:saveConfigurationButtonLink" />
+      <mpl_verify.success label="" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testOnetimeParamTechnicalService_verifyOnetimeParam_upgrade" description="A service S containing an optional 'oneTime' parameter exists. Another upgrade service S1 is defined for service S">
+      <!-- 0. C subscribes successfully the service S assigning a value to the optional oneTime parameter. -->
+
+      <!-- 1. C makes an upgrade from service S to service S1 -->
+      <mpl_login.user mId="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account.subscriptions />
+      <common.ignorePageScriptError />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <!-- 2. Expected: The upgrade succeeds. The non-configurable oneTime parameter is hidden and cannot be updated.  -->
+      <!--bug 11704-->
+      <!-- 2. Expected: The upgrade succeeds. The non-configurable oneTime parameter is shown but cannot be updated.  -->
+      <verifyAndUpdateParameterOption form="configurationForm" name="Incremental disk storage" isEditable="false" />
+      <verifyAndUpdateParameterOption form="configurationForm" name="Optimum storage (200GB)" isEditable="true" />
+      <verifyAttributeIsHidden name="Number of folders that can be created (mandatory, one time)." />
+      <verifyReadOnlyParameter form="configurationForm" name="Folder name (optional, one time)." valueType="stringValue" isEditable="false" value="thousand" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of files that can be uploaded." valueType="integerValue" isEditable="true" value="301" defaultValue="201" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of folders that can be created." valueType="integerValue" isEditable="true" value="302" defaultValue="202" />
+      <verifyAndUpdateParameterCheckBox form="configurationForm" name="Rename any user folder" isEditable="false" checked="true" />
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <mpl_verify.success label="" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+
+    <!-- for bug #9422, downgrade and check the non-conifgurable parameter values are correctly set-->
+    <webtest name="testOnetimeParamTechnicalService_verifyOnetimeParam_downgrade" description="A service S containing an optional 'oneTime' parameter exists. Another upgrade service S1 is defined for service S">
+      <!-- 0. C subscribes successfully the service S assigning a value to the optional oneTime parameter. -->
+
+      <!-- 1. C makes an downgrade from service S1 to service S -->
+      <mpl_login.user mId="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account.subscriptions />
+      <common.ignorePageScriptError />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <!-- 2. Expected: The downgrade succeeds. The oneTime parameter shown but cannot be update.  -->
+      <verifyAndUpdateParameterOption form="configurationForm" name="Incremental disk storage" isEditable="false" />
+      <verifyAndUpdateParameterOption form="configurationForm" name="Minimum Storage (100GB)" isEditable="true" />
+      <verifyReadOnlyParameter form="configurationForm" name="Number of folders that can be created (mandatory, one time)." valueType="integerValue" isEditable="false" value="200" />
+      <verifyReadOnlyParameter form="configurationForm" name="Folder name (optional, one time)." valueType="stringValue" isEditable="false" value="thousand" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of files that can be uploaded." valueType="integerValue" isEditable="true" value="401" defaultValue="301" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Number of folders that can be created." valueType="integerValue" isEditable="true" value="402" defaultValue="302" />
+      <verifyAndUpdateParameterCheckBox form="configurationForm" name="Rename any user folder" isEditable="false" checked="true" />
+      <verifyAndUpdateParameterValue form="configurationForm" name="Defines the time interval to wait before" valueType="integerValue" isEditable="true" value="3" defaultValue="0" />
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <mpl_verify.success label="" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <macrodef name="verifyAttributeIsHidden">
+    <attribute name="name" />
+    <sequential>
+      <not>
+        <verifyXPath xpath="//*[contains(.,'@{name}')]/@id" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyAndUpdateParameterOption">
+    <attribute name="name" />
+    <attribute name="form" default="configurationForm" description="one of [configurationForm|confirmForm]" />
+    <attribute name="isEditable" default="true" description="true to update and false to verify" />
+    <sequential>
+      <storeXPath xpath="//*[text()[contains(.,'@{name}')]]/../@id" property="paramId" />
+      <storeXPath xpath="number(substring-before(substring-after('#{paramId}', '@{form}:parameterConfigTable:' ),':'))" property="pos" />
+      <ifStep test="@{isEditable}">
+        <then>
+          <setRadioButton htmlId="@{form}:parameterConfigTable:#{pos}:radioOption" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//input[id='confirmForm:parameterConfigTable:#{pos}:radioOption']" />
+          </not>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyAndUpdateParameterCheckBox">
+    <attribute name="name" />
+    <attribute name="form" default="configurationForm" description="one of [configurationForm|confirmForm]" />
+    <attribute name="isEditable" default="true" description="true to update and false to verify" />
+    <attribute name="checked" default="false" />
+    <sequential>
+      <storeXPath xpath="//*[text()[contains(.,'@{name}')]]/../@id" property="paramId" />
+      <storeXPath xpath="number(substring-before(substring-after('#{paramId}', '@{form}:parameterConfigTable:' ),':'))" property="pos" />
+      <ifStep test="@{isEditable}">
+        <then>
+          <setCheckbox htmlId="@{form}:parameterConfigTable:#{pos}:booleanValue" checked="@{checked}" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//input[id='confirmForm:parameterConfigTable:#{pos}:radioOption']" />
+          </not>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyAndUpdateParameterValue">
+    <attribute name="name" />
+    <attribute name="form" default="configurationForm" description="one of [configurationForm|confirmForm]" />
+    <attribute name="valueType" default="StringValue" description="Must be StringValue, longValue, durationValue, booleanValue or integerValue." />
+    <attribute name="isEditable" default="true" description="true to update and false to verify" />
+    <attribute name="value" />
+    <attribute name="defaultValue" default="" description="valid only when @isEditable is true" />
+    <sequential>
+      <storeXPath xpath="//*[text()[contains(.,'@{name}')]]/../@id" property="paramId" />
+      <storeXPath xpath="number(substring-before(substring-after('#{paramId}', '@{form}:parameterConfigTable:' ),':'))" property="pos" />
+      <ifStep test="@{isEditable}">
+        <then>
+          <verifyInputField htmlId="@{form}:parameterConfigTable:#{pos}:@{valueType}" value="@{defaultValue}" />
+          <setInputField htmlId="@{form}:parameterConfigTable:#{pos}:@{valueType}" value="@{value}" />
+        </then>
+        <else>
+          <verifyXPath xpath="//td[starts-with(@id, '@{form}:parameterConfigTable:#{pos}') and div='@{value}']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyReadOnlyParameter">
+    <attribute name="name" />
+    <attribute name="form" default="configurationForm" description="one of [configurationForm|confirmForm]" />
+    <attribute name="valueType" default="StringValue" description="Must be StringValue, longValue, durationValue, booleanValue or integerValue." />
+    <attribute name="isEditable" default="true" description="true to update and false to verify" />
+    <attribute name="value" />
+    <attribute name="defaultValue" default="" description="valid only when @isEditable is true" />
+    <sequential>
+      <storeXPath xpath="//*[text()[contains(.,'@{name}')]]/../@id" property="paramId" />
+      <storeXPath xpath="number(substring-before(substring-after('#{paramId}', '@{form}:parameterConfigTable:' ),':'))" property="pos" />
+      <ifStep test="@{isEditable}">
+        <then>
+          <verifyInputField htmlId="@{form}:parameterConfigTable:#{pos}:@{valueType}" value="@{defaultValue}" />
+          <setInputField htmlId="@{form}:parameterConfigTable:#{pos}:@{valueType}" value="@{value}" />
+        </then>
+        <else>
+          <verifyXPath xpath="//input[starts-with(@id, '@{form}:parameterConfigTable:#{pos}')][@disabled='disabled']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- choose a service from the list -->
+  <macrodef name="chooseService">
+    <attribute name="marketplaceId" />
+    <attribute name="buttonId" />
+    <attribute name="svcName" />
+    <attribute name="isFree" default="false" />
+    <attribute name="admin" default="true" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{marketplaceId}" />
+      <clickElement xpath="@{buttonId}" />
+      <mpl_verify.service_details svcName="@{svcName}" isFree="@{isFree}" admin="@{admin}" />
+      <clickElement htmlId="getItForLoggedUser" />
+    </sequential>
+  </macrodef>
+</project>

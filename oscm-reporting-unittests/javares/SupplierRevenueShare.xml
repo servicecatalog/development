@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<SupplierRevenueShareResult xmlns="http://oscm.org/xsd/billingservice/partnermodel"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel SupplierRSResult.xsd"
+  organizationKey="7897" organizationId="abcdefgh">
+
+  <Period endDate="534523578" startDate="9823544793" />
+
+  <Currency id="EUR">
+    <Marketplace id="mp1">
+      <MarketplaceOwner>
+        <OrganizationData key="20001" id="mpowner1">
+          <Email>mpowner1@organization.com</Email>
+          <Name>NameMpowner1</Name>
+          <Address>AddressMpowner1</Address>
+        </OrganizationData>
+      </MarketplaceOwner>
+
+      <Service key="11111" id="templateService1" model="DIRECT">
+        <Subscription key="40001" id="sub1" billingKey="50001" revenue="600.00" />
+        <RevenueShareDetails serviceRevenue="600.00" marketplaceRevenueSharePercentage="20.00"
+          marketplaceRevenue="120.00" amountForSupplier="480.00" operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30001" id="brokerService1" model="BROKER" templateKey="11111">
+        <Subscription key="40002" id="sub2" billingKey="50002" revenue="500.00" />
+        <Broker>
+          <OrganizationData key="10001" id="broker1">
+            <Email>broker1@organization.com</Email>
+            <Name>NameBroker1</Name>
+            <Address>AddressBroker1</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails serviceRevenue="500.00" marketplaceRevenueSharePercentage="20.00"
+          marketplaceRevenue="100.00" brokerRevenueSharePercentage="40.00" brokerRevenue="200.00" amountForSupplier="200.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30002" id="brokerService2" model="BROKER" templateKey="11111">
+        <Subscription key="40003" id="sub3" billingKey="50003" revenue="800.00" />
+        <Broker>
+          <OrganizationData key="10002" id="broker2">
+            <Email>broker2@organization.com</Email>
+            <Name>NameBroker2</Name>
+            <Address>AddressBroker2</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails serviceRevenue="800.00" marketplaceRevenueSharePercentage="20.00"
+          marketplaceRevenue="160.00" brokerRevenueSharePercentage="10.00" brokerRevenue="80.00" amountForSupplier="560.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30003" id="brokerService3" model="BROKER" templateKey="22222">
+        <Subscription key="40004" id="sub4" billingKey="50004" revenue="90.00" />
+        <Broker>
+          <OrganizationData key="10003" id="broker3">
+            <Email>broker3@organization.com</Email>
+            <Name>NameBroker3</Name>
+            <Address>AddressBroker3</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails serviceRevenue="90.00" marketplaceRevenueSharePercentage="10.00"
+          marketplaceRevenue="9.00" brokerRevenueSharePercentage="80.00" brokerRevenue="72.00" amountForSupplier="9.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+
+      <Service key="30004" id="resellerService1" model="RESELLER" templateKey="22222">
+        <SubscriptionsRevenue amount="1000.00" />
+        <Reseller>
+          <OrganizationData key="10004" id="reseller1">
+            <Email>reseller1@organization.com</Email>
+            <Name>NameReseller1</Name>
+            <Address>AddressReseller1</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="1000.00" marketplaceRevenueSharePercentage="90.00"
+          marketplaceRevenue="900.00" resellerRevenueSharePercentage="80.00" resellerRevenue="800.00" amountForSupplier="-700.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30005" id="resellerService2" model="RESELLER" templateKey="11111">
+        <SubscriptionsRevenue amount="300.00" />
+        <Reseller>
+          <OrganizationData key="10005" id="reseller2">
+            <Email>reseller2@organization.com</Email>
+            <Name>NameReseller2</Name>
+            <Address>AddressReseller2</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="300.00" marketplaceRevenueSharePercentage="10.00"
+          marketplaceRevenue="30.00" resellerRevenueSharePercentage="20.00" resellerRevenue="60.00" amountForSupplier="210.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30006" id="resellerService3" model="RESELLER" templateKey="22222">
+        <SubscriptionsRevenue amount="400.00" />
+        <Reseller>
+          <OrganizationData key="10006" id="reseller3">
+            <Email>reseller3@organization.com</Email>
+            <Name>NameReseller3</Name>
+            <Address>AddressReseller3</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="200.00" marketplaceRevenueSharePercentage="10.00"
+          marketplaceRevenue="20.00" resellerRevenueSharePercentage="0.00" resellerRevenue="0.00" amountForSupplier="180.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <RevenuePerMarketplace serviceRevenue="3490.00" marketplaceRevenue="1339.00" brokerRevenue="352.00"
+        resellerRevenue="860.00" overallRevenue="939.00" />
+    </Marketplace>
+
+    <Marketplace id="mp2">
+      <MarketplaceOwner>
+        <OrganizationData key="20001" id="mpowner2">
+          <Email>mpowner2@organization.com</Email>
+          <Name>NameMpowner2</Name>
+          <Address>AddressMpowner2</Address>
+        </OrganizationData>
+      </MarketplaceOwner>
+
+      <Service key="33333" id="templateService3" model="DIRECT">
+        <Subscription key="40005" id="sub5" billingKey="50005" revenue="1.00" />
+        <RevenueShareDetails serviceRevenue="1.00" marketplaceRevenueSharePercentage="1.00"
+          marketplaceRevenue="0.01" amountForSupplier="0.99" operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30007" id="brokerService4" model="BROKER" templateKey="22222">
+        <Subscription key="40006" id="sub6" billingKey="50006" revenue="400.00" />
+        <Broker>
+          <OrganizationData key="10001" id="broker1">
+            <Email>broker1@organization.com</Email>
+            <Name>NameBroker1</Name>
+            <Address>AddressBroker1</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails serviceRevenue="400.00" marketplaceRevenueSharePercentage="20.00"
+          marketplaceRevenue="80.00" brokerRevenueSharePercentage="60.00" brokerRevenue="240.00" amountForSupplier="80.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30008" id="resellerService4" model="RESELLER" templateKey="11111">
+        <SubscriptionsRevenue amount="200.00" />
+        <Reseller>
+          <OrganizationData key="10004" id="reseller1">
+            <Email>reseller1@organization.com</Email>
+            <Name>NameReseller1</Name>
+            <Address>AddressReseller1</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="200.00" marketplaceRevenueSharePercentage="30.00"
+          marketplaceRevenue="60.00" resellerRevenueSharePercentage="80.00" resellerRevenue="160.00" amountForSupplier="-20.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <RevenuePerMarketplace serviceRevenue="601.00" marketplaceRevenue="140.01" brokerRevenue="240.00"
+        resellerRevenue="160.00" overallRevenue="60.99" />
+    </Marketplace>
+
+    <SupplierRevenue amount="0.00">
+      <DirectRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" operatorRevenue="0.00" />
+      <BrokerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" brokerRevenue="0.00" operatorRevenue="0.00" />
+      <ResellerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" resellerRevenue="0.00"
+        operatorRevenue="0.00" overallRevenue="0.00" />
+    </SupplierRevenue>
+
+  </Currency>
+
+  <Currency id="USD">
+    <Marketplace id="mp3">
+      <MarketplaceOwner>
+        <OrganizationData key="20003" id="mpowner3">
+          <Email>mpowner3@organization.com</Email>
+          <Name>NameMpowner3</Name>
+          <Address>AddressMpowner3</Address>
+        </OrganizationData>
+      </MarketplaceOwner>
+
+      <Service key="30009" id="brokerService4" model="BROKER" templateKey="44444">
+        <Subscription key="40007" id="sub8" billingKey="50007" revenue="2.00" />
+        <Broker>
+          <OrganizationData key="10007" id="broker4">
+            <Email>broker4@organization.com</Email>
+            <Name>NameBroker4</Name>
+            <Address>AddressBroker4</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails serviceRevenue="2.00" marketplaceRevenueSharePercentage="50.00"
+          marketplaceRevenue="1.00" brokerRevenueSharePercentage="60.00" brokerRevenue="1.20" amountForSupplier="-0.20"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30010" id="resellerService4" model="RESELLER" templateKey="44444">
+        <SubscriptionsRevenue amount="3.00" />
+        <Reseller>
+          <OrganizationData key="10008" id="reseller4">
+            <Email>reseller4@organization.com</Email>
+            <Name>NameReseller4</Name>
+            <Address>AddressReseller4</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="3.00" marketplaceRevenueSharePercentage="90.00"
+          marketplaceRevenue="2.70" resellerRevenueSharePercentage="80.00" resellerRevenue="2.40" amountForSupplier="-2.10"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <Service key="30011" id="resellerService5" model="RESELLER" templateKey="55555">
+        <SubscriptionsRevenue amount="10.00" />
+        <Reseller>
+          <OrganizationData key="10008" id="reseller4">
+            <Email>reseller4@organization.com</Email>
+            <Name>NameReseller4</Name>
+            <Address>AddressReseller4</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails serviceRevenue="10.00" marketplaceRevenueSharePercentage="80.00"
+          marketplaceRevenue="8.00" resellerRevenueSharePercentage="20.00" resellerRevenue="2.00" amountForSupplier="0.00"
+          operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <RevenuePerMarketplace serviceRevenue="15.00" marketplaceRevenue="11.70" brokerRevenue="1.20"
+        resellerRevenue="4.40" overallRevenue="-1.30" />
+    </Marketplace>
+
+    <Marketplace id="mp4">
+      <MarketplaceOwner>
+        <OrganizationData key="20003" id="mpowner3">
+          <Email>mpowner3@organization.com</Email>
+          <Name>NameMpowner3</Name>
+          <Address>AddressMpowner3</Address>
+        </OrganizationData>
+      </MarketplaceOwner>
+
+      <Service key="44444" id="templateService4" model="DIRECT">
+        <Subscription key="40008" id="sub7" billingKey="50008" revenue="1.00" />
+        <RevenueShareDetails serviceRevenue="1.00" marketplaceRevenueSharePercentage="1.00"
+          marketplaceRevenue="0.01" amountForSupplier="0.99" operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" />
+      </Service>
+
+      <RevenuePerMarketplace serviceRevenue="1.00" marketplaceRevenue="0.01" brokerRevenue="0.00"
+        resellerRevenue="0.00" overallRevenue="0.99" />
+    </Marketplace>
+
+    <SupplierRevenue amount="0.00">
+      <DirectRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" operatorRevenue="0.00" />
+      <BrokerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" brokerRevenue="0.00" operatorRevenue="0.00" />
+      <ResellerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" resellerRevenue="0.00"
+        operatorRevenue="0.00" overallRevenue="0.00" />
+    </SupplierRevenue>
+  </Currency>
+
+</SupplierRevenueShareResult>

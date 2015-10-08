@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  
+  <Catalogentry tkey="15001" product_tkey="151" version="2" anonymousvisible="true" visibleincatalog="true" 
+    brokerpricemodel_tkey="1500001" resellerpricemodel_tkey="1500002" marketplace_tkey="[NULL]" />
+  <Catalogentry tkey="15002" product_tkey="152" version="0" anonymousvisible="true" visibleincatalog="true" 
+    brokerpricemodel_tkey="1500003" resellerpricemodel_tkey="[NULL]" marketplace_tkey="10001" />
+  <Catalogentry tkey="15003" product_tkey="153" version="0" anonymousvisible="true" visibleincatalog="true" 
+    brokerpricemodel_tkey="[NULL]" resellerpricemodel_tkey="1500004" marketplace_tkey="[NULL]" />
+  <Catalogentry tkey="15004" product_tkey="154" version="0" anonymousvisible="true" visibleincatalog="true" 
+    brokerpricemodel_tkey="[NULL]" resellerpricemodel_tkey="[NULL]" marketplace_tkey="[NULL]" />
+  <Catalogentry tkey="10006" product_tkey="155" version="0" anonymousvisible="true" visibleincatalog="true" 
+    brokerpricemodel_tkey="[NULL]" resellerpricemodel_tkey="[NULL]" marketplace_tkey="10001" />
+
+  <CatalogentryHistory tkey="150001" objkey="15001" productobjkey="151" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:31:00" visibleincatalog="true" marketplaceobjkey="10001"
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="150002" objkey="15001" productobjkey="151" modtype="MODIFY" moduser="u1" objversion="1" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true"
+    brokerpricemodelobjkey="1500001" resellerpricemodelobjkey="1500002" />
+  <CatalogentryHistory tkey="150003" objkey="15001" productobjkey="151" modtype="MODIFY" moduser="u1" objversion="2" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:33:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="1500001" resellerpricemodelobjkey="1500002" />
+  <CatalogentryHistory tkey="150004" objkey="15002" productobjkey="152" modtype="MODIFY" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" marketplaceobjkey="10001"
+    brokerpricemodelobjkey="1500003" resellerpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="150005" objkey="15003" productobjkey="153" modtype="MODIFY" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" marketplaceobjkey="10002"
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="1500004" />
+   <CatalogentryHistory tkey="150006" objkey="15004" productobjkey="154" modtype="MODIFY" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" />
+
+</dataset>

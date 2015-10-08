@@ -1,0 +1,162 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="tests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="setup table state test">
+      <mpl_setup.createSupplierAccount />
+      <operator.createMarketplace mIdProperty="mId" name="table_state_test" ownerId="${supplierId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define marketplaceId="${mId}" techServiceId="Example_with_roles 1.00" serviceId="svc1" name="Svc1" svcKeyProperty="svcKey" />
+      <setup:pricemodel.define serviceId="svc1" isFree="true" />
+      <setup:service.activate serviceIds="svc1" />
+      <setup:subscription.create subId="svc1" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:user.registerMultiple number="35" userId="user" organizationId="${supplierId}" marketplaceId="${mId}" roles="SERVICE_MANAGER" numUserKeysReturned="15" userKeyProp="userKeys" />
+      <setup:subscription.addRevokeUser subscriptionId="svc1" usersToAdd="${userKeys}" serviceRole="USER" />
+    </webtest>
+  </target>
+
+  <target name="tests" depends="setup">
+    <webtest name="Check user tables keep the state">
+      <!-- start with cklassic portal: manage users-->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickLink label="${user.list.title}" />
+
+      <!-- first time page one must be shown and user id column sorted ascending-->
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:userId']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-uns']" />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:userListTablePager_ds_1' and @class='rf-ds-nmb-btn rf-ds-act']"/>
+    
+      <!-- keep the page -->
+      <setInputField htmlId="userListForm:userListTable:userListTablePagerpageValue" value="3" />
+      <clickLink htmlId="userListForm:userListTable:userListTablePagerpagerButton" />
+      <common.clickLink label="${organization.edit.title}" />
+      <common.clickLink label="${user.list.title}" />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:userListTablePager_ds_3' and @class='rf-ds-nmb-btn rf-ds-act']" />
+
+      <!-- keep the filter -->
+      <setInputField xpath="//*[@id='userListForm:userListTable:lastName']/..//input" value="Schmidt" />
+      <common.waitForJavaScript />
+      <common.clickLink label="${organization.edit.title}" />
+      <common.clickLink label="${user.list.title}" />
+      <verifyInputField xpath="//*[@id='userListForm:userListTable:lastName']/..//input" value="Schmidt" />
+
+      <!-- keep the column sorting -->
+      <clickElement xpath="//*[@id='userListForm:userListTable:lastName']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-uns']" />
+      <common.clickLink label="${organization.edit.title}" />
+      <common.clickLink label="${user.list.title}" />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:lastName']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-asc']" />
+
+
+      <!-- stay logged in to check that there are no dependencies between tables; switch to marketplace: account->users -->
+      <clickLink href="/oscm-portal/shop/gotoMarketplace.jsf" />
+      <setSelectField htmlId="gotoMarketplaceForm:marketplace" value="${mId}" />
+      <clickLink htmlId="goForm:gotoBtnLink" />
+      <mpl_goto.account.users />
+
+      <!-- first time page one must be shown and user id column sorted ascending, filter from previous page must not be applied -->
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:colUserId']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-asc']" />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:userListPager_ds_1' and @class='rf-ds-nmb-btn rf-ds-act']"/>
+      <verifyInputField htmlId="userListForm:userListTable:filterLastName" value="" />
+
+      <!-- keep the page -->
+      <setInputField htmlId="userListForm:userListTable:userListPagerpageValue" value="2" />
+      <clickLink htmlId="userListForm:userListTable:userListPagerpagerButton" />
+      <mpl_goto.account.processes />
+      <mpl_goto.account.users />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:userListPager_ds_2' and @class='rf-ds-nmb-btn rf-ds-act']" />
+
+   
+      <!-- keep the filter -->
+      <setInputField htmlId="userListForm:userListTable:filterFirstName" value="Erich" />
+      <common.waitForJavaScript />
+      <mpl_goto.account.processes />
+      <mpl_goto.account.users />
+      <verifyInputField htmlId="userListForm:userListTable:filterFirstName" value="Erich" />
+
+      <!-- keep the column sorting -->
+      <clickElement xpath="//*[@id='userListForm:userListTable:colFirstName']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-uns']" />
+      <mpl_goto.account.processes />
+      <mpl_goto.account.users />
+      <verifyXPath xpath="//*[@id='userListForm:userListTable:colFirstName']//*[@class='rf-dt-srt rf-dt-srt-btn rf-dt-srt-asc']" />
+
+
+      <!-- stay logged in to check that there are no dependencies between tables; switch to subscription details (user tab) -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+
+      <!-- first time page one must be shown and user id column sorted ascending, filter from previous pages must not be applied -->
+      <verifyXPath xpath="//*[@id='userListForm:userTable:subUserListPager_ds_1'and @class='rf-ds-nmb-btn rf-ds-act']"/>
+      <verifyXPath xpath="//*[@id='userListForm:userTable:subColUserId']" />
+      <verifyInputField htmlId="assignUsersPanelForm:userTable:filterFirstName" value="" />
+      <verifyInputField htmlId="assignUsersPanelForm:userTable:filterLastName" value="" />
+
+      <!-- keep the page -->
+      <setInputField htmlId="userListForm:userTable:subUserListPagerpageValue" value="2" />
+      <clickLink htmlId="userListForm:userTable:subUserListPagerpagerButton" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <verifyXPath xpath="//*[@id='userListForm:userTable:subUserListPager_ds_2'and @class='rf-ds-nmb-btn rf-ds-act']"/>
+
+      <!-- filter is not kept -->
+      <setInputField htmlId="userListForm:userTable:filterUserId" value="user" />
+      <common.waitForJavaScript />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <!-- filter is kept in cancoo -->
+      <!--verifyInputField htmlId="userListForm:userTable:filterUserId" value="" /-->
+      
+      <!-- bug 11280 -->
+      <setInputField htmlId="userListForm:userTable:filterFirstName" value="Rolf" />
+      <common.waitForJavaScript />
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
+      <setInputField htmlId="assignUsersPanelForm:userTable:filterFirstName" value="*" />
+      <common.waitForJavaScript timeout="50000"/>
+      <not>
+      	<verifyXPath xpath=".//*[@id='assignUsersPanelForm:userTable:0:assignColFirstName']" />
+      </not>
+      <setInputField htmlId="assignUsersPanelForm:userTable:filterFirstName" value="" />
+      <common.waitForJavaScript timeout="50000"/>
+      <clickElement htmlId="assignUsersPanelForm:cancelButton" />
+
+      <!-- keep the column sorting -->
+      <clickElement htmlId="userListForm:userTable:subColRole" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <verifyXPath xpath="//*[@id='userListForm:userTable:subColRole']//span[matches(@class, 'rf-dt-srt rf-dt-srt-btn rf-dt-srt-asc')]" />
+
+      <!-- only short testing for dialogs as not everything is working within webtest - ordering cannot be checked although resulting page -->
+      <!-- shows the correct image; ineraction not possible (e.g. set filter) as dialog is not visible -->
+      <!-- open edit roles dialog; check default page and filter -->
+      <clickLink htmlId="usersForm:editRolesLink" />
+      <common.waitForJavaScript />
+
+      <!-- first time page one must be shown and filter from previous pages must not be applied -->
+      <verifyXPath xpath="//*[@id='editRolesPanelForm:userTable:editRolesUserListPagerPanel']" />
+      <!--verifyInputField htmlId="editRolesPanelForm:userTable:filterUserId" value="" /-->
+      <!--verifyInputField htmlId="editRolesPanelForm:userTable:filterFirstName" value="" /-->
+      <verifyInputField htmlId="editRolesPanelForm:userTable:filterLastName" value="" />
+
+
+      <!-- open assign users dialog; check default page and filter -->
+      <clickElement htmlId="editRolesPanelForm:cancelButton" />
+      <clickLink htmlId="usersForm:assignUsersLink" />
+      <common.waitForJavaScript />
+
+      <!-- first time page one must be shown and filter from previous pages must not be applied -->
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm:userTable:assignUserListPagerPanel']" />
+      <!--verifyInputField htmlId="assignUsersPanelForm:userTable:filterUserId" value="" /-->
+      <!--verifyInputField htmlId="assignUsersPanelForm:userTable:filterFirstName" value="" /-->
+      <verifyInputField htmlId="assignUsersPanelForm:userTable:filterLastName" value="" />
+
+    </webtest>
+  </target>
+
+</project>

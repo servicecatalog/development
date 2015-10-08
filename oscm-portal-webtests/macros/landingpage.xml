@@ -1,0 +1,312 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <macrodef name="landingpage.setSortOrderForLandingpageWithLogin">
+    <attribute name="userId" default="administrator" />
+    <attribute name="password" default="admin123" />
+    <attribute name="mId" />
+    <attribute name="sortOrder" default="1" />
+
+    <sequential>
+      <login.login url="${bes.http.url}/oscm-portal" userId="@{userId}" password="@{password}" />
+      <landingpage.setSortOrderForLandingpage mId="@{mId}" sortOrder="@{sortOrder}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.setSortOrderForLandingpage">
+    <attribute name="mId" />
+    <attribute name="sortOrder" default="1" />
+
+    <sequential>
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="@{mId}" />
+      <setRadioButton htmlId="customizeLandingpageForm:fillin:@{sortOrder}" />
+      <landingpage.saveLandingpage />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.loginAsSupplier">
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.openLandingpage">
+    <sequential>
+      <common.ignorePageScriptError />
+      <common.clickLink label="${marketplace.landingpage.title}" />
+      <common.reSetPageScriptError />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.selectMarketplace">
+    <attribute name="mId" />
+    <sequential>
+      <!-- (1) Select marketplace -->
+      <setSelectField htmlId="customizeLandingpageForm:marketplace" value="@{mId}" />
+
+      <!-- (2) SelectMarketplace is an ajax request. Sleep until all landingpage data are loaded -->
+      <common.waitForJavaScript />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.saveLandingpage">
+    <sequential>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.landingpage.saved}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.resetLandingpage">
+    <attribute name="confirm" default="true" />
+    <sequential>
+      <!-- (1) Click reset button on landingpage -->
+      <clickLink htmlId="customizeLandingpageForm:resetBtn" />
+
+      <!-- (2) confirm or deny reset landingpage -->
+      <ifStep test="@{confirm}">
+        <then>
+          <clickLink htmlId="confirmForm:okButton" />
+        </then>
+        <else>
+          <clickLink htmlId="confirmForm:cancelButton" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyUIDisablementOnLandingpage">
+    <sequential>
+
+      <!-- (1) Radio Buttons : Select landingpage type -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:0']/@disabled='disabled'" />
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:1']/@disabled='disabled'" />
+
+      <!-- (2) Selectbox number services -->
+      <verifyXPath xpath="//select[@id='customizeLandingpageForm:numberOfServices']/@disabled='disabled'" />
+
+      <!-- (3) Listshuttle left side -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']" />
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']//tr[@id='customizeLandingpageForm:featuredServiceShuttleItem0']" />
+      </not>
+
+      <!-- (4) Listshuttle right side -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']" />
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']//tr[@id='customizeLandingpageForm:featuredServiceShuttleItem0']" />
+      </not>
+
+      <!-- (5) Radio buttons -->
+      <verifyXPath xpath="//div[@class='fillinDiv']//input[@id='customizeLandingpageForm:fillin:0']/@disabled='disabled'" />
+
+      <!-- (6) Button panel : save and reset -->
+
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:saveBtnDisabled']" />
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:resetBtnDisabled']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyUIEnablementOnLandingpage">
+    <sequential>
+      <!-- (1) Radio Buttons : Select landingpage type -->
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:0']/@disabled='disabled'" />
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:1']/@disabled='disabled'" />
+      </not>
+
+      <!-- (2) Selectbox number services -->
+      <not>
+        <verifyXPath xpath="//select[@id='customizeLandingpageForm:defineCustomFeaturedServices:numberOfServices']/@disabled='disabled'" />
+      </not>
+
+      <!-- (3) Listshuttle left side -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']//*[@id='customizeLandingpageForm:featuredServiceShuttleItem0']" />
+
+      <!-- (4) Listshuttle right side -->
+      <verifyXPath description="Ensure target panel is present" xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleTargetItems']" />
+      <not>
+        <verifyXPath description="Ensure no service in target panel" xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleTargetItems']//*[@id='customizeLandingpageForm:featuredServiceShuttleItem0']" />
+      </not>
+
+      <not>
+        <verifyXPath xpath="//div[@class='fillinDiv']//input[@id='customizeLandingpageForm:fillin:0']/@disabled='disabled'" />
+      </not>
+
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:saveBtnDisabled']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:resetBtnDisabled']" />
+      </not>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyDefaultValues">
+    <sequential>
+
+      <!-- (1) landingpage type -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:0']/@checked='checked'" />
+
+      <!-- (2) Selectbox number services -->
+      <verifyXPath xpath="contains(//*[@id='customizeLandingpageForm:numberOfServices']//*[@selected='selected']/text(), '6')" />
+
+      <!-- (3) Listshuttle left side (8 Products) -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleSourceItems']//*[@id='customizeLandingpageForm:featuredServiceShuttleItem8']" />
+
+      <!-- (4) Listshuttle right side -->
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleTargetItems']" />
+      <not>
+        <verifyXPath xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttleTargetItems']//*[@id='customizeLandingpageForm:featuredServiceShuttleItem0']" />
+      </not>
+
+      <!-- (5) Radio buttons -->
+      <verifyXPath xpath="//*[@value='ACTIVATION_DESCENDING' and @checked='checked']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.changeValues">
+    <sequential>
+      <!-- (1) Selectbox number services -->
+      <setSelectField name="customizeLandingpageForm:numberOfServices" text="7" />
+
+      <!-- (2) SelectMarketplace is an ajax request. Sleep until all landingpage data are loaded -->
+      <common.waitForJavaScript />
+      <!-- FIXME: CANNOT CLICK "add all". Statements do not work due to an webcanoo bug! -->
+      <!-- (2) Copy all products (8 products) from left Listshuttle box to right Listshuttle box <clickLink description="Click 
+        add all button 1" xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttlecopyAlllink' and position()='1']" /> <clickElement 
+        description="Click add all button" xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttlecopyAll' and position()='1']//*[@class='rich-list-shuttle-button']" 
+        /> <clickElement description="Click add all button misst" xpath="//*[@id='customizeLandingpageForm:canooCopyAllButtonMisst']" 
+        /> -->
+
+      <!--<verifyXPath description="Ensure service in target panel" xpath="//*[@id='customizeLandingpageForm:featuredServiceShuttletltbody']//*[@id='customizeLandingpageForm:featuredServiceShuttle:0']" />-->
+
+      <!-- (3) Change filling option to 'No other services' -->
+      <setRadioButton htmlId="customizeLandingpageForm:fillin:3" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.changeNumberOfServices">
+    <attribute name="numberServices" />
+    <sequential>
+      <setSelectField name="customizeLandingpageForm:numberOfServices" text="@{numberServices}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyChangedValues">
+    <sequential>
+      <!-- (1) Selectbox number services -->
+      <verifyXPath xpath="contains(//*[@id='customizeLandingpageForm:numberOfServices']/*[@selected='selected']/text(), '7')" />
+
+      <!-- (2) Change filling option to 'No other services' -->
+      <verifyRadioButton htmlId="customizeLandingpageForm:fillin:3" checked="true" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.resetValues">
+    <sequential>
+      <!-- (1) Selectbox number services -->
+      <setSelectField name="customizeLandingpageForm:numberOfServices" text="6" />
+
+      <!-- (2) Copy all products (8 products) from right Listshuttle box to left Listshuttle box -->
+      <clickButton name="customizeLandingpageForm:featuredServiceShuttleremoveAll" />
+
+      <!-- (3) Change filling option to 'The most recently activated services' -->
+      <setRadioButton htmlId="customizeLandingpageForm:fillin:0" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.existsServiceOnMarketplace">
+    <attribute name="max" />
+    <sequential>
+      <!-- (1) Verify if service exists on marketplace. Decrement because services on marketplace landingpage starts with 
+        0 -->
+      <storeProperty name="decMax" value="@{max} - 1" eval="true" />
+      <verifyXPath xpath="//*[@id='servicePanel#{decMax}']" />
+
+      <!-- (2) Verify if the service is at the end on marketplace -->
+      <not>
+        <verifyXPath xpath="//*[@id='servicePanel@{max}']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyEmptyCategoriesExists">
+    <attribute name="max" default="0" />
+    <sequential>
+      <!-- Verify that 3 empty categories are shown on the enterprise landingpage (and not more) -->
+      <repeat startCount="1" endCount="@{max}" countername="i">
+        <verifyXPath xpath="//*[@id='listServicesForEnterpriseLandingpage']/div[1]/div[#{i}]/div" />
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyCategoryContainsServices">
+    <attribute name="categoryName" default="First" />
+    <attribute name="categoryId" default="1" />
+    <attribute name="maxServices" default="0" />
+    <sequential>
+      <!-- Verify that category exists-->
+      <verifyXPath xpath="//*[@id='listServicesForEnterpriseLandingpage']/div[1]/div[@{categoryId}]/div[1]" />
+
+      <!-- Verify that category contains given amount of services @maxServices -->
+      <storeProperty name="max" value="@{maxServices} - 1" eval="true" />
+      <repeat count="#{max}" countername="i">
+        <verifyXPath xpath="//*[@id='servicePanel@{categoryName}#{i}']" />
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.deleteServices">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <sequential>
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+
+      <setup:service.delete serviceIds="S" start="1" count="9" deactivate="true" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.selectEnterpriseLandingpageType">
+    <sequential>
+      <setRadioButton htmlId="customizeLandingpageForm:landingpageTypeSelect:1" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.selectPublicLandingpageType">
+    <sequential>
+      <setRadioButton htmlId="customizeLandingpageForm:landingpageTypeSelect:0" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.verifyEnterpriseLandingpageValues">
+    <sequential>
+      <verifyXPath xpath="//*[@id='customizeLandingpageForm:landingpageTypeSelect:1']/@checked='checked'" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.switchToEnterpriseLandingpage">
+    <attribute name="marketplaceId"/>
+    <sequential>
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="@{marketplaceId}" />
+      <landingpage.selectEnterpriseLandingpageType />
+      <landingpage.saveLandingpage />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="landingpage.switchToPublicLandingpage">
+    <attribute name="marketplaceId"/>
+    <sequential>
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="@{marketplaceId}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.saveLandingpage />
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,182 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="definePublishingOptionsTest" xmlns:setup="antlib:org.oscm.webtest.setup">
+	<import file="../macros/all.xml" />
+
+	<target name="definePublishingOptionsTest">
+		<webtest name="definePublishingOptionsTest">
+
+			<!-- setup -->
+			<mail.cleanInbox />
+			<scenario.setupSupplier />
+			<operator.createMarketplace mIdProperty="mId" name="New Marketplace" ownerId="${supplierId}" />
+			<setup:store.settings userkey="${supplierUserKey}" password="secret" />
+			<setup:techservice.import file="${techService.import.file}" />
+			<setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service1" name="Service1" description="Service1 description" />
+			<setup:pricemodel.define serviceId="Service1" isFree="true" />
+
+			<operator.createorganization roles="BROKER" />
+			<mail.readPasswordAndUrlFromMail />
+			<storeProperty name="brokerId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="brokerUrl" value="#{baseUrl}" propertyType="ant" />
+			<storeProperty name="brokerUserId" value="#{userId}" propertyType="ant" />
+			<storeProperty name="brokerPassword" value="#{userPwd}" propertyType="ant" />
+
+			<operator.createorganization roles="RESELLER" />
+			<mail.readPasswordAndUrlFromMail />
+			<storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="resellerUrl" value="#{baseUrl}" propertyType="ant" />
+			<storeProperty name="resellerUserId" value="#{userId}" propertyType="ant" />
+			<storeProperty name="resellerPassword" value="#{userPwd}" propertyType="ant" />
+
+			<!-- supplier -->
+			<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+			<invoke url="${supplierUrl}/service/publish.jsf" />
+			<setSelectField htmlId="editForm:selectedServiceId" text="Service1" />
+		    <verifyXPath xpath="//*[text()='${service.checkbox.public}:']" />
+			<verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+			<verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+			<verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+			<verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+			<login.logout />
+
+			<storeProperty name="administrator" value="administrator" propertyType="ant" />
+			<storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+			<!-- grant resale permission -->
+			<this.verifyGrantResalePermission serviceId="Service1" marketplaceId="${mId}" isGranted="true" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+
+			<!-- reseller -->
+			<login.initialLoginAndChangePassword url="${resellerUrl}" userId="${resellerUserId}" password="${resellerPassword}" />
+			<invoke url="${supplierUrl}/service/publish.jsf" />
+			<setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+			</not>
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+			</not>
+			<verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+			</not>
+			<login.logout />
+
+			<!-- broker -->
+			<login.initialLoginAndChangePassword url="${brokerUrl}" userId="${brokerUserId}" password="${brokerPassword}" />
+			<invoke url="${supplierUrl}/service/publish.jsf" />
+			<setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+			</not>
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+			</not>
+			<not>
+				<verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+			</not>
+			<verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+			<login.logout />
+		</webtest>
+		
+		<webtest name="Bug 10157: After save, the changed share setting cannot be refreshed">
+			<!--Bug 10157-->
+			<selectWebClient name="browser1">
+				<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+				<invoke url="${supplierUrl}/service/publish.jsf" />
+				<setSelectField htmlId="editForm:selectedServiceId" text="Service1" />
+				<clickLink htmlId="editForm:saveButton" />
+				<verifyXPath xpath="//span[@id='editForm:revenueShareOperator']"  text='0.00%'/>
+			</selectWebClient>
+			<selectWebClient name="browser2">
+				<!-- change opera	tor share setting -->
+				<login.login url="${supplierUrl}" userId="${administrator}" password="${administratorPwd}" />
+				<invoke url="${supplierUrl}/operator/manageOperatorRevenueShare.jsf" />
+				<setSelectField htmlId="selectForm:templateKey" text="Service1(${supplierId})" />
+				<setInputField htmlId="editForm:operatorRevenueShareTable:0:operatorRevenueShare" value="50" />
+				<clickButton htmlId="editForm:saveButton" />
+			</selectWebClient>
+			
+			<selectWebClient name="browser1">
+				<clickLink htmlId="editForm:saveButton" />
+				<verifyXPath xpath="//span[@id='editForm:revenueShareOperator']"  text='50.00%' />
+			</selectWebClient>
+			<selectWebClient name="browser2">
+				<!-- change operator share setting -->
+				<setInputField htmlId="editForm:operatorRevenueShareTable:0:operatorRevenueShare" value="25" />
+				<clickButton htmlId="editForm:saveButton" />
+				<login.logout />
+			</selectWebClient>
+
+			<selectWebClient name="browser1">
+				<clickLink htmlId="editForm:saveButton" />
+				<verifyXPath xpath="//span[@id='editForm:revenueShareOperator']"  text='25.00%' />
+				<login.logout />
+			</selectWebClient>
+		</webtest>
+		
+		<webtest name="Bug 9877: Broker can define publishing options for a service which was deleted by supplier.">
+			<!--Bug 9877-->
+			<selectWebClient name="browser1">
+				<login.loginAsSupplier url="${resellerUrl}" userId="${resellerUserId}" />
+				<invoke url="${supplierUrl}/service/publish.jsf" />
+				<setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+			</selectWebClient>
+
+			<selectWebClient name="browser2">
+				<!-- revoke resele permission -->
+				<this.verifyGrantResalePermission serviceId="Service1" marketplaceId="${mId}" isGranted="false" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+			</selectWebClient>
+
+			<selectWebClient name="browser1">
+				<clickElement htmlId="editForm:confirmedButton" />
+				<common.verifyError label="${ex.ConcurrentModificationException}" />
+				<login.logout />
+			</selectWebClient>
+		</webtest>
+
+    <webtest name="Bug 10245">
+      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service2" name="Service2" description="Service2 description" />
+      <setup:pricemodel.define serviceId="Service2" isFree="true" />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service2" />
+      <common.isButtonDisabled buttonId="editForm:saveButton" />
+      <login.logout />
+    </webtest>
+
+
+		<webtest name="cleanUp">
+			<setup:service.delete serviceIds="*" deactivate="true" />
+			<mail.cleanInbox />
+		</webtest>
+	</target>
+
+	<macrodef name="this.verifyGrantResalePermission">
+		<attribute name="serviceId" />
+		<attribute name="marketplaceId" />
+		<attribute name="isGranted" />
+		<attribute name="brokerOrgId" />
+		<attribute name="resellerOrgId" />
+		<sequential>
+			<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+			<invoke url="${supplierUrl}/service/publish.jsf" />
+			<setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+			<setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+
+			<storeXPath description="Get row for Broker Organization ID" property="brokerRowID" xpath="//*[@id='editForm:brokerTable']//*[normalize-space()='@{brokerOrgId}']/@id" />
+			<storeXPath property="brokerRowNr" xpath="substring-before(substring-after('#{brokerRowID}', 'editForm&#58;brokerTable&#58;'), ':')" />
+			<setCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+
+			<storeXPath description="Get row for Reseller Organization ID" property="resellerRowID" xpath="//*[@id='editForm:resellerTable']//*[normalize-space()='@{resellerOrgId}']/@id" />
+			<storeXPath property="resellerRowNr" xpath="substring-before(substring-after('#{resellerRowID}', 'editForm&#58;resellerTable&#58;'), ':')" />
+			<setCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+
+			<clickLink htmlId="editForm:saveButton" />
+			<common.verifySuccess label="@{serviceId}" />
+			<verifyCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+			<verifyCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+			<login.logout />
+		</sequential>
+	</macrodef>
+
+</project>

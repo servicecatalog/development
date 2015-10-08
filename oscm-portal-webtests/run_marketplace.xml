@@ -1,0 +1,36 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project name="Run BES UI Test Marketplace" default="run">
+  <target name="clean">
+    <delete dir="results" quiet="false" failonerror="true" />
+    <echo message="Webtest results cleaned." />
+  </target>
+
+  <target name="copyGlassfishLogs">
+    <ant antfile="../oscm-build/build.xml" target="copyGlassfishLogs" dir="../oscm-build" />
+  </target>
+
+  <target name="callDeleteWebtestPropertyFile">
+    <ant antfile="build.xml" target="deleteWebtestPropertyFile" />
+  </target>
+
+  <target name="callCreateWebtestPropertyFile">
+    <ant antfile="build.xml" target="createWebtestPropertyFile">
+      <property name="wt.headless" value="true" />
+      <property name="testPart1" value="false" />
+      <property name="testPart2" value="false" />
+      <property name="testPartSAML" value="false" />
+      <property name="testPartCustom" value="false" />
+      <property name="testPartCustomBuildMachines" value="false" />
+      <property name="testAccountPart" value="false" />
+      <property name="testMarketplace" value="true" /> 
+    </ant>
+  </target>
+
+  <target name="callRunWebtestViaCommandline">
+    <ant antfile="build.xml" target="runWebtestViaCommandline" />
+  </target>
+
+  <target name="run" depends="clean,callDeleteWebtestPropertyFile,callCreateWebtestPropertyFile,callRunWebtestViaCommandline,copyGlassfishLogs">
+    <echo message="Run marketplace webtests... " />
+  </target>
+</project>

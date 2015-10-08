@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Subscription tkey="1" subscriptionid="asdf" marketplace_tkey="10" />
+  <SubscriptionHistory subscriptionid="asdf" marketplaceobjkey="10" />
+</dataset>

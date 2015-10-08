@@ -1,0 +1,165 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project xmlns:setup="antlib:org.oscm.webtest.setup" default="testMPL_MidHandling">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testMPL_MidHandling">
+
+    <webtest name="testMPL_MidHandling_Setup">
+      <!-- add default currency -->
+      <operator.addCurrency />
+      <!-- create supplier with no mMP assigned -->
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrlNoMp" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserIdNoMp" value="${supplierUserId}" propertyType="ant" />
+      <!-- create 1st supplier -->
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <!-- create another global MP, in addition to existing MP -->
+      <operator.createMarketplace mIdProperty="mp1_global" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mp1_global}"/>      
+
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mp1_global}" />
+      <operator.createMarketplace mIdProperty="mp2_global" ownerId="${supplierId}" name="MP2" baseurl="${bes.http.url}/oscm-portal" />
+
+      <!-- create one local MP -->
+      <operator.createMarketplace mIdProperty="mp3_local" ownerId="${supplierId}" name="MP3" baseurl="${bes.http.url}/oscm-portal" />
+      <!-- create, publish + activate a service for each MP -->
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mp2_global}" userId="${supplierUserId}" password="secret"/>            
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mp3_local}" userId="${supplierUserId}" password="secret"/>      
+
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="MegaOffice1" name="Mega Office Starter" description="Starter bundle with limited features." configurableChecked="true" namedUser="1" image="data/images/icon2.png" marketplaceId="${mp1_global}" />
+      <setup:service.define serviceId="MegaOffice2" name="Mega Office Basic" description="Basic bundle with all features but no support." configurableChecked="true" namedUser="1" image="data/images/icon3.png" marketplaceId="${mp2_global}" />
+      <setup:service.define serviceId="MegaOffice3" name="Mega Office Student" description="Basic bundle with all features but no support - special student price." configurableChecked="true" namedUser="1" image="data/images/icon4.png" marketplaceId="${mp3_local}" />
+      <setup:pricemodel.define serviceId="MegaOffice1" isFree="true" />
+      <setup:pricemodel.define serviceId="MegaOffice2" isFree="true" />
+      <setup:pricemodel.define serviceId="MegaOffice3" isFree="true" />
+      <setup:service.activate serviceIds="MegaOffice" start="1" count="3" />
+      <!-- store base URLs for easier access -->
+      <storeProperty name="baseUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="baseUrlRedPortal" value="#{baseUrl}/marketplace/index.jsf" propertyType="ant" />
+      <storeProperty name="publicCatalogBluePortal" value="#{baseUrl}/public/catalog.jsf" propertyType="ant" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_goodCases">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_goodCases">
+        <!-- (1) open url with valid mId in red portal => expected result: corresponding MP with published service is found -->
+        <invoke url="${baseUrlRedPortal}?mId=${mp1_global}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+        <!-- (2) open url with another valid mId in red portal => expected result: corresponding MP with published service is found -->
+        <invoke url="${baseUrlRedPortal}?mId=${mp2_global}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Basic" />
+        <!-- (3) go to details page, then open url with no mId in red portal => expected result: stay on this MP -->
+        <clickLink htmlId="serviceButton0" />
+        <clickElement htmlId="showDetailsForm:showDetails" />
+
+        <invoke url="${baseUrlRedPortal}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Basic" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_noUserLoggedin_wrongMid">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_noUserLoggedin_wrongMid">
+        <!-- (1) open url with valid mId in red portal => expected result: corresponding MP with published service is found -->
+        <invoke url="${baseUrlRedPortal}?mId=${mp1_global}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+        <!-- (2) no user logged in, open url with invalid mId of local MP in red portal, 'MP_ERROR_REDIRECT_HTTP' not configured => expected result: show error msg -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="" />
+      	<invoke url="${baseUrlRedPortal}?mId=myFantasy_mId" />
+        <verifyElementText htmlId="mpErrorPageLabel" text="${marketplace.error.title}" />
+        <verifyXPath xpath="//*[@id='mpErrorPageMsg' and normalize-space()='${error.invalidMarketplaceUrl}']" />
+      	<!-- (3) no user logged in, open url with invalid mId of local MP in red portal, 'MP_ERROR_REDIRECT_HTTP' configured => expected result: redirect to configured Url -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="${baseUrlRedPortal}?mId=${mp1_global}" />
+        <invoke url="${baseUrlRedPortal}?mId=myFantasy_mId" />
+      	<mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_noUserLoggedin_noMid">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_noUserLoggedin_noMid">
+        <!-- (1) no user logged in, open url with no mId in red portal, 'MP_ERROR_REDIRECT_HTTP' not configured => expected result: show error msg -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="" />
+        <invoke url="${baseUrlRedPortal}" />
+        <verifyElementText htmlId="mpErrorPageLabel" text="${marketplace.error.title}" />
+        <verifyXPath xpath="//*[@id='mpErrorPageMsg' and normalize-space()='${error.invalidMarketplaceUrl}']" />
+        <!-- (2) no user logged in, open url with no mId in red portal, 'MP_ERROR_REDIRECT_HTTP' configured=> expected result: redirect to configured Url -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="${baseUrlRedPortal}?mId=${mp1_global}" />
+        <invoke url="${baseUrlRedPortal}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_userLoggedin_wrongMid">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_userLoggedin_wrongMid">
+        <!-- (1) user logged in, supplier has marketplace, open url with invalid mId of local MP in red portal, 'MP_ERROR_REDIRECT_HTTP' not configured => expected result: show error msg -->
+      	<this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="" />
+      	<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+        <invoke url="${baseUrlRedPortal}?mId=myFantasy_mId" />
+      	<verifyElementText htmlId="mpErrorPageLabel" text="${marketplace.error.title}" />
+        <verifyXPath xpath="//*[@id='mpErrorPageMsg' and normalize-space()='${error.invalidMarketplaceUrl}']" />
+      	<!-- (2) user logged in, supplier has marketplace, open url with invalid mId of local MP in red portal, 'MP_ERROR_REDIRECT_HTTP' configured => expected result: redirect to configured Url -->
+      	<this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="${baseUrlRedPortal}?mId=${mp1_global}" />
+      	<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      	<invoke url="${baseUrlRedPortal}?mId=myFantasy_mId" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_userLoggedin_noMid_supplierhasMp">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_userLoggedin_noMid_supplierhasMp">
+        <!-- user logged in, supplier has marketplace, open url with no valid mId of local MP in red portal => expected result: redirect the marketplace which marketplaceid equals user's organiazationid -->
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+        <invoke url="${baseUrlRedPortal}" />
+      	<mpl_verify.service_home pos="0" svcName="Mega Office Basic" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessRedPortal_userLoggedin_noMid_supplierhasNoLocalMp">
+      <selectWebClient name="testMPL_MidHandling_accessRedPortal_userLoggedin_noMid_supplierhasNoLocalMp">
+      	<!-- (1) user logged in, open url with no mId in red portal, 'MP_ERROR_REDIRECT_HTTP' not configured => expected result: redirect to default supplier page in blue portal -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="" />
+      	<login.login url="${supplierUrlNoMp}" userId="${supplierUserIdNoMp}" />
+        <invoke url="${baseUrlRedPortal}" />
+      	<verifyElementText htmlId="pagelabel" text="${techService.import.title}" />
+      	<!--error message not show in canoo -->
+      	<!--verifyXPath xpath="//*[@id='errorMessages1' and normalize-space()='${error.invalidMarketplaceUrl}']" /-->
+      	<login.logout />
+        <!-- (2) user logged in, open url with no mId in red portal, 'MP_ERROR_REDIRECT_HTTP' configured=> expected result: redirect to configured Url -->
+        <this.saveConfigurationSettings key="MP_ERROR_REDIRECT_HTTP" value="${baseUrlRedPortal}?mId=${mp1_global}" />
+      	<login.login url="${supplierUrlNoMp}" userId="${supplierUserIdNoMp}" />
+      	<invoke url="${baseUrlRedPortal}" />
+        <mpl_verify.service_home pos="0" svcName="Mega Office Starter" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_accessBluePortal_loggedIn_goodCases">
+      <selectWebClient name="testMPL_MidHandling_accessBluePortal_loggedIn_goodCases">
+        <!-- open url with valid mId in blue portal (this is not forbidden) => expected result: stay on this page -->
+        <invoke url="${baseUrl}/organization/edit.jsf?mId=${mp1_global}" />
+        <setInputField name="userId" value="${supplierUserId}" />
+        <setInputField name="password" value="secret" />
+        <clickButton label="${button.login}" />
+        <verifyElementText htmlId="pagelabel" text="${organization.edit.title}" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_MidHandling_finalCleanUp">
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+  <macrodef name="this.saveConfigurationSettings">
+    <attribute name="key" />
+    <attribute name="value" />
+    <sequential>    	
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+    	<operatorPortal.manageConfigurationSettings key="@{key}" value="@{value}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

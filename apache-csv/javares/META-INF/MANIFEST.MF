@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: Fujitsu Enabling Software Technologies
+Specification-Title: Apache CVS
+Specification-Vendor: Apache Software Foundation

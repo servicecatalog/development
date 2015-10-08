@@ -1,0 +1,80 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testActivateServicesWithoutMarketplace" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="testActivateServicesWithoutMarketplace">
+    <webtest name="Test the disablement of checkboxes on activation page">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="sUrl" value="#{orgUrl}" />
+      <storeProperty name="sId" value="#{orgId}" />
+      <storeProperty name="sUserId" value="#{userId}" />
+      <storeProperty name="sUserPwd" value="#{userPwd}" />
+      <storeProperty name="sUserKey" value="#{userKey}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <operator.createMarketplace ownerId="#{sId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{sUrl}" userId="#{sUserId}" password="#{sUserPwd}" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <storeProperty name="TrialServiceId" value="ExampleTrial" />
+      <setup:service.define marketplaceId="${createdMarketplaceId}" serviceId="#{TrialServiceId}" name="Trial" description="Trial description" />
+      <setup:service.define marketplaceId="${createdMarketplaceId}" serviceId="ExampleStarter" name="Starter" description="Starter description" />
+      <setup:service.define marketplaceId="${createdMarketplaceId}" serviceId="ExampleProfessional" name="Professional" description="Professional description" />
+
+      <!-- Bug 10727 -->
+      <storeProperty name="localizeServiceName1" value="name1" />
+      <storeProperty name="localizeServiceName2" value="name2" />
+      <common.ignorePageScriptError />
+      <invoke url="${bes.http.url}/oscm-portal/service/edit.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="#{TrialServiceId}" />
+
+      <clickElement htmlId="editForm:localizeButton" />
+      <verifyXPath xpath="//*[@id='localizeForm:srcLocale' and @class='select']" />
+      <verifyXPath xpath="//*[@id='localizeForm:trgLocale' and @class='select']" />
+      <setSelectField htmlId="localizeForm:trgLocale" text="German" />
+      <setInputField htmlId="localizeForm:trgServiceName" value="#{localizeServiceName1}" />
+      <clickElement htmlId="localizeForm:saveLocalizedValuesButton" />
+      <clickElement htmlId="editForm:saveButton" />
+      <common.verifySuccess label="#{TrialServiceId}" />
+
+
+      <clickElement htmlId="editForm:localizeButton" />
+      <setSelectField htmlId="localizeForm:trgLocale" text="German" />
+      <setInputField htmlId="localizeForm:trgServiceName" value="#{localizeServiceName2}" />
+      <clickElement htmlId="localizeForm:saveLocalizedValuesButton" />
+      <clickElement htmlId="editForm:saveButton" />
+      <common.verifySuccess label="#{TrialServiceId}" />
+
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="true" />
+
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <service.deActivate rowNr="2" active="true" />
+
+      <service.deActivate rowNr="0" active="false" />
+      <service.deActivate rowNr="1" active="false" />
+      <service.deActivate rowNr="2" active="false" />
+
+      <operator.deleteMarketplaces marketplaceIds="${createdMarketplaceId}" failonerror="true" />
+
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+
+      <verifyElementText description="Verify 1st row" htmlId="serviceDeActivationForm:activationTable:0:marketplace" text="${marketplace.name.undefined}" />
+      <verifyElementText description="Verify 2nd row" htmlId="serviceDeActivationForm:activationTable:1:marketplace" text="${marketplace.name.undefined}" />
+      <verifyElementText description="Verify 3rd row" htmlId="serviceDeActivationForm:activationTable:2:marketplace" text="${marketplace.name.undefined}" />
+
+      <verifyXPath xpath="//input[@id='serviceDeActivationForm:activationTable:0:active' and @disabled='disabled']" />
+      <verifyXPath xpath="//input[@id='serviceDeActivationForm:activationTable:1:active' and @disabled='disabled']" />
+      <verifyXPath xpath="//input[@id='serviceDeActivationForm:activationTable:2:active' and @disabled='disabled']" />
+
+      <login.logout />
+
+    </webtest>
+  </target>
+
+</project>

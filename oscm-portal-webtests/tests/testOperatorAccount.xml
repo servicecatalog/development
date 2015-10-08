@@ -1,0 +1,92 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testOperatorAccount" xmlns:setup="antlib:org.oscm.webtest.setup">
+	<import file="../macros/all.xml" />
+	<target name="testOperatorAccount">
+		<webtest name="setup">
+			<mail.cleanInbox />
+			<operator.createorganization />
+			<mail.readPasswordAndUrlFromMail />
+			<storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+			<storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+			<operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<!-- Create more than 10 new users -->
+			<this.RegisteNewUser userId="sp01#{orgId}" />
+			<this.RegisteNewUser userId="sp02#{orgId}" />
+			<this.RegisteNewUser userId="sp03#{orgId}" />
+			<this.RegisteNewUser userId="sp04#{orgId}" />
+			<this.RegisteNewUser userId="sp05#{orgId}" />
+			<this.RegisteNewUser userId="sp06#{orgId}" />
+			<this.RegisteNewUser userId="sp07#{orgId}" />
+			<this.RegisteNewUser userId="sp08#{orgId}" />
+			<this.RegisteNewUser userId="sp09#{orgId}" />
+			<this.RegisteNewUser userId="sp10#{orgId}" />
+			<this.RegisteNewUser userId="sp11#{orgId}" />
+			<this.RegisteNewUser userId="bsp#{orgId}" />
+			<login.logout />
+		</webtest>
+
+		<webtest name="testBadCaseAccount_ManageUsers_Bug9621">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<!-- Switch to account / users page -->
+			<invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+
+			<!-- Verify Scroll for one user-->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="b" />
+			<not>
+				<verifyXPath xpath="//*[@id='userListForm:userListTable:pageValue']" />
+			</not>
+
+			<!-- Verify Scroll for all user -->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="" />
+			<verifyXPath xpath="//*[@id='userListForm:userListTable:pagerPanel']" />
+
+		</webtest>
+
+		<webtest name="testBadCaseAccount_ManageUsers_Bug9621_1">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<!-- Switch to account / users page -->
+			<invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+
+			<!-- Verify Scroll for paged users -->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="sp" />
+			<verifyXPath xpath="//*[@id='userListForm:userListTable:pageValue']" />
+
+			<!-- Verify Scroll for not paged user -->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="b" />
+			<not>
+				<verifyXPath xpath="//*[@id='userListForm:userListTable:pageValue']" />
+			</not>
+
+		</webtest>
+
+		<webtest name="testBadCaseAccount_ManageUsers_Bug9621_2">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<!-- Switch to account / users page -->
+			<invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+
+			<!-- Verify Scroll for paged user -->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="sp" />
+			<verifyXPath xpath="//*[@id='userListForm:userListTable:pageValue']" />
+
+			<!-- Verify Scroll for not exist users -->
+			<setInputField xpath="//input[@class='rich-filter-input']" value="c" />
+			<not>
+				<verifyXPath xpath="//*[@id='userListForm:userListTable:pageValue']" />
+			</not>
+		</webtest>
+	</target>
+	<macrodef name="this.RegisteNewUser">
+		<attribute name="userId" default="${common.userId}" />
+		<attribute name="createUniqueUserId" default="true" />
+		<sequential>
+			<invoke url="${bes.http.url}/oscm-portal/user/add.jsf" />
+			<setInputField htmlId="userForm:userId" value="@{userId}" />
+			<setInputField htmlId="userForm:email" value="${common.email}" />
+			<setCheckbox htmlId="userForm:userRolesTable:0:rolesCheckbox" checked="true" />
+			<clickLink htmlId="userForm:createButtonLink" />
+		</sequential>
+	</macrodef>
+</project>

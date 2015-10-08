@@ -1,0 +1,223 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testServiceOperation" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <target name="testServiceOperation">
+    <webtest name="testServiceOperation">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+
+      <!-- Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- Register new or updated technical service  -->
+      <techservice.import file="data/TechnicalServiceForOperationParameter.xml" />
+
+      <!-- Update service operation parameters -->
+      <!--bug 10893: verify leading blanks-->	
+      <storeProperty name="selectName" value="updatedNameForSelect" />
+      <storeProperty name="inputName" value="updatedNameForInput" />
+      <storeProperty name="inputNameWithBlank" value="   updatedNameForInput    " />
+      <storeProperty name="techServiceId" value="Example_with_roles 1.00" />
+      <common.ignorePageScriptError />
+      <updateOperationParameters selectParameterName="#{selectName}" inputParameterName="" techServiceId="#{techServiceId}" />
+      <setInputField htmlId="editForm:roleTable:2:name" value="" />
+      <verifyElementText htmlId="editForm:operationTable:3:operationName" text="" />
+      <verifyElementText htmlId="editForm:roleTable:2:name" text="" />
+      <updateOperationParameters selectParameterName="#{selectName}" inputParameterName="#{inputNameWithBlank}" techServiceId="#{techServiceId}" />
+
+      <!-- Define Market Service  -->
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" serviceId="#{marketServiceName}" techServiceId="#{techServiceId}" publicService="false" useParameters="false" />
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="true" />
+      <setup:service.activate serviceIds="#{marketServiceName}" />
+
+      <!-- Customer registration by supplier (local authentication) User B  -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:subscription.create subId="#{marketServiceName}" marketplaceId="${mId}" serviceKey="${svcKey}" userIds="#{userId}" userRole="ADMIN" />
+
+      <mpl_login.loginWithChangePassword mid="${mId}" oldPassword="#{userPwd}" userId="#{userId}" />
+      <!-- Execute service operation -->
+      <executeServiceOperation operationId="HELP" verificationText="Help" />
+      <executeServiceOperation operationId="CAUSE_ERROR" field="ErrorMessages" verificationText="#{marketServiceName}" />
+      <verifyMandatoryParameter selectParameterName="#{selectName}" inputParameterName="#{inputName}" />
+      <verifyExecution operationId="Create snapshot" />
+      
+      <!-- Bug 10765 -->
+      <verifyXPath xpath="//*[matches(@id, 'executeForm.*') and matches(@class,'ellipsizedOutputLabel shortenedText')]" />
+      
+      <!-- Bug 7102 -->
+      <!-- create a non admin user and assign him to the subscription -->
+      <mpl_goto.account.users />
+      <mpl_user.create userId="nonadmin" />
+      <login.logout />
+
+      <!-- login as nonadmin -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <mail.readPasswordAndUrlFromMail />
+      <setup:subscription.addRevokeUser subscriptionId="#{marketServiceName}" usersToAdd="#{userKey}" serviceRole="ADMIN" />
+
+      <mpl_login.loginWithChangePassword mid="${mId}" oldPassword="#{userPwd}" userId="#{userId}" />
+      <!-- execute the service operations -->
+      <executeServiceOperation operationId="HELP" verificationText="Help" />
+      <executeServiceOperation operationId="CAUSE_ERROR" field="ErrorMessages" verificationText="#{marketServiceName}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testServiceParameter">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <storeProperty name="serviceId" value="Test service" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+
+      <techservice.import file="data/TechnicalServices-paramsMandatoryForSupplier.xml" />
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${service.add.title}" />
+
+      <setSelectField htmlId="editForm:techServiceId" optionIndex="1" />
+      <setInputField htmlId="editForm:serviceId" value="#{serviceId}" />
+
+      <!-- verify if we have a parameter mandatory for supplier -->
+      <verifyCheckbox htmlId="editForm:parameterTable:3:configurable" checked="false" />
+      <verifyXPath xpath="//td[@id='editForm:parameterTable:3:columnParameterDescription']/span/span[@class='mandatory']" />
+      <verifyCheckbox htmlId="editForm:parameterTable:4:configurable" checked="false" />
+      <verifyXPath xpath="//td[@id='editForm:parameterTable:4:columnParameterDescription']/span/span[@class='mandatory']" />
+      <verifyCheckbox htmlId="editForm:parameterTable:5:configurable" checked="false" />
+      <verifyXPath xpath="//td[@id='editForm:parameterTable:5:columnParameterDescription']/span/span[@class='mandatory']" />
+
+      <!-- For #bug 9320:check if input fields refresh after "option" check box changes -->
+      <setCheckbox htmlId="editForm:parameterTable:1:configurable" checked="true" />
+      <setInputField htmlId="editForm:parameterTable:1:longValue" value="123" />
+      <setCheckbox htmlId="editForm:parameterTable:2:configurable" checked="true" />
+      <verifyInputField htmlId="editForm:parameterTable:1:longValue" value="123" />
+
+      <!-- save parameter mandatory for supplier with empty value -->
+      <setInputField htmlId="editForm:parameterTable:3:longValue" value="" />
+      <setInputField htmlId="editForm:parameterTable:4:integerValue" value="" />
+      <setInputField htmlId="editForm:parameterTable:5:stringValue" value="" />
+      <clickButton htmlId="editForm:saveButton" />
+
+      <!-- parameter mandatory for supplier, error -->
+      <common.verifyError label="${error.text.fields}" />
+      <verifyElementText htmlId="editForm:parameterTable:3:longValueErrorMsg" text="${javax.faces.component.UIInput.REQUIRED}" />
+      <verifyElementText htmlId="editForm:parameterTable:4:integerValueErrorMsg" text="${javax.faces.component.UIInput.REQUIRED}" />
+      <verifyElementText htmlId="editForm:parameterTable:5:stringValueErrorMsg" text="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <!-- set parameter configurable - not mandatory for supplier anymore -->
+      <setCheckbox htmlId="editForm:parameterTable:3:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:4:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:5:configurable" checked="true" />
+
+      <!-- verify no required field -->
+      <!-- required field still exists in canoo -->
+      <!--not>
+        <verifyXPath xpath="//td[@id='editForm:parameterTable:3:columnParameterDescription']/span/span[@class='mandatory']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//td[@id='editForm:parameterTable:4:columnParameterDescription']/span/span[@class='mandatory']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//td[@id='editForm:parameterTable:5:columnParameterDescription']/span/span[@class='mandatory']" />
+      </not-->
+      <setInputField htmlId="editForm:parameterTable:3:longValue" value="200" />
+      <setInputField htmlId="editForm:parameterTable:4:integerValue" value="200" />
+      <setInputField htmlId="editForm:parameterTable:5:stringValue" value="200" />
+      <clickButton htmlId="editForm:saveButton" />
+
+      <!-- service succesfully saved -->
+      <common.handleMessageParameters property="infoMsg" value="${info.service.created}" att0="#{serviceId}" />
+      <common.verifySuccess label="#{infoMsg}" />
+
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <!-- Execute a service operation. -->
+  <macrodef name="executeServiceOperation">
+    <attribute name="rowNr" default="0" />
+    <attribute name="operationId" />
+    <attribute name="verificationText" />
+    <attribute name="field" default="InfoMessages" />
+    <sequential>
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" /> 	
+      <setSelectField htmlId="subscriptionUsagePanelForm:executeForm:execute" value="@{operationId}" />
+      <clickElement htmlId="subscriptionUsagePanelForm:executeForm:executeButton" />
+      <verifyElementText htmlId="subscriptionUsagePanelForm:execute@{field}" text=".*@{verificationText}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Update operation parameter. -->
+  <macrodef name="updateOperationParameters">
+    <attribute name="selectParameterName" />
+    <attribute name="inputParameterName" />
+    <attribute name="techServiceId" />
+    <sequential>
+      <clickLink href="/oscm-portal/techservice/edit.jsf" />
+      <setSelectField htmlId="techServiceForm:techServiceId" optionIndex="1" />
+      <setInputField htmlId="editForm:operationTable:2:operationName" value="@{selectParameterName}" />
+      <setInputField htmlId="editForm:operationTable:3:operationName" value="@{inputParameterName}" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="@{techServiceId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify updated operation parameter. -->
+  <macrodef name="verifyMandatoryParameter">
+    <attribute name="rowNr" default="0" />
+    <attribute name="selectParameterName" />
+    <attribute name="inputParameterName" />
+    <attribute name="field" default="InfoMessages" />
+    <sequential>
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />	
+      <setSelectField htmlId="subscriptionUsagePanelForm:executeForm:execute" optionIndex="2" />
+      <verifyXPath xpath="//*[@class='labelAndValuePanel']//*[@class='smallPanelCol1']/*[@class='label']" text=".*@{selectParameterName}.*" regex="true" />
+      <verifyElementText htmlId="subscriptionUsagePanelForm:executeForm:labelinputCOMMENT" text=".*@{inputParameterName}.*" regex="true" />
+      <clickElement htmlId="subscriptionUsagePanelForm:executeForm:executeButton" />
+      <verifyXPath xpath="//*[@id='subscriptionUsagePanelForm:executeErrorMessages:']//*" text=".*${javax.faces.component.UIInput.REQUIRED}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyExecution">
+    <attribute name="rowNr" default="0" />
+    <attribute name="field" default="InfoMessages" />
+    <attribute name="operationId" />
+    <sequential>
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />    	
+      <setSelectField htmlId="subscriptionUsagePanelForm:executeForm:execute" optionIndex="2" />
+      <setInputField htmlId="subscriptionUsagePanelForm:executeForm:inputCOMMENT" value="comment" />
+      <clickElement htmlId="subscriptionUsagePanelForm:executeForm:executeButton" />
+      <verifyElementText htmlId="subscriptionUsagePanelForm:execute@{field}" text=".*@{operationId}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+</project>

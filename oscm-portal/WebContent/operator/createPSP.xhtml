@@ -1,0 +1,38 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.createPSP" />
+    <c:set var="focusElement" value="editForm:pspIdentifier" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="editForm">
+
+      <adm:outputStep id="idCreatePsp" value="#{msg['operator.createPSP.label']}" />
+      <adm:panelGrid>
+ 
+         <adm:labelAndInputText id="pspIdentifier" label="#{msg['operator.createPSP.identifier']}"
+          value="#{operatorOrgBean.newPSP.id}" maxlength="#{appBean.idLen}" required="true" validatorId="userId" converterId="trimConverter" />
+ 
+         <adm:labelAndInputText id="pspWsdl" label="#{msg['operator.createPSP.wsdl']}"
+          value="#{operatorOrgBean.newPSP.wsdlUrl}" maxlength="#{appBean.descriptionLen}" required="true" validatorId="url" />
+
+         <adm:labelAndInputTextarea id="pspDistinguishedName" label="#{msg['operator.createPSP.distinguishedName']}"
+          value="#{operatorOrgBean.newPSP.distinguishedName}" maxlength="#{appBean.DNLen}" required="true" converterId="trimConverter"/>
+
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{operatorOrgBean}" action="createPSP" buttonType="save"  />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

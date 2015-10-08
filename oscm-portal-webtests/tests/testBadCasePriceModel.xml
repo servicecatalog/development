@@ -1,0 +1,309 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCase" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="testBadCase" depends="testBadCasePriceModel,testBadCasePriceModel_Bug10708">
+  </target>
+
+  <target name="testBadCasePriceModelStepped" depends="setup">
+
+    <webtest name="testBadCasePriceModelSteppedPricesParameters">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+      <setInputField name="editForm:parameterTable:8:pricePerSubscription" value="100" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceSteppedPricesParametersFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <setInputField name="editForm:parameterTable:8:pricePerSubscription" value="100" />
+        <clickLink description="Click link: +" htmlId="editForm:parameterTable:8:addButton" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCasePriceModelSteppedPricesEvents">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+      <setInputField name="editForm:eventTable:0:price" value="1" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceSteppedPricesEventsFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <setInputField name="editForm:eventTable:0:price" value="1" />
+        <clickLink description="Click link: +" htmlId="editForm:eventTable:0:addButton" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCasePriceModelSteppedPricesUsers">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+      <setInputField htmlId="editForm:recChargePerUser" value="1" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceSteppedPricesFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <setInputField htmlId="editForm:recChargePerUser" value="1" />
+        <clickLink description="Click link: +" htmlId="editForm:addButton" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" steppedPrice="true" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testBadCasePriceModel" depends="setup">
+    <webtest name="testBadCasePriceModelService">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" />
+        </dataDriven>
+      </dataDriven>
+
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+      <common.clickAjaxLink htmlId="editForm:rolesButton" />
+
+      <dataDriven tableContainer="data/pageFields/priceModelServiceRolesFields.xls">
+        <setSelectField htmlId="roleForm:roleId" text="ADMIN" />
+
+        <ifStep description="Test if required" test="${required}">
+          <common.testFieldValidation fieldId="${fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="OK" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" />
+          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" topErrorMessage="false" buttonLinkId="roleForm:saveButtonHidden" />
+        </dataDriven>
+
+        <setSelectField name="roleForm:roleId" text="-- Select one --" />
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCasePriceModelServiceCustomer">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.customer.title}" />
+        <setSelectField name="serviceSelectForm:customerSelection" text="${customerInCombobox}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" />
+        </dataDriven>
+      </dataDriven>
+
+      <dataDriven tableContainer="data/pageFields/priceModelFreePeriodFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.customer.title}" />
+        <setSelectField name="serviceSelectForm:customerSelection" text="${customerInCombobox}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <!-- Select check box "Define a trial period". -->
+        <setCheckbox htmlId="editForm:freePeriodAvailable" checked="true" />
+
+        <!-- Validate bad cases for the free period field. -->
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" />
+        </dataDriven>
+
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCasePriceModelServiceSubscription">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <dataDriven tableContainer="data/pageFields/priceModelServiceFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.subscription.title}" />
+        <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${selectValue}')]" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Check if if this not one time fee input field. ">
+          <condition>
+            <verifyProperty name="fieldId" text="editForm:oneTimeFee" regex="false" />
+          </condition>
+          <else>
+            <ifStep description="Test if required" test="#{required}">
+              <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+            </ifStep>
+            <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+              <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+              <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" />
+            </dataDriven>
+          </else>
+        </ifStep>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCasePriceModelFreePeriod">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <dataDriven tableContainer="data/pageFields/priceModelFreePeriodFields.xls">
+        <common.clickAndVerfyLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}" />
+        <!-- Check that the hidden free period input field has initially value 0. -->
+        <verifyInputField name="editForm:freePeriod" value="0" />
+        <!-- Select check box "Define a trial period". -->
+        <setCheckbox htmlId="editForm:freePeriodAvailable" checked="true" />
+
+        <!-- Validate bad cases for the free period field. -->
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="editForm:a4jErrorMessages" buttonLinkId="editForm:saveButton" />
+        </dataDriven>
+
+      </dataDriven>
+
+      <!-- In the end verify good case for free period. -->
+      <setInputField name="editForm:freePeriod" value="45" />
+
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${marketServiceName}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testBadCasePriceModel_Bug10708" depends="setup">
+    <webtest name="testBadCasePriceModel_Bug10708">
+      <selectWebClient name="supplier1">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+        <common.clickLink label="${priceModel.service.title}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${marketServiceName}_bug10708" />
+      </selectWebClient>
+      <selectWebClient name="supplier2">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+        <service.delete serviceId="${marketServiceName}_bug10708" />
+      </selectWebClient>
+      <selectWebClient name="supplier1">
+        <clickButton label="${button.save}" />
+        <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.SERVICE}" att0="${marketServiceName}_bug10708"/>
+        <common.verifyError label="#{errorMsg}" regex="false"/>
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="setup">
+    <webtest name="testBadCasePriceModel - setup">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="ant" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="ant" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="ant" />
+
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:payment.configureDefault customerTypes="INVOICE" serviceTypes="INVOICE" />
+      <setup:service.define svcKeyProperty="svcKey" configurablechecked="true" serviceId="${marketServiceName}" techServiceId="Example_with_roles 1.00" marketplaceId="${mId}" />
+      <setup:service.define svcKeyProperty="svcKey1" configurablechecked="false" serviceId="${marketServiceName}_bug10708" techServiceId="Example_with_roles 1.00" marketplaceId="${mId}" />
+
+      <!-- use the old marcro since the parameter prices need to be defined -->
+      <setup:pricemodel.define serviceId="${marketServiceName}" isFree="false" />
+      <pricemodel.define serviceId="${marketServiceName}" isFree="false" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+      <setup:service.activate serviceIds="${marketServiceName}" />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerInCombobox" value="${common.orgName} (#{orgId})" propertyType="ant" />
+      <storeProperty name="selectValue" value="${subscriptionName}" propertyType="ant" />
+
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="${subscriptionName}" marketplaceId="${mId}" serviceKey="${svcKey}" bcId="bc1" piId="Invoice" />
+
+      <!-- deactivate the service again to be able to edit it -->
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.deactivate serviceIds="${marketServiceName}" />
+    </webtest>
+  </target>
+
+</project>

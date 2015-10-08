@@ -1,0 +1,1054 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup" default="bugTests">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="bugTests" depends="Bug8946,Bug8893,Bug8407,Bug8307,Bug8442,Bug7877,Bug8166,Bug8124,Bug8312,Bug8502,
+    Bug8606,Bug8796,Bug9922,Bug9976,Bug10053,testMPL_CleanUp" />
+
+  <target name="init">
+    <webtest name="Bug Retesting MPL - Init (Create the test environment)">
+      <mail.cleanInbox />
+
+      <!-- Supplier -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="baseUrl" value="#{baseUrl}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <property name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <property name="supplierId" value="#{orgId}" />
+      <property name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="midLocal" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <operator.createMarketplace mIdProperty="midGlobal" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Global Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${midLocal}" />
+      <landingpage.setSortOrderForLandingpage mId="${midGlobal}" />
+      <category.defineCategories marketplaceId="${midLocal}" count="2" />
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <setup:techservice.import file="${techService.import.file}" />
+
+      <setup:service.define marketplaceId="${midLocal}" techServiceId="Example 1.00" serviceId="ExampleTrial" name="Trial" description="Trial description" concurrentUser="3" namedUser="2" />
+      <setup:service.define marketplaceId="${midLocal}" techServiceId="Example 1.00" serviceId="ExampleStarter" name="Starter" description="Starter description" />
+      <setup:service.define marketplaceId="${midLocal}" techServiceId="Example 1.00" serviceId="ExampleProfessional" name="Professional" description="Professional description" concurrentUser="10" configurableChecked="true" />
+      <setup:service.define marketplaceId="${midLocal}" techServiceId="Example_with_roles 1.00" serviceId="ExampleProfessionalRoles" name="Professional with Role Support" configurablechecked="true" />
+      <setup:service.define marketplaceId="${midLocal}" techServiceId="Example 1.00" serviceId="ToMuchUsersTest" name="ToMuchUsersTest" description="ToMuchUsersTest" concurrentUser="1" namedUser="5" />
+
+      <setup:service.define marketplaceId="${midGlobal}" techServiceId="Example 1.00" serviceId="ExampleTrialGlobal" name="Trial" description="Trial description" concurrentUser="3" namedUser="2" />
+      <setup:service.define marketplaceId="${midGlobal}" techServiceId="Example 1.00" serviceId="ExampleStarterGlobal" name="Starter" description="Starter description" />
+      <setup:service.define marketplaceId="${midGlobal}" techServiceId="Example 1.00" serviceId="ExampleProfessionalGlobal" name="Professional" description="Professional description" concurrentUser="10" configurableChecked="true" />
+      <setup:service.define marketplaceId="${midGlobal}" techServiceId="Example_with_roles 1.00" serviceId="ExampleProfessionalRolesGlobal" name="Professional with Role Support" configurablechecked="true" />
+      <setup:service.define marketplaceId="${midGlobal}" techServiceId="Example 1.00" serviceId="ToMuchUsersTestGlobal" name="ToMuchUsersTest" description="ToMuchUsersTest" concurrentUser="1" namedUser="5" />
+
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleProfessionalRoles" isFree="false" />
+      <setup:pricemodel.define serviceId="ToMuchUsersTest" isFree="true" />
+
+      <setup:pricemodel.define serviceId="ExampleTrialGlobal" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleStarterGlobal" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleProfessionalGlobal" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleProfessionalRolesGlobal" isFree="false" />
+      <setup:pricemodel.define serviceId="ToMuchUsersTestGlobal" isFree="true" />
+
+      <setup:service.defineMigrationOptions serviceId="ExampleTrial" migrationTargetIds="ExampleStarter" />
+      <setup:service.defineMigrationOptions serviceId="ExampleStarter" migrationTargetIds="ExampleProfessional" />
+
+      <setup:service.activate serviceIds="ExampleTrial,ExampleStarter,ExampleProfessional,ExampleProfessionalRoles,ToMuchUsersTest" />
+      <setup:service.activate serviceIds="ExampleTrialGlobal,ExampleStarterGlobal,ExampleProfessionalGlobal,ExampleProfessionalRolesGlobal,ToMuchUsersTestGlobal" />
+
+      <user.registerCustomer marketplaceId="${midLocal}" userId="${common.userId}" />
+      <organization.managePayment rowNr="1" paymentType="cust0" />
+      <organization.managePayment rowNr="1" />
+
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customerUrl" value="#{orgUrl}" />
+      <property name="customerUserId" value="#{userId}" />
+      <property name="customerId" value="#{orgId}" />
+
+
+      <!-- login as customer -->
+      <mpl_login.loginWithChangePassword mid="${midLocal}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <mpl_login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="Bug7877" depends="init">
+    <webtest name="Bug 7877: Wrong name is used after rename payment options has failed.">
+      <steps>
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.payments />
+        <storeProperty name="existingName" value="Payment1" />
+        <!-- Create a billing contact -->
+        <clickElement htmlId="billingContactListForm:addBillingContact" />
+        <setInputField htmlId="billingContactPanelForm:displayName" value="#{existingName}" />
+        <setInputField htmlId="billingContactPanelForm:email" value="user1@email.de" />
+        <setInputField htmlId="billingContactPanelForm:companyName" value="Comp1" />
+        <setInputField htmlId="billingContactPanelForm:address" value="No address" />
+        <clickButton htmlId="billingContactPanelForm:saveBillingContactButton" />
+        <common.reloadCurrentPage />
+
+        <storeXPath description="Check display name 1" xpath="//span[@id='billingContactListForm:billingContactListTable:0:displayName']" property="tableDisplayName1" />
+        <verifyProperty name="tableDisplayName1" value="Payment1" regex="false" />
+
+        <!-- Create a second billing contact -->
+        <clickElement htmlId="billingContactListForm:addBillingContact" />
+        <setInputField htmlId="billingContactPanelForm:displayName" value="Payment2" />
+        <setInputField htmlId="billingContactPanelForm:email" value="user2@email.de" />
+        <setInputField htmlId="billingContactPanelForm:companyName" value="Comp2" />
+        <setInputField htmlId="billingContactPanelForm:address" value="No address" />
+        <clickButton htmlId="billingContactPanelForm:saveBillingContactButton" />
+        <common.reloadCurrentPage />
+
+        <storeXPath description="Check display name 2" xpath="//span[@id='billingContactListForm:billingContactListTable:1:displayName']" property="tableDisplayName2" />
+        <verifyProperty name="tableDisplayName2" value="Payment2" regex="false" />
+
+        <!-- Attempt change display name of second to that of first BC, check error message and input field-->
+        <clickElement xpath="//*[@id='billingContactListForm:billingContactListTable:1']/td//*[@id='editPaymentImage']" />
+        <setInputField htmlId="billingContactEditPanelForm:displayName" value="#{existingName}" />
+        <clickButton htmlId="billingContactEditPanelForm:hiddenSetDisplayName" />
+
+        <common.verifyModalErrorPanel modalPanelId="billingContactEditPanel" label="${ex.NonUniqueBusinessKeyException.BILLING_CONTACT}" />
+        <verifyInputField description="Ensure modified name is displayed." htmlId="billingContactEditPanelForm:displayName" value="#{existingName}" />
+
+        <!-- Reload page (cancel). Again attempt to rename BC2 to existing BC1 and check delete confirmation -->
+        <common.reloadCurrentPage />
+
+        <clickElement xpath="//*[@id='billingContactListForm:billingContactListTable:1']/td//*[@id='editPaymentImage']" />
+        <verifyInputField description="Ensure orginal name is displayed." htmlId="billingContactEditPanelForm:displayName" value="Payment2" />
+        <setInputField htmlId="billingContactEditPanelForm:displayName" value="Payment1" />
+        <clickButton htmlId="billingContactEditPanelForm:hiddenSetDisplayName" />
+        <common.verifyModalErrorPanel modalPanelId="billingContactEditPanel" label="${ex.NonUniqueBusinessKeyException.BILLING_CONTACT}" />
+
+        <!-- Delete BC2 and check confirm message -->
+        <clickElement xpath="//*[@id='billingContactEditPanelForm:deleteButton']" />
+        <storeXPath xpath="//*[@id='billingContactEditPanelForm:confirmPanel_content']//h3/text()" property="deleteMsg" />
+        <verifyProperty name="deleteMsg" text="${marketplace.payment.billingContact.deleteMsg}.*" regex="true" />
+        <not>
+          <verifyProperty description="Ensure renamed display name is not contained in confirm message" name="deleteMsg" text=".*#{existingName}.*" regex="true" />
+        </not>
+        <clickLink htmlId="billingContactEditPanelForm:confirmPanelOkButton" />
+
+        <!-- Test BC2 removed and BC1 still exists. -->
+        <common.reloadCurrentPage />
+        <storeXPath description="Ensure BC 1 still exists" xpath="//span[@id='billingContactListForm:billingContactListTable:0:displayName']" property="tableDisplayName1" />
+        <verifyProperty name="tableDisplayName1" value="Payment1" regex="false" />
+        <not>
+          <verifyXPath xpath="//span[@id='billingContactListForm:billingContactListTable:1:displayName']" />
+        </not>
+        <login.logout />
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8166" depends="init">
+    <webtest name="Bug 8166: Error message also shown in modal login overlay.">
+      <steps>
+        <invoke url="${mail.anyurl}/marketplace/registration.jsf?mId=${midGlobal}" />
+        <setInputField htmlId="registrationForm:userEmail" value="${common.email}" />
+        <setInputField htmlId="registrationForm:userId" value="UserBug8166" />
+        <clickElement htmlId="registrationForm:registerButton" />
+        <clickLink label="${login}" />
+        <verifyXPath xpath="//div[@id='modalErrorPanel' and not(*)]" />
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8442" depends="init">
+    <webtest name="Bug 8442: Organization name and address must be mandatory for supplier and technology providers.">
+
+      <steps>
+        <mail.cleanInbox />
+
+        <!-- Test organization name field validation: Technology provider role only-->
+        <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="Bug8442OrgId" value="#{orgId}" />
+        <property name="Bug8442UserId" value="#{userId}" />
+        <property name="Bug8442UserUrl" value="#{orgUrl}" />
+        <mpl_login.loginWithChangePassword mid="${midGlobal}" userId="${Bug8442UserId}" oldPassword="#{userPwd}" />
+
+        <mpl_goto.account.profile />
+        <setInputField htmlId="editForm:organizationName" value=" " />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+
+        <setInputField htmlId="editForm:organizationName" value="Test Supplier" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+
+        <!-- Test address field validation: Technology provider role only-->
+        <setInputField htmlId="editForm:organizationAddress" value=" " />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="editForm:organizationAddress" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+
+        <setInputField htmlId="editForm:organizationAddress" value="123 test address" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:organizationAddress" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+        <mpl_login.logout />
+
+        <!-- Test organization name field validation: supplier role only-->
+        <operator.updateorganization orgId="#{Bug8442OrgId}" roles="SUPPLIER" oprevshare="23.55" />
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.profile />
+        <setInputField htmlId="editForm:organizationName" value=" " />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+
+        <setInputField htmlId="editForm:organizationName" value="Test Supplier" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+
+        <!-- Test address field: supplier role only -->
+        <setInputField htmlId="editForm:organizationAddress" value=" " />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <common.verifyFieldError fieldId="editForm:organizationAddress" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+
+        <setInputField htmlId="editForm:organizationAddress" value="123 test address" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <not>
+          <common.verifyFieldError fieldId="editForm:organizationAddress" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </not>
+
+        <mpl_login.logout />
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8124">
+    <webtest name="8124 Display a confirmation dialog before deleting a marketplace.">
+      <steps>
+        <!-- create local marketplace for operator organization -->
+        <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="MP_name_local_op" baseurl="${bes.http.url}/oscm-portal" mIdProperty="mid_local_op" />
+
+        <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+        <landingpage.setSortOrderForLandingpage mId="${mid_local_op}" />
+
+        <!-- try to delete marketplace and cancel the deletion -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mid_local_op}" />
+        <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+        <!-- it must be clicked twice to work!? -->
+        <clickElement htmlId="confirmForm:cancelButton" />
+
+        <!-- try to delete marketplace and commit the deletion -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mid_local_op}" />
+        <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+        <!-- it must be clicked twice to work!? -->
+        <clickElement htmlId="confirmForm:okButton" />
+
+        <common.handleMessageParameters property="msg" value="${info.marketplace.deleted}" att0="${mid_local_op}" />
+        <common.verifySuccess label="#{msg}" />
+
+        <login.logout />
+
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8307">
+    <webtest name="Bug8307 The other suppliers information is displayed">
+
+      <operator.createMarketplace mIdProperty="Bug8307mId" name="Bug8307 Marketplace" open="true" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${Bug8307mId}" />
+
+      <createSupplierLocalMpServices globalMarketplaceId="${Bug8307mId}" />
+      <storeProperty name="supplierUrl1" value="#{orgUrl}" />
+      <storeProperty name="supplierId1" value="#{orgId}" />
+      <storeProperty name="supplierUserId1" value="#{userId}" />
+      <storeProperty name="supplierUserKey1" value="#{userKey}" />
+
+      <createSupplierLocalMpServices globalMarketplaceId="${Bug8307mId}" />
+      <storeProperty name="supplierUrl2" value="#{orgUrl}" />
+      <storeProperty name="supplierId2" value="#{orgId}" />
+      <storeProperty name="supplierUserId2" value="#{userId}" />
+      <storeProperty name="supplierUserKey2" value="#{userKey}" />
+
+      <!-- subscribe to services -->
+      <mpl_login.user mid="${Bug8307mId}" userId="#{supplierUserId1}" />
+
+      <mpl_service.subscribe mid="${Bug8307mId}" index="0" />
+      <mpl_service.subscribe mid="${Bug8307mId}" index="1" />
+
+      <!-- assign user to first service -->
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <mpl_verify.selectedTab label="${subscription.users}" />
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+      <setup:store.settings userkey="#{supplierUserKey1}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="Trial #{supplierId1}" usersToAdd="#{supplierUserKey1}" />
+
+      <!-- assign user to second service -->
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administer" of second displayed service -->
+      <setup:subscription.addRevokeUser subscriptionId="Trial #{supplierId2}" usersToAdd="#{supplierUserKey1}" />
+
+
+      <!-- **************************************************  
+        Select a service from the marketplace and check if the  
+        organizationid on the top page and on the service details 
+        page fit together.
+        **************************************************  -->
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf" />
+      <!-- show details of first service -->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <!-- check if service belongs to supplier 1 and verify supplier tab -->
+      <checkSupplierNameFromService supplierName="organizationName_#{supplierId1}" />
+      <ifStep>
+        <condition>
+          <not>
+            <verifyProperty name="serviceSupplier" text="organizationName_#{supplierId1}" regex="false" />
+          </not>
+        </condition>
+        <then>
+          <!-- service must belongs to supplier 2 and verify supplier tab-->
+          <checkSupplierNameFromService supplierName="organizationName_#{supplierId2}" />
+          <verifyProperty name="serviceSupplier" text="organizationName_#{supplierId2}" regex="false" />
+        </then>
+      </ifStep>
+
+
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf" />
+      <!-- show details of second service -->
+      <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <!-- check if service belongs to supplier 1 and verify supplier tab -->
+      <checkSupplierNameFromService supplierName="organizationName_#{supplierId1}" />
+      <ifStep>
+        <condition>
+          <not>
+            <verifyProperty name="serviceSupplier" text="organizationName_#{supplierId1}" regex="false" />
+          </not>
+        </condition>
+        <then>
+          <!-- service must belongs to supplier 2 and verify supplier tab-->
+          <checkSupplierNameFromService supplierName="organizationName_#{supplierId2}" />
+          <verifyProperty name="serviceSupplier" text="organizationName_#{supplierId2}" regex="false" />
+        </then>
+      </ifStep>
+      <login.logout />
+
+      <scenario.cleanUpLeftServicesIfAny url="#{supplierUrl1}" uId="#{supplierUserId1}" />
+      <scenario.cleanUpLeftServicesIfAny url="#{supplierUrl2}" uId="#{supplierUserId2}" />
+
+    </webtest>
+  </target>
+
+  <target name="Bug10321">
+    <webtest name="Bug10321 Never billed time units when changing the 'Charges based on'">
+      <operator.createMarketplace mIdProperty="Bug10321mId" name="Bug10321 Marketplace" open="true" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${Bug10321mId}" />
+
+      <createSupplierLocalMpServices globalMarketplaceId="${Bug10321mId}" isFree="false" />
+      <storeProperty name="supplierUrl1" value="#{orgUrl}" />
+      <storeProperty name="supplierId1" value="#{orgId}" />
+      <storeProperty name="supplierUserId1" value="#{userId}" />
+      <storeProperty name="supplierUserKey1" value="#{userKey}" />
+
+      <setInputField name="userId" value="#{userId}" />
+      <setInputField name="password" value="secret" />
+      <clickButton label="${button.login}" />
+
+      <organization.managePayment rowNr="0" enabled="true" />
+      <organization.managePayment rowNr="0" enabled="true" forCustomer="false" paymentType="service2"/>
+      <login.logout />
+
+      <!-- subscribe to services -->
+      <mpl_login.user mid="${Bug10321mId}" userId="#{supplierUserId1}" />
+      <mpl_service.subscribe mid="${Bug10321mId}" index="0" chargeable="true"/>
+      <login.logout />
+      <login.login url="#{orgUrl}" userId="#{userId}" />
+      <clickLink label="Define for subscription"/>
+
+      <clickElement xpath="//*[@id='subscriptionListForm:subListTable:0:subscriptionId']" />
+      <storeElementAttribute htmlId="editForm:currency" attributeName="disabled" propertyName="disabled"/>
+      <verifyProperty name="disabled" text="disabled" regex="true"/>
+      <storeElementAttribute htmlId="editForm:sPricingPeriods" attributeName="disabled" propertyName="disabled"/>
+      <verifyProperty name="disabled" text="disabled" regex="true"/>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug10295">
+    <webtest name="The de-assigned user can be edited with service role">
+
+      <operator.createMarketplace mIdProperty="Bug10295mId" name="Bug10295 Marketplace" open="true" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${Bug10295mId}" />
+
+      <createSupplierLocalMpServices globalMarketplaceId="${Bug10295mId}" techServiceId="Example_with_roles 1.00" />
+      <storeProperty name="supplierUrl1" value="#{orgUrl}" />
+      <storeProperty name="supplierId1" value="#{orgId}" />
+      <storeProperty name="supplierUserId1" value="#{userId}" />
+      <storeProperty name="supplierUserKey1" value="#{userKey}" />
+      
+      <selectWebClient name="browser1"/>
+      <!-- subscribe to services -->
+      <mpl_login.user mid="${Bug10295mId}" userId="#{supplierUserId1}" />
+      <mpl_service.subscribe mid="${Bug10295mId}" index="0"/>
+      <setup:subscription.addRevokeUser subscriptionId="Trial #{orgId}" usersToAdd="#{userKey}" />
+      <mpl_login.logout />
+      <mpl_login.user mid="${Bug10295mId}" userId="#{supplierUserId1}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <selectWebClient name="browser2" />
+      
+      <!-- Login as customer -->
+      <mpl_login.user mid="${Bug10295mId}" userId="#{supplierUserId1}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <clickElement htmlId="userListForm:userTable:0:deassignBt" />
+      <clickElement htmlId="userListForm:deassignConfirmPlOkButton" />
+
+      <selectWebClient name="browser1" />
+      <clickElement htmlId="usersForm:editRolesLink" />
+      <setSelectField htmlId="popupIncludeForEditRoles:includeArea:editRolesPanelForm:userTable:0:role" optionIndex = "2" />
+      <clickElement htmlId="popupIncludeForEditRoles:includeArea:editRolesPanelForm:saveButton" />
+      <verifyElementText htmlId="errorMessages" text=".*not assigned to the Subscription.*" regex="true"/>
+    </webtest>
+  </target>
+
+  <target name="Bug8312" depends="init">
+    <webtest name="Bug 8313 country pulldown menu displays the wrong value in dialog register customer ">
+      <steps>
+        <!-- Check profile page on MPL (preset value of country != null)-->
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.profile />
+        <_bug8312.checkCountrySelectBox />
+        <login.logout />
+
+        <!-- Check register customer page (preset value of country == null)-->
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}"/>
+        <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+        <_bug8312.checkCountrySelectBox />
+        <login.logout />
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8946" depends="init">
+    <webtest name="Bug 8946 missing title on Edit user / account page ">
+      <steps>
+        <!-- subscribe to services -->
+        <mpl_goto.marketplace mid="${midGlobal}" />
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_service.subscribe mid="${midGlobal}" index="2" />
+
+        <!-- Check edit user page on MPL -->
+        <mpl_goto.account.users />
+
+        <!-- Create a new admin user -->
+        <mpl_user.create userId="oper2A" isAdmin="true" />
+
+        <!-- Display edit user page -->
+        <mpl_user.display userId="#{userId}" />
+
+        <!-- table with title is displayed -->
+        <verifyXPath xpath="//*[contains(text(),'${marketplace.account.edituser.assignUser.title}')]" />
+        <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable']" />
+
+        <!-- terminate the just created subscription -->
+        <mpl_subscription.unsubscribe />
+        <login.logout />
+      </steps>
+    </webtest>
+  </target>
+
+  <target name="Bug8502" depends="init">
+    <webtest name="Bug8502_showErrorWhenConcurrentlyUpdatedOrDeleted">
+      <selectWebClient name="A">
+        <!-- goto billing contact dialog -->
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.payments />
+
+        <!-- create a billing contact -->
+        <clickElement htmlId="billingContactListForm:addBillingContact" />
+        <setInputField htmlId="billingContactPanelForm:displayName" value="AAA" />
+        <setInputField htmlId="billingContactPanelForm:email" value="aaa@aaa.de" />
+        <setInputField htmlId="billingContactPanelForm:companyName" value="aaaa" />
+        <setInputField htmlId="billingContactPanelForm:address" value="aaaa" />
+        <clickButton label="Save" />
+        <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+        <!-- open modal dialog for editing the billing contact -->
+        <clickElement xpath="//*[@id='billingContactListForm:billingContactListTable:0']/td//*[@id='editPaymentImage']" />
+      </selectWebClient>
+
+      <selectWebClient name="B">
+        <!-- delete the payment info  -->
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.payments />
+        <clickElement xpath="//*[@id='billingContactListForm:billingContactListTable:0']/td//*[@id='editPaymentImage']" />
+        <clickElement xpath="//*[@id='billingContactEditPanelForm:deleteButton']" />
+        <clickElement xpath="//*[@id='billingContactEditPanelForm:confirmPanelOkButton']" />
+        <common.verifySuccess label="${info.billingContact.deleted}" />
+      </selectWebClient>
+
+      <selectWebClient name="A">
+        <!-- update display name and click save -->
+        <setInputField htmlId="billingContactPanelForm:displayName" value="UPDATE" />
+        <clickElement htmlId="billingContactEditPanelForm:hiddenSetDisplayName" />
+        <!-- verify error is shown on the main page -->
+        <common.verifyModalErrorPanel modalPanelId="billingContactEditPanel" label="${error.paymentInfo.modifiedConcurrently}" />
+      </selectWebClient>
+    </webtest>
+  </target>
+  
+  <target name="Bug10053" depends="init">
+    <webtest name="Bug10053_theOperationFailedPageTurnOutAfterSomeOperations">
+      <login.loginAsSupplier url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" />
+      <organization.managePaymentforcustomer />
+      <login.logout/> 
+      <mpl_login.user mid="${midGlobal}" userId="${customerUserId}" />
+       <mpl_goto.marketplace mid="${midGlobal}" />
+       <mpl_service.subscribe mid="${midGlobal}" chargeable="true" index="0" />
+    	
+       <!-- delete the payment info  -->
+       <mpl_goto.account.payments />
+       <clickElement xpath="//*[@id='billingContactListForm:billingContactListTable:0']/td//*[@id='editPaymentImage']" />
+       <clickElement xpath="//*[@id='billingContactEditPanelForm:deleteButton']" />
+       <clickElement xpath="//*[@id='billingContactEditPanelForm:confirmPanelOkButton']" />
+       <common.verifySuccess label="${info.billingContact.deleted}" />
+       
+       <!-- switch tabs -->
+       <mpl_goto.account.subscriptions />
+       <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+       
+       <mpl_goto.tab label="${subscription.payment}" />
+       <verifyNoDialogs />
+       <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+       
+       <!-- clean up -->
+       <clickLink description="Click link: Terminate" htmlId="deleteForm:unsubscribeButton" />
+       <clickButton label="Terminate" />
+       <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8407">
+    <webtest name="Bug8407 display login error message">
+      <mpl_goto.marketplace mid="${midGlobal}" />
+
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+
+      <!-- login -->
+      <clickLink label="${login}" />
+      <verifyXPath xpath="//*[@id='loginPanel_content']"/>
+      <common.verifyPasswordFields />
+      <setInputField name="loginForm:loginUserId" value="NOT_EXISTING_USER" />
+      <setInputField name="loginForm:loginPassword" value="xmxmxm" />
+      <clickButton htmlId="loginForm:loginButton" />
+      <common.waitForJavaScript />
+      <verifyXPath xpath="//*[contains(.,'${error.login}')]" />
+    </webtest>
+  </target>
+
+  <target name="Bug8606" depends="init">
+    <webtest name="Bug 8606: User can be deleted successfully even if the user have review data">
+      <steps>
+        <!-- create new user and assign the user to subscription -->
+        <mail.cleanInbox />
+        <mpl_goto.marketplace mid="${midGlobal}" />
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.users />
+        <mpl_user.create userId="endUser" />
+        <mpl_service.subscribe mid="${midGlobal}" index="2" />
+        <mpl_login.logout />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="NewOrgId" value="#{orgId}" />
+        <property name="NewUserId" value="#{userId}" />
+        <property name="NewUserUrl" value="#{orgUrl}" />
+        <property name="NewUserKey" value="#{userKey}" />
+      	<setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      	<setup:subscription.addRevokeUser subscriptionId="Starter" usersToAdd="${NewUserKey}" />
+        <!-- create the review data by the new user -->
+        <mpl_login.loginWithChangePassword mid="${midGlobal}" userId="${NewUserId}" oldPassword="#{userPwd}" />
+        <mpl_goto.services mid="${midGlobal}" />
+        <mpl_goto.service svcButtonId="serviceButton3" svcName="Starter" isFree="true" admin="false" />
+        <mpl_rating.create title="newReview" comment="newComment" star="3" />
+        <mpl_login.logout />
+
+        <!-- delete the new user -->
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.subscriptions />
+        <mpl_subscription.revokeUser subscriptionIndex="0" userIndex="0" />
+        <mpl_goto.account.users />
+        <mpl_user.delete userId="${NewUserId}" />
+        <mpl_login.logout />
+      </steps>
+    </webtest>
+  </target>
+
+
+  <target name="Bug8796" depends="init">
+    <webtest name="Bug8796_deactivateServiceAsMPLOwnerWithoutPermission">
+
+      <selectWebClient name="SUP">
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.marketplace mid="${midGlobal}" />
+        <clickLink htmlId="serviceButton0" />
+        <clickElement htmlId="showDetailsForm:showDetails" />
+
+        <verifyElementText htmlId="serviceStatusLabel" text="${ServiceStatus.ACTIVE}" />
+        <clickLink htmlId="deactivateServiceForm:deactivateService" />
+      </selectWebClient>
+
+      <selectWebClient name="OP">
+        <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+        <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${midGlobal}" />
+        <setInputField htmlId="updateForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+        <clickButton htmlId="updateForm:saveButton" />
+        <common.handleMessageParameters property="infoMsg" value="${info.marketplace.saved}" att0="${midGlobal}" />
+        <common.verifySuccess label="#{infoMsg}" />
+      </selectWebClient>
+
+      <selectWebClient name="SUP">
+        <setInputField name="deactivateServicePanelForm:reasonTextArea" value="abc" />
+        <clickElement xpath="//*[@id='deactivateServicePanelForm:deactivateServicePanelDeactivate']" />
+        <!-- "active" still shows-->
+        <!--not>
+          <verifyElementText htmlId="serviceStatusLabel" text="${ServiceStatus.ACTIVE}" />
+        </not-->
+        <mpl_verify.error label="${ex.OperationNotPermittedException}" />
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="OP">
+        <!-- Cleanup (reset MPL owner) -->
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${midGlobal}" />
+        <setInputField htmlId="updateForm:organizationIdInput" value="${supplierId}" />
+        <clickButton htmlId="updateForm:saveButton" />
+        <common.handleMessageParameters property="infoMsg" value="${info.marketplace.saved}" att0="${midGlobal}" />
+        <common.verifySuccess label="#{infoMsg}" />
+        <login.logout />
+      </selectWebClient>
+
+    </webtest>
+  </target>
+
+  <target name="Bug9922">
+    <webtest name="Bug9922">
+      <testInfo type="DESCRIPTION">
+        Verifies the navigation of 'change payment' and change 'billing contact' through subscription process.
+        1. Create currency, supplier, marketplace and assign supplier to marketplace
+        2. Create and activate service
+        3. Subscribe the service
+        4. Set billing contact and payment info
+        5. Verify Change payment option
+        6. Verify Change configuration
+      </testInfo>
+
+      <!-- 1. Create currency, supplier, marketplace and assign supplier to marketplace -->
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <login.logout />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+
+      <!-- 2. Create and activate services -->
+      <setup:store.settings userkey="${supplierUserKey}" password="${common.password}" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceA" name="ServiceA" description="DescriptionServiceA" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ServiceA" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE" steppedPriceForParameter="MAX_FILE_NUMBER" />
+      <setup:service.activate serviceIds="ServiceA" />
+
+      <!-- 3. Subscribe the service -->
+      <mpl_goto.marketplace mId="${mId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_goto.tab label="${service.priceModel}" />
+      <common.ignorePageScriptError />
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+
+      <!-- 4. Set billing contact and payment info -->
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+
+      <!-- 5. Verify Change payment option -->
+      <clickLink htmlId="payment:nextLink" />
+      <clickLink label="${subscription.confirm.paymentOptions.change}" />
+      <verifyText text="${payment.select.label}" />
+
+      <!-- 6. Verify Change configuration -->
+      <clickLink htmlId="payment:nextLink" />
+      <verifyText text="${subscription.confirm.serviceConfiguration.change}" />
+      <verifyText text="${marketplace.subscription.configuration.nameAndReference}" />
+
+      <mpl_login.logout />
+      <common.reSetPageScriptError />
+    </webtest>
+  </target>
+
+
+
+  <!-- Clean-up test data -->
+  <target name="testMPL_CleanUp" depends="init">
+    <webtest name="bugRetestingMPL_finalCleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+
+  <target name="Bug8893" depends="init">
+    <webtest name="Bug8893_switchTabCausesCorrectPageChangeWarning">
+      
+      <mpl_login.user mid="${midGlobal}" userId="${customerUserId}" />
+
+      <mpl_goto.marketplace mid="${midGlobal}" />
+      <mpl_service.subscribe mid="${midGlobal}" chargeable="true" index="0" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+
+      <mpl_goto.tab label="${subscription.payment}" />
+      <!-- make the tab dirty-->
+      <setSelectField htmlId="payment:selectBillingContact" value="" />
+      <setSelectField htmlId="payment:selectPaymentInfo" value="" />
+
+      <!-- make the attempt to change the tab but cancel the page change warning -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+      <verifyNoDialogs />
+      <mpl_verify.selectedTab label="${subscription.payment}" />
+      <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      <verifySelectField htmlId="payment:selectPaymentInfo" value="" />
+
+      <!-- change the tab and check if the values have been reset -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyNoDialogs />
+      <mpl_verify.selectedTab label="${subscription.configuration}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.payment}" />
+      <not>
+        <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      </not>
+      <not>
+        <verifySelectField htmlId="payment:selectPaymentInfo" value="" />
+      </not>
+
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <!-- make the tab "dirty" -->
+      <setInputField htmlId="configurationForm:purchaseOrderNumberText" value="123" />
+
+      <!-- switch tabs but cancel the page change warning -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <mpl_goto.tab label="${subscription.payment}" verify="false" />
+      <verifyNoDialogs />
+      <mpl_verify.selectedTab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:purchaseOrderNumberText" value="123" />
+
+      <!-- switch the tabs sucuessfully, check the changed field have been rest -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <mpl_goto.tab label="${subscription.payment}" verify="false" />
+      <verifyNoDialogs />
+      <mpl_verify.selectedTab label="${subscription.payment}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:purchaseOrderNumberText" value="" />
+
+      <!-- clean up -->
+      <clickLink description="Click link: Terminate" htmlId="deleteForm:unsubscribeButton" />
+      <clickButton label="Terminate" />
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="Bug9976" depends="init">
+    <webtest name="Bug9976: reset categories on MP change">
+      <mpl_goto.marketplace mid="${midLocal}" />
+      <verifyXPath xpath="count(//a[@class='categoryItem'])" text="2" />
+      <mpl_goto.marketplace mid="${midGlobal}" />
+      <verifyXPath xpath="count(//a[@class='categoryItem'])" text="0" />
+      <mpl_goto.marketplace mid="${midLocal}" />
+      <verifyXPath xpath="count(//a[@class='categoryItem'])" text="2" />
+    </webtest>
+  </target>
+	
+  <target name="testBug10263">  	
+  	<webtest name="testBug10263">
+  	  <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+  	  <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+  	  <operator.addCurrency />
+  	  <scenario.setupSupplier />
+  	  <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+  	  <storeProperty name="supplierAdminUserId" value="${supplierUserId}" propertyType="ant" />
+  	  <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+  	  <scenario.createSimpleServices mid="${mId}" />
+  	  <mail.cleanInbox />
+  	  <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <clickLink htmlId="linkBrowseAll" />
+   	  <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+  	  <clickLink htmlId="buyme" />
+  	  <clickLink htmlId="configurationForm:nextLink" />
+  	  <clickLink htmlId="confirmForm:previousConfigLink" />
+  	  <verifyXPath xpath=".//*[@id='configurationForm:previousSubscribe']"/>
+  	</webtest>
+  	
+  	<webtest name="cleanup_Bug10263">
+  	  <!-- cleanup -->
+  	  <setup:service.delete serviceIds="*" deactivate="true" />
+  	  <operator.deleteMarketplaces marketplaceIds="${mId}" />
+  	  <mail.cleanInbox />
+  	</webtest>
+  </target>
+
+  <target name="Bug10358">
+    <webtest name="setup - setup environment for async provisioning abort test">
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="mId" />
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <login.logout />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" userId="${supplierUserId}" password="secret" />
+
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="data/TechnicalServiceASYNC.xml" />
+      <setup:service.define marketplaceId="${mId}" techServiceId="ExampleAsync" serviceId="Async" name="Async" description="Async" useParameters="true" svcKeyProperty="svcKey"/>
+      <setup:pricemodel.define serviceId="Async" isFree="true" />
+      <setup:service.activate serviceIds="Async" />
+    </webtest>
+  	
+    <webtest name="testAsyncSubscription - create subscription with async provisioning">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <clickLink htmlId="buyme" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="Async" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+        
+      <!--bug10992-->
+      <storeXPath  xpath="//*[@id='infoMessages']/@class" property="cssClass1" />
+      <verifyProperty name="cssClass1" value="success" regex="true" />
+      
+      <storeXPath  xpath="//*[@id='usersForm']//div/@class" property="cssClass2" />
+      <verifyProperty name="cssClass2" value="suspendedNotMessage" regex="true" />
+      <verifyProperty name="cssClass2" value="suspended" regex="true" />
+      
+      <storeXPath  xpath="//*[@id='userListForm']//dl/@class" property="cssClass3" />
+      <verifyProperty name="cssClass3" value="warning" regex="true" />
+      
+      <mpl_login.logout />
+    </webtest>
+   
+    <webtest name="testAbort - check on accout->subscriptions and my subscriptions are deleted">
+      <selectWebClient name="mockProduct">
+        <mock.settings userKey="${supplierUserKey}" />
+      </selectWebClient>
+      <selectWebClient name="administrate">
+        <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+        <mpl_goto.account.subscriptions />        
+      </selectWebClient>    
+      <selectWebClient name="mockProduct">
+        <storeProperty name="abortMsg" value="The subscription is aborted" propertyType="ant" />
+        <mock.abortAsyncSub text="${abortMsg}" />
+      </selectWebClient>
+      <selectWebClient name="administrate">
+      	<clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      	
+        <mpl_verify.error label="The subscription Async does not exist." />
+        <mpl_login.logout />
+      </selectWebClient>    
+    </webtest>
+  </target>	
+  
+  
+  <target name="Bug10703" depends="init">
+      <webtest name="If the firstName or lastName is too long, they will be shortly displayed">
+        <steps>
+        <!-- create new user and assign the user to subscription -->
+        <mail.cleanInbox />
+        <mpl_goto.marketplace mid="${midGlobal}" />
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.users />
+        <mpl_user.create userId="endUser" firstName="bug10703firstName" lastName="bug10703lastName"/>
+        <mpl_service.subscribe mid="${midGlobal}" index="2" />
+        <mpl_login.logout />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="NewOrgId" value="#{orgId}" />
+        <property name="NewUserId" value="#{userId}" />
+        <property name="NewUserUrl" value="#{orgUrl}" />
+        <property name="NewUserKey" value="#{userKey}" />
+        <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+        <setup:subscription.addRevokeUser subscriptionId="Starter" usersToAdd="${NewUserKey}" />
+
+        <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
+        <mpl_goto.account.subscriptions />
+        <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+        
+        <mpl_verify.selectedTab label="${subscription.users}" />
+        <storeXPath  xpath="//*[@id='userListForm:userTable:0:userIdText']/@class" property="cssClass1" />
+        <verifyProperty name="cssClass1" value="stringInMultiLine" regex="true" />
+        <storeXPath  xpath="//*[@id='userListForm:userTable:0:firstNameText']/@class" property="cssClass2" />
+        <verifyProperty name="cssClass2" value="stringInMultiLine" regex="true" />
+        <storeXPath  xpath="//*[@id='userListForm:userTable:0:lastNameText']/@class" property="cssClass3" />
+        <verifyProperty name="cssClass3" value="stringInMultiLine" regex="true" />
+        <mpl_subscription.revokeUser subscriptionIndex="0" userIndex="0" />
+        <mpl_goto.account.users />
+        <storeXPath  xpath="//*[@id='userListForm:userListTable:0:userIdText']/@class" property="cssClass4" />
+        <verifyProperty name="cssClass4" value="stringInMultiLine" regex="true" />
+        <storeXPath  xpath="//*[@id='userListForm:userListTable:0:firstNameText']/@class" property="cssClass5" />
+        <verifyProperty name="cssClass5" value="stringInMultiLine" regex="true" />
+        <storeXPath  xpath="//*[@id='userListForm:userListTable:0:lastNameText']/@class" property="cssClass6" />
+        <verifyProperty name="cssClass6" value="stringInMultiLine" regex="true" />
+        <mpl_user.delete userId="${NewUserId}" />
+        <mpl_login.logout />
+        </steps>
+      </webtest>
+    </target>
+
+  <!-- Create a supplier organization with a local marketplace. 
+         Create, publish and activate a service.
+         Can be called several times! The organization name is set
+         to organizationName_<organization Id>.
+         If "publishToGlobalMarketplace" is "true" the services are
+         published to the global marketplace with ID "globalMarketplaceId".
+         Else the services are published to the local marketplace.
+    -->
+  <macrodef name="createSupplierLocalMpServices">
+    <attribute name="globalMarketplaceId" />
+    <attribute name="isFree" default="true" />
+    <attribute name="techServiceId" default="Example 1.00" />
+
+    <sequential>
+      <!-- Supplier -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrlX" value="#{orgUrl}" />
+      <storeProperty name="supplierIdX" value="#{orgId}" />
+      <storeProperty name="supplierUserIdX" value="#{userId}" />
+      <storeProperty name="supplierUserKeyX" value="#{userKey}" />
+
+      <operator.addAvailablePaymentTypes orgId="#{supplierIdX}" />
+
+      <!-- change organization name -->
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="#{supplierIdX}" />
+      <setInputField name="manageOrganizationsForm:organizationName" value="organizationName_#{supplierIdX}" />
+      <clickElement htmlId="manageOrganizationsForm:saveButton" />
+      <login.logout />
+
+      <!-- create, publish and activate services -->
+      <login.initialLoginAndChangePassword url="#{supplierUrlX}" userId="#{supplierUserIdX}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKeyX}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define marketplaceId="@{globalMarketplaceId}" serviceId="ExampleTrial_#{supplierIdX}" name="Trial #{supplierIdX}" description="Trial description #{supplierIdX}" useParameters="false" techServiceId="@{techServiceId}" />
+      <setup:pricemodel.define serviceId="ExampleTrial_#{supplierIdX}" isFree="@{isFree}" />
+      <setup:service.activate serviceIds="ExampleTrial_#{supplierIdX}" />
+      <login.logout />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="checkSupplierNameFromService">
+    <attribute name="supplierName" />
+
+    <sequential>
+      <!-- check if service belongs to supplier x and verify supplier tab -->
+      <ifStep>
+        <condition>
+          <!-- organization name on top page -->
+          <verifyXPath xpath=".//*[@id='serviceDetailSupplier']" text=".*@{supplierName}.*" regex="true" />
+        </condition>
+        <then>
+          <!-- organization name in supplier tab-->
+          <verifyText id="supplierName" text="@{supplierName}" />
+          <storeRegEx description="supplierNameFromService" text="@{supplierName}" property="serviceSupplier" />
+        </then>
+      </ifStep>
+
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="_bug8312.checkCountrySelectBox">
+    <sequential>
+      <!-- Pass validation for select but fail for another field -->
+      <setSelectField name="editForm:country" value="AM" />
+      <setInputField htmlId="editForm:email" value="" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.verifyFieldError fieldId="editForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <not>
+        <common.verifyFieldError fieldId="editForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      </not>
+      <verifySelectField htmlId="editForm:country" value="AM" />
+
+      <!-- Let the validation fail for the select field -->
+      <setSelectField name="editForm:country" value="" />
+      <setInputField htmlId="editForm:email" value="${common.email}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <not>
+        <common.verifyFieldError fieldId="editForm:email" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      </not>
+      <common.verifyFieldError fieldId="editForm:country" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <!-- The select field must contain the invalid value (not the previously select valid one) -->
+      <verifySelectField htmlId="editForm:country" value="" />
+    </sequential>
+  </macrodef>
+
+</project>

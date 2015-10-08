@@ -1,0 +1,30 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  >
+  <!-- error div to be added to one reRender target if the main error div should be used -->
+  <div id="a4jErrorDiv" style="display:none;">
+    <rich:messages id="a4jErrorMessages" globalOnly="true" passedLabel="" layout="list" styleClass="errorPanelBody" rendered="#{facesContext.maximumSeverity.ordinal > 0}">
+      <f:facet name="errorMarker">
+        <h:graphicImage value="/img/sta_err_16.png" />
+      </f:facet>
+    </rich:messages>
+  </div>
+  <script type="text/javascript">
+  if(#{not empty refresh and refresh == 'true'}){
+    AdmUtils.moveChildrenForDifferentBrowserWithRefresh(document.getElementById("a4jErrorDiv"), document.getElementById("errorPanel"), document.getElementById("infoPanel"),#{facesContext.maximumSeverity.ordinal > 0});
+  }
+  else{
+    AdmUtils.moveChildrenForDifferentBrowser(document.getElementById("a4jErrorDiv"), document.getElementById("errorPanel"));
+  }
+  AdmUtils.showErrorPanel(#{facesContext.maximumSeverity.ordinal > 0});
+  </script>
+</ui:composition>

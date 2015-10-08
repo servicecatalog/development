@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <ResellerRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <Period startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z" endDate="1341100800000"
+      endDateIsoFormat="2012-07-01T00:00:00.000Z" />
+
+  </ResellerRevenueShareResult>
+</RevenueSharesResults>

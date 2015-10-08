@@ -1,0 +1,123 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testNotInternalAuthMode" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <!-- To execute this test, the steps in the comments of testSamlSPMode.xml are necessary -->
+  <target name="testNotInternalAuthMode">
+    <webtest name="setup">
+      <mail.cleanInbox />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <!-- <setup:store.settings userkey="1000" password="" /> <setup:configuration.setValue informationId="AUTH_MODE" value="SAML_SP" 
+        /> -->
+      <storeProperty name="ssoRegisterUserId" value="user1" propertyType="ant" />
+      <storeProperty name="ssoRegisterUserPassword" value="admin123" propertyType="ant" />
+    </webtest>
+
+    <webtest name="testProfile">
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink label="Login" />
+      <followFrame htmlId="saml2PostFrame"/>
+      <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
+      <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
+      <clickButton name="Login.Submit" />
+      <mpl_goto.account.users />
+      
+      <clickElement xpath="//*[@id='userListForm:userListTable:0:colUserId']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editUserForm:resetButton']" />
+      </not>
+      <mpl_goto.account.profile />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:changePwdButton']" />
+      </not>
+    </webtest>
+
+    <webtest name="testLoginRedirectToIDP">
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink label="Login" />
+      <followFrame htmlId="saml2PostFrame"/>
+      <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
+      <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
+      <clickButton name="Login.Submit" />
+      <verifyXPath xpath="//*[@id='formLogout:welcome']" text="Welcome ${sso.user.id}" />
+    </webtest>
+
+    <webtest name="testRegisterRedirectToIDP">
+      <invoke url="${mail.anyurl}/image?webtest=1" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickElement htmlId="formRegister:registerLink" />
+      <followFrame htmlId="saml2PostFrame"/>
+      <setInputField value="${ssoRegisterUserId}" xpath="//*[@id='IDToken1']" />
+      <setInputField value="${ssoRegisterUserPassword}" xpath="//*[@id='IDToken2']" />
+      <clickButton name="Login.Submit" />
+      <verifyInputField htmlId="registrationForm:userId" value="${ssoRegisterUserId}" />
+
+      <!--Register new user -->
+      <setInputField htmlId="registrationForm:userEmail" value="${mail.username}" />
+      <verifyXPath xpath="//*[@id='registrationForm:userId']" />
+      <!-- No passwords in self-registration page for SAML_SP mode -->
+      <not>
+        <verifyXPath xpath="//*[@id='registrationForm:regPassword']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='registrationForm:regPassword2']" />
+      </not>
+
+      <setSelectField htmlId="registrationForm:country" optionIndex="1" />
+      <setInputField htmlId="registrationForm:verificationCode" value="pp09" />
+      <setCheckbox htmlId="registrationForm:acceptTerms" checked="true" />
+      <clickElement htmlId="registrationForm:registerButton" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickElement htmlId="confirmForm:continueLink" />
+
+      <not>
+        <verifyXPath xpath="//*[@id='formLogin:loginLink']" />
+      </not>
+
+      <verifyXPath xpath="//*[@id='formLogout:welcome']" text="Welcome ${ssoRegisterUserId}" />
+    </webtest>
+
+    <webtest name="testChangePasswordFirstAdmin">
+      <operatorPortal.ssoLogin />
+      <verifyXPath xpath="//a[@href='/oscm-portal/user/pwd.jsf']" />
+    </webtest>
+
+    <webtest name="testManageUsers">
+      <operatorPortal.ssoLogin />
+      <clickLink href="/oscm-portal/user/list.jsf" />
+      <clickElement xpath="//*[@id='userListForm:userListTable:0:userId' and .='administrator']" />
+      <verifyXPath xpath="//*[@id='editForm:saveButton']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:resetButton']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:resetButtonDisabled']" />
+      </not>
+    </webtest>
+
+    <webtest name="testOperationManageUsers">
+      <operatorPortal.ssoLogin />
+      <clickLink href="/oscm-portal/operator/manageUsers.jsf" />
+      <not>
+        <verifyXPath xpath="//*[@id='manageUsers:resetPassword']" />
+      </not>
+      <setInputField htmlId="manageUsers:userIdInput" value="${supplierUserId}" />
+      <not>
+        <verifyXPath xpath="//*[@id='manageUsers:resetPassword']" />
+      </not>
+    </webtest>
+
+    <webtest name="testCreateOrganization">
+      <operatorPortal.ssoLogin />
+      <clickLink href="oscm-portal/operator/createOrganization.jsf" />
+      <not>
+        <verifyXPath xpath="//div[@id='editForm:createOrganizationFileChooserPanel']" />
+      </not>
+    </webtest>
+
+    <!-- <webtest name="restore"> <setup:store.settings userkey="1000" password="" /> <setup:configuration.setValue informationId="AUTH_MODE" 
+      value="INTERNAL" /> </webtest> -->
+  </target>
+</project>

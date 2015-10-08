@@ -1,0 +1,360 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="all">
+  <import file="../macros/all.xml" />
+
+  <target name="all" depends="testUserRoles,testUserRoles2" />
+
+  <target name="testUserRoles">
+    <property name="administrator" value="//*[contains(text(), '${UserRoleType.ORGANIZATION_ADMIN}')]/../*[1]" />
+    <property name="platform_operator" value="//*[contains(text(), '${UserRoleType.PLATFORM_OPERATOR}')]/../*[1]" />
+    <property name="marketplace_manager" value="//*[contains(text(), '${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]" />
+    <property name="service_manager" value="//*[contains(text(), '${UserRoleType.SERVICE_MANAGER}')]/../*[1]" />
+    <property name="technology_manager" value="//*[contains(text(), '${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]" />
+    <property name="broker_manager" value="//*[contains(text(), '${UserRoleType.BROKER_MANAGER}')]/../*[1]" />
+    <property name="reseller_manager" value="//*[contains(text(), '${UserRoleType.RESELLER_MANAGER}')]/../*[1]" />
+    <property name="subscription_manager" value="//*[contains(text(), '${UserRoleType.SUBSCRIPTION_MANAGER}')]/../*[1]" />
+
+    <webtest name="testUserRoles_Operator">
+      <operator.createMarketplace mIdProperty="mId" name="Local Marketplace" />
+      <login.login url="${mail.anyurl}" userId="administrator" password="admin123" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="opUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${platform_operator}" checked="false" />
+      <verifyCheckbox xpath="${marketplace_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="opUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${platform_operator}" checked="false" />
+      <verifyCheckbox xpath="${marketplace_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Marketplace manager -->
+      <user.register userId="opUserMM" admin="false" isMpOwner="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${platform_operator}" checked="false" />
+      <verifyCheckbox xpath="${marketplace_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager -->
+      <user.register userId="opUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${platform_operator}" checked="false" />
+      <verifyCheckbox xpath="${marketplace_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="opUserFR" admin="true" isMpOwner="true" isPlatformOperator="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${platform_operator}" checked="true" />
+      <verifyCheckbox xpath="${marketplace_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:3:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:3:rolesCheckbox" fieldValue="false" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testUserRoles2">
+
+    <webtest name="testUserRoles_SupplierAndTechProvider">
+      <mail.cleanInbox />
+
+      <!-- Create User by Supplier with Technology Provider -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supTpUrl" value="#{orgUrl}" />
+      <storeProperty name="supTpId" value="#{orgId}" />
+      <storeProperty name="supTpUserId" value="#{userId}" />
+      <login.initialLoginAndChangePassword url="#{supTpUrl}" userId="#{supTpUserId}" password="#{userPwd}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="supTpUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="supTpUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager -->
+      <user.register userId="supTpUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="supTpUserFR" admin="true" isSvcMgr="true" isTechMgr="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${service_manager}" checked="true" />
+      <verifyCheckbox xpath="${technology_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:3:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:3:rolesCheckbox" fieldValue="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testUserRoles_Supplier">
+      <mail.cleanInbox />
+
+      <!-- Create User by Supplier -->
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="supplierUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="supplierUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager -->
+      <user.register userId="supplierUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${service_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="supplierUserFR" admin="true" isSvcMgr="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${service_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testUserRoles_TechProvider">
+      <mail.cleanInbox />
+
+      <!-- Create User by Technology Provider -->
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="tpUrl" value="#{orgUrl}" />
+      <storeProperty name="tpId" value="#{orgId}" />
+      <storeProperty name="tpUserId" value="#{userId}" />
+      <login.initialLoginAndChangePassword url="#{tpUrl}" userId="#{tpUserId}" password="#{userPwd}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="TechProviderUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager -->
+      <user.register userId="TechProviderUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="TechProviderUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${technology_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="TechProviderUserFR" admin="true" isTechMgr="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${technology_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testUserRoles_changeRoles">
+      <!-- retest 7647 -->
+      <mail.cleanInbox />
+
+      <!-- Create Supplier to Create Customer -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supTpUrl" value="#{orgUrl}" />
+      <storeProperty name="supTpId" value="#{orgId}" />
+      <storeProperty name="supTpUserId" value="#{userId}" />
+
+      <!-- Create User by Customer -->
+      <login.initialLoginAndChangePassword url="#{supTpUrl}" userId="#{supTpUserId}" password="#{userPwd}" />
+
+      <user.display userId="#{supTpUserId}" />
+
+      <setCheckbox xpath="${service_manager}" checked="false" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.user.saved.itself}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testUserRoles_Broker">
+      <mail.cleanInbox />
+
+      <!-- Create User by Supplier -->
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerUrl" value="#{orgUrl}" />
+      <storeProperty name="brokerId" value="#{orgId}" />
+      <storeProperty name="brokerUserId" value="#{userId}" />
+      <login.initialLoginAndChangePassword url="#{brokerUrl}" userId="#{brokerUserId}" password="#{userPwd}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="brokerUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${broker_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager -->
+      <user.register userId="brokerUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${broker_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="brokerUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${broker_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="brokerUserFR" admin="true" isBroker="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${broker_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testUserRoles_Reseller">
+      <mail.cleanInbox />
+
+      <!-- Create User by Supplier -->
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerUrl" value="#{orgUrl}" />
+      <storeProperty name="resellerId" value="#{orgId}" />
+      <storeProperty name="resellerUserId" value="#{userId}" />
+      <login.initialLoginAndChangePassword url="#{resellerUrl}" userId="#{resellerUserId}" password="#{userPwd}" />
+
+      <!-- Check user create with no roles -->
+      <user.register userId="resellerUserNR" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${reseller_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with Subscription manager  -->
+      <user.register userId="resellerUserSM" admin="false" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="false" />
+      <verifyCheckbox xpath="${reseller_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Check user create with Administrator -->
+      <user.register userId="resellerUserAD" admin="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${reseller_manager}" checked="false" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="false" />
+
+      <!-- Check user create with full roles -->
+      <user.register userId="resellerUserFR" admin="true" isReseller="true" isSubMgr="true" />
+      <user.display userId="#{uniqueUserId}" />
+      <verifyCheckbox xpath="${administrator}" checked="true" />
+      <verifyCheckbox xpath="${reseller_manager}" checked="true" />
+      <verifyCheckbox xpath="${subscription_manager}" checked="true" />
+
+      <!-- Change roles -->
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:0:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:1:rolesCheckbox" fieldValue="false" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="true" />
+      <user.editCheckboxValue userId="#{uniqueUserId}" fieldId="editForm:userRolesTable:2:rolesCheckbox" fieldValue="false" />
+
+
+      <login.logout />
+    </webtest>
+
+  </target>
+</project>

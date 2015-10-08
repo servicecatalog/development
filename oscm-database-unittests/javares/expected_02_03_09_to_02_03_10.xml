@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <RevenueShareModel tkey="1" version="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+  <RevenueShareModel tkey="2" version="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+  
+  <RevenueShareModelHistory tkey="1" objkey="1" modtype="ADD" moduser="ANONYMOUS" objversion="0" revenueshare="0" 
+    revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="2" objkey="2" modtype="ADD" moduser="ANONYMOUS" objversion="0" revenueshare="0" 
+    revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+  <!-- No RevenueShareModel object for deleted technical products, only corresponding history entry with a new tkey and objkey -->
+  <RevenueShareModelHistory tkey="3" objkey="3" modtype="DELETE" moduser="ANONYMOUS" objversion="0" revenueshare="0" 
+    revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+    
+  <Catalogentry tkey="10001" product_tkey="101" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="1" />
+  <Catalogentry tkey="10011" product_tkey="111" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="2" />
+  <Catalogentry tkey="10002" product_tkey="102" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="[NULL]" />
+  <Catalogentry tkey="10003" product_tkey="103" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="[NULL]" />
+  <Catalogentry tkey="10004" product_tkey="104" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="[NULL]" />
+  <Catalogentry tkey="10005" product_tkey="105" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="[NULL]" />
+  <Catalogentry tkey="10006" product_tkey="106" version="0" anonymousvisible="true" visibleincatalog="true" operatorpricemodel_tkey="[NULL]" />
+  
+  <CatalogentryHistory tkey="100001" objkey="10001" productobjkey="101" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="1" />
+  <CatalogentryHistory tkey="100011" objkey="10001" productobjkey="101" modtype="MODIFY" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="1" /> 
+  <CatalogentryHistory tkey="100111" objkey="10011" productobjkey="111" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="2" />
+  <CatalogentryHistory tkey="100121" objkey="10011" productobjkey="111" modtype="MODIFY" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="2" /> 
+  <CatalogentryHistory tkey="100002" objkey="10002" productobjkey="102" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="100003" objkey="10003" productobjkey="103" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="100004" objkey="10004" productobjkey="104" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="100005" objkey="10005" productobjkey="105" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="[NULL]" />
+  <CatalogentryHistory tkey="100006" objkey="10006" productobjkey="106" modtype="ADD" moduser="u1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="[NULL]" />
+  <!-- CatalogentryHistory must reference 0% oerator revenue share for physically deleted marketable products (based on deleted technical products) -->
+  <CatalogentryHistory tkey="100007" objkey="10007" productobjkey="107" modtype="DELETE" moduser="u1" objversion="3" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" 
+    brokerpricemodelobjkey="[NULL]" resellerpricemodelobjkey="[NULL]" operatorpricemodelobjkey="3" />
+ 
+</dataset>

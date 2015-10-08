@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Event tkey="1" version="1" eventidentifier="a" eventtype="SERVICE_EVENT" />
+  <Event tkey="2" version="1" eventidentifier="b" eventtype="SERVICE_EVENT" />
+
+  <PriceModel tkey="1" onetimefee="1" priceperperiod="1" priceperuserassignment="0" ischargeable="true"
+    version="2" />
+  <PricedParameter tkey="1" pricemodelkey="1" pricepersubscription="0" priceperuser="1" version="2" />
+  <PricedParameter tkey="2" pricemodelkey="1" pricepersubscription="2" priceperuser="2" version="1" />
+  <PricedEvent tkey="1" pricemodelkey="1" eventprice="0" version="2" eventkey="1" />
+  <PricedEvent tkey="2" pricemodelkey="1" eventprice="2" version="1" eventkey="2" />
+  <SteppedPrice tkey="1" pricemodel_tkey="1" price="3" additionalprice="3" freeentitycount="0" version="1" />
+  <SteppedPrice tkey="2" pricedparameter_tkey="1" price="4" additionalprice="4" freeentitycount="0"
+    version="1" />
+  <SteppedPrice tkey="3" pricedevent_tkey="1" price="5" additionalprice="5" freeentitycount="0" version="1" />
+
+  <PriceModel tkey="2" onetimefee="2" priceperperiod="2" priceperuserassignment="2" ischargeable="true"
+    version="2" />
+  <PricedParameter tkey="3" pricemodelkey="2" pricepersubscription="3" priceperuser="3" version="2" />
+  <PricedEvent tkey="3" pricemodelkey="2" eventprice="3" version="2" eventkey="1" />
+
+
+  <EventHistory tkey="1" objkey="1" objversion="1" eventidentifier="a" eventtype="SERVICE_EVENT"
+    invocationdate="2012-01-01 01:00:00" modtype="ADD" moduser="A" />
+  <EventHistory tkey="2" objkey="2" objversion="1" eventidentifier="b" eventtype="SERVICE_EVENT"
+    invocationdate="2012-01-01 01:00:00" modtype="ADD" moduser="A" />
+
+  <PriceModelHistory tkey="1" objkey="1" objversion="1" onetimefee="1" priceperperiod="1"
+    priceperuserassignment="1" ischargeable="true" invocationdate="2012-01-01 01:00:00"
+    modtype="ADD" moduser="A" productobjkey="1" />
+  <PricedParameterHistory tkey="1" objkey="1" objversion="1" pricemodelobjkey="1"
+    pricepersubscription="1" priceperuser="1" invocationdate="2012-01-01 01:00:00"
+    modtype="ADD" moduser="A" parameterobjkey="1" />
+  <PricedParameterHistory tkey="2" objkey="2" objversion="1" pricemodelobjkey="1"
+    pricepersubscription="2" priceperuser="2" invocationdate="2012-01-01 01:00:00"
+    modtype="ADD" moduser="A" parameterobjkey="2" />
+  <PricedEventHistory tkey="1" objkey="1" objversion="1" pricemodelobjkey="1" eventprice="1"
+    eventobjkey="1" invocationdate="2012-01-01 01:00:00" modtype="ADD" moduser="A" />
+  <PricedEventHistory tkey="2" objkey="2" objversion="1" pricemodelobjkey="1" eventprice="2"
+    eventobjkey="2" invocationdate="2012-01-01 01:00:00" modtype="ADD" moduser="A" />
+
+  <PriceModelHistory tkey="2" objkey="1" objversion="2" onetimefee="1" priceperperiod="1"
+    priceperuserassignment="0" ischargeable="true" invocationdate="2012-01-01 02:00:00"
+    modtype="MODIFY" moduser="A" productobjkey="1" />
+  <PricedParameterHistory tkey="3" objkey="1" objversion="2" pricemodelobjkey="1"
+    pricepersubscription="0" priceperuser="1" invocationdate="2012-01-01 02:00:00"
+    modtype="MODIFY" moduser="A" parameterobjkey="1" />
+  <PricedEventHistory tkey="3" objkey="1" objversion="2" pricemodelobjkey="1" eventprice="0"
+    eventobjkey="1" invocationdate="2012-01-01 02:00:00" modtype="MODIFY" moduser="A" />
+
+  <SteppedPriceHistory tkey="1" objkey="1" objversion="1" pricemodelobjkey="1" price="3"
+    additionalprice="3" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+  <SteppedPriceHistory tkey="2" objkey="2" objversion="1" pricedparameterobjkey="1" price="4"
+    additionalprice="4" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+  <SteppedPriceHistory tkey="3" objkey="3" objversion="1" pricedeventobjkey="1" price="5"
+    additionalprice="5" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+
+
+  <PriceModelHistory tkey="3" objkey="2" objversion="1" onetimefee="2" priceperperiod="2"
+    priceperuserassignment="2" ischargeable="true" invocationdate="2012-01-01 02:00:00"
+    modtype="ADD" moduser="A" productobjkey="2" />
+  <PricedParameterHistory tkey="4" objkey="3" objversion="1" pricemodelobjkey="1"
+    pricepersubscription="3" priceperuser="3" invocationdate="2012-01-01 02:00:00"
+    modtype="ADD" moduser="A" parameterobjkey="3" />
+  <PricedEventHistory tkey="4" objkey="3" objversion="1" pricemodelobjkey="1" eventprice="3"
+    eventobjkey="1" invocationdate="2012-01-01 02:00:00" modtype="ADD" moduser="A" />
+
+  <SteppedPriceHistory tkey="4" objkey="4" objversion="1" pricemodelobjkey="2" price="3"
+    additionalprice="3" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+  <SteppedPriceHistory tkey="5" objkey="5" objversion="1" pricedparameterobjkey="3" price="4"
+    additionalprice="4" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+  <SteppedPriceHistory tkey="6" objkey="6" objversion="1" pricedeventobjkey="3" price="5"
+    additionalprice="5" freeentitycount="0" invocationdate="2012-01-01 02:00:00" modtype="ADD"
+    moduser="A" />
+
+  <PriceModelHistory tkey="4" objkey="2" objversion="2" onetimefee="2" priceperperiod="2"
+    priceperuserassignment="2" ischargeable="true" invocationdate="2012-01-01 03:00:00"
+    modtype="MODIFY" moduser="A" productobjkey="2" />
+  <PricedParameterHistory tkey="5" objkey="3" objversion="2" pricemodelobjkey="1"
+    pricepersubscription="3" priceperuser="3" invocationdate="2012-01-01 03:00:00"
+    modtype="MODIFY" moduser="A" parameterobjkey="3" />
+  <PricedEventHistory tkey="5" objkey="3" objversion="2" pricemodelobjkey="1" eventprice="3"
+    eventobjkey="1" invocationdate="2012-01-01 03:00:00" modtype="MODIFY" moduser="A" />
+  <SteppedPriceHistory tkey="7" objkey="4" objversion="2" pricemodelobjkey="2" price="3"
+    additionalprice="3" freeentitycount="0" invocationdate="2012-01-01 03:00:00" modtype="DELETE"
+    moduser="A" />
+  <SteppedPriceHistory tkey="8" objkey="5" objversion="2" pricedparameterobjkey="3" price="4"
+    additionalprice="4" freeentitycount="0" invocationdate="2012-01-01 03:00:00" modtype="DELETE"
+    moduser="A" />
+  <SteppedPriceHistory tkey="9" objkey="6" objversion="2" pricedeventobjkey="3" price="5"
+    additionalprice="5" freeentitycount="0" invocationdate="2012-01-01 03:00:00" modtype="DELETE"
+    moduser="A" />
+
+</dataset>

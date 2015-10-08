@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <!-- The new user roles must be added to the DB -->
+  <UserRole tkey="9" rolename="UNIT_ADMINISTRATOR" version="0" />
+  <UnitUserRole tkey="1" rolename="ADMINISTRATOR" version="0" />
+  <UnitUserRole tkey="2" rolename="USER" version="0" />
+</dataset>

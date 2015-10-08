@@ -1,0 +1,133 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="user.list" />
+    <c:set var="dirty" value="false" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{manageUsersCtrl.initialize}" />
+
+    <h:form id="userListForm">
+	   <adm:outputStep value="#{msg['user.list.step1']}" />
+    	<a4j:outputPanel layout="block" styleClass="tablePanel table_padding">  
+        <ui:include src="userTable.xhtml">
+          <ui:param name="users" value="#{manageUsersModel.users}" />
+          <ui:param name ="tableId" value="userListTable"/>
+          <ui:param name="size" value="#{manageUsersCtrl.usersSize}" />
+          <ui:param name="headers" value="#{manageUsersCtrl.dataTableHeaders}"/>
+          <ui:param name="pagerId" value="userListTablePager"/>
+          <ui:param name="sortIcon" value="/img/transparentPixel.png?id=sort" />
+          <ui:param name="sortIconAscending" value="/img/transparentPixel.png?id=sortAscending" />
+          <ui:param name="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
+        </ui:include>
+      </a4j:outputPanel>
+    </h:form>
+
+    <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
+      <a4j:jsFunction name="selectItem" render="details,mainTmplMessagesPanel"
+        action="#{manageUsersCtrl.checkSelectedUser}"
+        oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+        <a4j:param name="param1" assignTo="#{manageUsersCtrl.selectedUserId}" />
+      </a4j:jsFunction>
+    </h:form>
+   	
+    <a4j:outputPanel id="scriptPanel" layout="block">
+      <script type="text/javascript">
+        AdmUtils.highlightTableHeader();
+		AdmUtils.findRow("userListForm:userListTable:", "userId", "#{manageUsersCtrl.selectedUserId}","#{manageUsersCtrl.usersSize}",function(element) {AdmUtils.selectRow(element);});
+      </script>
+  	</a4j:outputPanel>
+  	
+  </ui:define>
+
+  <ui:define name="body_sub">
+    <adm:outputStep value="#{msg['user.list.step2']}" />
+    <a4j:outputPanel layout="block">
+      <h:form id="validateCurrentUserRolesForm">
+        <a4j:jsFunction name="validateCurrentUserRoles"
+          data="#{manageUsersCtrl.currentUserRolesChanged}"
+          oncomplete="if(event.data==true){#{rich:component('reLogining')}.show();}
+                     else{setOnSubmit(true);
+                     setOnSubmit(false);} return false;">
+        </a4j:jsFunction>
+      </h:form>
+      <h:form id="editForm">
+        <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2" columnClasses="valignTop,valignTop">
+          <h:panelGroup>
+            <adm:panelGrid minColWidth="false">
+              <adm:labelAndSelect id="salutation" label="#{msg['user.salutation']}"
+                value="#{manageUsersModel.salutation.value}" styleClass="selectXS"
+                disabled="#{manageUsersModel.salutation.readOnly}">
+                <adm:salutationItems />
+              </adm:labelAndSelect>
+
+              <adm:userName firstNameId="firstName" firstNameValue="#{manageUsersModel.firstName.value}"
+                lastNameId="lastName" lastNameValue="#{manageUsersModel.lastName.value}"
+                firstNameDisabled="#{manageUsersModel.firstName.readOnly}"
+                lastNameDisabled="#{manageUsersModel.lastName.readOnly}" />
+
+              <adm:labelAndInputText id="email" label="#{msg['user.email']}"
+                required="#{manageUsersModel.email.required}" value="#{manageUsersModel.email.value}"
+                maxlength="#{appBean.nameLen}" disabled="#{manageUsersModel.email.readOnly}" validatorId="email"
+                converterId="trimConverter" />
+
+              <adm:labelAndInputText id="userId" label="#{msg['user.userId']}"
+                required="#{manageUsersModel.userId.required}" value="#{manageUsersModel.userId.value}"
+                maxlength="#{appBean.userIdLen}" disabled="#{manageUsersModel.userId.readOnly}" validatorId="userId"
+                converterId="trimConverter" />
+
+              <adm:labelAndSelect id="locale" label="#{msg['user.locale']}" value="#{manageUsersModel.locale.value}"
+                styleClass="select" disabled="#{manageUsersModel.locale.readOnly}">
+                <c:if test="#{empty manageUsersCtrl.selectedUserId}">
+                  <f:selectItem itemLabel="" itemValue="" />
+                </c:if>
+                <adm:localeItems />
+                <f:validator validatorId="SupportedLanguageValidator" />
+              </adm:labelAndSelect>
+
+              <adm:outputLabel value="#{msg['user.role']}" />
+              <rich:dataTable rowClasses="rowOdd" value="#{manageUsersModel.roles}" var="userRole" id="userRolesTable"
+                style="width:100%;" styleClass="#{manageUsersCtrl.rolesDisabled ? 'disabled':''} checkBoxList">
+                <rich:column>
+                  <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}"
+                    disabled="#{manageUsersCtrl.rolesDisabled}" onchange="setDirty(true)" />
+                  <h:outputText value="#{userRole.name}" style="" />
+                </rich:column>
+              </rich:dataTable>
+              <adm:message for="asAdmin" />
+            </adm:panelGrid>
+          </h:panelGroup>
+        </h:panelGrid>
+
+        <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+          value="#{msg['button.delete']}" action="#{manageUsersCtrl.delete}" />
+        <adm:buttonPanel>
+          <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{manageUsersCtrl.save}"
+            style="display:none;" />
+          <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
+            onclick="validateCurrentUserRoles();if(AdmUtils.noRoleSelected()){#{rich:component('saveConfirmPl')}.show();}else{setDirty(false);#{rich:element('saveButton')}.click();}return false;"
+            disabled="#{manageUsersCtrl.saveDisabled}" />
+          <adm:button id="resetButton" value="#{msg['button.resetPwd']}" bean="#{manageUsersCtrl}"
+            rendered="#{manageUsersCtrl.resetPasswordVisible}" action="resetPassword" buttonType="reset"
+            disabled="#{manageUsersCtrl.resetPasswordDisabled}" />
+          <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" buttonType="delete"
+            onclick="#{rich:component('deleteConfirmPl')}.show();return false;"
+            disabled="#{manageUsersCtrl.deleteDisabled}" />
+        </adm:buttonPanel>
+        <h:inputHidden value="#{manageUsersModel.token}" />
+      </h:form>
+      <adm:reloginConfirmPanel />
+    </a4j:outputPanel>
+
+    <adm:confirmPanel panelId="saveConfirmPl" formId="saveConfirmForm" text="#{msg['confirm.user.update.norole']}" submitId="saveButton"/>
+    <adm:confirmPanel panelId="deleteConfirmPl" formId="deleteConfirmForm" text="#{msg['confirm.user.delete']}" submitId="confirmedButton"/>
+
+  </ui:define>
+</ui:composition>

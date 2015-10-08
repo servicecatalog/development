@@ -1,0 +1,51 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testPageAccess" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  <target name="setup">
+
+    <webtest name="setup_SubscriptionManager">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace"/>
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceA" name="ServiceA" description="DescriptionServiceA" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ServiceA" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE" steppedPriceForParameter="MAX_FILE_NUMBER" />
+      <setup:service.activate serviceIds="ServiceA" />
+      <login.logout />
+      <setup:accountservice.registerCustomer supplierId="${supplierId}" userId="customer" marketplaceId="${mId}" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <property name="customerUserId" value="${createdUserId}" />
+    </webtest>
+
+  </target>
+  <target name="testPageAccess" depends="setup">
+
+    <webtest name="testPageAccess_SubscriptionManager">
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="SubMgr" isSubMgr="true" />
+      <mpl_login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="${usernameM}" oldPassword="#{userPwd}" />
+      <mpl_goto.page relpath="account/units.jsf" mid="${mId}"/>
+      <verifyXPath xpath="//*[@class='rich-messages box error']//*[text()='You do not have sufficient authorities to view the requested page.']" />
+      <mpl_goto.page relpath="account/users.jsf" mid="${mId}"/>
+      <verifyXPath xpath="//*[@class='rich-messages box error']//*[text()='You do not have sufficient authorities to view the requested page.']" />
+      <mpl_goto.page relpath="account/addGroup.jsf" mid="${mId}"/>
+      <verifyXPath xpath="//*[@class='rich-messages box error']//*[text()='You do not have sufficient authorities to view the requested page.']" />
+      <mpl_login.logout />
+    </webtest>
+
+  </target>
+</project>

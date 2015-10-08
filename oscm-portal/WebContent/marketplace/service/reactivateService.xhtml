@@ -1,0 +1,61 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" template="../templates/modalDialog.xhtml">
+
+  <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+
+  <ui:define name="dialogTitle">
+    <h2><h:outputText id="#{dialogId}DialogTitle"  value="#{msg['service.reactivate.title']}" /></h2>
+  </ui:define>
+
+  <ui:define name="dialogContent">
+    <a4j:outputPanel id="#{dialogId}Grid" layout="block" styleClass="grid2span clearfix" style="width: 560px;">
+      <ui:fragment>
+        <h:outputText value="#{msg['service.reactivate.label']}" />
+
+        <h:form id="#{dialogId}Form">
+          <mp:pixelline marginTop="35"/>
+
+            <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
+                <h:commandButton id="hiddenReactivateButton"
+                                 style="display:none;"
+                                 action="#{serviceActivationBean.resumeService}">
+                    <f:ajax execute="@form"
+                            render=":#{dialogId}RerenderPanel :#{dialogId}modalErrorMasterPanel #{additionalRender} @form @this"/>
+                </h:commandButton>
+
+                <mp:button id="#{dialogId}Reactivate"
+                           onclick="#{rich:element('hiddenReactivateButton')}.click(); return false;"
+                           value="#{msg['button.service.reactivate']}"/>
+                <mp:button id="#{dialogId}cancelButton"
+                           onclick="#{rich:component(dialogId)}.hide();return false;"
+                           value="#{msg['button.cancel']}"/>
+
+            </a4j:outputPanel>
+
+            <script type="text/javascript">
+                (function () {
+                    function isSuccessFlagSet(){
+                        return #{facesContext.maximumSeverity.ordinal == 0};
+                    }
+                    function closeDownIfSuccess(){
+                        if (isSuccessFlagSet()){
+                            #{rich:component(dialogId)}.hide()
+                        }
+                    }
+                    closeDownIfSuccess();
+                }())
+            </script>
+
+        </h:form>
+      </ui:fragment>
+
+    </a4j:outputPanel>
+  </ui:define>
+
+</ui:composition>

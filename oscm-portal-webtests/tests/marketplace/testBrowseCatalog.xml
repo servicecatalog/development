@@ -1,0 +1,194 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_BrowseCatalog" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="testMPL_BrowseCatalog_Setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <!-- add default currency + create supplier -->
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <!-- create 6 default + 2 additional services -->
+      <scenario.createServices numberAdditionalServices="2" mid="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_BrowseCatalog" depends="setup">
+
+    <!-- verify the marketplace help button/link -->
+    <webtest name="testMPL_HelpButton">
+      <!-- Goto home page, verify existence of help button, click and check resulting URL -->
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${mId}&amp;locale=en" />
+      <this.verifyHelpButton description="Check english help exists" locale="en" />
+
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${mId}&amp;locale=de" />
+      <this.verifyHelpButton description="Check german help exists" locale="de" />
+    </webtest>
+
+    <webtest name="testMPL_BrowseCatalog">
+
+      <!-- Goto home page, verify existence of exactly 6 services + button/links -->
+      <scenario.verifyServicesHomePage mid="${mId}" />
+      <verifyElement description="Verify existence of Browse All button" text="categorySelectionForm:buttonBrowseAllLink" type="a" />
+      <verifyElement description="Verify existence of Browse All link" text="linkBrowseAll" type="a" />
+      <verifyElement description="Verify existence of Page top link" text="linkPageTop" type="a" />
+      <not>
+        <verifyElementText description="Verify inexistence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <clickLink htmlId="serviceButton4" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_verify.service_details svcName="Mega Office Professional" />
+      <verifyElement description="Verify existence of Browse All button on Details page" text="buttonBrowseAllRelated" type="a" />
+      <clickLink htmlId="buttonBrowseAllRelated" />
+      <mpl_verify.verifyServicesPage />
+      <not>
+        <verifyElementText description="Verify existence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+
+      <!-- Go back to Home page, this time click on the details button of the free service Mega Office 6 -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_verify.service_details svcName="Mega Office 6" isFree="true" />
+      <verifyElement description="Verify existence of Browse All button on Details page" text="buttonBrowseAllRelated" type="a" />
+      <clickLink htmlId="buttonBrowseAllRelated" />
+      <mpl_verify.verifyServicesPage />
+
+      <!-- Go back to Home page, this time click on the whole block (div) of the free service Mega Office 6 -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickElement htmlId="servicePanel0" />
+      <mpl_verify.breadCrumb actualPage="Mega Office 6" />
+
+      <!-- Go back to Home page, this time click on Browse All button => Goto All services page -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_verify.verifyServicesPage />
+
+      <!-- Check if the default stage is used -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath description="Verify if the default content of the stage was used" xpath="//*[@id='marketplaceStageDefault']" />
+
+      <!-- Check for the terms and privacy links on the home page -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyElement description="Verify existence of imprint link" text="imprintLink" type="a" />
+      <verifyElement description="Verify existence of terms of use link" text="termsLink" type="a" />
+      <verifyElement description="Verify existence of privacy policy link" text="privacyPolicyLink" type="a" />
+
+      <!-- Check is the terms and privacy links are working -->
+      <clickLink htmlId="termsLink" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.terms.title}" />
+
+      <clickLink htmlId="privacyPolicyLink" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.privacypolicy.title}" />
+
+      <!-- Start link-navigaton with a different starting point and a different click order -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <clickLink htmlId="privacyPolicyLink" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.privacypolicy.title}" />
+      <clickLink htmlId="termsLink" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.terms.title}" />
+
+      <!-- Test the direct access URL to a service -->
+      <storeProperty name="serviceDetailsUrl" value="${mail.anyurl}/marketplace/serviceDetails.jsf" />
+
+      <!-- Invoke with invalid key (invalid chars)-->
+      <invoke url="#{serviceDetailsUrl}?mId=${mId}&amp;selectedServiceKey=1ASV7" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.services.title}" />
+      <mpl_verify.errorPanel label="${error.service.invalidKey}" />
+
+      <!-- Invoke with invalid key (valid chars but not existing service)-->
+      <invoke url="#{serviceDetailsUrl}?selectedServiceKey=9999" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.services.title}" />
+      <mpl_verify.errorPanel label="${error.service.notAvailable}" />
+    </webtest>
+
+    <webtest name="testMPL_BrowseCatalog_TestSupplierTab">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <organization.edit image="data/images/icon1.png" />
+      <login.logout />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_verify.service_home pos="5" svcName="Mega Office Starter" />
+      <clickLink htmlId="serviceButton5" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_verify.service_details svcName="Mega Office Starter" />
+      <mpl_goto.tab label="${service.supplier}" />
+
+      <verifyXPath xpath="//*[@id='supplierName' and @class='shortenedText']" />
+      <verifyXPath xpath="//*[@id='supplierAddress' and contains(@class, 'shortenedText')]" />
+      <verifyElement description="Verify existence 'Supplier' tab" text="tabSupplier:header" type="td" />
+      <verifyElement description="Verify existence 'Supplier Image' on 'Supplier' tab" text="supplierImage" type="img" />
+      <verifyElement description="Verify existence 'Supplier Phone' on 'Supplier' tab" text="supplierPhone" type="span" />
+      <verifyElement description="Verify existence 'Supplier Email' on 'Supplier' tab" text="supplierEmail" type="a" />
+      <verifyElement description="Verify existence 'Supplier Website' on 'Supplier' tab" text="supplierURL" type="a" />
+      <verifyElement description="Verify existence 'Supplier Address' on 'Supplier' tab" text="supplierAddress" type="span" />
+      <verifyElement description="Verify existence 'Supplier Description' on 'Supplier' tab" text="supplierDescription" type="span" />
+
+      <verifyElementText description="Supplier Name (as heading h1) missing." htmlId="supplierName" text="Organization Name" type="h1" />
+      <verifyElementText description="Supplier Address missing." htmlId="supplierAddress" text="${test.organization.address}" type="span" />
+      <verifyElementText description="Supplier Country missing." htmlId="supplierDomicileCountryDisplay" text="${test.organization.countryDisplay}" type="span" />
+      <verifyElementText description="Supplier Phone missing." htmlId="supplierPhone" text="${test.organization.phone}" type="span" />
+      <verifyElementText description="Supplier Email missing." htmlId="supplierEmail" text="${common.email}" type="a" />
+      <verifyElementText description="Supplier WebSite missing." htmlId="supplierURL" text="${test.organization.url}" type="a" />
+      <verifyElementText description="Supplier Description missing." htmlId="supplierDescription" text="${test.organization.description}" type="span" />
+      <verifyXPath xpath="//img[substring(@src, 1, 42)='/oscm-portal/image?type=ORGANIZATION_IMAGE']" />
+    </webtest>
+
+    <webtest name="testMPL_BrowseCatalog_Bug10056">
+      <!-- create one categorie for the given marketplace -->
+      <operatorPortal.login />
+      <category.defineCategories marketplaceId="${mId}" />
+      <login.logout />
+
+      <!-- Add category category_0 to service  -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:service.deactivate serviceIds="MegaOffice0" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="MegaOffice0" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="MegaOffice0" />
+      <setup:service.activate serviceIds="MegaOffice0" />
+      <login.logout />
+
+      <!-- Go to marketplace,click on the category  -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'cat0')]" />
+      <verifyElementText description="Verify title of services" htmlId="serviceTitle" text="cat0 en :" />
+
+
+      <!-- Go back to Home page, this time click on the bottom link "browse all services".-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="linkBrowseAll" />
+      <verifyElementText description="Verify title of services" htmlId="serviceTitle" text="" />
+
+    </webtest>
+
+    <webtest name="testMPL_BrowseCatalog_finalCleanUp">
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+  <!-- verify the marketplace help button/link -->
+  <macrodef name="this.verifyHelpButton">
+    <attribute name="locale" default="en" />
+    <sequential>
+      <verifyXPath xpath="//*[@id='helpButton']" />
+      <clickElement xpath="//*[@id='helpButton']/a" />
+      <common.getCurrentRequestUrl property="tmp.currentRequestUrl" />
+      <verifyProperty description="Check if the correct FAQ page is shown" name="tmp.currentRequestUrl" value=".*/@{locale}/faq.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+</project>

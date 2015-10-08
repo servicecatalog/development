@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <LocalizedResource tkey="1" objectKey="1" objectType="PRODUCT_MARKETING_NAME" locale="en" value="the marketing name" version="0"/>
+  <LocalizedResource tkey="2" objectKey="1" objectType="PRODUCT_MARKETING_NAME" locale="de" value="der marketing name" version="0"/>
+  <LocalizedResource tkey="3" objectKey="2" objectType="ORGANIZATION_DESCRIPTION" locale="en" value="org desc 1" version="0"/>
+    
+</dataset>

@@ -1,0 +1,41 @@
+.dummy {
+	background-color: #FFFFFF;
+}
+
+body { /* main body class */
+	background-color: #FFFFFF;
+	font-size: small;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+td { /* main body class */
+	font-size: small;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.example_th {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: white;
+	font-weight: bold;
+	background-color: BurlyWood;
+}
+
+.example_button {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: small;
+	color: white;
+	width: 68px;
+	background-color: BurlyWood;
+}
+
+.example_error { /* error message */
+	color: red;
+	font-size: small;
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+.mainBg {
+	background-image: url(../img/mainarea_bg.gif);
+	background-repeat: repeat;
+}

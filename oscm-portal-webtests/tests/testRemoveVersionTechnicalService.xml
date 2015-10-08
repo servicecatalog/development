@@ -1,0 +1,66 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testRequirement2047" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="testRequirement2047">
+
+    <webtest name="testServiceNameForCustomer_Define">
+      <!-- Create an organization, login and change password -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="baseUrl" value="#{baseUrl}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- Import technical service, create a marketable service -->
+      <techservice.import file="${techService.import.file}" />
+      <common.ignorePageScriptError />
+      <service.define configurableChecked="true" publicService="false" serviceId="Example 1.00" name="Premium" />
+
+      <!-- Click link to define marketable service and verify field -->
+      <clickLink href="/oscm-portal/service/add.jsf" />
+      <verifyElementText htmlId="editForm:serviceName" text="Example 1.00" />
+      
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="testServiceNameForCustomer_Update">
+      <!-- Create an organization, login and change password -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="baseUrl" value="#{baseUrl}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- Import technical service, create a marketable service -->
+      <techservice.import file="${techService.import.file}" />
+      <common.ignorePageScriptError />
+      <service.define configurableChecked="true" publicService="false" serviceId="Example 1.00" name="Premium" />
+
+      <!-- Click link to update the service, verify preset value of field -->
+      <clickLink href="/oscm-portal/service/edit.jsf" />
+      <verifyElementText htmlId="editForm:serviceName" text="Premium" />
+
+      <login.logout />
+    </webtest>
+
+  </target>
+
+</project>

@@ -1,0 +1,163 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <script type="text/javascript">
+      var dirtyFlagFromParentPage;
+  </script>
+
+
+  <rich:popupPanel id="rolesPanel" height="480" width="640" trimOverlayedElements="false" resizeable="false"
+    onbeforeshow="clearForm(); dirtyFlagFromParentPage = getDirty(); setDirty(false);">
+    <f:facet name="header">
+      <h:outputText value="#{msg['priceModel.roles.title']}" />
+    </f:facet>
+    <f:facet name="controls">
+      <h:panelGroup>
+        <span class="headerIcon" id="rolesClose" onclick="cancelAction();">
+          <h:graphicImage value="/img/transparentPixel.png" styleClass="close" />
+        </span>
+        <span class="headerIcon" id="rolesHelp"
+          onclick="AdmUtils.showHelp('#{facesContext.externalContext.requestContextPath}', '#{facesContext.viewRoot.locale}', 'priceModel.roles');">
+          <h:graphicImage value="/img/transparentPixel.png" styleClass="help" />
+        </span>
+      </h:panelGroup>
+    </f:facet>
+
+    <a4j:outputPanel id="detailContentPanel" layout="block" style="padding:10px; height:435px; overflow-y:auto;">
+
+      <h:outputText value="#{msg['priceModel.roles.description']}" />
+
+      <h:form id="roleForm">
+        <adm:outputStep value="#{msg['priceModel.roles.step1']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['priceModel.roles.id.label']}" />
+           	<a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	            <h:selectOneMenu id="roleId" styleClass="select" value="#{priceModelBean.selectedRoleId}"
+	              onclick="AdmUtils.storeValue(this);">
+	              <f:selectItem itemLabel="#{msg['common.pleaseSelect']}" itemValue="" />
+	              <c:forEach items="#{priceModelBean.roles}" var="role">
+	                <f:selectItem itemLabel="#{role.roleId}" itemValue="#{role.roleId}" />
+	              </c:forEach>
+	              <a4j:ajax event="change" listener="#{priceModelBean.updateRole}"
+	                onbeforesubmit="if(!AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.restoreValue(this); return false;}"
+	                oncomplete="AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();" render="roleForm"
+	                 />
+	            </h:selectOneMenu>
+	       </a4j:outputPanel>     
+          <h:outputText value="" />
+
+          <adm:outputLabel value="#{msg['priceModel.roles.name.label']}" />
+          <h:outputText id="roleName" value="#{priceModelBean.selectedRole.name}" />
+          <h:outputText value="" />
+
+          <adm:labelAndOutputLarge id="roleDescription" label="#{msg['priceModel.roles.description.label']}"
+            value="#{priceModelBean.selectedRole.description}" />
+
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['priceModel.roles.step2']}" />
+
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['priceModel.roles.chargePerUser.label']}" />
+          <h:inputText id="recChargePerUser" label="#{msg['priceModel.roles.chargePerUser.label']}"
+            disabled="#{priceModelBean.priceModelFree or priceModelBean.editDisabled or priceModelBean.noSelectedRole}"
+            value="#{priceModelBean.pricePerUserCurrentRole}" styleClass="fieldXS" onchange="setDirty(true)">
+            <f:converter converterId="currency.converter" />
+          </h:inputText>
+          <adm:message for="recChargePerUser" />
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['priceModel.roles.step3']}" />
+
+        <ui:include src="paramtableroles.xhtml" />
+
+        <adm:spacer height="18" />
+
+        <a4j:commandButton style="display:none;" id="updateButtonHidden" value="updateButtonHidden"
+          action="#{priceModelBean.updateRole}" render="roleForm"  />
+
+        <a4j:commandButton style="display:none;" id="saveButtonHidden" value="saveButtonHidden"
+          action="#{priceModelBean.saveRoles}" render="roleForm" 
+          oncomplete="if(!#{facesContext.maximumSeverity.ordinal > 0}){clearForm(); #{rich:component('rolesPanel')}.hide();}else{setErrorHighlight()};" />
+
+        <a4j:commandButton style="display:none;" id="applyButtonHidden" value="applyButtonHidden"
+          action="#{priceModelBean.saveRoles}" render="roleForm" 
+          oncomplete="if(!#{facesContext.maximumSeverity.ordinal > 0}){dirtyFlagFromParentPage='true'; setDirty(false);}else{setErrorHighlight()};AdmUtils.setUIElements();" />
+
+        <adm:buttonPanel>
+          <adm:buttonCustomizedOnClick id="saveRolesButton" value="#{msg['button.ok']}" buttonType="save"
+            onclick="#{rich:element('saveButtonHidden')}.click();" disabled="#{null eq priceModelBean.selectedRoleId}" />
+
+          <adm:buttonCustomizedOnClick id="cancelRolesButton" value="#{msg['button.cancel']}" onclick="cancelAction();" buttonType="cancel" />
+
+          <adm:buttonCustomizedOnClick id="applyRolesButton" value="#{msg['button.apply']}"
+            onclick="#{rich:element('applyButtonHidden')}.click();" disabled="#{empty priceModelBean.selectedRole or priceModelBean.editDisabled}" buttonType="apply" />
+        </adm:buttonPanel>
+
+        <adm:spacer height="4" />
+        <!-- this function has to be in border of roleForm -->
+        <script type="text/javascript">
+          function setErrorHighlight() {
+              <c:forEach items="#{additionalErrorElements}" var="ee">                  
+                AdmUtils.setHighlight("#{ee}");
+              </c:forEach>
+          }
+          </script>
+
+      </h:form>
+
+    </a4j:outputPanel>
+
+  </rich:popupPanel>
+
+  <script type="text/javascript">
+
+    cancelAction = function() {
+      setDirty(false); 
+      clearForm(); 
+      RichFaces.$('rolesPanel').hide();        
+    }
+  
+    clearForm = function() {
+    	
+    	#{rich:element('roleId')}.value = "";
+    	#{rich:element('roleForm:recChargePerUser')}.value = "";
+
+        var i = 0;
+        var componentParameter = document.getElementById("roleForm:parameterTable:"+ i + ":pricePerUser");
+        var componentOption = document.getElementById("roleForm:parameterTable:"+ i + ":optionPricePerUser");
+        var description = document.getElementById("roleForm:parameterTable:"+ i + ":parameterId");
+        while (componentParameter != null || componentOption != null || description != null) {
+            if ( componentParameter != null) {
+              componentParameter.value = "";
+            }
+            if ( componentOption != null) {
+              componentOption.value = "";
+            }
+            i++;
+            componentParameter = document.getElementById("roleForm:parameterTable:"+ i + ":pricePerUser");
+            componentOption = document.getElementById("roleForm:parameterTable:"+ i + ":optionPricePerUser");
+            description = document.getElementById("roleForm:parameterTable:"+ i + ":parameterId");
+        }
+        #{rich:element('updateButtonHidden')}.click();
+
+        var currentDirtyFlag = getDirty();
+        if (!currentDirtyFlag) {
+          if (dirtyFlagFromParentPage) {           
+              setDirty(true);
+          }
+        }         
+
+    	return false;   
+    }
+  </script>
+</ui:composition>

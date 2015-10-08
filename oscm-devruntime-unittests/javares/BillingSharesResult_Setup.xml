@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+  <RevenueSharesResults xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel SupplierRevenueShareResult.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://oscm.org/xsd/billingservice/partnermodel">
+    <SupplierRevenueShareResult organizationId="98cf6bbd" organizationKey="11001">
+      <OrganizationData key="11001" id="98cf6bbd">
+        <Email>xx@xx.com</Email>
+        <Name>Supplier</Name>
+        <Address>asd</Address>
+        <CountryIsoCode>AD</CountryIsoCode>
+      </OrganizationData>
+      <Period endDateIsoFormat="2012-07-31T22:00:00.000Z" endDate="1343772000000" startDateIsoFormat="2012-06-30T22:00:00.000Z" startDate="1341093600000"/>
+      <Currency id="EUR">
+        <Marketplace key="11056" id="98cf6bbd">
+          <MarketplaceOwner>
+            <OrganizationData key="11001" id="98cf6bbd">
+              <Email>xx@xx.com</Email>
+              <Name>Supplier</Name>
+              <Address>asd</Address>
+              <CountryIsoCode>AD</CountryIsoCode>
+            </OrganizationData>
+          </MarketplaceOwner>
+          <Service key="13008" id="Service1" model="DIRECT">
+            <Subscription key="13001" id="TechnicalService" revenue="110.32" billingKey="10000" />
+            <Subscription key="13002" id="TechnicalService" revenue="110.32" billingKey="10001" />
+            <RevenueShareDetails amountForSupplier="110.32" marketplaceRevenue="0.00" marketplaceRevenueSharePercentage="0.00" serviceRevenue="110.32">
+              <CustomerRevenueShareDetails amountForSupplier="110.32" marketplaceRevenue="0.00" serviceRevenue="110.32" customerId="98cf6bbd" customerName="Supplier"/>
+            </RevenueShareDetails>
+          </Service>
+          <RevenuePerMarketplace marketplaceRevenue="0.00" serviceRevenue="110.32" overallRevenue="110.32" brokerRevenue="0.00" resellerRevenue="0.00"/>
+        </Marketplace>
+        <SupplierRevenue amount="110.32">
+          <DirectRevenue marketplaceRevenue="0.00" serviceRevenue="110.32"/>
+        </SupplierRevenue>
+      </Currency>
+    </SupplierRevenueShareResult>
+  </RevenueSharesResults>

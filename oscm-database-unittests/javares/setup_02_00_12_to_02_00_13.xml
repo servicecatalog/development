@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="2" version="0" organizationid="customer1" registrationdate="1234" />
+  <Organization tkey="3" version="0" organizationid="supplierWithShop" registrationdate="1234" />
+  
+  <OrganizationHistory tkey="9" modtype="ADD" objversion="0" registrationdate="1234" moddate="2011-01-25 16:58:15" moduser="1000" objkey="2" organizationid="customer1" />
+  <OrganizationHistory tkey="10" modtype="ADD" objversion="0" registrationdate="1234" moddate="2011-01-25 16:58:15" moduser="1000" objkey="3" organizationid="supplierWithShop" />
+  <OrganizationHistory tkey="11" modtype="UPDATE" objversion="0" registrationdate="1234" moddate="2011-01-25 16:58:15" moduser="1000" objkey="3" organizationid="supplierWithShop" />
+
+  <Marketplace tkey="10" version="0" creationdate="1234" organization_tkey="3" marketplaceid="shop"/>
+ 
+</dataset>

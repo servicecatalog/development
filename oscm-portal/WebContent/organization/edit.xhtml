@@ -1,0 +1,127 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.edit" />
+    <c:set var="focusElement" value="salutation" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{editProfileCtrl.initialize}" />
+    <h:form id="validateCurrentUserRolesForm">
+      <a4j:jsFunction name="validateCurrentUserRoles"
+        data="#{editProfileCtrl.currentUserRolesChanged}"
+        oncomplete="if(event.data==true){#{rich:component('reLogining')}.show();}
+                     else{setOnSubmit(true);setDirty(false);
+                     #{rich:element('saveButton')}.click();setOnSubmit(false);} return false;">
+      </a4j:jsFunction>
+    </h:form>
+
+    <h:form id="editForm" enctype="multipart/form-data">
+
+      <ui:fragment rendered="#{empty appBean.hiddenUIElements['organization.edit.userProfile']}">
+        <adm:outputStep value="#{msg['organization.edit.userProfile']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['user.key']}" />
+          <h:outputText id="userKey" value="#{editProfileModel.userKey.value}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:labelAndSelect id="salutation" label="#{msg['user.salutation']}"
+            value="#{editProfileModel.userTitle.value}" disabled="#{editProfileModel.userTitle.readOnly}"
+            styleClass="selectXS">
+            <adm:salutationItems />
+          </adm:labelAndSelect>
+
+          <adm:userName firstNameId="firstName" firstNameValue="#{editProfileModel.userFirstName.value}"
+            lastNameId="lastName" lastNameValue="#{editProfileModel.userLastName.value}"
+            firstNameDisabled="#{editProfileModel.userFirstName.readOnly}"
+            lastNameDisabled="#{editProfileModel.userLastName.readOnly}" />
+
+          <adm:labelAndInputText id="email" label="#{msg['user.email']}"
+            required="#{editProfileModel.userMail.required}" value="#{editProfileModel.userMail.value}"
+            maxlength="#{appBean.nameLen}" disabled="#{editProfileModel.userMail.readOnly}" validatorId="email"
+            converterId="trimConverter" />
+
+          <adm:labelAndSelect id="locale" label="#{msg['user.locale']}" value="#{editProfileModel.userLocale.value}"
+            styleClass="select" disabled="#{editProfileModel.userLocale.readOnly}">
+            <adm:localeItems />
+            <f:validator validatorId="SupportedLanguageValidator" />
+          </adm:labelAndSelect>
+        </adm:panelGrid>
+      </ui:fragment>
+
+      <ui:fragment rendered="#{editProfileModel.renderOrganizationSection}">
+        <adm:outputStep value="#{msg['organization.edit.organizationData']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['organization.organizationId']}" />
+          <h:outputText value="#{editProfileModel.organizationIdentifier.value}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:labelAndInputText id="organizationName" label="#{msg['organization.name']}"
+            value="#{editProfileModel.organizationName.value}" styleClass="field" maxlength="#{appBean.nameLen}"
+            required="#{editProfileModel.organizationName.required}" converterId="trimConverter" />
+
+          <adm:labelAndInputText id="organizationEmail" label="#{msg['organization.email']}" onchange="setDirty(true)"
+            value="#{editProfileModel.organizationMail.value}" styleClass="field" maxlength="#{appBean.nameLen}"
+            validatorId="email" converterId="trimConverter" required="#{editProfileModel.organizationMail.required}" />
+
+          <adm:labelAndInputText rendered="#{editProfileModel.organizationSupportEmail.rendered}" id="supportemail"
+            label="#{msg['organization.supportEmail']}" value="#{editProfileModel.organizationSupportEmail.value}"
+            maxlength="#{appBean.nameLen}" validatorId="email" converterId="trimConverter" />
+
+          <adm:labelAndInputText id="organizationPhone" label="#{msg['organization.phone']}"
+            value="#{editProfileModel.organizationPhone.value}" styleClass="field" maxlength="#{appBean.nameLen}"
+            required="#{editProfileModel.organizationPhone.required}" converterId="trimConverter" />
+
+          <adm:labelAndInputText id="organizationUrl" label="#{msg['organization.url']}"
+            value="#{editProfileModel.organizationWebsiteUrl.value}" styleClass="field"
+            maxlength="#{appBean.descriptionLen}" validatorId="url" converterId="trimConverter"
+            required="#{editProfileModel.organizationWebsiteUrl.required}" />
+
+          <adm:imageUpload messagePrefix="organization" imageDefined="#{editProfileModel.organizationImageDefined}"
+            imageUrl="/image?type=ORGANIZATION_IMAGE&amp;sId=#{editProfileModel.organizationKey}"
+            uploader="#{editProfileModel.organizationImage.value}"
+            rendered="#{editProfileModel.organizationImage.rendered}" sizeFunction="profileImageSize"
+            sizeError="#{msg['organization.image.hint']}" />
+
+          <adm:labelAndInputTextarea id="organizationAddress" label="#{msg['organization.address']}"
+            value="#{editProfileModel.organizationAddress.value}" styleClass="field"
+            maxlength="#{appBean.descriptionLen}" required="#{editProfileModel.organizationAddress.required}"
+            converterId="trimConverter" />
+
+          <adm:labelAndSelect id="country" label="#{msg['common.country']}"
+            value="#{editProfileModel.organizationCountryISOCode.value}" styleClass="select"
+            required="#{editProfileModel.organizationCountryISOCode.required}">
+            <adm:countryItems supportedCountries="#{countryBean.supportedCountryCodesForEditProfilePage}" />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputTextarea id="organizationDescription" label="#{msg['organization.description']}"
+            value="#{editProfileModel.organizationDescription.value}" styleClass="field"
+            maxlength="#{appBean.descriptionLen}" />
+
+        </adm:panelGrid>
+        <script>
+		  //<![CDATA[
+            function profileImageSize(w, h) {
+              return w <= 154 && h <= 154;
+            }
+          //]]>
+        </script>
+      </ui:fragment>
+
+      <adm:buttonPanel>
+        <h:commandButton id="saveButton" action="#{editProfileCtrl.save}" value="#{msg['button.save']}" 
+          style="display:none;" />
+        <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
+          onclick="validateCurrentUserRoles();return false;" />
+      </adm:buttonPanel>
+    </h:form>
+    <adm:reloginConfirmPanel />
+  </ui:define>
+</ui:composition>

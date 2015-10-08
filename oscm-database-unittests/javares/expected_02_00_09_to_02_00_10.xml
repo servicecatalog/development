@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+    <OrganizationReference tkey="10" version="0" targetkey="1" sourcekey="1" referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+    <OrganizationReference tkey="11" version="0" targetkey="2" sourcekey="1" referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+    <OrganizationReference tkey="12" version="0" targetkey="4" sourcekey="1" referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+    <OrganizationReference tkey="13" version="0" targetkey="3" sourcekey="2" referencetype="SUPPLIER_TO_CUSTOMER" />
+    <OrganizationReference tkey="14" version="0" targetkey="4" sourcekey="2" referencetype="SUPPLIER_TO_CUSTOMER" />
+
+    <OrganizationReferenceHistory objkey="11" objversion="0" targetobjkey="2" sourceobjkey="1" referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+    <OrganizationReferenceHistory objkey="12" objversion="0" targetobjkey="4" sourceobjkey="1" referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+    <OrganizationReferenceHistory objkey="13" objversion="0" targetobjkey="3" sourceobjkey="2" referencetype="SUPPLIER_TO_CUSTOMER" />
+    <OrganizationReferenceHistory objkey="14" objversion="0" targetobjkey="4" sourceobjkey="2" referencetype="SUPPLIER_TO_CUSTOMER" />
+
+</dataset>

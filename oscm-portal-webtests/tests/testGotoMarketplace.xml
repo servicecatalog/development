@@ -1,0 +1,100 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testGotoMarketplace" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testGotoMarketplace" depends="setup, test, cleanup" />
+
+  <target name="setup">
+    <webtest name="doSetup">
+      <setupTP />
+      <setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="mp1" mIdProperty="mp1" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="mp2" mIdProperty="mp2" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="mpOperator1" mIdProperty="mpOp1" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mpOp1}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="mpOperator2" mIdProperty="mpOp2" open="true" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mpOp2}" />
+    </webtest>
+  </target>
+
+  <target name="cleanup">
+    <webtest name="doCleanup">
+      <operator.deleteMarketplaces marketplaceIds="${mp1},${mp2},${mpOp1},${mpOp2}" />
+    </webtest>
+  </target>
+
+  <target name="test">
+    <webtest name="test_MissingMarketplaceLink">
+      <login.login url="${tpUrl}" userId="${tpUserId}" />
+      <not>
+        <common.clickLink label="${marketplace.link.title}" />
+      </not>
+    </webtest>
+
+    <webtest name="test_MarketplaceLink_Supplier">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickLink label="${marketplace.link.title}" />
+      <verifyXPath xpath="count(//option)" text="4" />
+      <verifyXPath xpath="//option[@value='${mp1}']" text="mp1(${mp1})" />
+      <verifyXPath xpath="//option[@value='${mp2}']" text="mp2(${mp2})" />
+      <verifyXPath xpath="//option[@value='${mpOp2}']" text="mpOperator2(${mpOp2})" />
+      <setSelectField htmlId="gotoMarketplaceForm:marketplace" text="mp1(${mp1})" />
+      <clickButton label="${button.goto}" />
+      <verifyElementText type="title" text="${marketplace.header.title}" />
+      <!--bug 10722 check there is no css in body-->
+      <not>
+          <verifyXPath xpath="//body//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+      </not>
+    </webtest>
+
+    <webtest name="test_NoMarketplaceSelected_Bug_9458">
+      <testInfo type="DESCRIPTION">test_NoMarketplaceSelected_Bug_9458:
+         Ensure button is disabled when --Please select -- entry is selected.
+	  </testInfo>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickLink label="${marketplace.link.title}" />
+      <verifyXPath xpath="count(//option)" text="4" />
+      <verifyXPath xpath="//option[@value='']" />
+      <setSelectField htmlId="gotoMarketplaceForm:marketplace" value="" />
+      <common.waitForJavaScript description="Wait for button enablement" />
+      <verifyXPath description="Ensure button is disabled." xpath="//*[@class='buttonDisabled']//text()='${button.goto}'" />
+      <not>
+        <clickButton label="${button.goto}" />
+      </not>
+    </webtest>
+  </target>
+
+  <macrodef name="setupSupplier">
+    <sequential>
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <login.initialLoginAndChangePasswordAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="setupTP">
+    <sequential>
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="tpUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="tpId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="tpUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="tpUserKey" value="#{userKey}" propertyType="ant" />
+      <login.initialLoginAndChangePassword url="${tpUrl}" userId="${tpUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${tpUserKey}" password="secret" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

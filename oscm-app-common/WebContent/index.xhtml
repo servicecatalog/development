@@ -1,0 +1,112 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+<h:head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta content="Fujitsu Limited" name="description" />
+  <meta content="Fujitsu Limited" name="author" />
+  <meta content="IE=8" http-equiv="X-UA-Compatible" />
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+
+  <title><h:outputText value="#{configurationBean.configurationTitle}" /></title>
+
+  <script type="text/javascript" src="js/layout.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/import_en.css" />
+  <script type="text/javascript" src="js/heading_data_4.js"></script>
+</h:head>
+
+<h:body class="middle_product_class">
+  <h:outputStylesheet name="override_richfaces.css" />
+  <adm:header/>
+
+  <adm:initialize initializingMethod="#{configurationBean.initialize}" />
+
+  <div class="heading_data_1_class">
+    <div class="heading_data_1_bg_class">
+      <h2>
+        <h:outputText value="#{configurationBean.configurationTitle}" />
+      </h2>
+    </div>
+  </div>
+  <span class="description"><h:outputText value="#{msg['ui.config.description']}" /> </span>
+
+  <h:outputText value="#{configurationBean.status}" styleClass="statusPanel #{configurationBean.statusClass}"
+    rendered="#{configurationBean.status != null}" />
+
+  <div class="box_area_class">
+    <!--▼ Heading data 3 ▼-->
+    <div class="heading_data_3_class">
+      <div class="heading_data_3_bg_class">
+        <h4>
+          <h:outputText value="#{configurationBean.settingsTitle}" />
+        </h4>
+      </div>
+    </div>
+
+    <h:form id="configurationSettings">
+      <h:inputHidden value="#{configurationBean.token}" />
+      <!--▲ Heading data 3 ▲-->
+      <div class="nested_heading_data_class">
+        <!--▼ Heading data 4 ▼-->
+        <div class="heading_data_4_class">
+          <div class="heading_data_4_bg_class">
+            <h4 id="heading_data4_1" class="heading_data_4_open_mark_class" onclick="accordion(this, 'accordion_area1')">
+              <h:outputText value="#{msg['ui.config.part.access']}" />
+            </h4>
+          </div>
+        </div>
+        <!--▲ Heading data 4 ▲-->
+
+        <div id="accordion_area1">
+          <ui:include src="keyValueEditor.xhtml">
+            <ui:param name="dataItems" value="#{configurationBean.accessItems}" />
+            <ui:param name="saveBarElementId" value="configurationSettings:saveBox" />
+          </ui:include>
+        </div>
+
+        <ui:remove>
+          <!--
+    <a4j:outputPanel layout="block" style="margin: 10px 25px;" >
+      <h:commandLink value="#{msg['ui.config.action.setadmin']}" type="submit" action="#{configurationBean.applyCurrentUser}" />
+    </a4j:outputPanel>
+-->
+        </ui:remove>
+
+        <br />
+        
+        <!--▼ Heading data 4 ▼-->
+        <div class="heading_data_4_class">
+          <div class="heading_data_4_bg_class">
+            <h4 id="heading_data4_2" class="heading_data_4_open_mark_class" onclick="accordion(this, 'accordion_area2')">
+              <h:outputText value="#{msg['ui.config.part.controller']}" />
+            </h4>
+          </div>
+        </div>
+        
+        <!--▲ Heading data 4 ▲-->
+        <div id="accordion_area2">
+          <ui:include src="keyValueEditor.xhtml">
+            <ui:param name="dataItems" value="#{configurationBean.items}" />
+            <ui:param name="saveBarElementId" value="configurationSettings:saveBox" />
+          </ui:include>
+        </div>
+      </div>
+      
+      <br />
+      <br />
+      
+      <adm:buttonPanel id="saveBox" disabled="#{not configurationBean.dirty}"
+        onsaveclick="#{rich:element('hiddenSaveButton')}.click();return false;"
+        onundoclick="#{rich:element('hiddenUndoButton')}.click();return false;" />
+      <h:commandButton id="hiddenSaveButton" action="#{configurationBean.save}" style="display: none;" />
+      <h:commandButton id="hiddenUndoButton" action="#{configurationBean.undo}" style="display: none;" />
+    
+    </h:form>
+  </div>
+</h:body>
+</html>

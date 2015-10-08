@@ -1,0 +1,50 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <adm:outputLabel value="#{msg['user.userId']}" required="true" />
+
+  <h:panelGroup>
+    <input type="hidden" id="reset" name="reset" value="" />
+    <rich:autocomplete
+            mode="ajax"
+            id="userId"
+            styleClass="fieldOrganization ct-autocomplete"
+            inputClass="ct-autocomplete-input"
+            label="#{msg['user.userId']}"
+            value="#{operatorManageUsersModel.userId}"
+            onfocus="this.select()"
+            onkeydown="
+                AdmUtils.removeNonPrintedChars(#{rich:component('userId')});
+                var e = event?event:window.event;
+                var k = e.keyCode?e.keyCode:e.which;
+                if ((k == 13 || k == 9) &amp;&amp; this.value.length == 0) {
+                	document.getElementById('reset').value = 'true';
+                }"
+            required="#{empty param['reset']}"
+            maxlength="#{appBean.userIdLen}"
+            minChars = "3"
+            fetchValue="#{user.userId}"
+            var="user"
+            popupClass="user-popup"
+            autocompleteMethod="#{operatorManageUsersCtrl.suggest}"
+            oncomplete="AdmUtils.addNothingLabel(#{rich:component('userId')}, 'user-popup', '#{msg['user.noMatch']}');"
+            onclick="AdmUtils.removeNonPrintedChars(#{rich:component('userId')});">
+      <h:column>
+        <h:outputText value="#{user.userId}" />
+      </h:column>
+    </rich:autocomplete>
+
+    <h:graphicImage id="userSuggestionImage" value="/img/transparentPixel.png" styleClass="suggestion-box-marker"
+      onclick="
+    	  AdmUtils.autocompleteSearch(#{rich:component('userId')});
+          AdmUtils.addNothingLabel(#{rich:component('userId')}, 'user-popup', '#{msg['user.noMatch']}');"
+      alt="" />
+  </h:panelGroup>
+  <adm:message id="userIdErrorMsg" for="userId" />
+
+</ui:composition>

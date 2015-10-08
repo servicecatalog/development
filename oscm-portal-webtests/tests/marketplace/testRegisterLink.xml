@@ -1,0 +1,16 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_RegisterLink" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testMPL_RegisterLink">
+    <webtest name="testMPL_RegisterLink">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <mpl_goto.marketplace mId="${mId}" />
+      <verifyXPath xpath="//*[@id='formRegister:registerLink']"/>
+      <clickLink htmlId="formRegister:registerLink" />
+      <verifyXPath xpath="//*[@id='registrationForm']/@action" text="/oscm-portal/marketplace/registration.jsf"/>
+    </webtest>
+  </target>
+</project>

@@ -1,0 +1,104 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Entry point for test. Pay attention for order of tests. -->
+<project default="all">
+
+  <target name="all" depends="part1,part2">
+  </target>
+
+  <!-- target for developers -->
+  <target name="partCustom">
+    <!-- put your own test files e.g. "playground.xml" --> 
+    <ant antfile="playground.xml" />
+  </target>
+
+  <target name="part1">
+    <ant antfile="testFujitsuMarketplaceUnavailability.xml" />
+
+    <!-- this suite must be first because 1st test requires empty currencies -->
+    <ant antfile="bugRetesting.xml" />
+    <ant antfile="bugRetesting2.xml" />
+
+    <!-- run all tests referring to the old portal -->
+    <ant antfile="testGotoMarketplace.xml" />
+    <ant antfile="testStory1.xml" />
+    <ant antfile="testStory2.xml" />
+    <ant antfile="testStory3.xml" />
+    <ant antfile="testStory5.xml" />
+    <ant antfile="testStory6.xml" />
+    <ant antfile="testStory8.xml" />
+    <!-- Commented out due to requirement that hides billing adapter menu and views by default (Bug 11925) -->
+    <!--<ant antfile="testManageBillingAdapters.xml" />-->
+    <ant antfile="testMenuVisibility.xml" />
+    <ant antfile="testCustomerUdaAndDiscount.xml" />
+  	<ant antfile="testServiceOperation.xml" />
+    <ant antfile="testServicePricedRoles.xml" />
+    <ant antfile="testTechServiceImport.xml" />
+    <ant antfile="testWithTriggerDefinitions.xml" />
+    <ant antfile="testBadCasePriceModel.xml" />
+    <ant antfile="testBadCasePublic.xml" />
+    <ant antfile="testBadCaseService.xml" />
+    <ant antfile="testBadCaseCustomer.xml" />
+    <ant antfile="testBadCaseTechnicalService.xml" />
+    <ant antfile="testBadCaseAccount.xml" />
+    <ant antfile="testBadCaseOperator.xml" />
+    <ant antfile="testPageChangeWarning.xml" />
+    <ant antfile="testAccessTypeDIRECT.xml" />
+    <ant antfile="testAccessTypeLOGIN.xml" />
+    <ant antfile="testAccessTypeUSER.xml" />
+    <ant antfile="testSupplierTerminateSubscription.xml" />
+    <ant antfile="testLicense.xml" />
+    <ant antfile="testEmptyTables.xml" />
+    <ant antfile="testPresetFields.xml" />
+    <ant antfile="testOperatorPortal.xml" />
+    <ant antfile="saml.xml" />
+    <ant antfile="testDeleteUserRoleConcurrently.xml" />
+    <ant antfile="testRemoveVersionTechnicalService.xml" />
+    <ant antfile="testServiceNameDisplay.xml" />
+    <ant antfile="testShowingDiscount.xml" />
+    <ant antfile="testUserRoles.xml" />
+    <ant antfile="testUpgradePathCurrency.xml" />
+    <ant antfile="testWsTimeout.xml" />
+    <ant antfile="testPSP.xml" />
+    <ant antfile="testCategoryManagement.xml" />
+    <ant antfile="testEnterOrganizationData.xml" />
+    <ant antfile="testManageMarketplace.xml" />
+    <ant antfile="testManagePartnerRevenueShare.xml" />
+    <ant antfile="testManageSuppliersForMarketplace.xml" />
+    <ant antfile="testManageSuppliersForTechnicalProduct.xml" />
+    <ant antfile="testActivateServicesWithoutMarketplace.xml" />
+    <ant antfile="testTrackingCode.xml" />
+    <ant antfile="testLandingpageOptions.xml" />
+    <ant antfile="testLandingpagePublic.xml" />
+    <ant antfile="testLandingpageEnterprise.xml" />
+    <ant antfile="testLandingpageEnterpriseServiceRedirect.xml" />
+    <ant antfile="testOnetimeParamTechnicalService.xml" />
+    <ant antfile="testManageSellers.xml" />
+    <ant antfile="testManageBilling.xml" />
+    <ant antfile="testDefinePublishingOptions.xml" />
+    <ant antfile="testPasswordRecovery.xml" />
+    <ant antfile="testResizeManageUsersPage.xml" />
+    <ant antfile="testManageLanguages.xml" />
+    <ant antfile="testManageUsers.xml" />
+    <ant antfile="testProvisioningInterface.xml" />
+  </target>
+
+  <target name="part2">
+    <!-- run all tests referring to the new marketplace portal -->
+    <ant antfile="./marketplace/allTests.xml" />
+
+    <!-- run playground; ought to run at the very end since it does not delete the services it creates, and other tests 
+      rely on a fresh environment -->
+    <ant antfile="playground.xml" />
+  </target>
+
+  <target name="partSAML">
+    <ant antfile="testSamlSPMode.xml" />
+    <ant antfile="./marketplace/testNotInternalAuthMode.xml" />
+  </target>
+
+  <!-- put your own test files to test them on a buildmachine -->
+  <target name="partCustomBuildMachines">
+    <sleep seconds="300" />
+  	<ant antfile="playground.xml" />
+  </target>
+</project>

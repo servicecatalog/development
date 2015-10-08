@@ -1,0 +1,148 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk"
+  template="../templates/modalDialog.xhtml">
+
+  <ui:define name="dialogScripts">
+    <c:set var="cancelHandler" value="notifyWindowClosed();#{rich:component(dialogId)}.hide();" />
+    <c:set var="modalFocusElement" value="#{dialogId}Form:displayName" />
+  </ui:define>
+
+  <ui:define name="dialogTitle">
+    <h:outputText
+      value="#{msg['payment.new.PaymentType.title']}" />
+  </ui:define>
+
+  <ui:define name="dialogDescription">
+    <c:set var="dialogDescription"
+      value="#{msg['payment.new.PaymentType.description']}" />
+    <h:outputText value="#{dialogDescription}" />
+  </ui:define>
+
+  <ui:define name="dialogContent">
+    <a4j:outputPanel id="#{dialogId}Grid" layout="block"
+      style="padding-top:0px;padding-bottom:10px;padding-right:10px;padding-left:10px; overflow-y:auto;">
+
+      <ui:fragment>
+        <h:form id="#{dialogId}Form">
+
+          <h:panelGrid columns="3" border="0" cellspacing="0" cellpadding="0" styleClass="smallPanel"
+            columnClasses="smallPanelCol1,smallPanelCol2,smallPanelCol3modalDialog">
+
+            <adm:outputLabel value="#{msg['operator.managePSP.psp']}" />
+            <a4j:outputPanel styleClass="jqSelect" layout="block">
+              <a4j:outputPanel styleClass="select">
+                <a4j:outputPanel styleClass="option" />
+              </a4j:outputPanel> 
+              <h:selectOneMenu id="#{dialogId}psp" disabled="#{operatorOrgBean.selectedPspAccount.key != 0}"
+                styleClass="select" value="#{operatorOrgBean.PSPAccountPSPKey}" onchange="renderPaymentTypes()">
+                <c:forEach items="#{operatorOrgBean.PSPs}" var="psp">
+                  <f:selectItem itemLabel="#{psp.id}" itemValue="#{psp.key}" />
+                </c:forEach>
+              </h:selectOneMenu>
+            </a4j:outputPanel>
+            <h:panelGroup>
+              <adm:message id="#{dialogId}pspErrorMsg" for="#{dialogId}psp" rendered="#{empty rendered or rendered}" />
+            </h:panelGroup>
+
+            <adm:labelAndInputText id="#{dialogId}PSPId" label="#{msg['payment.pspid']}"
+              value="#{operatorOrgBean.selectedPspAccount.pspIdentifier}" maxlength="#{appBean.nameLen}" required="true" converterId="trimConverter"
+              isDirtySet="false" />
+
+            <adm:outputLabel value="#{msg['payment.select']}" />
+            <t:div id="#{dialogId}PaymentTypes">
+            </t:div>
+
+            <h:panelGroup />
+
+            <h:inputHidden id="#{dialogId}PaymentTypesAsString"
+              value="#{operatorOrgBean.PSPAccountPaymentTypesAsString}" />
+            <h:panelGroup>
+              <adm:message for="#{dialogId}PaymentTypes" />
+            </h:panelGroup>
+            <h:panelGroup />
+          </h:panelGrid>
+
+
+          <a4j:outputPanel layout="block" styleClass="buttonPanel">
+            <table cellspacing="0" cellpadding="2" border="0" width="100%">
+
+              <a4j:commandButton style="display:none;" id="hiddenSaveBtn" value="#{msg['button.save']}"
+                action="#{operatorOrgBean.savePaymentTypeForOrganization}"
+                render="#{dialogId}RerenderPanel, manageOrganizationsForm:paymentTypeTable, mainTmplMessagesPanel"
+                oncomplete="
+                AdmUtils.showProgress(false);
+                if(!#{facesContext.maximumSeverity.ordinal > 0})
+                {
+                  #{rich:component(dialogId)}.hide();
+                }
+                else
+                {
+                  AdmUtils.showModalErrorPanel('#{dialogId}', #{dialogWidth});
+                }" />
+
+              <h:outputLink styleClass="button" id="#{dialogId}ConfirmButton"
+                onclick="setSelectedPaymentTypes();setOnSubmit(true);AdmUtils.showProgress(true);#{rich:element('hiddenSaveBtn')}.click();setOnSubmit(false);return false;">
+                <h:outputText style="white-space: nowrap;" value="#{msg['button.save']}" />
+              </h:outputLink>
+
+              <adm:buttonCustomizedOnClick id="cancelButton" value="#{msg['button.cancel']}"
+                onclick="#{rich:component(dialogId)}.hide();return false;" />
+
+            </table>
+          </a4j:outputPanel>
+          <script type="text/javascript">
+            renderPaymentTypes = function() {
+              var paymentType = new Object();
+              #{operatorOrgBean.JSForPaymentTypeSelection}
+              
+              var psp = document.getElementById("#{dialogId}Form:#{dialogId}psp").value;
+              var pts = document.getElementById("#{dialogId}Form:#{dialogId}PaymentTypes");
+              var ptas = document.getElementById("#{dialogId}Form:#{dialogId}PaymentTypesAsString").value;
+              pts.innerHTML = '';
+              if (psp) {
+                for (var pt in paymentType[psp]) {
+                  var input = document.createElement('input');
+                  input.type = 'checkbox';
+                  input.value = pt;
+                  if (ptas.indexOf(pt) > 0) {
+                	  input.checked = 'true';
+                	  input.disabled = 'true';
+                  }
+                  pts.appendChild(input);
+                  var label = document.createElement('span');
+                  label.innerHTML = paymentType[psp][pt];
+                  pts.appendChild(label);
+                  var br = document.createElement('br');     
+                  pts.appendChild(br);
+                }
+              }
+            }
+            
+            setSelectedPaymentTypes = function() {
+            	var pts = document.getElementById("#{dialogId}Form:#{dialogId}PaymentTypes").getElementsByTagName('input');
+            	var s = '';
+                for (var i = 0; i &lt; pts.length; i++) {
+                    if (pts[i].type.toLowerCase() == 'checkbox' &amp; pts[i].checked) {
+                        s = s + ',' + pts[i].value;
+                    }
+                }
+            	document.getElementById("#{dialogId}Form:#{dialogId}PaymentTypesAsString").value = s;
+            }
+
+			function notifyWindowClosed() {
+			}
+
+            renderPaymentTypes();
+          </script>
+        </h:form>
+
+      </ui:fragment>
+    </a4j:outputPanel>
+  </ui:define>
+
+</ui:composition>

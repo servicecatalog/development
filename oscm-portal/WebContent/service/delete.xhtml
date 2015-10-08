@@ -1,0 +1,66 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+    template="../templates/main.xhtml"
+>
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" /><c:set var="pageId" value="service.delete"/>
+    <c:set var="focusElement" value="serviceId" />
+  </ui:define>
+  <ui:define name="body">
+
+    <adm:outputStep value="#{msg['service.delete.step1']}"/>
+
+    <adm:panelGrid>
+      <adm:outputLabel value="#{msg['service.serviceId']}"/>
+      <h:form id="selectForm">
+       	<a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="serviceId" styleClass="select"
+	          value="#{serviceBean.selectedServiceKey}" onchange="this.form.submit();">
+	          <adm:selectItemPleaseSelect itemValue="0" />
+	          <c:forEach items="#{serviceBean.serviceNames}" var="service">
+	            <f:selectItem itemLabel="#{service.serviceId}" itemValue="#{service.key}" />
+	          </c:forEach>
+	        </h:selectOneMenu>
+	        </a4j:outputPanel> 
+      </h:form>
+      <h:outputText value="" />
+    
+      <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+      <h:panelGroup>
+        <h:outputText value="#{serviceBean.selectedService.technicalId}" styleClass="label" />
+      </h:panelGroup>
+      <h:outputText value="" />
+    </adm:panelGrid>  
+    
+    <h:form id="deleteForm">
+      <h:commandButton style="display:none;"
+        id="confirmedButton"
+        value="#{msg['button.delete']}" 
+        action="#{serviceBean.delete}"/>
+      <adm:buttonPanel columns="1">
+        <adm:buttonCustomizedOnClick
+          buttonType = "delete"
+          id="deleteButton"
+          value="#{msg['button.delete']}"
+          onclick="#{rich:component('confirmPanel')}.show()"
+          disabled="#{serviceBean.deleteDisabled}"/>
+      </adm:buttonPanel>
+    </h:form>
+    
+    <adm:confirmPanel text="#{msg['confirm.service.delete']}"/>
+  
+  </ui:define>
+</ui:composition>

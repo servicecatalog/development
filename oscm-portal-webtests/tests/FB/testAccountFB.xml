@@ -1,0 +1,270 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testAccountFB" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/all.xml" />
+  <target name="testAccountFB" depends="testAccountRegisterNewUser, testAccountManageUsers,testAccountEditProfile" />
+  <target name="testAccountRegisterNewUser">
+    <webtest name="testAccountRegisterNewUser">
+      <!-- setup for test -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Define constants -->
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <storeProperty name="button" value="${button.register}" />
+      <!-- login for test -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="${mail.password}" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/accountRegisterNewUserFieldsFB.xls">
+        <common.clickAndVerfyLink label="${user.add.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- set default values for all fields, some from organization.properties -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/accountRegisterNewUserFieldsFB.xls" />
+        <!-- check if a value is required in the field -->
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue=""
+            error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="#{button}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <!-- set defaults for all fields -->
+          <common.clickAndVerfyLink label="${user.add.title}" />
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/accountRegisterNewUserFieldsFB.xls" />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- value for field being tested in this datadriven loop is overwritten the rest are still 'valid' default 
+                values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <!-- save user id (value is not always the user field), value is no longer in this field after button has been 
+                clicked -->
+              <storeXPath xpath="//*[@id='userForm:userId']/@value" property="currUserId" />
+              <clickButton label="#{button}" />
+              <!-- verify that we are still on register customer page -->
+              <verifyElementText htmlId="pagelabel" text="${user.add.title}" />
+              <!-- no need to verify message, if user cannot be created, then delete fails -->
+              <!-- Remove organization, only if cleanup is true -->
+              <ifStep description="Cleanup?" test="#{cleanup}">
+                <then>
+                  <echo message="CHECK delete customer #{currUserId}" />
+                  <setup:user.delete userIds="#{currUserId}" />
+                </then>
+              </ifStep>
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <!-- macro below sets field and presses save button! -->
+              <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}" error="${errormsg}"
+                buttonLabel="#{button}" regex="${regex}" />
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+  <target name="testAccountManageUsers">
+    <webtest name="testAccountManageUsers">
+      <!-- setup for test -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Define constants -->
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <storeProperty name="button" value="${button.save}" />
+      <!-- login for test -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="${mail.password}" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/accountManageUsersFieldsFB.xls">
+        <common.clickAndVerfyLink label="${user.list.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- select the user -->
+        <clickElement htmlId="userListForm:userListTable:0:userId" />
+        <!-- set default values for all fields, some from organization.properties -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/accountManageUsersFieldsFB.xls" />
+        <!-- check if a value is required in the field -->
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue=""
+            error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="#{button}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <common.clickAndVerfyLink label="${user.list.title}" />
+          <!-- select the user -->
+          <clickElement htmlId="userListForm:userListTable:0:userId" />
+          <!-- set defaults for all fields -->
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/accountManageUsersFieldsFB.xls" />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- value for field being tested in this datadriven loop is overwritten the rest are still 'valid' default 
+                values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <!-- save user id (value is not always the user field), value is no longer in this field after button has been 
+                clicked -->
+              <storeXPath xpath="//*[@id='editForm:userId']/@value" property="currUserId" />
+              <clickButton label="#{button}" />
+              <!-- verify that we are still on manage users page -->
+              <verifyElementText htmlId="pagelabel" text="${user.list.title}" />
+              <!--verify that no error occurred, verify info message -->
+              <common.handleMessageParameters property="infoMsg" value="${info.user.saved.itself}"
+                att0="#{currUserId}" />
+              <common.verifyModalMessagePanel label="#{infoMsg}" panelId="infoPanel"
+                regex="false" />
+              <!-- Remove organization, only if cleanup is true -->
+              <ifStep description="Cleanup?" test="#{cleanup}">
+                <then>
+                  <echo message="cleanup not necessary; only administrator exists?" />
+                </then>
+              </ifStep>
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <clickButton label="#{button}" />
+              <ifStep>
+                <condition>
+                  <common.verifyFieldError fieldId="#{fieldId}" label="${errormsg}" regex="#{regex}" />
+                </condition>
+                <else>
+                  <!-- If the field error message doesn't contain the required information, the bottom error panel should, 
+                    this is the case for fieldType=NAME -->
+                  <common.verifyModalMessagePanel panelId="hiddenErrorPanel" label="${errormsg}"
+                    regex="${regex}" />
+                </else>
+              </ifStep>
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+  <target name="testAccountEditProfile">
+    <webtest name="testAccountEditProfile">
+      <!-- Create new organization WEB UI role technology provider + supplier User A -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Define constants -->
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <storeProperty name="button" value="${button.save}" />
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="${mail.password}" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/accountEditProfileFieldsFB.xls">
+        <common.clickAndVerfyLink label="${organization.edit.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- set default values for all fields, some from organization.properties -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/accountEditProfileFieldsFB.xls" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue=""
+            error="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <!-- set defaults for all fields -->
+          <common.clickAndVerfyLink label="${organization.edit.title}" />
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/accountEditProfileFieldsFB.xls" />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- default value for field that is being tested in this datadriven loop is overwritten the rest are still 
+                'valid' default values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <clickButton label="${button.save}" />
+              <!-- verify that we are still on register customer page -->
+              <verifyElementText htmlId="pagelabel" text="${organization.edit.title}" />
+              <!-- verify info panel OK -->
+              <common.verifyModalMessagePanel label="${info.user.profileSaved}" panelId="infoPanel"
+                regex="false" />
+              <!-- no cleanup necessary -->
+              <ifStep description="Cleanup?" test="#{cleanup}">
+                <then>
+                  <echo message="no cleanup necessary" />
+                </then>
+              </ifStep>
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <!-- macro below sets field and presses button! -->
+              <ifStep description="Check string with/without regex" test="#{regex}">
+                <then>
+                  <common.handleMessageParameters value="${errormsg}" property="errormsg1"
+                    att0="(.+)" />
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="#{errormsg1}" regex="${regex}" />
+                </then>
+                <else>
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="${errormsg}" regex="${regex}" />
+                </else>
+              </ifStep>
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+</project>

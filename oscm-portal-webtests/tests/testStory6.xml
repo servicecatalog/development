@@ -1,0 +1,126 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testStory6" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testStory6">
+    <webtest name="testStory6">
+      <mail.cleanInbox />
+
+      <!-- create org; login as admin; import technical services -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="providerOrgUrl" value="#{orgUrl}" />
+      <storeProperty name="providerOrgId" value="#{orgId}" />
+      <storeProperty name="providerUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{orgId}" />
+      <operator.createMarketplace mIdProperty="mid" ownerId="#{providerOrgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mid}" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- define service and price model; activate service -->
+      <setup:service.define serviceId="testStory6" svcKeyProperty="svcKey" name="Trial" marketplaceId="${mid}" configurableChecked="true"/>
+      <setup:pricemodel.define serviceId="testStory6" isFree="true" description="Completely free"/>
+      <service.deActivate checkCat="false"/>
+
+      <!-- bug 7253 create a second service with the same id but cut after some characters to ensure that the customer specific 
+        price model for the first service is not additionally listed below the second service -->
+      <setup:service.define serviceId="test"  name="Trial" marketplaceId="${mid}" configurableChecked="true"/>
+
+      <!-- register customer and enable payment on invoice -->
+      <property name="customer.ldapuserid" value="bes-${env.HOSTNAME}" />
+      <!-- for ldap user names we might not change the user id -->
+      <user.registerCustomer marketplaceId="${mid}" createUniqueId="false" userId="${customer.ldapuserid}" orgSettingsFile="data/story6_ldap.properties" />
+      <organization.managePayment rowNr="1" />
+      <organization.managePaymentforcustomer/>
+      <!-- define a price model for the just created customer and activate it -->
+      <setup:pricemodel.defineForCustomer isFree="false" serviceId="testStory6" />
+      <service.deActivate rowNr="1" checkCat="false" />
+
+      <!-- bug 7253 verify that the customer specific price model is not also displayed below the second service -->
+      <not>
+        <verifyXPath xpath="//span[@id=&quot;serviceDeActivationForm:activationTable:3:organizationId&quot;]" />
+      </not>
+      <login.logout />
+
+      <!-- login as customer on remote ldap; modify organization data; import users -->
+      <mail.readCreatedUrlFromMail />
+      <storeProperty name="customerOrgUrl" value="#{orgUrl}" />
+      <storeProperty name="customerOrgId" value="#{orgId}" />
+      <invoke url="#{customerOrgUrl}" />
+      <mpl_login.user userId="${customer.ldapuserid}" mid="${mid}" />
+      <mpl_goto.marketplace mid="${mid}" />
+      <mpl_goto.account.users />
+      <mpl_user.editInputValue userId="${customer.ldapuserid}" fieldId="editUserForm:firstName" fieldValue="changed first" currentUser="true" />
+      <mpl_subscription.setUserRoleInAllUserGroups userId="${customer.ldapuserid}" />
+      <!-- subscription to service -->
+      <mpl_service.subscribe mid="${mid}" index="0" chargeable="true" />
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${customer.ldapuserid}" />
+      <setCheckbox xpath="//td[text()='#{givenSubscriptionId}']/..//input" checked="true" />
+      <clickButton label="${button.save}" />
+      <mpl_login.logout />
+
+      <!-- login as supplier: delete customer price model, modify subscription price model -->
+      <login.login url="#{providerOrgUrl}" userId="#{providerUserId}" password="secret" />
+      <service.deActivate rowNr="1" active="false" checkCat="false"/>
+      <pricemodel.deleteForCustomer org="#{orgId}" />
+      <pricemodel.defineForSubscription currentIsFree="false" basePrice="60" subscriptionId="Trial" concurrencyCheck="true" />
+      <login.logout />
+
+      <!-- login as customer: subscribe to service -->
+      <invoke url="#{orgUrl}" />
+      <mpl_login.user userId="${customer.ldapuserid}" mid="${mid}" />
+      <mpl_service.subscribe mid="${mid}" index="0" chargeable="false" />
+	  <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${customer.ldapuserid}" />
+      <setCheckbox xpath="//td[text()='#{givenSubscriptionId}']/..//input" checked="true" />
+      <clickButton label="${button.save}" />
+      <mpl_login.logout />
+
+      <!-- test ldap import -->
+      <operatorPortal.login />
+      <operatorPortal.manageOrganization orgId="#{customerOrgId}" supplier="true" revenueshare="0.00" />
+      <login.logout /> 
+      
+      <!-- give the user service manager role to be able to access the classic portal -->
+      <mpl_login.user userId="${customer.ldapuserid}" mid="${mid}" />
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${customer.ldapuserid}" />
+      <setCheckbox xpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" checked="true" />
+      <clickButton label="${button.save}" />
+      <mpl_login.logout />
+
+      <!-- ...and now in marketplace portal -->
+      <mpl_login.user userId="${customer.ldapuserid}" mid="${mid}" />
+      <mpl_goto.account.users />
+      <clickButton label="${button.importUsers}" />
+
+      <setInputField htmlId="searchLdapForm:userId" value="*" />
+      <clickButton label="${button.search}" />
+      <!-- go up to tr, get first td and then down to div and input -->
+      <setCheckbox xpath="//td[text()='bes-estbestest']/..//input" checked="true" />
+      <clickButton label="${button.import}" />
+
+      <common.handleMessageParameters property="infoMsg" att0="1" value="${info.user.imported}" />
+      <mpl_verify.success label="#{infoMsg}" />
+     
+      <!-- Retest bug 9788, no addUser link will be shown when user is in LDAP -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
+      <not>
+        <verifyXPath xpath="//*[@id='assignUsersPanelForm:addUser']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+  </target>
+</project>

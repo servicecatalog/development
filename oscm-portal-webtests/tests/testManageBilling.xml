@@ -1,0 +1,65 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManageBilling" xmlns:setup="antlib:org.oscm.webtest.setup">
+	<import file="../macros/all.xml" />
+
+	<target name="testManageBilling">
+		<webtest name="setup">
+			<mail.cleanInbox />
+			<operator.addCurrency />
+			<operator.createorganization />
+			<mail.readPasswordAndUrlFromMail />
+			<storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+			<storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+			<storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<login.logout />
+
+			<mail.cleanInbox />
+			<operator.createorganization roles="RESELLER" />
+			<mail.readPasswordAndUrlFromMail />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<storeProperty name="resellerUrl" value="#{orgUrl}" propertyType="ant" />
+			<storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="resellerUserId" value="#{userId}" propertyType="ant" />
+			<login.logout />
+		</webtest>
+
+		<webtest name="testManageBilling_Default">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<clickLink href="/oscm-portal/user/manageBilling.jsf" />
+			<verifyElementText htmlId="pagelabel" text="${user.manageBilling.title}" />
+			<setSelectField htmlId="manageBillingForm:cutOffDay" text="1" />
+			<clickButton label="${button.save}" />
+			<verifyElementText htmlId="manageBillingForm:cutOffDay" text="1" />
+			<common.verifySuccess label="${info.manageBilling.saved}" />
+			<login.logout />
+		</webtest>
+		
+		<webtest name="testManageBilling_ChangeValue">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<clickLink href="/oscm-portal/user/manageBilling.jsf" />
+			<verifyElementText htmlId="pagelabel" text="${user.manageBilling.title}" />
+			<setSelectField htmlId="manageBillingForm:cutOffDay" text="21" />
+			<clickButton label="${button.save}" />
+			<verifyElementText htmlId="manageBillingForm:cutOffDay" text="21" />
+			<common.verifySuccess label="${info.manageBilling.saved}" />
+			<login.logout />
+		</webtest>
+
+		<webtest name="testManageBilling_Bug9845">
+			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
+			<clickLink href="/oscm-portal/user/manageBilling.jsf" />
+			<verifyElementText htmlId="pagelabel" text="${user.manageBilling.title}" />
+			<setSelectField htmlId="manageBillingForm:cutOffDay" text="3" />
+			<common.verifyPageChangedWarning />
+			<clickLink href="/oscm-portal/user/manageBilling.jsf" />
+			<setSelectField htmlId="manageBillingForm:cutOffDay" text="3" />
+			<clickButton label="${button.save}" />
+			<clickLink href="/oscm-portal/organization/edit.jsf" />
+			<verifyNoDialogs />
+			<login.logout />
+		</webtest>
+	</target>
+</project>

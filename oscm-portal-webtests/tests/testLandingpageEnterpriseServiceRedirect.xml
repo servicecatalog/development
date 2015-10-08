@@ -1,0 +1,142 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testLandingpage" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <import file="../macros/all.xml" />
+
+  <target name="testLandingpage" depends="setup, test" />
+
+  <target name="setup">
+    <webtest name="testLandingpage_Setup">
+      <testInfo type="DESCRIPTION">testLandingpage_Setup:
+			</testInfo>
+
+      <!-- Create supplier account-->
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <!-- Create marketplace-->
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- Create two login services-->
+      <mpl_setup.createLoginService mId1="${MID1}" serviceId="S1" />
+      <mpl_setup.createLoginService mId1="${MID1}" serviceId="S4" />
+
+      <!-- Create two direct services-->
+      <mpl_setup.createDirectService mId1="${MID1}" serviceId="S2" />
+      <mpl_setup.createDirectService mId1="${MID1}" serviceId="S5" />
+
+      <!-- Create two user services-->
+      <mpl_setup.createUserService mId1="${MID1}" serviceId="S3" />
+      <mpl_setup.createUserService mId1="${MID1}" serviceId="S6" />
+
+      <landingpage.loginAsSupplier />
+
+      <!-- Define three categories-->
+      <category.defineCategories marketplaceId="${MID1}" count="3" />
+
+      <!-- Setup: Publish services for category -->
+      <service.assignToCategory serviceId="S1" marketplaceId="${MID1}" category="0" assign="true" />
+      <service.assignToCategory serviceId="S4" marketplaceId="${MID1}" category="0" assign="true" />
+
+      <service.assignToCategory serviceId="S2" marketplaceId="${MID1}" category="1" assign="true" />
+      <service.assignToCategory serviceId="S5" marketplaceId="${MID1}" category="1" assign="true" />
+
+      <service.assignToCategory serviceId="S3" marketplaceId="${MID1}" category="2" assign="true" />
+      <service.assignToCategory serviceId="S6" marketplaceId="${MID1}" category="2" assign="true" />
+
+      <!-- Subscribe to one service of each category-->
+      <mpl_service.subscribe mid="${MID1}" index="0" />
+      <mpl_service.subscribe mid="${MID1}" index="2" />
+      <mpl_service.subscribe mid="${MID1}" index="4" />
+      <login.logout />
+
+      <!-- Swith to enterprise landingpage -->
+      <landingpage.loginAsSupplier />
+      <landingpage.switchToEnterpriseLandingpage marketplaceId="${MID1}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="test" depends="setup">
+    <!-- If If there are no subscription for given landingpage entry than on click the user should be redirected to the service details  -->
+    <webtest name="testRedirectToServiceDetails_Login">
+
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <clickElement htmlId="serviceFirst1subscribeButton" />
+      <verifyXPath xpath="//*[@id='serviceDetailName']" text="MS S1" />
+      <login.logout />
+    </webtest>
+
+    <!-- If If there are no subscription for given landingpage entry than on click the user should be redirected to the service details  -->
+    <webtest name="testRedirectToServiceDetails_Direct">
+
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <clickElement htmlId="serviceSecond1subscribeButton" />
+      <verifyXPath xpath="//*[@id='serviceDetailName']" text="MS S2" />
+      <login.logout />
+    </webtest>
+
+    <!-- If If there are no subscription for given landingpage entry than on click the user should be redirected to the service details  -->
+    <webtest name="testRedirectToServiceDetails_User">
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <clickElement htmlId="serviceThird1subscribeButton" />
+      <verifyXPath xpath="//*[@id='serviceDetailName']" text="MS S3" />
+      <login.logout />
+    </webtest>
+
+    <!-- If there is one subscription for given landingpage entry than on click the user should be redirected to the service itself  -->
+    <webtest name="testRedirectToService_Login">
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <not>
+        <clickLink htmlId="serviceFirst0subscribeButtonLink" />
+      </not>
+      <clickLink htmlId="serviceFirst0useButtonLink" />
+      <verifyTitle text="Mock Product" />
+    </webtest>
+
+    <!-- If there is one subscription for given landingpage entry than on click the user should be redirected to the service itself  -->
+    <webtest name="testRedirectToService_User">
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <not>
+        <clickLink htmlId="serviceSecond0subscribeButtonLink" />
+      </not>
+      <clickLink htmlId="serviceSecond0useButtonLink" />
+      <verifyTitle text="Mock Product - Menu" />
+    </webtest>
+
+    <!-- If there is one subscription for given landingpage entry than on click the user should be redirected to the service itself  -->
+    <webtest name="testRedirectToService_Direct">
+      <!-- Go to marketplace and verify that on click of this service a redirect to service details is performed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+
+      <!-- Verify that a redirect to service details-->
+      <not>
+        <clickLink htmlId="serviceThird0subscribeButtonLink" />
+      </not>
+      <clickLink htmlId="serviceThird0useButtonLink" />
+      <verifyTitle text="Mock Product - Menu" />
+    </webtest>
+  </target>
+</project>

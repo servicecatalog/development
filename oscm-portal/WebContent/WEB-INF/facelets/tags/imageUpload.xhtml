@@ -1,0 +1,78 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+  <ui:param name="key" value="#{messagePrefix}.image" />
+  <adm:outputLabel value="#{msg[key]}" rendered="#{empty rendered or rendered}" class="noImageLabel" />
+
+  <h:panelGroup id="#{messagePrefix}_imageDisplayPanel" rendered="#{empty rendered or rendered}">
+    <a4j:outputPanel layout="block" styleClass="#{editDisabled ? 'boxBorder disabled':'boxBorder'}"
+      style="padding:5px; position:relative; float:left">
+
+      <a4j:outputPanel>
+        <div id="imagePreview" class="imagePreview" data-error="#{sizeError}" data-size="#{sizeFunction}">
+          <h:outputText value="#{msg['common.noImage']}" styleClass="noImage preWrapping" rendered="#{not imageDefined}" />
+          <h:graphicImage value="#{imageUrl}&amp;t=#{appBean.randomId}" styleClass="previewImage"
+            style="display:#{imageDefined ? 'block':'none'};" />
+        </div>
+      </a4j:outputPanel>
+
+      <ui:param name="key" value="#{messagePrefix}.image.hint.format" />
+      <h:outputText style="clear:left;" value="#{msg[key]}" />
+      <br />
+      <ui:param name="key" value="#{messagePrefix}.image.hint" />
+      <h:outputText style="clear:left;" value="#{msg[key]}" />
+      <br />
+
+      <h:selectBooleanCheckbox id="deleteImage" onclick="setDirty(true);#{rich:element('image')}.disabled=this.checked;"
+        value="#{uploader.deleteImage}" style="margin-left:0px; vertical-align:middle;"
+        disabled="#{editDisabled or not imageDefined}" rendered="#{imageDefined}" />
+      <ui:param name="key" value="#{messagePrefix}.image.delete" />
+      <h:outputText value="#{msg[key]}" rendered="#{imageDefined}" />
+
+    </a4j:outputPanel>
+
+  </h:panelGroup>
+  <h:outputText value="" rendered="#{empty rendered or rendered}" />
+
+  <ui:param name="key" value="#{messagePrefix}.image.upload" />
+  <adm:outputLabel value="#{msg[key]}" rendered="#{empty rendered or rendered}" />
+  <h:panelGroup id="#{messagePrefix}_imageUploadPanel" rendered="#{empty rendered or rendered}">
+    <ui:param name="key" value="#{messagePrefix}.image" />
+    <a4j:outputPanel styleClass="jqUpload" layout="block">
+      <a4j:outputPanel styleClass="upload">
+        <a4j:outputPanel styleClass="option">
+
+          <a4j:outputPanel styleClass="#{editDisabled ? 'buttonDisabled':'button'}"
+            style="float:right;margin:2px 2px 0 -2px;">
+            <a4j:outputPanel>
+              <h:graphicImage url="/img/transparentPixel.png" styleClass="buttonImg imageUpload" />
+              <h:outputText value="#{msg['button.browse']}" />
+            </a4j:outputPanel>
+          </a4j:outputPanel>
+          <a4j:outputPanel styleClass="output" />
+
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+
+
+      <!-- check if adding on change changes sth
+      onchange="setDirty(true);if (#{rich:element('deleteImage')}) #{rich:element('deleteImage')}.disabled=false;"
+      -->
+      <t:inputFileUpload id="image"
+                         label="#{msg[key]}"
+                         size="37"
+                         onchange="setDirty(true);if (#{rich:element('deleteImage')}) #{rich:element('deleteImage')}.disabled=false;"
+                         value="#{uploader.image}"
+                         disabled="#{editDisabled}"
+                         styleClass="fileChooser" />
+
+    </a4j:outputPanel>
+  </h:panelGroup>
+  <h:outputText value="" rendered="#{empty rendered or rendered}" />
+
+</ui:composition>

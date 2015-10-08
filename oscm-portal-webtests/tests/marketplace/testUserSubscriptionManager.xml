@@ -1,0 +1,248 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testUserSubscriptionManager" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="testMPL_UserSubscriptionManager_Setup">
+      <!-- Setup an organization (using old portal) -->
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceA" name="ServiceA" description="DescriptionServiceA" concurrentUser="3" namedUser="2"
+        marketplaceId="${mId}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ServiceA" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE"
+        steppedPriceForParameter="MAX_FILE_NUMBER" />
+      <setup:service.activate serviceIds="ServiceA" />
+      <login.logout />
+      <!-- Register a customer (using web service) -->
+      <setup:accountservice.registerCustomer supplierId="${supplierId}" userId="customer" marketplaceId="${mId}" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <property name="customerUserId" value="${createdUserId}" />
+
+    </webtest>
+  </target>
+
+  <target name="testUserSubscriptionManager" depends="setup">
+
+    <webtest name="testMPL_UserSubscriptionManager_AdminUser">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new admin user -->
+      <mpl_user.create userId="oper2A" isAdmin="true" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="true" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="false" />
+
+      <!-- Verify user roles invisible on user create-->
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.PLATFORM_OPERATOR}" visible="false" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <mpl_goto.account />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.processes.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.subscriptions.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.users.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.reports.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.payments.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.processes.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.subscriptions.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.users.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.reports.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.payments.title}']" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testSubMgr_Account_Menu">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new user with role subscription manager -->
+      <mpl_user.create userId="SubMgr" isSubMgr="true" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="true" />
+
+      <!-- Verify user roles invisible on user create-->
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.PLATFORM_OPERATOR}" visible="false" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <mpl_goto.account />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.processes.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.subscriptions.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.processes.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.subscriptions.title}']" />
+      <not>
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.users.title}']" />
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.reports.title}']" />
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.payments.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.users.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.reports.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.payments.title}']" />
+      </not>
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testUser_Account_Menu">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new user with role subscription manager -->
+      <mpl_user.create userId="user" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="false" />
+
+      <!-- Verify user roles invisible on user create -->
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" visible="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.PLATFORM_OPERATOR}" visible="false" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <mpl_goto.account />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.processes.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.profile.title}']" />
+      <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.processes.title}']" />
+      <not>
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.subscriptions.title}']" />
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.users.title}']" />
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.reports.title}']" />
+        <verifyXPath xpath="//div[@class='innerblock']//a[normalize-space()='${marketplace.account.payments.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.users.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.reports.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.payments.title}']" />
+        <verifyXPath xpath="//div[@class='step']//span[normalize-space()='${marketplace.account.subscriptions.title}']" />
+      </not>
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+    <webtest name="testMPL_UserCustomer_finalCleanup">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+
+  <target name="testSubscriptionSetOwner" depends="setup">
+    <webtest name="testMPL_Admin_SetupOwner">
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+      <!-- Create a new user with role subscription manager -->
+      <mpl_user.create userId="SubMgr" isSubMgr="true" />
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+
+      <!--assign submgr to subscription -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="#{userId}" />
+
+      <!--set submgr as the owner for subscription -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+      <verifyXPath xpath="//span[@id='configurationForm:selectedOwnerText']//span[contains(text(),'${supplierUserId}')]" />
+
+      <setup:subscription.setOwner subId="#{givenSubscriptionId}" ownerId="#{userId}" />
+      <mpl_login.logout />
+
+      <!--login as submgr to check if subscription -->
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <verifyElement text="usersForm:assignUsers" type="input" />
+      <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+      <not>
+        <verifyElement text="configurationForm:selectSubscriptionOwnerButton" type="input" />
+      </not>
+      <mpl_login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+        
+      <!--Bug#10421 -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+      <common.clickAjaxLink htmlId="configurationForm:subscriptionOwnerSelection:0" />
+      <mpl_goto.account.users />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" verify="false" />
+      <common.clickAjaxLink htmlId="configurationForm:subscriptionOwnerSelection:1" />
+      <clickLink htmlId="configurationForm:saveConfigurationButtonLink" />
+      <mpl_login.logout />
+
+      <mpl_login.user mid="${mId}" userId="#{userId}" />
+      <mpl_goto.account.subscriptions />
+      <not>
+        <verifyElement text="showDetailsForm:administrate0" type="a" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+    <webtest name="testMPL_UserCustomer_finalCleanup">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+</project>

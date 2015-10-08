@@ -1,0 +1,68 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+
+
+
+  <div id="progressDiv" class="progressOverlay" style="display: none;">
+    <table width="98%">
+      <tr>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+
+
+
+  <div id="w_004_h_e_g_header">
+    <adm:keepAlive interval="#{appBean.interval}"/>
+    <!-- left Logo -->
+    <div id="w_004_h_e_logo">
+
+      <div id="w_004_h_e_g_header_r">
+        <div id="w_004_h_e_g_header_ie6">
+          <!-- right logo -->
+         
+          <h:form id="formVersion">
+          <a4j:commandButton style="display:none;" id="versionHiddenButton"
+            oncomplete="#{rich:component('version')}.show()" render="version">
+               </a4j:commandButton>
+          
+           <div id="w_004_h_e_logo_r" onclick="#{rich:element('formVersion:versionHiddenButton')}.click()"></div>
+   		   </h:form>
+           <c:if test="#{not empty showUserId}">
+            <!-- username/logout -->
+            <div id="w_004_h_e_user">
+              <h:form id="formLogout">
+                <p>
+                  <h:outputText value="#{msg['user.userId']} : " />
+                  <span class="w_004_h_e_login_name" id="headerUserId" onclick="AdmUtils.userIdClicked(event);"><h:outputText
+                      value="#{userBean.myUserId}" />
+                  </span>
+                  <h:commandLink id="logout" action="#{userBean.logoff}">
+                    <h:outputText value="#{msg['logout']}" />
+                  </h:commandLink>
+                </p>
+              </h:form>
+            </div>
+          </c:if>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <ui:include src="../public/about.xhtml">
+    <ui:param name="dialogId" value="version" />
+    <ui:param name="dialogHeight" value="329" />
+    <ui:param name="dialogWidth" value="480" />
+  </ui:include>
+
+</ui:composition>

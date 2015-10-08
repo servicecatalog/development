@@ -1,0 +1,1 @@
+The service implementation of the user group service component.

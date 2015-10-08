@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="ProvisioningService" targetNamespace="http://oscm.org/xsd" xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:wsp="http://www.w3.org/ns/ws-policy" xmlns:tns="http://oscm.org/xsd" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsp1_2="http://schemas.xmlsoap.org/ws/2004/09/policy" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata">
+<documentation>v1.7</documentation>
+  <types>
+    <xsd:schema>
+      <xsd:import namespace="http://oscm.org/xsd" schemaLocation="ProvisioningService_schema1.xsd"/>
+    </xsd:schema>
+  </types>
+  <message name="deactivateInstance">
+    <part name="parameters" element="tns:deactivateInstance">
+    </part>
+  </message>
+  <message name="asyncUpgradeSubscriptionResponse">
+    <part name="parameters" element="tns:asyncUpgradeSubscriptionResponse">
+    </part>
+  </message>
+  <message name="asyncModifySubscription">
+    <part name="parameters" element="tns:asyncModifySubscription">
+    </part>
+  </message>
+  <message name="sendPing">
+    <part name="parameters" element="tns:sendPing">
+    </part>
+  </message>
+  <message name="modifySubscriptionResponse">
+    <part name="parameters" element="tns:modifySubscriptionResponse">
+    </part>
+  </message>
+  <message name="sendPingResponse">
+    <part name="parameters" element="tns:sendPingResponse">
+    </part>
+  </message>
+  <message name="asyncUpgradeSubscription">
+    <part name="parameters" element="tns:asyncUpgradeSubscription">
+    </part>
+  </message>
+  <message name="asyncCreateInstance">
+    <part name="parameters" element="tns:asyncCreateInstance">
+    </part>
+  </message>
+  <message name="createInstanceResponse">
+    <part name="parameters" element="tns:createInstanceResponse">
+    </part>
+  </message>
+  <message name="deleteInstance">
+    <part name="parameters" element="tns:deleteInstance">
+    </part>
+  </message>
+  <message name="upgradeSubscription">
+    <part name="parameters" element="tns:upgradeSubscription">
+    </part>
+  </message>
+  <message name="createInstance">
+    <part name="parameters" element="tns:createInstance">
+    </part>
+  </message>
+  <message name="deactivateInstanceResponse">
+    <part name="parameters" element="tns:deactivateInstanceResponse">
+    </part>
+  </message>
+  <message name="upgradeSubscriptionResponse">
+    <part name="parameters" element="tns:upgradeSubscriptionResponse">
+    </part>
+  </message>
+  <message name="updateUsers">
+    <part name="parameters" element="tns:updateUsers">
+    </part>
+  </message>
+  <message name="activateInstanceResponse">
+    <part name="parameters" element="tns:activateInstanceResponse">
+    </part>
+  </message>
+  <message name="asyncCreateInstanceResponse">
+    <part name="parameters" element="tns:asyncCreateInstanceResponse">
+    </part>
+  </message>
+  <message name="deleteUsersResponse">
+    <part name="parameters" element="tns:deleteUsersResponse">
+    </part>
+  </message>
+  <message name="deleteUsers">
+    <part name="parameters" element="tns:deleteUsers">
+    </part>
+  </message>
+  <message name="createUsers">
+    <part name="parameters" element="tns:createUsers">
+    </part>
+  </message>
+  <message name="asyncModifySubscriptionResponse">
+    <part name="parameters" element="tns:asyncModifySubscriptionResponse">
+    </part>
+  </message>
+  <message name="updateUsersResponse">
+    <part name="parameters" element="tns:updateUsersResponse">
+    </part>
+  </message>
+  <message name="activateInstance">
+    <part name="parameters" element="tns:activateInstance">
+    </part>
+  </message>
+  <message name="deleteInstanceResponse">
+    <part name="parameters" element="tns:deleteInstanceResponse">
+    </part>
+  </message>
+  <message name="createUsersResponse">
+    <part name="parameters" element="tns:createUsersResponse">
+    </part>
+  </message>
+  <message name="modifySubscription">
+    <part name="parameters" element="tns:modifySubscription">
+    </part>
+  </message>
+  <portType name="ProvisioningService">
+    <operation name="createInstance">
+      <input message="tns:createInstance" wsam:Action="urn:createInstance">
+    </input>
+      <output message="tns:createInstanceResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/createInstanceResponse">
+    </output>
+    </operation>
+    <operation name="createUsers">
+      <input message="tns:createUsers" wsam:Action="urn:createUsers">
+    </input>
+      <output message="tns:createUsersResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/createUsersResponse">
+    </output>
+    </operation>
+    <operation name="deleteUsers">
+      <input message="tns:deleteUsers" wsam:Action="urn:deleteUsers">
+    </input>
+      <output message="tns:deleteUsersResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/deleteUsersResponse">
+    </output>
+    </operation>
+    <operation name="sendPing">
+      <input message="tns:sendPing" wsam:Action="urn:sendPing">
+    </input>
+      <output message="tns:sendPingResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/sendPingResponse">
+    </output>
+    </operation>
+    <operation name="updateUsers">
+      <input message="tns:updateUsers" wsam:Action="urn:updateUsers">
+    </input>
+      <output message="tns:updateUsersResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/updateUsersResponse">
+    </output>
+    </operation>
+    <operation name="asyncCreateInstance">
+      <input message="tns:asyncCreateInstance" wsam:Action="urn:asyncCreateInstance">
+    </input>
+      <output message="tns:asyncCreateInstanceResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/asyncCreateInstanceResponse">
+    </output>
+    </operation>
+    <operation name="deleteInstance">
+      <input message="tns:deleteInstance" wsam:Action="urn:deleteInstance">
+    </input>
+      <output message="tns:deleteInstanceResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/deleteInstanceResponse">
+    </output>
+    </operation>
+    <operation name="modifySubscription">
+      <input message="tns:modifySubscription" wsam:Action="urn:modifySubscription">
+    </input>
+      <output message="tns:modifySubscriptionResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/modifySubscriptionResponse">
+    </output>
+    </operation>
+    <operation name="activateInstance">
+      <input message="tns:activateInstance" wsam:Action="urn:activateInstance">
+    </input>
+      <output message="tns:activateInstanceResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/activateInstanceResponse">
+    </output>
+    </operation>
+    <operation name="deactivateInstance">
+      <input message="tns:deactivateInstance" wsam:Action="urn:deactivateInstance">
+    </input>
+      <output message="tns:deactivateInstanceResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/deactivateInstanceResponse">
+    </output>
+    </operation>
+    <operation name="asyncModifySubscription">
+      <input message="tns:asyncModifySubscription" wsam:Action="urn:asyncModifySubscription">
+    </input>
+      <output message="tns:asyncModifySubscriptionResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/asyncModifySubscriptionResponse">
+    </output>
+    </operation>
+    <operation name="asyncUpgradeSubscription">
+      <input message="tns:asyncUpgradeSubscription" wsam:Action="urn:asyncUpgradeSubscription">
+    </input>
+      <output message="tns:asyncUpgradeSubscriptionResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/asyncUpgradeSubscriptionResponse">
+    </output>
+    </operation>
+    <operation name="upgradeSubscription">
+      <input message="tns:upgradeSubscription" wsam:Action="urn:upgradeSubscription">
+    </input>
+      <output message="tns:upgradeSubscriptionResponse" wsam:Action="http://oscm.org/xsd/ProvisioningService/upgradeSubscriptionResponse">
+    </output>
+    </operation>
+  </portType>
+  <binding name="ProvisioningServicePortBinding" type="tns:ProvisioningService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <operation name="createInstance">
+      <soap:operation soapAction="urn:createInstance"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="createUsers">
+      <soap:operation soapAction="urn:createUsers"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="deleteUsers">
+      <soap:operation soapAction="urn:deleteUsers"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="sendPing">
+      <soap:operation soapAction="urn:sendPing"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="updateUsers">
+      <soap:operation soapAction="urn:updateUsers"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="asyncCreateInstance">
+      <soap:operation soapAction="urn:asyncCreateInstance"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="deleteInstance">
+      <soap:operation soapAction="urn:deleteInstance"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="modifySubscription">
+      <soap:operation soapAction="urn:modifySubscription"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="activateInstance">
+      <soap:operation soapAction="urn:activateInstance"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="deactivateInstance">
+      <soap:operation soapAction="urn:deactivateInstance"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="asyncModifySubscription">
+      <soap:operation soapAction="urn:asyncModifySubscription"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="asyncUpgradeSubscription">
+      <soap:operation soapAction="urn:asyncUpgradeSubscription"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+    <operation name="upgradeSubscription">
+      <soap:operation soapAction="urn:upgradeSubscription"/>
+      <input>
+        <soap:body use="literal"/>
+      </input>
+      <output>
+        <soap:body use="literal"/>
+      </output>
+    </operation>
+  </binding>
+  <service name="ProvisioningService">
+    <port name="ProvisioningServicePort" binding="tns:ProvisioningServicePortBinding">
+      <soap:address location="REPLACE_WITH_ACTUAL_URL"/>
+    </port>
+  </service>
+</definitions>

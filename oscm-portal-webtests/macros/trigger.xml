@@ -1,0 +1,26 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="trigger.approve">
+    <attribute name="userKey" />
+    <sequential>
+      <mock.settings userKey="@{userKey}" />
+      <mock.clickQuickLink name="approve" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="trigger.reject">
+    <attribute name="userKey" />
+    <attribute name="reason" default="I don't need any reason to reject this." />
+    <sequential>
+      <mock.settings userKey="@{userKey}" />
+      <mock.clickQuickLink name="reject" />
+      <followFrame name="operation" />
+      <setInputField name="param_reason" value="@{reason}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+</project>

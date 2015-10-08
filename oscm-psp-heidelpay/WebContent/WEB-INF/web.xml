@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	version="2.5"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+  <display-name>Heidelpay PSP Integration</display-name>
+
+  <servlet>
+	<servlet-name>HeidelpayResponseServlet</servlet-name>
+	<servlet-class>org.oscm.ui.servlet.HeidelpayResponseServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+	<servlet-name>HeidelpayResponseServlet</servlet-name>
+	<url-pattern>/HeidelpayResponseServlet</url-pattern>
+  </servlet-mapping>
+
+</web-app>
+

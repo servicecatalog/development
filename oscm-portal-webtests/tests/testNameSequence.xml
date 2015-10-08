@@ -1,0 +1,280 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testNameSequence" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="setup">
+
+    <webtest name="setup">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserID" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" mIdProperty="mId" baseurl="#{baseUrl}" name="Marketplace" />
+    </webtest>
+  </target>
+
+  <target name="testNameSequence" depends="setup">
+    <webtest name="test_organization_edit">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <!-- verify for English language -->
+      <changeLanguage language="en" />
+      <verifyNameSequenceChanged isReversed="false" formName="editForm:" />
+      <changeLanguage language="ja" />
+      <!-- verify for Japanese language -->
+      <verifyNameSequenceChanged formName="editForm:" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="test_organization_addCustomer">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/organization/addCustomer.jsf" />
+      <verifyXPath xpath="//*[@id='editForm:locale' and @class='select']" />
+      <verifyNameSequenceChanged isReversed="false" formName="editForm:" />
+      <changeLanguage language="ja" />
+      <invoke url="${bes.http.url}/oscm-portal/organization/addCustomer.jsf" />
+      <verifyNameSequenceChanged formName="editForm:" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test_user_add">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <verifyXPath xpath="//*[@id='userForm:locale' and @class='select']" />
+      <verifyNameSequenceChanged isReversed="false" formName="userForm:" />
+      <changeLanguage language="ja" />
+      <invoke url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <verifyNameSequenceChanged formName="userForm:" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="test_user_list">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+      <verifyNameSequenceChanged isReversed="false" formName="editForm:" />
+      <verifyNameSequenceInTable isReversed="false" spanID="userListForm:userListTable:0" />
+      <changeLanguage language="ja" />
+      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+      <verifyNameSequenceChanged formName="editForm:" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test_account_addUser">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/addUser.jsf" />
+      <verifyNameSequenceChanged isReversed="false" formName="userForm:" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/addUser.jsf" />
+      <verifyNameSequenceChanged formName="userForm:" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="test_account_editUser">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/editUser.jsf" />
+      <verifyNameSequenceChanged isReversed="false" formName="editUserForm:" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/editUser.jsf" />
+      <verifyNameSequenceChanged formName="editUserForm:" />
+      <login.logout />
+    </webtest>
+     
+    <webtest name="test_account_index">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/index.jsf" />
+      <verifyXPath xpath="//div[@id='userName']" text=".*${user.firstname}.*${user.lastname}" regex="true" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/index.jsf" />
+      <verifyXPath xpath="//div[@id='userName']" text=".*${user.lastname}.*${user.firstname}" regex="true" />
+      <login.logout />
+    </webtest>
+      
+    <webtest name="test_account_profile">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/profile.jsf" />
+      <verifyNameSequenceChanged isReversed="false" formName="editForm:" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/profile.jsf" />
+      <verifyNameSequenceChanged formName="editForm:" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="test_account_users">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/users.jsf" />
+      <verifyNameSequenceInTable isReversed="false" spanID="userListForm:userListTable:0" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/users.jsf" />
+      <verifyNameSequenceInTable spanID="userListForm:userListTable:0" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="test_account_registration">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.logout />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/registration.jsf?locale=ja" />
+      <verifyNameSequenceChanged formName="registrationForm:" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/registration.jsf?locale=en" />
+      <verifyNameSequenceChanged isReversed="false" formName="registrationForm:" />
+    </webtest>
+
+    <webtest name="test_operator_createOrganization">
+      <login.login url="${supplierUrl}" userId="${supplierUserID}" />
+      <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/operator/createOrganization.jsf" />
+      <verifyXPath xpath="//*[@id='editForm:organizationLocale' and @class='select']" />
+      <verifyNameSequence firstNameID="editForm:administratorFirstName" lastNameID="editForm:administratorLastName" />
+      <changeLanguage language="ja" />
+      <invoke url="${bes.http.url}/oscm-portal/operator/createOrganization.jsf" />
+      <verifyNameSequence firstNameID="editForm:administratorFirstName2" lastNameID="editForm:administratorLastName" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="createSubscription">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <changeLanguage language="en" />
+      <!-- Import the services -->
+      <techservice.import file="data/TechnicalServicesPlayground.xml" />
+      <!-- Define a service which uses the timeout parameter defined in the techniocal service-->
+      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="Highlander" isFree="true" />
+      <setup:service.activate serviceIds="Highlander" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUserId" value="#{userId}"  propertyType="ant" />
+      <storeProperty name="customerUserKey" value="#{userKey}"  propertyType="ant" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test_account_subscriptionDetails">
+      <mpl_login.user userId="${customerUserId}" mid="${mId}" />
+      <changeLanguage language="en" />
+      <mpl_service.subscribe mid="${mId}" index="0" />
+      <mpl_goto.account.subscriptions />
+      <clickLink htmlId="showDetailsForm:administrate0" />
+      <setup:store.settings userkey="${customerUserKey}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="Highlander" usersToAdd="${customerUserKey}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/subscriptionDetails.jsf" />
+      <verifyNameSequenceInTable isReversed="false" spanID="userListForm:userTable:0" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/subscriptionDetails.jsf" />
+      <verifyNameSequenceInTable spanID="userListForm:userTable:0" />
+      <!-- Bug 10048, create a review comment and verify the name sequence -->
+	  <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <verifyXPath xpath="//*[@id='editForm:locale' and @class='select']" />
+      <user.editProfile/>
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <clickLink htmlId="btnWriteFeedback" />
+      <clickElement htmlId="star1" />
+      <setInputField htmlId="commentForm:title" value="Title" />
+      <setInputField htmlId="commentForm:comment" value="Content" />
+      <clickLink htmlId="commentForm:btnPublishLink" />
+      <verifyXPath xpath="//div[@class='col4span lastcol']/div/span[@class='serviceRating']" text='.*test last name test first name.*'  regex="true" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.logout />
+    </webtest>
+    
+    <webtest name="test_subscriptions_assignUsersInclude">
+      <mpl_login.user userId="${customerUserId}" mid="${mId}" />
+      <changeLanguage language="en" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/subscriptions/assignUsersInclude.jsf" />
+      <verifyNameSequenceInTable isReversed="false" spanID="Form:userTable:0" />
+      <changeLanguage language="ja" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/subscriptions/assignUsersInclude.jsf" />
+      <verifyNameSequenceInTable spanID="Form:userTable:0" />
+      <changeLanguage language="en" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <!-- Change the language of current organization -->
+  <macrodef name="changeLanguage">
+    <attribute name="language" />
+    <sequential>
+      <invoke url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <setSelectField htmlId="editForm:locale" value="@{language}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify the sequence of first name and last name -->
+  <macrodef name="verifyNameSequenceChanged">
+    <attribute name="isReversed" default="true" />
+    <attribute name="formName" />
+    <sequential>
+      <ifStep test="@{isReversed}">
+        <then>
+          <verifyNameSequence firstNameID="@{formName}firstName2" lastNameID="@{formName}lastName" />
+        </then>
+      </ifStep>
+      <ifStep test="not @{isReversed}">
+        <then>
+          <verifyNameSequence firstNameID="@{formName}firstName" lastNameID="@{formName}lastName" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- verify the sequence of first name and last name -->
+  <macrodef name="verifyNameSequence">
+    <attribute name="firstNameID" />
+    <attribute name="lastNameID" />
+    <sequential>
+          <verifyXPath xpath="//input[@id='@{lastNameID}']" />
+          <verifyXPath xpath="//input[@id='@{firstNameID}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify the sequence of first name and last name in table-->
+  <macrodef name="verifyNameSequenceInTable">
+    <attribute name="isReversed" default="true" />
+    <attribute name="spanID" />
+    <sequential>
+      <ifStep test="@{isReversed}">
+        <then>
+          <verifyXPath xpath="//*[contains(@id, 'FirstName1')]" />
+        </then>
+      </ifStep>
+      <ifStep test="not @{isReversed}">
+        <then>
+        <verifyXPath xpath="//*[contains(@id, 'FirstName')]" />
+        <not>
+          <verifyXPath xpath="//*[contains(@id, 'FirstName1')]" />
+        </not>    
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+</project>

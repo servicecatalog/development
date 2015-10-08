@@ -1,0 +1,115 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2015 
+ */ 
+body, p, address, pre{
+	color: #333333;
+    font-family: Arial,sans-serif;
+    font-weight: normal;
+    font-size:12px;
+}
+
+body{
+	margin:0px;	
+	padding:5px;
+	height:100%;
+}
+
+body, html{
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;	
+}
+
+form{ 
+	padding:0px;
+	margin:0px;
+}
+
+.disabled {
+  color: #C6C6C6;
+  background-color: #EFEFEF;
+  pointer-events: none;	
+}
+
+input{
+	height:20px;
+}
+
+input[type="text"], 
+input[type="password"], 
+textarea {
+	border: 1px solid #D9D9D9;
+	-moz-border-radius:3px;
+	border-radius: 3px;
+	padding:0 2px;
+	outline:none;	
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select:focus{
+	outline:none;	
+	background:#Fff;	
+	border:solid 1px #2e75d2 !important;
+}
+
+input[type="text"]:hover,
+textarea:hover{
+	border: 1px solid #B9B9B9;
+	border-top-color: #A0A0A0;
+	box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow: inset 0px 1px 2px rgba(0,0,0,0.1);
+	-webkit-box-shadow: inset 0px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.mceActionPanel{
+	 background-color: #DCDCDC;
+    border-top: 1px solid #ADB7C3;
+    margin: 4px 0 0;
+    padding: 2px 0 2px 10px;
+}
+
+.mceActionPanel div{
+	float:right !important;
+	margin:0px 5px 2px 0;	
+	background: url(../img/btn_var_right.gif) right 0px no-repeat;
+}
+
+.mceActionPanel div input{
+	line-height:18px;
+	height:20px;
+	display: block;
+	border:0!important;
+	padding: 2px 8px 3px 12px;
+	margin-right:3px;
+	background: url(../img/btn_var_bg.gif) left 0 no-repeat;
+	cursor:pointer;
+}
+
+.mceActionPanel div:hover{
+	background-position:right -30px;
+}
+
+.mceActionPanel{
+	position:fixed;
+	bottom:5px;	
+	width:390px;
+	box-sizing:border-box;
+	-moz-box-sizing:border-box;	
+}
+
+.mceActionPanel div input:hover{
+	background-position:left -30px;
+
+}
+
+.mceActionPanel:after { content: "."; display: block; clear: both; width: 0; height: 0; line-height: 0; visibility: hidden; }
+.mceActionPanel {display: inline-block;  }
+* html .mceActionPanel { height: 1%; }
+.mceActionPanel {display: block;  }
+
+.tabs{
+	height:0px;
+	overflow:hidden;
+	display:none;
+}

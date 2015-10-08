@@ -1,0 +1,68 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <a4j:outputPanel id="landingpagePanel" rendered="#{not customizeLandingpageCtrl.hideManualChoicePanels}">
+    <adm:outputStep value="#{msg['marketplace.customizeLandingpage.selectNrOfFeaturedServices']}" />
+    <adm:panelGrid>
+      <adm:labelAndSelect id="numberOfServices" label="#{msg['marketplace.customizeLandingpage.numberOfServices']}"
+        value="#{customizeLandingpageModel.numberOfServicesOnLp}"
+        disabled="#{customizeLandingpageCtrl.fieldsDisabled}">
+        <f:selectItems value="#{customizeLandingpageModel.numOfServicesRange}" />
+      </adm:labelAndSelect>
+    </adm:panelGrid>
+    <adm:outputStep value="#{msg['marketplace.customizeLandingpage.selectFeaturedServices']}" />
+
+
+    
+    <rich:pickList id="featuredServiceShuttle"
+      orderable="true"
+      value="#{customizeLandingpageModel.featuredServices}"
+      var="items"
+      disabled="#{customizeLandingpageCtrl.fieldsDisabled}"
+      removeText="#{msg['marketplace.customizeLandingpage.remove']}"
+      removeAllText="#{msg['marketplace.customizeLandingpage.removeAll']}"
+      addAllText="#{msg['marketplace.customizeLandingpage.addAll']}"
+      addText="#{msg['marketplace.customizeLandingpage.add']}"
+      downText="#{msg['marketplace.customizeLandingpage.down']}"
+      downBottomText="#{msg['marketplace.customizeLandingpage.bottom']}"
+      upText="#{msg['marketplace.customizeLandingpage.up']}"
+      upTopText="#{msg['marketplace.customizeLandingpage.top']}"       
+      sourceCaption="#{msg['marketplace.customizeLandingpage.availableServices']}"
+      targetCaption="#{msg['marketplace.customizeLandingpage.featuredServices']}"
+      columnClasses="col_logo, col_desc, col_status"
+      listHeight="250" listWidth="450"
+      styleClass="ndh"
+      converter="poServiceConverter">
+      <f:selectItems value="#{customizeLandingpageModel.availableServices}" /> 
+      <rich:column>
+        <h:graphicImage value="#{items.pictureUrl}" styleClass="serviceLogo" />
+      </rich:column>
+      <rich:column>
+        <h:outputText value="#{items.serviceName}" styleClass="boldServiceName" />
+        <br />
+        <h:outputText value="#{items.providerName}" />
+      </rich:column>
+      <rich:column>
+        <h:panelGroup styleClass="#{items.statusSymbol}" layout="block">
+          <span><adm:nbsp /></span>
+        </h:panelGroup>
+      </rich:column>   
+    </rich:pickList>
+
+
+    <div class="fillinDiv">
+      <strong> <h:outputText value="#{msg['marketplace.customizeLandingpage.fillin.title']}" />
+      </strong>
+      <h:selectOneRadio id="fillin" value="#{customizeLandingpageModel.fillin}" layout="pageDirection"
+        styleClass="fillinRadio" disabled="#{customizeLandingpageCtrl.fieldsDisabled}" onchange="setDirty(true)">
+        <f:selectItems value="#{customizeLandingpageModel.fillinItems}"
+          disabled="#{customizeLandingpageCtrl.fieldsDisabled}" />
+      </h:selectOneRadio>
+    </div>
+  </a4j:outputPanel>
+</ui:composition>

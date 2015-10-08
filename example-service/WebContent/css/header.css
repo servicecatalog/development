@@ -1,0 +1,110 @@
+@charset "utf-8";
+
+/*************************
+ Tag
+*************************/
+
+body {
+	margin: 0px;
+	padding: 0px;
+	color: #333;
+	font-family: Arial, sans-serif;
+	font-size: 9pt;
+	font-weight: normal;
+	line-height: 160%;
+}
+
+a {
+	color: #175DB5;
+	text-decoration: underline;
+}
+a:visited {
+	color: #175DB5;
+	text-decoration: underline;
+} 
+a:hover {
+	color: #0C246F;
+	text-decoration: underline;
+}
+a:active {
+	color: #0C246F;
+	text-decoration: underline;
+}
+
+
+/*************************
+ Global header
+*************************/
+
+/* Global header */
+#w_004_h_e_g_header {
+	width: 100%;
+	min-width: 580px;
+	height: 34px;
+	background: url(../img/header_logo.gif) left top repeat-x;
+}
+
+/* Product Series Logos */
+#w_004_h_e_g_header #w_004_h_e_logo{
+	float: left;
+	width: 100%;
+	height: 34px;
+	background: url(../img/header_logo.gif) left top no-repeat;
+}
+
+#w_004_h_e_g_header #w_004_h_e_g_header_r{
+	float: right;
+	width: auto;
+	height: 34px;
+}
+
+#w_004_h_e_g_header_ie6{
+	width:580px;
+}
+
+/* Fujitsu Logo */
+#w_004_h_e_logo_r{
+	float:right;
+	width: 93px;
+	height: 34px;
+	padding-left:0px;
+	background: url(../img/header_logo.gif) right top no-repeat;
+}
+
+/* user */
+
+#w_004_h_e_user p {
+	display:block;
+	float:right;
+	margin: 0px;
+	padding: 0px;
+	height: 34px;
+	color:#FFF;
+	font-size: 9pt;
+	line-height:30px;
+}
+
+.w_004_h_e_login_name {
+	font-weight: bold;
+	letter-spacing: 1px;
+}
+
+#w_004_h_e_user div.w_004_h_e_icon{
+	padding-top:7px;
+	padding-right:7px;
+}
+
+#w_004_h_e_user a {
+	margin-left: 8px;
+	padding-left: 10px;
+	background: url("../img/header_line.gif") no-repeat;
+	color: #FFF;
+	text-decoration:underline;
+}
+
+#w_004_h_e_user a:visited,
+#w_004_h_e_user a:hover,
+#w_004_h_e_user a:active {
+	color:#FFFFFF;
+	text-decoration:underline;
+}

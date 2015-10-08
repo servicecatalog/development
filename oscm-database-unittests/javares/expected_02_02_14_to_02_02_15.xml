@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Report tkey="15" reportname="Broker_RevenueShare" version="0" organizationrole_tkey="6" />
+  <LocalizedResource tkey="1" version="0" locale="de" objectkey="15" objecttype="REPORT_DESC" value="Bericht über Umsatzbeteiligung der Vermittler"/>
+  <LocalizedResource tkey="2" version="0" locale="en" objectkey="15" objecttype="REPORT_DESC" value="Broker revenue share report"/>
+
+  <Report tkey="16" reportname="Reseller_RevenueShare" version="0" organizationrole_tkey="7" />
+  <LocalizedResource tkey="3" version="0" locale="de" objectkey="16" objecttype="REPORT_DESC" value="Bericht über Umsatzbeteiligung der Wiederverkäufer"/>
+  <LocalizedResource tkey="4" version="0" locale="en" objectkey="16" objecttype="REPORT_DESC" value="Reseller revenue share report"/>
+  
+  <Report tkey="17" reportname="Partner_RevenueShare" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="5" version="0" locale="de" objectkey="17" objecttype="REPORT_DESC" value="Bericht über Umsatzbeteiligung der Vermittler und Wiederverkäufer"/>
+  <LocalizedResource tkey="6" version="0" locale="en" objectkey="17" objecttype="REPORT_DESC" value="Broker/reseller revenue share report"/>
+  
+  <Report tkey="18" reportname="Supplier_RevenueShare" version="0" organizationrole_tkey="1" />
+  <LocalizedResource tkey="7" version="0" locale="de" objectkey="18" objecttype="REPORT_DESC" value="Bericht über Umsatzbeteiligung"/>
+  <LocalizedResource tkey="8" version="0" locale="en" objectkey="18" objecttype="REPORT_DESC" value="Revenue share report"/>
+  
+  <Report tkey="19" reportname="Suppliers_RevenueShare" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="9" version="0" locale="de" objectkey="19" objecttype="REPORT_DESC" value="Bericht über Umsatzbeteiligung der Serviceanbieter"/>
+  <LocalizedResource tkey="10" version="0" locale="en" objectkey="19" objecttype="REPORT_DESC" value="Supplier revenue share report"/>
+</dataset>

@@ -1,0 +1,63 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testSupplierTerminateSubscription" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="init">
+    <webtest name="init for subscription termination test">
+      <mail.cleanInbox />
+
+      <!-- create org; login as admin; import technical services -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="providerOrgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="providerUserId" value="#{userId}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- define service and price model; activate service -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" configurableChecked="true" serviceId="testService" />
+      <setup:pricemodel.define serviceId="testService" isFree="true" />
+      <setup:service.activate serviceIds="testService" />
+      <login.logout />
+
+      <mail.cleanInbox />
+
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}"/> 
+      <!-- register customer and enable payment on invoice -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+
+      <!-- define a price model for the just created customer and activate it-->
+      <pricemodel.defineForCustomer serviceId="testService" isFree="true" />
+      <service.deActivate rowNr="1" checkCat="false" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:subscription.create subId="testSubscription" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="toBeRenamed" marketplaceId="${mId}" serviceKey="${svcKey}" />
+    </webtest>
+  </target>
+
+  <target name="testSupplierTerminateSubscription" depends="init">
+    <webtest name="testSupplierTerminateSubscription">
+      <login.loginAsSupplier url="${providerOrgUrl}" userId="${providerUserId}" />
+      <subscription.terminateBySupplier subscriptionId="testSubscription" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'toBeRenamed')]" />
+
+      <setup:subscription.rename subId="toBeRenamed" newSubId="renamed" />
+
+      <clickElement htmlId="terminateForm:terminateButton" />
+      <clickElement htmlId="confirmForm:okButton" />
+      <clickElement htmlId="terminateForm:confirmedTerminateButton" />
+      <verifyXPath xpath="//*[@id='errorMessages']" text="${ex.ConcurrentModificationException}" />
+      <login.logout />
+    </webtest>
+  </target>
+</project>

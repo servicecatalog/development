@@ -1,0 +1,94 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testServicePricedRoles" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="testServicePricedRoles">
+    <webtest name="testServicePricedRoles">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <!-- 1. Create new organization WEB UI role -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- 3.  Register new or updated technical service  -->
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- 4.  Define Market Service  -->
+      <setup:service.define configurableChecked="true" serviceId="#{marketServiceName}" techServiceId="Example_with_roles 1.00" />
+
+      <!-- 5. Define Market Service price model  -->
+      <common.ignorePageScriptError />
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="false"/>
+      <pricemodel.define serviceId="#{marketServiceName}" isFree="false"/>
+
+      <!-- 6. Verify saved prices -->
+      <login.logout />
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" password="secret" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{marketServiceName}" />
+      <verifyBasePrices />
+      <verifyEventPrices rowNr="0" tableId="editForm:eventTable" />
+      <verifyParameterPrices rowNr="1" tableId="editForm:parameterTable" />
+
+      <!-- 7. Define service roles prices  -->
+      <pricemodel.checkDefineRolePricesPopup_B9995 />
+      <pricemodel.defineRolePrices serviceId="#{marketServiceName}" />
+
+      <!-- 8. Verify definition service roles prices  -->
+      <login.logout />
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" password="secret" />
+      <pricemodel.verifyRolePrices serviceId="#{marketServiceName}" />
+
+      <!-- 9. Once again verify base saved prices after roles prices input -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{marketServiceName}" />
+      <verifyBasePrices />
+      <verifyEventPrices rowNr="0" tableId="editForm:eventTable" />
+      <verifyParameterPrices rowNr="1" tableId="editForm:parameterTable" />
+
+      <!-- 10. Delete market service -->
+      <service.delete serviceId="#{marketServiceName}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <macrodef name="pricemodel.checkDefineRolePricesPopup_B9995">
+    <attribute name="serviceId" default="MarketService1" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <pricemodel.setFree isFree="false" />
+      <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{serviceId}" />
+
+      <clickElement htmlId="editForm:rolesButton" />
+
+      <!-- Reteest Bug 9995: OK button initialy disabled and select one entry shown -->
+      <common.waitForJavaScript />
+      <verifyXPath description="Button initially disabled" xpath="//*[@id='roleForm:saveRolesButtonDisabled']" />
+      <verifyXPath description="Role combo present" xpath="//*[@id='roleForm:roleId']//*[contains(.,'${common.pleaseSelect}')]" />
+
+      <setSelectField htmlId="roleForm:roleId" text="ADMIN" />
+
+      <common.waitForJavaScript />
+      <verifyXPath description="Button enables after role selection" xpath="not(//*[@id='roleForm:saveRolesButtonDisabled'])" />
+
+    </sequential>
+  </macrodef>
+
+</project>

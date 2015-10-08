@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Project Build Invoker" basedir=".">
+	
+	<description>
+	  Builds a single project. The only purpose of this glue script is to
+	  include the optional project-specific custombuild.xml file that may
+	  (re-)define targets of the default script. Note that this script is always
+	  invoked from the build.xml master.
+    </description>
+
+    <property name="custombuild.file" location="custombuild.xml"/>
+    <import file="${custombuild.file}" optional="true"/>
+  
+    <property name="defaultprojectbuild.file" location="defaultprojectbuild.xml"/>
+    <import file="${defaultprojectbuild.file}" />
+		
+</project>

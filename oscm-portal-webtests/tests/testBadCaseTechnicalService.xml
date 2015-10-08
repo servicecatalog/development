@@ -1,0 +1,87 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCaseTechnicalService">
+  <import file="../macros/all.xml" />
+  <target name="testBadCaseTechnicalService">
+
+    <webtest name="testBadCaseTechnicalService">
+      <common.ignorePageScriptError />
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <dataDriven tableContainer="data/pageFields/techServiceRegisterExternalFields.xls">
+        <common.clickAndVerfyLink label="${techService.add.title}" />
+	    <setSelectField htmlId="editForm:accessType" value="EXTERNAL" />
+
+        <setInputField htmlId="editForm:technicalServiceId" value="123" />
+        <setInputField htmlId="editForm:baseUrl" value="http://www.qwert.com" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${techServiceRegisterExternalFields.att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+
+      </dataDriven>
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testBadCaseTechnicalServiceEdit">
+      <common.ignorePageScriptError />
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <techservice.import file="${techService.import.file}" />
+      
+      <!-- Bug 10159 -->
+      <verifyXPath xpath="//*[matches(@style, 'max-height: 100%;') and matches(@class,'table_padding')]" />
+      
+      <dataDriven tableContainer="data/pageFields/techServiceEditFields.xls">
+        <common.clickAndVerfyLink label="${techService.edit.title}" />
+
+        <setSelectField htmlId="techServiceForm:techServiceId" text="Example_with_roles 1.00" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+
+      </dataDriven>
+
+      <login.logout />
+    </webtest>
+
+  </target>
+</project>

@@ -1,0 +1,263 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_subscriptionDetail" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  
+  <target name="testMPL_subscriptionDetail">
+    <webtest name="Bug9047_testMPL_subscriptionDetail_priceModel">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceA" name="ServiceA" description="DescriptionServiceA" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+      <setup:pricemodel.define serviceId="ServiceA" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE" steppedPriceForParameter="MAX_FILE_NUMBER"/>
+      <setup:service.activate serviceIds="ServiceA" />
+      <login.logout/>
+      
+      <!-- Create a service with time slices -->
+      <setup:service.define serviceId="ServiceB" name="ServiceB" description="DescriptionServiceB" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:pricemodel.define serviceId="ServiceB" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" period="Hour"/> 
+      <login.logout />
+      <setup:service.activate serviceIds="ServiceB" />
+      
+      <mpl_goto.marketplace mId="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_goto.tab label="${service.priceModel}" />
+      <verifyXPath xpath="//*[@id='steppedPriceTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='steppedPriceTable:1:steppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+      <verifyXPath xpath="//*[@id='eventTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='eventTable:1:eventSteppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+      <verifyXPath xpath="//*[@id='parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
+      
+      <!-- Verify price model tab of ServiceB. -->
+      <mpl_goto.marketplace mId="${mId}" />
+      <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <!--test for bug#9531 -->
+      <verifyXPath xpath="//*[@class='relatedServicePrice']/text()" regex="true" text=".*per Week" />
+      <mpl_goto.tab label="${service.priceModel}" />
+      <verifyXPath xpath="//*[@id='oneTimeFee']/text()" text="19.00" />
+      <!--the timezone not show in canoo -->
+      <!--verifyXPath xpath="//*[@id='timezone']/text()" regex="true" text="${priceModel.period.timezone}.*" /-->
+      <!--test for bug#10568-->
+      <not>
+        <verifyText text="Full Hour" />
+      </not>
+      
+      
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_goto.tab label="${service.priceModel}" />
+      <verifyXPath xpath="//*[@id='steppedPriceTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='steppedPriceTable:1:steppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+      <verifyXPath xpath="//*[@id='eventTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='eventTable:1:eventSteppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+      <verifyXPath xpath="//*[@id='parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
+      <not>
+        <verifyXPath xpath="//*[@id='timezone']/text()" regex="true" text="${priceModel.period.timezone}.*" />
+      </not>
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
+      
+      <clickElement htmlId="configurationForm2:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <mpl_login.logout />
+    </webtest>
+    
+    <webtest name="Bug10143_testMPL_serviceDetail">   
+      <mpl_goto.marketplace mId="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <verifyXPath xpath="//*[@id='buyme']/@onclick" text=".*window\.open\('', 'Service'\);.*"  regex="true"/>
+    </webtest>
+  	
+    <webtest name="Bug10134_testMPL_RoleSpecificPrices "> 
+      <!-- create service with role specific prices -->
+      <login.login url="${supplierUrl}/organization/edit.jsf" userId="${supplierUserId}" />
+      <common.ignorePageScriptError/>
+      <service.define configurableChecked="true" serviceId="ServiceC" name="ServiceC" techServiceId="Example_with_roles 1.00" />
+      <pricemodel.defineRolePrices serviceId="ServiceC"/>
+      <service.publish serviceId="ServiceC" marketplaceId="${mId}" />
+      <setup:service.activate serviceIds="ServiceC" />
+      <login.logout /> 
+      
+      <!-- Verify role specific prices displays in service details -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton2" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_goto.tab label="${service.priceModel}" /> 
+      <verifyElementText htmlId="roleTable:0:roleDescription" text="Administrator"/>
+      
+      <clickLink htmlId="getItForLoggedUser" />
+      
+      <!-- Verify role specific prices displays for subscribe -->
+      <mpl_goto.tab label="${service.priceModel}" /> 
+      <verifyElementText htmlId="configurationForm2:roleTable:0:roleDescription" text="Administrator"/>
+      
+      <clickElement htmlId="configurationForm2:nextLink" />
+      <clickLink htmlId="payment:newBillingContact" />
+      <setInputField htmlId="billingContactPanelForm:companyName" value="companyName" />
+      <setInputField htmlId="billingContactPanelForm:displayName" value="displayName" />
+      <setInputField htmlId="billingContactPanelForm:email" value="mail@mail.de" />
+      <setInputField htmlId="billingContactPanelForm:address" value="ABC" />
+      <clickButton htmlId="billingContactPanelForm:saveBillingContactButton" />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+      
+      <!-- Verify role specific prices displays in subscription details -->
+      <mpl_goto.tab label="${service.priceModel}" /> 
+      <verifyElementText htmlId="roleTable:0:roleDescription" text="Administrator"/>
+    </webtest>
+
+ 	<webtest name="Bug11221_test_AsynCommit">
+	  <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceA" name="ServiceA" description="DescriptionServiceA" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+      <setup:pricemodel.define serviceId="ServiceA" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE" steppedPriceForParameter="MAX_FILE_NUMBER"/>
+      <setup:service.activate serviceIds="ServiceA" />
+      <login.logout/>
+      
+      <!-- Create a service with time slices -->
+      <setup:service.define serviceId="ServiceB" name="ServiceB" description="DescriptionServiceB" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:pricemodel.define serviceId="ServiceB" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" period="Hour"/> 
+      <login.logout />
+      <setup:service.activate serviceIds="ServiceB" />
+	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      
+ 	  <clickLink htmlId="buyme" />
+ 	  <clickElement htmlId="getItForLoggedUser" />
+      <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+      <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
+ 		
+	  <clickLink htmlId="configurationForm2:nextLink" />
+      <clickLink htmlId="payment:newBillingContact" />
+      <setInputField htmlId="billingContactPanelForm:companyName" value="companyName" />
+      <setInputField htmlId="billingContactPanelForm:displayName" value="displayName" />
+      <setInputField htmlId="billingContactPanelForm:email" value="mail@mail.de" />
+      <setInputField htmlId="billingContactPanelForm:address" value="ABC" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+  		
+	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+	  <clickLink htmlId="usersForm:assignUsersLink" />
+	  <clickElement xpath="//*[@id='assignUsersPanelForm:userTable:0:assignColAssign']" />
+	  <setCheckbox htmlId="assignUsersPanelForm:userTable:0:assignCheckbox" checked="false" />
+  	  <clickLink htmlId="assignUsersPanelForm:saveButton" />
+	</webtest>
+    
+  	<webtest name="Bug11386_test_ServiceEvent_SteppedPrice">
+  	  <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+  		
+  	  <setup:service.define serviceId="ServiceD" name="ServiceD" description="DescriptionServiceD" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+  	  <setup:pricemodel.define serviceId="ServiceD" isFree="false" steppedPriceForUser="true" steppedPriceForEvent="USER_LOGIN_TO_SERVICE" steppedPriceForParameter="0"/>
+  	  <setup:service.activate serviceIds="ServiceD" />
+  	  <login.logout/>
+  		
+  	  <mpl_goto.marketplace mId="${mId}" /> 
+  	  <clickLink htmlId="serviceButton2" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+  	  <mpl_goto.tab label="${service.priceModel}" />
+  		
+  	  <verifyXPath xpath="//*[@id='steppedPriceTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+  	  <verifyXPath xpath="//*[@id='steppedPriceTable:1:steppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+      <verifyXPath xpath="//*[@id='eventTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
+  	  <verifyXPath xpath="//*[@id='eventTable:1:eventSteppedPriceNoLimit']" text='${priceModel.steppedPrice.noLimit}' />
+  	</webtest>
+
+    <webtest name="Bug11581_test_RegisterAdditionalUsersLink">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceE" name="ServiceE" description="DescriptionServiceE" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true"/>
+      <setup:pricemodel.define serviceId="ServiceE" isFree="true" />
+      <login.logout />
+      <setup:service.activate serviceIds="ServiceE" />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+	  <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+	  <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+      <clickLink htmlId="usersForm:assignUsersLink" />
+      <common.waitForJavaScript />
+      <verifyXPath xpath="//a[@id='assignUsersPanelForm:addUser']" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.create userId="subscriptionManager" isSubMgr="true" />
+      <mpl_login.logout />
+      <mail.readPasswordAndUrlFromMail />
+
+      <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+	  <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="ServiceE_SubManager" />
+	  <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+
+      <clickLink htmlId="usersForm:assignUsersLink" />
+      <common.waitForJavaScript />
+      <not>
+      	<verifyXPath xpath="//a[@id='assignUsersPanelForm:addUser']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceDetail_cleanUp">
+      <scenario.deleteServices />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+    </webtest>
+  </target>
+</project>

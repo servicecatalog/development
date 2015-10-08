@@ -1,0 +1,153 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  
+  <target name="all" depends="testAccessTypeLOGIN_useViaPortal,testAccessTypeLOGIN_direct,testAccessTypeLOGIN_directWithPwdChange" />
+
+  <target name="initAccessTypeLOGIN">
+    <webtest name="initAccessTypeLOGIN">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <!-- Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- Platform login (admin) -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+        
+      <!-- define and activate service -->
+      <techservice.import file="data/TechnicalServices-LOGIN.xml" />
+      <setup:service.define svcKeyProperty="svcKey1" marketplaceId="${mId}" serviceId="#{marketServiceName}" />
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="true" />
+      <setup:service.activate serviceIds="#{marketServiceName}" />
+
+      <!-- Customer registration by supplier (admin)  -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+
+      <!-- Platform login (admin) -->
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <!-- 9. Subscribe to service -->
+      <setup:subscription.create subId="#{subscriptionName}" marketplaceId="${mId}" serviceKey="${svcKey1}" userIds="#{userId}" />
+
+      <!-- 10. Add platform user (admin2)  -->
+      <setup:user.register userId="badmin" organizationId="#{orgId}" marketplaceId="${mId}" roles="ORGANIZATION_ADMIN" />
+      <mail.readPasswordAndUrlFromMail />
+
+      <!-- 11. Add user subscription -->
+      <setup:subscription.addRevokeUser subscriptionId="#{subscriptionName}" usersToAdd="#{userKey}" />
+      <mail.readServiceUrlFromMail subId="#{subscriptionName}" />
+
+      <!-- Keep some properties for the actual tests -->
+      <property name="customerUrl" value="#{customerUrl}" />
+      <property name="customerUserId" value="#{customerUserId}" />
+      <property name="serviceUrl" value="#{serviceUrl}" />
+      <property name="serviceUserId" value="#{supplierUserId}" />
+      <property name="admin2UserId" value="#{userId}" />
+      <property name="admin2Pwd" value="#{userPwd}" />
+
+    </webtest>
+  </target>
+
+  <target name="testAccessTypeLOGIN_useViaPortal" depends="initAccessTypeLOGIN">
+    <webtest name="testAccessTypeLOGIN_useViaPortal">
+
+      <!-- configure the mock -->
+      <mock.settings userKey="${supplierUserKey}" />
+
+      <!-- Login to BES -->
+      <mpl_login.user userId="${customerUserId}" mid="${mId}" />
+
+      <!-- Use service when already logged-in -->
+      <invoke url="${serviceUrl}menu.jsp" />
+      <verifyTitle text="Mock Product" />
+
+      <!-- verify that we got an login request -->
+      <mock.clickQuickLink name="resolve" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+
+      <!-- verify that the token was resolved-->
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*admin.*" regex="true" />
+
+      <!-- now start the service again -->
+      <invoke url="${customerUrl}" />
+      <invoke url="${serviceUrl}menu.jsp" />
+      <verifyTitle text="Mock Product" />
+
+      <!-- verify that the login is not issued a second time -->
+      <followFrame name="requests" />
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*SessionService.resolveUserToken.*" regex="true" />
+
+    </webtest>
+  </target>
+
+  <target name="testAccessTypeLOGIN_direct" depends="initAccessTypeLOGIN">
+    <webtest name="testAccessTypeLOGIN_direct">
+
+      <!-- configure the mock -->
+      <mock.settings userKey="${supplierUserKey}" />
+
+      <!-- We need to login first -->
+      <mpl_login.loginService url="${serviceUrl}" userId="${customerUserId}" />
+
+      <!-- before we see the service -->
+      <verifyTitle text="Mock Product" />
+
+      <!-- verify that we got an login request -->
+      <mock.clickQuickLink name="resolve" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+
+      <!-- verify that the token was resolved-->
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*admin.*" regex="true" />
+
+    </webtest>
+  </target>
+
+  <target name="testAccessTypeLOGIN_directWithPwdChange" depends="initAccessTypeLOGIN">
+    <webtest name="testAccessTypeLOGIN_directWithPwdChange">
+
+      <!-- configure the mock -->
+      <mock.settings userKey="${supplierUserKey}" />
+
+      <!-- We need to login first and change the password -->
+      <mpl_login.loginServiceWithChangePassword url="${serviceUrl}" userId="${admin2UserId}" oldPassword="${admin2Pwd}"/>
+
+      <!-- before we see the service -->
+      <verifyTitle text="Mock Product" />
+
+      <!-- verify that we got an login request -->
+      <mock.clickQuickLink name="resolve" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+
+      <!-- verify that the token was resolved-->
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*badmin.*" regex="true" />
+
+    </webtest>
+  </target>
+
+</project>

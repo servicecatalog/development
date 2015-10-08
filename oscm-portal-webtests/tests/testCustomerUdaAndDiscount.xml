@@ -1,0 +1,149 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="tests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="tests">
+    <webtest name="testCustomerUdaAndDiscount">
+      <!-- 1. Create new organization with supplier role. -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- 2.  Platform login as supplier. -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <login.logout />
+
+      <login.login url="#{orgUrl}" userId="#{userId}" password="secret" />
+      <!-- 3. Customer registration by supplier.  -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+
+      <!-- Register some customer udas -->
+      <setup:udaDef.create numOfUdas="3" forCustomer="true" udaName="customerUda" defaultValue="defCSub" runAs="#{supplierUserKey}" />
+      <setup:udaDef.create numOfUdas="3" forCustomer="false" udaName="subscriptionUda" defaultValue="defSSub" runAs="#{supplierUserKey}" />
+
+      <mail.readPasswordAndUrlFromMail />
+
+      <storeProperty name="customerId" value="#{orgId}" />
+      <storeProperty name="address" value="New address" />
+      <storeProperty name="value" value="1.00" />
+      <storeProperty name="value2" value="8.00" />
+      <storeProperty name="valueWrong" value="101" />
+      <storeProperty name="valueEmpty" value="" />
+      <storeProperty name="from" value="06/2020" />
+      <storeProperty name="fromWrong" value="06/2001" />
+      <storeProperty name="thru" value="06/2021" />
+      <storeProperty name="thruWrong" value="06/2001" />
+
+      <invoke url="#{supplierUrl}" />
+
+      <!-- 4. Edit customer info. -->
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{thru}" concurrencyCheck="true" />
+      <user.checkCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{thru}" />
+
+      <!-- change cumstomer uda properties -->
+      <udas.update verify="true" rowNr="1" udaId="customerUda Second" defaultValue="def c value" userOption="true" mandatory="false" />
+      <udas.update verify="true" rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
+
+      <!-- error: change uda mandatory=true when userOption=false -->
+      <udas.update rowNr="0" udaId="customerUda First" defaultValue="def c value" userOption="false" mandatory="true" />
+      <udas.verify rowNr="0" udaId="customerUda First" defaultValue="def c value" userOption="false" mandatory="false" /> 
+
+      <!-- change subscription uda properties -->
+      <udas.update verify="true" forCustomer="false" rowNr="1" udaId="subscriptionUda Second" defaultValue="def s value" userOption="true" mandatory="false" />
+      <udas.update verify="true" forCustomer="false" rowNr="2" udaId="subscriptionUda Third" defaultValue="def sc value 3rd" userOption="true" mandatory="true" />
+
+      <!-- error: change uda mandatory=true when userOption=false -->
+      <udas.update mandatory="true" forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def c value" userOption="false"  />
+      <udas.verify mandatory="false" forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def c value" userOption="false"  />
+
+      <!-- Edit customer udas -->
+      <udas.updateCustomerUda orgName="${common.orgName}" orgId="#{orgId}" newValue="new customer value0" oldValueToCheck="defCSub" rowNr="0" concurrencyCheck="true" />
+      <udas.updateCustomerUda orgName="${common.orgName}" orgId="#{orgId}" newValue="some completeley new with special characters: ?=)(/%$§" oldValueToCheck="new customer value0" rowNr="0" />
+
+      <!-- Now delete the first uda definition ... -->
+      <udas.delete rowNr="0" />
+      <!-- ... and check that there is one instance deleted -->
+      <udas.checkCustomerUdaCount orgName="${common.orgName}" orgId="#{orgId}" expectedCount="2" />
+
+      <!-- 5. Go out form customer edit page, return and check customer info changes -->
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+      <user.checkCustomerInfo orgName="${common.orgName}" orgId="#{orgId}" email="${common.email}" address="${test.organization.address}" />
+
+      <!-- 6. Edit customer discount with not allowed value. -->
+      <not>
+        <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{valueWrong}" from="#{from}" thru="#{thru}" />
+      </not>
+
+      <!-- 7. Edit customer discount with wrong from date. -->
+      <!-- Bug 6075, 6073. From date can be set to past date. Thru date is not more mandatory. -->
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{fromWrong}" thru="#{thru}" />
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{valueEmpty}" />
+
+      <!-- 8. Edit customer discount with not allowed thru date. -->
+      <not>
+        <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{thruWrong}" />
+      </not>
+
+      <!-- 9. Edit customer discount. -->
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{thru}" concurrencyCheck="true" />
+
+      <!-- 10. Go out form customer edit page, return and check customer discount -->
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+      <user.checkCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{value}" from="#{from}" thru="#{thru}" />
+
+      <!--11 Bug 7491, enter empty discount to remove it -->
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{valueEmpty}" from="#{from}" thru="#{thru}" />
+      <user.checkCustomerDiscount orgName="${common.orgName}" orgId="#{orgId}" value="#{valueEmpty}" from="#{valueEmpty}" thru="#{valueEmpty}" />
+
+      <login.logout />
+
+      <!-- 12 Bug 8331 -->
+      <user.updateCustomerDiscountConcurrently orgUrl="#{supplierUrl}" userId="#{supplierUserId}" value1="#{value}" value2="#{value2}" />
+    </webtest>
+  </target>
+	
+	<target name="Bug10054">
+	    <webtest name="testCustomerUdaAndDiscount">
+	      <!-- 1. Create new organization with supplier role. -->
+	      <mail.cleanInbox />
+	      <operator.addCurrency />
+	      <operator.createorganization />
+	      <mail.readPasswordAndUrlFromMail />
+	      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+	      <storeProperty name="supplierId" value="#{orgId}" />
+	      <storeProperty name="supplierUserId" value="#{userId}" />
+	      <storeProperty name="supplierUserKey" value="#{userKey}" />
+	      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+	      <!-- 2.  Platform login as supplier. -->
+	      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+   	
+	      <!-- 3. Customer registration by supplier.  -->
+	      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+
+	      <mail.readPasswordAndUrlFromMail />
+
+	      <storeProperty name="customerId" value="#{orgId}" />
+	      <storeProperty name="value" value="20.00" />
+	      <storeProperty name="valueEmpty" value="" />
+	      <storeProperty name="thru" value="06/2021" />
+	      <storeProperty name="thruWrong" value="06/2001" />
+	    	
+	      <invoke url="#{supplierUrl}" />
+	    	
+	      <!-- 4. Bug 10054.  From date can be  empty. Thru date can not be set to past date-->
+	      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{customerId}" value="#{value}" from="#{valueEmpty}" thru="#{thru}" />
+	      <not>
+	            <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{customerId}" value="#{value}" from="#{valueEmpty}" thru="#{thruWrong}" />
+	      </not>
+    	</webtest>
+	 </target>
+</project>

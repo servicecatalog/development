@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1101" version="0" organizationid="SUPP1" registrationdate="1234" cutoffday="10" />
+
+  <Landingpage tkey="1200" version="0" numberservices="6" fillincriterion="ACTIVATION_DESCENDING" />
+  <Landingpage tkey="1201" version="0" numberservices="6" fillincriterion="ACTIVATION_DESCENDING" />
+
+  <RevenueShareModel tkey="1" version="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="2" version="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="3" version="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="4" version="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="5" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+  <RevenueShareModel tkey="6" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+
+  <RevenueShareModelHistory tkey="1" modtype="ADD" moduser="ANONYMOUS" objkey="1" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="2" modtype="ADD" moduser="ANONYMOUS" objkey="2" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="3" modtype="ADD" moduser="ANONYMOUS" objkey="3" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="4" modtype="ADD" moduser="ANONYMOUS" objkey="4" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="5" modtype="ADD" moduser="ANONYMOUS" objkey="5" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="6" modtype="ADD" moduser="ANONYMOUS" objkey="6" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" moddate="2011-04-03 14:31:00" invocationdate="2011-04-03 14:31:00" />
+
+  <!-- 3 entries for the default revenue shares of deleted marketplaces -->
+  <RevenueShareModelHistory tkey="7" modtype="ADD" moduser="ANONYMOUS" objkey="7" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="8" modtype="ADD" moduser="ANONYMOUS" objkey="8" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="9" modtype="ADD" moduser="ANONYMOUS" objkey="9" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+
+  <!-- 3 redundant default entries not referenced in any MarketplaceHistory table (to be deleted) -->
+  <RevenueShareModelHistory tkey="10" modtype="ADD" moduser="ANONYMOUS" objkey="10" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="11" modtype="ADD" moduser="ANONYMOUS" objkey="11" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="12" modtype="ADD" moduser="ANONYMOUS" objkey="12" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00" moddate="2011-04-03 14:31:00" />
+
+  <!-- Two existing marketplaces with corresponding MarketplaceHistory tables -->
+  <Marketplace tkey="1200" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101"
+    creationdate="121312312" landingpage_tkey="1200" pricemodel_tkey="5" brokerpricemodel_tkey="1"
+    resellerpricemodel_tkey="3" />
+  <Marketplace tkey="1201" version="0" marketplaceid="marketplaceid_2" organization_tkey="1101"
+    creationdate="121312312" landingpage_tkey="1201" pricemodel_tkey="6" brokerpricemodel_tkey="2"
+    resellerpricemodel_tkey="4" />
+  <MarketplaceHistory tkey="1101" marketplaceid="marketplaceid_1" organizationobjkey="1101"
+    creationdate="121312312" modtype="ADD" moduser="user" moddate="2011-04-05 11:32:00" objkey="1200" objversion="0"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="5" brokerpricemodelobjkey="1" resellerpricemodelobjkey="3" />
+  <MarketplaceHistory tkey="1102" marketplaceid="marketplaceid_2" organizationobjkey="1101"
+    creationdate="121312312" modtype="ADD" moduser="user" moddate="2011-04-05 11:32:00" objkey="1201" objversion="0"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="6" brokerpricemodelobjkey="2" resellerpricemodelobjkey="4" />
+
+  <!-- Two deleted marketplaces in MarketplaceHistory table, whose price model entries refer to the 3 default entries of 
+    the RevenueshareModelHistory -->
+  <MarketplaceHistory tkey="1103" marketplaceid="marketplaceid_3" organizationobjkey="1101"
+    creationdate="121312312" modtype="DELETE" moduser="user" moddate="2011-04-05 11:32:00" objkey="1" objversion="0"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="7" brokerpricemodelobjkey="8" resellerpricemodelobjkey="9" />
+  <MarketplaceHistory tkey="1104" marketplaceid="marketplaceid_4" organizationobjkey="1101"
+  creationdate="121312312" modtype="DELETE" moduser="user" moddate="2011-04-05 11:32:00" objkey="2" objversion="0" open="false"
+  taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" pricemodelobjkey="7"
+  brokerpricemodelobjkey="8" resellerpricemodelobjkey="9" />
+</dataset>

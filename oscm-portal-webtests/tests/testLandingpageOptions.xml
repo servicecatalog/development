@@ -1,0 +1,153 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testLandingpage" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testLandingpage" depends="setup, test, cleanup" />
+
+  <target name="setup">
+    <webtest name="testLandingpage_Setup">
+      <testInfo type="DESCRIPTION">testLandingpage_Setup:
+			</testInfo>
+
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- Services are created and published on the marketplace -->
+      <mpl_setup.createServices mId1="${MID1}" />
+    </webtest>
+  </target>
+
+  <target name="test" depends="setup">
+    <webtest name="testEnablementOnLandingpage">
+      <landingpage.loginAsSupplier />
+
+      <landingpage.openLandingpage />
+      <landingpage.verifyUIDisablementOnLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.verifyUIEnablementOnLandingpage />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testDefaultValuesOnLandingpage">
+      <landingpage.loginAsSupplier />
+
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.verifyDefaultValues />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testSaveWithoutChangesOnLandingpage">
+      <landingpage.loginAsSupplier />
+
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.saveLandingpage />
+      <landingpage.verifyDefaultValues />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testSaveChangesForPublicLandingpage">
+      <landingpage.loginAsSupplier />
+
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.changeValues />
+      <landingpage.saveLandingpage />
+      <landingpage.verifyChangedValues />
+
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.verifyChangedValues />
+
+      <landingpage.resetValues />
+      <verifyXPath xpath="//*[@for='customizeLandingpageForm:fillin:0']" text=" ${FillinCriterion.ACTIVATION_DESCENDING}"/>
+      <landingpage.saveLandingpage />
+      <landingpage.verifyDefaultValues />
+
+      <login.logout />
+    </webtest>
+  	
+    <webtest name="testSaveChangeWarning_10788">
+      <landingpage.loginAsSupplier />
+      <!-- switch landing page -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectEnterpriseLandingpageType />
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <login.logout />
+    </webtest>
+
+    <!-- switch from public to enterprise landingpage type-->
+    <webtest name="testSaveChangesForEnterpriseLandingpage">
+      <landingpage.loginAsSupplier />
+
+      <!-- switch landing page -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectEnterpriseLandingpageType />
+      <landingpage.saveLandingpage />
+      <landingpage.verifyEnterpriseLandingpageValues />
+
+      <!-- reset -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.saveLandingpage />
+
+      <login.logout />
+    </webtest>
+
+    <!-- Canoo Webtest Bug
+    <webtest name="testResetLandingpage">
+      
+      <landingpage.loginAsSupplier />
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.changeValues />
+      <landingpage.saveLandingpage />
+      <login.logout />
+
+      <landingpage.loginAsSupplier />
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.resetLandingpage />
+      <landingpage.verifyDefaultValues />
+      <login.logout />
+    </webtest>
+    -->
+
+    <webtest name="testResetLandingpage_doNotConfirm">
+      <landingpage.loginAsSupplier />
+
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.changeValues />
+      <landingpage.saveLandingpage />
+      <landingpage.resetLandingpage confirm="false" />
+      <landingpage.verifyChangedValues />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+
+  <target name="cleanup" depends="setup">
+    <webtest name="cleanup">
+      <landingpage.deleteServices url="${supplierUrl}" userId="${supplierUserId}" />
+      <operator.deleteMarketplaces marketplaceIds="${MID1}" />
+    </webtest>
+  </target>
+
+</project>

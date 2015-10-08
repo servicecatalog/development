@@ -1,0 +1,59 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails timezone="GMT">
+  <Period startDate="1356994800000" startDateIsoFormat="2012-12-31T23:00:00.000Z" endDate="1359673200000" endDateIsoFormat="2013-01-31T23:00:00.000Z"/>
+  <OrganizationDetails>
+    <Email>test@test.de</Email>
+    <Name>TestOrg</Name>
+    <Address>Address of TestOrg</Address>
+    <Paymenttype>INVOICE</Paymenttype>
+    <Udas/>
+  </OrganizationDetails>
+  <Subscriptions>
+    <Subscription id="perunitserviceMonth">
+      <PriceModels>
+        <PriceModel calculationMode="PER_UNIT" id="10004">
+          <UsagePeriod startDate="1359101949091" startDateIsoFormat="2013-01-25T08:19:09.091Z" endDate="1359673200000" endDateIsoFormat="2013-01-31T23:00:00.000Z"/>
+          <PeriodFee basePeriod="MONTH" basePrice="2" factor="1.0" price="2.00"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="6" factor="1.0" numberOfUsersTotal="1" price="6.00">
+            <UserAssignmentCostsByUser factor="1.0" userId="customer"/>
+          </UserAssignmentCosts><OneTimeFee amount="3.00" baseAmount="3" factor="1"/>
+          <Parameters>
+            <Parameter id="NAMED_USER">
+              <ParameterUsagePeriod startDate="1359101949091" startDateIsoFormat="2013-01-25T08:19:09.091Z" endDate="1359101949091" endDateIsoFormat="2013-01-25T08:19:09.091Z"/>
+              <ParameterValue amount="4" type="LONG"/><PeriodFee basePeriod="MONTH" basePrice="4" factor="1.0" price="16.00" valueFactor="4.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="32" factor="0.0" price="0.00" total="0.00" valueFactor="4.0"/>
+              <ParameterCosts amount="16.00"/>
+            </Parameter>
+            <Parameter id="CONCURRENT_USER">
+              <ParameterUsagePeriod startDate="1359101949091" startDateIsoFormat="2013-01-25T08:19:09.091Z" endDate="1359101949091" endDateIsoFormat="2013-01-25T08:19:09.091Z"/>
+              <ParameterValue amount="5" type="LONG"/><PeriodFee basePeriod="MONTH" basePrice="3" factor="1.0" price="15.00" valueFactor="5.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="201" factor="0.0" price="0.00" total="0.00" valueFactor="5.0"/>
+              <ParameterCosts amount="15.00"/>
+            </Parameter>
+            <Parameter id="PERIOD">
+              <ParameterUsagePeriod startDate="1359101949091" startDateIsoFormat="2013-01-25T08:19:09.091Z" endDate="1359101949091" endDateIsoFormat="2013-01-25T08:19:09.091Z"/>
+              <ParameterValue amount="691200000" type="DURATION"/><PeriodFee basePeriod="MONTH" basePrice="3" factor="1.0" price="24.00" valueFactor="8.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="4" factor="0.0" price="0.00" total="0.00" valueFactor="8.0"/>
+              <ParameterCosts amount="24.00"/>
+            </Parameter>
+            <Parameter id="MEMORY_STORAGE">
+              <ParameterUsagePeriod startDate="1359101949091" startDateIsoFormat="2013-01-25T08:19:09.091Z" endDate="1359673200000" endDateIsoFormat="2013-01-31T23:00:00.000Z"/>
+              <ParameterValue amount="2" type="ENUMERATION"/>
+              <Options>
+                <Option id="2">
+                  <PeriodFee basePeriod="MONTH" basePrice="4" factor="1.0" price="4.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="32" factor="1.0" total="32.00" price="32.00"/>
+                  <OptionCosts amount="36.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="36.00"/>
+            </Parameter>
+            <ParametersCosts amount="91.00"/>
+          </Parameters>
+          <PriceModelCosts currency="EUR" grossAmount="102.00" amount="102.00"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts netAmount="102.00" currency="EUR" grossAmount="102.00"/>
+</BillingDetails>

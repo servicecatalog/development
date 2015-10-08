@@ -1,0 +1,272 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.managePSPs" />
+    <c:set var="focusElement" value="pspId" />
+  </ui:define>
+
+  <ui:define name="body">
+    <c:set var="pspSelected" value="#{operatorOrgBean.selectedPSP.id != null}" />
+    <c:set var="selectedPSP" value="#{operatorOrgBean.selectedPSP}" />
+    <c:set var="normalWidth" value="20%" />
+    <c:set var="moreWidth" value="60%" />
+    
+    <c:set var="imgUrl" value="/img" />
+    <c:set var="sortIcon" value="#{imgUrl}/transparentPixel.png?id=sort" />
+    <c:set var="sortIconAscending" value="#{imgUrl}/transparentPixel.png?id=sortAscending" />
+    <c:set var="sortIconDescending" value="#{imgUrl}/transparentPixel.png?id=sortDescending" />
+      
+    <a4j:outputPanel layout="block">
+      <ui:include src="paymentTypePSP.xhtml">
+        <ui:param name="dialogId" value="paymentTypePSP" />
+        <ui:param name="dialogHelpId" value="psp_managePaymentTypes" />
+        <c:if test="#{!sessionBean.ie}">
+          <ui:param name="dialogHeight" value="275" />
+        </c:if>
+        <c:if test="#{sessionBean.ie}">
+          <ui:param name="dialogHeight" value="245" />
+        </c:if>
+      </ui:include>
+    </a4j:outputPanel>
+
+    <!-- combo-box to select a psp -->
+    <h:form id="selectPSPForm">
+    <adm:outputStep id="idSelectTitle" value="#{msg['operator.managePSPs.select.title']}" />
+    <adm:panelGrid>
+      <adm:outputLabel textId="idPspSelect" value="#{msg['operator.managePSPs.select']}" />
+      <a4j:outputPanel styleClass="jqSelect" layout="block">
+        <a4j:outputPanel styleClass="select">
+          <a4j:outputPanel styleClass="option" />
+        </a4j:outputPanel>
+        <h:selectOneMenu id="pspId" styleClass="select" value="#{operatorOrgBean.selectedPSP}" converter="#{pSPConverter}">
+          <adm:selectItemPleaseSelect itemValue="#{null}" />
+          <f:selectItems value="#{operatorOrgBean.PSPs}" var="psp" itemLabel="#{psp.id}" itemValue="#{psp}"/>
+          <a4j:ajax event="valueChange" render=":managePSPsForm" execute="@form"
+            oncomplete="AdmUtils.removeChildren(document.getElementById('infoPanel'));"/>
+        </h:selectOneMenu>
+      </a4j:outputPanel>
+      <h:panelGroup />
+    </adm:panelGrid>
+    <a4j:commandButton style="display:none;" id="refreshPaymentTypesButton" onclick="setDirty(false);"
+        value="#{msg['button.save']}" render=":managePSPsForm" execute="@form"/>
+    </h:form>
+    <adm:outputStep id="idPspLabel" value="#{msg['operator.managePSPs.label']}" />
+    <h:form id="managePSPsForm">
+      <h:inputHidden value="#{operatorOrgBean.token}" />
+      <!-- basic psp data -->
+      <adm:panelGrid>
+        <adm:labelAndInputText id="pspIdentifier" label="#{msg['operator.createPSP.identifier']}"
+          value="#{operatorOrgBean.selectedPSP.id}" maxlength="#{appBean.idLen}" disabled="#{!pspSelected}"
+          required="true" validatorId="idChar" converterId="trimConverter" />
+
+        <adm:labelAndInputText id="pspWsdl" label="#{msg['operator.createPSP.wsdl']}"
+          value="#{operatorOrgBean.selectedPSP.wsdlUrl}" maxlength="#{appBean.descriptionLen}"
+          disabled="#{!pspSelected}" required="true" validatorId="url" />
+
+        <adm:labelAndInputTextarea id="pspDistinguishedName" label="#{msg['operator.createPSP.distinguishedName']}"
+          value="#{operatorOrgBean.selectedPSP.distinguishedName}" maxlength="#{appBean.DNLen}"
+          disabled="#{!pspSelected}" required="true" converterId="trimConverter"/>
+      </adm:panelGrid>
+
+      <!-- table: psp settings -->
+      <adm:outputStep id="idPspAttributesTitle" value="#{msg['operator.managePSPs.definePSPAttributes.title']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel" id="pspSettingsTableParent">
+        <a4j:outputPanel id="scriptPanel" layout="block">
+          <script type="text/javascript">
+                AdmUtils.highlightTableHeader();
+              </script>
+        </a4j:outputPanel>
+
+        <adm:dataTable tableId="pspSettingsTable"
+                       value="#{operatorOrgBean.PSPSettings}"
+                       columnsWidth="0*,0*,100%"
+                       render="scriptPanel"
+                       emptyText="#{msg['operator.managePSPs.noConfigurationKeysDefined']}"
+                       disabled="#{!pspSelected}">
+
+          <rich:column style="text-align:center" width="5%">
+            <!-- delete checkbox -->
+            <f:facet name="header">
+              <h:outputText value="#{msg['button.delete']}" />
+            </f:facet>
+            <h:selectBooleanCheckbox value="#{rowItem.selected}" onchange="setDirty(true)" id="deletePSPSetting" />
+
+            <!-- read by javascript to determine if a confirmation message should be shown in case of a delete operation-->
+            <h:outputText id="newSetting" value="#{rowItem.newDefinition}" style="display: none;" />
+          </rich:column>
+
+          <rich:column width="40%" >
+            <!-- key -->
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.managePSPs.key']}" />
+            </f:facet>
+
+            <c:set var="checkboxValue" value="managePSPsForm:pspSettingsTable:#{rowKey}:deletePSPSetting" />
+            <h:inputText id="pspSettingKey" label="#{msg['operator.managePSPs.key']}" onchange="setDirty(true)"
+              value="#{rowItem.definition.settingKey}" styleClass="fieldS" maxlength="#{appBean.idLen}"
+              required="#{empty param[checkboxValue]}">
+              <f:validator validatorId="idChar" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <adm:message id="pspSettingKeyErrorMsg" for="pspSettingKey" />
+          </rich:column>
+
+          <rich:column >
+            <!-- value -->
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.managePSPs.value']}" />
+            </f:facet>
+
+            <h:inputText id="pspSettingValue" label="#{msg['operator.managePSPs.value']}" onchange="setDirty(true)"
+              value="#{rowItem.definition.settingValue}" styleClass="field" maxlength="#{appBean.descriptionLen}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <!-- button: add psp setting -->
+      <a4j:commandButton id="hiddenAddPSPSettingRow" render="pspSettingsTableParent addPSPSettingRow" style="visibility: hidden"
+                         actionListener="#{operatorOrgBean.addPSPSettingRow}"
+                         onclick="AdmUtils.showProgress(true); "
+                         oncomplete="AdmUtils.showProgress(false);" />
+      <adm:buttonPanelSub columns="1">
+        <adm:buttonCustomizedOnClick id="addPSPSettingRow" value="#{msg['button.add']}" disabled="#{!pspSelected}"
+          class="button"
+          onclick="setDummyValueForConfigFields();#{rich:element('hiddenAddPSPSettingRow')}.click();return false"
+          buttonType="add" />
+      </adm:buttonPanelSub>
+
+      <!-- table: psp payment types  -->
+      <adm:outputStep id="idPspPaymentTypes" value="#{msg['operator.managePSPs.definePSPPaymentTypes.title']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+
+        <a4j:jsFunction name="selectPaymentTypeItem"
+          render=":paymentTypePSPForm"
+          action="#{operatorOrgBean.prepareDataForEditPaymentType}"
+          oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();RichFaces.$('paymentTypePSP').show();">
+          <a4j:param name="param1" assignTo="#{operatorOrgBean.selectedPaymentTypeKey}" />
+        </a4j:jsFunction>
+
+        <a4j:jsFunction name="newPaymentTypeItem" render=":paymentTypePSPForm"
+          actionListener="#{operatorOrgBean.prepareDataForNewPaymentType}"
+          oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();RichFaces.$('paymentTypePSP').show();AdmUtils.focusElementById('paymentTypePSPForm:paymentTypeName');">
+        </a4j:jsFunction>
+
+        <a4j:outputPanel layout="block" styleClass="tablePanel table_padding" style="margin-top: 10px;" id="paymentTypeListTableParent">
+          <a4j:region>
+            <h:outputText id="paymentTypeListTableEmptyText" styleClass="block #{styleClass}"
+              value="#{msg['operator.managePSPs.noPaymentTypesDefined']}"
+              rendered="#{empty operatorOrgBean.selectedPSP.paymentTypes}" escape="false" />
+
+            <rich:dataTable width="100%" style="min-width:680px;position:relative;" headerClass="rowTitle"
+              rowClasses="rowOdd,rowEven" id="paymentTypeListTable" value="#{operatorOrgBean.selectedPSP.paymentTypes}"
+              var="paymentType" columnClasses="smallCell,smallCell,smallCell,smallCell" selectionMode="single"
+              onrowclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectPaymentTypeItem(#{paymentType.key});}"
+              onrowmouseover="AdmUtils.mouseOverRow(this);" onrowmouseout="AdmUtils.mouseOutRow(this)"
+              enableContextMenu="false" noDataLabel=" " disabled="#{!pspSelected}" render="scriptPanel" 
+              rendered="#{not empty operatorOrgBean.selectedPSP.paymentTypes}">
+
+              <rich:column id="nameCol" width="#{normalWidth}" sortBy="#{paymentType.name}" 
+                  sortOrder="ascending" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+                <f:facet name="header">
+                  <h:outputText value="#{msg['payment.paymentName']}" />
+                </f:facet>
+                <h:outputText id="name" value="#{paymentType.name}" />
+              </rich:column>
+
+              <rich:column sortBy="#{paymentType.paymentTypeId}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+                <f:facet name="header">
+                  <h:outputText value="#{msg['payment.select']}" />
+                </f:facet>
+                <h:outputText id="pspId" value="#{paymentType.paymentTypeId}" />
+              </rich:column>
+            </rich:dataTable>
+          </a4j:region>
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+
+      <!-- button: add psp type -->
+      <adm:buttonPanelSub  rendered="#{pspSelected}">
+        <adm:buttonCustomizedOnClick id="addPSPPaymentType" value="#{msg['button.add']}" bean="#{operatorOrgBean}"
+          action="" buttonType="add" onclick="if(AdmUtils.isNotDirtyOrConfirmed()){newPaymentTypeItem();} return false;" />
+      </adm:buttonPanelSub>
+      <adm:spacer height="14" />
+
+      <!-- button: save page -->
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}" disabled="#{!pspSelected}"
+          class="button" onclick="showConfirm();return false;" buttonType="save" />
+      </adm:buttonPanel>
+
+      <h:inputHidden value="#{operatorOrgBean.token}" />
+      
+      <!-- button: confirm button -->
+      <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+    	  value="#{msg['button.delete']}" action="#{operatorOrgBean.savePSP}"/>
+    </h:form>
+    <adm:confirmPanel text="#{msg['confirm.pspSettings.delete']}"/>
+
+    <script type="text/javascript">
+  	  /* returns true if a delete checkbox for an already saved value is selected */
+	  conditionalTableRowCheck = function(table) {
+	    var result = false;
+	  	if (table != null) {
+		  var body = table.tBodies[0];
+		  if (body) {
+		    var rows = body.rows;
+		  	for (var i = 0; i &lt; rows.length &amp;&amp; !result; i++) {  
+			  var node = rows[i].cells[0].firstChild;
+			  var nextNode = rows[i].cells[0].lastChild;
+		      result = node.checked &amp;&amp; nextNode.innerHTML=='false';
+		  	}
+		  }
+	    }
+	    return result;
+ 	 }
+
+     showConfirm = function() {
+  	   var result = conditionalTableRowCheck(#{rich:element('pspSettingsTable')});
+       if (result) {
+         #{rich:component('confirmPanel')}.show();
+       } else {
+         #{rich:element('confirmedButton')}.click();
+       }
+     }
+
+     setDummyValueForConfigFields = function() {
+    	 var fields = document.getElementsByTagName('input');
+    	 if (fields) {
+    		 for (var field in fields) {
+    			 if (fields[field].id &amp;&amp; fields[field].id.indexOf(':pspSettingKey') > 0 &amp;&amp;
+    					 (!fields[field].value || fields[field].value.replace(/^\s+|\s+$/g, '').length == 0)) {
+    				 fields[field].value = '                                                                              .';
+    			 }
+    		 }
+    	 }
+    	 setDirty(false);
+     }
+
+     initConfigFields = function() {
+    	 var fields = document.getElementsByTagName('input');
+    	 if (fields) {
+    		 for (var field in fields) {
+    			 if (fields[field].id &amp;&amp; fields[field].id.indexOf(':pspSettingKey') > 0 &amp;&amp;
+    					 fields[field].value == '.') {
+    				 fields[field].value = '';
+    				 setDirty(true);
+    			 }
+    		 }
+    	 }
+     }
+
+     initConfigFields();
+    </script>
+
+  </ui:define>
+</ui:composition>

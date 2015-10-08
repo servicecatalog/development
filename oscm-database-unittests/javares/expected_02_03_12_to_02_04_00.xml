@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Report tkey="20" reportname="Supplier_BillingOfASupplier" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="1" version="0" locale="en" objectkey="20" objecttype="REPORT_DESC" value="Billing report (of a supplier)"/>
+  <LocalizedResource tkey="2" version="0" locale="de" objectkey="20" objecttype="REPORT_DESC" value="Rechnungsbericht (eines Serviceanbieters)"/>
+  <LocalizedResource tkey="3" version="0" locale="ja" objectkey="20" objecttype="REPORT_DESC" value="請求書情報 (サービス提供部門)"/>
+
+  <Report tkey="21" reportname="Supplier_BillingDetailsOfASupplier" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="4" version="0" locale="en" objectkey="21" objecttype="REPORT_DESC" value="Detailed billing report for an existing invoice of a supplier's customer"/>
+  <LocalizedResource tkey="5" version="0" locale="de" objectkey="21" objecttype="REPORT_DESC" value="Detaillierter Rechnungsbericht für eine existierende Rechnung von einem Kunden eines Serviceanbieters"/>
+  <LocalizedResource tkey="6" version="0" locale="ja" objectkey="21" objecttype="REPORT_DESC" value="サービス利用部門の請求書明細 (サービス提供部門)"/>
+  
+  <Report tkey="22" reportname="Supplier_CustomerOfASupplier" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="7" version="0" locale="en" objectkey="22" objecttype="REPORT_DESC" value="Customer report (of a supplier)"/>
+  <LocalizedResource tkey="8" version="0" locale="de" objectkey="22" objecttype="REPORT_DESC" value="Kundenbericht (eines Serviceanbieters)"/>
+  <LocalizedResource tkey="9" version="0" locale="ja" objectkey="22" objecttype="REPORT_DESC" value="サービス利用部門情報 (サービス提供部門)"/>
+  
+  <Report tkey="23" reportname="Supplier_ProductOfASupplier" version="0" organizationrole_tkey="4" />
+  <LocalizedResource tkey="10" version="0" locale="en" objectkey="23" objecttype="REPORT_DESC" value="Service report (of a supplier)"/>
+  <LocalizedResource tkey="11" version="0" locale="de" objectkey="23" objecttype="REPORT_DESC" value="Servicebericht (eines Serviceanbieters)"/>
+  <LocalizedResource tkey="12" version="0" locale="ja" objectkey="23" objecttype="REPORT_DESC" value="サービス情報 (サービス提供部門)"/>
+</dataset>

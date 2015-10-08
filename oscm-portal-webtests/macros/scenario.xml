@@ -1,0 +1,168 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+  <!-- create supplier, change his password and add payment types -->
+  <macrodef name="scenario.setupSupplier">
+    <sequential>
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Similar to "createServices" but creates only 2 services  -->
+  <macrodef name="scenario.createSimpleServices">
+    <attribute name="namedUser" default="1" />
+    <attribute name="mid" />
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+
+      <setup:service.define serviceId="MegaOffice0" name="Mega Office Trial" description="Limited evaluation version." namedUser="@{namedUser}" image="data/images/icon1.png" marketplaceId="@{mid}" />
+      <setup:service.define serviceId="MegaOffice1" name="Mega Office Starter" description="Starter bundle with limited features." configurableChecked="true" namedUser="@{namedUser}" image="data/images/icon2.png" marketplaceId="@{mid}" />
+
+      <setup:pricemodel.define serviceId="MegaOffice0" isFree="true" description="Completely free" />
+      <setup:pricemodel.define serviceId="MegaOffice1" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+
+      <service.defineMigrationOption srcServiceId="MegaOffice0" trgServiceIndex="0" checked="true" />
+
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Similar to "deleteServices" but creates only 2 services  -->
+  <!-- Note that before using this macro, you have to log out if being logged in before -->
+  <macrodef name="scenario.deleteSimpleServices">
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <service.deActivate rowNr="0" active="false" />
+      <service.deActivate rowNr="1" active="false" />
+
+      <service.delete serviceId="MegaOffice0" />
+      <service.delete serviceId="MegaOffice1" />
+
+      <login.logout />
+      <mail.cleanInbox />
+    </sequential>
+  </macrodef>
+
+  <!-- Similar to "verifyServices" but verifies only 2 services  -->
+  <macrodef name="scenario.verifySimpleServicesHomePage">
+    <attribute name="mid" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{mid}" />
+      <mpl_verify.service_home pos="0" svcName="Mega Office Trial" />
+      <mpl_verify.service_home pos="1" svcName="Mega Office Starter" />
+      <not>
+        <verifyElementText description="Verify no further service is visible" htmlId="service2Name" text=".*" regex="true" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- Supplier: Login, import service definition, create + activate 6 marketable services (incl. price model + upgrade options) in global marketplace -->
+  <macrodef name="scenario.createServices">
+    <attribute name="numberAdditionalServices" default="0" />
+    <attribute name="mid" />
+    <sequential>
+      <storeProperty name="nrAddSvcs" value="@{numberAdditionalServices}" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+
+      <setup:service.define serviceId="MegaOffice0" name="Mega Office Trial" description="Limited evaluation version." namedUser="1" image="data/images/icon1.png" marketplaceId="@{mid}" svcKeyProperty="@{serviceKey}"/>
+      <setup:service.define serviceId="MegaOffice1" name="Mega Office Starter" description="Starter bundle with limited features." configurableChecked="true" namedUser="1" image="data/images/icon2.png" marketplaceId="@{mid}" svcKeyProperty="svcKey1"/>
+      <setup:service.define serviceId="MegaOffice2" name="Mega Office Basic" description="Basic bundle with all features but no support." configurableChecked="true" namedUser="1" image="data/images/icon3.png" marketplaceId="@{mid}" svcKeyProperty="svcKey2"/>
+      <setup:service.define serviceId="MegaOffice3" name="Mega Office Student" description="Basic bundle with all features but no support - special student price." configurableChecked="true" namedUser="1" image="data/images/icon4.png" marketplaceId="@{mid}" svcKeyProperty="svcKey3"/>
+      <setup:service.define serviceId="MegaOffice4" name="Mega Office Enterprise" description="Enterprise edition with full support and unlimited usage licenses." configurableChecked="true" image="data/images/icon5.png" marketplaceId="@{mid}" svcKeyProperty="svcKey4"/>
+      <setup:service.define serviceId="MegaOffice5" name="Mega Office Professional" description="'Professional edition with full support - up to 5 users" configurableChecked="true" namedUser="5" image="data/images/icon6.png" marketplaceId="@{mid}" svcKeyProperty="svcKey5"/>
+
+      <setup:pricemodel.define serviceId="MegaOffice0" isFree="true" />
+      <setup:pricemodel.define serviceId="MegaOffice1" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:pricemodel.define serviceId="MegaOffice2" isFree="false" description="Only 49,- per Month" basePrice="49" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:pricemodel.define serviceId="MegaOffice3" isFree="false" description="Only 29,- per Month" basePrice="29" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:pricemodel.define serviceId="MegaOffice4" isFree="false" description="99,- per month. Additional costs will be caused by usage." basePrice="99" steppedPriceForParameter="3" steppedPriceForEvent="1" />
+      <setup:pricemodel.define serviceId="MegaOffice5" isFree="false" description="199,- per month. Additional costs will be caused by usage" basePrice="199" steppedPriceForParameter="2" steppedPriceForEvent="2" />
+
+      <setup:service.defineMigrationOptions serviceId="MegaOffice0" migrationTargetIds="MegaOffice1,MegaOffice2,MegaOffice3" />
+      <setup:service.defineMigrationOptions serviceId="MegaOffice1" migrationTargetIds="MegaOffice2,MegaOffice3,MegaOffice4" />
+      <setup:service.defineMigrationOptions serviceId="MegaOffice2" migrationTargetIds="MegaOffice3,MegaOffice4,MegaOffice5" />
+
+      <storeProperty name="svcCount" value="#{nrAddSvcs}+6" eval="true" />
+
+      <!-- define and activate additional free services if specified so -->
+      <repeat count="#{nrAddSvcs}" countername="i">
+        <storeProperty name="counter" value="#{i}+6" eval="true" />
+        <setup:service.define serviceId="MegaOffice#{counter}" name="Mega Office #{counter}" description="Description #{counter}" namedUser="1" marketplaceId="@{mid}" />
+        <setup:pricemodel.define serviceId="MegaOffice#{counter}" isFree="true" />
+      </repeat>
+      <setup:service.activate serviceIds="MegaOffice" start="0" count="#{svcCount}" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Supplier: Login, import service definition, create + activate 6 marketable services (incl. price model + upgrade options) in global marketplace -->
+  <macrodef name="scenario.verifyServicesHomePage">
+    <attribute name="mid" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{mid}" />
+      <mpl_verify.service_home pos="0" svcName="Mega Office Trial" />
+      <mpl_verify.service_home pos="1" svcName="Mega Office Starter" />
+      <mpl_verify.service_home pos="2" svcName="Mega Office Basic" />
+      <mpl_verify.service_home pos="3" svcName="Mega Office Student" />
+      <mpl_verify.service_home pos="4" svcName="Mega Office Enterprise" />
+      <mpl_verify.service_home pos="5" svcName="Mega Office Professional" />
+      <not>
+        <verifyElementText description="Verify no further service is visible" htmlId="service6Name" text=".*" regex="true" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- Supplier: Login, de-activate + delete the 6 + additional (if specified) marketable services -->
+  <!-- Note that before using this macro, you have to log out if being logged in before -->
+  <macrodef name="scenario.deleteServices">
+    <sequential>
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <mail.cleanInbox />
+    </sequential>
+  </macrodef>
+
+  <!-- Cleans up any left services (if any, e.g. from a previous test which has failed)  -->
+  <macrodef name="scenario.cleanUpLeftServicesIfAny">
+    <attribute name="url" />
+    <attribute name="uId" />
+    <sequential>
+      
+      <common.storePropertyWithRetry propertyName="suppUrl" propertyValue="@{url}" propertyType="ant" />
+      <common.storePropertyWithRetry propertyName="suppUserId" propertyValue="@{uId}" propertyType="ant" />
+
+      <login.loginAsSupplier url="${suppUrl}" userId="${suppUserId}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <storeXPath description="Get the number of table entries." xpath="count(//tbody[@id='serviceDeActivationForm:activationTable:tb']/tr)" property="rowCount" propertyType="dynamic" />
+
+      <repeat count="#{rowCount}">
+        <service.deActivate rowNr="0" active="false" checkCat="false"/>
+        <storeXPath xpath="//span[matches(@id, 'serviceDeActivationForm:activationTable:0:serviceId')]/text()" property="svcId" description="store service id of service in first row" />
+        <service.delete serviceId="#{svcId}" />
+      </repeat>
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

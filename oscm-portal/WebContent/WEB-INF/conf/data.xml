@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<config>
+
+  <server className="org.oscm.j2ep.AdmServer"> 
+      <rule className="org.oscm.j2ep.AdmRule"/> 
+  </server> 
+
+</config>

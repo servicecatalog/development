@@ -1,0 +1,145 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!--
+  ~ *******************************************************************************
+  ~ *
+  ~ *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.
+  ~ *
+  ~ *  Creation Date: 27.01.15 10:05
+  ~ *
+  ~ *******************************************************************************
+  -->
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace" template="../../templates/main.xhtml">
+  
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.subscriptions.upgrade" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+    <c:set var="bodyClass" value="body5span" />
+  </ui:define>
+
+    <ui:define name="breadcrumbs">
+        <mp:breadcrumbs>
+            <mp:crumb labelPageId="marketplace.account" link="/marketplace/account/index.jsf" />
+            <mp:crumb labelPageId="marketplace.account.subscriptions" link="/marketplace/account/subscriptions.jsf" />
+            <mp:crumb label="#{upgradeWizardConversation.model.selectedSubscriptionId}" />
+        </mp:breadcrumbs>
+    </ui:define>
+
+    <ui:define name="contents">
+    <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
+
+      <mp:subscriptionProcess active="configuration"
+                              showPayment="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
+                              service="#{upgradeWizardConversation.model.service}">
+
+        <!-- TABS -->
+        <rich:tabPanel headerAlignment="left" switchType="client">
+
+          <!-- TAB: CONFIGURATION -->
+          <rich:tab header="#{msg['subscription.configuration']}">
+
+            <h:form id="configurationForm">
+              <adm:keepDirty value="#{upgradeWizardConversation.model.dirty}" />
+
+              <mp:outputStep value="#{msg['marketplace.subscription.configuration.nameAndReference']}" />
+              <adm:panelGrid>
+                <adm:labelAndInputText id="subscriptionIdText" label="#{msg['subscription.subscriptionId']}"
+                                       required="true" value="#{upgradeWizardConversation.model.subscription.subscriptionId}"
+                                       maxlength="#{appBean.idLen}" validatorId="idChar" backingBean="#{upgradeWizardConversation}"
+                                       validationMethod="validateSubscriptionId" converterId="trimConverter"
+                                       disabled="true" showHint="true" />
+                <adm:labelAndInputText id="purchaseOrderNumberText" label="#{msg['subscription.purchaseOrderNumber']}"
+                                       value="#{upgradeWizardConversation.model.subscription.purchaseOrderNumber}"
+                                       maxlength="#{appBean.descriptionLen}" converterId="trimConverter"
+                                       disabled="true" showHint="true" />
+              </adm:panelGrid>
+
+              <ui:include src="../../account/subscriptionUdaDetails.xhtml">
+                <ui:param name="inputList" value="#{upgradeWizardConversation.model.subscriptionUdaRows}" />
+                <ui:param name="udasReadOnly" value="false" />
+              </ui:include>
+
+              <ui:fragment rendered="#{not empty upgradeWizardConversation.model.organizationUdaRows}">
+                <ui:include src="../../account/organizationUdaDetails.xhtml">
+                  <ui:param name="inputList" value="#{upgradeWizardConversation.model.organizationUdaRows}" />
+                  <ui:param name="readOnly" value="false" />
+                </ui:include>
+              </ui:fragment>
+
+              <ui:fragment rendered="#{upgradeWizardConversation.model.useExternalConfigurator}">
+                <mp:outputStep value="#{msg['parameter.table.header']}" />
+                <ui:include src="../parameterConfiguration.xhtml">
+                  <ui:param name="formId" value="configurationForm" />
+                  <ui:param name="dialogId" value="configurator" />
+                  <ui:param name="dialogHeight" value="115" />
+                  <ui:param name="bean" value="#{upgradeWizardConversation}"/>
+                  <ui:param name="conversationTimeout" value="#{upgradeWizardConversation.timeout}"/>
+                  <ui:param name="cancelHandler"
+                            value="AdmUtils.blurButton('configurationForm:btnConfigureLabel');setDirty(false);#{rich:component(dialogId)}.hide();" />
+                </ui:include>
+                <a4j:outputPanel styleClass="buttonWrapper">
+                  <a4j:commandLink id="btnConfigure" styleClass="button" style="text-decoration: none;"
+                                   oncomplete="if(#{upgradeWizardConversation.model.showExternalConfigurator}){#{rich:component('configurator')}.show();configurator.activateFallbackTimer();window.scrollTo(0,document.body.scrollHeight);};"
+                                   action="#{upgradeWizardConversation.actionLoadIframe}"
+                                   render="configurationForm:externalToolDialog,configurationForm:configRqScript,hiddenErrorPanel">
+                    <h:outputText id="btnConfigureLabel" style="white-space: nowrap;" value="#{msg['button.configure']}" />
+                  </a4j:commandLink>
+                </a4j:outputPanel>
+                <adm:spacer height="35" />
+                <a4j:outputPanel id="subcribe_configurationWarning">
+                </a4j:outputPanel>
+              </ui:fragment>
+
+              <ui:fragment rendered="#{upgradeWizardConversation.model.useInternalConfigurator}">
+                <ui:include src="../../account/paramtable.xhtml">
+                  <ui:param name="inputList" value="#{upgradeWizardConversation.model.serviceParameters}" />
+                  <ui:param name="formName" value="configurationForm" />
+                  <ui:param name="showPrices" value="#{upgradeWizardConversation.model.showServicePrices}" />
+                  <ui:param name="bean" value="#{upgradeWizardConversation}"/> 
+                </ui:include>
+              </ui:fragment>
+
+              <br />
+              <mp:pixelline />
+              <!-- navigate back to subscription details using navigation rules -->
+              <mp:button id="previousUpgrade" value="#{msg['button.previous']}" bean="#{upgradeWizardConversation}"
+                         action="previous" keepDirty="false" />
+              <mp:button id="next" value="#{msg['button.next']}" bean="#{upgradeWizardConversation}" action="selectService"
+                         style="float: right;" keepDirty="true" />
+            </h:form>
+          </rich:tab>
+
+
+          <!-- TAB: PRICE MODEL -->
+          <rich:tab header="#{msg['service.priceModel']}"
+                    rendered="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
+                    ontabenter="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
+            <h:form id="configurationForm2">
+              <ui:include src="../priceModelDetails.xhtml">
+                <ui:param name="priceModel" value="#{upgradeWizardConversation.model.service.priceModel}" />
+                <ui:param name="formName2" value="configurationForm2" />
+                <ui:param name="model" value="#{upgradeWizardConversation.model}" />
+              </ui:include>
+              <br />
+              <mp:pixelline />
+              <!-- navigate back to subscription details using navigation rules -->
+              <mp:button id="previousUpgrade" value="#{msg['button.previous']}" bean="#{upgradeWizardConversation}"
+                         action="previous" keepDirty="false" />
+              <mp:button id="next" value="#{msg['button.next']}" bean="#{upgradeWizardConversation}" action="selectService"
+                         style="float: right;" keepDirty="true" />
+            </h:form>
+          </rich:tab>
+        </rich:tabPanel>
+      </mp:subscriptionProcess>
+
+      <h:outputText styleClass="recommendedPrice right" value="#{msg['service.recommendedRetailPrice']}"
+                    rendered="#{upgradeWizardConversation.model.service.reseller and upgradeWizardConversation.model.service.priceModel.chargeable}" />
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

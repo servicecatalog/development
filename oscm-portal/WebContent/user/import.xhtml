@@ -1,0 +1,156 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="user.import" />
+  </ui:define>
+  <ui:define name="body">
+
+
+    <h:form id="searchForm">
+      <adm:outputStep value="#{msg['user.import.step1']}" />
+      <adm:panelGrid>
+        <adm:labelAndInputText id="userId" label="#{msg['user.userId']}" required="true"
+          value="#{userImportBean.userIdPattern}" maxlength="#{appBean.userIdLen}" converterId="trimConverter"/>
+      </adm:panelGrid>
+      <adm:buttonPanelSub>
+        <adm:button id="searchButton" value="#{msg['button.search']}" bean="#{userImportBean}" action="searchUsers"
+          buttonType="search" />
+      </adm:buttonPanelSub>
+    </h:form>
+
+    <adm:nbsp />
+
+    <h:outputText id="#{tableId}EmptyText" styleClass="block #{styleClass} preWrapping"
+      value="#{msg['user.import.noUsersFound']}"
+      rendered="#{not empty userImportBean.userIdPattern and empty userImportBean.users}" />
+
+    <ui:fragment rendered="#{not empty userImportBean.users}">
+      <h:form id="importForm">
+        <adm:outputStep value="#{msg['user.import.step2']}" />
+        <a4j:outputPanel id="rolePanel">
+          <rich:dataTable rowClasses="rowOdd" value="#{userImportBean.userRolesForNewUser}" var="userRole"
+            id="userRolesTable" rendered="#{not empty userImportBean.users}" styleClass="checkBoxList">
+            <rich:column width="100%">
+              <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}" disabled="false">
+                <a4j:ajax event="click" render="buttonPanel" onComplete="setDirty(true)" />
+              </h:selectBooleanCheckbox>
+              <h:outputText styleClass="" value="#{userRole.displayName}" />
+            </rich:column>
+          </rich:dataTable>
+        </a4j:outputPanel>
+
+        <adm:outputStep value="#{msg['user.import.step3']}" />
+        <c:set var="numOfCols" value="2" />
+        <!-- LDAP account, userId -->
+        <c:if test="#{userBean.userFromSession.firstNameDisabled}">
+          <c:set var="numOfCols" value="#{numOfCols+1}" />
+        </c:if>
+        <c:if test="#{userBean.userFromSession.lastNameDisabled}">
+          <c:set var="numOfCols" value="#{numOfCols+1}" />
+        </c:if>
+        <c:if test="#{userBean.userFromSession.localeDisabled}">
+          <c:set var="numOfCols" value="#{numOfCols+1}" />
+        </c:if>
+        <c:set var="colWidth" value="#{66/numOfCols}" />
+        
+        <c:set var="sortIcon" value="/img/transparentPixel.png?id=sort" />
+      	<c:set var="sortIconAscending" value="/img/transparentPixel.png?id=sortAscending" />
+      	<c:set var="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
+
+        <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
+          <a4j:queue requestDelay="500" ignoreDupResponse="true"
+            oncomplete="jQuery('body').removeClass('hourglass');"
+            onsubmit="jQuery('body').addClass('hourglass');" />
+          <rich:dataTable width="100%" styleClass="sortable" headerClass="rowTitle sortable" rowClasses="rowOdd,rowEven"
+            id="userListTable" value="#{userImportBean.users}" var="user"
+            columnClasses="smallCell,smallCell,smallCell,smallCell,*,*,*" selectionMode="none" enableContextMenu="false"
+            noDataLabel=" " rowKeyVar="rowKey">
+
+            <rich:column width="4%" styleClass="tableColumnCheckBox">
+              <h:selectBooleanCheckbox id="import" value="#{user.selected}" rendered="#{user.key == 0}">
+                <a4j:ajax event="click" render="buttonPanel" onComplete="setDirty(true)" />
+              </h:selectBooleanCheckbox>
+              <h:graphicImage url="../img/transparentPixel.png" styleClass="yes" rendered="#{user.key != 0}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.realmUserId}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.userIdRealm']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" sid="userId" value="#{user.realmUserId}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.userId}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.userId']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" sid="userId" value="#{user.userId}" />
+            </rich:column>
+            <rich:column sortBy="#{user.email}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.email']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" id="emailOut" value="#{user.email}"
+                rendered="#{not empty user.email}" />
+              <c:set var="checkboxId" value="importForm:userListTable:#{rowKey}:import" />
+              <h:inputText id="emailIn" label="#{msg['user.email']}" onchange="setDirty(true)" value="#{user.email}"
+                required="#{not empty param[checkboxId]}" styleClass="field" style="width:95%;"
+                maxlength="#{appBean.nameLen}" rendered="#{empty user.email}">
+                <f:converter converterId="trimConverter" />
+                <f:validator validatorId="email" />
+              </h:inputText>
+              <adm:message for="emailIn" rendered="#{empty user.email}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.firstName}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+              rendered="#{not sessionBean.nameSequenceReversed and userBean.userFromSession.firstNameDisabled}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.firstName']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" id="firstName" value="#{user.firstName}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.lastName}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+              rendered="#{userBean.userFromSession.lastNameDisabled}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.lastName']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" id="lastName" value="#{user.lastName}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.firstName}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+              rendered="#{sessionBean.nameSequenceReversed and userBean.userFromSession.firstNameDisabled}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.firstName']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" id="firstName1" value="#{user.firstName}" />
+            </rich:column>
+            <rich:column width="#{colWidth}%" sortBy="#{user.locale}" sortOrder="ascending" sortIcon="#{sortIcon}"
+              sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+              rendered="#{userBean.userFromSession.localeDisabled}">
+              <f:facet name="header">
+                <h:outputText value="#{msg['user.locale']}" />
+              </f:facet>
+              <h:outputText styleClass="selectable" id="locale" value="#{user.locale}" />
+            </rich:column>
+          </rich:dataTable>
+        </a4j:outputPanel>
+
+        <adm:buttonPanel id="buttonPanel">
+          <adm:button id="importButton" value="#{msg['button.import']}" bean="#{userImportBean}" action="importUsers"
+            disabled="#{not userImportBean.anyUserRoleSelected or userImportBean.importDisabled}" />
+        </adm:buttonPanel>
+      </h:form>
+
+    </ui:fragment>
+
+
+  </ui:define>
+</ui:composition>

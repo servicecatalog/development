@@ -1,0 +1,51 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+  <c:if test="#{empty preview}">
+    <!-- Hidden form for supporting filtered service list (not in preview mode) -->
+    <h:form>
+      <h:inputHidden id="tagFilter" value="#{servicePagingBean.filterTag}" />
+      <h:commandButton id="showFilteredList" action="#{serviceListingBean.showServiceList}" style="display: none;" >
+           <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}" value="" />
+           <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}" value="" />
+      </h:commandButton>
+    </h:form>
+  </c:if>
+  
+  <c:set var="listMethod" value="tags#{preview? 'Preview':''}" />
+  <c:set var="cloudRendered"
+    value="#{not empty preview or marketplaceConfigurationBean.currentConfiguration.taggingEnabled}" />
+  <h:form id="filterSelectionForm">
+    <a4j:outputPanel layout="block" styleClass="submenu"  rendered="#{cloudRendered}">
+      <a4j:outputPanel layout="block" styleClass="tasks">
+        <a4j:outputPanel layout="block" styleClass="rounded-inside tagCloudBrowseAll">
+          
+          <a4j:outputPanel layout="block" styleClass="tagCloudOuter">
+            <a4j:outputPanel id="tagCloud" layout="block" styleClass="tagCloud">
+              <!--  List of tags -->
+              <c:forEach items="#{bean[listMethod]}" var="tag" varStatus="status">
+                <mp:tagCloudLink tag="#{tag}" status="#{status}" preview="#{preview}" />
+              </c:forEach>
+            </a4j:outputPanel>
+          </a4j:outputPanel>
+
+          <!-- <c:if test="#{empty preview}">
+            <a4j:outputPanel styleClass="newlist clearfix menuButtonPanel">
+              <mp:button id="buttonBrowseAll" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}" action="showServiceList">
+                <f:setPropertyActionListener target="#{servicePagingBean.filterTag}" value="" />
+                <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}" value="" />
+                <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}" value="" />
+              </mp:button>
+            </a4j:outputPanel>
+          </c:if>
+           -->
+
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+  </h:form>
+</ui:composition>

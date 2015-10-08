@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+  
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">  
+
+<c:if test="#{not empty subscriptionKey}">
+  <c:set var="action"
+    value="#{facesContext.externalContext.requestContextPath}#{appBean.serviceBaseUri}/#{subscriptionKey}#{contextPath}" />
+</c:if>
+
+<ui:fragment rendered="true">
+  <h:head>
+<title>#{msg['title']}</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<link rel="stylesheet" href="#{facesContext.externalContext.requestContextPath}/css/login.css" type="text/css" />
+ <link rel="icon" href="#{facesContext.externalContext.requestContextPath}/img/favicon.ico" type="image/x-icon" />
+<script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/scripts/login.js"></script>
+<script type="text/javascript" src="#{facesContext.externalContext.requestContextPath}/scripts/admUtils.js"></script>
+  </h:head>
+  <h:body onload="document.getElementById('userId').focus();">
+    <form id="loginForm" action="#{action}" method="post">
+      <input type="hidden" name="oId" value="#{oId}" />
+      <div id="login_main_area_id">
+        <div id="login_form_area_id">
+          <div class="login_label_class">
+            <h:outputLabel value="#{msg['user.userId']} :" />
+          </div>
+          <div class="login_form_class">
+            <input type="text" id="userId" name="userId" value="#{userId}" size="#{appBean.idLen}"
+              class="login_text_class" />
+          </div>
+          <div class="login_label_class">
+            <h:outputLabel value="#{msg['user.password']} :" />
+          </div>
+          <div class="login_form_class">
+            <input type="password" name="password" value="" maxlength="#{appBean.nameLen}"
+              onkeydown="AdmUtils.submitOnReturn(event,document.forms[0])" class="login_text_class" autocomplete="off"/>
+          </div>
+          <div class="login_link_class">
+            <h:outputLink id="recoverPasswordLink"  value="#{facesContext.externalContext.requestContextPath}/public/recoverPassword.jsf" rendered="#{appBean.internalAuthMode}">
+            <span><h:outputText value="#{msg['public.login.recoverpasswordlink.hint']}"  /></span>
+            </h:outputLink>
+          </div>
+          <div class="login_button_area_class">
+            <button type="button" class="login_button_class" id="loginButton" onclick="document.forms[0].submit()"
+              onmousedown="DownMouseBt(this)" onmouseover="OverMouseBt(this)" onmouseout="OutMouseBt(this)"
+              onmouseup="OverMouseBt(this)">
+              <span class="login_button_bg_class"><span class="login_button_content">#{msg['button.login']}</span>
+              </span>
+            </button>
+            <!-- hidden button to support a submit if return is pressed in Firefox -->
+            <input type="submit" value="#{msg['button.login']}" style="display: none;" />
+          </div>
+        </div>
+        <address id="login_copyright_id">#{msg['version.copyright']}</address>
+      </div>
+    </form>
+    <div id="login_warning" >
+      <c:if test="#{not empty errorKey}">
+      	<div class="warning">
+        <h:outputFormat value="#{msg[errorKey]}">
+          <f:param value="#{errorParam0}" />
+          <f:param value="#{errorParam1}" />
+          <f:param value="#{errorParam2}" />
+          <f:param value="#{errorParam3}" />
+          <f:param value="#{errorParam4}" />
+        </h:outputFormat>
+        </div>
+      </c:if>
+    </div>
+  </h:body>
+</ui:fragment>
+
+</html>

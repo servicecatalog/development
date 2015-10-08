@@ -1,0 +1,441 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testServiceVisibility" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  <target name="testServiceVisibility">
+
+    <webtest name="testMPL_serviceVisibility_setup">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="baseUrl" propertyType="ant" value="#{baseUrl}" />
+      <storeProperty name="supplierUserId" propertyType="ant" value="#{userId}" />
+      <storeProperty name="supplierMPName" propertyType="ant" value="Supplier Marketplace" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="#{orgId}" baseurl="#{baseUrl}" />
+      <operator.createMarketplace name="${supplierMPName}" mIdProperty="supplierMPId" ownerId="#{orgId}" baseurl="#{baseUrl}" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${supplierMPId}" />       
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_NoEntriesAvailable">
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <verifyElementText description="Verify number of services" htmlId="serviceDeActivationForm:activationTableEmptyText" text="No entries available." />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_AddServices">
+
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+      <techservice.import file="data/TechnicalServicesForVisibilityTest.xml" />
+
+      <setup:service.define serviceId="S1" name="MS S1" techServiceId="S1" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S1" isFree="true" />
+
+      <setup:service.define serviceId="S2" name="MS S2" techServiceId="S1" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S2" isFree="true" />
+
+      <setup:service.define serviceId="S3" name="MS S3" techServiceId="S2" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S3" isFree="true" />
+
+      <setup:service.define serviceId="S4" name="MS S4" techServiceId="S1" description="Limited evaluation version." marketplaceId="${supplierMPId}" useParameters="false" publicService="false" />
+      <setup:pricemodel.define serviceId="S4" isFree="true" />
+      <setup:service.activate serviceIds="S1,S2,S3,S4" />
+      <setup:service.define serviceId="S5" name="MS S5" techServiceId="S1" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" />
+      <pricemodel.defineForCustomer serviceId="S5" isFree="true" />
+      <!-- Note: S5 cannot be activated because of customer specific price model -->
+     
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_SuspendAndResumeServiceAsMPAdmin">
+      <mpl_login.operator mid="${mId}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <mpl_visibility.checkErrorHandlingForSuspension />
+      <mpl_visibility.suspendService />
+      <clickElement htmlId="buttonBrowseAllRelated" />
+      <clickElement htmlId="filterSelectionForm:showFilteredList" />
+      <verifyElementText description="Verify service MS S1" htmlId="service2Name" text="MS S1" />
+      <clickLink htmlId="serviceButton2" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <mpl_visibility.resumeService />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_SuspendAndResume_CheckOnActivationPage">
+
+      <selectWebClient name="Client1" />
+      <mpl_login.operator mid="${mId}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <mpl_visibility.suspendService />
+
+      <selectWebClient name="Client2" />
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <not>
+        <verifyXPath xpath="//input[@id='serviceDeActivationForm:activationTable:0:active']" />
+      </not>
+
+      <selectWebClient name="Client1" />
+      <mpl_visibility.resumeService />
+
+      <selectWebClient name="Client2" />
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <verifyXPath xpath="//input[@id='serviceDeActivationForm:activationTable:0:active']" />
+      <login.logout />
+
+      <selectWebClient name="Client1" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_SaveAndCheckActivation">
+
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <mpl_visibility.simpleServiceCheckOnActivationPage />
+
+      <mpl_visibility.saveAndVerifyState state="successful" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_ActivateAndServiceNotInCatalog">
+
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <mpl_visibility.simpleServiceCheckOnActivationPage />
+
+      <mpl_visibility.saveAndVerifyState state="successful" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:4:visibleInCatalog" checked="false" />
+      <!--mpl_visibility.saveAndVerifyState state="activationFlagNotSet" serviceName="S2" /-->
+
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <mpl_visibility.simpleServiceCheckOnActivationPage />
+
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:visibleInCatalog" checked="false" />
+      <mpl_visibility.saveAndVerifyState state="successful" />
+
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:1:visibleInCatalog" checked="false" />
+      <!--mpl_visibility.saveAndVerifyState state="activationFlagNotSet" serviceName="S1" /-->
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_CheckActivatedServiceVisibleOnMarketplace">
+
+      <mpl_visibility.activateServices />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+      <verifyElementText description="Verify service MS S2" htmlId="service1Name" text="MS S2" />
+      <verifyElementText description="Verify service MS S3" htmlId="service2Name" text="MS S3" />
+
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:visibleInCatalog" checked="false" />
+      <mpl_visibility.saveAndVerifyState state="successful" />
+      <login.logout />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyElementText description="Verify service MS S2" htmlId="service0Name" text="MS S2" />
+      <verifyElementText description="Verify service MS S3" htmlId="service1Name" text="MS S3" />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_CheckActivatedServiceVisibleOnMarketplace">
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:3:active" checked="true" />
+      <mpl_visibility.saveAndVerifyState state="successful" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_checkMarketplaceUI">
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <verifyXPath xpath="//*[@id='serviceName0'][.='MS S2']" />
+      <verifyXPath xpath="//*[@id='supplier0'][.='${priceModel.text.free}']" />
+
+      <verifyXPath xpath="//*[@id='link1']//*[@id='selectedServiceH31']" regex="true" text="MS S1.*" />
+      <verifyXPath xpath="//*[@id='link1']//*[@id='supplier1'][.='${priceModel.text.free}']" />
+
+      <clickElement htmlId="menuItem1" />
+
+      <verifyXPath xpath="//*[@id='serviceName0'][.='MS S1']" />
+      <verifyXPath xpath="//*[@id='supplier0'][.='${priceModel.text.free}']" />
+
+      <verifyXPath xpath="//*[@id='link1']//*[@id='selectedServiceH31']" regex="true" text="MS S2.*" />
+      <verifyXPath xpath="//*[@id='link1']//*[@id='supplier1'][.='${priceModel.text.free}']" />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_ExternalService">
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+      <techservice.import file="data/TechnicalServices-EXTERNAL.xml" />
+      <setup:service.define serviceId="EXT" name="MS S1 EX" techServiceId="ExampleExternalService" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" />
+      <setup:service.activate serviceIds="EXT" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText description="Verify service MS S1 EX" htmlId="service0Name" text="MS S1 EX" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <not>
+        <verifyElementText description="'Free of charge' must not be shown" type="h1" text="${priceModel.text.free}" />
+      </not>
+      <clickLink htmlId="buyme" />
+      <verifyXPath description="Technical Service of type EXTERNAL must open Fujitsu site in new window" xpath="//a[@id='buyme']/@onclick" text="if.*true.*window.open.*serviceid.*" regex="true" />
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_tearDown">
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <setup:techservice.delete serviceIds="*" />
+      <mail.cleanInbox />
+    </webtest>
+
+  </target>
+
+
+  <macrodef name="mpl_visibility.simpleServiceCheckOnActivationPage">
+    <sequential>
+      <mpl_visibility.checkServicesOnActivationPage rowNr="0" technicalServiceId="1" serviceId="1" />
+      <mpl_visibility.checkServicesOnActivationPage rowNr="1" technicalServiceId="1" serviceId="2" />
+      <mpl_visibility.checkServicesOnActivationPage rowNr="2" technicalServiceId="1" serviceId="5" active="false" />
+      <mpl_visibility.checkServicesOnActivationPage rowNr="3" technicalServiceId="1" serviceId="" marketplaceId="" active="false" organizationName="TechProvAndSupplier.*" inCatalog="false" />
+      <mpl_visibility.checkServicesOnActivationPage rowNr="4" technicalServiceId="2" serviceId="3" />
+      <mpl_visibility.checkServicesOnActivationPage rowNr="5" technicalServiceId="1" serviceId="4" marketplaceId="${supplierMPName}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_visibility.checkServicesOnActivationPage">
+    <attribute name="rowNr" />
+    <attribute name="technicalServiceId" />
+    <attribute name="serviceId" />
+    <attribute name="marketplaceId" default="Global Marketplace" />
+    <attribute name="organizationName" default="" />
+    <attribute name="active" default="true" />
+    <attribute name="inCatalog" default="true" />
+
+    <sequential>
+      <ifStep test="@{active}">
+        <then>
+          <verifyXPath description="check table row @{rowNr} column 1" xpath="//input[@id='serviceDeActivationForm:activationTable:@{rowNr}:active' and @checked='checked']" />
+        </then>
+        <else>
+          <verifyXPath description="check table row @{rowNr} column 1" xpath="//input[@id='serviceDeActivationForm:activationTable:@{rowNr}:active']" />
+        </else>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="serviceId" value="" />
+        </condition>
+        <else>
+          <verifyXPath description="check table row @{rowNr} column 2" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:serviceId']" />
+        </else>
+        <then>
+          <verifyXPath description="check table row @{rowNr} column 2" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:serviceId'][.='S@{serviceId}']" />
+        </then>
+      </ifStep>
+
+      <verifyXPath description="check table row @{rowNr} column 3" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:technicalId'][.='S@{technicalServiceId}']" />
+      <verifyXPath description="check table row @{rowNr} column 4" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:marketplace'][.='@{marketplaceId}']" />
+
+      <ifStep test="@{inCatalog}">
+        <then>
+          <verifyXPath description="check table row @{rowNr} column 5" xpath="//input[@id='serviceDeActivationForm:activationTable:@{rowNr}:visibleInCatalog' and @checked='checked']" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath description="check table row @{rowNr} column 5" xpath="//input[@id='serviceDeActivationForm:activationTable:@{rowNr}:visibleInCatalog']" />
+          </not>
+        </else>
+      </ifStep>
+
+      <storeProperty name="organizationName" value="@{organizationName}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="organizationName" value="" />
+        </condition>
+        <then>
+          <verifyXPath description="check table row @{rowNr} column 6" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:organizationName'][.='@{organizationName}']" />
+        </then>
+        <else>
+          <verifyXPath description="check table row @{rowNr} column 6" xpath="//span[@id='serviceDeActivationForm:activationTable:@{rowNr}:organizationName']" text="@{organizationName}" regex="true" />
+        </else>
+      </ifStep>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_visibility.saveAndVerifyState">
+    <attribute name="state" default="failed" />
+    <attribute name="serviceName" default="" />
+    <sequential>
+      <storeProperty name="savingState" value="@{state}" />
+      <storeProperty name="serviceName" value="@{serviceName}" />
+
+      <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="savingState" text="successful" regex="false" />
+        </condition>
+        <then>
+          <verifyXPath description="info msg is successful" xpath="//div[@id='infoPanel']//span[.='${info.service.statesaved}']" />
+        </then>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="savingState" text="activationFlagNotSet" regex="false" />
+        </condition>
+        <then>
+          <common.handleMessageParameters property="errorMsg" value="${ex.ServiceOperationException.NO_VISIBLE_ACTIVE_SERVICE}" att0="@{serviceName}" />
+          <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="infoMsg" />
+          <verifyProperty name="infoMsg" value="#{errorMsg}" regex="true" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_visibility.activateServices">
+    <sequential>
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" />
+
+      <invoke url="${baseUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:visibleInCatalog" checked="true" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:1:visibleInCatalog" checked="true" />
+      <!--<setCheckbox htmlId="serviceDeActivationForm:activationTable:2:visibleInCatalog" checked="true" />-->
+      <mpl_visibility.saveAndVerifyState state="successful" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_visibility.suspendService">
+    <sequential>
+      <mpl_visibility.statusCheck expectedStatus="active" />
+
+      <clickLink htmlId="deactivateServiceForm:deactivateService" />
+      <not>
+        <clickLink htmlId="deactivateServiceForm:reactivateService" />
+      </not>
+
+      <!-- it doesn't test if the panel was opened -->
+      <verifyXPath xpath="//*[@id='deactivateServicePanelDialogTitle']//text()" text="${service.deactivate.title}" regex="true" />
+
+      <!-- set comment and suspend -->
+      <setInputField name="deactivateServicePanelForm:reasonTextArea" value="abc" />
+      <verifyTextarea htmlId="deactivateServicePanelForm:reasonTextArea" text="abc" />
+      <common.ignorePageScriptError />
+      <clickElement htmlId="deactivateServicePanelForm:hiddenDeactivateBtn" />
+      <clickLink xpath="//*[@id='deactivateServicePanelForm:deactivateServicePanelDeactivate']" />
+      <mpl_visibility.statusCheck expectedStatus="suspended" />
+      <!-- no success message shows in canoo -->
+      <!--common.verifySuccess label="${info.service.suspended}" /-->
+      <common.reSetPageScriptError />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_visibility.resumeService">
+    <sequential>
+      <mpl_visibility.statusCheck expectedStatus="suspended" />
+
+      <!-- test reactivate service -->
+      <not>
+        <clickLink htmlId="deactivateServiceForm:deactivateService" />
+      </not>
+      <clickLink htmlId="reactivateSelectForm:reactivateService" />
+
+      <!-- it doesn't test if the panel was opened -->
+      <verifyXPath xpath="//*[@id='reactivateServicePanelDialogTitle']//text()" text="${service.reactivate.title}" regex="true" />
+      <clickLink xpath="//*[@id='reactivateServicePanelForm:reactivateServicePanelReactivate']" />
+
+
+      <mpl_visibility.statusCheck expectedStatus="active" />
+      <common.verifySuccess label="${info.service.resumed}" />
+    </sequential>
+  </macrodef>
+
+  <!--
+			Tests the behaviour if the textarea component was not set.
+		-->
+  <macrodef name="mpl_visibility.checkErrorHandlingForSuspension">
+    <sequential>
+      <mpl_visibility.statusCheck expectedStatus="active" />
+
+      <clickLink htmlId="deactivateServiceForm:deactivateService" />
+
+      <!-- suspend without comment -->
+      <clickLink xpath="//*[@id='deactivateServicePanelForm:deactivateServicePanelDeactivate']" />
+
+      <mpl_visibility.statusCheck expectedStatus="active" />
+      <verifyXPath xpath="//*[@id='deactivateServicePanelErrorMessages:']//*[@class='rf-msgs-sum']//text()" text="${error.text.fields}" />
+    </sequential>
+  </macrodef>
+
+  <!-- 
+		Check the status of the service on the marketplace serviceDetails page. 
+		Check status color and status text against the expected behaviour 
+		-->
+  <macrodef name="mpl_visibility.statusCheck">
+    <!-- possible values for expectedStatus are active and suspended-->
+    <attribute name="expectedStatus" />
+    <sequential>
+      <storeProperty name="expectedStatus" value="@{expectedStatus}" />
+      <storeProperty name="statusName" value="error" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="expectedStatus" value="active" />
+        </condition>
+        <then>
+          <storeProperty name="statusName" value="${ServiceStatus.ACTIVE}" />
+          <storeProperty name="statusClass" value="serverSubscriptionActive" />
+        </then>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="expectedStatus" value="suspended" />
+        </condition>
+        <then>
+          <storeProperty name="statusName" value="${ServiceStatus.SUSPENDED}" />
+          <storeProperty name="statusClass" value="serverSubscriptionSuspended" />
+        </then>
+      </ifStep>
+
+      <not>
+        <verifyProperty name="statusName" value="error" />
+      </not>
+
+      <verifyElementText description="check service status text" htmlId="serviceStatusLabel" text="#{statusName}" />
+      <storeXPath xpath="//*[@id='serviceStatusColor']/@class" property="serviceStyle" />
+      <verifyProperty name="serviceStyle" text="#{statusClass}" regex="true" />
+    </sequential>
+  </macrodef>
+
+
+</project>

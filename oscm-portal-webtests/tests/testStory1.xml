@@ -1,0 +1,100 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testStory1" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testStory1">
+    <webtest name="testStory1">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="MP1" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="MP2" />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${MP1}" />
+      <landingpage.setSortOrderForLandingpage mId="${MP2}" />
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <!-- 3.  Register new or updated technical service  -->
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- get the technical description and check if it is initially set when creating a service -->
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${techService.edit.title}" />
+
+      <setSelectField htmlId="techServiceForm:techServiceId" text="Example 1.00" />
+      <storeXPath xpath="//textarea[@id='editForm:description:inp']/text()" property="techDesc" />
+    	
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="Example 1.00" />
+      <verifyTextarea htmlId="editForm:description:inp" text="#{techDesc}" />
+
+      <!-- 4.  Define Market Service  -->
+      <service.define configurableChecked="true" serviceId="#{marketServiceName}" marketplaceId="${MP1}" />
+
+      <!-- 5. Define Market Service price model  -->
+      <pricemodel.define serviceId="#{marketServiceName}" isFree="false" concurrencyCheck="true" />
+
+      <!-- copy the just created service -->
+      <service.copy serviceId="#{marketServiceName}" newServiceId="copytest" />
+
+      <!-- Bug 7771: publish the copied service to mp... -->
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="copytest" />
+      <setSelectField htmlId="editForm:marketplace" value="${MP2}" />
+      <clickButton label="${button.save}" />
+
+      <!-- ...copy it and the copy must have the same MP selected -->
+      <service.copy serviceId="copytest" newServiceId="copytest2" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="copytest2" />
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <verifySelectField htmlId="editForm:marketplace" value="${MP2}" />
+
+      <service.delete serviceId="copytest" />
+      <service.delete serviceId="copytest2" />
+
+      <!-- 5.1 Verify saved prices -->
+      <login.logout />
+      <login.login url="#{orgUrl}" userId="#{userId}" password="secret" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{marketServiceName}" />
+      <verifyBasePrices />
+      <verifyEventPrices rowNr="0" tableId="editForm:eventTable" />
+      <verifyParameterPrices rowNr="1" tableId="editForm:parameterTable" />
+
+      <!-- 6. Activate Market Service  -->
+      <service.deActivate rowNr="0" active="true" concurrencyCheck="true" />
+
+      <!-- 7. Customer registration by supplier (local authentication) User B  -->
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <user.registerCustomer marketplaceId="${MP1}" userId="${common.userId}" />
+      <!-- activate at least one paymentType for the customer to allow entering a payment info -->
+      <organization.managePayment rowNr="1" paymentType="cust0" concurrencyCheck="true" />
+      <organization.managePayment rowNr="1" />
+      <login.logout />
+
+      <!-- 8. Platform login (local authentication) User B -->
+      <!-- login as customer -->
+      <mail.readCreatedUrlFromMail />
+      <storeProperty name="customerOrgUrl" value="#{orgUrl}" />
+      <storeProperty name="customerOrgId" value="#{orgId}" />
+      <invoke url="#{customerOrgUrl}" />
+      <mpl_login.user userId="#{userId}" mid="${MP1}" />
+      <mpl_goto.marketplace mid="${MP1}" />
+      <mpl_goto.account.users />
+      <mpl_user.editInputValue userId="#{userId}" fieldId="editUserForm:firstName" fieldValue="changed first" currentUser="true" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+</project>

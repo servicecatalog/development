@@ -1,0 +1,63 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+  xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" 
+  xmlns:f="http://java.sun.com/jsf/core" 
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  >
+    <adm:baseTable 
+      tableId="#{tableId}"
+      emptyText="#{emptyText}"
+      value="#{value}"
+      onRowClick="#{onRowClick}"
+      onRowMouseOver="#{onRowMouseOver}"
+      onRowMouseOut="#{onRowMouseOut}"
+      columnClasses="#{columnClasses}"
+      columnsWidth="#{columnsWidth}"
+      styleClass="table_default"
+      width="#{width}"
+      render="#{render}">
+
+      <c:if test="#{not empty headers}">
+        <c:forEach items="#{headers}" var="header">
+          <c:set var = "headerName" value="dataTable.header.#{header}"/>
+          <c:set var = "headerId" value="#{tableId}:#{header}"/>
+          <rich:column 
+            id="#{header}"
+            sortBy="#{rowItem[header]}"
+            sortOrder="#{tableState.sortOrders[headerId]}"
+            filterType="custom"
+            filterValue="#{tableState.filterValues[headerId]}"
+            filterExpression="#{adm:matchBegin(rowItem[header], tableState.filterValues[headerId], false)}">
+            <f:facet name="header">
+              <h:outputLabel value="#{msg[ headerName ]}"/>
+              <adm:filterInput inputId="#{header}Input" inputValue="#{tableState.filterValues[headerId]}" 
+                render="#{tableId}@body, #{render}"
+                onkeyup="AdmUtils.setFirstPage(#{rich:element('#{tableId}Pager')});" />
+            </f:facet>
+            <h:outputText value="#{rowItem[header]}"/>
+          </rich:column>
+        </c:forEach>
+      </c:if>
+
+      <c:if test="#{not empty pagerId}">
+        <f:facet name="header">
+          <adm:pager pagerId="#{tableId}Pager" render="#{render}"/>
+        </f:facet>   
+      </c:if>
+    </adm:baseTable>
+
+    <a4j:outputPanel id="dataTableScriptPanel" layout="block">
+      <script type="text/javascript">
+		AdmUtils.handleSortAction();
+      </script>
+  	</a4j:outputPanel>
+
+</ui:composition>

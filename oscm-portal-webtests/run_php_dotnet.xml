@@ -1,0 +1,53 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project name="Run BES UI Test PHP and DOTNET" default="run">
+
+  <target name="clean">
+    <delete dir="results" quiet="false" failonerror="true" />
+    <delete dir="coverage" quiet="false" failonerror="true" />
+    <delete dir="coverage-combined" quiet="false" failonerror="true" />
+  </target>
+
+  <target name="webtest">
+    <sleep seconds="600" />
+
+    <ant antfile="build.xml">
+      <!-- important for build machines -->
+      <property name="wt.headless" value="true" />      
+      <property name="testPart1" value="false" />
+      <property name="testPart2" value="false" />
+      <property name="testPhpDotnet" value="true" />
+      <property name="testPartCustom" value="false" />      
+    </ant>
+  </target>
+
+  <target name="coverage" xmlns:jacoco="antlib:org.jacoco.ant">
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath>
+        <fileset dir="../libraries/jacoco/javalib" includes="*.jar" />
+        <fileset dir="../libraries/asm/javalib" includes="*.jar" />
+      </classpath>
+    </taskdef>
+
+    <jacoco:dump destfile="coverage/jacoco.exec" port="8163" />
+
+    <ant antfile="../oscm-build/coveragereport.xml">
+      <property name="workspace.dir" location=".." />
+      <property name="result.dir" location="../oscm-build/result" />
+      <property name="result.reports.coverage.dir" location="coverage" />
+      <property name="execdata.dir" location="coverage" />
+      <property name="execdata.includes" value="jacoco.exec" />
+      <property name="footer" value="${label}-${cctimestamp}" />
+    </ant>
+
+    <ant antfile="../oscm-build/coveragereport.xml">
+      <property name="workspace.dir" location=".." />
+      <property name="result.dir" location="../oscm-build/result" />
+      <property name="result.reports.coverage.dir" location="coverage-combined" />
+      <property name="execdata.dir" location=".." />
+      <property name="execdata.includes" value="oscm-build/result/work/*/test/jacoco.exec,oscm-portal-webtests/coverage/jacoco.exec" />
+      <property name="footer" value="${label}-${cctimestamp}" />
+    </ant>
+  </target>
+
+  <target name="run" depends="clean,webtest,coverage" />
+</project>

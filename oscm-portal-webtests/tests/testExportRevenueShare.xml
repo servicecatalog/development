@@ -1,0 +1,65 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testBug_9473" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testBug_9473">
+    <webtest name="test_exportRevenueShare_supplier">
+      <scenario.setupSupplier />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <setSelectField htmlId="billingData:billingTypeSelector" value="RevenueShare" />
+      <not>
+        <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      </not>
+      <operator.createMarketplace ownerId="${supplierId}" mIdProperty="mId" baseurl="#{baseUrl}" name="Marketplace" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <setSelectField htmlId="billingData:billingTypeSelector" value="RevenueShare" />
+      <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test_exportRevenueShare_broker">
+      <createOrg role="BROKER" />
+      <login.login url="${organizationUrl}" userId="${organizationUserId}" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <not>
+        <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      </not>
+      <operator.createMarketplace ownerId="${organizationId}" mIdProperty="mId" baseurl="#{baseUrl}" name="Marketplace" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test_exportRevenueShare_reseller">
+      <createOrg role="RESELLER" />
+      <login.login url="${organizationUrl}" userId="${organizationUserId}" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <setSelectField htmlId="billingData:billingTypeSelector" value="RevenueShare" />
+      <not>
+        <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      </not>
+      <operator.createMarketplace ownerId="${organizationId}" mIdProperty="mId" baseurl="#{baseUrl}" name="Marketplace" />
+      <invoke url="${bes.http.url}/oscm-portal/user/exportBillingData.jsf" />
+      <setSelectField htmlId="billingData:billingTypeSelector" value="RevenueShare" />
+      <setSelectField htmlId="billingData:sharesExportInclude:organizationRoleSelector" value="MARKETPLACE_OWNER" />
+      <login.logout />
+    </webtest>
+
+  </target>
+  
+  <macrodef name="createOrg">
+    <attribute name="role" />
+    <sequential>
+      <mail.cleanInbox />
+      <operator.createorganization roles="@{role}" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="organizationUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="organizationUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="organizationId" value="#{orgId}" propertyType="ant" />
+      <login.initialLoginAndChangePassword url="${organizationUrl}" userId="${organizationUserId}" password="#{userPwd}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,2 @@
+run:MigrationBillingResultGatheredEvents;
+run:MigrationBillingResultSteppedPrices;

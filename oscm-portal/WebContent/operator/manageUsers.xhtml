@@ -1,0 +1,83 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <adm:initialize initializingMethod="#{operatorManageUsersCtrl.initialize}" />
+    <c:set var="pageId" value="operator.manageUsers" />
+    <c:set var="focusElement" value="userId" />
+  </ui:define>
+
+  <ui:define name="body">
+
+
+    <h:form id="numberOfUsersForm">
+      <adm:outputStep value="#{msg['operator.numberOfUsers']}" />
+      <h:outputText id="maxNumberOfUsers" styleClass="block outputText_padding"
+        value="#{msg['operator.numberOfUsers.maximumNum']}#{operatorManageUsersModel.maxNumberOfRegisteredUsers}" />
+      <h:outputText id="registeredUsersCountBlack" rendered="#{not operatorManageUsersCtrl.exceedMaxNumberOfUsers}"
+        styleClass="block outputText_padding"
+        value="#{msg['operator.numberOfUsers.currentNum']}#{operatorManageUsersModel.numberOfRegisteredUsers}" />
+      <h:outputText id="registeredUsersCountRed" rendered="#{operatorManageUsersCtrl.exceedMaxNumberOfUsers}"
+        styleClass="mandatory outputText_padding"
+        value="#{msg['operator.numberOfUsers.currentNum']}#{operatorManageUsersModel.numberOfRegisteredUsers}" />
+    </h:form>
+
+    <h:form id="manageUsers">
+      <adm:outputStep value="#{msg['operator.manageUsers']}" />
+      <adm:panelGrid nowrap="true">
+        <adm:selectUser />
+      </adm:panelGrid>
+
+      <a4j:outputPanel id="buttonPanel" layout="block">
+        <adm:buttonPanel>
+          <adm:button id="resetPassword" value="#{msg['button.resetPwd']}" bean="#{operatorManageUsersCtrl}"
+            buttonType="reset" action="resetPasswordForUser"
+            rendered="#{operatorManageUsersCtrl.checkResetPasswordSupported}" />
+          <adm:button id="unlockUser" value="#{msg['button.unlock']}" bean="#{operatorManageUsersCtrl}"
+            action="unlockUser" buttonType="unlock" />
+          <adm:button id="lockUser" value="#{msg['button.lock']}" bean="#{operatorManageUsersCtrl}" action="lockUser"
+            buttonType="lock" />
+        </adm:buttonPanel>
+      </a4j:outputPanel>
+    </h:form>
+
+    <adm:outputStep value="#{msg['user.add.step2']}" />
+    <h:form id="userImportForm" enctype="multipart/form-data">
+      <adm:panelGrid>
+        <adm:selectOrganization inline="true" />
+      </adm:panelGrid>
+
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['service.marketplace']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu styleClass="select" id="selectMarketplaceId"
+            value="#{operatorManageUsersModel.selectedMarketplace}">
+            <adm:selectItemPleaseSelect itemValue="0" />
+            <c:forEach items="#{operatorManageUsersModel.marketplaces}" var="mp">
+              <f:selectItem itemLabel="#{mp.name} (#{mp.marketplaceId})" itemValue="#{mp.marketplaceId}" />
+            </c:forEach>
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+      </adm:panelGrid>
+      
+      <adm:panelGrid>
+        <adm:fileUpload value="#{operatorManageUsersModel.userImport}" disabled="#{editDisabled}" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{operatorManageUsersCtrl}"
+          action="importUsers" buttonType="confirm" />
+      </adm:buttonPanel>
+      <h:inputHidden value="#{operatorManageUsersModel.token}" />
+    </h:form>
+  </ui:define>
+</ui:composition>

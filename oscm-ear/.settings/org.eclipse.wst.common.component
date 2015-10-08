@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+  <wb-module deploy-name="oscm-ear">
+    <wb-resource deploy-path="/" source-path="/EarContent" />
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-brandmgmt/oscm-brandmgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-accountmgmt/oscm-accountmgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-application/oscm-application">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-billing/oscm-billing">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-communicationservices/oscm-communicationservices">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-eventmgmt/oscm-eventmgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-identitymgmt/oscm-identitymgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-paymentprocessing/oscm-paymentprocessing">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-portal/oscm-portal">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-reporting/oscm-reporting">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-serviceprovisioning/oscm-serviceprovisioning">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-subscriptionmgmt/oscm-subscriptionmgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-tenantprovisioning/oscm-tenantprovisioning">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-configservice/oscm-configservice">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-configservice-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-configservice-intsvc/oscm-configservice-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/classpath/lib/redhat-hibernate/javalib/antlr-2.7.6.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/classpath/lib/redhat-hibernate/javalib/dom4j-1.6.1.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/classpath/lib/redhat-hibernate/javalib/hibernate-annotations.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/classpath/lib/redhat-hibernate/javalib/hibernate-commons-annotations.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/classpath/lib/redhat-hibernate/javalib/hibernate-entitymanager.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/classpath/lib/redhat-hibernate/javalib/hibernate3.jar">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-identitymgmt-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-identitymgmt-intsvc/oscm-identitymgmt-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-accountmgmt-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-accountmgmt-intsvc/oscm-accountmgmt-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-tenantprovisioning-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-tenantprovisioning-intsvc/oscm-tenantprovisioning-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-serviceprovisioning-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-serviceprovisioning-intsvc/oscm-serviceprovisioning-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-subscriptionmgmt-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-subscriptionmgmt-intsvc/oscm-subscriptionmgmt-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-intsvc-base.jar" deploy-path="/"
+      handle="module:/resource/oscm-intsvc-base/oscm-intsvc-base">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-communicationservices-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-communicationservices-intsvc/oscm-communicationservices-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-startup.jar" deploy-path="/"
+      handle="module:/resource/oscm-startup/oscm-startup">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-common.jar" deploy-path="/"
+      handle="module:/resource/oscm-common/oscm-common">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-i18n/oscm-i18n">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-i18n-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-i18n-intsvc/oscm-i18n-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/oscm-timermgmt/oscm-timermgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-timermgmt-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-timermgmt-intsvc/oscm-timermgmt-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/" handle="module:/resource/eclipse-birt-runtime/eclipse-birt-runtime">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-extsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-extsvc/oscm-extsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-operatorsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-operatorsvc/oscm-operatorsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-pspresponse/oscm-pspresponse">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module deploy-path="/"
+      handle="module:/resource/oscm-sessionmgmt/oscm-sessionmgmt">
+      <dependent-object />
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+    <dependent-module archiveName="oscm-sessionmgmt-intsvc.jar" deploy-path="/"
+      handle="module:/resource/oscm-sessionmgmt-intsvc/oscm-sessionmgmt-intsvc">
+      <dependency-type>uses</dependency-type>
+    </dependent-module>
+  </wb-module>
+</project-modules>

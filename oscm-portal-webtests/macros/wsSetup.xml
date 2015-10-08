@@ -1,0 +1,14 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <taskdef uri="antlib:org.oscm.webtest.setup" resource="org/oscm/webtest/ant/tasks.xml">
+    <classpath>
+      <!-- local workspace files first -->
+      <pathelement path="../bin" />
+      <fileset dir="../..">
+        <include name="oscm-build/result/package/oscm-portal-webtests/*.jar" />
+        <include name="oscm-build/result/package/oscm-extsvc/*.jar" />
+        <include name="libraries/sun-glassfish-rt31/javalib/*.jar" />
+      </fileset>
+    </classpath>
+  </taskdef>
+</project>

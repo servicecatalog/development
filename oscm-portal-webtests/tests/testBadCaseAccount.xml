@@ -1,0 +1,250 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCaseAccount" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="testBadCaseAccount">
+
+    <webtest name="testBadCaseAccount_EditProfile">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <dataDriven tableContainer="data/pageFields/accountEditProfileFields.xls">
+        <clickLink href="/organization/edit.jsf" />
+        <!-- set the user mail to a valid value - otherwise validation will fail already for 
+            this field when testing the other ones -->
+        <setInputField htmlId="editForm:email" value="${common.email}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseAccount_ChangePassword">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <dataDriven tableContainer="data/pageFields/accountChangePasswordFields.xls">
+        <clickLink href="/user/pwd.jsf" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.change}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <!-- set the password fields to a valid value - otherwise validation will fail already for 
+            this field when testing the other ones -->
+          <setInputField htmlId="passwordform:currentPassword" value="secret" />
+          <setInputField htmlId="passwordform:password" value="secret" />
+          <setInputField htmlId="passwordform:password2" value="secret" />
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLabel="${button.change}" />
+        </dataDriven>
+      </dataDriven>
+      <!-- additional test with both new pwd fields more than 100 chars -->
+      <storeProperty name="longPwd" value="1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890a" propertyType="dynamic" />
+      <clickLink href="/user/pwd.jsf" />
+      <setInputField htmlId="passwordform:currentPassword" value="secret" />
+      <setInputField htmlId="passwordform:password" value="#{longPwd}" />
+      <common.initializeDataDrivenErrorMessage errormsg="${ex.ValidationException.LENGTH}" att0="#{longPwd}" att1="100" />
+      <common.testFieldValidation fieldId="passwordform:password2" fieldValue="#{longPwd}" error="${expectedMessage}" buttonLabel="${button.change}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseAccount_RegisterNewUser">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <dataDriven tableContainer="data/pageFields/accountRegisterNewUserFields.xls">
+        <clickLink href="/user/add.jsf" />
+        <!-- set the user mail and user id to a valid value - otherwise validation will fail 
+        already for this field when testing the other ones -->
+        <setInputField htmlId="userForm:userId" value="userB" />
+        <setInputField htmlId="userForm:email" value="${common.email}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.register}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLabel="${button.register}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseAccount_ManageUsers">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <dataDriven tableContainer="data/pageFields/accountManageUsersFields.xls">
+        <clickLink href="/user/list.jsf" />
+        <!-- select the user -->
+        <clickElement htmlId="userListForm:userListTable:0:userId" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" errorFieldId="#{fieldId}ErrorMsg" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <echo level="info" message="Message:fieldType #{fieldType}" />
+          <echo level="info" message="Message:field #{fieldId}" />
+          <echo level="info" message="Message:Value ${value}" />
+          <echo level="info" message="Message: ${expectedMessage}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" errorFieldId="#{fieldId}ErrorMsg" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseAccount_ManageSuppliers">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:techservice.createProxy runAs="#{userKey}" id="BASIC_TECH_SERVICE" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+
+      <!-- 2.  Platform login (local authentication) User A -->
+      <clickLink href="/organization/manageSuppliers.jsf" />
+      <setSelectField htmlId="selectForm:techServiceId" text="BASIC_TECH_SERVICE" />
+      <!-- only a simple required check as supplier id is readonly in service and will not be validated -->
+      <common.testFieldValidation fieldId="addSupplierForm:supplierId" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.add}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseAccount_ManageUdas">
+      <!-- Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <!-- Create one uda for customer and one for subscription -->
+      <setup:udaDef.create forCustomer="true" runAs="#{userKey}" />
+      <setup:udaDef.create forCustomer="false" runAs="#{userKey}" />
+  
+      <!-- Create subscription attributes modal dailog, test field errors -->
+      <dataDriven tableContainer="data/pageFields/accountManageUdasCreateFields.xls">
+        <clickLink href="/organization/manageUdas.jsf" />
+        <clickElement htmlId="udaDefinitionsSubscriptionForm:createUdaHiddenButton" />
+        <storeProperty name="fieldId" value="createForm:${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="createForm:createUdaHiddenButton" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <echo level="info" message="Message:fieldType #{fieldType}" />
+          <echo level="info" message="Message:field #{fieldId}" />
+          <echo level="info" message="Message:Value ${value}" />
+          <echo level="info" message="Message: ${expectedMessage}" />
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="createForm:createUdaHiddenButton" />
+        </dataDriven>
+      </dataDriven>
+
+      <!-- Edit subscription attributes modal dailog, test field errors -->
+      <dataDriven tableContainer="data/pageFields/accountManageUdasUpdateFields.xls">
+        <clickLink href="/organization/manageUdas.jsf" />
+        <clickLink htmlId="udaDefinitionsSubscriptionForm:subscriptionUdaTable:0:editSubscriptionUdaLink" />
+        <storeProperty name="fieldId" value="updateForm:${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="updateForm:updateUdaHiddenButton" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <echo level="info" message="Message:fieldType #{fieldType}" />
+          <echo level="info" message="Message:field #{fieldId}" />
+          <echo level="info" message="Message:Value ${value}" />
+          <echo level="info" message="Message: ${expectedMessage}" />
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="updateForm:updateUdaHiddenButton" />
+        </dataDriven>
+      </dataDriven>
+
+      <!-- Create customer attributes modal dailog, test field errors -->
+      <dataDriven tableContainer="data/pageFields/accountManageUdasCreateFields.xls">
+        <clickLink href="/organization/manageUdas.jsf" />
+        <clickElement htmlId="udaDefinitionsCustomerForm:createUdaHiddenButton" />
+
+        <storeProperty name="fieldId" value="createForm:${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="createForm:createUdaHiddenButton" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <echo level="info" message="Message:fieldType #{fieldType}" />
+          <echo level="info" message="Message:field #{fieldId}" />
+          <echo level="info" message="Message:Value ${value}" />
+          <echo level="info" message="Message: ${expectedMessage}" />
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="createForm:createUdaHiddenButton" />
+        </dataDriven>
+      </dataDriven>
+
+      <!-- Edit customer attributes modal dailog, test field errors -->
+      <dataDriven tableContainer="data/pageFields/accountManageUdasUpdateFields.xls">
+        <clickLink href="/organization/manageUdas.jsf" />
+        <clickLink htmlId="udaDefinitionsCustomerForm:customerUdaTable:0:editCustomerUdaLink" />
+        <storeProperty name="fieldId" value="updateForm:${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="updateForm:updateUdaHiddenButton" />
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" att1="${att1}" />
+          <echo level="info" message="Message:fieldType #{fieldType}" />
+          <echo level="info" message="Message:field #{fieldId}" />
+          <echo level="info" message="Message:Value ${value}" />
+          <echo level="info" message="Message: ${expectedMessage}" />
+          <this.verifyModalFieldError fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="updateForm:updateUdaHiddenButton" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <macrodef name="this.verifyModalFieldError">
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <attribute name="buttonLinkId" />
+    <attribute name="error" />
+    <attribute name="errorFieldId" default="@{fieldId}ErrorMsg" />
+    <sequential>
+      <setInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+      <clickElement htmlId="@{buttonLinkId}" />
+      <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msg-err')]//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
+      <verifyProperty name="errorMsg" value=".*@{error}.*" regex="true" />
+    </sequential>
+  </macrodef>
+</project>

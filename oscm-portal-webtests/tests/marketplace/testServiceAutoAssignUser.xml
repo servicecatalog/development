@@ -1,0 +1,100 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testServiceAutoAssignUser" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testServiceAutoAssignUser">
+    <webtest name="testServiceAutoAssignUser">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <!-- Create new organization  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="#{supplierId}" baseurl="#{baseUrl}" />
+      <storeProperty name="antBaseUrl" propertyType="ant" value="#{baseUrl}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <!-- Platform login (admin) -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <!-- Import technical service  -->
+      <techservice.import file="data/TechnicalServices-ServiceLogin.xml" /> 
+      <setup:service.define serviceId="#{marketServiceName}" name="#{marketServiceName}" namedUser="1" image="data/images/icon1.png" autoAssignUserEnabled="true"/>
+
+      <!-- Define marketable service price model  -->
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="true" description="Completely free"/>
+
+      <!-- Activate marketable service  -->
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+
+      <!-- Create Customer User1 -->
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="User1" isAdmin="true" isSvcMgr="true" isTechMgr="true" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <storeProperty name="customerUserKey" value="#{userKey}" />
+
+      <!-- Change User1 password to default-->
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <storeProperty name="customerPwd" value="#{userPwd}" />
+      <login.logout />
+
+      <!-- Create Customer User2 -->
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="User2" isAdmin="true" isSvcMgr="true" isTechMgr="true" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customer2Url" value="#{orgUrl}" />
+      <storeProperty name="customer2UserId" value="#{userId}" />
+      <storeProperty name="customer2UserKey" value="#{userKey}" />
+      <storeProperty name="customer2Pwd" value="#{userPwd}" />
+
+      <!-- Customer subscribes himself-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <property name="subscriptionName" value="#{marketServiceName}" />
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+
+      <mpl_service.subscribe mid="${mId}" index="0" />
+
+      <verifyXPath xpath="//*[@id='userListForm:userTable']" />
+      <verifyXPath xpath="//*[@id='userListForm:userTable:0:userId']" text="#{supplierUserId}"/>
+      <not>
+      	<verifyXPath xpath="//*[@id='userListForm:userTable:1:userId']" text="#{customerUserId}"/>
+      </not>
+      <not>	
+      	<verifyXPath xpath="//*[@id='userListForm:userTable:2:userId']" text="#{customer2UserId}"/>
+      </not>
+      <mpl_login.logout />
+
+    </webtest>
+  </target>
+
+  <!-- Clean-up remaining services -->
+  <target name="testServiceLogin_cleanUp" depends="testServiceAutoAssignUser">
+    <webtest name="testServiceAutoAssignUserCleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+</project>

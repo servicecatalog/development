@@ -1,0 +1,73 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testLandingpage" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <import file="../macros/all.xml" />
+
+  <target name="testLandingpage" depends="setup, test, cleanup" />
+
+  <target name="setup">
+    <webtest name="testLandingpage_Setup">
+      <testInfo type="DESCRIPTION">testLandingpage_Setup:
+			</testInfo>
+
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- Services are created and published on the marketplace -->
+      <mpl_setup.createServices mId1="${MID1}" />
+    </webtest>
+  </target>
+
+  <target name="test" depends="setup">
+
+    <!-- The public landing page shows all activated services. By default the first six services are shown.  -->
+    <webtest name="testServicesOnPublicLandingpageDefault">
+      <landingpage.loginAsSupplier />
+
+      <!-- Swith to public landingpage -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.saveLandingpage />
+      <login.logout />
+
+      <!-- Go to marketplace and verify if 6 services are displayed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <landingpage.existsServiceOnMarketplace max="6" />
+      <login.logout />
+    </webtest>
+
+    <!-- The public landing page shows all activated services. Show only the first two services.  -->
+    <webtest name="testServicesOnPublicLandingpageModified">
+      <landingpage.loginAsSupplier />
+
+      <!-- Swith to public landingpage -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.changeNumberOfServices numberServices="2" />
+      <landingpage.saveLandingpage />
+      <login.logout />
+
+      <!-- Go to marketplace and verify if 6 services are displayed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <landingpage.existsServiceOnMarketplace max="2" />
+      <login.logout />
+    </webtest>
+  </target>
+
+
+
+  <target name="cleanup" depends="setup">
+    <webtest name="cleanup">
+      <landingpage.deleteServices url="${supplierUrl}" userId="${supplierUserId}" />
+      <operator.deleteMarketplaces marketplaceIds="${MID1}" />
+    </webtest>
+  </target>
+
+</project>

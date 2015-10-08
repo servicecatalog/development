@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <BrokerRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <!-- everything is MISSING! -->
+
+  </BrokerRevenueShareResult>
+</RevenueSharesResults>

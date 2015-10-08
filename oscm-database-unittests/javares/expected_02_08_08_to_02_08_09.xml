@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+	<!-- TECHNICAL PRODUCTS -->
+	<Technicalproduct tkey="1001" version="0"
+		technicalproductid="tpid_1" organizationkey="11001" provisioningurl="url"
+		billingidentifier="NATIVE_BILLING" />
+
+	<Technicalproducthistory tkey="1"
+		provisioningurl="url" technicalproductid="tpid_1" modtype="modtype"
+		moduser="moduser" objkey="1001" objversion="0" organizationobjkey="11001"
+		invocationdate="2014-05-5 14:30:00" billingidentifier="NATIVE_BILLING" />
+</dataset>

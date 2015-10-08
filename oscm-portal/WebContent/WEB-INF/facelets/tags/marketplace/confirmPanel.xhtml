@@ -1,0 +1,61 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+  
+  <c:if test="#{empty submitId}">
+    <c:set var="submitId" value="confirmedButton" />
+  </c:if>
+  
+  <c:set var="modalId" value="#{empty panelId? 'confirmPanel': panelId }" />
+  <c:set var="isFirstModal" value="#{empty isFirstModal? true: isFirstModal }" />
+
+  <c:if test="#{isFirstModal}">
+      <c:set var="handleOnHideConfirmModal" value="AdmUtils.setPageOverflow('auto');" />
+  </c:if>
+
+  <rich:popupPanel id="${modalId}" trimOverlayedElements="false" resizeable="false" autosized="true" height="100"
+    width="350" onresize="return false;" zindex="16000" onshow="AdmUtils.adjustMplModalDialogPosition('${modalId}');"
+    onbeforeshow="AdmUtils.setPageOverflow('hidden');" onhide="#{handleOnHideConfirmModal}">
+
+    <img onclick="#{rich:component(modalId)}.hide();" src="#{imgUrl}/transparentPixel.png" class="closeButton" />
+
+    <h2>
+      <h:outputText value="#{header}" />
+    </h2>
+
+    <mp:pixelline />
+
+    <h3 style="margin-top: 12px;word-wrap: break-word; word-break: break-all;">
+      <h:outputText value="#{text1}" />
+    </h3>
+    
+    <h2 style="margin-top: 12px; margin-bottom: 20px;">
+      <h:outputText value="#{text2}" />
+    </h2>
+    
+	<a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
+	    <mp:button id="${modalId}OkButton" value="#{msg['button.yes']}"
+	      onclick="AdmUtils.showProgress(true);#{rich:element(submitId)}.click(); return false;" />
+
+        <c:choose>
+          <c:when test="#{empty cancelAction}">
+            <mp:button id="${modalId}CancelButton" value="#{msg['button.no']}"
+              onclick="#{rich:component(modalId)}.hide();return false;" />
+          </c:when>
+          
+          <c:otherwise>
+            <mp:button id="${modalId}CancelButtonWithAction" value="#{msg['button.no']}"
+                bean="#{bean}" action="#{cancelAction}" 
+                oncomplete="AdmUtils.showProgress(false);#{rich:component(modalId)}.hide();return false;" />
+          </c:otherwise>
+        </c:choose>
+     </a4j:outputPanel> 
+
+  </rich:popupPanel>
+</ui:composition>

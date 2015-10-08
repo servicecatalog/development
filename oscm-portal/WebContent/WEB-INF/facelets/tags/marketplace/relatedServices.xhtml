@@ -1,0 +1,79 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+  <!-- parameter: "bean" = subscription bean -->
+  <h:form id="showRelatedServiceForm">
+     <h:inputHidden id="relatedServiceKey" value="#{serviceDetailsModel.selectedServiceKey}" />
+    <h:commandButton id="showRelatedService" action="#{serviceDetailsCtrl.redirectToServiceDetails}" style="display: none;" />
+  </h:form>
+
+  <h:form id="filterSelectionForm">
+    <h:inputHidden id="tagFilter" value="#{servicePagingBean.filterTag}" />
+    <h:commandButton id="showFilteredList" action="#{serviceListingBean.showServiceList}" style="display: none;" />
+  </h:form>
+
+  <a4j:outputPanel layout="block" styleClass="accd1span">
+    <!-- Header -->
+    <a4j:outputPanel layout="block" styleClass="accdsection first">
+      <a4j:outputPanel layout="block" styleClass="heading accordion-open ">
+        <h4 id="header">
+          <h:outputText value="#{msg['marketplace.services.related.title']}" />
+        </h4>
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+
+    <a4j:outputPanel layout="block" styleClass="accdsection">
+      <a4j:outputPanel layout="block" styleClass="content">
+
+        <a4j:outputPanel layout="block" styleClass="innerframe menuBorderBottom">
+          <a4j:outputPanel layout="block" styleClass="innerblock">
+
+            <!--  Create the entries for the related services  -->
+            <c:forEach items="#{bean.relatedServices}" var="service" varStatus="status">
+
+              <c:if test="#{service eq bean.selectedService}">
+                <!--  First Row = selected service -->
+                <a4j:outputPanel layout="block" styleClass="menubox menuActive">
+                  <a4j:outputPanel layout="block" id="menuArrow"></a4j:outputPanel>
+                  <h4 id="serviceName#{status.index}" class="relatedServiceName">#{bean.selectedService.nameToDisplay}</h4>
+                  <h4 id="supplier#{status.index}" class="relatedServicePrice">#{bean.selectedService.priceToDisplay}</h4>
+                </a4j:outputPanel>
+              </c:if>
+
+              <c:if test="#{not(service eq bean.selectedService)}">
+                <h:outputLink id="link#{status.index}" value="#">
+                  <a4j:outputPanel id="menuItem#{status.index}" layout="block" styleClass="menubox menuStyle"
+                    onmouseover="this.className=this.className.replace('menuStyle','menuStyleOver')"
+                    onmouseout="this.className=this.className.replace('menuStyleOver','menuStyle')"
+                    onclick="AdmUtils.showProgress(true);#{rich:element('relatedServiceKey')}.value=#{service.key};#{rich:element('showRelatedService')}.click();return false;">
+                    <h4 id="selectedServiceH3#{status.index}" class="relatedServiceName">#{service.nameToDisplay}</h4>
+                    <h4 id="supplier#{status.index}" class="relatedServicePrice">#{service.priceToDisplay}</h4>
+                  </a4j:outputPanel>
+                </h:outputLink>
+              </c:if>
+            </c:forEach>
+            <!-- Browse all button -->
+            <a4j:outputPanel layout="block" styleClass="menubox menuActive menuBorderBottom menuButtonPanel">
+              <a4j:outputPanel styleClass="clearfix">
+                <mp:button id="buttonBrowseAllRelated" value="#{msg['button.browseAll']}"
+                  onclick="AdmUtils.showProgress(true);#{rich:element('tagFilter')}.value=''; #{rich:element('showFilteredList')}.click(); return false;" />
+              </a4j:outputPanel>
+            </a4j:outputPanel>
+
+          </a4j:outputPanel>
+        </a4j:outputPanel>
+
+
+
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+
+
+  </a4j:outputPanel>
+
+</ui:composition>

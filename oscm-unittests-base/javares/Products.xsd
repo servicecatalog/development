@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <xsd:element name="TechnicalProduct">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="Product" type="ProductType" maxOccurs="unbounded" minOccurs="0"/>
+        <xsd:element name="ProductReference" type="ProductReferenceType" maxOccurs="unbounded" minOccurs="0"/>
+      </xsd:sequence>
+      <xsd:attribute name="orgId" type="StrId" />
+      <xsd:attribute name="id" type="StrId" />
+      <xsd:attribute name="version" type="StrId" />
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="StrId">
+    <xsd:restriction base="xsd:string">
+       <xsd:maxLength value="40"/>
+       <xsd:pattern value="([()\-.0-9@A-Z\[\]_a-&#xD7FF;&#xE000;-&#xFFFD;&#x10000;-&#x10FFFF;])*"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+  
+  <xsd:simpleType name="Str255">
+    <xsd:restriction base="xsd:string">
+       <xsd:maxLength value="255"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="ProductType">
+    <xsd:sequence>
+      <xsd:element name="LocalizedResource" type="LocalizedResourceType" maxOccurs="unbounded" minOccurs="1"/>
+      <xsd:element name="PriceModel" type="PriceModelType" maxOccurs="1" minOccurs="1"/>
+      <xsd:element name="Parameter" type="ParameterType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:string" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="LocalizedResourceType">
+    <xsd:sequence>
+      <xsd:element name="MarketingName" type="Str255" />
+      <xsd:element name="MarketingDescription" type="Str255" />
+      <xsd:element name="ShortPriceDescription" type="Str255" maxOccurs="1" minOccurs="0" />
+      <xsd:element name="PriceDescription" type="Str255" maxOccurs="1" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="locale" type="xsd:string" />
+  </xsd:complexType>
+
+  <xsd:complexType name="PriceModelType">
+    <xsd:sequence>
+      <xsd:element name="PricedEvent" type="PricedEventType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="chargeable">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:boolean">
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="period">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="MONTH" />
+          <xsd:enumeration value="WEEK" />
+          <xsd:enumeration value="DAY" />
+          <xsd:enumeration value="HOUR"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="pricePerPeriod" type="xsd:decimal" />
+    <xsd:attribute name="pricePerUser" type="xsd:decimal" />
+    <xsd:attribute name="oneTimeFee" type="xsd:decimal" />
+  </xsd:complexType>
+
+  <xsd:complexType name="PricedEventType">
+    <xsd:attribute name="type" type="xsd:string" />
+    <xsd:attribute name="id" type="xsd:string" />
+    <xsd:attribute name="price" type="xsd:decimal" />
+  </xsd:complexType>
+
+  <xsd:complexType name="ParameterType">
+    <xsd:attribute name="type" type="xsd:string" />
+    <xsd:attribute name="id" type="xsd:string" />
+    <xsd:attribute name="value" type="xsd:string" />
+  </xsd:complexType>
+
+  <xsd:complexType name="ProductReferenceType">
+    <xsd:attribute name="sourceId" type="xsd:string" />
+    <xsd:attribute name="targetId" type="xsd:string" />
+  </xsd:complexType>
+
+</xsd:schema>
+

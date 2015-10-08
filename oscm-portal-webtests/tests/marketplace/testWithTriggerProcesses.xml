@@ -1,0 +1,248 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testWithTriggerProcesses" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testWithTriggerProcesses" depends="
+    testMPL_WithTriggerProcesses_SUBSCRIBE_TO_SERVICE,
+          testMPL_WithTriggerProcesses_UNSUBSCRIBE_FROM_SERVICE,
+      	  testMPL_WithTriggerProcesses_MODIFY_SUBSCRIPTION,
+      	  testMPL_WithTriggerProcesses_ADD_REVOKE_USER,
+      	  testMPL_WithTriggerProcesses_UPGRADE_SUBSCRIPTION,
+          testMPL_WithTriggerProcesses_cleanUp
+    " />
+
+  <target name="setup">
+    <webtest name="testMPL_WithTriggerProcesses_setup">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <scenario.createSimpleServices mid="${mId}" />
+
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="customer" />
+      <organization.managePayment rowNr="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="customerId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="customerUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="customerUserId" value="#{userId}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_SUBSCRIBE_TO_SERVICE_Blue_Portal" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_SUBSCRIBE_TO_SERVICE">
+
+      <administrator.createTriggerDefinition url="${supplierUrl}" userId="${supplierUserId}" type="SUBSCRIBE_TO_SERVICE" />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" suspended="true" />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" reExecution="true" />
+
+      <!--cleanup-->
+      <mpl_trigger.abortAllProcesses />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="SUBSCRIBE_TO_SERVICE" />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_SUBSCRIBE_TO_SERVICE" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_SUBSCRIBE_TO_SERVICE">
+      <mpl_trigger.createTriggerDefinition userId="${customerUserId}" type="SUBSCRIBE_TO_SERVICE" mid="${mId}" />
+
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" suspended="true" />
+      <mpl_verify.contentTitle title="${organization.manageTriggers.title}" />
+      <verifyXPath xpath="//*[@class='rf-dt-c column-break-userId stringInMultiLine']//*[@id='processListForm:triggerProcessTable:0:userId']" />
+    	 
+      <!--bug 11060-->
+      <mpl_goto.account.processes />
+      	
+      <!--bug 11354-->
+      <storeElementAttribute htmlid="processListForm:abortProcessDisabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled rightSpace" />   	
+      <storeElementAttribute htmlid="processListForm:deleteProcessDisabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled rightSpace" />
+    	
+      <clickElement htmlId="processListForm:triggerProcessTable:allCheckboxes" />
+    	
+      <storeElementAttribute htmlid="processListForm:abortProcess" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="undefined" />   
+      <storeElementAttribute htmlid="processListForm:deleteProcess" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="undefined" />
+    	
+      <clickElement htmlId="processListForm:triggerProcessTable:allCheckboxes" />
+    	
+      <storeElementAttribute htmlid="processListForm:abortProcessDisabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled rightSpace" />  
+      <storeElementAttribute htmlid="processListForm:deleteProcessDisabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled rightSpace" />
+    	
+      <!--clickElement htmlId="editProcessTriggerImage" /-->
+      <clickElement xpath="//img[@id='editProcessTriggerImage']" />
+      
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:triggerType" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:targetType" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:targetURL" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:suspend" attributeName="disabled" propertyName="disabled" />
+      <verifyProperty name="disabled" text="disabled" regex="true" />
+
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:triggerDefinitionPanelDeleteButton" attributeName="class" propertyName="class" />
+      <verifyProperty name="class" text="buttonDisabled" regex="true" />
+
+      
+      <mpl_goto.account.subscriptions />
+      <!--cleanup-->
+      <mpl_trigger.abortAllProcesses />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="SUBSCRIBE_TO_SERVICE" />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_UNSUBSCRIBE_FROM_SERVICE" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_UNSUBSCRIBE_FROM_SERVICE">
+      <mpl_trigger.createTriggerDefinition userId="${customerUserId}" type="UNSUBSCRIBE_FROM_SERVICE" mid="${mId}" />
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+      <mpl_subscription.unsubscribe suspended="true" />
+
+      <!--cleanup-->
+      <mpl_trigger.abortAllProcesses />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="UNSUBSCRIBE_FROM_SERVICE" />
+      <mpl_subscription.unsubscribe />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_MODIFY_SUBSCRIPTION" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_MODIFY_SUBSCRIPTION">
+      <mpl_trigger.createTriggerDefinition userId="${customerUserId}" type="MODIFY_SUBSCRIPTION" mid="${mId}" />
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="Modified name 1" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <mpl_verify.progress label="${progress.default}" />
+
+      <!--cleanup-->
+      <mpl_trigger.abortAllProcesses />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="MODIFY_SUBSCRIPTION" />
+      <mpl_subscription.unsubscribe />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_ADD_REVOKE_USER" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_ADD_REVOKE_USER">
+      <mpl_trigger.createTriggerDefinition userId="${customerUserId}" type="ADD_REVOKE_USER" mid="${mId}" />
+
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+
+      <setup:store.settings userkey="${customerUserKey}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="Mega Office Starter" usersToAdd="${customerUserKey}" />
+      <!-- performing the above steps, the assign users dialog is still open and you need to close the dialog (e.g. cancel) to perform the logout
+      but althoug manually everything is working fine, cancelling the dialog in this test results in a js error, thus navigation back to account
+      to perform the logout -->
+      <mpl_goto.account />
+      <mpl_login.logout />
+
+      <!-- Sleep for 3 seconds -->
+      <retry maxcount="3">
+        <invoke url="${mock.url}" />
+        <sleep seconds="1" />
+        <followFrame name="requests" />
+        <verifyXPath xpath="//*[@id='logentry:1']/h1" />
+      </retry>
+
+      <trigger.approve userKey="${customerUserKey}" />
+
+      <mock.clear />
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_trigger.deleteAllProcesses />
+      
+      <mpl_subscription.revokeUser subscriptionIndex="0" userIndex="0" suspended="true" />
+      <mpl_login.logout />
+
+
+      <retry maxcount="3">
+        <invoke url="${mock.url}" />
+        <sleep seconds="1" />
+        <followFrame name="requests" />
+        <verifyXPath xpath="//*[@id='logentry:1']/h1" />
+      </retry>
+
+      <trigger.approve userKey="${customerUserKey}" />
+
+      <!--cleanup-->
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="ADD_REVOKE_USER" />
+      <mpl_subscription.unsubscribe />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+  <target name="testMPL_WithTriggerProcesses_UPGRADE_SUBSCRIPTION" depends="setup">
+    <webtest name="testMPL_WithTriggerProcesses_UPGRADE_SUBSCRIPTION">
+      <mpl_trigger.createTriggerDefinition userId="${customerUserId}" type="UPGRADE_SUBSCRIPTION" mid="${mId}" />
+
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${mId}" index="1" />
+
+      <mpl_subscription.upgrade subscriptionIndex="0" chargeable="true" suspended="true" mid="${mId}" />
+      <mpl_verify.contentTitle title="${organization.manageTriggers.title}" />
+
+      <!--cleanup-->
+      <mpl_trigger.abortAllProcesses />
+      <mpl_trigger.deleteAllProcesses />
+      <mpl_trigger.deleteDefinition type="UPGRADE_SUBSCRIPTION" />
+      <mpl_subscription.unsubscribe />
+      <mpl_login.logout />
+      <mock.clear />
+    </webtest>
+  </target>
+
+
+
+  <target name="testMPL_WithTriggerProcesses_cleanUp">
+    <webtest name="testMPL_WithTriggerProcesses_cleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+</project>

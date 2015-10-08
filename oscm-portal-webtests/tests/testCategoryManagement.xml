@@ -1,0 +1,333 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="runAllCategoriesTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="runAllCategoriesTests" depends="create_categories" />
+
+  <!-- create service and assign categories -->
+  <macrodef name="this.defineServiceWithoutParameter">
+    <attribute name="serviceId" default="" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="" />
+    <attribute name="description" default="" />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="concurrentUser" default="" />
+    <attribute name="namedUser" default="" />
+    <attribute name="publicService" default="true" />
+    <attribute name="marketplaceId" />
+    <attribute name="image" default="" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      <ifStep description="Only set the image if specified">
+        <condition>
+          <verifyProperty name="imageFile" text="" regex="false" />
+        </condition>
+        <else>
+          <setFileField htmlId="editForm:image" fileName="@{image}" />
+        </else>
+      </ifStep>
+      <common.setEditorValue htmlId="editForm:description" value="@{description}" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <invoke url="${bes.http.url}/oscm-portal/service/publish.jsf" />
+      <setSelectField name="editForm:selectedServiceId" text="@{serviceId}" />
+      <setCheckbox htmlId="editForm:publicServiceCheckBox" checked="@{publicService}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+
+      <!-- assign categories -->
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Tests for the 'create psp dialog' from the operation menu entry -->
+  <target name="create_categories">
+
+    <!-- all fiels should initially be empty -->
+    <webtest name="testCreateCategories_goodCase">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <operatorPortal.login />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />      
+
+      <storeProperty name="antCategoryPrefix" value="cat_" propertyType="ant" />
+
+      <category.defineCategories marketplaceId="${mId}" categoryPrefix="${antCategoryPrefix}" count="2" />
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <verifySelectField htmlId="categoriesForm:locale" value="en" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:0:categoryId" value="${antCategoryPrefix}0" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="${antCategoryPrefix}0 en" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:1:categoryId" value="${antCategoryPrefix}1" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="${antCategoryPrefix}1 en" />
+
+      <setSelectField htmlId="categoriesForm:locale" value="de" />
+      <setInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="${antCategoryPrefix}0 de" />
+      <setInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="${antCategoryPrefix}1 de" />
+      <clickLink htmlId="categoriesForm:saveButton" />
+      <common.verifySuccess label="${info.categories.saved}" />
+
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <verifySelectField htmlId="categoriesForm:locale" value="de" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:0:categoryId" value="${antCategoryPrefix}0" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="${antCategoryPrefix}0 de" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:1:categoryId" value="${antCategoryPrefix}1" />
+      <verifyInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="${antCategoryPrefix}1 de" />
+
+      <category.deleteCategories marketplaceId="${mId}" count="1" />
+      <verifyXPath xpath="//*[@id='categoriesForm:categoriesTable:0:categoryId']" />
+      <not>
+        <verifyXPath xpath="//*[@id='categoriesForm:categoriesTable:1:categoryId']" />
+      </not>
+
+      <category.deleteCategories marketplaceId="${mId}" count="1" />
+      <not>
+        <verifyXPath xpath="//*[@id='categoriesForm:categoriesTable:0:categoryId']" />
+      </not>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_badCaseSameID">
+      <operatorPortal.login />
+      <clickLink href="/shop/manageCategories.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <verifyXPath xpath="//*[@id='categoriesForm:locale' and @class='select']" />
+      <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+      <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+      <setInputField htmlId="categoriesForm:categoriesTable:0:categoryId" value="cat" />
+      <setInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="cat1 en" />
+      <setInputField htmlId="categoriesForm:categoriesTable:1:categoryId" value="cat" />
+      <setInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="cat2 en" />
+      <clickLink htmlId="categoriesForm:saveButton" />
+      <common.verifyError label="${ex.NonUniqueBusinessKeyException.CATEGORY}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_badCaseSameName">
+      <operatorPortal.login />
+      <clickLink href="/shop/manageCategories.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+      <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+      <setInputField htmlId="categoriesForm:categoriesTable:0:categoryId" value="cat1" />
+      <setInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="cat1 en" />
+      <setInputField htmlId="categoriesForm:categoriesTable:1:categoryId" value="cat2" />
+      <setInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="cat1 en" />
+      <clickLink htmlId="categoriesForm:saveButton" />
+      <common.verifyError label="${ex.NonUniqueBusinessKeyException}" />
+
+      <!--Clean up in the end by deleting all categories. -->
+      <setCheckbox htmlId="categoriesForm:categoriesTable:0:deleteCategory" checked="true" />
+      <setCheckbox htmlId="categoriesForm:categoriesTable:1:deleteCategory" checked="true" />
+      <clickElement htmlId="categoriesForm:confirmedButton" />
+      <common.verifySuccess label="${info.categories.saved}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_ConcurrentModification_Bug_10015">
+      <!-- setup: create a category -->
+      <selectWebClient name="session1">
+        <operatorPortal.login />
+        <clickLink href="/shop/manageCategories.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+        <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+        <setInputField htmlId="categoriesForm:categoriesTable:0:categoryId" value="cat1" />
+        <setInputField htmlId="categoriesForm:categoriesTable:0:localizedValue" value="cat1 en" />
+
+        <clickLink htmlId="categoriesForm:saveButton" />
+        <common.verifySuccess label="${info.categories.saved}" />
+        <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+      </selectWebClient>
+
+      <!-- in session 2 concurrently delete the category -->
+      <selectWebClient name="session2">
+        <operatorPortal.login />
+        <clickLink href="/shop/manageCategories.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+        <setCheckbox htmlId="categoriesForm:categoriesTable:0:deleteCategory" checked="true" />
+        <clickElement htmlId="categoriesForm:confirmedButton" />
+        <common.verifySuccess label="${info.categories.saved}" />
+      </selectWebClient>
+
+      <!-- in session 1 add the same again -->
+      <selectWebClient name="session1">
+        <setInputField htmlId="categoriesForm:categoriesTable:1:categoryId" value="cat1" />
+        <setInputField htmlId="categoriesForm:categoriesTable:1:localizedValue" value="cat1 en" />
+        <clickLink htmlId="categoriesForm:saveButton" />
+        <common.verifyError label="${ex.ConcurrentModificationException}" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testCreateCategories_assignCategories_setup">
+      <storeProperty name="marketplaceId" value="${mId}" propertyType="ant" />
+      <storeProperty name="serviceId" value="MegaOffice1" propertyType="ant" />
+      <storeProperty name="categoriesCnt" value="3" propertyType="ant" />
+
+      <!-- define three categories -->
+      <operatorPortal.login />
+      <category.defineCategories marketplaceId="${mId}" count="${categoriesCnt}" />
+      <login.logout />
+
+      <!-- create supplier organization-->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization createUniqueId="true" roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="base_url" value="#{baseUrl}" propertyType="ant" />
+
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" baseurl="#{baseUrl}" marketplaceId="${mId}" />
+
+      <!-- create second marketplace -->
+      <operator.createMarketplace mIdProperty="marketplaceId2" ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="Marketplace2" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId2}" />
+
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" baseurl="#{baseUrl}" marketplaceId="${marketplaceId2}" />
+
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <techservice.import file="data/TechnicalServicesPlayground.xml" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_assignCategories_create">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <!-- create service with assigned categories -->
+      <common.ignorePageScriptError />
+      <this.defineServiceWithoutParameter techServiceId="Example 1.00" publicService="true" serviceId="${serviceId}" name="Mega Office Trial" description="Limited evaluation version." shortDescription="Manages small documents independent of their content." namedUser="1" image="data/images/icon1.png" marketplaceId="${mId}"/>
+      <login.logout />
+
+      <!-- verify category settings -->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="${serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <verifyCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+
+      <!-- clean up -->
+      <setup:service.delete serviceIds="${serviceId}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_assignCategories_update">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <!-- create service -->
+      <setup:service.define serviceId="${serviceId}" name="Mega Office Trial" description="Limited evaluation version." shortDescription="Manages small documents independent of their content." namedUser="1" image="data/images/icon1.png" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="${serviceId}" isFree="true" />
+
+      <!-- update service -->
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="${serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+
+      <!-- assign categories -->
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${serviceId}" />
+      <login.logout />
+
+      <!-- verify category settings -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="${serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <verifyCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_assignCategories_switchMp">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <!-- update service -->
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="${serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+
+      <!-- assign categories to marketplace 1 -->
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${serviceId}" />
+      <login.logout />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="${serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+
+      <!-- verify category settings marketplace 1 -->
+      <verifyCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+
+      <!-- switch to marketplace 2 -->
+      <setSelectField htmlId="editForm:marketplace" value="${marketplaceId2}" />
+
+      <!-- verify category settings marketplace 2 -->
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:categoriesLabelPanel']//*[contains(.,'${service.categories}')]" />
+      </not>
+
+      <!-- switch to marketplace 1 -->
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+
+      <!-- verify category settings marketplace 1 -->
+      <verifyCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateCategories_assignCategories_cleanUp">
+      <operator.deleteMarketplaces marketplaceIds="${marketplaceId2}" />
+
+      <operatorPortal.login />
+      <category.deleteCategories marketplaceId="${mId}" count="${categoriesCnt}" />
+      <login.logout />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:service.delete serviceIds="${serviceId}" />
+      <login.logout />
+    </webtest>
+
+  </target>
+</project>
+

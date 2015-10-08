@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <OrganizationRole tkey="12" rolename="testrole" version="0"  />
+  <Report tkey="1" version="0" reportname="Customer_CurrentBillingDetails" organizationrole_tkey="12" />
+</dataset>

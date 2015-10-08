@@ -1,0 +1,194 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:t="http://myfaces.apache.org/tomahawk"
+  template="../templates/modalDialog.xhtml">
+
+  <!-- Mandatory parameters: dialogId -->
+
+  <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+
+  <ui:define name="dialogScripts">
+    <c:set var="cancelHandler" value="setDirty(false);#{rich:component(dialogId)}.hide();AdmUtils.deselectRow();" />
+    <c:set var="modalFocusElement" value="#{dialogId}Form:triggerName" />
+  </ui:define>
+
+  <ui:define name="dialogTitle">
+    <h2>
+      <h:outputText value="#{dialogTitle}" />
+    </h2>
+  </ui:define>
+
+  <ui:define name="dialogDescription">
+    <a4j:outputPanel rendered="#{not empty dialogDescription}">
+      <h3>
+        <h:outputText value="#{dialogDescription}" />
+      </h3>
+    </a4j:outputPanel>
+  </ui:define>
+
+  <ui:define name="dialogContent">
+
+    <a4j:outputPanel id="#{dialogId}Grid" layout="block" styleClass="grid2span clearfix" style="width: 560px; padding: 10px;"
+      rendered="#{triggerDefinitionBean.administrator}">
+      <ui:fragment>
+        <h:form id="#{dialogId}Form">
+          <h:panelGrid columns="3" border="0" cellspacing="0" cellpadding="0" styleClass="smallPanel"
+            columnClasses="smallPanelCol1,smallPanelCol2 smallPanelCol2ForTriggerDefinition,smallPanelCol3">
+
+            <c:set var="reqBtnName" value="#{dialogId}Form:confirmedDeleteButton" />
+
+            <!-- trigger name -->
+            <adm:outputLabel value="#{msg['triggerDefinition.displayName']}" required="true" />
+            <h:inputText id="triggerName" label="#{msg['triggerDefinition.displayName']}"
+              value="#{triggerDefinitionBean.selectedTriggerDefinition.name}" maxlength="#{appBean.idLen}"
+              onchange="setDirty(true)" styleClass="fieldS" required="true">
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <adm:message id="triggerNameErrorMsg" for="triggerName" />
+
+            <!-- trigger type      Note: required does not work with tomahawk -->
+            <adm:labelAndSelect id="triggerType" required="true"
+              value="#{triggerDefinitionBean.selectedTriggerDefinition.type}" render="suspend"
+              label="#{msg['triggerDefinition.type']}" styleClass="fieldS" listenerBean="#{triggerDefinitionBean}"
+              disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+              <adm:selectItemPleaseSelect itemValue="#{null}" />
+              <f:selectItems value="#{triggerDefinitionBean.triggerTypeValues}" />
+              <f:converter converterId="enumConverter" />
+            </adm:labelAndSelect>
+
+            <!-- target type      Note: required does not work with tomahawk -->
+            <adm:labelAndSelect id="targetType" value="#{triggerDefinitionBean.selectedTriggerDefinition.targetType}"
+              label="#{msg['triggerDefinition.targetType']}" styleClass="fieldS"
+              disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+              <f:selectItems value="#{triggerDefinitionBean.triggerTargetTypeValues}" />
+            </adm:labelAndSelect>
+
+            <!-- target URL -->
+            <adm:outputLabel value="#{msg['triggerDefinition.target']}" required="true" />
+            <h:inputText id="targetURL" label="#{msg['triggerDefinition.target']}"
+              value="#{triggerDefinitionBean.selectedTriggerDefinition.target}" onchange="setDirty(true)"
+              styleClass="fieldS" required="true" maxlength="#{appBean.descriptionLen}"
+              disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+              <f:validator validatorId="url" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <adm:message id="targetURLErrorMsg" for="targetURL" />
+
+            <!-- suspend action check box -->
+
+            <h:outputText value="" />
+            <t:panelGroup colspan="2">
+              <h:panelGroup />
+            </t:panelGroup>
+          </h:panelGrid>
+
+          <h:selectBooleanCheckbox id="suspend"
+            disabled="#{!triggerDefinitionBean.suspendTrigger or triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}"
+            value="#{triggerDefinitionBean.selectedTriggerDefinition.suspendProcess}" />
+          <h:outputText value="#{msg['triggerDefinition.suspendProcess']}" />
+          <br />
+          <br />
+          <mp:pixelline />
+
+          <!-- hidden buttons -->
+          <h:commandButton id="hiddenSaveBtn" style="display:none;" value="#{msg['button.save']}"
+            action="#{triggerDefinitionBean.save}" onclick="setDirty(false);">
+            <f:ajax execute="@form" render=":#{dialogId}modalErrorMasterPanel @form :triggerDefinitionListForm :globalMessagesHolder"
+              onevent="MessageTrigger#{dialogId}.save.onEvent" onerror="MessageTrigger#{dialogId}.save.onError" />
+          </h:commandButton>
+
+          <h:commandButton id="confirmedDeleteButton" style="display:none;" value="#{msg['button.delete']}"
+            action="#{triggerDefinitionBean.delete}" onclick="setDirty(false);#{rich:component('confirmPanel')}.hide();">
+            <f:ajax execute="@form" render="@form :triggerDefinitionListForm :globalMessagesHolder"
+              onevent="MessageTrigger#{dialogId}.del.onEvent" onerror="MessageTrigger#{dialogId}.del.onError" />
+          </h:commandButton>
+          
+          <h:commandButton id="hiddenCancelButton" style="display:none;"
+                onclick="
+                    AdmUtils.clearModalErrorPanel('#{dialogId}modalErrorMasterPanel');
+                    AdmUtils.clearHiddenErrorPanel();
+                    AdmUtils.deselectRow();
+                    setDirty(false);
+                    #{rich:component(dialogId)}.hide();"
+                value="#{msg['button.cancel']}" >
+                    <f:ajax execute="@this" render="@form :globalMessagesHolder" />
+                    <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+          </h:commandButton>
+          <!-- hidden buttons -->
+
+          <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
+
+            <mp:button id="#{dialogId}Save"
+              onclick="setDirty(false);AdmUtils.showProgress(true);#{rich:element('hiddenSaveBtn')}.click(); return false;"
+              value="#{msg['button.save']}" />
+
+            <mp:button id="#{dialogId}DeleteButton" value="#{msg['button.delete']}"
+              rendered="#{!triggerDefinitionBean.newTriggerDefinition}"
+              disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}"
+              onclick="#{rich:component('confirmPanel')}.show();return false;"/>
+
+            <mp:button id="#{dialogId}cancelButton" 
+            	onclick="
+            		setDirty(false);
+            		#{rich:component(dialogId)}.hide();
+            		#{rich:element('hiddenCancelButton')}.click();
+            		return false;"
+               	value="#{msg['button.cancel']}" />
+          </a4j:outputPanel>
+
+          <mp:confirmPanel header="#{msg['marketplace.account.processes.manageTrigger.remove.title']}"
+            text1="#{msg['confirm.trigger.definition.delete']}"
+            text2="#{msg['marketplace.areyousure']}"
+            submitId="confirmedDeleteButton"
+            isFirstModal="false" />
+        
+        <script type="text/javascript">
+      var #{dialogId}ErrorFlag = #{facesContext.maximumSeverity.ordinal == 0};
+
+      var MessageTrigger#{dialogId} = {
+        save: {
+          onError: function onError(error){
+            console.log('Error occurred while saving new trigger >> ' + error.description);
+            console.log(error);
+          },
+          onEvent: function onEvent(data){
+            if (data.status == "success") {
+                AdmUtils.showProgress(false);
+                setDirty(false);
+                if(#{dialogId}ErrorFlag){
+                  #{rich:component(dialogId)}.hide();
+                } else {
+                  AdmUtils.clearHiddenErrorPanel();
+                }
+            }
+          }
+        },
+        del: {
+          onEvent: function onTriggerEventDelete(data){
+            if (data.status == "success") {
+              AdmUtils.showProgress(false);
+              setDirty(false);
+              if(#{dialogId}ErrorFlag){
+                #{rich:component(dialogId)}.hide();
+              }
+            }
+          },
+          onError: function(error){
+            console.log('Error occurred while deleting trigger >> ' + error.description);
+            console.log(error);
+          }
+        }
+      }
+    </script>
+        </h:form>
+
+      </ui:fragment>
+    </a4j:outputPanel>
+    
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,69 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCasePublic">
+  <import file="../macros/all.xml" />
+  <target name="testBadCasePublic">
+
+    <webtest name="testBadCasePublic_ChangePassword">
+      <mail.cleanInbox />
+      <!-- register supplier -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- login as supplier -->
+      <invoke url="#{orgUrl}" />
+      <setInputField name="userId" value="#{userId}" />
+      <setInputField name="password" value="#{userPwd}" />
+      <clickButton label="${button.login}" />
+      <dataDriven tableContainer="data/pageFields/publicChangePasswordFields.xls">
+        <invoke url="#{orgUrl}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.change}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <!-- set the password fields to a valid value - otherwise validation will fail already for 
+            this field when testing the other ones -->
+          <setInputField htmlId="passwordform:currentPassword" value="#{userPwd}" />
+          <setInputField htmlId="passwordform:password" value="secret" />
+          <setInputField htmlId="passwordform:password2" value="secret" />
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLabel="${button.change}" />
+        </dataDriven>
+      </dataDriven>
+      <!-- additional test with both new pwd fields more than 100 chars -->
+      <storeProperty name="longPwd" value="1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890a" propertyType="dynamic" />
+      <invoke url="#{orgUrl}" />
+      <setInputField htmlId="passwordform:currentPassword" value="#{userPwd}" />
+      <setInputField htmlId="passwordform:password" value="#{longPwd}" />
+      <!--To be fixed for bug11657 -->
+      <!--common.testFieldValidation fieldId="passwordform:password2" fieldValue="#{longPwd}" error="100" buttonLabel="${button.change}" /-->
+    </webtest>
+
+    <webtest name="testBadCasePublic_sendAccounts">
+      <mail.cleanInbox />
+      <!-- register supplier -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- login as supplier -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <login.logout />
+      <dataDriven tableContainer="data/pageFields/publicSendAccountsFields.xls">
+        <invoke url="#{baseUrl}/public/sendaccounts.jsf" />
+        <setInputField name="sendAccountsForm:email" value="${common.email}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.ok}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLabel="${button.ok}" />
+        </dataDriven>
+      </dataDriven>
+    </webtest>
+
+  </target>
+</project>

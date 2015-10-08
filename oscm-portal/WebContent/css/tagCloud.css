@@ -1,0 +1,56 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2015 
+ */ 
+@charset "utf-8";
+
+/* --------------------------------------------------------------------
+
+Copyright 2010-2012 FUJITSU LIMITED
+
+-------------------------------------------------------------------- */
+
+.tagCloudOuter {
+  color: rgb(255, 255, 255);
+  background-color: rgb(177, 177, 172);
+  margin-left: -2px;
+  margin-right: -2px;
+  margin-top: -2px;
+  padding: 4px;
+  text-wrap: normal;
+  min-height: 100px;
+  line-height: 1.5;
+  border-radius: 8px 8px 0px 0px;
+}
+
+.tagCloudBrowseAll {
+  background: #ffffff;
+}
+
+.tagCloud {
+  color: white;
+  text-decoration: none;
+  background-color: transparent;
+  background: none repeat scroll 0% 0% transparent;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+.tagCloud .tag {
+  background-color: transparent;
+  padding: 6px;
+  color: white;
+  text-decoration: none;
+  background: none repeat scroll 0% 0% transparent;
+}
+
+.tagCloud .tag:hover {
+  background-color: #CCC;
+  font-size: 8px;
+  padding: 6px;
+  color: white;
+  text-decoration: none;
+}
+
+.tagCloud .preview:hover {
+  cursor: default;
+}

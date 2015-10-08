@@ -1,0 +1,78 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testStory5" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  
+  <target name="testStory5">
+    <webtest name="testStory5">
+      <mail.cleanInbox />
+
+      <!-- create org; login as admin; import technical services and define service -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="savedOrgUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="savedOrgUserId" value="#{userId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="MarketplaceTS5" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExampleTrial" name="Trial"/>
+
+      <!-- register second user and logout -->
+      <user.register userId="userB" isSvcMgr="true" />
+      <login.logout />
+
+      <!-- login as second user; change password and modify profile; logout -->
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="userBUserId" value="#{userId}" />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{savedOrgUrl}" userId="#{userBUserId}" password="#{userPwd}" />
+      <user.changePwd oldPwd="secret" newPwd="newPassword" />
+      <user.editProfile concurrencyCheck="true" />
+      <login.logout />
+
+      <!-- login as initial admin and reset password of second user; logout -->
+      <login.loginAsSupplier url="#{savedOrgUrl}" userId="#{savedOrgUserId}" password="secret" />
+      <user.resetUserPwd rowNr="1" userId="#{userBUserId}" />
+      <login.logout />
+
+      <!-- login as second user with new generated password; logout -->
+      <mail.readResetPasswordFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{savedOrgUrl}" userId="#{userBUserId}" password="#{userPwd}" />
+      <login.logout />
+
+      <!-- login again as initial admin; register user and delete it again -->
+      <login.loginAsSupplier url="#{savedOrgUrl}" userId="#{savedOrgUserId}" password="secret" />
+      <user.register userId="userToDelete" />
+      <user.delete userId="#{uniqueUserId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+
+      <!-- login again as initial admin; register third user and logout -->
+      <login.loginAsSupplier url="#{savedOrgUrl}" userId="#{savedOrgUserId}" password="secret" />
+      <user.register userId="userC" isSvcMgr="true" />
+      <login.logout />
+
+      <!-- login as third user with wrong password; verify account locked with correct password -->
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="userCUserId" value="#{userId}" />
+      <login.loginFail url="#{savedOrgUrl}" userId="#{userCUserId}" password="wrong" description="1st login with wrong password" />
+      <login.loginFail url="#{savedOrgUrl}" userId="#{userCUserId}" password="wrong" description="2nd login with wrong password" />
+      <login.loginLocked url="#{savedOrgUrl}" userId="#{userCUserId}" password="wrong" description="3rd login with wrong password - results in locked account" />
+      <login.loginLocked url="#{savedOrgUrl}" userId="#{userCUserId}" password="#{userPwd}" description="login with correct password has to fail because account is locked" />
+
+      <!-- login as initial admin and unlock third user by resetting password; logout -->
+      <login.loginAsSupplier url="#{savedOrgUrl}" userId="#{savedOrgUserId}" password="secret" />
+      <user.resetUserPwd rowNr="2" userId="#{userCUserId}" />
+      <login.logout />
+
+      <!-- login as third user with new generated password -->
+      <mail.readResetPasswordFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{savedOrgUrl}" userId="#{userCUserId}" password="#{userPwd}" />
+      <login.logout />
+
+    </webtest>
+  </target>
+</project>

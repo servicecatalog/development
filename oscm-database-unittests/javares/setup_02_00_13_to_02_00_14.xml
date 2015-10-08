@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="supplier" registrationdate="1234"
+      localmarketplace_tkey="10" />
+  
+  <Marketplace tkey="10" creationdate="1234" version="0" organization_tkey="1" 
+      marketplaceid="m1" global="true"/>
+  <Marketplace tkey="11" creationdate="1234" version="0" organization_tkey="1" 
+      marketplaceid="m2" global="true"/>
+
+  <TechnicalProduct tkey="1" provisioningurl="url" technicalproductid="1" technicalproductversion="0" version="0" organizationkey="1"/>
+  <Product tkey="1" productid="pr1" provisioningdate="1234" status="status" version="0" 
+      supplierkey="1" technicalproduct_tkey="1" publicservice="true" />
+  <ProductHistory tkey="1" productid="1" provisioningdate="123" status="1" 
+      moddate="2011-04-03 14:28:10" modtype="1" moduser="1" objkey="1" supplierobjkey="1" 
+     technicalproductobjkey="1" publicservice="true" objversion="0"/>
+
+  <Catalogentry tkey="1" version="0" position="1" organization_tkey="1" product_tkey="1"/>
+  
+  <Organizationhistory tkey="20" organizationid="supplier" registrationdate="1234" 
+    moddate="2011-04-03 14:28:10" modtype="t1" moduser="u1" objkey="1" objversion="0" 
+    localmarketplaceobjkey="10" />
+  <Organizationhistory tkey="21" organizationid="supplier" registrationdate="1234" 
+    moddate="2011-04-03 14:29:10" modtype="t1" moduser="u1" objkey="1" objversion="0"
+    localmarketplaceobjkey="10" />
+  <Organizationhistory tkey="22" organizationid="supplier" registrationdate="1234" 
+    moddate="2011-04-03 14:30:10" modtype="t1" moduser="u1" objkey="1" objversion="0"
+    localmarketplaceobjkey="11" />
+    
+  <CatalogentryHistory tkey="30" moddate="2011-04-03 14:30:00" modtype="t1" moduser="u1"
+    objkey="1" objversion="0" position="1" organizationobjkey="1" productobjkey="1"/>
+  <CatalogentryHistory tkey="31" moddate="2011-04-03 14:31:00" modtype="t1" moduser="u1"
+    objkey="1" objversion="0" position="1" organizationobjkey="1" productobjkey="1" />
+    
+</dataset>

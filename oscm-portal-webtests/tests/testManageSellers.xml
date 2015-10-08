@@ -1,0 +1,95 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManageSellers" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="testManageSellers">
+	<webtest name="setup">
+	  <mail.cleanInbox />
+	  <operator.createorganization roles="RESELLER"/>
+	  <mail.readPasswordAndUrlFromMail />
+	  <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+	  <storeProperty name="resellerUrl" value="#{orgUrl}" propertyType="ant"/>
+	  <storeProperty name="resellerId" value="#{orgId}" propertyType="ant"/>
+	  <storeProperty name="resellerUserId" value="#{userId}" propertyType="ant"/>
+	  <login.logout />  		
+
+	  <mail.cleanInbox />
+	  <operator.createorganization />
+	  <mail.readPasswordAndUrlFromMail />
+	  <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+	  <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+	  <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="administrator" value="administrator" propertyType="ant" />
+      <storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+	  <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <operator.createMarketplace mIdProperty="mId_MP1" ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="Local Marketplace"/>    
+      <operator.createMarketplace mIdProperty="mId_MP2" ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="Local Marketplace"/>
+      <operator.createMarketplace mIdProperty="mId_MP3" ownerId="PLATFORM_OPERATOR" baseurl="#{baseUrl}" name="Local Marketplace"/>
+	  <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+	</webtest>
+
+	<webtest name="testManageUsers_Bug9720">
+	  <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+	  <!-- Switch to manageSuppliers page -->
+	  <invoke url="${supplierUrl}/shop/manageSuppliers.jsf" />
+      <!-- Choose marketplace -->
+	  <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" text="Local Marketplace (${mId})"/>		
+	  <!-- Authorize a seller -->
+	  <setInputField htmlId="addSupplierForm:supplierId" value="" />
+	  <clickButton htmlId="addSupplierForm:confirmedAddButton" />
+	  <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${javax.faces.component.UIInput.REQUIRED}" />
+	  <setInputField htmlId="addSupplierForm:supplierId" value="*****" />
+	  <clickButton htmlId="addSupplierForm:confirmedAddButton" />
+	  <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${ex.ValidationException.ID_CHAR}" />
+	  <setInputField htmlId="addSupplierForm:supplierId" value="${resellerId}" />
+	  <clickButton htmlId="addSupplierForm:confirmedAddButton" />
+	  <common.verifySuccess label="." />
+
+	</webtest>
+    
+	<webtest name="testManageUsers_Bug10810">
+      <!-- (1) Set the common email address for 'administrator', to receive marketplace creation emails -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <user.edit.email />
+      <login.logout />
+  
+	  <selectWebClient name="client_A">
+	    <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+		<invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+	  </selectWebClient>
+
+	  <selectWebClient name="client_B">
+	    <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+        <invoke description="invoke shop/deleteMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId_MP1}" />
+        <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+        <!-- a dialog will pop up and click the okButton to continue -->
+        <clickElement htmlId="confirmForm:okButton" />
+        <common.handleMessageParameters property="msg" value="${info.marketplace.deleted}" att0="${mId_MP1}" />
+        <common.verifySuccess label="#{msg}" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId_MP2}" />
+        <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+        <!-- a dialog will pop up and click the okButton to continue -->
+        <clickElement htmlId="confirmForm:okButton" />
+        <common.handleMessageParameters property="msg" value="${info.marketplace.deleted}" att0="${mId_MP2}" />
+        <common.verifySuccess label="#{msg}" />
+	  </selectWebClient>
+	  
+	  <selectWebClient name="client_A">  
+	    <!-- Choose marketplace -->
+		<setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" text="Local Marketplace (${mId_MP1})"/>
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${mId_MP1}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+	    <not>
+	      <verifyXPath xpath="//select[@id='marketplaceSelectForm:selectMarketplaceId']" text=".*Local Marketplace (${mId_MP2}).*" regex="true" />
+	    </not>
+	    <!-- Choose marketplace -->
+		<setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" text="Local Marketplace (${mId_MP3})"/>  
+	    <not>
+	      <common.verifyPageChangedWarning enableVerifyNoDialogs="true"/>
+	    </not>
+	  </selectWebClient>
+	</webtest>
+
+   </target>
+</project>

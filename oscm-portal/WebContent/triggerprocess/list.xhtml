@@ -1,0 +1,112 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="triggerProcess.list" />
+  </ui:define>
+  <ui:define name="body">
+
+    <adm:outputStep value="#{msg['triggerProcess.list.step1']}" />
+
+    <h:form id="editForm">
+
+      <t:panelGroup colspan="3" style="width:100%" styleClass="checkBoxLabelAndValuePanel">
+        <h:selectBooleanCheckbox id="filterProcessesChooser" value="#{triggerProcessBean.myProcessesOnly}"
+          valueChangeListener="#{triggerProcessBean.filteringChanged}" immediate="true" onclick="this.blur();"
+          rendered="#{triggerProcessBean.userFromSession.organizationAdmin}">
+          <a4j:ajax render="triggerProcessTablePanel,triggerProcessButtonPanel" event="change"
+            eventsQueue="QfilterChooser" oncomplete="AdmUtils.setUIElements()" />
+        </h:selectBooleanCheckbox>
+        <h:outputText value="#{msg['triggerProcess.myProcessesOnly']}"
+          rendered="#{triggerProcessBean.userFromSession.organizationAdmin}" />
+        <h:outputText value="" rendered="#{triggerProcessBean.userFromSession.organizationAdmin}" />
+      </t:panelGroup>
+
+      <a4j:outputPanel id="triggerProcessTablePanel" layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="triggerProcessTable" value="#{triggerProcessBean.triggerProcessList}"
+          columnClasses="labelAndValuePanelCol1" label="#{msg['triggerProcess.table.header']}">
+
+          <rich:column styleClass="tableColumnCheckBox">
+            <f:facet name="header">
+              <h:selectBooleanCheckbox id="allCheckboxes"
+                                       value="#{triggerProcessBean.selectAll}"
+                                       styleClass="tableColumnCheckBox"
+                                       onclick="AdmUtils.setAllCheckboxes('editForm:triggerProcessTable', 'selected', this.checked, true);" />
+            </f:facet>
+            <h:selectBooleanCheckbox id="selected" value="#{rowItem.selected}" onchange="setDirty(true)" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['triggerProcess.key']}" />
+            </f:facet>
+            <h:outputText id="key" value="#{rowItem.key}" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['triggerProcess.description']}" />
+            </f:facet>
+            <c:set var="key" value="#{rowItem.messageKey}" />
+            <h:outputFormat id="description" value="#{msg[key]}">
+              <f:param value="#{rowItem.targetNames[0]}" />
+              <f:param value="#{rowItem.targetNames[1]}" />
+              <f:param value="#{rowItem.targetNames[2]}" />
+              <f:param value="#{rowItem.targetNames[3]}" />
+            </h:outputFormat>
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['triggerProcess.activationDate']}" />
+            </f:facet>
+            <h:outputText id="activationDate" value="#{rowItem.activationDate}">
+              <f:convertDateTime pattern="#{msg[appBean.dateTimePattern]}" timeZone="#{appBean.timeZoneId}" />
+            </h:outputText>
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['user.userId']}" />
+            </f:facet>
+            <h:outputText id="userId" value="#{rowItem.user.userId}" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['triggerProcess.status']}" />
+            </f:facet>
+            <c:set var="key" value="TriggerProcessStatus.#{rowItem.status}" />
+            <h:outputText id="state" value="#{msg[key]}" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['triggerProcess.reason']}" />
+            </f:facet>
+            <h:outputText id="reason" value="#{rowItem.reason}" />
+          </rich:column>
+
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <a4j:outputPanel id="triggerProcessButtonPanel">
+        <adm:buttonPanel>
+          <adm:button id="cancelButton" value="#{msg['button.abort']}" bean="#{triggerProcessBean}"
+            action="cancelTriggerProcesses" disabled="#{empty triggerProcessBean.triggerProcessList}"
+            buttonType="cancel" />
+          <adm:button id="deleteButton" value="#{msg['button.delete']}" bean="#{triggerProcessBean}"
+            action="deleteTriggerProcesses" disabled="#{empty triggerProcessBean.triggerProcessList}"
+            buttonType="delete" />
+        </adm:buttonPanel>
+      </a4j:outputPanel>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

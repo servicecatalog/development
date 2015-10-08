@@ -1,0 +1,222 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <!-- Execute search -->
+  <macrodef name="mpl_search.execute">
+    <attribute name="phrase" />
+    <attribute name="useButton" default="true" />
+    <sequential>
+      <verifyXPath xpath="//input[@id='Search']" />
+      <setInputField htmlId="Search" value="@{phrase}" />
+      <ifStep test="@{useButton}">
+        <then>
+          <clickLink htmlId="searchForm:hiddenLink" />
+        </then>
+        <else>
+          <groovy description="Press Return Key">
+            step.context.currentResponse.getHtmlElementById('Search').type('\n') 
+          </groovy>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Define a free marketable service for search -->
+  <macrodef name="mpl_search.createService">
+    <attribute name="index" default="1" />
+    <attribute name="name" />
+    <attribute name="techServiceId" default="Example1" />
+    <attribute name="shortDescription" />
+    <attribute name="pricesDescription" default="" />
+    <attribute name="description" default="" />
+    <attribute name="login" default="false" />
+    <attribute name="perUser" default="10" />
+    <attribute name="basePrice" default="6" />
+    <attribute name="perSub" default="6" />
+    <attribute name="isFree" default="true" />
+    <attribute name="mid" />
+    <sequential>
+      <setup:service.define serviceId="S@{index}" name="@{name}" techServiceId="@{techServiceId}" shortDescription="@{shortDescription}" description="@{description}" marketplaceId="@{mid}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S@{index}" isFree="@{isFree}" perUser="@{perUser}" basePrice="@{basePrice}" perSub="@{isFree}" description="@{pricesDescription}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify given phrase is contained in value of given property -->
+  <macrodef name="mpl_search.verifySearchResult">
+    <attribute name="phrase" />
+    <attribute name="property" />
+    <sequential>
+      <verifyProperty name="@{property}" text="*.@{phrase}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify that we are on the search result page -->
+  <macrodef name="mpl_search.verifySearchResultPage">
+    <attribute name="nOfServices" />
+    <sequential>
+      <mpl_verify.breadCrumb actualPage="${marketplace.searchresults.title}" />
+      <verifyElementText description="Verify number of services" htmlId="servicesCount" text="@{nOfServices}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify if service exists -->
+  <macrodef name="mpl_search.verifyMatchingServicesExist">
+    <attribute name="numberOfServices" />
+    <attribute name="phrase" />
+    <sequential>
+      <mpl_search.verifyServicesList numberOfservices="@{numberOfServices}" phrase="@{phrase}" isSearchResult="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- Check if given phrase occurs in service description of search result listed at position pos. -->
+  <macrodef name="mpl_search.verifySearchResultDescription">
+    <attribute name="pos" />
+    <attribute name="phrase" />
+    <attribute name="searchWithPhrase" default="false" />
+    <sequential>
+      <storeProperty property="checkSearch" value="@{searchWithPhrase}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="checkSearch" text="true" />          
+        </condition>
+        <then>
+          <clickLink xpath="//a[contains(@id,'@{pos}:serviceButton')]" />
+        </then>
+        <else>
+          <clickLink htmlId="serviceButton@{pos}" />
+        </else>
+      </ifStep>
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <storeXPath xpath="//div[matches(@id, 'tabDescription:content')]/text()" property="desc_text" />
+      <storeProperty property="result" value="0" eval="true" />
+      <common.numberOfOccurences substring="@{phrase}" string="#{desc_text}" property="result" />
+
+      <mpl_search.execute phrase="@{phrase}" />
+      <verifyXPath xpath="number(#{result}) &gt; 0" description="Ensure we have results." />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify the search result list resulting from searching the given phrase. -->
+  <!-- Check occurrence of given phrase in all listed services. Use given attributes to constrain what to check. -->
+  <macrodef name="mpl_search.verifyServicesList">
+    <attribute name="numberOfServices" />
+    <attribute name="phrase" />
+    <attribute name="tag" default="true" />
+    <attribute name="name" default="true" />
+    <attribute name="shortDescription" default="true" />
+    <attribute name="description" default="false" />
+    <attribute name="isSearchResult" default="true" />
+    <sequential>
+      <storeProperty name="foundService" value="false" />
+      <storeProperty name="nOfServices" value="@{numberOfServices}" eval="true" />
+      <repeat count="#{nOfServices}" countername="count">
+        <ifStep test="@{tag}">
+          <storeProperty name="matchingTags" value="" />
+          <!-- Look for resulting services matched by tags -->
+          <ifStep description="Look for resulting services matched by tags">
+            <condition>
+              <not>
+                <verifyProperty name="foundService" text="true" />
+              </not>
+            </condition>
+            <then>
+              <ifStep description="Search for tags">
+                <condition>
+                  <mpl_verify.serviceTag pos="#{count}" tag="@{phrase}" searchWithPhrase="@{isSearchResult}" />
+                </condition>
+                <then>
+                  <storeXPath property="matchingTags" xpath="concat('#{matchingTags}','#{count}',',')" />
+                  <storeProperty property="foundService" value="true" />
+                </then>
+              </ifStep>
+            </then>
+          </ifStep>
+        </ifStep>
+        <ifStep test="@{name}">
+          <storeProperty name="matchingNames" value="" />
+          <!-- Look for resulting services matched by  name -->
+          <ifStep description="Look for resulting services matched by  name ">
+            <condition>
+              <not>
+                <verifyProperty name="foundService" text="true" />
+              </not>
+            </condition>
+            <then>
+              <ifStep description="Search for name">
+                <condition>
+                  <verifyXPath xpath="contains(//*[@id=&quot;service#{count}Name&quot;]/text(), '@{phrase}')" description="Searching for @{phrase} in name." />
+                </condition>
+                <then>
+                  <storeXPath property="matchingNames" xpath="concat('#{matchingNames}','#{count}',',')" />
+                  <storeProperty property="foundService" value="true" />
+                </then>
+              </ifStep>
+            </then>
+          </ifStep>
+        </ifStep>
+        <ifStep test="@{shortDescription}">
+          <storeProperty name="matchingShortDescriptions" value="" />
+          <!-- Look for resulting services matched by  short description -->
+          <ifStep description="Look for resulting services matched by  short description">
+            <condition>
+              <not>
+                <verifyProperty name="foundService" text="true" />
+              </not>
+            </condition>
+            <then>
+              <ifStep description="Search for short description">
+                <condition>
+                  <verifyXPath xpath="contains(//*[@id=&quot;service#{count}ShortDesc&quot;]/text(), '@{phrase}') or contains(//*[contains(@id, &quot;#{count}:serviceShortDesc&quot;)]/text(), '@{phrase}')" description="Searching for @{phrase} in short description." />
+                </condition>
+                <then>
+                  <storeXPath property="matchingShortDescriptions" xpath="concat('#{matchingShortDescriptions}','#{count}',',')" />
+                  <storeProperty property="foundService" value="true" />
+                </then>
+              </ifStep>
+            </then>
+          </ifStep>
+        </ifStep>
+
+        <ifStep test="@{description}">
+          <ifStep description="Look for resulting services matched by long description">
+            <condition>
+              <not>
+                <verifyProperty name="foundService" text="true" />
+              </not>
+            </condition>
+            <then>
+              <ifStep description="Search for long description">
+                <condition>
+                  <mpl_search.verifySearchResultDescription phrase="@{phrase}" pos="#{count}" searchWithPhrase="@{isSearchResult}" />
+                </condition>
+                <then>
+                  <storeXPath property="matchingDescriptions" xpath="concat('#{matchingDescriptions}','#{count}',',')" />
+                  <storeProperty property="foundService" value="true" />
+                </then>
+              </ifStep>
+            </then>
+          </ifStep>
+        </ifStep>
+
+        <!-- If we are interested only if any matching service exists in the list, we ignore non-matching results, -->
+        <!-- otherwise validate each result. -->
+        <ifStep description="Is search result?" test="@{isSearchResult}">
+          <verifyProperty name="foundService" text="true" />
+        </ifStep>
+      </repeat>
+
+      <ifStep description="Is search result?" test="@{isSearchResult}">
+        <mpl_search.verifySearchResultPage nOfServices="#{nOfServices}" />
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath description="We expect some results?" xpath="#{nOfServices} &gt; 0" />
+        </condition>
+        <then>
+          <verifyProperty description="Ensure at least one service was found." name="foundService" text="true" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+</project>
+

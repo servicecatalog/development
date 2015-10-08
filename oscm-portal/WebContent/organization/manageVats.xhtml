@@ -1,0 +1,137 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.manageVats" />
+  </ui:define>
+  <ui:define name="body">
+
+    <script type="text/javascript">
+    <c:if test="#{vatBean.dirty}">
+      $(document).ready(function() {
+        setDirty(true);
+      });
+    </c:if>
+      var valueChanged = false;
+      function setValueChanged(flag) {
+        valueChanged = flag;
+        setDirty(flag);
+      }
+    </script>
+
+    <adm:outputStep value="#{msg['organization.manageVats.step1']}" />
+    <h:form id="vatEnabledForm">
+          <h:selectBooleanCheckbox id="vatEnabled"
+            onclick="if(this.checked || !valueChanged || confirm(getUnloadMessage())){setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);this.form.submit();setOnSubmit(false);}else{this.checked=!this.checked}"
+            value="#{vatBean.vatEnabled}" style="margin-left:10px!important;"/>
+          <h:outputLabel value="#{msg['organization.manageVats.enabled']}" />
+    </h:form>
+
+    <h:form id="vatForm">
+
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['organization.manageVats.defaultVat']}" required="true" />
+        <h:inputText id="defaultVat" label="#{msg['organization.manageVats.defaultVat']}"
+          value="#{vatBean.vatStrings[vatBean.defaultVat]}" maxlength="#{appBean.percentValueLen}"
+          validator="#{vatBean.validationVat}" onchange="setValueChanged(true)" styleClass="field"
+          disabled="#{not vatBean.vatEnabled}" required="#{!empty param['vatForm:saveButton']}" />
+        <adm:message id="defaultVatErrorMsg" for="defaultVat" />
+      </adm:panelGrid>
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="countryTable" value="#{vatBean.countryVats}"
+          columnsWidth="340,*" collapsible="true"
+          label="#{msg['organization.manageVats.countryVats.table.header']}"
+          emptyText="#{msg['organization.manageVats.countryVats.empty']}" >
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['common.country']}" />
+            </f:facet>
+            <h:outputText value="#{countryBean.displayCountries[rowItem.country]}"
+              rendered="#{not empty rowItem.country}" />
+              <a4j:outputPanel styleClass="jqSelect" layout="block" rendered="#{empty rowItem.country}">
+              <a4j:outputPanel styleClass="select">
+                <a4j:outputPanel styleClass="option" />
+              </a4j:outputPanel>
+              <h:selectOneMenu id="countrySelect"
+                               value="#{rowItem.country}"
+                               styleClass="select"
+                               disabled="#{not vatBean.vatEnabled}">
+                <f:selectItem itemLabel="#{msg['common.pleaseSelect.country']}" itemValue="" />
+                <f:selectItems value="#{vatBean.countries}"
+                               var="country"
+                               itemLabel="#{vatBean.countryBean.displayCountries[country]}"
+                               itemValue="#{country}" />
+                <a4j:ajax event="change" listener="#{vatBean.addCountryVat}"
+                          execute=":countryTable" render=":countryTable"
+                          oncomplete="setValueChanged(true);AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();"/>
+              </h:selectOneMenu>
+            </a4j:outputPanel>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['common.vat']}" />
+            </f:facet>
+            <h:inputText id="countryVat" value="#{vatBean.vatStrings[rowItem]}" maxlength="#{appBean.percentValueLen}"
+              onchange="setValueChanged(true)"
+              validator="#{vatBean.validationVat}" 
+              rendered="#{not empty rowItem.country}" />
+            <adm:nbsp />
+            <adm:message id="countryVatErrorMsg" for="countryVat" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="customerTable" value="#{vatBean.customerVats}" 
+          columnsWidth="340,*" collapsible="true"
+          label="#{msg['organization.manageVats.customerVats.table.header']}"
+          emptyText="#{msg['organization.manageVats.customerVats.empty']}" >
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['common.customer']}" />
+            </f:facet>
+            <h:outputText value="#{vatBean.customerNames[rowItem.organization.organizationId]}"
+              rendered="#{not empty rowItem.organization.organizationId}" />
+              <a4j:outputPanel styleClass="jqSelect" layout="block" rendered="#{empty rowItem.organization.organizationId}">
+		    	<a4j:outputPanel styleClass="select">
+		      		<a4j:outputPanel styleClass="option" />
+		      	</a4j:outputPanel>  
+	            <h:selectOneMenu id="customerSelect" value="#{rowItem.organization.organizationId}" styleClass="select"
+	               disabled="#{not vatBean.vatEnabled}">
+	              <f:selectItem itemLabel="#{msg['common.pleaseSelect.customer']}" itemValue="" />
+	              <c:forEach items="#{vatBean.customers}" var="customer">
+	                <f:selectItem itemLabel="#{vatBean.customerNames[customer.organizationId]}"
+	                  itemValue="#{customer.organizationId}" />
+	              </c:forEach>
+	              <a4j:ajax event="change" listener="#{vatBean.addCustomerVat}" render=":customerTable" execute=":customerTable"
+	             	 oncomplete="setValueChanged(true);AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();"/>
+	            </h:selectOneMenu>
+	            </a4j:outputPanel>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['common.vat']}" />
+            </f:facet>
+            <h:inputText id="customerVat" value="#{vatBean.vatStrings[rowItem]}" maxlength="#{appBean.percentValueLen}"
+              onchange="setValueChanged(true)"
+              validator="#{vatBean.validationVat}" 
+              rendered="#{not empty rowItem.organization.organizationId}" />
+            <adm:nbsp />
+            <adm:message id="customerVatErrorMsg" for="customerVat" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{vatBean}" action="save" buttonType="save" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

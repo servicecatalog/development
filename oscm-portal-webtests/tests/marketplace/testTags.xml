@@ -1,0 +1,601 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testTags" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testTags" depends="setup, testTagsOnMarketplace, finalCleanup" />
+
+  <target name="setup">
+    <webtest name="testMPL_Setup">
+      <testInfo type="DESCRIPTION">testMPL_Setup:
+  				Creates test data.
+  			  Expected Outcome:
+  			  (1) Supplier account is created
+  			  (2) Two global marketplace are created
+  				(3) Services are created and published on in point 2 created marketplaces
+  			</testInfo>
+
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+
+      <!-- (1) Supplier account is created -->
+      <mpl_setup.createSupplierAccount />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <!-- (2) Two global marketplace are created -->
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+      <operator.createMarketplace mIdProperty="MID2" ownerId="${supplierId}" name="mp2" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MID1}" userId="${supplierUserId}" password="secret" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MID2}" userId="${supplierUserId}" password="secret" />
+
+      <!-- (3) Services are created and published on the marketplaces -->
+      <mpl_setup.createServices mId1="${MID1}" mId2="${MID2}" />
+    </webtest>
+  </target>
+
+
+  <target name="testTagsOnMarketplace" depends="setup">
+    <webtest name="testMPL_SelectTechnicalServiceAndVerifyTags">
+      <testInfo type="DESCRIPTION">testMPL_SelectTechnicalServiceAndVerifyTags:
+				Switches between technical services and verify if tags are shown correctly
+			  Expected Outcome:
+			  (1) Login and go to edit technical service page
+			  (2) Switches between technical services and verify if tags are shown correctly
+			</testInfo>
+
+      <!-- (1) Login and go to edit technical service page -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/techservice/edit.jsf" />
+
+      <!-- Switches between technical services and verify if tags are shown correctly -->
+      <storeProperty name="techServiceId" value="S1" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="#{techServiceId}" />
+      <verifyInputField htmlid="editForm:tagListInput" value="t1, t2, t1b" />
+
+      <storeProperty name="techServiceId" value="S9" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="#{techServiceId}" />
+      <verifyInputField htmlid="editForm:tagListInput" value="t1a" />
+
+      <storeProperty name="techServiceId" value="SN" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="#{techServiceId}" />
+      <verifyInputField htmlid="editForm:tagListInput" value="t5" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_VerifyTagcloudAndServicesOnMarketplacesNotLoggedIn">
+      <testInfo type="DESCRIPTION">testMPL_VerifyTagcloudAndServicesOnMarketplacesNotLoggedIn:
+				Switches between marketplaces and verifies the tags and their corresponded services on the homepage. The current user is NOT logged in.
+			  Expected Outcome:
+			  (1) Switch to marketplace 2 and verify services and tags on the homepage. Services from marketplace one should not be displayed
+			      Switch to marketplace 1 and verify services and tags on the homepage. Services from marketplace two should not be displayed
+			</testInfo>
+
+      <!-- (1) Switch to marketplaces and verify services and tags on the homepage -->
+      <mpl_tags.verifyTagcloudAndServicesOnMarketplacesNotLoggedIn mId1="${MID1}" mId2="${MID2}" />
+    </webtest>
+
+    <webtest name="testMPL_VerifyTagcloudAndServicesOnMarketplacesLoggedIn">
+      <testInfo type="DESCRIPTION">testMPL_VerifyTagcloudAndServicesOnMarketplacesLoggedIn:
+				Switches between marketplaces and verifies the tags and their corresponded services on the homepage. The current user is logged in.
+			  Expected Outcome:
+				(1) Login as supplier
+			    (2) Switch to marketplace 2 and verify services and tags on the homepage. Services from marketplace one should not be displayed
+			        Switch to marketplace 1 and verify services and tags on the homepage. Services from marketplace two should not be displayed
+				(3) Logout
+			</testInfo>
+
+      <!-- (1) Login as supplier -->
+      <mpl_login.user userId="${supplierUserId}" mid="${MID2}" />
+
+      <!-- (2) Switch to marketplaces and verify services and tags on the homepage -->
+      <mpl_tags.verifyTagcloudAndServicesOnMarketplacesNotLoggedIn mId1="${MID1}" mId2="${MID2}" />
+
+      <!-- (3) Logout -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ChangeTagNameAndVerifyServicesOnMarketplace">
+      <testInfo type="DESCRIPTION">testMPL_ChangeTagAndVerifyServicesOnMarketplace:
+				Change tag value of service S1 and verifies .
+			  Expected Outcome:
+			  (1) Change tag values for service
+			  (2) Verify services of tag t1c
+				(3) Rechange tag values for service from t1c, t2 to T1, T2, T1b
+				(4) Verify that no services exist forg tag t1c
+			</testInfo>
+
+      <storeProperty name="service" value="S1" />
+
+      <!-- (1) Change tag values for service from T1, T2, T1b to t1c, t2 -->
+      <mpl_tags.changeTagOfService url="${supplierUrl}" userId="${supplierUserId}" service="#{service}" tagValue="t1c, t2" />
+
+      <!-- (2) Verify services og tag t1c -->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <mpl_tags.verifyHomepageServices marketplace="mp1" />
+
+      <mpl_tags.verifyTagExistenceAfterRenaming />
+
+      <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t1c']" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.checkServicesOfTagT1c />
+
+      <!-- (3) Rechange tag values for service from t1c, t2 to T1, T2, T1b -->
+      <mpl_tags.changeTagOfService url="${supplierUrl}" userId="${supplierUserId}" service="#{service}" tagValue="T1, T2, T1b" />
+
+      <!-- (4) Verify that no services exist forg tag t1c -->
+      <not>
+        <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t1c']" />
+      </not>
+    </webtest>
+
+
+    <webtest name="testMPL_TagNavigationFromServiceList">
+      <testInfo type="DESCRIPTION">testMPL_TagNavigationFromServiceList:
+				Test navigation from service list and verifies services for both marketplaces.
+			  Expected Outcome:
+				(1) Checks tag navigation from service list for marketplace one and two 
+				(2) Checks tag navigation from service list after tag value was changed for marketplace one and two 
+			</testInfo>
+
+      <!-- (1) Checks tag navigation from service list for marketplace one and two -->
+      <mpl_tags.testTagNavigationFromServiceList url="${supplierUrl}" userId="${supplierUserId}" mId1="${MID1}" mId2="${MID2}" />
+
+      <!-- (2) Checks tag navigation from service list after tag value was changed for marketplace one and two -->
+      <mpl_tags.testTagNavigationFromServiceListAfterTagChange url="${supplierUrl}" userId="${supplierUserId}" mId1="${MID1}" />
+    </webtest>
+
+    <webtest name="testMPL_TagNavigationFromServiceDetails">
+      <testInfo type="DESCRIPTION">testMPL_TagNavigationFromServiceDetails:
+				Test navigation from service details page and verifies services for marketplace one.
+			  Expected Outcome:
+				(1) Got on the details page of the first service, click on tag t2 and verify all services  
+			</testInfo>
+
+      <!-- (1) Got on the details page of the first service, click on tag t2 and verify all services -->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <common.ignorePageScriptError/>
+      <clickLink xpath="//div[@id='serviceDetailTags']//a[.='t2']" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.verifyServicesOfTagT2 />
+    </webtest>
+
+    <webtest name="testMPL_TagNavigationToDetailsBackToAll" description="Bug 7998">
+      <testInfo type="DESCRIPTION">testMPL_TagNavigationToDetailsBackToAll:
+				Test that after selting service details after filtering by tags the click on 'Browse all services' shows all services not filtered 
+				by tag.
+			  Expected Outcome:
+				(1) Go to marketplace one, verify services of tag t1 
+				(2) Click button browse all related. Number of services should be 9
+			</testInfo>
+
+      <!-- (1) Go to marketplace one, verify services of tag t1 -->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <common.ignorePageScriptError/>
+      <clickLink xpath="//div[@id='service1ServiceTags']//a[.='t1']" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.verifyServicesOfTagT1 />
+      <verifyElementText description="Verify number of services" htmlId="listInfoUp" text="1 - 5 of 5 service(s)" />
+
+      <!-- (2) Click button browse all related. Number of services should be 9 -->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+
+      <clickElement htmlId="buttonBrowseAllRelated" />
+      <verifyElementText description="Verify number of services" htmlId="listInfoUp" text="1 - 9 of 9 service(s)" />
+    </webtest>
+
+    <webtest name="testMPL_TagNavigationWithQuote_Bug9144">
+      <testInfo type="DESCRIPTION">testMPL_TagNavigationWithQuote_Bug9144:
+				Check navigation of tags including JS breaking quote characters. 
+                Expected Outcome:
+				(1) Add tag values with quotes for service S1
+				(2) Verify services of tags t'c and p"p
+				(3) Reset tag values for service to T1, T2, T1b
+				(4) Verify that no services exist for tag c and p"p
+		</testInfo>
+
+      <storeProperty name="service" value="S1" />
+
+      <!-- (1) Change tag values for service from T1, T2, T1b to t1c, t2, t'c, p&quot;p -->
+      <mpl_tags.changeTagOfService url="${supplierUrl}" userId="${supplierUserId}" service="#{service}" tagValue="t1c, t2, t'c, p&quot;p" />
+
+      <!-- (2) Verify services og tag t'c-->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <mpl_tags.verifyQuotedTagsAfterRenaming />
+
+      <!-- (3) Rechange tag values for service from t1c, t2 to T1, T2, T1b -->
+      <mpl_tags.changeTagOfService url="${supplierUrl}" userId="${supplierUserId}" service="#{service}" tagValue="T1, T2, T1b" />
+
+      <!-- (4) Verify tag t'c and p"p removed-->
+      <not>
+        <clickLink xpath="//div[@class='tagCloudOuter']//a[.=&quot;t'c&quot;]" />
+      </not>
+      <not>
+        <clickLink xpath="//div[@class='tagCloudOuter']//a[.=&apos;p&quot;p&apos;]" />
+      </not>
+    </webtest>
+
+  </target>
+
+  <target name="finalCleanup" depends="setup">
+    <webtest name="testMPL_tagging_finalCleanup">
+      <testInfo type="DESCRIPTION">testMPL_tagging_finalCleanup:
+				Deleted all test data.
+			  Expected Outcome:
+			  (1) Services are deleted
+				(2) Verification if services are displayes on marketplace one and two
+			  (3) Marketplaces one and two are deleted
+			</testInfo>
+
+      <!-- (1) Services are deleted -->
+      <mpl_tags.deleteServices url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- (2) Verification if services are displayes on marketplace one and two -->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <not>
+        <mpl_tags.verifyHomepageServices marketplace="mp1" />
+      </not>
+
+      <mpl_goto.marketplace mid="${MID2}" />
+      <not>
+        <mpl_tags.verifyHomepageServices marketplace="mp2" />
+      </not>
+
+      <!-- (3) Marketplaces one and two are deleted -->
+      <operator.deleteMarketplaces marketplaceIds="${MID1},${MID2}" />
+    </webtest>
+  </target>
+
+  <macrodef name="mpl_tags.verifyTagExistence">
+    <attribute name="marketplace" />
+    <sequential>
+      <storeProperty name="paramMarketplaceOk" value="false" />
+      <storeProperty name="marketplace" value="@{marketplace}" />
+      <!-- possible values are : mp1 and mp2 -->
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="marketplace" value="mp1" />
+        </condition>
+        <then>
+          <verifyXPath description="check t1" xpath="//div[@class='tagCloudOuter']//a[.='t1']" />
+          <verifyXPath description="check t2" xpath="//div[@class='tagCloudOuter']//a[.='t2']" />
+          <verifyXPath description="check t1a" xpath="//div[@class='tagCloudOuter']//a[.='t1a']" />
+          <verifyXPath description="check t1b" xpath="//div[@class='tagCloudOuter']//a[.='t1b']" />
+          <not>
+            <verifyXPath description="check t1c" xpath="//div[@class='tagCloudOuter']//a[.='t1c']" />
+          </not>
+          <not>
+            <verifyXPath description="check t5" xpath="//div[@class='tagCloudOuter']//a[.='t5']" />
+          </not>
+          <storeProperty name="paramMarketplaceOk" value="true" />
+        </then>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="marketplace" value="mp2" />
+        </condition>
+        <then>
+          <verifyXPath description="check t5" xpath="//div[@class='tagCloudOuter']//a[.='t5']" />
+          <not>
+            <verifyXPath description="check t1" xpath="//div[@class='tagCloudOuter']//a[.='t1']" />
+            <verifyXPath description="check t2" xpath="//div[@class='tagCloudOuter']//a[.='t2']" />
+            <verifyXPath description="check t1a" xpath="//div[@class='tagCloudOuter']//a[.='t1a']" />
+            <verifyXPath description="check t1b" xpath="//div[@class='tagCloudOuter']//a[.='t1b']" />
+            <verifyXPath description="check t1c" xpath="//div[@class='tagCloudOuter']//a[.='t1c']" />
+          </not>
+          <storeProperty name="paramMarketplaceOk" value="true" />
+        </then>
+      </ifStep>
+
+      <verifyProperty name="paramMarketplaceOk" value="true" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyTagExistenceAfterRenaming">
+    <sequential>
+      <verifyXPath description="check t1" xpath="//div[@class='tagCloudOuter']//a[.='t1']" />
+      <verifyXPath description="check t2" xpath="//div[@class='tagCloudOuter']//a[.='t2']" />
+      <verifyXPath description="check t1a" xpath="//div[@class='tagCloudOuter']//a[.='t1a']" />
+      <verifyXPath description="check t1c" xpath="//div[@class='tagCloudOuter']//a[.='t1c']" />
+      <not>
+        <verifyXPath description="check t1b" xpath="//div[@class='tagCloudOuter']//a[.='t1b']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyHomepageServices">
+    <attribute name="marketplace" />
+    <sequential>
+      <storeProperty name="paramMarketplaceOk" value="false" />
+      <storeProperty name="marketplace" value="@{marketplace}" />
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="marketplace" value="mp1" />
+        </condition>
+        <then>
+          <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+          <verifyElementText description="Verify service MS S2" htmlId="service1Name" text="MS S2" />
+          <verifyElementText description="Verify service MS S3" htmlId="service2Name" text="MS S3" />
+          <verifyElementText description="Verify service MS S4" htmlId="service3Name" text="MS S4" />
+          <verifyElementText description="Verify service MS S5" htmlId="service4Name" text="MS S5" />
+          <verifyElementText description="Verify service MS S6" htmlId="service5Name" text="MS S6" />
+          <not>
+            <verifyXPath xpath="//h1[id='service7Name']" />
+          </not>
+          <storeProperty name="paramMarketplaceOk" value="true" />
+        </then>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="marketplace" value="mp2" />
+        </condition>
+        <then>
+          <verifyElementText description="Verify service MP2 MS S1" htmlId="service0Name" text="MP2 MS S1" />
+          <verifyElementText description="Verify service MP2 MS S2" htmlId="service1Name" text="MP2 MS S2" />
+          <not>
+            <verifyXPath xpath="//h1[id='service2Name']" />
+          </not>
+          <storeProperty name="paramMarketplaceOk" value="true" />
+        </then>
+      </ifStep>
+
+      <ifStep>
+        <condition>
+          <verifyProperty name="marketplace" value="${mId}" />
+        </condition>
+        <then>
+          <not>
+            <verifyXPath xpath="//h1[@id='service0Name']" />
+          </not>
+          <storeProperty name="paramMarketplaceOk" value="true" />
+        </then>
+      </ifStep>
+
+      <verifyProperty name="paramMarketplaceOk" value="true" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkServicesOfTagT1">
+    <sequential>
+      <clickLink description="Follow the t1 link to see services" label="t1" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <verifyElementText description="Verify number of services" htmlId="listInfoUp" text="1 - 5 of 5 service(s)" />
+      <mpl_tags.verifyServicesOfTagT1 />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyServicesOfTagT1">
+    <sequential>
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+      <verifyElementText description="Verify service MS S2" htmlId="service1Name" text="MS S2" />
+      <verifyElementText description="Verify service MS S3" htmlId="service2Name" text="MS S3" />
+      <verifyElementText description="Verify service MS S4" htmlId="service3Name" text="MS S4" />
+      <verifyElementText description="Verify service MS S5" htmlId="service4Name" text="MS S5" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkServicesOfTagT1a">
+    <sequential>
+      <clickLink description="Follow the t1a link to see services" label="t1a" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="4" />
+      <mpl_tags.verifyServicesOfTagT1a />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyServicesOfTagT1a">
+    <sequential>
+      <verifyElementText description="Verify service MS S6" htmlId="service0Name" text="MS S6" />
+      <verifyElementText description="Verify service MS S7" htmlId="service1Name" text="MS S7" />
+      <verifyElementText description="Verify service MS S8" htmlId="service2Name" text="MS S8" />
+      <verifyElementText description="Verify service MS S9" htmlId="service3Name" text="MS S9" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkServicesOfTagT1c">
+    <sequential>
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="1" />
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkServicesOfTagT2">
+    <sequential>
+      <clickLink description="Follow the t2 link to see services" label="t2" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="5" />
+      <mpl_tags.verifyServicesOfTagT2 />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyServicesOfTagT2">
+    <sequential>
+      <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
+      <verifyElementText description="Verify service MS S2" htmlId="service1Name" text="MS S2" />
+      <verifyElementText description="Verify service MS S3" htmlId="service2Name" text="MS S3" />
+      <verifyElementText description="Verify service MS S4" htmlId="service3Name" text="MS S4" />
+      <verifyElementText description="Verify service MS S5" htmlId="service4Name" text="MS S5" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkServicesOfTagT5">
+    <sequential>
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <common.ignorePageScriptError />
+      <clickLink xpath="//div[@id='serviceDetailTags']//a[.='t5']" />
+      <common.reSetPageScriptError />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.verifyServicesOfTagT5 />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyServicesOfTagT5">
+    <sequential>
+      <verifyElementText description="Verify service MP2 MS S1" htmlId="service0Name" text="MP2 MS S1" />
+      <verifyElementText description="Verify service MP2 MS S2" htmlId="service1Name" text="MP2 MS S2" />
+      <not>
+        <verifyXPath xpath="//h1[id='service2Name']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.testTagNavigationFromServiceList">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="mId1" />
+    <attribute name="mId2" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <mpl_goto.marketplace mid="@{mId2}" />
+      <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t5']" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.verifyServicesOfTagT5 />
+
+      <mpl_goto.marketplace mid="@{mId1}" />
+      <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t1']" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_tags.verifyServicesOfTagT1 />
+
+      <mpl_goto.marketplace mid="@{mId1}" />
+      <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t2']" />
+      <mpl_tags.verifyServicesOfTagT2 />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.testTagNavigationFromServiceListAfterTagChange">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="mId1" />
+    <sequential>
+      <storeProperty name="service" value="S1" />
+      <mpl_tags.changeTagOfService url="@{url}" userId="@{userId}" service="S1" tagValue="t1c, t2" />
+
+      <mpl_goto.marketplace mid="@{mId1}" />
+      <clickLink xpath="//div[@id='service0ServiceTags']//a[.='t1c']" />
+      <mpl_tags.checkServicesOfTagT1c />
+
+      <mpl_tags.changeTagOfService url="@{url}" userId="@{userId}" service="#{service}" tagValue="T1, T2, T1b" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.changeTagOfService">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="service" />
+    <attribute name="tagValue" />
+    <sequential>
+      <storeProperty name="techServiceId" value="@{service}" />
+
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+      <clickLink href="/techservice/edit.jsf" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="#{techServiceId}" />
+
+      <setInputField htmlid="editForm:tagListInput" value="@{tagValue}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.handleMessageParameters property="infoMsg" value="${info.techService.saved}" att0="@{service}" />
+      <common.verifySuccess label="#{infoMsg}" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyTagcloudAndServicesOnMarketplacesNotLoggedIn">
+    <attribute name="mId1" />
+    <attribute name="mId2" />
+    <sequential>
+
+      <!-- Switch to marketplace 2 and verify services and tags on the homepage. Services from marketplace one should not be displayed -->
+      <mpl_goto.marketplace mid="@{mId2}" />
+      <mpl_tags.verifyHomepageServices marketplace="mp2" />
+      <mpl_tags.verifyTagExistence marketplace="mp2" />
+      <mpl_tags.checkServicesOfTagT5 />
+      <not>
+        <mpl_tags.checkServicesOfTagT1 />
+      </not>
+      <not>
+        <mpl_tags.checkServicesOfTagT2 />
+      </not>
+
+      <!-- Switch to marketplace 1 and verify services and tags on the homepage. Services from marketplace two should not be displayed -->
+      <mpl_goto.marketplace mid="@{mId1}" />
+      <mpl_tags.verifyHomepageServices marketplace="mp1" />
+      <mpl_tags.verifyTagExistence marketplace="mp1" />
+      <mpl_tags.checkServicesOfTagT1 />
+      <mpl_tags.checkServicesOfTagT2 />
+      <not>
+        <mpl_tags.checkServicesOfTagT5 />
+      </not>
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_tags.verifyHomepageServices marketplace="${mId}" />
+      <not>
+        <mpl_tags.checkServicesOfTagT1 />
+      </not>
+      <not>
+        <mpl_tags.checkServicesOfTagT5 />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.deleteServices">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <sequential>
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+      <setup:service.delete serviceIds="S" start="1" count="9" deactivate="true" />
+      <setup:techservice.delete serviceIds="S" start="1" count="9" />
+
+      <setup:service.delete serviceIds="MP2 MS S" start="1" count="9" deactivate="true" />
+      <setup:techservice.delete serviceIds="SN" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.verifyQuotedTagsAfterRenaming">
+    <sequential>
+      <storeProperty name="singleQuoteTag" value="t'c" />
+      <storeProperty name="doubleQuoteTag" value="p&quot;p" />
+
+      <verifyXPath description="check t2" xpath="//div[@class='tagCloudOuter']//a[.='t2']" />
+      <verifyXPath description="check t1c" xpath="//div[@class='tagCloudOuter']//a[.='t1c']" />
+
+      <not>
+        <verifyXPath description="check t1b" xpath="//div[@class='tagCloudOuter']//a[.='t1b']" />
+      </not>
+
+      <!-- Bug 9144 (1): navigate and check tag with single quote -->
+      <mpl_tags.checkAndClickQuotedTag tag="&quot;#{singleQuoteTag}&quot;" />
+      <verifyElementText description="Verify displayed service list" htmlId="serviceTitle" text=".*#{singleQuoteTag}.*" regex="true" />
+
+      <!--Bug 9144 (2): navigate and check tag with double quote -->
+      <mpl_tags.checkAndClickQuotedTag tag="&apos;#{doubleQuoteTag}&apos;" />
+      <verifyElementText description="Verify displayed service list" htmlId="serviceTitle" text=".*#{doubleQuoteTag}.*" regex="true" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_tags.checkAndClickQuotedTag">
+    <attribute name="tag" />
+    <sequential>
+      <verifyXPath description="check quoted tag @{tag} in tag cloud" xpath="//div[@class='tagCloudOuter']//a[.=@{tag}]" />
+      <clickLink xpath="//div[@class='tagCloudOuter']//a[.=@{tag}]" />
+      <verifyXPath description="check quoted tag @{tag} in service tag list" xpath="//div[@id=&quot;service0Tags&quot;]//a[.=@{tag}]" />
+      <clickLink description="click quoted tag @{tag} in service tag list" xpath="//div[@id=&quot;service0Tags&quot;]//a[.=@{tag}]" />
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="5" version="0" organizationid="TestOrgX" registrationdate="1234" cutoffday="5" />
+  <TechnicalProduct tkey="15" version="0" provisioningurl="someurl" technicalproductid="tpid5" organizationkey="5" />
+  <Landingpage tkey="1515" numberservices="6" fillincriterion="foo" version="0" />
+  
+  <RevenueShareModel tkey="1500001" version="0" revenueshare="10" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="1500002" version="0" revenueshare="20" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="1500003" version="0" revenueshare="30" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="1500004" version="0" revenueshare="40" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="1500005" version="0" revenueshare="40" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+  
+  <!-- A marketplace that still exists -->
+  <Marketplace tkey="10001" version="0" marketplaceid="aa34vgh" organization_tkey="5" creationdate="121312312"
+    landingpage_tkey="1515" pricemodel_tkey="1500005" brokerpricemodel_tkey="1500004" resellerpricemodel_tkey="1500003" />
+  
+  <!-- A marketplace that was deleted after the referencing CatalogEntry was deleted -->  
+  <MarketplaceHistory tkey="1" objkey="10002" objversion="5" marketplaceid="bb34vgh" organizationobjkey="5"
+    moduser="user" modtype="DELETED" creationdate="121312312" moddate="1970-01-01 00:00:00" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="1500004" resellerpricemodelobjkey="1500003" />
+  
+  <Product type="TEMPLATE"              tkey="151" productid="pid_1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="5"
+    provisioningdate="0" status="DELETED" technicalproduct_tkey="15" />
+  <Product type="TEMPLATE"              tkey="152" productid="pid_2" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="5"
+    provisioningdate="0" status="DELETED" technicalproduct_tkey="15" />
+  <Product type="TEMPLATE"              tkey="153" productid="pid_3" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="5"
+    provisioningdate="0" status="DELETED" technicalproduct_tkey="15" />
+  <Product type="TEMPLATE"              tkey="154" productid="pid_4" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="5"
+    provisioningdate="0" status="DELETED" technicalproduct_tkey="15" />
+   <Product type="TEMPLATE"              tkey="155" productid="pid_5" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="5"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="15" />
+  
+  <!-- An existing CatalogEntry that must keep its reference to the marketplace -->
+  <Catalogentry tkey="10006" product_tkey="155" version="0" anonymousvisible="true" visibleincatalog="true" marketplace_tkey="10001"/>
+  
+  <CatalogentryHistory tkey="150001" objkey="15001" productobjkey="151" moddate="2011-04-03 14:30:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:31:00" visibleincatalog="true" marketplaceobjkey="10001" />
+  <CatalogentryHistory tkey="150002" objkey="15001" productobjkey="151" moddate="2011-04-03 14:31:00" modtype="MODIFY" moduser="u1" objversion="1" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"
+    brokerpricemodelobjkey="1500001" resellerpricemodelobjkey="1500002" />
+  <CatalogentryHistory tkey="150003" objkey="15001" productobjkey="151" moddate="2011-04-03 14:32:00" modtype="DELETE" moduser="u1" objversion="2" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:33:00" visibleincatalog="true"
+    brokerpricemodelobjkey="1500001" resellerpricemodelobjkey="1500002" />
+  <CatalogentryHistory tkey="150004" objkey="15002" productobjkey="152" moddate="2011-04-03 14:31:00" modtype="DELETE" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" marketplaceobjkey="10001"
+    brokerpricemodelobjkey="1500003" />
+  <CatalogentryHistory tkey="150005" objkey="15003" productobjkey="153" moddate="2011-04-03 14:31:00" modtype="DELETE" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" marketplaceobjkey="10002"
+    resellerpricemodelobjkey="1500004" />
+  <CatalogentryHistory tkey="150006" objkey="15004" productobjkey="154" moddate="2011-04-03 14:31:00" modtype="DELETE" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+  
+</dataset>

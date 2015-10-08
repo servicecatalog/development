@@ -1,0 +1,71 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:rich="http://richfaces.org/rich"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
+				xmlns:a4j="http://richfaces.org/a4j"
+				xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+				template="../templates/main.xhtml">
+
+	<ui:define name="pageId">
+		<c:set var="pageId" value="techService.viewBillingAdapters" />
+	</ui:define>
+
+	<ui:define name="body">
+		<adm:initialize initializingMethod="#{billingAdapterListCtrl.getInitialize()}" />
+		<adm:outputStep
+			value="#{msg['operator.manageBillingAdapters.billingAdapters']}" />
+
+		<rich:accordion id="billingAdapters" switchType="client">
+			<c:forEach id="panels"
+				items="#{billingAdapterListCtrl.model.billingAdapters}"
+				var="billingAdapter" varStatus="status">
+				<rich:accordionItem id="billingAdapterSection#{status.index}"
+					header="#{billingAdapter.displayName}#{billingAdapter.defaultAdapter ? msg['billingAdapter.default'] : ''}">
+					<h:form>
+						<adm:panelGrid id="panelGrid" columns="2"
+							columnClasses="labelAndValuePanelCol1,serviceListPanel">
+							<adm:outputLabel value="#{msg['billingAdapterIdentifier']}" />
+							<h:outputText value="#{billingAdapter.billingIdentifier}" />
+
+							<adm:outputLabel value="#{msg['billingAdapter.name']}" />
+							<h:outputText value="#{billingAdapter.name}" />
+
+							<c:forEach id="connectionProperties"
+								items="#{billingAdapter.connectionProperties}"
+								var="connectionProperty" varStatus="connectionStatus">
+								<adm:outputLabel value="#{connectionProperty.displayName}" />
+								<h:outputText value="#{connectionProperty.value}" />
+							</c:forEach>
+						</adm:panelGrid>
+
+						<adm:buttonPanel>
+                          <adm:buttonCustomizedOnClick id="testConnectionButton"
+                                onclick ="#{rich:element('hiddenTestConnectionButton')}.click()"
+                                value="#{msg['button.testConnection']}" type="submit"
+                                buttonType="execute"
+                                disabled="#{billingAdapter.nativeBilling}">
+                          </adm:buttonCustomizedOnClick>
+                          
+							<a4j:commandButton id="hiddenTestConnectionButton"
+								action="#{billingAdapterListCtrl.testConnection}"
+								value="#{msg['button.testConnection']}" type="submit"
+								render=":mainTmplMessagesPanel , :showMessagePanelJs"
+								oncomplete="setDirty(false);"
+                                style="display:none"
+								disabled="#{billingAdapter.nativeBilling}">
+								<f:setPropertyActionListener value="#{status.index}"
+									target="#{billingAdapterListModel.selectedIndex}" />
+							</a4j:commandButton>
+						</adm:buttonPanel>
+					</h:form>
+				</rich:accordionItem>
+			</c:forEach>
+		</rich:accordion>
+
+	</ui:define>
+</ui:composition>

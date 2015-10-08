@@ -1,0 +1,375 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails timezone="UTC+08:00" key="19003">
+  <Period startDate="1375286400000" startDateIsoFormat="2013-07-31T16:00:00.000Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+  <OrganizationDetails>
+    <Email>test@test.de</Email>
+    <Name>TestOrg</Name>
+    <Address>Address of TestOrg</Address>
+    <Paymenttype>INVOICE</Paymenttype>
+    <Udas/>
+  </OrganizationDetails>
+  <Subscriptions>
+    <Subscription id="Example_with_roles 1.00">
+      <PriceModels>
+        <PriceModel id="11001" calculationMode="PRO_RATA">
+          <UsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+          <PeriodFee basePeriod="MONTH" basePrice="100.00" factor="0.10780797379032259" price="10.78"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="100.00" factor="0.10780797379032259" numberOfUsersTotal="1" price="10.78">
+            <UserAssignmentCostsByUser factor="0.10780797379032259" userId="cust2"/>
+          </UserAssignmentCosts>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterUsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="RENAME_FOLDER">
+              <ParameterUsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+              <ParameterValue amount="true" type="BOOLEAN"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" total="0.00" valueFactor="1.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="DISK_SPACE">
+              <ParameterUsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+              <Option id="1">
+                <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" total="0.00" price="0.00">
+                  <RoleCosts total="0.00">
+                    <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                    <RoleCost id="ADMIN" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                    <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                  </RoleCosts>
+                </UserAssignmentCosts>
+                <OptionCosts amount="0.00"/>
+              </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterUsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MEMORY_STORAGE">
+              <ParameterUsagePeriod startDate="1377676047123" startDateIsoFormat="2013-08-28T07:47:27.123Z" endDate="1377964800000" endDateIsoFormat="2013-08-31T16:00:00.000Z"/>
+              <ParameterValue amount="2" type="ENUMERATION"/>
+              <Options>
+                <Option id="2">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.10780797379032259" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.10780797379032259" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <ParametersCosts amount="0.00"/>
+          </Parameters>
+          <PriceModelCosts currency="EUR" grossAmount="21.56" amount="21.56"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+    <Subscription id="Example_with_roles 1.00">
+      <PriceModels>
+        <PriceModel id="11001" calculationMode="PRO_RATA">
+          <UsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+          <PeriodFee basePeriod="MONTH" basePrice="100.00" factor="0.0009392697132616487" price="0.09"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="100.00" factor="0.0009392697132616487" numberOfUsersTotal="1" price="0.09">
+            <UserAssignmentCostsByUser factor="0.0009392697132616487" userId="cust2"/>
+          </UserAssignmentCosts>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterUsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="RENAME_FOLDER">
+              <ParameterUsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+              <ParameterValue amount="true" type="BOOLEAN"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" total="0.00" valueFactor="1.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="DISK_SPACE">
+              <ParameterUsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+                <Option id="1">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterUsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MEMORY_STORAGE">
+              <ParameterUsagePeriod startDate="1377673415844" startDateIsoFormat="2013-08-28T07:03:35.844Z" endDate="1377675931584" endDateIsoFormat="2013-08-28T07:45:31.584Z"/>
+              <ParameterValue amount="2" type="ENUMERATION"/>
+              <Options>
+                <Option id="2">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.0009392697132616487" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.0009392697132616487" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <ParametersCosts amount="0.00"/>
+          </Parameters>
+          <PriceModelCosts currency="EUR" grossAmount="0.18" amount="0.18"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+    <Subscription id="Example_with_roles 1.00">
+      <PriceModels>
+        <PriceModel id="11001" calculationMode="PRO_RATA">
+          <UsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+          <PeriodFee basePeriod="MONTH" basePrice="100.00" factor="0.06074097819593787" price="6.07"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="100.00" factor="0.06074097819593787" numberOfUsersTotal="1" price="6.07">
+            <UserAssignmentCostsByUser factor="0.06074097819593787" userId="cust2"/>
+          </UserAssignmentCosts>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterUsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="RENAME_FOLDER">
+              <ParameterUsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+              <ParameterValue amount="true" type="BOOLEAN"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" total="0.00" valueFactor="1.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="DISK_SPACE">
+              <ParameterUsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+                <Option id="1">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterUsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MEMORY_STORAGE">
+              <ParameterUsagePeriod startDate="1377510622229" startDateIsoFormat="2013-08-26T09:50:22.229Z" endDate="1377673310865" endDateIsoFormat="2013-08-28T07:01:50.865Z"/>
+              <ParameterValue amount="2" type="ENUMERATION"/>
+              <Options>
+                <Option id="2">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.06074097819593787" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.06074097819593787" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <ParametersCosts amount="0.00"/>
+          </Parameters>
+          <PriceModelCosts currency="EUR" grossAmount="12.14" amount="12.14"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+    <Subscription id="Example_with_roles 1.00">
+      <PriceModels>
+        <PriceModel id="11001" calculationMode="PRO_RATA">
+          <UsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+          <PeriodFee basePeriod="MONTH" basePrice="100.00" factor="0.000009268966547192353" price="0.00"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="100.00" factor="0.000006362753882915173" numberOfUsersTotal="1" price="0.00">
+            <UserAssignmentCostsByUser factor="0.000006362753882915173" userId="cust2"/>
+          </UserAssignmentCosts>
+          <OneTimeFee amount="100.00" baseAmount="100.00" factor="1"/>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterUsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.000009268966547192353" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.000006362753882915173" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.000006362753882915173" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="RENAME_FOLDER">
+              <ParameterUsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+              <ParameterValue amount="true" type="BOOLEAN"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.000009268966547192353" price="0.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.000006362753882915173" price="0.00" total="0.00" valueFactor="1.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.000006362753882915173" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="DISK_SPACE">
+              <ParameterUsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+                <Option id="1">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.000009268966547192353" price="0.00"/>
+                    <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.000006362753882915173" total="0.00" price="0.00">
+                      <RoleCosts total="0.00">
+                        <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                        <RoleCost id="ADMIN" basePrice="0.00" factor="0.000006362753882915173" price="0.00"/>
+                        <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                      </RoleCosts>
+                    </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterUsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.000009268966547192353" price="0.00" valueFactor="200.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.000006362753882915173" price="0.00" total="0.00" valueFactor="200.0">
+                <RoleCosts total="0.00">
+                  <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                  <RoleCost id="ADMIN" basePrice="0.00" factor="0.000006362753882915173" price="0.00"/>
+                  <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                </RoleCosts>
+              </UserAssignmentCosts>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <Parameter id="MEMORY_STORAGE">
+              <ParameterUsagePeriod startDate="1377510545074" startDateIsoFormat="2013-08-26T09:49:05.074Z" endDate="1377510569900" endDateIsoFormat="2013-08-26T09:49:29.900Z"/>
+              <ParameterValue amount="2" type="ENUMERATION"/>
+              <Options>
+                <Option id="2">
+                  <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="0.000009268966547192353" price="0.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="0.000006362753882915173" total="0.00" price="0.00">
+                    <RoleCosts total="0.00">
+                      <RoleCost id="USER" basePrice="0.00" factor="0.0" price="0.00"/>
+                      <RoleCost id="ADMIN" basePrice="0.00" factor="0.000006362753882915173" price="0.00"/>
+                      <RoleCost id="GUEST" basePrice="0.00" factor="0.0" price="0.00"/>
+                    </RoleCosts>
+                  </UserAssignmentCosts>
+                  <OptionCosts amount="0.00"/>
+                </Option>
+              </Options>
+              <ParameterCosts amount="0.00"/>
+            </Parameter>
+            <ParametersCosts amount="0.00"/>
+          </Parameters>
+          <PriceModelCosts currency="EUR" grossAmount="100.00" amount="100.00"/>
+        </PriceModel>
+      </PriceModels>
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts netAmount="133.88" currency="EUR" grossAmount="133.88"/>
+</BillingDetails>

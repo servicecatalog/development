@@ -1,0 +1,78 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <a4j:queue name="filterQueue" requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
+    onsubmit="jQuery('body').addClass('hourglass');" />
+
+  <rich:dataTable value="#{lazyModel}" var="row" rows="10" id="subscriptionsTable" width="100%"
+    rowClasses="rowOdd,rowEven" headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable"
+    styleClass="sortable" headerCellClass="rowTitle sortable"
+    onrowclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{row.subscriptionId}','#{row.customerId}');}"
+    onRowMouseOver="AdmUtils.mouseOverRow(this);" onRowMouseOut="AdmUtils.mouseOutRow(this)">
+    <f:facet name="header">
+      <a4j:outputPanel>
+        <adm:pager pagerId="scroller" render="subscriptionsTableScripts" />
+      </a4j:outputPanel>
+    </f:facet>
+    <ui:include src="subscriptionTableColumn.xhtml">
+      <ui:param name="bean" value="#{lazyModel}" />
+      <ui:param name="property" value="#{lazyModel.CUSTOMER_NAME}" />
+      <ui:param name="tableName" value="subscriptionsTable" />
+      <ui:param name="record" value="#{row}" />
+      <ui:param name="columnHeaderName" value="#{msg['dataTable.header.customerName']}" />
+      <ui:param name="scroller" value="scroller" />
+      <ui:param name="queueName" value="filterQueue"/>
+    </ui:include>
+    <ui:include src="subscriptionTableColumn.xhtml">
+      <ui:param name="bean" value="#{lazyModel}" />
+      <ui:param name="property" value="#{lazyModel.CUSTOMER_ID}" />
+      <ui:param name="tableName" value="subscriptionsTable" />
+      <ui:param name="record" value="#{row}" />
+      <ui:param name="columnHeaderName" value="#{msg['dataTable.header.customerId']}" />
+      <ui:param name="scroller" value="scroller" />
+      <ui:param name="queueName" value="filterQueue"/>
+    </ui:include>
+    <ui:include src="subscriptionTableColumn.xhtml">
+      <ui:param name="bean" value="#{lazyModel}" />
+      <ui:param name="property" value="#{lazyModel.SUBSCRIPTION_ID}" />
+      <ui:param name="tableName" value="subscriptionsTable" />
+      <ui:param name="record" value="#{row}" />
+      <ui:param name="columnHeaderName" value="#{msg['dataTable.header.subscriptionId']}" />
+      <ui:param name="scroller" value="scroller" />
+      <ui:param name="queueName" value="filterQueue"/>
+    </ui:include>
+    <ui:include src="subscriptionTableDateColumn.xhtml">
+      <ui:param name="bean" value="#{lazyModel}" />
+      <ui:param name="property" value="#{lazyModel.ACTIVATION_TIME}" />
+      <ui:param name="tableName" value="subscriptionsTable" />
+      <ui:param name="record" value="#{row}" />
+      <ui:param name="columnHeaderName" value="#{msg['dataTable.header.activation']}" />
+      <ui:param name="scroller" value="scroller" />
+      <ui:param name="queueName" value="filterQueue"/>
+    </ui:include>
+    <ui:include src="subscriptionTableColumn.xhtml">
+      <ui:param name="bean" value="#{lazyModel}" />
+      <ui:param name="property" value="#{lazyModel.SERVICE_ID}" />
+      <ui:param name="tableName" value="subscriptionsTable" />
+      <ui:param name="record" value="#{row}" />
+      <ui:param name="columnHeaderName" value="#{msg['dataTable.header.serviceId']}" />
+      <ui:param name="scroller" value="scroller" />
+      <ui:param name="queueName" value="filterQueue"/>
+    </ui:include>
+
+  </rich:dataTable>
+  
+  <a4j:outputPanel id="subscriptionsTableScripts" layout="block">
+    <script type="text/javascript">
+    	//script used to mark column header blue
+    	$(".sort-icons img").parents("th").addClass("tableColumnSelected");
+    	AdmUtils.selectRowNum("subscriptionListForm:subscriptionsTable", ${lazyModel.currentRowIndex});
+    </script>
+  </a4j:outputPanel>
+</ui:composition>

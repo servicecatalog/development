@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Configuration of role-based marketplace filter, which will be applied only
+     for marketplace pages defined in following configuration. Each
+     <configEntry> defines one rule, which should consist of:
+     - <page> - marketplace page address (address ending)
+     - and <rolesAllowed> - list of <role> which are allowed to access specified
+       page f.e. UNIT_ADMINISTRATOR or ORGANIZATION_ADMIN -->
+
+<roleBasedFilterConfig>
+  <configEntry>
+    <page>account/units.jsf</page>
+    <rolesAllowed>
+      <role>UNIT_ADMINISTRATOR</role>
+    </rolesAllowed>
+  </configEntry>
+  <configEntry>
+    <page>account/users.jsf</page>
+    <rolesAllowed>
+      <role>ORGANIZATION_ADMIN</role>
+    </rolesAllowed>
+  </configEntry>
+  <configEntry>
+    <page>account/addGroup.jsf</page>
+    <rolesAllowed>
+      <role>UNIT_ADMINISTRATOR</role>
+      <role>ORGANIZATION_ADMIN</role>
+    </rolesAllowed>
+  </configEntry>
+</roleBasedFilterConfig>

@@ -1,0 +1,109 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <h:form id="editForm" enctype="multipart/form-data">
+    <ui:fragment id="organizationSelection" rendered="#{ldapConfigurationModel.organizationSelectionSupported}">
+      <adm:outputStep value="#{msg['organization.ldapSettings.orgSelect']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['organization.organizationId']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu styleClass="select" id="selectedOrganizationId"
+            value="#{ldapConfigurationModel.organizationIdentifier}"
+            valueChangeListener="#{ldapConfigurationCtrl.orgChanged}">
+            <a4j:ajax event="change" render="importForm,settingsForm"
+              onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
+              oncomplete="AdmUtils.setUIElements();" />
+            <adm:selectItemPleaseSelect itemValue="" />
+            <f:selectItems value="#{ldapConfigurationModel.organizations}" />
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="selectedOrganizationId" />
+      </adm:panelGrid>
+    </ui:fragment>
+  </h:form>
+
+  <h:form id="importForm" enctype="multipart/form-data">
+    <a4j:outputPanel id="ldapFile" layout="block">
+      <adm:outputStep value="#{msg['organization.ldapSettings.file']}" />
+      <adm:panelGrid>
+        <adm:fileUpload value="#{ldapConfigurationModel.file}" disabled="#{editDisabled}"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{ldapConfigurationCtrl}"
+          action="importSettings" buttonType="confirm" style="display:none;" />
+        <adm:buttonCustomizedOnClick id="importButton" value="#{msg['button.import']}"
+          onclick="#{rich:component('importConfirmPanel')}.show()" buttonType="confirm" />
+      </adm:buttonPanel>
+    </a4j:outputPanel>
+  </h:form>
+
+  <adm:confirmPanel text="#{msg['organization.ldapSettings.confirmImport']}" panelId="importConfirmPanel"
+    submitId="importConfirmButton" formId="importConfirmationForm" />
+
+  <h:form id="settingsForm" enctype="multipart/form-data">
+    <a4j:outputPanel id="ldapSettings" layout="block">
+      <adm:outputStep value="#{msg['organization.ldapSettings.settings']}" />
+      <adm:dataTable tableId="ldapTable" value="#{ldapConfigurationModel.settings}"
+        emptyText="#{msg['organization.ldapSettings.noData']}" height="#{height}" collapsible="#{collapsible}"
+        label="#{msg['organization.manageLdapSettings.table.header']}">
+        <rich:column rendered="#{ldapConfigurationModel.showIsPlatformSettingColumnVisible}">
+          <f:facet name="header">
+            <h:outputText value="#{msg['organization.ldapSettings.platformDefault']}" />
+          </f:facet>
+          <h:graphicImage value="../img/transparentPixel.png" styleClass="yes" rendered="#{rowItem.platformDefault}" />
+        </rich:column>
+        <rich:column>
+          <f:facet name="header">
+            <h:outputText value="#{msg['organization.ldapSettings.key']}" />
+          </f:facet>
+          <h:outputText id="settingKey" value="#{rowItem.settingKey}" />
+        </rich:column>
+        <rich:column>
+          <f:facet name="header">
+            <h:outputText value="#{msg['organization.ldapSettings.value']}" />
+          </f:facet>
+          <h:outputText id="settingValue" value="#{rowItem.settingValue}" />
+        </rich:column>
+      </adm:dataTable>
+
+      <adm:buttonPanel>
+        <adm:button id="exportButton" value="#{msg['button.export']}" bean="#{ldapConfigurationCtrl}"
+          action="exportSettings" progress="false" buttonType="export" disabled="#{ldapConfigurationCtrl.noSettingsDefined}"/>
+
+        <adm:button id="resetConfirmButton" rendered="#{ldapConfigurationModel.showIsPlatformSettingColumnVisible}"
+          value="#{msg['button.reset']}" bean="#{ldapConfigurationCtrl}" action="reset" buttonType="reset"
+          style="display:none;" />
+        <adm:buttonCustomizedOnClick rendered="#{ldapConfigurationModel.showIsPlatformSettingColumnVisible}"
+          id="resetButton" value="#{msg['button.reset']}" onclick="#{rich:component('resetConfirmPanel')}.show()"
+          buttonType="reset" />
+
+        <adm:button id="clearConfirmButton" rendered="#{ldapConfigurationModel.showClearButtonVisible}"
+          value="#{msg['button.clear']}" bean="#{ldapConfigurationCtrl}" action="clear" buttonType="reset"
+          style="display:none;" />
+        <adm:buttonCustomizedOnClick id="clearButton"
+          rendered="#{ldapConfigurationModel.showClearButtonVisible}" value="#{msg['button.clear']}"
+          onclick="#{rich:component('clearConfirmPanel')}.show()" buttonType="reset" />
+
+        <adm:button id="testButton" value="#{msg['button.testConnection']}" bean="#{ldapConfigurationCtrl}"
+          buttonType="execute" action="testConnection" />
+      </adm:buttonPanel>
+    </a4j:outputPanel>
+  </h:form>
+
+  <adm:confirmPanel text="#{msg['organization.ldapSettings.confirmReset']}" panelId="resetConfirmPanel"
+    submitId="resetConfirmButton" formId="resetConfirmationForm" />
+
+  <adm:confirmPanel text="#{msg['operator.manageLdapSettings.confirmClear']}" panelId="clearConfirmPanel"
+    submitId="clearConfirmButton" formId="clearConfirmationForm" />
+
+</ui:composition>

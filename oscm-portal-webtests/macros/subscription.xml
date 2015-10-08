@@ -1,0 +1,16 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <!-- Terminate a subscription by supplier. -->
+  <macrodef name="subscription.terminateBySupplier">
+    <attribute name="subscriptionId" />
+    <sequential>
+      <common.clickAndVerfyLink label="${subscription.terminate.title}" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'@{subscriptionId}')]" />
+      <clickElement htmlId="terminateForm:terminateButton" />
+      <clickElement htmlId="confirmForm:okButton" />
+      <common.verifySuccess label="@{subscriptionId}" />
+    </sequential>
+  </macrodef>
+
+</project>

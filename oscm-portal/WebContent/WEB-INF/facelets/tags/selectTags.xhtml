@@ -1,0 +1,33 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+    <adm:panelGrid>
+        <adm:outputLabel value="#{msg['techService.tags']}"/>
+        <rich:autocomplete
+                mode="ajax"
+                id="tagList"
+                styleClass="field ct-autocomplete"
+                inputClass="ct-autocomplete-input"
+                label="#{msg['techService.tags']}"
+                value="#{value}"
+                disabled="#{disabled}"
+                onfocus="this.select()"
+                onchange="setDirty(true);"
+                fetchValue="#{tagValue}"
+                var="tagValue"
+                autocompleteMethod="#{selectTagsBean.suggest}">
+            <h:column>
+                <h:outputText value="#{tagValue}"/>
+            </h:column>
+        </rich:autocomplete>
+        <h:outputText value="#{msg['techService.tagsCommaHint']}" styleClass="textSmall" style="margin-left:10px; white-space: nowrap;"/>
+    </adm:panelGrid>
+    <adm:message id="userIdErrorMsg" for="tagList"/>
+
+</ui:composition>

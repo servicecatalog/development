@@ -1,0 +1,184 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <a4j:outputPanel layout="block" styleClass="tablePanel">
+    <adm:collapsibleSection sectionId="parameterTableSection" label="#{msg['parameter.table.header']}">
+
+      <h:outputText id="parameterTableEmptyText" styleClass="block table_default preWrapping"
+        value="#{msg['table.empty']}" rendered="#{empty serviceBean.parameterRows}" />
+
+      <script type="text/javascript">
+      	var selectedRadioOptions = new Object();
+        if( /webkit/.test( navigator.userAgent.toLowerCase() ) ){
+            var _importNode = window.document.importNode;
+            window.document.importNode = function(node, deep){
+                 try{
+                      return _importNode.apply(this, arguments);
+                 } catch(e) {
+                      if( e.code == DOMException.NOT_SUPPORTED_ERR ){
+                           return document.adoptNode(node.cloneNode(deep));
+                      }
+                      throw e;
+                 }
+            };
+        }
+      </script>
+      <a4j:outputPanel layout="block" style="max-height: 100%;" styleClass="table_default">
+        <rich:dataTable rendered="#{not empty serviceBean.parameterRows}" width="100%" headerClass="rowTitle"
+          rowClasses="rowOdd,rowEven" columnClasses="paramLongCol,paramShortCol,labelAndValuePanelCol3"
+          id="parameterTable" value="#{serviceBean.parameterRows}" var="rowItem" rowKeyVar="rowKey" selectionMode="none"
+          enableContextMenu="false">
+
+          <!--  parameter description  -->
+          <rich:column id="columnParameterDescription">
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.parameter.description']}" />
+            </f:facet>
+            <adm:paramLabel id="parameterDescription" value="#{rowItem.description}" rendered="#{not rowItem.option}"
+              required="#{rowItem.required}" renderFootNote="#{rowItem.oneTimeParameter}" />
+          </rich:column>
+
+          <!--  configurable parameter -->
+          <rich:column width="1px" id="columnConfigurable">
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.parameter.configurable']}" />
+            </f:facet>
+            <a4j:outputPanel>
+            <h:selectBooleanCheckbox id="configurable" value="#{rowItem.parameter.configurable}"
+              style="text-align:center;" rendered="#{not (rowItem.option) }"
+              disabled="#{not (rowItem.parameter.parameterDefinition.configurable) or editDisabled}">
+              <a4j:ajax event="click" limitRender="true" render="parameterDescriptionPanel,valuePanel,paramErrorPanel"
+                disabled="#{rowItem.a4JSupportDisabled}"
+                onbeforesubmit="if (!#{rowItem.a4JSupportDisabled}) {AdmUtils.showProgress(true);saveValue(#{rich:element('valuePanel')}, #{rowKey});}"
+                oncomplete="if (!#{rowItem.a4JSupportDisabled}) {resetValue(#{rich:element('valuePanel')}, #{rowKey});AdmUtils.showProgress(false);}setDirty(true);AdmUtils.setUIElements();"/>
+            </h:selectBooleanCheckbox>
+            </a4j:outputPanel>
+          </rich:column>
+
+          <!-- parameter value -->
+          <rich:column id="columnValue">
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.parameter.value']}" />
+            </f:facet>
+            <t:div id="valuePanel" style="white-space:nowrap;">
+              <h:selectBooleanCheckbox id="booleanValue" label="#{rowItem.label}" onchange="setDirty(true);"
+                value="#{rowItem.booleanParameterValue}" disabled="#{editDisabled}"
+                rendered="#{rowItem.parameterDefinition.valueTypeBoolean}">
+              </h:selectBooleanCheckbox>
+              <h:inputText id="integerValue" label="#{rowItem.label}" value="#{rowItem.parameter.value}"
+                maxlength="#{appBean.intLen}" required="#{rowItem.required}" dataType="integer"
+                minValue="#{rowItem.minValue}" maxValue="#{rowItem.maxValue}" disabled="#{editDisabled}"
+                rendered="#{rowItem.parameterDefinition.valueTypeInteger}" onchange="setDirty(true);">
+                <f:validator validatorId="ParameterValueValidator" />
+              </h:inputText>
+              <h:inputText id="longValue" label="#{rowItem.label}" value="#{rowItem.parameter.value}"
+                maxlength="#{appBean.longLen}" required="#{rowItem.required}" dataType="long"
+                minValue="#{rowItem.minValue}" maxValue="#{rowItem.maxValue}" disabled="#{editDisabled}"
+                rendered="#{rowItem.parameterDefinition.valueTypeLong}" onchange="setDirty(true);">
+                <f:validator validatorId="ParameterValueValidator" />
+              </h:inputText>
+              <h:inputText id="durationValue" label="#{rowItem.label}" onchange="setDirty(true);"
+                value="#{rowItem.parameter.value}" maxlength="#{appBean.longLen}" required="#{rowItem.required}"
+                dataType="duration" minValue="#{rowItem.minValue}" maxValue="#{rowItem.maxValue}"
+                disabled="#{editDisabled}" rendered="#{rowItem.parameterDefinition.valueTypeDuration}">
+                <f:converter converterId="duration.converter" />
+              </h:inputText>
+              <h:inputText id="stringValue" label="#{rowItem.label}" value="#{rowItem.parameter.value}"
+                maxlength="#{appBean.descriptionLen}" required="#{rowItem.required}" dataType="string"
+                rendered="#{rowItem.parameterDefinition.valueTypeString and not editDisabled}"
+                onchange="setDirty(true);">
+                <f:validator validatorId="ParameterValueValidator" />
+                <f:converter converterId="trimConverter" />
+              </h:inputText>
+              <a4j:outputPanel layout="block" styleClass="shortenedText" style="width:450px;"
+              rendered="#{rowItem.parameterDefinition.valueTypeString and editDisabled}" >
+                  <h:outputText value="#{rowItem.parameter.value}" title="#{rowItem.parameter.value}"/>
+              </a4j:outputPanel>
+             
+              <!-- enumeration value-->
+              <t:inputHidden id="enumValue" value="#{rowItem.parameter.value}"
+                rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not rowItem.option}" />
+              <ui:fragment rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not rowItem.option}">
+                <script type="text/javascript">
+              	  selectedRadioOptions['#{rowItem.parameterDefinition.parameterId}'] = document.getElementById('editForm:parameterTable:#{rowKey}:enumValue').value;
+                </script>
+              </ui:fragment>
+              <!-- enumeration option-->
+              <ui:fragment rendered="#{rowItem.option}">
+                <c:set var="onclick"
+                  value="document.getElementById('editForm:parameterTable:#{rowKey - rowItem.optionIndex - 1}:enumValue').value='#{rowItem.parameterOption.optionId}'" />
+                <c:set var="style" value="margin-right:4px;" />
+                <ui:fragment rendered="#{rowItem.parameterOption.optionId == rowItem.parameter.value and editDisabled}">
+                  <input type="radio" name="#{rowItem.parameterOption.paramDefId}" value="#{rowItem.parameterOption.optionId}"
+                    checked="checked" disabled="disabled"
+                    style="#{style}" onclick="#{onclick}"  />
+                </ui:fragment>
+                <ui:fragment rendered="#{rowItem.parameterOption.optionId == rowItem.parameter.value and not editDisabled}">
+                  <input type="radio" name="#{rowItem.parameterOption.paramDefId}" value="#{rowItem.parameterOption.optionId}"
+                    checked="checked"
+                    style="#{style}" onclick="#{onclick}" onchange="setDirty(true);" />
+                </ui:fragment>
+                <ui:fragment rendered="#{rowItem.parameterOption.optionId != rowItem.parameter.value and editDisabled}">
+                  <input type="radio" name="#{rowItem.parameterOption.paramDefId}" value="#{rowItem.parameterOption.optionId}"
+                    disabled="disabled"
+                    style="#{style}" onclick="#{onclick}" />
+                </ui:fragment>
+                <ui:fragment rendered="#{rowItem.parameterOption.optionId != rowItem.parameter.value and not editDisabled}">
+                  <input type="radio" name="#{rowItem.parameterOption.paramDefId}" value="#{rowItem.parameterOption.optionId}"
+                    style="#{style}" onclick="#{onclick}" onchange="setDirty(true);" />
+                </ui:fragment>
+                <h:outputText value="#{rowItem.parameterOption.optionDescription}"
+                  style="white-space:normal;margin-left:4px;" />
+              </ui:fragment>
+              <adm:spacer width="10" />
+              <h:outputText value="#{rowItem.rangeLabel}"
+                rendered="#{(not (rowItem.parameterDefinition.valueTypeEnumeration) and not (rowItem.parameterDefinition.valueTypeBoolean) and not (rowItem.parameterDefinition.valueTypeString) )}" />
+            </t:div>
+
+            <t:div id="paramErrorPanel" styleClass="errorPanelTr">
+              <adm:message for="booleanValue" rendered="#{rowItem.parameterDefinition.valueTypeBoolean}" />
+              <adm:message for="integerValue" rendered="#{rowItem.parameterDefinition.valueTypeInteger}" />
+              <adm:message for="longValue" rendered="#{rowItem.parameterDefinition.valueTypeLong}" />
+              <adm:message for="stringValue" rendered="#{rowItem.parameterDefinition.valueTypeString}" />
+              <adm:message for="durationValue" rendered="#{rowItem.parameterDefinition.valueTypeDuration}" />
+              <adm:message for="enumValue"
+                rendered="#{rowItem.parameterDefinition.valueTypeEnumeration and not rowItem.option}" />
+            </t:div>
+          </rich:column>
+        </rich:dataTable>
+      </a4j:outputPanel>
+    </adm:collapsibleSection>
+
+    <script type="text/javascript">
+    
+		var lastValue = [];
+
+		function saveValue(div, idx) {
+          if (div) {
+        	var input = div.childNodes[0];
+            lastValue[idx] = input.value;
+          }
+		}
+
+	    function resetValue(div, idx) {
+	      if (div != null &amp;&amp; lastValue[idx] != null) {
+	        var input = div.childNodes[0];
+            input.value = lastValue[idx];
+            lastValue[idx] = null;
+          }
+        }
+	    
+	    AdmUtils.selectRadioButtons(selectedRadioOptions);
+    </script>
+    <a4j:outputPanel layout="block" rendered="#{serviceBean.oneTimeParameterExist}">
+      <h:outputText value="#{msg['service.parameter.footnote']}" />
+    </a4j:outputPanel>
+
+  </a4j:outputPanel>
+</ui:composition>

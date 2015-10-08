@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <BrokerRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <Period startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z" endDate="1341100800000"
+      endDateIsoFormat="2012-07-01T00:00:00.000Z" />
+
+    <Currency id="EUR">
+      <Supplier>
+        <OrganizationData key="27534" id="supp1">
+          <Email>supplier1@supplier.com</Email>
+          <Name>First supplier ever</Name>
+          <Address>the supplier's address</Address>
+        </OrganizationData>
+        <Service key="10001" id="firstService" templateKey="10500">
+          <ServiceRevenue totalAmount="100.00" brokerRevenueSharePercentage="10.00" brokerRevenue="10.00" />
+        </Service>
+        <Service key="10002" id="secondService" templateKey="43789">
+          <ServiceRevenue totalAmount="100.00" brokerRevenueSharePercentage="5.23" brokerRevenue="5.23" />
+        </Service>
+        <BrokerRevenuePerSupplier amount="15.23" />
+      </Supplier>
+      <Supplier>
+        <OrganizationData key="27535" id="supp2">
+          <Email>supplier2@suppliers.net</Email>
+          <Name>Yet another supplier</Name>
+          <Address>the second supplier's address</Address>
+        </OrganizationData>
+        <Service key="10003" id="foreignService" templateKey="10520">
+          <ServiceRevenue totalAmount="100.00" brokerRevenueSharePercentage="12.17" brokerRevenue="12.17" />
+        </Service>
+        <BrokerRevenuePerSupplier amount="12.17" />
+      </Supplier>
+      <BrokerRevenue amount="27.40" />
+    </Currency>
+    <Currency id="USD">
+      <Supplier>
+        <OrganizationData key="27535" id="supp2">
+          <Email>supplier2@suppliers.net</Email>
+          <Name>Yet another supplier</Name>
+          <Address>the second supplier's address</Address>
+        </OrganizationData>
+        <Service key="10004" id="service_using_dollars" templateKey="10530">
+          <ServiceRevenue totalAmount="200.00" brokerRevenueSharePercentage="13.50" brokerRevenue="27.00" />
+        </Service>
+        <BrokerRevenuePerSupplier amount="27.00" />
+      </Supplier>
+      <BrokerRevenue amount="27.00" />
+    </Currency>
+
+  </BrokerRevenueShareResult>
+</RevenueSharesResults>

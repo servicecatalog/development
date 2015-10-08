@@ -1,0 +1,266 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="mpl_managePaymentTests">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="mpl_managePaymentTests" depends="mpl_testBillingContactHandling, mpl_testModalDialogs" />
+
+  <!-- The focus of this test is the "Manage payments" site n the account section. -->
+  <!-- It checks the used modal dialogs to create and update billing contact and payment -->
+  <!-- options as well as the common handling of billing contact ad payment information -->
+  <!-- (e.g. create, modify, delete). -->
+  <!-- Note: Billing contact and payment information can be create at the following places too: -->
+  <!-- Subscribe to a chargeable service or upgrade to a chargeable service -->
+
+  <!-- Common initialization. Used for all targets in the test. -->
+  <target name="mpl_init">
+    <webtest name="testMPL_managePayments_setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+    </webtest>
+  </target>
+
+  <!-- Target which tests the used modal dialogs isolated -->
+  <!-- Focus of the tests is verification of the used modal panels to create billing contact and payment infos -->
+  <target name="mpl_testModalDialogs" depends="mpl_init">
+
+    <!-- Test the billing contact dialog -->
+    <webtest name="testMPL_managePayments_BillingContactDialog">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <common.ignorePageScriptError/>
+      <mpl_goto.account.payments />
+
+      <!-- test that the correct error comes up if we use the display name multiple times -->
+      <storeProperty name="billingContactName" value="nonUniqueName" />
+      <!-- create the first billing contact -->
+      <clickElement htmlId="billingContactListForm:addBillingContact" />
+      <this.fillBillingContactFields billingDisplayName="#{billingContactName}" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+
+      <!-- create the second billing contact -->
+      <clickElement htmlId="billingContactListForm:addBillingContact" />
+      <this.fillBillingContactFields billingDisplayName="#{billingContactName}" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+      <!-- check for the non uniqueBusinessKey exception -->
+      <common.verifyModalErrorPanel modalPanelId="billingContactPanel" label="${ex.NonUniqueBusinessKeyException.BILLING_CONTACT}" />
+
+      <!-- Retest for bug #7843  start -->
+      <common.clickAjaxLink htmlId="billingContactListForm:addBillingContact" />
+      <!-- fill one field with a invalid value, all others with valid values -->
+      <this.fillBillingContactFields billingDisplayName="id!" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+      <common.verifyModalErrorPanel modalPanelId="billingContactPanel" label="${error.text.fields}" />
+      <clickElement htmlId="billingContactPanelForm:cancelButton" />
+      <!-- Add a new billing contact and check if all fields are initially empty -->
+      <clickElement htmlId="billingContactListForm:addBillingContact" />
+      <storeXPath description="Check error message" xpath="//*[@id='billingContactPanelForm:displayName']" property="emptyDisplayName" />
+      <verifyProperty name="emptyDisplayName" value="" />
+      <storeXPath description="Check error message" xpath="//*[@id='billingContactPanelForm:email']" property="emptyEmail" />
+      <verifyProperty name="emptyEmail" value="" />
+      <storeXPath description="Check error message" xpath="//*[@id='billingContactPanelForm:companyName']" property="emptyCompanyName" />
+      <verifyProperty name="emptyCompanyName" value="" />
+      <!--address is not empty only in canoo -->
+      <!--storeXPath description="Check error message" xpath="//*[@id='billingContactPanelForm:address']" property="emptyAdress" />
+      <verifyProperty name="emptyAdress" value="" /-->
+      <!-- Retest for bug #7843 end-->
+
+      <this.verifyBillingContactDialogFields />
+
+      <common.reloadCurrentPage />
+      <!-- clean up (delete the created billing contact)-->
+      <clickElement xpath="//img[@id='editPaymentImage']" />
+      <clickElement xpath="//*[@id='billingContactEditPanelForm:confirmedDeleteButton']" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+
+
+    <!-- This test checks the first page of the paymnet option dialog -->
+    <!-- In the Focus are the currect error messages for invalid input -->
+    <webtest name="testMPL_managePayments_PaymentInfoDialog_page1">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <common.ignorePageScriptError/>
+      <mpl_goto.account.payments />
+      <clickLink htmlId="paymentOptionListForm:addPaymentOption" />
+      <setInputField htmlId="paymentOptionPanelForm:displayName" value="" />
+      <common.clickAjaxLink htmlId="paymentOptionPanelForm:switchToDetailsAjax" />
+      <common.verifyModalFieldError errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <dataDriven tableContainer="data/invalidInput/ID.xls">
+        <mpl_goto.account.payments />
+        <clickLink htmlId="paymentOptionListForm:addPaymentOption" />
+        <setInputField htmlId="paymentOptionPanelForm:displayName" value="${value}" />
+        <common.clickAjaxLink htmlId="paymentOptionPanelForm:switchToDetailsAjax" />
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+        <common.verifyModalFieldError errorFieldId="paymentOptionPanelForm:displayNameErrorMsg" modalPanelId="paymentOptionPanel" fieldId="paymentOptionPanelForm:displayName" label="${expectedMessage}" />
+      </dataDriven>
+      <common.reSetPageScriptError/>
+    </webtest>
+
+  </target>
+
+  <!-- Test the useage of the billing contacts (create, modify, delete) -->
+  <target name="mpl_testBillingContactHandling" depends="mpl_init">
+
+    <!-- Store a number of properties used in all tests of the suite -->
+    <webtest name="testMPL_managePayments_BillingContactHandling_setup">
+      <!-- Store the values for the original billing contact -->
+      <storeProperty name="billingDisplayName" value="newBillingContact" propertyType="ant" />
+      <storeProperty name="billingAddress" value="newBillingAddress" propertyType="ant" />
+      <storeProperty name="billingCompanyName" value="newBillingCompanyName" propertyType="ant" />
+      <storeProperty name="billingEmail" value="${common.email}" propertyType="ant" />
+
+      <!-- Store the values for the changed billing contact -->
+      <storeProperty name="changedBillingDisplayName" value="changedBillingContact" propertyType="ant" />
+      <storeProperty name="changedBillingAddress" value="changedBillingAddress" propertyType="ant" />
+      <storeProperty name="changedBillingCompanyName" value="changedBillingCompanyName" propertyType="ant" />
+      <storeProperty name="changedBillingEmail" value="changed${common.email}" propertyType="ant" />
+    </webtest>
+
+    <!-- Test the creation of a new billing contact -->
+    <webtest name="testMPL_managePayments_BillingContact_createNew">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <common.ignorePageScriptError/>
+      <mpl_goto.account.payments />
+
+      <clickElement htmlId="billingContactListForm:addBillingContact" />
+      <this.fillBillingContactFields billingDisplayName="${billingDisplayName}" billingAddress="${billingAddress}" billingEmail="${billingEmail}" billingCompanyName="${billingCompanyName}" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+
+      <!-- Since webtest seems not to recognize the new contact in the table, the page will be fully reloaded-->
+      <common.reloadCurrentPage />
+      <this.billingContactTable row="0" billingDisplayName="${billingDisplayName}" billingAddress="${billingAddress}" billingEmail="${billingEmail}" billingCompanyName="${billingCompanyName}" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+
+    <!-- Test the modification of an billing contact -->
+    <webtest name="testMPL_managePayments_BillingContact_modify">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <common.ignorePageScriptError/>
+      <mpl_goto.account.payments />
+
+      <!-- Check if the BC in the table has still the oroginal values -->
+      <this.billingContactTable row="0" billingDisplayName="${billingDisplayName}" billingAddress="${billingAddress}" billingEmail="${billingEmail}" billingCompanyName="${billingCompanyName}" />
+      <common.clickAjaxLink htmlId="billingContactListForm:billingContactListTable:0:displayName" />
+
+      <!-- Enter the new values and save the BC -->
+      <this.fillBillingContactFields billingDisplayName="${changedBillingDisplayName}" billingAddress="${changedBillingAddress}" billingEmail="${changedBillingEmail}" billingCompanyName="${billingCompanyName}" />
+      <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+
+      <!-- Since webtest seems not to recognize the new contact in the table, the page will be fully reloaded-->
+      <common.reloadCurrentPage />
+      <this.billingContactTable row="0" billingDisplayName="${changedBillingDisplayName}" billingAddress="${changedBillingAddress}" billingEmail="${changedBillingEmail}" billingCompanyName="${billingCompanyName}" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+
+    <!-- Test the deletion of an BC -->
+    <webtest name="testMPL_managePayments_BillingContact_delete">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <common.ignorePageScriptError/>
+      <mpl_goto.account.payments />
+
+      <!-- Check if the modified BC is in the table -->
+      <this.billingContactTable row="0" billingDisplayName="${changedBillingDisplayName}" billingAddress="${changedBillingAddress}" billingEmail="${changedBillingEmail}" billingCompanyName="${billingCompanyName}" />
+      <clickElement xpath="//img[@id='editPaymentImage']" />
+      <!-- retest bug 10205, validation doesn't need to happen on deletion-->
+      <setInputField htmlId="billingContactPanelForm:email" value="invalidEmail" />
+
+      <!-- NOTE: this is a work-a-round; since a click on the  -->
+      <clickElement xpath="//*[@id='billingContactEditPanelForm:confirmedDeleteButton']" />
+
+	  <common.verifySuccess label="${info.billingContact.deleted}"/>
+      <common.reloadCurrentPage />
+      <not>
+        <this.billingContactTable row="0" billingDisplayName="${changedBillingDisplayName}" billingAddress="${changedBillingAddress}" billingEmail="${changedBillingEmail}" billingCompanyName="${changedBillingCompanyName}" />
+      </not>
+      <login.logout />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+  </target>
+
+  <!-- **************************************************************************** -->
+  <!-- test specific macros -->
+
+  <!-- Checks the content of the BC table against the passed values -->
+  <macrodef name="this.billingContactTable">
+    <attribute name="row" />
+    <attribute name="billingCompanyName" default="billingCompanyName" />
+    <attribute name="billingAddress" default="billingAddress" />
+    <attribute name="billingDisplayName" default="billingDisplayName" />
+    <attribute name="billingEmail" default="${common.email}" />
+
+    <sequential>
+      <storeXPath description="Check displayName" xpath="//span[@id='billingContactListForm:billingContactListTable:@{row}:displayName']" property="tableDisplayName" />
+      <verifyProperty name="tableDisplayName" value="@{billingDisplayName}" regex="true" />
+
+      <storeXPath description="Check adress" xpath="//span[@id='billingContactListForm:billingContactListTable:@{row}:billingAddress']" property="tableAdress" />
+      <verifyProperty name="tableAdress" value="@{billingAddress}" regex="true" />
+
+      <storeXPath description="Check company name" xpath="//span[@id='billingContactListForm:billingContactListTable:@{row}:billingCompanyName']" property="tableCompanyName" />
+      <verifyProperty name="tableCompanyName" value="@{billingCompanyName}" regex="true" />
+
+      <storeXPath description="Check email" xpath="//span[@id='billingContactListForm:billingContactListTable:@{row}:billingEmail']" property="tableEmail" />
+      <verifyProperty name="tableEmail" value="@{billingEmail}" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Fills the fields of the BC dialog with the passed or default values -->
+  <macrodef name="this.fillBillingContactFields">
+    <attribute name="billingCompanyName" default="billingCompanyName" />
+    <attribute name="billingAddress" default="billingAddress" />
+    <attribute name="billingDisplayName" default="billingDisplayName" />
+    <attribute name="billingEmail" default="${common.email}" />
+    <sequential>
+      <setInputField htmlId="billingContactPanelForm:displayName" value="@{billingDisplayName}" />
+      <setInputField htmlId="billingContactPanelForm:email" value="@{billingEmail}" />
+      <setInputField htmlId="billingContactPanelForm:companyName" value="@{billingCompanyName}" />
+      <setInputField htmlId="billingContactPanelForm:address" value="@{billingAddress}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Checks all fields of the BC dialog -->
+  <macrodef name="this.verifyBillingContactDialogFields">
+    <sequential>
+      <dataDriven tableContainer="data/pageFields/marketplace/billingContactFields.xls">
+        <clickElement htmlId="billingContactListForm:addBillingContact" />
+
+        <!-- fill all fields with vaild values -->
+        <this.fillBillingContactFields />
+
+        <!-- mandatory field   -->
+        <setInputField htmlId="${fieldId}" value="" />
+        <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+        <common.verifyModalFieldError errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+          <clickElement htmlId="billingContactListForm:addBillingContact" />
+
+          <this.fillBillingContactFields />
+
+          <setInputField htmlId="${fieldId}" value="${value}" />
+          <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.verifyModalFieldError errorFieldId="${fieldId}ErrorMsg" modalPanelId="billingContactPanel" fieldId="${fieldId}" label="${expectedMessage}" />
+
+          <!--      
+            LG: For unknown reasons the cancel button is not accessible at this point, though afterwards it is present in the result. This occurs since addBillingContact button has 
+            been changed to an a4j:commandLink (for resolving dialog flickering on concurrency errors). See change of managePayments.xhmtl[10]. Inserting common.waitForJavaScript 
+            does not solve it.
+          -->
+          <!--
+            <clickLink htmlId="billingContactPanelForm:cancelButton" /> 
+          -->
+        </dataDriven>
+      </dataDriven>
+    </sequential>
+  </macrodef>
+</project>

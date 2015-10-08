@@ -1,0 +1,10 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<xml xmlns:o="urn:schemas-microsoft-com:office:office">
+ <o:MainFile HRef="../BillingPictTest01.htm"/>
+ <o:File HRef="stylesheet.css"/>
+ <o:File HRef="tabstrip.htm"/>
+ <o:File HRef="sheet001.htm"/>
+ <o:File HRef="sheet002.htm"/>
+ <o:File HRef="sheet003.htm"/>
+ <o:File HRef="filelist.xml"/>
+</xml>

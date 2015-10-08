@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1101" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" locale="de" />
+  
+  <Landingpage tkey="1200" version="0" numberservices="6" fillincriterion="ACTIVATION_DESCENDING"/>
+  <Landingpage tkey="1201" version="0" numberservices="6" fillincriterion="ACTIVATION_DESCENDING"/>
+  
+  <Marketplace tkey="1200" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101"
+    creationdate="121312312" landingpage_tkey="1200" />
+  <Marketplace tkey="1201" version="0" marketplaceid="marketplaceid_2" organization_tkey="1101"
+    creationdate="121312312" landingpage_tkey="1201" />
+  <MarketplaceHistory tkey="1101" marketplaceid="marketplaceid_1" organizationobjkey="1101" creationdate="121312312" moddate="2011-04-03 14:31:00" 
+    modtype="ADD" moduser="user" invocationdate="2011-04-05 11:32:00" objkey="1200" objversion="0" open="false" taggingenabled="true" 
+    reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" />
+  <MarketplaceHistory tkey="1102" marketplaceid="marketplaceid_2" organizationobjkey="1101" creationdate="121312312" moddate="2011-04-03 14:31:00" 
+    modtype="ADD" moduser="user" invocationdate="2011-04-05 11:32:00" objkey="1201" objversion="0" open="false" taggingenabled="true" 
+    reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" />
+    
+   <MarketplaceHistory tkey="1103" marketplaceid="marketplaceid_3" organizationobjkey="1101" creationdate="121312312" moddate="2011-04-03 14:31:00" 
+    modtype="DELETE" moduser="user" invocationdate="2011-04-05 11:32:00" objkey="1" objversion="0" open="false" taggingenabled="true" 
+    reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" />  
+     
+    <MarketplaceHistory tkey="1104" marketplaceid="marketplaceid_4" organizationobjkey="1101" creationdate="121312312" moddate="2011-04-03 14:31:00" 
+    modtype="DELETE" moduser="user" invocationdate="2011-04-05 11:32:00" objkey="2" objversion="0" open="false" taggingenabled="true" 
+    reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" />   
+                      
+  <Catalogentry tkey="1" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <CatalogentryHistory tkey="1" moddate="2011-04-03 14:31:00" modtype="t1" moduser="u1" objkey="1" objversion="0" anonymousvisible="true" 
+    invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+</dataset>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+  <handler-chain>
+    <handler>
+      <handler-name>STSSoapHandlerService</handler-name>
+      <handler-class>org.oscm.mocksts.handler.STSSoapHandlerServiceImpl</handler-class>
+    </handler>
+    <handler>
+      <handler-name>SamlAssertionBreakHandler</handler-name>
+      <handler-class>org.oscm.mocksts.handler.SamlAssertionBreakHandler</handler-class>
+    </handler>
+  </handler-chain>
+</handler-chains>

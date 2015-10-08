@@ -1,0 +1,95 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<SupplierRevenueShareResult xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" organizationId="supp1" organizationKey="7897" xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel SupplierRSResult.xsd">
+
+  <OrganizationData id="supp1" key="7897">
+    <Email>supplier1@supplier.com</Email>
+    <Name>first supplier for reseller model</Name>
+    <Address>Address of supplier no. 1</Address>
+    <CountryIsoCode>
+      the ISO code of the supplier's country, e.g. DE
+      </CountryIsoCode>
+  </OrganizationData>
+
+  <Period endDate="1341100800000" endDateIsoFormat="2012-07-01T00:00:00.000Z" startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z"/>
+
+  <Currency id="EUR">
+
+    <Marketplace id="12345678">
+      <MarketplaceOwner>
+        <OrganizationData id="supplier1" key="27534">
+          <Email>mpo@owners.com</Email>
+          <Name>Marketplace Owning Organization</Name>
+          <Address>Address of mpo</Address>
+          <CountryIsoCode>
+            the ISO code of the supplier's country, e.g. DE
+            </CountryIsoCode>
+        </OrganizationData>
+      </MarketplaceOwner>
+      <Service id="direct_mode_service" key="11000" model="DIRECT">
+        <Subscription billingKey="18373" id="sub1" key="37645" revenue="266.00">
+          <Period endDate="1341100800000" endDateIsoFormat="2012-07-01T00:00:00.000Z" startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z"/>
+        </Subscription>  
+        <Subscription billingKey="12343" id="sub2" key="12987" revenue="234.00">
+          <Period endDate="1341100800000" endDateIsoFormat="2012-07-01T00:00:00.000Z" startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z"/>
+        </Subscription>  
+        <RevenueShareDetails amountForSupplier="375.00" marketplaceRevenue="75.00" marketplaceRevenueSharePercentage="15.0" 
+            operatorRevenue="0.00" operatorRevenueSharePercentage="0.00" serviceRevenue="500.00">
+          <CustomerRevenueShareDetails amountForSupplier="225.00" customerId="f278913568" customerName="customerA" 
+              marketplaceRevenue="45.00" operatorRevenue="0.00" serviceRevenue="300.00"/>
+          <CustomerRevenueShareDetails amountForSupplier="150.00" customerId="h285673122" customerName="customerB" 
+              marketplaceRevenue="30.00" operatorRevenue="0.00" serviceRevenue="200.00"/>
+        </RevenueShareDetails>
+      </Service>
+      <Service id="direct_mode_service2" key="12000" model="DIRECT">
+        <Subscription billingKey="13000" id="subx" key="47111" revenue="13.00">
+          <Period endDate="1341100800000" endDateIsoFormat="2012-07-01T00:00:00.000Z" startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z"/>
+        </Subscription>  
+        <RevenueShareDetails amountForSupplier="375.00" marketplaceRevenue="75.00" marketplaceRevenueSharePercentage="15.0" 
+            operatorRevenue="8.13" operatorRevenueSharePercentage="13.88" serviceRevenue="500.00">
+          <CustomerRevenueShareDetails amountForSupplier="225.00" customerId="f278913568" customerName="customerA" 
+              marketplaceRevenue="45.00" operatorRevenue="8.13" serviceRevenue="500.00"/>
+        </RevenueShareDetails>
+      </Service>
+      <Service id="broker_mode_service" key="11002" model="BROKER" templateKey="10500">
+        <Subscription billingKey="19542" id="sub3" key="54741" revenue="500.00"/>
+        <Broker>
+          <OrganizationData id="broker1" key="54212">
+            <Email>broker@brokers.biz</Email>
+            <Name>broker for broker model</Name>
+            <Address>Address of broker</Address>
+          </OrganizationData>
+        </Broker>
+        <RevenueShareDetails amountForSupplier="300.00" brokerRevenue="25.00" brokerRevenueSharePercentage="5.00" marketplaceRevenue="75.00" 
+            marketplaceRevenueSharePercentage="15.00" operatorRevenue="0.00" operatorRevenueSharePercentage="0.00" serviceRevenue="500.00">
+          <CustomerRevenueShareDetails amountForSupplier="300.00" brokerRevenue="25.00" customerId="a92537743" 
+              customerName="customerC" marketplaceRevenue="75.00" operatorRevenue="0.00" serviceRevenue="500.00"/>
+        </RevenueShareDetails>
+      </Service>
+      <Service id="reseller_mode_service" key="11001" model="RESELLER" templateKey="11200">
+        <SubscriptionsRevenue amount="500.00"/>
+        <Reseller>
+          <OrganizationData id="reseller1" key="23421">
+            <Email>reseller@resale.net</Email>
+            <Name>reseller for reseller model</Name>
+            <Address>Address of reseller</Address>
+          </OrganizationData>
+        </Reseller>
+        <RevenueShareDetails amountForSupplier="225.00" marketplaceRevenue="75.00" marketplaceRevenueSharePercentage="15.00" operatorRevenue="0.00" 
+            operatorRevenueSharePercentage="0.00" resellerRevenue="25.00" resellerRevenueSharePercentage="5.00" serviceRevenue="500.00">
+          <CustomerRevenueShareDetails amountForSupplier="225.00" customerId="r12957322" customerName="customerD" marketplaceRevenue="75.00" 
+              operatorRevenue="0.00" resellerRevenue="25.00" serviceRevenue="500.00"/>
+        </RevenueShareDetails>
+      </Service>
+      <RevenuePerMarketplace brokerRevenue="25.00" marketplaceRevenue="225.00" operatorRevenue="0.00"  
+          overallRevenue="1000.00" resellerRevenue="25.00" serviceRevenue="1500.00"/>
+    </Marketplace>
+
+    <SupplierRevenue amount="1225.00">
+      <DirectRevenue marketplaceRevenue="75.00" operatorRevenue="0.00" serviceRevenue="500.00"/>
+      <BrokerRevenue brokerRevenue="25.00" marketplaceRevenue="75.00" operatorRevenue="0.00" serviceRevenue="500.00"/>
+      <ResellerRevenue marketplaceRevenue="75.00" operatorRevenue="0.00" overallRevenue="400.00" resellerRevenue="25.00" serviceRevenue="500.00"/>
+    </SupplierRevenue>
+
+  </Currency>
+
+</SupplierRevenueShareResult>

@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="4" version="0" organizationid="supplier1" registrationdate="1234"
+    localmarketplace_tkey="1" />
+  <Organization tkey="5" version="0" organizationid="customer1" registrationdate="1234" />
+  <OrganizationReference tkey="1" version="1" targetkey="5" sourcekey="4" referencetype="SUPPLIER_TO_CUSTOMER" />
+  
+  <MarketPlace tkey="10" creationdate="1234" version="0" organization_tkey="4" marketplaceid="supplierWithShop"
+    global="false" />
+
+  <TechnicalProduct tkey="1" provisioningurl="url" technicalproductid="1" technicalproductversion="0"
+    version="0" organizationkey="4" />
+  <Product tkey="1" productid="pr1" provisioningdate="1234" status="status" version="0" supplierkey="4"
+    technicalproduct_tkey="1" />
+
+
+  <Subscription tkey="1" version="0" status="0" creationdate="1234" subscriptionid="asdf" timeoutmailsent="1"
+    organizationkey="5" product_tkey="1" />
+
+  <SubscriptionHistory tkey="31" objversion="1" creationdate="1234" moddate="2011-04-03 14:31:00"
+    modtype="t1" moduser="u1" status="status" subscriptionid="asdf" timeoutmailsent="1" objkey="1" organizationobjkey="5"
+    productobjkey="1" />
+
+
+</dataset>

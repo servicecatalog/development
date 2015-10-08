@@ -1,0 +1,101 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testLandingpage" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <import file="../macros/all.xml" />
+
+  <target name="testLandingpage" depends="setup, test, cleanup" />
+
+  <target name="setup">
+    <webtest name="testLandingpage_Setup">
+      <testInfo type="DESCRIPTION">testLandingpage_Setup:
+			</testInfo>
+
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- Services are created and published on the marketplace -->
+      <mpl_setup.createServices mId1="${MID1}" />
+    </webtest>
+  </target>
+
+  <target name="test" depends="setup">
+
+    <!-- The enterprise landing page shows only three categories. If more than three categories exists, then only the first three are shown.  -->
+    <webtest name="testEnterpriseLandingpageEmtyCategories">
+      <landingpage.loginAsSupplier />
+
+      <!-- Setup: Define 4 categories-->
+      <category.defineCategories marketplaceId="${MID1}" count="4" />
+
+      <!-- Swith to enterprise landingpage -->
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectEnterpriseLandingpageType />
+      <landingpage.saveLandingpage />
+      <login.logout />
+
+      <!-- Go to marketplace and verify if only 3 categories are displayed -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <landingpage.verifyEmptyCategoriesExists max="3" />
+      <login.logout />
+
+      <!-- Clean up -->
+      <landingpage.loginAsSupplier />
+      <landingpage.openLandingpage />
+      <landingpage.selectMarketplace mId="${MID1}" />
+      <landingpage.selectPublicLandingpageType />
+      <landingpage.saveLandingpage />
+      <category.deleteCategories marketplaceId="${MID1}" count="4" />
+
+      <login.logout />
+    </webtest>
+
+    <!-- The enterprise landing page shows only three categories. Each of these categories should contain one service.  -->
+    <webtest name="testEnterpriseLandingpageWithServices">
+      <landingpage.loginAsSupplier />
+
+      <!-- Setup: Define 4 categories-->
+      <category.defineCategories marketplaceId="${MID1}" count="4" />
+
+      <!-- Setup: Publish services for category -->
+      <service.assignToCategory serviceId="S1" marketplaceId="${MID1}" category="0" assign="true" />
+      <service.assignToCategory serviceId="S2" marketplaceId="${MID1}" category="1" assign="true" />
+      <service.assignToCategory serviceId="S3" marketplaceId="${MID1}" category="2" assign="true" />
+      <service.assignToCategory serviceId="S4" marketplaceId="${MID1}" category="3" assign="true" />
+
+      <!-- Setup: Activate services -->
+      <setup:service.activate serviceIds="S1,S2,S3,S4" />
+
+      <!-- Swith to enterprise landingpage -->
+      <landingpage.switchToEnterpriseLandingpage marketplaceId="${MID1}" />
+      <login.logout />
+
+      <!-- Go to marketplace and verify that each category contains one service -->
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <landingpage.verifyCategoryContainsServices maxServices="1" categoryName="First" categoryId="1" />
+      <landingpage.verifyCategoryContainsServices maxServices="1" categoryName="Second" categoryId="2" />
+      <landingpage.verifyCategoryContainsServices maxServices="1" categoryName="Third" categoryId="3" />
+      <login.logout />
+
+      <!-- Clean up -->
+      <landingpage.loginAsSupplier />
+      <landingpage.switchToPublicLandingpage marketplaceId="${MID1}" />
+      <setup:service.deactivate serviceIds="S1,S2,S3,S4" />
+      <category.deleteCategories marketplaceId="${MID1}" count="4" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="cleanup" depends="setup">
+    <webtest name="cleanup">
+      <landingpage.deleteServices url="${supplierUrl}" userId="${supplierUserId}" />
+      <operator.deleteMarketplaces marketplaceIds="${MID1}" />
+    </webtest>
+  </target>
+
+</project>

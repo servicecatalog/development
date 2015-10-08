@@ -1,0 +1,42 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:f="http://java.sun.com/jsf/core">
+  <!-- requires attributes fieldId (String), subscription (Subscription) and onClickHandler (String) -->
+  <c:if test="#{empty onClickHandler}">
+
+  </c:if>
+
+  <a4j:outputPanel layout="block" styleClass="left box_logo">
+    <a4j:outputPanel layout="block" styleClass="box_image" onclick="#{onClickHandler}">
+      <h:graphicImage id="#{fieldId}Image" value="/image?type=SERVICE_IMAGE&amp;serviceKey=#{subscription.serviceKey}" />
+    </a4j:outputPanel>
+  </a4j:outputPanel>
+  <a4j:outputPanel layout="block" styleClass="center">
+    <!-- subscription id -->
+    <h2 id="#{fieldId}SubscriptionId" class="box_title">#{subscription.subscriptionId}</h2>
+    <h3 id="#{fieldId}Supplier" class="supplier shortenedText" title="#{subscription.supplierName}"><h:outputFormat value="#{msg['service.by']}">
+      <f:param value="#{subscription.supplierName}" />
+    </h:outputFormat></h3>
+    <!-- usage link -->
+    <h:outputLink style="margin-top: -5px; color: #555; font-size: 10pt; font-weight: normal;" target="#{subscription.target}"
+      id="#{fieldId}ServiceUrl" value="#{subscription.accessUrl}"
+      rendered="#{not subscription.accessViaAccessInfo and (subscription.statusActive or subscription.statusPendingUpd)}">
+      <h:outputText value="#{subscription.accessUrl}" />
+    </h:outputLink>
+    <!-- access info -->
+    <h:outputText id="#{fieldId}AccessInfo" value="#{subscription.serviceAccessInfo}"
+      rendered="#{subscription.accessViaAccessInfo}" escape="false" style="white-space:pre-wrap;" />
+    <!-- number of assigned users -->
+    <t:panelGrid columns="2" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
+      <h:outputText value="#{msg['subscription.users']}" style="margin-right: 20px;font-size: 13px;" />
+      <h:outputText id="#{fieldId}Users" value="#{subscription.numberOfAssignedUsers}" style="font-size: 13px;" />
+    </t:panelGrid>
+    <a4j:outputPanel layout="block" styleClass="provisioningProgress"
+      rendered="#{subscription.provisioningProgressRendered}">
+      <h:outputText id="#{fieldId}Progress" value="#{subscription.provisioningProgress}" style="margin-left: 20px;" />
+    </a4j:outputPanel>
+  </a4j:outputPanel>
+</ui:composition>

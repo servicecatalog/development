@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Default Project Build" default="illegalusage" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
+
+  <description>
+		Default build script for all projects. Projects that define their own
+		build files should import this build file and overwrite specific targets
+		only. Note that this script is always invoked from the build.xml master.
+	</description>
+
+  <taskdef name="if" classname="net.sf.antcontrib.logic.IfTask"
+      classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
+  
+  <taskdef name="propertyregex" classname="net.sf.antcontrib.property.RegexTask"
+    classpath="${workspace.dir}/libraries/apache-ant-contrib/ant-contrib-1.0b3.jar" />
+  <target name="_init">
+
+    <property environment="env" />
+    <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+
+    <!-- Input properties should already be filled in -->
+    <property name="project.dir" location="." />
+    <property name="result.dir" location="result" />
+    <property name="result.log.dir" location="${result.dir}/log/projects" />
+    <property file="${workspace.dir}/oscm-devruntime/javares/local/${env.HOSTNAME}/integration.properties" />
+    <available file="${bss.java.home}/jre/lib/rt.jar" property="bss.java.home.dir" value="${bss.java.home}/jre" />
+    <!-- Read properties from Eclipse project files -->
+    <dependencyproperties workspacedir="${workspace.dir}" resultdir="${result.dir}" projectdir="${project.dir}" />
+
+    <!-- Project source and result locations -->
+    <property name="javasrc.dir" location="${project.dir}/javasrc" />
+    <available property="javasrc.dir.exists" file="${javasrc.dir}" />
+    <property name="javasrc.it.dir" location="${project.dir}/javasrc-it" />
+    <property name="javares.dir" location="${project.dir}/javares" />
+    <available property="javares.dir.exists" file="${javares.dir}" />
+    <property name="resources.dir" location="${project.dir}/resources" />
+    <available property="resources.dir.exists" file="${resources.dir}" />
+    <property name="package.file" location="${project.dir}/package.properties" />
+    <available property="package.file.exists" file="${package.file}" />
+
+    <property name="result.work.dir" location="${result.dir}/work/${project.name}" />
+    <property name="result.work.classes.dir" location="${result.work.dir}/classes" />
+    <property name="result.work.javadoc.dir" location="${result.work.dir}/javadoc" />
+    <property name="result.work.testreport.dir" location="${result.work.dir}/test" />
+    <property name="result.work.testreport.it.dir" location="${result.work.dir}/test-it" />
+    <property name="result.work.testreport.ws.dir" location="${result.work.dir}/test-ws" />
+    <property name="result.work.testreport.ws.saml.dir" location="${result.work.dir}/test-ws-saml" />
+
+    <property name="result.package.dir" location="${result.dir}/package/${project.name}" />
+    <property name="result.licenses.dir" location="${result.dir}/licenses/${project.name}" />
+    <property name="result.log.file" location="${result.log.dir}/${project.name}.log" />
+    <property name="result.reports.javadoccheck.dir" location="${result.reports.dir}/javadoccheck/${project.name}" />
+
+
+    <!-- Project specific settings -->
+    <property file="${project.dir}/build.properties" />
+    <property name="javasource" value="1.7" />
+    <property name="javatarget" value="1.7" />
+    <property name="licensefiles" value="*license.*,javalib/*.txt" />
+    <property name="javadocpackagenames" value="*" />
+    <property name="ear-content.dir" value="EarContent" />
+
+    <echo level="info">====================================================================================</echo>
+    <echo level="info">Building Project ${project.name} (${buildid})</echo>
+    <echo level="info">====================================================================================</echo>
+    <echo level="info">Project Source: ${project.dir}</echo>
+    <echo level="info">Working Dir:    ${result.work.dir}</echo>
+    <echo level="info">Packaging Dir:  ${result.package.dir}</echo>
+
+    <mkdir dir="${result.log.dir}" />
+    <record action="start" name="${result.log.file}" />
+
+  </target>
+
+  <target name="_copyjavares" if="javares.dir.exists" depends="_init">
+    <copy todir="${result.work.classes.dir}">
+      <fileset dir="${javares.dir}" includes="**/*" />
+    </copy>
+  </target>
+
+  <target name="compile" if="javasrc.dir.exists" depends="_init, _copyjavares, _checkjre">
+    <mkdir dir="${result.work.classes.dir}" />
+    <path id="path_bootclasspath">
+      <fileset dir="${bss.java.home.dir}/lib">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+    <condition property="src.path" value="${javasrc.dir}:${javasrc.it.dir}">
+      <available file="${project.dir}/javasrc-it" />
+    </condition>
+    <condition property="src.path" value="${javasrc.dir}">
+      <not>
+        <available file="${project.dir}/javasrc-it" />
+      </not>
+    </condition>
+    <javac srcdir="${src.path}" includeantruntime="false" destdir="${result.work.classes.dir}" debug="true" source="${javasource}" target="${javatarget}" encoding="utf-8" compiler="org.eclipse.jdt.core.JDTCompilerAdapter">
+      <compilerclasspath>
+        <fileset dir="${workspace.dir}/libraries/eclipse-ecj/javalib" includes="ecj-4.2.1.jar"/>
+      </compilerclasspath>
+      <classpath refid="dependencies.compile.path" />
+      <bootclasspath refid="path_bootclasspath" />
+      <compilerarg value="-enableJavadoc" />
+      <compilerarg value="-warn:+uselessTypeCheck,+unusedArgument,+hashCode,+null,+boxing" />
+    </javac>
+  </target>
+  
+  <target name="_checkjre" unless="bss.java.home.dir">
+    <echo level="warn">===========================================================================</echo>
+    <echo level="warn">Either the JRE7 location is not set or missing /lib/rt.jar file!</echo>
+    <echo level="warn">Set the bss.java.home property in your integration.properties file!</echo>
+    <echo level="warn">===========================================================================</echo>
+    <fail message="JRE location not set" />
+  </target>
+
+  <target name="wsdl" if="createwsdl" depends="_init, compile">
+    <mkdir dir="${result.package.dir}" />
+    <if>
+      <equals arg1="${generatestaticwsdls}" arg2="true" />
+      <then>
+        <mkdir dir="${result.package.dir}/BASIC" />
+        <mkdir dir="${result.package.dir}/CLIENTCERT" />
+        <mkdir dir="${result.package.dir}/STS" />
+        <mkdir dir="${result.package.dir}/STS/wsit" />
+      </then>
+    </if>
+    <mkdir dir="${result.work.dir}/src-gen" />
+    <foreach tokens="${wsdlsei}">
+      <wsgen sei="${item}" classpath="${toString:dependencies.runtime.path}" genwsdl="true" resourcedestdir="${result.package.dir}" sourcedestdir="${result.work.dir}/src-gen" destdir="${result.work.classes.dir}" />
+      <if>
+        <equals arg1="${generatestaticwsdls}" arg2="true" />
+        <then>
+          <propertyregex property="item1" input="${item}" regexp='Impl' replace="Port" override="true"/>
+          <propertyregex property="item2" input="${item1}" regexp='internal.' replace="" override="true" />
+          <wsgen sei="${item}" classpath="${toString:dependencies.runtime.path}" genwsdl="true" resourcedestdir="${result.package.dir}/BASIC" sourcedestdir="${result.work.dir}/src-gen" destdir="${result.work.classes.dir}" portname="{http://oscm.org/xsd}${item2}BASIC" />
+          <wsgen sei="${item}" classpath="${toString:dependencies.runtime.path}" genwsdl="true" resourcedestdir="${result.package.dir}/CLIENTCERT" sourcedestdir="${result.work.dir}/src-gen" destdir="${result.work.classes.dir}" portname="{http://oscm.org/xsd}${item2}CLIENTCERT" />
+          <wsgen sei="${item}" classpath="${toString:dependencies.runtime.path}" genwsdl="true" resourcedestdir="${result.package.dir}/STS" sourcedestdir="${result.work.dir}/src-gen" destdir="${result.work.classes.dir}" portname="{http://oscm.org/xsd}${item2}STS" />
+        </then>
+      </if>
+    </foreach>
+    <antcall target="addwsdlversion" inheritall="true" />
+    <antcall target="generatewsit" inheritall="true" />
+  </target>
+
+  <target name="generatewsit" if="generatestaticwsdls">
+    <fileset id="wsdl.fileset" dir="${result.package.dir}/STS" includes="*.wsdl" />
+    <property name="wsdl.files" refid="wsdl.fileset" />
+    <foreach tokens="${wsdl.files}">
+      <echo message="package dir name is ${result.package.dir}/STS, wsdl file name is ${item}" />
+      <wsitgen classname="${item}" />
+    </foreach>
+    <fileset id="wsit.fileset" dir="${result.package.dir}/STS/wsit" includes="*.xml" />
+    <property name="wsit.files" refid="wsit.fileset" />
+    <foreach tokens="${wsit.files}">
+      <echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>
+      <wsithandle dirname="${result.package.dir}/STS/wsit" filename="${item}" />
+    </foreach>
+  </target>
+
+  <macrodef name="wsitgen">
+    <attribute name="classname" />
+    <sequential>
+      <basename property="@{classname}" file="${item}" suffix=".wsdl" />
+      <echo message="${@{classname}}" />
+      <wsit-service wsdl="${result.package.dir}/STS/${item}" outputdir="${result.package.dir}/STS/wsit" policy="${workspace.dir}/oscm-webservices/javares/wsitconfig/ws-policies.xml" class="org.oscm.webservices.${@{classname}}WS" bindingpolicy="STSBindingPolicy" inputpolicy="STSBinding_Input_Policy" outputpolicy="STSBinding_Output_Policy" />
+    </sequential>
+  </macrodef>
+
+
+  <target name="addwsdlversion" if="addwsdlversion">
+    <fileset id="wsdl.fileset" dir="${result.package.dir}" includes="*.wsdl" />
+    <property name="wsdl.files" refid="wsdl.fileset" />
+    <foreach tokens="${wsdl.files}">
+      <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
+      <wsdlhandle dirname="${result.package.dir}" filename="${item}" version="${wsdlversion}" />
+    </foreach>
+    <if>
+      <equals arg1="${generatestaticwsdls}" arg2="true" />
+      <then>
+        <fileset id="wsdl.fileset.basic" dir="${result.package.dir}/BASIC" includes="*.wsdl" />
+        <property name="wsdl.files.basic" refid="wsdl.fileset.basic" />
+        <foreach tokens="${wsdl.files.basic}">
+          <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
+          <wsdlhandle dirname="${result.package.dir}/BASIC" filename="${item}" version="${wsdlversion}" />
+        </foreach>
+
+        <fileset id="wsdl.fileset.clientcert" dir="${result.package.dir}/CLIENTCERT" includes="*.wsdl" />
+        <property name="wsdl.files.clientcert" refid="wsdl.fileset.clientcert" />
+        <foreach tokens="${wsdl.files.clientcert}">
+          <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
+          <wsdlhandle dirname="${result.package.dir}/CLIENTCERT" filename="${item}" version="${wsdlversion}" />
+        </foreach>
+
+        <fileset id="wsdl.fileset.sts" dir="${result.package.dir}/STS" includes="*.wsdl" />
+        <property name="wsdl.files.sts" refid="wsdl.fileset.sts" />
+        <foreach tokens="${wsdl.files.sts}">
+          <!--<echo message="package dir name is ${result.package.dir}, wsdl file name is ${item}"/>-->
+          <wsdlhandle dirname="${result.package.dir}/STS" filename="${item}" version="${wsdlversion}" /> 
+        </foreach>
+      </then>
+    </if>
+  </target>
+
+  <target name="javadoc" if="createjavadoc" depends="_init, compile">
+    <javadoc sourcepath="${javasrc.dir}" destdir="${result.work.javadoc.dir}" windowtitle="Fujitsu BES ${buildid}" author="no" breakiterator="yes" packagenames="${javadocpackagenames}">
+      <classpath refid="dependencies.compile.path" />
+    </javadoc>
+  </target>
+
+  <target name="_licenses" depends="_init">
+    <mkdir dir="${result.licenses.dir}" />
+    <copy todir="${result.licenses.dir}">
+      <fileset dir="${project.dir}" includes="${licensefiles}" />
+      <chainedmapper>
+        <mapper type="flatten" />
+        <mapper type="glob" from="*" to="${project.name}-*" />
+      </chainedmapper>
+    </copy>
+  </target>
+
+  <target name="package_hook" />
+
+  <target name="package" if="package.file.exists" depends="_init, compile, wsdl, javadoc, _licenses, package_hook">
+    <mkdir dir="${result.package.dir}" />
+    <licensespackage packagefile="${package.file}" licensesdir="${result.dir}/licenses" outputdir="${result.licenses.dir}" />
+    <resourcepackage packagefile="${package.file}" outputdir="${result.package.dir}" />
+  </target>
+
+  <target name="unittests" if="rununittests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.dir}" />
+    <jacoco:coverage destfile="${result.work.testreport.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+        <jvmarg value="-Dfile.encoding=UTF8" />
+        <!-- Run unit tests without Hibernate Search indexing -->
+        <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+        <!-- Uncomment these two lines to be able to debug the tests -->
+        <!--jvmarg value="-Xdebug" />
+        <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+        <classpath refid="dependencies.runtime.path" />
+        <formatter type="xml" />
+        <batchtest todir="${result.work.testreport.dir}">
+          <fileset dir="${javasrc.dir}">
+            <include name="**/*Test.java" />
+            <include name="**/*Test?.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+  </target>
+
+  <target name="integrationtests" if="integrationtests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.it.dir}" />
+    <jacoco:coverage destfile="${result.work.testreport.it.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
+      <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+        <jvmarg value="-Dfile.encoding=UTF8" />
+        <!-- Run unit tests without Hibernate Search indexing -->
+        <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+        <!-- Uncomment these two lines to be able to debug the tests -->
+        <!--jvmarg value="-Xdebug" />
+        <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+        <classpath refid="dependencies.runtime.path" />
+        <formatter type="xml" />
+        <batchtest todir="${result.work.testreport.it.dir}">
+          <fileset dir="${javasrc.it.dir}" erroronmissingdir="no">
+            <include name="**/*IT.java" />
+            <include name="**/*IT?.java" />
+          </fileset>
+        </batchtest>
+      </junit>
+    </jacoco:coverage>
+  </target>
+
+
+  <target name="webservicetests" if="webservicetests" depends="package, prepareOperatorCLClient">
+    <mkdir dir="${result.work.testreport.ws.dir}" />
+    <junit fork="yes" forkmode="once" dir="${project.dir}" maxmemory="1024m">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <jvmarg value="-Dbss.project.dir=${project.dir}" />
+      <!-- 
+      <jvmarg value="-Xdebug" />
+      <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" />
+      -->
+      <classpath>
+        <pathelement location="${result.package.oscm-extsvc.dir}/oscm-extsvc-platform.jar" />
+        <pathelement location="${project.sun-glassfish.dir}/javalib/appserv-ext.jar" />
+        <path location="${result.package.oscm-extsvc.dir}" />
+        <path refid="dependencies.runtime.path" />
+      </classpath>
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.ws.dir}">
+        <fileset dir="${javasrc.dir}">
+          <include name="**/*Test.java" />
+          <include name="**/*Test?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="webservicesamlsptests" if="webservicesamlsptests" depends="package, prepareOperatorCLClient">
+    <mkdir dir="${result.work.testreport.ws.saml.dir}" />
+    <junit fork="yes" forkmode="once" dir="${project.dir}" maxmemory="256m">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <jvmarg value="-Dbss.project.dir=${project.dir}" />
+      <classpath>
+        <pathelement location="${result.package.oscm-extsvc.dir}/oscm-extsvc-platform.jar" />
+        <pathelement location="${project.sun-glassfish.dir}/javalib/appserv-ext.jar" />
+        <path location="${result.package.oscm-extsvc.dir}" />
+        <path refid="dependencies.runtime.path" />
+      </classpath>
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.ws.saml.dir}">
+        <fileset dir="${javasrc.dir}">
+          <include name="**/*Test.java" />
+          <include name="**/*Test?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <target name="copyGlassfishLogs">
+    <ant antfile="${workspace.dir}/oscm-build/build.xml" target="copyGlassfishLogs" />
+  </target>
+
+  <target name="prepareOperatorCLClient" if="webservicetests.v11" depends="package" description="prepares the MAIN Operator Command Line client, so the 1.1 WS compatibility tests can create MAIN objects">
+    <ant antfile="${project.dir}/build.xml" target="prepare" />
+  </target>
+
+  <target name="verify_hook" />
+  <target name="verify" depends="unittests, verify_hook" />
+
+  <target name="packageAndVerify" depends="package, verify" />
+
+  <target name="illegalusage">
+    <fail>This script is called from the build.xml master, it must not be directly invoved.</fail>
+  </target>
+
+</project>

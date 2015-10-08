@@ -1,0 +1,114 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testTrackingCode" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <import file="../macros/all.xml" />
+
+  <target name="testTrackingCode" depends="setup, test, cleanup" />
+
+  <target name="setup">
+    <webtest name="testTrackingCode_Setup">
+      <testInfo type="DESCRIPTION">testTrackingCode_Setup:
+        Establish two marketplaces, each with two roles: marketplace owner and non-owner
+			</testInfo>
+      <storeProperty name="trackingCode1" value="&lt;script&gt; document.write('a tracking code demo!'); &lt;/script&gt;" propertyType="ant" />
+      <storeProperty name="trackingCode2" value="&lt;script&gt; document.write('another tracking code demo!'); &lt;/script&gt;" propertyType="ant" />
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+      <operator.createMarketplace mIdProperty="MID2" ownerId="${supplierId}" name="mp2" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+    </webtest>
+  </target>
+
+  <target name="test" depends="setup">
+    <webtest name="testEnablementOnTrackingCode_asMarketplaceOwner">
+      <testInfo type="DESCRIPTION">testEnablementOnTrackingCode_asMarkeplaceOwner:
+        (1) Test the existence of trackingCode page;
+        (2) Verify the default code;
+        (3) Change the code;
+        (4) Verify the success of the change;        
+        (5) Deselect the mp, see the disperance of the trackingCode;
+        (6) Go back to another marketplace and the changed trackingCode showed again 
+        (7) Change the code again;
+        (8) Verify the success of the change;
+        (9) Reset TrackingCode of Mp1;
+        (10) Verify the Effect
+      			</testInfo>
+      <selectWebClient name="marketplace_owner" />
+      <!-- Login as owner -->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <!-- (1) Test the existence of trackingCode page;  -->
+      <common.clickAndVerfyLink label="${shop.trackingCode.title}" />
+      <!--  Select marketplace -->
+      <setSelectField htmlId="trackingCodeForm:marketplace" value="${MID1}" />
+      <common.waitForJavaScript />
+      <!-- (2) Verify the default code; -->
+      <verifyElementText htmlId="trackingCodeForm:trackingCode" text="^\s*$" regex="true" />
+      <setInputField htmlId="trackingCodeForm:trackingCode" value="${trackingCode1}" />
+      <!-- (3) Change the code;-->
+      <clickLink htmlId="trackingCodeForm:saveButtonLink" />
+      <verifyElementText htmlId="trackingCodeForm:trackingCode" text="${trackingCode1}" />
+      <!-- (4) Verify the success of the change;  -->
+      <selectWebClient name="anonymous1" />
+      <verifyTrackingCode mid="${MID1}" code="a tracking code demo!" />
+      <not>
+        <verifyTrackingCode mid="${MID2}" code="tracking code" />
+      </not>
+      <selectWebClient name="marketplace_owner" />
+      <common.verifySuccess label="${info.trackingcode.saved}" />
+      <!-- (5) Deselect the mp, see th disperance of the trackingCode; -->
+      <setSelectField htmlId="trackingCodeForm:marketplace" value="" />
+      <common.waitForJavaScript />
+      <!-- verify the absence of the tracking code -->
+      <verifyXPath description="verify the absence of the tracking code" xpath="matches(//*[@id='trackingCodeForm:trackingCode']/@disabled, 'disabled')" />
+      <verifyElementText htmlId="trackingCodeForm:trackingCode" text="\s*" regex="true" />
+
+      <!--(6) Go back to another marketplace and the changed trackingCode showed again  -->
+      <setSelectField htmlId="trackingCodeForm:marketplace" value="${MID2}" />
+      <common.waitForJavaScript />
+      <!-- set to another tracking code -->
+      <setInputField htmlId="trackingCodeForm:trackingCode" value="${trackingCode2}" />
+      <!-- (7) Change the code again;-->
+      <clickLink htmlId="trackingCodeForm:saveButtonLink" />
+      <verifyElementText htmlId="trackingCodeForm:trackingCode" text="${trackingCode2}" />
+      <!-- (8) Verify the success of the change;-->
+      <selectWebClient name="anonymous2" />
+      <verifyTrackingCode mid="${MID1}" code="a tracking code demo!" />
+      <verifyTrackingCode mid="${MID2}" code="another tracking code demo!" />
+      <selectWebClient name="marketplace_owner" />
+      <!-- (9) Reset TrackingCode of Mp1; -->
+      <setSelectField htmlId="trackingCodeForm:marketplace" value="${MID1}" />
+      <setInputField htmlId="trackingCodeForm:trackingCode" value="" />
+      <common.waitForJavaScript />
+      <clickLink htmlId="trackingCodeForm:saveButtonLink" />
+      <!-- (10) Verify the Effect -->
+      <verifyElementText htmlId="trackingCodeForm:trackingCode" text="" />
+      <selectWebClient name="anonymous3" />
+      <not>
+        <verifyTrackingCode mid="${MID1}" code="tracking code" />
+      </not>
+      <verifyTrackingCode mid="${MID2}" code="another tracking code demo!" />
+      <selectWebClient name="marketplace_owner" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="cleanup" depends="setup">
+    <webtest name="cleanup">
+      <setup:marketplace.delete Ids="${MID1}" failonerror="@{failonerror}" runAs="1000" />
+      <setup:marketplace.delete Ids="${MID2}" failonerror="@{failonerror}" runAs="1000" />
+      <operator.deleteMarketplaces marketplaceIds="${MID1}" />
+      <operator.deleteMarketplaces marketplaceIds="${MID2}" />
+    </webtest>
+  </target>
+
+  <macrodef name="verifyTrackingCode">
+    <attribute name="mid" />
+    <attribute name="code" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{mid}" />
+      <verifyElementText type="body" text="@{code}" regex="true" />
+    </sequential>
+  </macrodef>
+
+</project>

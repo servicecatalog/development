@@ -1,0 +1,133 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCaseService">
+  <import file="../macros/all.xml" />
+  <target name="testBadCaseService">
+
+    <webtest name="testBadCaseService_Create">
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- 3.  Register new or updated technical service  -->
+      <techservice.import file="${techService.import.file}" />
+      <common.ignorePageScriptError />
+      <dataDriven tableContainer="data/pageFields/serviceFields.xls">
+        <!-- open "define service" page and select the example service -->
+        <common.clickAndVerfyLink label="${service.add.title}" />
+        <setSelectField htmlId="editForm:techServiceId" text="Example 1.00" />
+        <!-- set the service id to a valid value - otherwise validation will fail already for 
+            this field when testing the other ones -->
+        <setInputField htmlId="editForm:serviceId" value="serviceId" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBadCaseService_Update">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <!-- 1. Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- 2.  Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- 3.  Register new or updated technical service  -->
+      <techservice.import file="${techService.import.file}" />
+      <!-- 4.  Define Market Service  -->
+      <common.ignorePageScriptError />
+      <service.define serviceId="#{marketServiceName}" />
+      <dataDriven tableContainer="data/pageFields/serviceFields.xls">
+        <clickLink href="/service/edit.jsf" />
+        <setSelectField htmlId="editForm:selectedServiceId" text="#{marketServiceName}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}"/>
+          <this.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+  </target>
+	
+    <macrodef name="this.testFieldValidation">
+      <attribute name="fieldId" />
+      <attribute name="fieldValue" />
+      <attribute name="error" />
+      <attribute name="buttonLabel" default="${button.save}" />
+      <attribute name="buttonLinkId" default="true" />
+      <attribute name="errorFieldId" default="errorMessages" />
+      <attribute name="topErrorMessage" default="true" />
+      <attribute name="steppedPrice" default="false" />
+      <attribute name="regex" default="true" />
+      <sequential>
+        <setInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+
+        <ifStep description="If htmlid for save link is set" test="@{buttonLinkId}">
+          <then>
+            <clickButton label="@{buttonLabel}" />
+          </then>
+          <else>
+            <ifStep description="Is stepped price" test="@{steppedPrice}">
+              <clickButton label="@{buttonLabel}" />
+            </ifStep>
+            <clickElement htmlId="@{buttonLinkId}" />
+          </else>
+        </ifStep>
+
+      	<ifStep>
+      	  <condition>
+      	    <verifyProperty name="required" value="false" regex="true" />
+      	    <not>
+      	        <verifyXPath xpath="//*[@id='@{fieldId}ErrorMsg:@{fieldId}']" />
+      	    </not>
+      	  </condition>
+      	  <else>
+          <ifStep test="@{topErrorMessage}" description="If the error message can be displayed on the top">
+            <then description="test both of the beside of field and the top message">
+              <ifStep>
+                <condition>
+                  <common.verifyFieldError fieldId="@{fieldId}" label="@{error}" regex="@{regex}" />
+                </condition>
+                <else>
+                <!-- If the field error message doesn't contain the required information, the 
+            top (or specified) message should -->
+                  <common.verifyError label="@{error}" errorFieldId="@{errorFieldId}" regex="@{regex}" />
+                </else>
+              </ifStep>
+            </then>
+            <else description="test only the beside of field">
+              <common.verifyFieldError fieldId="@{fieldId}" label="@{error}" regex="@{regex}" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep> 
+      </sequential>
+    </macrodef>
+</project>

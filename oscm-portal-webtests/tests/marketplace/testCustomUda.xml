@@ -1,0 +1,266 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_cumtomUda" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testMPL_cumtomUda">
+
+
+    <webtest name="testMPL_cumtomUda_init">
+      <!-- add default currency, create supplier + 2 services -->
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="marketplaceId" value="${marketplaceId}" propertyType="dynamic" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <!-- create 3 cumstomer UDA definitions with different configuration types-->
+      <udas.create numOfUdas="3" forCustomer="true" udaName="customerUda" defaultValue="defCSub" userOption="false" mandatory="false" />
+      <udas.create numOfUdas="1" forCustomer="true" udaName="customerUda_Empty" defaultValue="" userOption="true" mandatory="false" />
+      <udas.update rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
+      <udas.verify rowNr="0" udaId="customerUda First" defaultValue="def c value 1st" userOption="false" mandatory="false" />
+      <udas.update rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
+      <udas.verify rowNr="1" udaId="customerUda Second" defaultValue="def c value 2nd" userOption="true" mandatory="false" />
+      <udas.update rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
+      <udas.verify rowNr="2" udaId="customerUda Third" defaultValue="def c value 3rd" userOption="true" mandatory="true" />
+
+      <!-- create 3 subscription UDA definitions with different configuration types-->
+      <udas.create numOfUdas="3" forCustomer="false" udaName="subscriptionUda" defaultValue="defSSub" userOption="false" mandatory="false" />
+      <udas.update forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def s value 1st" userOption="false" mandatory="false" />
+      <udas.verify forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def s value 1st" userOption="false" mandatory="false" />
+      <udas.update forCustomer="false" rowNr="1" udaId="subscriptionUda Second" defaultValue="def s value 2nd" userOption="true" mandatory="false" />
+      <udas.verify forCustomer="false" rowNr="1" udaId="subscriptionUda Second" defaultValue="def s value 2nd" userOption="true" mandatory="false" />
+      <udas.update forCustomer="false" rowNr="2" udaId="subscriptionUda Third" defaultValue="def s value 3rd" userOption="true" mandatory="true" />
+      <udas.verify forCustomer="false" rowNr="2" udaId="subscriptionUda Third" defaultValue="def s value 3rd" userOption="true" mandatory="true" />
+      <login.logout />
+
+      <!-- enable the payments-->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <organization.managePayment rowNr="0" enabled="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_customUda_subscribeServiceProcess" description=" 
+      				(1) Goto Marketplace and Get a prime Service;
+      				(2)	Click 'Get it now' to start the subsctiption process;
+      				(3) Check Uda default values, change them;
+      				(4) Agree the terms to complete the subscription.">
+      <!-- (1) Goto Marketplace and Get a prime Service -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton1" svcName="Mega Office Trial" isFree="true" />
+      <!-- Check that login is required first -->
+      <mpl_verify.loginDialog />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+
+      <!-- (2)	Click 'Get it now' to start the subsctiption process -->
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton1" svcName="Mega Office Trial" isFree="true" admin="true" />
+
+      <!-- Check that you are directed to 1st page of subscription process -->
+      <mpl_verify.breadCrumb actualPage="Mega Office Trial" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+
+      <!--(3) Check Uda default values, change them  -->
+      <changeUdaValue index="0" isMandatory="false" oldValue="def s value 2nd" newValue="optional sub uda trial" />
+      <changeUdaValue index="1" isMandatory="true" oldValue="def s value 3rd" newValue="mandatory sub uda trial" />
+
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="def c value 2nd" newValue="optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="def c value 3rd" newValue="mandatory org uda trial" />
+      <clickElement htmlId="configurationForm:nextLink" />
+
+      <!-- (4) Agree the terms to complete the subscription -->
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.created}" />
+      <mpl_verify.success label="#{infoMsg}" />
+
+      <!-- Bug #9289, #9290: the udas cannot be saved right after subscription-->
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
+      <mpl_verify.success label="#{infoMsg}" />
+    	
+      <!-- Bug #9880 -->
+      <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="optional sub uda trial" />
+      <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="mandatory sub uda trial" />
+
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="new optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="new mandatory org uda trial" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
+      <mpl_verify.success label="#{infoMsg}" />
+    	
+      <!-- update udas without any change  -->
+      <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="new optional sub uda starter" />
+      <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="new mandatory sub uda starter" />
+  	  <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="new optional org uda trial" newValue="new optional org uda trial" />
+  	  <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="new mandatory org uda trial" newValue="new mandatory org uda trial" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
+      <mpl_verify.success label="#{infoMsg}" />
+    	
+      <changeUdaValue index="0" isMandatory="false" oldValue="new optional sub uda starter" newValue="optional sub uda trial" />
+      <changeUdaValue index="1" isMandatory="true" oldValue="new mandatory sub uda starter" newValue="mandatory sub uda trial" />
+
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" newValue="optional org uda trial" oldValue="new optional org uda trial" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" newValue="mandatory org uda trial" oldValue="new mandatory org uda trial" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
+      <mpl_verify.success label="#{infoMsg}" />
+   
+
+      <mpl_login.logout />
+
+      <!-- Bug #9787: the save button should not display if all the UDAs' "User Option" are true-->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <udas.update forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def s value 1st" userOption="true" mandatory="false" />
+      <invoke url="${supplierUrl}/subscription/editUdas.jsf" />
+      <not>
+        <verifyXPath xpath="//a[@id='editForm:saveButtonLink']" />
+      </not>
+      <udas.update forCustomer="false" rowNr="0" udaId="subscriptionUda First" defaultValue="def s value 1st" userOption="false" mandatory="false" />
+      <login.logout />
+      <common.reSetPageScriptError />
+    </webtest>
+
+    <webtest name="testMPL_customUda_administrateServiceProcess" description=" 
+      			(1) Goto Marketplace and administrate an existing Service configuration;
+   				(2) Set the mandatory uda empty, an error occured;
+      			(3) Check Uda present values, change them
+      			(4) Save the changed Udas.">
+      <!-- (1) Goto Marketplace and administrate an existing Service configuration-->
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+
+      <!-- (2) Set the mandatory uda empty, an error occured -->
+      <changeUdaValue index="1" isMandatory="true" oldValue="mandatory sub uda trial" newValue="" />
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+      <mpl_verify.error label="${error.text.fields}" />
+
+
+      <!--(3) Check Uda present values, change them  -->
+      <changeUdaValue index="0" isMandatory="false" oldValue="optional sub uda trial" newValue="optional sub uda changed" />
+      <changeUdaValue index="1" isMandatory="true" oldValue="" newValue="mandatory sub uda changed" />
+
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda trial" newValue="optional org uda changed" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="mandatory org uda changed" />
+
+      <!--(4) Save the changed Udas -->
+      <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
+
+      <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
+      <mpl_verify.success label="#{infoMsg}" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_cumtomUda_upgradeSubscription" description="
+    	(1) Goto Marketplace and administrate an existing Service ;
+		(2)	Goto 'Up/Downgrade' tab and select the first option;   
+      	(3) Setting up advanced options (payments/billing address);
+		(4) Confirm the updation.">
+      <!-- (1) Goto Marketplace and administrate an existing Service -->
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <!-- (2)	Goto 'Configuration' tab and check/change the Uda values -->
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <!--(3) Check Uda default values, change the writable Udas  -->
+
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="Mega Office Upgraded" />
+      <changeUdaValue index="0" isMandatory="false" newValue="optional sub uda starter" oldValue="optional sub uda changed" />
+      <changeUdaValue index="1" isMandatory="true" newValue="mandatory sub uda starter" oldValue="mandatory sub uda changed" />
+
+      <changeUdaValue index="0" isMandatory="false" isSubscription="false" oldValue="optional org uda changed" newValue="optional org uda starter" />
+      <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda changed" newValue="mandatory org uda starter" />
+
+      <!-- (3) Setting up advanced options (payments/billing address) -->
+      <common.ignorePageScriptError />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <!-- (4) Confirm the updation -->
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <common.reSetPageScriptError />
+    </webtest>
+
+    <webtest name="cleanUp" description="Delete the 2 services">
+      <scenario.deleteSimpleServices />
+    </webtest>
+  </target>
+
+  <!-- add default currency, create supplier + 2 services (one free, one chargeable) -->
+  <macrodef name="setupSupplier">
+    <sequential>
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <scenario.createSimpleServices mid="${marketplaceId}" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret"/>
+    </sequential>
+  </macrodef>
+
+
+  <!-- choose a service from the list -->
+  <macrodef name="chooseService">
+    <attribute name="marketplaceId" />
+    <attribute name="buttonId" />
+    <attribute name="svcName" />
+    <attribute name="isFree" default="false" />
+    <attribute name="admin" default="true" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{marketplaceId}" />
+      <common.ignorePageScriptError />
+      <clickLink htmlId="@{buttonId}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <mpl_verify.service_details svcName="@{svcName}" isFree="@{isFree}" admin="@{admin}" />
+      <clickLink htmlId="getItForLoggedUser" />
+    </sequential>
+  </macrodef>
+
+  <!-- change Uda value -->
+  <macrodef name="changeUdaValue">
+    <attribute name="isMandatory" default="false" />
+    <attribute name="isSubscription" default="true" />
+    <attribute name="index" default="0" />
+    <attribute name="oldValue" />
+    <attribute name="newValue" default="" />
+    <sequential>
+      <storeProperty name="formId" value="configurationForm" />
+      <ifStep test="@{isSubscription}">
+        <then>
+          <storeProperty name="labelId" value="labelsubscriptionUda" />
+          <storeProperty name="inputId" value="subscriptionUda" />
+          <storeProperty name="tableId" value="subscriptionUdaRepeat" />
+        </then>
+        <else>
+          <storeProperty name="labelId" value="labelorganizationUda" />
+          <storeProperty name="inputId" value="organizationUda" />
+          <storeProperty name="tableId" value="organizationUdaRepeat" />
+        </else>
+      </ifStep>
+      <ifStep description="check the mandatory * is correctly displayed" test="@{isMandatory}">
+        <then>
+          <verifyXPath xpath="//span[@id='#{formId}:#{tableId}:@{index}:#{labelId}' and following-sibling::span]" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//span[@id='#{formId}:#{tableId}:@{index}:#{labelId}' and following-sibling::span]" />
+          </not>
+        </else>
+      </ifStep>
+      <verifyInputField htmlId="#{formId}:#{tableId}:@{index}:#{inputId}" value="@{oldValue}" description="check the old value is correctly displayed" />
+      <setInputField htmlId="#{formId}:#{tableId}:@{index}:#{inputId}" value="@{newValue}" />
+    </sequential>
+  </macrodef>
+</project>

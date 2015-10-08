@@ -1,0 +1,87 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="shop.translations" />
+    <c:set var="focusElement" value="selectMarketplaceId" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:outputStep value="#{msg['shop.translations.selectMarketplace']}" />
+
+    <adm:selectMarketplace listenerBean="#{translationBean}" render=":importForm,:exportForm"/>
+
+    <adm:outputStep value="#{msg['shop.translations.step1']}" />
+    <h:form id="importForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('file')});">
+      <adm:panelGrid>
+        <adm:fileUpload value="#{translationBean.excel}" disabled="#{marketplaceBean.disabledForEdit}"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanelSub columns="1">
+        <adm:button id="uploadButton" value="#{msg['button.import']}" bean="#{translationBean}" buttonType="fileUpload"
+          action="importTranslations" disabled="#{marketplaceBean.disabledForEdit}" />
+      </adm:buttonPanelSub>
+    </h:form>
+    <h:form id="exportForm">
+      <adm:outputStep value="#{msg['shop.translations.step2']}" />
+
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['common.locale']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu id="srcLocale" value="#{translationBean.locale}" styleClass="select"
+            disabled="#{marketplaceBean.disabledForEdit}" onclick="AdmUtils.storeValue(this);">
+            <adm:localeItems />
+            <f:validator validatorId="SupportedLanguageValidator" />
+            <a4j:ajax event="change" render="imprint,terms,privacypolicy"
+              onbeforesubmit="if (!AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.restoreValue(#{rich:element('srcLocale')}); return false;}"
+              oncomplete="AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();"
+              action="#{translationBean.changeLocale}">
+            </a4j:ajax>
+
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="srcLocale" />
+
+        <adm:labelAndInputText id="imprint" label="#{msg['public.imprint.title']}"
+          disabled="#{marketplaceBean.disabledForEdit}" value="#{translationBean.imprint}"
+          maxlength="#{appBean.nameLen}" backingBean="#{translationBean}" validationMethod="validateImprint"
+          converterId="trimConverter" />
+      </adm:panelGrid>
+
+      <adm:labelAndRichEditor id="terms" label="#{msg['public.terms.title']}" value="#{translationBean.terms}"
+        disabled="#{marketplaceBean.disabledForEdit}" />
+
+      <adm:labelAndRichEditor id="privacypolicy" label="#{msg['public.privacypolicy.title']}"
+        value="#{translationBean.privacypolicy}" disabled="#{marketplaceBean.disabledForEdit}" />
+
+      <h:commandButton style="display:none;" id="confirmedButton" value="" immediate="true"
+        action="#{translationBean.deleteTranslations}"
+        oncomplete="AdmUtils.hideMessages();AdmUtils.showProgress(false);#{rich:component('confirmPanel')}.hide();"/>
+      <h:commandButton style="display:none;" id="downloadButton" value="" action="#{translationBean.exportTranslations}" />
+
+      <adm:buttonPanelSub columns="1">
+        <adm:buttonCustomizedOnClick id="downloadButtonLink" value="#{msg['button.export']}" buttonType="export"
+          disabled="#{marketplaceBean.disabledForEdit}"
+          onclick="var f=#{rich:element('exportForm')}; if(AdmUtils.isIE()){f.target='_blank';} #{rich:element('downloadButton')}.click(); if(AdmUtils.isIE()){f.target='';}" />
+      </adm:buttonPanelSub>
+
+      <adm:buttonPanel columns="2">
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{translationBean}" action="save"
+          buttonType="save" disabled="#{marketplaceBean.disabledForEdit}" />
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.reset']}" buttonType="reset"
+          onclick="#{rich:component('confirmPanel')}.show()" disabled="#{marketplaceBean.disabledForEdit}" />
+      </adm:buttonPanel>
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.shop.translations.delete']}" />
+  </ui:define>
+</ui:composition>

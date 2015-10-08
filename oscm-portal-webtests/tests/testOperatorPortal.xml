@@ -1,0 +1,590 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="all">
+  <import file="../macros/marketplace/all.xml" />
+  <import file="../macros/all.xml" />
+
+  <target name="all" depends="Bug10393,Bug8463,Bug8476,Bug8501,Bug8481,testOperatorPortal,OperatorRevShareField,Bug8498,Bug8530,Bug8559,Bug9458,Bug4891,Bug8684,ImportUsers" />
+
+  <target name="Bug10393">
+    <webtest name="Bug 10393: SSO configuration properties should not be mandatory if SSO is not used">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <verifyXPath xpath="//td[text()='SSO_STS_URL']/..//span[@class='label']" />
+      <verifyXPath xpath="//td[text()='SSO_STS_METADATA_URL']/..//span[@class='label']" />
+      <not>
+        <verifyXPath xpath="//td[text()='SSO_IDP_URL']//span[@class='mandatory']" />
+        <verifyXPath xpath="//td[text()='SSO_IDP_TRUSTSTORE']//span[@class='mandatory']" />
+        <verifyXPath xpath="//td[text()='SSO_IDP_TRUSTSTORE_PASSWORD']//span[@class='mandatory']" />
+        <verifyXPath xpath="//td[text()='SSO_ISSUER_ID']//span[@class='mandatory']" />
+        <verifyXPath xpath="//td[text()='SSO_STS_URL']//span[@class='mandatory']" />
+        <verifyXPath xpath="//td[text()='SSO_STS_METADATA_URL']//span[@class='mandatory']" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8463">
+    <webtest name="Bug 8463: test that field errors are shown on manage configuration page">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <storeXPath property="inputFieldId" xpath="//td[text()='LOG_FILE_PATH']/..//input/@id" />
+      <setInputField htmlId="#{inputFieldId}" value="" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifyError label="${error.text.fields}" />
+      <common.verifyFieldError fieldId="#{inputFieldId}" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8476">
+    <webtest name="Bug 8476: show customized error message">
+      <operatorPortal.login />
+      <clickLink href="/operator/exportBillingData.jsf" />
+      <setInputField htmlId="getBillingData:fromDateInputDate" value="2011-02-30" />
+      <setInputField htmlId="getBillingData:toDateInputDate" value="2011-02-30" />
+      <clickElement htmlId="getBillingData:hiddenBillingDataButton" />
+      <common.verifyFieldError fieldId="getBillingData:toDate" label="${error.date.invalid} ${dateInputPattern}" />
+      <common.verifyFieldError fieldId="getBillingData:fromDate" label="${error.date.invalid} ${dateInputPattern}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8501">
+    <webtest name="Bug 8501: modifying config settings must reset cached values in application bean and menu.">
+      <operator.createMarketplace name="Local Marketplace" mIdProperty="MP1" />
+      <operatorPortal.login />
+      <landingpage.setSortOrderForLandingpage mId="${MP1}" />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <storeXPath property="inputFieldId" xpath="//td[text()='REPORT_ENGINEURL']/..//input/@id" />
+      <storeXPath property="oldValue" xpath="//td[text()='REPORT_ENGINEURL']/..//input/@value" />
+      <setInputField htmlId="#{inputFieldId}" value="" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <!-- create report menu entry must not be shown -->
+      <not>
+        <common.clickAndVerfyLink label="${organization.report.title}" />
+      </not>
+
+      <!-- also check on marketplace portal (Bug 8401) -->
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/account/index.jsf?mId=${MP1}" />
+      <not>
+        <clickLink href="/oscm-portal/marketplace/account/reports.jsf" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='reports']" />
+      </not>
+
+      <!-- go back to classic portal -->
+      <invoke url="${bes.http.url}/oscm-portal/operator/manageConfiguration.jsf" />
+      <setInputField htmlId="#{inputFieldId}" value="#{oldValue}" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <!-- create report menu entry must be there again -->
+      <common.clickAndVerfyLink label="${organization.report.title}" />
+      <operator.deleteMarketplaces marketplaceIds="${MP1}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8481">
+    <webtest name="Bug8481: export billing data page - error message of fields shouldn't be disappeared by suggestion box">
+      <operatorPortal.login />
+      <clickLink href="/operator/exportBillingData.jsf" />
+      <setInputField htmlId="getBillingData:organizationIdInput" value="" />
+      <setInputField htmlId="getBillingData:fromDateInputDate" value="" />
+      <setInputField htmlId="getBillingData:toDateInputDate" value="" />
+      <clickElement htmlId="getBillingData:hiddenBillingDataButton" />
+      <common.verifyFieldError fieldId="getBillingData:organizationId" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <common.verifyFieldError fieldId="getBillingData:fromDate" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <common.verifyFieldError fieldId="getBillingData:toDate" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <clickElement htmlId="getBillingData:organizationSuggestionImage" />
+      <!-- no field error shows -->
+      <!--common.verifyFieldError fieldId="getBillingData:organizationId" label="${javax.faces.component.UIInput.REQUIRED}" /-->
+      <!--common.verifyFieldError fieldId="getBillingData:fromDate" label="${javax.faces.component.UIInput.REQUIRED}" /-->
+      <!--common.verifyFieldError fieldId="getBillingData:toDate" label="${javax.faces.component.UIInput.REQUIRED}" /-->
+      <common.ignorePageScriptError/>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testOperatorPortal">
+    <webtest name="testOperatorPortal">
+      <mail.cleanInbox />
+
+      <operatorPortal.login />
+      <operatorPortal.createOrganization />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="supplierId" group="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+
+      <operatorPortal.login />
+
+      <operatorPortal.manageOrganization orgId="#{supplierId}" />
+
+      <login.logout />
+
+      <operatorPortal.login />
+
+      <operatorPortal.manageTimers />
+      <operatorPortal.executeBillingTasks />
+      <operatorPortal.exportBillingData orgId="#{supplierId}" />
+
+      <operatorPortal.exportAuditLogData value="OPERATIONS_ALL" />
+
+      <!-- manage configuration settings definitions -->
+      <common.handleMessageParameters property="errorMessage" value="${error.long.value.outOfRange}" att0="1" att1="9223372036854775807" />
+      <operatorPortal.manageConfigurationSettings key="WS_TIMEOUT" value="-1" validationFails="true" errorMessage="#{errorMessage}" />
+      <operatorPortal.manageConfigurationSettings key="WS_TIMEOUT" value="30000" />
+
+      <!-- manage currencies definitions -->
+      <operatorPortal.manageCurrencies currencyCode="EUR" />
+
+      <!-- manage users -->
+      <operatorPortal.lockUser userId="#{supplierUserId}" />
+      <operatorPortal.unlockUser userId="#{supplierUserId}" />
+      <operatorPortal.resetPassword userId="#{supplierUserId}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateBroker">
+
+      <mail.cleanInbox />
+
+      <operatorPortal.login />
+      <operatorPortal.createOrganization supplier="false" provider="false" broker="true" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract broker organization ID from success message" text="#{successMessageRegEx}" property="brokerId" group="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerUserId" value="#{userId}" />
+
+      <operatorPortal.login />
+
+      <operatorPortal.manageOrganization orgId="#{brokerId}" supplier="false" provider="false" broker="true" reseller="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCreateReseller">
+
+      <mail.cleanInbox />
+
+      <operatorPortal.login />
+      <operatorPortal.createOrganization supplier="false" provider="false" reseller="true" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract reseller organization ID from success message" text="#{successMessageRegEx}" property="resellerId" group="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerUserId" value="#{userId}" />
+
+      <operatorPortal.login />
+
+      <operatorPortal.manageOrganization orgId="#{resellerId}" supplier="false" provider="false" broker="false" reseller="true" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageOrganizationIncompatibleRoles">
+
+      <mail.cleanInbox />
+
+      <operatorPortal.login />
+      <operatorPortal.createOrganization supplier="false" provider="false" broker="true" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract broker organization ID from success message" text="#{successMessageRegEx}" property="brokerId" group="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerUserId" value="#{userId}" />
+      <operatorPortal.login />
+
+      <this.manageOrganizationAddRoles orgId="#{brokerId}" supplier="true" />
+      <common.verifyError label="${ex.IncompatibleRolesException}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="ChangeConfigurationSettingConcurrently">
+      <selectWebClient name="session1">
+        <operatorPortal.login />
+        <clickLink href="/operator/manageConfiguration.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="session2">
+        <operatorPortal.login />
+        <clickLink href="/operator/manageConfiguration.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="session1">
+        <operatorPortal.manageConfigurationSettings key="TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT" value="10" />
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="session2">
+        <storeXPath property="inputFieldId" xpath="//td[text()='TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT']/..//input/@id" />
+        <setInputField htmlId="#{inputFieldId}" value="20" />
+        <clickElement htmlId="configurationSettings:saveButton" />
+        <common.verifyError label="${ex.ConcurrentModificationException}" />
+
+        <operatorPortal.manageConfigurationSettings key="TIMER_INTERVAL_TENANT_PROVISIONING_TIMEOUT" value="20" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+
+  <target name="OperatorRevShareField">
+    <webtest name="CreateOrganizationOperatorRevShareField">
+      <operatorPortal.login />
+      <clickLink href="/operator/createOrganization.jsf" />
+      <verifyCheckbox htmlId="editForm:checkboxRoleSupplier" checked="false" description="supplier role is set false by default" />
+      <not description="operator RS field is not visible">
+        <verifyElement text="editForm:operatorRevenueShare" type="input" />
+      </not>
+      <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="true" description="set supplier role" />
+      <verifyElementText htmlId="editForm:operatorRevenueShare" text="" description="operator RS input field appears and is empty" />
+      <setInputField htmlId="editForm:operatorRevenueShare" value="10.00" description="set operator RS" />
+      <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="false" />
+      <not description="operator RS field disappears again">
+        <verifyElement text="editForm:operatorRevenueShare" type="input" />
+      </not>
+      <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="true" description="set supplier role again" />
+      <verifyElementText htmlId="editForm:operatorRevenueShare" text="10.00" description="the specified operator RS is still set in the input field" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="ManageOrganizationOperatorRevShareField">
+      <operatorPortal.login />
+      <operatorPortal.createOrganization supplier="false" provider="true" broker="false" reseller="false" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="newOrgId" group="1" />
+
+      <clickLink href="/operator/manageOrganizations.jsf" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="#{newOrgId}" />
+      <verifyCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="false" description="supplier role is set false" />
+      <not description="operator RS field is not visible">
+        <verifyElement text="manageOrganizationsForm:operatorRevenueShare" type="input" />
+      </not>
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" description="set supplier role" />
+      <verifyElement text="manageOrganizationsForm:operatorRevenueShare" type="input" description="operator RS input field appears" />
+      <setInputField htmlId="manageOrganizationsForm:operatorRevenueShare" value="${test.supplier.operatorrevenueshare}" description="set operator RS" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="false" />
+      <not description="operator RS field disappears again">
+        <verifyElement text="manageOrganizationsForm:operatorRevenueShare" type="input" />
+      </not>
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" description="set supplier role again" />
+      <verifyElementText htmlId="manageOrganizationsForm:operatorRevenueShare" text="${test.supplier.operatorrevenueshare}" description="the specified operator RS is still set in the input field" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="ManageOrganizationOperatorRevShareValue">
+      <operatorPortal.login />
+      <operatorPortal.createOrganization supplier="true" revenueshare="12.34" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="newOrgId" group="1" />
+
+      <clickLink href="/operator/manageOrganizations.jsf" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="#{newOrgId}" />
+      <verifyElementText htmlId="manageOrganizationsForm:operatorRevenueShare" text="12.34" />
+      <setInputField htmlId="manageOrganizationsForm:operatorRevenueShare" value="20.00" description="set a different revenue share" />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+      <common.verifySuccess label="." />
+      <verifyElementText htmlId="manageOrganizationsForm:operatorRevenueShare" text="20.00" />
+      <login.logout />
+    </webtest>
+  </target>
+
+
+  <target name="testInvoiceHandlingForSupplier">
+    <webtest name="testInvoiceHandlingForSupplier">
+      <mail.cleanInbox />
+
+      <operatorPortal.login />
+      <!-- create supplier org and verify that invoice is checked and disabled -->
+      <operatorPortal.createOrganization supplier="false" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="newOrgId" group="1" />
+
+      <operatorPortal.manageOrganizationSelectOrg orgId="#{newOrgId}" />
+
+      <!-- Bug 9680 Retesting: Verify selected country and language is preserved on partial rerender -->
+      <setSelectField htmlId="manageOrganizationsForm:organizationLocale" value="en" />
+      <setSelectField htmlId="manageOrganizationsForm:organizationCountry" value="EC" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" />
+      <setInputField htmlId="manageOrganizationsForm:operatorRevenueShare" value="${test.supplier.operatorrevenueshare}" description="operator RS field is mandatory for supplier" />
+      <verifyXPath description="Selected country must be preserved after rerender from check-box." xpath="contains(//*[@id='manageOrganizationsForm:organizationCountrySelected']/text(), 'Ecuador')" />
+      <verifyXPath description="Selected locale must be preserved after rerender from check-box." xpath="contains(//*[@id='manageOrganizationsForm:organizationLocaleSelected']/text(), 'English')" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="false" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+      <common.verifySuccess label="." />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8498">
+    <webtest name="Bug 8498: table sorting must not cause validation errors.">
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.managePSPs.title}" />
+      <!-- heidelpay should be initially selected -->
+      <setSelectField htmlId="selectPSPForm:pspId" text='heidelpay'/>
+      <setInputField htmlId="managePSPsForm:pspIdentifier" value="" />
+      <clickElement htmlId="managePSPsForm:paymentTypeListTable:nameCol" />
+      <not>
+        <common.verifyError label="." />
+      </not>
+      <not>
+        <common.verifyFieldError fieldId="managePSPsForm:pspIdentifier" label="${javax.faces.component.UIInput.REQUIRED}" />
+      </not>
+
+      <!-- BE08610: payment type panel is only visible for a supplier -->
+      <operatorPortal.createOrganization supplier="true" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="newOrgId" group="1" />
+
+      <common.clickAndVerfyLink label="${operator.manageOrganizations.title}" />
+
+      <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="#{newOrgId}" />
+      <clickElement xpath="//*[@id='selectOrganizationForm:organizationIdItems']//*[contains(.//text(), '#{newOrgId}')]" />
+      <setInputField htmlId="manageOrganizationsForm:organizationPhone" value="" />
+      <clickElement htmlId="manageOrganizationsForm:paymentTypeTable:idCol" />
+      <not>
+        <common.verifyError label="." />
+      </not>
+      <not>
+        <common.verifyFieldError fieldId="manageOrganizationsForm:organizationPhone" label="${javax.faces.component.UIInput.REQUIRED}" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8530">
+    <webtest name="Bug 8530: psp id field must have maxlength of 40.">
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.createPSP.title}" />
+      <storeInputFieldAttribute property="length1" name="editForm:pspIdentifier" attributeName="maxLength" />
+      <verifyProperty name="length1" text="40" />
+      <common.clickAndVerfyLink label="${operator.managePSPs.title}" />
+      <storeInputFieldAttribute property="length2" name="managePSPsForm:pspIdentifier" attributeName="maxLength" />
+      <verifyProperty name="length2" text="40" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8559">
+    <webtest name="Bug 8559: export log data must not open new window on export with same from and to date">
+
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.exportAuditLogData.title}" />
+      <setSelectField htmlId="getAuditLogData:entityType" value="OPERATIONS_ALL" />
+      <setCheckbox htmlId="getAuditLogData:operationTable:0:checkboxId" checked="true" />
+      <setInputField htmlId="getAuditLogData:fromDateInputDate" value="2011-11-11" />
+      <setInputField htmlId="getAuditLogData:toDateInputDate" value="2011-11-11" />
+      <clickElement htmlId="getAuditLogData:hiddenAuditLogDataButton" />
+      <common.verifyError label="${operator.showAuditLogData.error}" />
+      <not>
+        <!-- no window must have been opened -->
+        <selectWindow index="1" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug10243">
+    <webtest name="Bug 10243: Export operation log - Roles selection could be reset">
+
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.exportAuditLogData.title}" />
+      <!-- choose "All" -->
+      <setSelectField htmlId="getAuditLogData:entityType" value="OPERATIONS_ALL" />
+      <!-- choose "-Select one-" -->
+      <setSelectField htmlId="getAuditLogData:entityType" value="" />
+      <!-- Verify "No entries available." -->
+      <verifyElementText htmlId="getAuditLogData:operationTableEmptyText" text="${table.empty}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug9458">
+    <webtest name="Bug9458: export button must be disabled if no item is selected">
+
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.exportAuditLogData.title}" />
+      <setSelectField htmlId="getAuditLogData:entityType" value="OPERATIONS_ALL" />
+      <common.waitForJavaScript description="Wait for button enablement" />
+      <verifyXPath description="Ensure button is disabled." xpath="//*[@class='buttonDisabled']//text()='${button.export}'" />
+      <not>
+        <clickButton label="${button.export}" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug4891">
+    <webtest name="Bug 4891: delete created marketplace">
+
+      <!-- setup supplier -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+
+      <!-- create marketplace for supplier -->
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Bug4891" />
+
+      <!-- delete the created marketplace -->
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${marketplace.delete.title}" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="#{supplierId}" />
+      <clickButton htmlId="deleteMarketplaceForm:confirmedButton" />
+      <common.handleMessageParameters property="errorMsg" value="${info.marketplace.deleted}" att0="#{supplierId}" />
+      <common.verifySuccess label="#{errorMsg}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8684">
+    <webtest name="Bug 8684: validate currency to add.">
+      <operatorPortal.login />
+      <common.clickAndVerfyLink label="${operator.manageCurrencies.title}" />
+      <setInputField htmlId="currencies:currencyToManage" value="CDN" />
+      <clickElement htmlId="currencies:addButtonLink" />
+      <common.verifyError label="${error.text.fields}" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ValidationException.INVALID_CURRENCY}" att0="CDN" />
+      <common.verifyFieldError fieldId="currencies:currencyToManage" label="#{errorMsg}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="setup">
+    <webtest name="setup">
+      <testInfo type="DESCRIPTION">CSV_Import_Setup:
+     			</testInfo>
+      <mpl_setup.createSupplierAccount />
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+    </webtest>
+  </target>
+
+  <target name="ImportUsers" depends="setup">
+    <!-- If no marktplace selected than only the second user is imported -->
+    <webtest name="Import CSV users with marketplaceId.">
+      <mail.cleanInbox />
+      <operatorPortal.login />
+      <clickLink href="/organization/edit.jsf" />
+      <setInputField htmlId="editForm:email" value="${mail.username}" />
+      <setSelectField htmlId="editForm:country" value="DE" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setInputField htmlId="userImportForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <common.waitForJavaScript/>
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="userImportForm:importConfirmButton" />
+      <common.verifySuccess label=".*importUsers_Operator.csv.*" />
+      <mail.readUserImportOperator content=".*(1 out of 3).*" />
+      <invoke url="${bes.http.url}/oscm-portal/operator/manageUsers.jsf" />
+      <user.delete userId="userOp120" />
+      <login.logout />
+    </webtest>
+
+    <!-- If some marktplace is selected than all three users are imported -->
+    <webtest name="Import CSV users.">
+      <mail.cleanInbox />
+      <operatorPortal.login />
+      <clickLink href="/organization/edit.jsf" />
+      <setInputField htmlId="editForm:email" value="${mail.username}" />
+      <setSelectField htmlId="editForm:country" value="DE" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setInputField htmlId="userImportForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+      <setSelectField htmlId="userImportForm:selectMarketplaceId" value="${MID1}" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <clickElement htmlId="userImportForm:importConfirmButton" />
+      <common.verifySuccess label=".*importUsers_Operator.csv.*" />
+      <mail.readUserImportOperator content=".*(2 out of 3).*" />
+      <invoke url="${bes.http.url}/oscm-portal/operator/manageUsers.jsf" />
+      <user.delete userId="userOp120" />
+      <user.delete userId="userOp320" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import of CSV users with no org specified.">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <clickElement htmlId="userImportForm:importConfirmButton" />
+      <common.verifyFieldError label="${javax.faces.component.UIInput.REQUIRED}" fieldId="userImportForm:organizationId" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import of CSV users with wrong org specified.">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setInputField htmlId="userImportForm:organizationIdInput" value="1234" />
+      <clickElement htmlId="userImportForm:organizationSuggestionImage" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <clickElement htmlId="userImportForm:importConfirmButton" />
+      <common.verifyError label=".*1234.*" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import of CSV users with wrong CSV format.">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setInputField htmlId="userImportForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+      <clickElement xpath="//*[@id='userImportForm:organizationIdItems']//*[contains(.//text(), 'PLATFORM_OPERATOR')]" />      
+      <setFileField htmlId="userImportForm:file" fileName="data/ldap-fail.properties" />
+      <clickElement htmlId="userImportForm:importConfirmButton" />
+      <common.verifyError label=".*Line number.*" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <macrodef name="this.manageOrganizationAddRoles">
+    <attribute name="orgId" />
+    <attribute name="supplier" default="false" />
+    <attribute name="provider" default="false" />
+    <attribute name="broker" default="false" />
+    <attribute name="reseller" default="false" />
+    <attribute name="revenueshare" default="${test.supplier.operatorrevenueshare}" />
+    <sequential>
+      <clickLink href="/operator/manageOrganizations.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageOrganizations.title}" />
+      <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="@{orgId}" />
+      <clickElement xpath="//*[@id='selectOrganizationForm:organizationIdItems']//*[contains(.//text(), '@{orgId}')]" />      
+      <ifStep test="@{supplier}">
+        <then>
+          <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" />
+          <setInputField htmlId="manageOrganizationsForm:operatorRevenueShare" value="@{revenueshare}" />
+        </then>
+      </ifStep>
+
+      <ifStep test="@{provider}">
+        <then>
+          <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleTechnologyProvider" checked="true" />
+        </then>
+      </ifStep>
+
+      <ifStep test="@{broker}">
+        <then>
+          <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleBroker" checked="true" />
+        </then>
+      </ifStep>
+
+      <ifStep test="@{reseller}">
+        <then>
+          <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleReseller" checked="true" />
+        </then>
+      </ifStep>
+
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+    </sequential>
+  </macrodef>
+
+</project>

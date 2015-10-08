@@ -1,0 +1,214 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManageUsers" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  
+  <target name="testManageUsers" depends="testManageUsersOper,testManageUsersNumbers" />
+  <target name="testManageUsersOper">
+    <webtest name="setup">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <!-- Create new user -->
+      <RegisteNewUser userId="z#{orgId}" />
+      <login.logout />
+    </webtest>
+    <webtest name="testManageUsers_Bug10627">
+      <selectWebClient name="A">
+        <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+        <!-- Switch to account / users page -->
+        <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+        <verifyElementText htmlId="userListForm:userListTable:1:userId" text="z${supplierId}" />
+      </selectWebClient>
+      <selectWebClient name="B">
+        <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+        <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+        <verifyElementText htmlId="userListForm:userListTable:1:userId" text="z${supplierId}" />
+      </selectWebClient>
+      <selectWebClient name="A">
+        <clickElement xpath="//*[@id='userListForm:userListTable:1:userId']" />
+        <clickLink htmlId="editForm:deleteButton" />
+        <clickLink htmlId="deleteConfirmForm:okButton" />
+        <common.handleMessageParameters property="infoMsg" value="${info.user.deleted}" att0="z${supplierId}" />
+        <common.verifySuccess label="#{infoMsg}" />
+      </selectWebClient>
+      <selectWebClient name="B">
+        <verifyElementText htmlId="userListForm:userListTable:1:userId" text="z${supplierId}" />
+        <clickElement xpath="//*[@id='userListForm:userListTable:1:userId']" />
+        <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.USER}" att0="z${supplierId}" />
+        <verifyXPath xpath="//*[text()='#{errorMsg}']" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="Bug10780">
+      <operatorPortal.login />
+      <storeProperty name="user1" value="bug10780user1" />
+      <storeProperty name="user2" value="bug10780user2" />
+
+      <!-- Create new user -->
+      <RegisteNewUser userId="#{user1}" locale="de" userRole="${UserRoleType.PLATFORM_OPERATOR}" />
+      <RegisteNewUser userId="#{user2}" locale="ja" userRole="${UserRoleType.PLATFORM_OPERATOR}" />
+      <clickLink href="/user/list.jsf" />
+      <clickElement xpath="//*[contains(@id, 'userListForm:userListTable') and contains(.//text(),'#{user1}')]" />
+
+      <!-- Deactive languages-->
+      <ActiveOrDeactiveDeAndJa Deactive="true" />
+      <clickLink href="/user/list.jsf" />
+      <verifyXPath xpath="//span[@id='warnMessages:' and contains(.//text(),'${locale.de}')]"/>
+      <clickElement xpath="//*[contains(@id, 'userListForm:userListTable') and contains(.//text(),'#{user2}')]" />
+      <clickLink href="/user/list.jsf" />
+      <verifyXPath xpath="//span[@id='warnMessages:' and contains(.//text(),'${locale.ja}')]"/>
+      <login.logout />
+
+      <operatorPortal.login />
+      <clickLink href="/user/list.jsf" />
+      <clickElement xpath="//*[contains(@id, 'userListForm:userListTable') and contains(.//text(),'#{user2}')]" />
+      <clickLink href="/user/list.jsf" />
+      <verifyXPath xpath="//span[@id='warnMessages:' and contains(.//text(),'${locale.ja}')]"/>
+      <clickElement xpath="//*[contains(@id, 'userListForm:userListTable') and contains(.//text(),'#{user1}')]" />
+      <clickLink href="/user/list.jsf" />
+      <verifyXPath xpath="//span[@id='warnMessages:' and contains(.//text(),'${locale.de}')]"/>
+      <ActiveOrDeactiveDeAndJa Active="true" />
+
+      <user.delete userId="#{user1}" />
+      <common.verifySuccess label="#{user1}" />
+      <user.delete userId="#{user2}" />
+      <common.verifySuccess label="#{user2}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import CSV users.">
+      <mail.cleanInbox />
+      <operatorPortal.login />
+      <clickLink href="/organization/edit.jsf" />
+      <setInputField htmlId="editForm:email" value="${mail.username}" />
+      <setSelectField htmlId="editForm:country" value="DE" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <clickLink href="/user/add.jsf" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <clickElement htmlId="userImportForm:importConfirmButtonLink" />
+      <common.verifySuccess label=".*importUsers_Operator.csv.*" />
+      <mail.readUserImportOperator content=".*(1 out of 3).*" />
+      <invoke url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <user.delete userId="userOp120" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="bug11312">
+      <mail.cleanInbox />
+      <operatorPortal.login />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <setInputField htmlid="userImportForm:organizationIdInput" value="${supplierId}" />
+      <setSelectField htmlId="userImportForm:selectMarketplaceId" value="${mId}" />
+      <setFileField htmlId="userImportForm:file" fileName="data/importUsers_Operator.csv" />
+      <clickElement htmlId="userImportForm:importConfirmButtonLink" />
+      <common.verifySuccess label=".*Current number of registered users.*" />         
+      <login.logout />
+    </webtest>
+    
+    <webtest name="bug11591">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+      <clickElement htmlId="userListForm:userListTable:0" />
+      <setCheckbox htmlId="editForm:userRolesTable:0:rolesCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:userRolesTable:1:rolesCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:userRolesTable:2:rolesCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:userRolesTable:3:rolesCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:userRolesTable:4:rolesCheckbox" checked="false" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <verifyXPath xpath="//form[@id='saveConfirmForm']//span" text="${confirm.user.update.norole}" />
+      
+      <!-- bug11636 -->
+      <clickElement htmlId="saveConfirmForm:cancelButton" />
+      <setCheckbox htmlId="editForm:userRolesTable:0:rolesCheckbox" checked="true" />
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <verifyXPath xpath="//*[@id='infoMessages:']//*[contains(@class, 'rf-msgs-sum')]" />
+    </webtest>
+  </target>
+
+  <target name="testManageUsersNumbers">
+    <webtest name="checkMaxUserCountAndTimer">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'TIMER_INTERVAL_USER_COUNT')]" />
+      <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'MAX_NUMBER_ALLOWED_USERS')]" />
+      <verifyElementText htmlId="configurationSettings:settingTable:19:configurationValue" text="10" />
+      <verifyElementText htmlId="configurationSettings:settingTable:53:configurationValue" text="43200000" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="registerUserCount">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyElementText htmlId="numberOfUsersForm:maxNumberOfUsers" text="${operator.numberOfUsers.maximumNum}10" />
+
+      <!--get current registeredUserNumber-->
+      <storeXPath xpath="//span[substring(@id, 1, 38)='numberOfUsersForm:registeredUsersCount']/@id" property="registeredUsersCountId" />
+      <storeXPath xpath="//span[@id='#{registeredUsersCountId}']/text()" property="numberOfUsersDescription" />
+      <storeXPath property="numberOfUsers" xpath="substring-after('#{numberOfUsersDescription}', 'Current number of registered users:')" />
+
+      <!--not exceed the maxRegisteredUserNumber,show black color-->
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <setInputField htmlId="configurationSettings:settingTable:19:configurationValue" value="#{numberOfUsers}" />
+      <clickButton htmlid="configurationSettings:saveButton" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyXPath xpath="//*[@id='numberOfUsersForm:registeredUsersCountBlack']" />
+
+      <!--exceed the maxRegisteredUserNumber,show red color-->
+      <user.register userId="newOpUser" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyXPath xpath="//*[@id='numberOfUsersForm:registeredUsersCountRed']" />
+
+      <!--clean set-->
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <setInputField htmlId="configurationSettings:settingTable:19:configurationValue" value="10" />
+      <clickButton htmlid="configurationSettings:saveButton" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <macrodef name="RegisteNewUser">
+    <attribute name="userId" default="${common.userId}" />
+    <attribute name="locale" default="en" />
+    <attribute name="createUniqueUserId" default="true" />
+    <attribute name="userRole" default="${UserRoleType.SERVICE_MANAGER}" />
+    <sequential>
+      <clickLink href="/user/add.jsf" />
+      <setInputField htmlId="userForm:userId" value="@{userId}" />
+      <setInputField htmlId="userForm:email" value="${common.email}" />
+      <setSelectField htmlId="userForm:locale" value="@{locale}" />
+      <setCheckbox xpath="//span[text()='@{userRole}']/..//input" checked="true" />
+      <clickLink htmlId="userForm:createButtonLink" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="ActiveOrDeactiveDeAndJa">
+    <attribute name="Active" default="false" />
+    <attribute name="Deactive" default="false" />
+    <sequential>
+      <ifStep test="@{Active}">
+        <then>
+          <clickLink href="/operator/manageLanguages.jsf" />
+          <setCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="true" />
+          <setCheckbox htmlId="languages:languagesTable:3:checkboxId" checked="true" />
+          <clickButton htmlId="languages:saveButton" />
+        </then>
+      </ifStep>
+      <ifStep test="@{Deactive}">
+        <then>
+          <clickLink href="/operator/manageLanguages.jsf" />
+          <setCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="false" />
+          <setCheckbox htmlId="languages:languagesTable:3:checkboxId" checked="false" />
+          <clickButton htmlId="languages:saveButton" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+</project>

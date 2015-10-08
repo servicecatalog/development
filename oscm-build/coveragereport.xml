@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Coverage Report Script" basedir="." default="createreport" xmlns:jacoco="antlib:org.jacoco.ant">
+
+  <description>
+    Creates the coverage report for ADM.
+  </description>
+
+  <!-- Input properties should already be filled in -->
+  <property name="workspace.dir" location=".." />
+  <property name="result.dir" location="result" />
+  <property name="result.reports.dir" location="${result.dir}/reports" />
+  <property name="footer" value="" />
+
+  <!-- Coverage Report Output Locations -->
+  <property name="result.reports.coverage.dir" location="${result.reports.dir}/coverage" />
+
+  <!-- Execution data source -->
+  <property name="execdata.dir" location="${result.dir}/work" />
+  <property name="execdata.includes" value="*/test/jacoco.exec" />
+
+  <target name="createreport">
+
+    <mkdir dir="${result.reports.coverage.dir}" />
+
+    <echo message="workspace.dir: ${workspace.dir}" />
+    <echo message="result.dir: ${result.dir}" />
+    <echo message="result.reports.coverage.dir: ${result.reports.coverage.dir}" />
+    <echo message="execdata.dir: ${execdata.dir}" />
+    <echo message="execdata.includes: ${execdata.includes}" />
+
+    <jacoco:report>
+      <executiondata>
+        <fileset dir="${execdata.dir}" includes="${execdata.includes}" />
+      </executiondata>
+
+      <structure name="Fujitsu BSS">
+
+        <group name="oscm-accountmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-accountmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-accountmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-accountmgmt-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-accountmgmt-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-accountmgmt-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-application">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-application/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-application/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-application-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-application-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-application-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-billing">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-billing/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-billing/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-brandmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-brandmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-brandmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-common">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-common/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-common/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-communicationservices">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-communicationservices/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-communicationservices/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-communicationservices-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-communicationservices-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-communicationservices-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-configservice">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-configservice/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-configservice/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-configservice-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-configservice-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-configservice-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-credentialservice">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-credentialservice/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-credentialservice/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-dataservice">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-dataservice/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-dataservice/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-dataservice-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-dataservice-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-dataservice-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-domainobjects">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-domainobjects/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-domainobjects/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-eventmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-eventmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-eventmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-extsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-extsvc/classes" excludes="**/jaxws/*,internal/*" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-extsvc/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-extsvc-internal">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-extsvc-internal/classes" excludes="**/jaxws/*,internal/*" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-extsvc-internal/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-extsvc-notification">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-extsvc-notification/classes" excludes="**/jaxws/*,internal/*" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-extsvc-notification/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-extsvc-provisioning">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-extsvc-provisioning/classes" excludes="**/jaxws/*,internal/*" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-extsvc-provisioning/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-i18n">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-i18n/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-i18n/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-i18n-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-i18n-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-i18n-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-app">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-app/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-app/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-app-extsvc-1-0">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-app-extsvc-1-0/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-app-extsvc-1-0/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-app-iaas">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-app-iaas/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-app-iaas/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-app-startup">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-app-startup/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-app-startup/javasrc" />
+          </sourcefiles>
+        </group>
+        
+        <group name="oscm-app-ror">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-app-ror/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-app-ror/javasrc" />
+          </sourcefiles>
+        </group>
+
+
+        <group name="oscm-identitymgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-identitymgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-identitymgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-identitymgmt-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-identitymgmt-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-identitymgmt-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-integrationhelper">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-integrationhelper/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-integrationhelper/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-intsvc-base">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-intsvc-base/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-intsvc-base/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-marketplaceservice">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-marketplaceservice/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-marketplaceservice/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-marketplaceservice-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-marketplaceservice-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-marketplaceservice-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-operatorsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-operatorsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-operatorsvc/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-operatorsvc-client">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-operatorsvc-client/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-operatorsvc-client/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-paymentprocessing">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-paymentprocessing/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-paymentprocessing/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-paymentprocessing-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-paymentprocessing-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-paymentprocessing-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-portal">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-portal/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-portal/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-review">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-review/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-review/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-saml-api">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-saml-api/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-saml-api/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-sessionmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-sessionmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-sessionmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-sessionmgmt-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-sessionmgmt-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-sessionmgmt-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-pspresponse">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-pspresponse/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-pspresponse/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-reporting">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-reporting/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-reporting/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-security">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-security/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-security/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-server-common">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-server-common/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-server-common/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-serviceprovisioning">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-serviceprovisioning/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-serviceprovisioning/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-serviceprovisioning-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-serviceprovisioning-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-serviceprovisioning-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-startup">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-startup/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-startup/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-subscriptionmgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-subscriptionmgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-subscriptionmgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-subscriptionmgmt-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-subscriptionmgmt-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-subscriptionmgmt-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-tenantprovisioning">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-tenantprovisioning/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-tenantprovisioning/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-timermgmt">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-timermgmt/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-timermgmt/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-triggerservice">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-triggerservice/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-triggerservice/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-triggerservice-intsvc">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-triggerservice-intsvc/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-triggerservice-intsvc/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-vat">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-vat/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-vat/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-internal">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-internal/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-internal/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-internal-interfaces">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-internal-interfaces/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-internal-interfaces/javasrc" />
+          </sourcefiles>
+        </group>
+
+      </structure>
+
+      <html destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
+    </jacoco:report>
+
+  </target>
+
+</project>

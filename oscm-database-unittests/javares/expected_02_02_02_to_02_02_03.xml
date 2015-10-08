@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <udadefinitionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2012-06-11 01:02:34" targettype="0" udaid="0" organizationobjkey="0" invocationDate="2012-06-11 01:02:34"
+    configurationtype="SUPPLIER" />
+  <udadefinition tkey="1" targettype="0" udaid="0" version="0" organizationkey="1" configurationtype="SUPPLIER" />
+</dataset>

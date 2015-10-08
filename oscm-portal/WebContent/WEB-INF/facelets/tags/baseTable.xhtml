@@ -1,0 +1,88 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+  xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" 
+  xmlns:f="http://java.sun.com/jsf/core" 
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  
+    <c:if test="#{empty emptyText}">
+      <c:set var="emptyText" value="#{msg['table.empty']}" />
+    </c:if>
+    <c:if test="#{empty height}">
+      <c:set var="style" value="max-height: 100%;" />
+    </c:if>
+    <c:if test="#{not empty height}">
+      <c:set var="style" value="max-height: #{height}; overflow-y:auto;" />
+    </c:if>
+    <c:if test="#{empty width}">
+      <c:set var="width" value="100%" />
+    </c:if>
+    <c:if test="#{empty rows}">
+      <c:set var="rows" value="0" />
+    </c:if>
+    <c:if test="#{empty headerClass}">
+      <c:set var="headerClass" value="rowTitle" />
+    </c:if>     
+    <!-- label that will be rendered if no data is provided -->
+    <h:outputText id="#{tableId}EmptyText" styleClass="block #{styleClass} preWrapping" value="#{emptyText}" rendered="#{empty value}" />
+    <!-- table if width attribute is set and data is provided -->
+    <div style="#{style}" class="#{styleClass}">
+
+      <c:if test="#{empty columnsWidth}">
+      <rich:dataTable 
+        rendered="#{not empty value}"
+        width="#{width}" 
+        headerClass="#{headerClass}" 
+        rowClasses="rowOdd,rowEven"
+        columnClasses="#{columnClasses}"
+        id="#{tableId}"
+        value="#{value}" 
+        var="rowItem"
+        rowKeyVar="rowKey"
+        selectionMode="none"
+        enableContextMenu="false"
+        onrowclick="#{onRowClick}"
+        onrowmouseover="#{onRowMouseOver}" 
+        onrowmouseout="#{onRowMouseOut}"
+        render="#{render}"
+        columnHeaderCellClass="column-header-cell"
+        sortMode="single"
+        rows="#{rows}">
+        <ui:insert />
+      </rich:dataTable>
+    </c:if>
+
+    <!-- table if columns/columnsWidth attribute is set and data is provided -->
+    <c:if test="#{not empty columnsWidth}">
+      <rich:dataTable 
+        rendered="#{not empty value}"
+        width="#{width}" 
+        columnsWidth="#{columnsWidth}"
+        headerClass="#{headerClass}" 
+        rowClasses="rowOdd,rowEven"
+        columnClasses="#{columnClasses}"
+        id="#{tableId}"
+        value="#{value}" 
+        var="rowItem"
+        rowKeyVar="rowKey"
+        selectionMode="none"
+        enableContextMenu="false"
+        onrowclick="#{onRowClick}"
+        onrowmouseover="#{onRowMouseOver}" 
+        onrowmouseout="#{onRowMouseOut}"
+        render="#{render}"
+        columnHeaderCellClass="column-header-cell"
+        sortMode="single"
+        rows="#{rows}">
+        <ui:insert />
+      </rich:dataTable>
+    </c:if>
+    </div>
+
+</ui:composition>

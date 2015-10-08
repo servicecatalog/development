@@ -1,0 +1,1 @@
+This projects contains internal interface fo the the service to handle the i18n.

@@ -1,0 +1,160 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!--
+  ~ *******************************************************************************
+  ~ *
+  ~ *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.
+  ~ *
+  ~ *  Creation Date: 12.12.14 12:00
+  ~ *
+  ~ *******************************************************************************
+  -->
+
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:t="http://myfaces.apache.org/tomahawk"
+  template="../templates/modalDialog.xhtml">
+
+  <!-- Mandatory parameters: dialogId -->
+
+  <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+
+  <ui:define name="dialogScripts">
+    <c:set var="cancelHandler"
+      value="setDirty(false);#{rich:component(dialogId)}.hide();AdmUtils.deselectRow();" />
+    <c:set var="modalFocusElement" value="#{dialogId}Form:displayName" />
+  </ui:define>
+
+  <ui:define name="dialogTitle">
+    <h2>
+      <h:outputText
+        value="#{msg['payment.edit.BillingContact.title']}" />
+    </h2>
+  </ui:define>
+
+  <ui:define name="dialogDescription">
+    <c:set var="dialogDescription"
+      value="#{msg['marketplace.payment.edit.BillingContact.description']}" />
+    <a4j:outputPanel rendered="#{not empty dialogDescription}">
+      <h3>
+        <h:outputText value="#{dialogDescription}" />
+      </h3>
+    </a4j:outputPanel>
+  </ui:define>
+
+  <ui:define name="dialogContent">
+    <a4j:outputPanel id="#{dialogId}Grid" layout="block" styleClass="grid2span clearfix" style="width: 560px;">
+      <ui:fragment>
+        <h:form id="#{dialogId}Form">
+          <t:panelGrid columns="3" border="0" cellspacing="0" cellpadding="0" styleClass="smallPanel"
+            columnClasses="smallPanelCol1,smallPanelCol2,smallPanelCol3">
+
+            <c:set var="reqBtnName" value="#{dialogId}Form:confirmedDeleteButton" />
+
+            <!-- Note: the "adm:labelAndInputText is not used on this site on purpose. See bug 7843 for details" -->
+
+            <!-- Displayname label and field -->
+            <adm:outputLabel value="#{msg['billingContact.displayName']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="displayName" label="#{msg['billingContact.displayName']}"
+              value="#{billingContactEditBean.billingContact.id}" maxlength="#{appBean.idLen}" onchange="setDirty(true)"
+              styleClass="field" required="#{empty param[reqBtnName]}" >
+              <f:validator validatorId="idChar" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <mp:message id="displayNameErrorMsg" for="displayName" />
+
+            <!-- Company name label and field -->
+            <adm:outputLabel value="#{msg['billingContact.organizationName']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="companyName" label="#{msg['billingContact.organizationName']}"
+              value="#{billingContactEditBean.billingContact.companyName}" maxlength="#{appBean.nameLen}"
+              onchange="setDirty(true)" styleClass="field" required="#{empty param[reqBtnName]}"
+              >
+              <f:validateLength maximum="#{appBean.nameLen}" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <mp:message id="companyNameErrorMsg" for="companyName" />
+
+            <!-- Email label and field -->
+            <adm:outputLabel value="#{msg['billingContact.email']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="email" label="#{msg['billingContact.email']}"
+              value="#{billingContactEditBean.billingContact.email}" maxlength="#{appBean.nameLen}"
+              onchange="setDirty(true)" styleClass="field" required="#{empty param[reqBtnName]}"
+              >
+              <f:converter converterId="trimConverter" />
+              <f:validator validatorId="email" />
+            </h:inputText>
+            <mp:message id="emailErrorMsg" for="email" />
+
+            <!-- Address label and input text area -->
+            <adm:outputLabel value="#{msg['billingContact.address']}" required="#{empty param[reqBtnName]}" />
+            <h:inputTextarea id="address" label="#{msg['billingContact.address']}"
+              value="#{billingContactEditBean.billingContact.address}" maxlength="#{appBean.descriptionLen}"
+              onchange="setDirty(true)" rows="3" styleClass="field nonResizableElement" required="#{empty param[reqBtnName]}"
+              >
+              <f:validateLength maximum="#{appBean.descriptionLen}" />
+              <f:converter converterId="trimConverter" />
+            </h:inputTextarea>
+            <mp:message id="addressErrorMsg" for="address" />
+
+          </t:panelGrid>
+
+          <br />
+
+          <mp:pixelline />
+
+          <h:commandButton style="display:none;" id="confirmedDeleteButton"
+            onclick="setDirty(false);" value="#{msg['button.delete']}"
+            action="#{billingContactEditBean.deleteBillingContact}" immediate="true"/>
+
+          <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
+            <h:commandButton styleClass="button" id="hiddenSetDisplayName" value="#{msg['button.save']}"
+                             onclick="AdmUtils.showProgress(true);setOnSubmit(true);setDirty(false);"
+                             action="#{billingContactEditBean.saveBillingContact}">
+              <f:ajax execute="@form" 
+                render="#{additionalRender} :#{dialogId}modalErrorMasterPanel @form"
+                onevent="#{dialogId}eventHandler"/>
+              <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+            </h:commandButton>
+            <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}"
+              onclick="#{rich:component('confirmPanel')}.show();return false;" big="true" />
+                
+            <h:commandButton id="cancelButton" styleClass="button"
+                onclick="
+                    AdmUtils.clearModalErrorPanel('#{dialogId}modalErrorMasterPanel');
+                    AdmUtils.clearHiddenErrorPanel();
+                    AdmUtils.deselectRow();
+                    setDirty(false);
+                    #{rich:component(dialogId)}.hide();"
+                value="#{msg['button.cancel']}" >
+                <f:ajax execute="@this" render="@form" />
+                <f:actionListener type="org.omnifaces.eventlistener.ResetInputAjaxActionListener" />
+            </h:commandButton>
+                
+            <mp:confirmPanel header="#{msg['marketplace.payment.deleteBillingContact.title']}"
+                text1="#{msg['marketplace.payment.billingContact.deleteMsg']}" text2="#{msg['marketplace.areyousure']}"
+                submitId="confirmedDeleteButton" isFirstModal="false" />
+          </a4j:outputPanel>
+
+          <script type="text/javascript">
+            function #{dialogId}eventHandler(data) {
+              if (data.status == "success") {
+                  AdmUtils.showProgress(false);
+                  setDirty(false);
+                  if(#{facesContext.maximumSeverity.ordinal == 0})
+                  {
+                    #{rich:component(dialogId)}.hide();
+                  }
+              } else if(data.status == "complete") {
+                  AdmUtils.showProgress(false);
+                  setDirty(false);
+              }
+            }
+          </script>
+        </h:form>
+      </ui:fragment>
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

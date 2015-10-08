@@ -1,0 +1,25 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <rich:popupPanel id="reLogining" minWidth="400" autosized="true">
+    <f:facet name="header">
+      <h:outputText value="#{msg['user.roleChanged.title']}" />
+    </f:facet>
+
+    <h:form id="showReloginForm">
+      <a4j:outputPanel id="confirmDetails" layout="block" style="padding:10px;">
+        <h:outputText styleClass="preWrapping" converter="htmlnewline.converter"
+          value="#{msg['user.roleChanged.message']}" escape="false" />
+      </a4j:outputPanel>
+
+      <adm:buttonPanel styleClass="buttonPanel relative" columns="1">
+        <adm:button id="okButton" value="#{msg['button.ok']}" buttonType="confirm" bean="#{userBean}" action="logoff" />
+      </adm:buttonPanel>
+    </h:form>
+  </rich:popupPanel>
+</ui:composition>

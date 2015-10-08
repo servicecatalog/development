@@ -1,0 +1,52 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+  <adm:panelGrid>
+
+    <adm:labelAndInputText id="serviceId" label="#{msg['service.serviceId']}" required="true"
+      value="#{service.serviceId}" maxlength="#{appBean.idLen}" disabled="#{editDisabled}" validatorId="idChar"
+      converterId="trimConverter" />
+
+    <adm:imageUpload messagePrefix="service" imageDefined="#{service.imageDefined}"
+      imageUrl="/image?type=SERVICE_IMAGE&amp;serviceKey=#{service.key}&amp;t=#{appBean.randomId}"
+      uploader="#{serviceBean.imageUploader}" sizeFunction="serviceImageSize"
+      sizeError="#{msg['service.image.hint']}" />
+
+    <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+    <h:panelGroup>
+      <h:inputText id="serviceName" label="#{msg['service.nameForCustomer']}" value="#{service.name}"
+        maxlength="#{appBean.nameLen}" onchange="setDirty(true)" styleClass="field" disabled="#{editDisabled}">
+        <f:converter converterId="trimConverter" />
+        <f:validateLength maximum="#{appBean.nameLen}" />
+      </h:inputText>
+    </h:panelGroup>
+    <adm:message id="serviceNameErrorMsg" for="serviceName" />
+
+    <adm:labelAndInputTextarea id="serviceShortDescription" label="#{msg['service.shortDescription']}"
+      value="#{service.shortDescription}" styleClass="field" maxlength="#{appBean.descriptionLen}"
+      disabled="#{editDisabled}" />
+      
+    <adm:outputLabel value="#{msg['service.autoAssignUser']}" />
+    <h:selectBooleanCheckbox id="checkboxAutoAssignUser" value="#{service.autoAssignUserEnabled}" disabled="#{editDisabled}"/>
+    <adm:message for="checkboxAutoAssignUser" />
+
+  </adm:panelGrid>
+
+  <script>
+			//<![CDATA[
+				function serviceImageSize(w,h){
+					return w == 80 && h==80;
+				}
+				//]]>
+		  </script>
+
+  <adm:labelAndRichEditor id="description" label="#{msg['service.description']}" value="#{service.description}"
+    maxlength="#{appBean.descriptionLen}" disabled="#{editDisabled}" />
+
+</ui:composition>

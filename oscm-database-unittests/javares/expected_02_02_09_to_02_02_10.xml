@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="supplier"
+    registrationdate="1234" remoteldapactive="true" />
+  <Organization tkey="2" version="0" organizationid="customer"
+    registrationdate="1234" remoteldapactive="false" />
+
+  <OrganizationHistory tkey="1" modType="ADD"
+    modUser="user" modDate="2011-01-01 01:02:34" objkey="1" objversion="0"
+    organizationid="supplier" registrationdate="1234" remoteldapactive="true" />
+  <OrganizationHistory tkey="2" modType="MODIFY"
+    modUser="user" modDate="2011-01-01 01:02:34" objkey="1" objversion="1"
+    organizationid="supplier" registrationdate="1234" remoteldapactive="true" />
+  <OrganizationHistory tkey="3" modType="ADD"
+    modUser="user" modDate="2011-01-01 01:02:34" objkey="2" objversion="1"
+    organizationid="supplier" registrationdate="1234" remoteldapactive="false" />
+</dataset>

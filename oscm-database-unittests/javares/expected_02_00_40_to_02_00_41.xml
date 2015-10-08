@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Report tkey="14" version="0" reportname="ExternalServices" organizationrole_tkey="4" />
+  <LocalizedResource tkey="1" version="0" locale="en" objectkey="5" objecttype="PRODUCT_LICENSE_DESC" value="dummy" />
+  <LocalizedResource tkey="2" version="0" locale="de" objectkey="14" objecttype="REPORT_DESC" value="External services report" />
+  <LocalizedResource tkey="3" version="0" locale="en" objectkey="14" objecttype="REPORT_DESC" value="External services report" />
+</dataset>

@@ -1,0 +1,54 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="report.check" description="Simple test throw click all available reports for current role. Currently is not used.">
+    <attribute name="iterationNumber" />
+    <attribute name="orgUrl" />
+    <sequential>
+      <repeat count="@{iterationNumber}">
+        <echo level="info" message="#{count}" />
+        <common.clickAndVerfyLink label="${organization.report.title}" />
+        <storeXPath description="Getting report name." xpath="//span[@id=&quot;reportsTable:#{count}:report&quot;]/text()" property="reportName" propertyType="dynamic" />
+        <echo level="info" message="#{reportName}" />
+        <clickElement htmlId="reportsTable:#{count}:report" />
+        <verifyText description="Check header content in report frame." text="Showing page" />
+        <echo level="info" message="#{orgUrl}" />
+        <invoke url="#{orgUrl}" />
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="report.checkForRole" description="Test throw exel data file. Check existence and report name.">
+    <attribute name="orgUrl" />
+    <attribute name="role" />
+    <attribute name="indexFiledName" />
+    <sequential>
+      <dataDriven tableContainer="data/story8.xls">
+        <common.clickAndVerfyLink label="${organization.report.title}" />
+        <storeProperty name="isExist" value="${@{role}}" propertyType="dynamic" />
+        <storeProperty name="index" value="${@{indexFiledName}}" propertyType="dynamic" />
+        <echo level="info" message="Index = #{index}" />
+        <ifStep description="@{role} should have report ${Name}" test="#{isExist}">
+          <storeXPath description="Getting report name." xpath="//span[@id=&quot;reportsTable:#{index}:report&quot;]/text()" property="reportName" propertyType="dynamic" />
+          <verifyProperty description="Verify name of report." name="reportName" text="${Name}" />
+          <clickElement htmlId="reportsTable:#{index}:report" />
+          <retry maxcount="20">
+            <sleep seconds="1" />
+            <followFrame htmlId="reportFrame" />
+          </retry>
+          <verifyText description="Check header content in report frame." text="Showing page" />
+          <followFrame name="_top" />
+          <echo level="info" message="@{orgUrl}" />
+          <invoke url="@{orgUrl}" />
+        </ifStep>
+        <ifStep description="@{role} should not have report ${Name}" unless="#{isExist}">
+          <not>
+            <storeXPath description="Getting report name." xpath="//span[@id=&quot;reportsTable:#{index}:report&quot;]/text()" property="reportName" propertyType="dynamic" />
+            <verifyProperty description="Verify name of report." name="reportName" text="${Name}" />
+          </not>
+        </ifStep>
+      </dataDriven>
+    </sequential>
+  </macrodef>
+
+</project>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<SupplierRevenueShareResult xmlns="http://oscm.org/xsd/billingservice/partnermodel"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel SupplierRSResult.xsd"
+  organizationKey="7897" organizationId="abcdefgh">
+
+  <Period endDate="534523578" startDate="9823544793" />
+
+  <Currency id="EUR">
+    <Marketplace id="mp1">
+      <MarketplaceOwner>
+        <OrganizationData key="20001" id="mpowner1">
+          <Email>mpowner1@organization.com</Email>
+          <Name>NameMpowner1</Name>
+          <Address>AddressMpowner1</Address>
+        </OrganizationData>
+      </MarketplaceOwner>
+
+      <Service key="66666" id="templateService6" model="DIRECT">
+        <Subscription key="37645" id="sub1" billingKey="18373" revenue="266.00" />
+        <Subscription key="12987" id="sub2" billingKey="12343" revenue="234.00" />
+        <RevenueShareDetails serviceRevenue="600.00" marketplaceRevenueSharePercentage="15.0"
+          marketplaceRevenue="90.00" amountForSupplier="510.00">
+          <CustomerRevenueShareDetails customerName="customerA" customerId="f278913568"
+            serviceRevenue="400.00" marketplaceRevenue="60.00" amountForSupplier="340.00" />
+          <CustomerRevenueShareDetails customerName="customerB" customerId="h285673122"
+            serviceRevenue="200.00" marketplaceRevenue="30.00"  amountForSupplier="170.00" />
+          <CustomerRevenueShareDetails customerName="customerC" customerId="h285673122"
+            serviceRevenue="0.00" marketplaceRevenue="0.00" amountForSupplier="0.00" />
+        </RevenueShareDetails>
+      </Service>
+
+      <Service key="77777" id="templateService6" model="DIRECT">
+        <RevenueShareDetails serviceRevenue="0.00" marketplaceRevenueSharePercentage="20.00"
+          marketplaceRevenue="0.00" amountForSupplier="0.00" />
+      </Service>
+
+      <RevenuePerMarketplace serviceRevenue="600.00" marketplaceRevenue="120.00" brokerRevenue="0.00"
+        resellerRevenue="0.00" overallRevenue="480.00" />
+    </Marketplace>
+
+    <SupplierRevenue amount="0.00">
+      <DirectRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" operatorRevenue="0.00" />
+      <BrokerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" brokerRevenue="0.00" operatorRevenue="0.00" />
+      <ResellerRevenue serviceRevenue="0.00" marketplaceRevenue="0.00" resellerRevenue="0.00"
+        operatorRevenue="0.00" overallRevenue="0.00" />
+    </SupplierRevenue>
+
+  </Currency>
+
+</SupplierRevenueShareResult>

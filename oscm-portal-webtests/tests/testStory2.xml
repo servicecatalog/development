@@ -1,0 +1,87 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testStory2">
+  <import file="../macros/all.xml" />
+  <target name="testStory2">
+    <webtest name="testStory2">
+      <mail.cleanInbox />
+
+      <!-- 1.Create new organization WEB UI role technology provider User A  -->
+      <operator.addCurrency />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="technologyProviderUrl" value="#{orgUrl}" />
+      <storeProperty name="technologyProviderUserId" value="#{userId}" />
+      <!-- 2. Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{technologyProviderUrl}" userId="#{technologyProviderUserId}" password="#{userPwd}" />
+
+      <storeProperty name="techServiceID" value="Example 1.00" />
+      <!-- 3. Register new or updated technical service -->
+      <techservice.import file="${techService.import.file}" />
+      <!-- 4. Update technical service "descriptive information" -->
+      <common.ignorePageScriptError />
+      <techservice.update serviceId="#{techServiceID}" concurrencyCheck="true" />
+
+      <!-- 5. Export technical service descriptor -->
+      <techservice.export />
+
+      <!-- Bug 9702: export button must be enabled when clicking 'select all' -->
+      <common.clickAndVerfyLink label="${techService.export.title}" />
+      <setCheckbox htmlId="exportForm:techServiceTable:allCheckBoxes" checked="true" />
+      <clickButton label="${button.export}" />
+      <verifyXPath xpath="/tns:TechnicalServices" />
+      <previousResponse />
+
+      <!-- Bug 9700: export must be clickable again with result -->
+      <clickButton label="${button.export}" />
+      <verifyXPath xpath="/tns:TechnicalServices" />
+      <previousResponse />
+
+      <login.logout />
+
+      <!-- 6. Create new organization WEB UI role supplier User B -->
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <login.logout />
+
+      <login.login url="#{technologyProviderUrl}" userId="#{technologyProviderUserId}" password="secret" />
+      <!-- 7. Add Suppliers -->
+      <user.addSuppliers supplierID="#{supplierId}" technicalServiceID="#{techServiceID}" />
+      <login.logout />
+
+      <!-- 10. Delete Market Service -->
+      <login.loginAsSupplier url="#{supplierUrl}" userId="#{supplierUserId}" password="secret" />
+      <service.define serviceID="ExampleTrial" />
+      <service.delete serviceID="ExampleTrial" />
+      <login.logout />
+
+      <!-- 11. Platform login (local authentication) technology provider User A -->
+      <login.login url="#{technologyProviderUrl}" userId="#{technologyProviderUserId}" password="secret" />
+      <!-- 12. Register new or updated technical service -->
+      <techservice.update serviceId="#{techServiceID}" />
+      <login.logout />
+
+      <!-- 13. Platform login (local authentication) supplier User B -->
+      <login.loginAsSupplier url="#{supplierUrl}" userId="#{supplierUserId}" password="secret" />
+      <service.define />
+      <!-- 14. Update market Service -->
+      <service.update concurrencyCheck="true" />
+      <login.logout />
+
+      <!-- 15. Platform login (local authentication) technology provider User A -->
+      <login.login url="#{technologyProviderUrl}" userId="#{technologyProviderUserId}" password="secret" />
+      <!-- 16. Remove Suppliers -->
+      <user.removeSuppliers supplierID="#{supplierId}" technicalServiceID="#{techServiceID}" />
+      <!-- 17. Remove registered technical service -->
+      <techservice.delete serviceId="#{techServiceID}" />
+    </webtest>
+  </target>
+</project>
+

@@ -1,0 +1,92 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+
+  <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
+  <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+  <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
+
+  <adm:outputLabel value="#{msg['group.authorizedService']}" />
+  <h:panelGroup>
+    <a4j:outputPanel id="servicesPanel" layout="block" styleClass="tablePanel">
+      <a4j:region>
+        <adm:dataTable tableId="servicesTable" value="#{manageGroupModel.serviceRows}" columnsWidth="11%,44%,45%"
+          headerClass="rowTitle serviceTableTitle" rowClasses="rowOdd,rowEven" columnClasses="wrapColumns" id="servicesTable" rows="#{pageCount}"
+          render="#{pagerId}, #{pagerId}Panel, scriptPanel" style="width: 100%;">
+
+          <f:facet name="header">
+            <a4j:outputPanel styleClass="visibleServiceTablePager">
+              <adm:pager pagerId="#{pagerId}" pagerButtonRendered="#{size gt pageCount}" oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');"/>
+            </a4j:outputPanel>
+          </f:facet>
+
+          <rich:column id="colServiceCheckbox" sortBy="#{rowItem.selected}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
+            sortIconDescending="#{sortIconDescending}" styleClass="serviceTableColumnCheckBox">
+            <f:facet name="header">
+              <a4j:outputPanel styleClass="serviceTableSelectAllCheckBox">
+                <h:selectBooleanCheckbox id="allServiceCheckbox"
+                  title="#{msg['group.select.services']}" value="#{manageGroupModel.allServicesSelected}" immediate="true"
+                  onclick="setDirty(true);AdmUtils.dataTableSelectCheckboxes('#{formName}:servicesTable', 'serviceCheckbox', this.checked, '#{size}');executeOperation();AdmUtils.cancelBubble(event);">
+                </h:selectBooleanCheckbox>
+              </a4j:outputPanel>
+            </f:facet>
+            <h:selectBooleanCheckbox id="serviceCheckbox" value="#{rowItem.selected}" onclick="setDirty(true);initializeAllCheckbox();executeOperation();" >
+              <f:ajax event="change" />
+            </h:selectBooleanCheckbox>
+          </rich:column>
+
+          <rich:column id="colServiceName" sortBy="#{rowItem.service.serviceName}" sortIcon="#{sortIcon}"
+            sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+            filterType="custom"
+            filterValue="#{tableState.filterValues['colServiceName']}"
+            filterExpression="#{adm:matchBegin(rowItem.service.serviceName, tableState.filterValues['colServiceName'], false)}" >
+            <f:facet name="header">
+              <h:outputText value="#{msg['group.authorizedService.name']}" />
+              <adm:filterInput inputId="filterServiceName" inputValue="#{tableState.filterValues['colServiceName']}"
+                onkeyup="AdmUtils.setFirstPage(#{rich:element('visibleServiceTablePager')});"
+                render="servicesTable@body, pagerPanel" />
+            </f:facet>
+            <a4j:outputPanel id="serviceNamePanel" layout="block" styleClass="stringInMultiLine preserveWhitespaces">
+              <h:outputText id="serviceName" value="#{rowItem.service.serviceName}" />
+            </a4j:outputPanel>
+          </rich:column>
+
+          <rich:column id="colProviderName" sortBy="#{rowItem.service.providerName}" sortIcon="#{sortIcon}"
+            sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+            filterType="custom"
+            filterValue="#{tableState.filterValues['colProviderName']}"
+            filterExpression="#{adm:matchBegin(rowItem.service.providerName, tableState.filterValues['colProviderName'], false)}">
+            <f:facet name="header">
+              <h:outputText value="#{msg['group.authorizedService.supplier']}" />
+              <adm:filterInput inputId="filterProviderName" inputValue="#{tableState.filterValues['colProviderName']}"
+                onkeyup="AdmUtils.setFirstPage(#{rich:element('visibleServiceTablePager')});"
+                render="servicesTable@body, pagerPanel" />
+            </f:facet>
+            <a4j:outputPanel id="providerNamePanel" layout="block" styleClass="stringInMultiLine preserveWhitespaces">
+              <h:outputText id="providerName" value="#{rowItem.service.providerName}" />
+            </a4j:outputPanel>
+          </rich:column>
+        </adm:dataTable>
+        <a4j:jsFunction name="executeOperation" oncomplete="AdmUtils.showProgress(false);initializeAllCheckbox();" render="servicesPanel">
+        </a4j:jsFunction>
+      </a4j:region>
+    </a4j:outputPanel>
+    <a4j:outputPanel id="scriptPanel">
+      <script type="text/javascript">
+      	initializeAllCheckbox();
+        function initializeAllCheckbox() {
+    	  AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');
+    	}
+	  </script>
+	</a4j:outputPanel>
+  </h:panelGroup>
+</ui:composition>

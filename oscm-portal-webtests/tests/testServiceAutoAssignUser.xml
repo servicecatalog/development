@@ -1,0 +1,33 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testServiceAutoAssignUser">
+  <import file="../macros/all.xml" />
+  <target name="testServiceAutoAssignUser">
+
+    <webtest name="testServiceAutoAssignUser">
+      <mail.cleanInbox />
+      <!-- create new marketplace -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="newSupplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="newSupplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="newSupplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="MP_NAME" value="GMP" propertyType="ant" />
+      <operator.createMarketplace ownerId="${newSupplierId}" baseurl="${bes.http.url}/oscm-portal" name="${MP_NAME}" mIdProperty="MPID_MP" />
+      <!-- create marketable services -->
+      <login.initialLoginAndChangePassword url="${newSupplierUrl}" userId="${newSupplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${MPID_MP}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <storeProperty name="SVC_ID" value="publicService" propertyType="ant" />
+      <service.define serviceId="${SVC_ID}" name="${SVC_ID}" marketplaceId="${MPID_MP}" publicService="true" />
+    
+      <service.update serviceId="${SVC_ID}" autoAssignUsers="true"/>
+      <verifyXPath xpath="//*[@id='editForm:checkboxAutoAssignUser']/@checked='checked'"/>	
+    	
+      <!-- 5. Delete market service -->
+      <service.delete serviceId="${SVC_ID}" />
+
+    </webtest>  
+  	  </target>
+</project>

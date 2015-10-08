@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="SUP" registrationdate="1234" pspidentifier="12345" />
+</dataset>

@@ -1,0 +1,1637 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="bugTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="bugTests" depends="Bug7607" />
+
+  <target name="Bug8129">
+    <webtest name="Bug 8129: noCurrenciesSupported">
+      <!-- must be first test before <operator.addCurrency /> -->
+      <mail.cleanInbox />
+      
+      <sleep description="Sleep a minute for estbesdev1" seconds="60" />
+      
+      <!-- setup Supplier, Marketplace and Service -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="Bug8129mId" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug8129mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExampleTrial" name="Trial" description="Trial description" concurrentUser="3" namedUser="2" configurableChecked="true" />
+      <!-- goto price Model page -->
+      <common.ignorePageScriptError />     
+      <invoke url="#{baseUrl}/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleTrial" />
+      <setRadioButton htmlId="editForm:isfree:1" />
+      <setInputField htmlId="editForm:priceModelTypeInitial" value="PRO_RATA" />
+      <common.waitForJavaScript />
+      <!-- check that no option exists -->
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:currency']/option" />
+      </not>
+      <clickButton label="${button.save}" />
+      <verifyText text="${error.no.currencies}" />
+      <login.logout />
+      <!-- cleanup -->
+      <scenario.cleanUpLeftServicesIfAny url="#{supplierUrl}" uId="#{supplierUserId}" />
+    </webtest>
+  </target>
+
+  <target name="Bug7615" depends="init">
+    <webtest name="Bug 7615: check menu updates on user changes">
+      <!-- Note: in the context of fixing bug 7647 some of the changes of bug 7615 have been reverted -->
+      <!-- The defined behavior now is, that the change of the roles of the current user takes effect _after_ the next login -->
+      <!-- login as supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- manage users menu, remove the service manager user role from the current user -->
+      <user.manageRoles isAdmin="false" isSupplier="true" isTechnicalProvider="false" checked="false" changeCurrentUser="true" />
+      <verifyXPath xpath="//tr[@id='navigation.myAccount']" />
+      <verifyXPath xpath="//tr[@id='navigation.techService']" />
+      <!-- In the context of fixing bug 7647 the changing the roles reqires a relogin -->
+      <!-- <not> -->
+      <verifyXPath xpath="//tr[@id='navigation.customer']" />
+      <verifyXPath xpath="//tr[@id='navigation.service']" />
+      <verifyXPath xpath="//tr[@id='navigation.priceModel']" />
+      <!-- </not> -->
+      <!-- grant all roles again (has to be reworked if bug 7445 is fixed -->
+      <user.manageRoles isAdmin="true" isSupplier="true" isTechnicalProvider="true" checked="true" changeCurrentUser="true" />
+      <!-- manage users menu, remove the technology manager user role from the current user -->
+      <user.manageRoles isAdmin="false" isSupplier="false" isTechnicalProvider="true" checked="false" changeCurrentUser="true" />
+      <verifyXPath xpath="//tr[@id='navigation.myAccount']" />
+      <verifyXPath xpath="//tr[@id='navigation.customer']" />
+      <verifyXPath xpath="//tr[@id='navigation.service']" />
+      <verifyXPath xpath="//tr[@id='navigation.priceModel']" />
+      <!-- In the context of fixing bug 7647 the changing the roles reqires a relogin -->
+      <!-- <not> -->
+      <verifyXPath xpath="//tr[@id='navigation.techService']" />
+      <!-- </not> -->
+      <login.logout />
+    </webtest>
+  </target>
+
+  <!-- Access type USER is not in the access type drop down. -->
+  <target name="Bug7448" depends="init">
+    <webtest name="Bug 7448: Access type USER is not in the access type drop down">
+      <!-- login as supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- click on 'Register Technical Service Link' and verify -->
+      <clickLink href="/oscm-portal/techservice/add.jsf" />
+      <verifyXPath xpath="//select[@id='editForm:accessType']/option[@value='USER']" />
+    </webtest>
+  </target>
+
+  <!-- Verify visibility of fields. -->
+  <target name="addTechService_FieldVisibility" depends="init">
+    <webtest name="addTechService_FieldVisibility">
+      <!-- login as supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- give back technology manager role -->
+      <user.manageRoles isTechnicalProvider="true" checked="true" changeCurrentUser="true" />
+      <login.logout />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- click on 'Register Technical Service Link' and verify -->
+      <clickLink href="/oscm-portal/techservice/add.jsf" />
+      <!-- DIRECT : accessinfo and provisioningUrl displayed -->
+      <setSelectField name="editForm:accessType" value="DIRECT" />
+      <verifyXPath xpath="//*[@id='editForm:provisioningUrl']" />
+      <verifyXPath xpath="//*[@id='editForm:accessInfo']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:baseUrl']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:loginPath']" />
+      </not>
+      <!-- LOGIN : baseUrl + provisioningUrl + loginPath displayed -->
+      <setSelectField name="editForm:accessType" value="LOGIN" />
+      <verifyXPath xpath="//*[@id='editForm:baseUrl']" />
+      <verifyXPath xpath="//*[@id='editForm:provisioningUrl']" />
+      <verifyXPath xpath="//*[@id='editForm:loginPath']" />
+      <!-- USER : accessinfo and provisioningUrl displayed -->
+      <setSelectField name="editForm:accessType" value="USER" />
+      <verifyXPath xpath="//*[@id='editForm:accessInfo']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:baseUrl']" />
+      </not>
+      <verifyXPath xpath="//*[@id='editForm:provisioningUrl']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:loginPath']" />
+      </not>
+      <!-- EXTERNAL : baseUrl only displayed -->
+      <setSelectField name="editForm:accessType" value="EXTERNAL" />
+      <verifyXPath xpath="//*[@id='editForm:baseUrl']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:provisioningUrl']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:loginPath']" />
+      </not>
+    </webtest>
+  </target>
+
+  <target name="Bug7416" depends="init">
+    <webtest name="Bug 7416: tests correct switch of customer specific pricemodel, updated for description instead of short description">
+      <mail.cleanInbox />
+      <!-- login as supplier and register a second customer -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+      <!-- read the second customer id -->
+      <mail.readPasswordAndUrlFromMail />
+      <property name="secondCustomerId" value="#{orgId}" />
+      <!-- login as supplier again and register a third customer -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+      <!-- read the third customer id -->
+      <mail.readPasswordAndUrlFromMail />
+      <property name="thirdCustomerId" value="#{orgId}" />
+      <!-- login as supplier again -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- verify that the description has changed (old code checked short description -->
+      <pricemodel.defineForCustomer pmDesc="customerSpecific" isFree="false" serviceId="ExampleProfessional" customerId="${secondCustomerId}"/>
+      <!--verifyInputField htmlId="editForm:priceModelDescription" value="customerSpecific" / -->
+      <verifyTextarea htmlId="editForm:priceModelDescription:inp" text="customerSpecific" regex="false" />
+      <setSelectField htmlId="serviceSelectForm:customerSelection" value="${thirdCustomerId}" />
+      <verifyTextarea htmlId="editForm:priceModelDescription:inp" text="ExampleProfessional" regex="false" />
+      <setSelectField htmlId="serviceSelectForm:customerSelection" value="${secondCustomerId}" />
+      <verifyTextarea htmlId="editForm:priceModelDescription:inp" text="customerSpecific" regex="false" />
+      <pricemodel.deleteForCustomer org="${secondCustomerId}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug9603" depends="init">
+    <webtest name="Bug 9603 (last part): Convert line breaks to br tags">
+      <!-- login as supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <setup:service.deactivate serviceIds="ExampleProfessional" />
+      <!-- Update short description using line breaks, without check - will be done later on -->
+      <service.update marketplaceId="${mId}" shortDescription="a&#10;&#13;description with line&#10;&#13;breaks" serviceId="ExampleProfessional" checkShortDescription="false" />
+      <setup:service.activate serviceIds="ExampleProfessional" />
+      <!-- Check short description on price model for customer page -->
+      <common.clickAndVerfyLink label="${priceModel.customer.title}" />
+      <setSelectField htmlId="serviceSelectForm:customerSelection" value="${supplierId}" />
+      <!-- verify that the description has changed (old code checked short description -->
+      <verifyXPath description="Verify line break conversion in short description." xpath="//*[text()[contains(., '${service.shortDescription}')]]/ancestor::tr/td[contains(@class,'labelAndValuePanelCol2')]//br[1]" />
+      <verifyXPath description="Verify line break conversion in short description." xpath="//*[text()[contains(., '${service.shortDescription}')]]/ancestor::tr/td[contains(@class,'labelAndValuePanelCol2')]//br[2]" />
+      <!-- Check short description on price model for service page -->
+      <invoke url="${baseUrl}/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleProfessional" />
+      <verifyXPath description="Verify line break conversion in short description." xpath="//*[text()[contains(., '${service.shortDescription}')]]/ancestor::tr/td[contains(@class,'labelAndValuePanelCol2')]//br[1]" />
+      <verifyXPath description="Verify line break conversion in short description." xpath="//*[text()[contains(., '${service.shortDescription}')]]/ancestor::tr/td[contains(@class,'labelAndValuePanelCol2')]//br[2]" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7312" depends="init">
+    <webtest name="Bug 7312: Test that no service is preselected on create service page">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- select an existing service on the edit service page -->
+      <clickLink href="/service/edit.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="ExampleTrial" />
+      <!-- verify that the fields are empty and no parameters are displayed on the create service page -->
+      <clickLink href="/service/add.jsf" />
+      <verifyInputField htmlId="editForm:serviceId" value="" />
+      <verifyInputField htmlId="editForm:serviceName" value="" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+    </webtest>
+  </target>
+
+  <target name="Bug7225" depends="init">
+    <webtest name="Bug 7225: VAT rate with a number equal or less than 0.0005">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+      <setInputField htmlId="vatForm:defaultVat" value="0.0005" />
+      <clickButton label="${button.save}" />
+      <common.verifyFieldError label="${ex.ValidationException.VAT}" fieldId="vatForm:defaultVat" />
+      <setInputField htmlId="vatForm:defaultVat" value="0.11" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <vat.disable />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7171" depends="init">
+    <webtest name="Bug 7171: Check correct mail salutation depending on user's gender">
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.register userId="user10" />
+      <login.logout />
+      <mail.readCreateSalutationFromMail />
+      <verifyProperty name="salutationText" text="user," />
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.register userId="user11" salutation="Mr." />
+      <login.logout />
+      <mail.readCreateSalutationFromMail />
+      <verifyProperty name="salutationText" text="Mr." />
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.register userId="user12" salutation="Ms." />
+      <login.logout />
+      <mail.readCreateSalutationFromMail />
+      <verifyProperty name="salutationText" text="Ms." />
+    </webtest>
+  </target>
+
+  <target name="Bug7169" depends="init">
+    <webtest name="Bug 7169: Display insufficient authorities error message if the user is not allowed to access the page">
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.register userId="user3" isSvcMgr="true" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="#{userId}" password="#{userPwd}" />
+      <invoke url="${baseUrl}/user/list.jsf" />
+      <common.verifyAuthorityError label=" " />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7131" depends="init">
+    <webtest name="Bug 7131: Display error message if password is missing">
+      <invoke url="${customerUrl}" />
+      <setInputField name="userId" value="${common.userId}" />
+      <clickButton label="${button.login}" />
+      <verifyXPath xpath="//body/div/div/text()" text=".*${error.login}.*" regex="true" />
+    </webtest>
+  </target>
+
+  <target name="Bug7133" depends="init">
+    <webtest name="Bug 7133: Ensures proper page is displayed if a service usage is not possible">
+      <mail.cleanInbox />
+      <selectWebClient name="admin">
+        <storeProperty name="subscriptionName" value="subscriptionOneUser" propertyType="dynamic" />
+        <login.loginAsSupplier url="${customerUrl}" userId="${customerUserId}" password="${common.password}" />
+        <user.register userId="user2" admin="true" />
+        <mail.readPasswordAndUrlFromMail />
+        <property name="customerUser2Pwd" value="#{userPwd}" />
+        <property name="customerUser2Id" value="#{userId}" />
+        <property name="customerUser2Url" value="#{orgUrl}" />
+        <setup:subscription.create subId="#{subscriptionName}" marketplaceId="${mId}" serviceKey="${svcKey5}" userIds="${customerUserId},${customerUser2Id}" runAs="${supplierUserKey}" />
+        <mail.readServiceUrlFromMail subId="#{subscriptionName}" />
+        <!-- the mail response is still active so login again -->
+        <invoke url="${customerUrl}" />
+        <invoke url="#{serviceUrl}example.do" />
+        <verifyTitle text="Example Service" />
+        <invoke url="${customerUrl}" />
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="user2">
+        <mpl_login.loginWithChangePassword userId="${customerUser2Id}" oldPassword="${customerUser2Pwd}" mid="${mId}" />
+        <invoke url="#{serviceUrl}example.do" />
+        <verifyElementText htmlId="pagelabel" text="${public.serviceusage.title}" />
+        <invoke url="${customerUrl}" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="Bug7134" depends="init">
+    <webtest name="Bug 7134: Verify LDAP import error message">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+      <setInputField htmlId="editForm:email" value="${common.email}" />
+      <setInputField htmlId="editForm:userId" value="bes-${env.HOSTNAME}" />
+      <setSelectField name="editForm:locale" value="${common.locale}" />
+      <setInputField htmlId="editForm:organizationName" value="${common.orgName}" />
+      <setSelectField name="editForm:country" value="DE" />
+      <setCheckbox htmlId="editForm:ldapBasedUserMgmt" checked="true" />
+      <setFileField htmlId="editForm:file" fileName="data/ldap-fail.properties" />
+      <setSelectField name="editForm:marketplace" value="${mId}" />
+      <clickButton label="${button.save}" />
+      <common.verifyError label="Unknown LDAP attribute unknownLdapAttribute" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7113" depends="init">
+    <webtest name="Bug 7113: Use locale of current user as default locale">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- set locale to ja -->
+      <common.clickAndVerfyLink label="${organization.edit.title}" />
+      <setSelectField htmlId="editForm:locale" value="ja" />
+      <clickButton htmlId="editForm:saveButton" />
+      <!-- verify that ja is the default -->
+      <invoke url="${baseUrl}/organization/addCustomer.jsf" />
+      <verifySelectField htmlId="editForm:locale" value="ja" />
+      <invoke url="${baseUrl}/user/add.jsf" />
+      <verifySelectField htmlId="userForm:locale" value="ja" />
+      <!-- set locale back to en -->
+      <invoke url="${baseUrl}/organization/edit.jsf" />
+      <setSelectField htmlId="editForm:locale" value="en" />
+      <clickButton htmlId="editForm:saveButton" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug6841" depends="init">
+    <webtest name="Bug 6841: Reset Select on delete customer pricemodel page">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <pricemodel.defineForCustomer customerId="${customerId}" serviceId="ExampleTrial" isFree="true" />
+      <common.clickAndVerfyLink label="${priceModel.customer.delete.title}" />
+      <setSelectField htmlId="customerPriceModelDeleteForm:customerSelection" value="${customerId}" />
+      <!-- make sure that there is an entry in the table -->
+      <setCheckbox htmlId="customerPriceModelDeleteForm:deleteCustPM:0:markForDelete" checked="true" />
+      <setSelectField htmlId="customerPriceModelDeleteForm:customerSelection" optionIndex="0" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <!-- verify that the table is empty -->
+      <not>
+        <setCheckbox htmlId="customerPriceModelDeleteForm:deleteCustPM:0:markForDelete" checked="true" />
+      </not>
+      <pricemodel.deleteForCustomer org="${customerId}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug6844" depends="init">
+    <webtest name="Bug 6844: Don't allow import of customized texts via property file">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${shop.translations.title}" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" optionIndex="1" />
+      <setFileField htmlId="importForm:file" fileName="data/Messages_en.properties" />
+      <clickLink htmlId="importForm:uploadButtonLink" />
+      <common.verifyError label="${error.shop.translations.fileformat}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug6437" depends="init">
+    <webtest name="Bug 6437: Concurrency problems for price model changes">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- deactivate ExampleProfessionalRoles -->
+      <service.deActivate rowNr="0" active="false" />
+      <!--Get the service, and update the price model -->
+      <pricemodel.defineRolePrices serviceId="ExampleProfessionalRoles" basePrice="20" />
+      <!--now back to normal -->
+      <pricemodel.defineRolePrices serviceId="ExampleProfessionalRoles" />
+      <!-- activate ExampleProfessionalRoles again -->
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug6862" depends="init">
+    <webtest name="Bug 6862: Visibility of UDA table">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <clickLink href="/organization/editCustomer.jsf" />
+      <!-- no UDA title must be shown, if no UDAs exist -->
+      <not>
+        <verifyXPath description="Match UDA table" xpath="//table[@id='editForm:udaTable']" />
+      </not>
+      <setup:udaDef.create />
+      <!-- UDA title must be shown after creation -->
+      <clickLink href="/organization/editCustomer.jsf" />
+      <verifyXPath description="Match UDA table" xpath="//table[@id='editForm:udaTable']" />
+      <setup:udaDef.delete udaIds="uda0" />
+      <!-- no UDA title must be shown after deletion -->
+      <clickLink href="/organization/editCustomer.jsf" />
+      <not>
+        <verifyXPath description="Match UDA table" xpath="//table[@id='editForm:udaTable']" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7146" depends="init">
+    <webtest name="Bug 7146: Error message when uploading a file which excceds the maximum allowed size">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.handleMessageParameters property="errorMsg" value="${error.upload.sizeLimitExceeded.konwnMax}" att0="20.00" />
+      <techservice.import.fail file="data/oversizeFile.zip" useRegEx="false" errorLabel="#{errorMsg}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7589" depends="init">
+    <webtest name="Bug 7589: Update service: JSF must show the correct service attributes when selecting another service after validation error.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- Create 2 services (need 2 non-active services) -->
+      <storeProperty name="jsfServiceId1" value="JSF reset 1" propertyType="dynamic" />
+      <setup:service.define serviceId="#{jsfServiceId1}" name="JSF reset Trial 1" description="JSF reset description 1" />
+      <storeProperty name="jsfServiceId2" value="JSF reset 2" propertyType="dynamic" />
+      <setup:service.define serviceId="#{jsfServiceId2}" name="JSF reset Trial 2" description="JSF reset description 2" />
+      <!-- Select the first service -->
+      <common.clickAndVerfyLink label="${service.edit.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="#{jsfServiceId1}" />
+      <verifyInputField htmlId="editForm:serviceId" value="#{jsfServiceId1}" />
+      <!-- produce the validation error -->
+      <common.testFieldValidation fieldId="editForm:parameterTable:11:integerValue" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.localize}" />
+      <!-- Select the second service and check that JSF does not discard this new value of the select box and the service 
+        attributes are loded -->
+      <setSelectField htmlId="editForm:selectedServiceId" text="#{jsfServiceId2}" />
+      <verifySelectField htmlId="editForm:selectedServiceId" text="#{jsfServiceId2}" />
+      <verifyInputField htmlId="editForm:serviceId" value="#{jsfServiceId2}" />
+    </webtest>
+    <webtest name="Bug 7589: Define service: JSF must not discard the selection when selecting another technical service after validation error.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <storeProperty name="jsfTechServiceId1" value="Example_with_roles 1.00" propertyType="dynamic" />
+      <storeProperty name="jsfTechServiceId2" value="Example 1.00" propertyType="dynamic" />
+      <!-- Select the first technical service -->
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="#{jsfTechServiceId1}" />
+      <verifySelectField htmlId="editForm:techServiceId" text="#{jsfTechServiceId1}" />
+      <!-- produce the validation error -->
+      <common.testFieldValidation fieldId="editForm:serviceId" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" />
+      <!-- Select the second technical service and check that JSF does not discard the new value of the select box -->
+      <setSelectField htmlId="editForm:techServiceId" text="#{jsfTechServiceId2}" />
+      <verifySelectField htmlId="editForm:techServiceId" text="#{jsfTechServiceId2}" />
+    </webtest>
+    <webtest name="Bug 7589: Copy service: JSF must not discard the selection when selecting '-- Select one --' after validation error.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <storeProperty name="jsfServiceId1" value="JSF reset 1" propertyType="dynamic" />
+      <!-- Select a technical service -->
+      <common.clickAndVerfyLink label="${service.copy.title}" />
+      <setSelectField htmlId="copyForm:selectedServiceId" text="#{jsfServiceId1}" />
+      <verifySelectField htmlId="copyForm:selectedServiceId" text="#{jsfServiceId1}" />
+      <!-- produce the validation error -->
+      <common.testFieldValidation fieldId="copyForm:newServiceId" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLabel="${button.copy}" />
+      <!-- Select '- Select one -' and check that JSF does not discard the new value of the select box -->
+      <setSelectField htmlId="copyForm:selectedServiceId" value="0" />
+      <verifySelectField htmlId="copyForm:selectedServiceId" value="0" />
+    </webtest>
+  </target>
+
+  <target name="Bug7607" depends="init">
+    <webtest name="Bug 7607: Change temporary password dialog with wrong current password must give on one error message">
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="secret" />
+      <user.register userId="wrongPwdUser" admin="true" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <invoke url="${supplierUrl}" />
+      <setInputField name="userId" value="#{userId}" />
+      <setInputField name="password" value="#{userPwd}" />
+      <clickButton label="${button.login}" />
+      <!-- 1. attempt -->
+      <verifyElementText htmlId="pagelabel" text="${public.pwd.title}" description="we should see the panel title :${public.pwd.title}" />
+      <setInputField htmlId="passwordform:currentPassword" value="wrong" />
+      <setInputField htmlId="passwordform:password" value="secret" />
+      <setInputField htmlId="passwordform:password2" value="secret" />
+      <clickLink htmlId="passwordform:changeButtonLink" />
+      <verifyxpath xpath="//dl[@id='errorMessages1']/dt/span[@class='rich-messages-label']/text()" description="Check if first message is given." />
+      <not>
+        <verifyxpath xpath="//dl[@id='errorMessages1']/dt[position()=2]/span/text()" description="Check that no further message is given." />
+      </not>
+      <storexpath xpath="//dl[@id='errorMessages1']/dt/span[@class='rich-messages-label']/text()" property="errMsg" />
+      <verifyProperty description="Check error message is: ${error.changePassword}." name="errMsg" text="${error.changePassword} "/>
+      <!-- Now retest 2nd part of the bug: After several failed attempts the account is correctly locked but the instead 
+        of a concerning message just an empty/cut error panel was displayed caused by an internal ViewExpiredException. -->
+      <!-- 2. attempt -->
+      <setInputField htmlId="passwordform:currentPassword" value="wrong2" />
+      <setInputField htmlId="passwordform:password" value="secret" />
+      <setInputField htmlId="passwordform:password2" value="secret" />
+      <clickLink htmlId="passwordform:changeButtonLink" />
+      <storexpath xpath="//dl[@id='errorMessages1']/dt/span[@class='rich-messages-label']/text()" property="errMsg" />
+      <verifyProperty description="2. Attempt: Check is: ${error.changePassword}" name="errMsg" text="${error.changePassword} " />
+      <!-- 3. and last attempt -->
+      <setInputField htmlId="passwordform:currentPassword" value="wrong3" />
+      <setInputField htmlId="passwordform:password" value="secret" />
+      <setInputField htmlId="passwordform:password2" value="secret" />
+      <clickLink htmlId="passwordform:changeButtonLink" />
+      <not>
+        <verifyxpath description="Ensure previous message is not shown." xpath="//dl[@id='errorMessages']/dt[position()=1]/span/text()" />
+      </not>
+      <storexpath xpath="//dl[@id='errorMessages1']/dt/span[@class='rich-messages-label']//text()" property="errMsg" />
+      <verifyProperty description="Check is: ${error.user.locked}." name="errMsg" regex="true" text="${error.user.locked}.*" />
+      <!-- Finally logout -->
+      <invoke url="#{orgUrl}" />
+      <!--login.logout /-->
+    </webtest>
+  </target>
+
+  <target name="Bug7726">
+    <webtest name="Bug 7726: Inconsistence on displaying the organization roles when concurrently changed">
+      <!-- As platform operator, create a new organization with role SUPPLIER -->
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="bug7726_OrgId" value="#{orgId}" />
+      <selectWebClient name="admin1">
+        <!-- Log-in as platform operator and choose the created organization in 'Manage organizations' -->
+        <operatorPortal.login />
+        <clickLink href="/operator/manageOrganizations.jsf" />
+        <verifyElementText htmlId="pagelabel" text="${operator.manageOrganizations.title}" />
+        <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="#{bug7726_OrgId}" />
+        <clickElement xpath="//*[@id='selectOrganizationForm:organizationIdItems']//*[contains(.//text(), '#{bug7726_OrgId}')]" />      
+        <!-- Verify that the SUPPLIER checkbox is checked and disabled -->
+        <verifyCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" />
+        <verifyXPath xpath="//input[@id='manageOrganizationsForm:checkboxRoleSupplier']/@disabled" text="disabled" />
+        <!-- Verify that the TECHNOLOGY_PROVIDER checkbox is un-checked and enabled -->
+        <verifyCheckbox htmlId="manageOrganizationsForm:checkboxRoleTechnologyProvider" checked="false" />
+        <not>
+          <verifyXPath xpath="//input[@id='manageOrganizationsForm:checkboxRoleTechnologyProvider']/@disabled" text="disabled" />
+        </not>
+      </selectWebClient>
+      <!-- Add the TECHNOLOGY_PROVIDER role using the operator command line client -->
+      <operator.updateorganization orgId="#{bug7726_OrgId}" roles="TECHNOLOGY_PROVIDER" />
+      <selectWebClient name="admin1">
+        <!-- Go away and then come back again on page 'manage organizations' -->
+        <clickLink href="/organization/manageTriggers.jsf" />
+        <clickLink href="/operator/manageOrganizations.jsf" />
+        <!-- Verify that bothh role checkboxes are checked and disabled -->
+        <verifyCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="true" />
+        <verifyXPath xpath="//input[@id='manageOrganizationsForm:checkboxRoleSupplier']/@disabled" text="disabled" />
+        <verifyCheckbox htmlId="manageOrganizationsForm:checkboxRoleTechnologyProvider" checked="true" />
+        <verifyXPath xpath="//input[@id='manageOrganizationsForm:checkboxRoleTechnologyProvider']/@disabled" text="disabled" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="Bug7878" depends="init">
+    <webtest name="Bug 7878: Wrong authorities exception by manage organization">
+      <!-- Create a new customer to avoid dependencies to other tests -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract customer organization ID from success message" text="#{successMessageRegEx}" property="newCustomerId" group="1" />
+      <login.logout />
+      <operatorPortal.login />
+      <!-- Adding a payment type to the created org should not fail with authorities exception since the role supplier is 
+        given -->
+      <operatorPortal.manageOrganization orgId="#{newCustomerId}" supplier="true" revenueshare="0.00" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7728" depends="init">
+    <webtest name="Bug 7728: A copied service is published on wrong marketplace">
+      <!-- Copy a service and publish it to local marketplace -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <service.copy newServiceId="svccopy" />
+      <invoke url="${bes.http.url}/oscm-portal/service/publish.jsf" />
+      <setSelectField name="editForm:selectedServiceId" optionIndex="0" />
+      <setSelectField name="editForm:selectedServiceId" text="svccopy" />
+      <setSelectField htmlId="editForm:marketplace" text="Local Marketplace(${mId})" />
+      <clickButton label="${button.save}" />
+      <!-- Go to activation page: Check that copied service has really been published to local MP -->
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <storeXPath description="Get row for service" xpath="//tbody[@id='serviceDeActivationForm:activationTable:tb']/tr/td/span[.= 'svccopy']/@id" property="rowID" />
+      <storeXPath property="row" xpath="substring-before(substring-after('#{rowID}', 'serviceDeActivationForm&#58;activationTable&#58;'), ':')" />
+      <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:#{row}:active" checked="false" />
+      <verifyElementText htmlId="serviceDeActivationForm:activationTable:#{row}:marketplace" text="Local Marketplace" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8002" depends="init">
+    <webtest name="Bug 8002: check page changed warning on switching free/my price model.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <service.copy serviceId="ExampleProfessional" newServiceId="8002_1" />
+      <service.copy serviceId="ExampleProfessional" newServiceId="8002_2" />
+      <!-- goto price model page and set descriptions -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_1" />
+      <!-- test description instead of short description in old test -->
+      <common.setEditorValue htmlId="editForm:priceModelDescription" value="8002_1" />
+      <clickButton label="${button.save}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_2" />
+      <common.setEditorValue htmlId="editForm:priceModelDescription" value="8002_2" />
+      <clickButton label="${button.save}" />
+      <!-- check that the invalid value is gone on switching free/my price model -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setInputField htmlId="editForm:oneTimeFee" value="xxx" />
+      <setRadioButton htmlId="editForm:isfree:0" />
+      <not>
+        <common.verifyError label="." />
+      </not>
+      <setRadioButton htmlId="editForm:isfree:1" />
+      <!-- invalid value must be gone -->
+      <not>
+        <verifyInputField htmlId="editForm:oneTimeFee" value="xxx" />
+      </not>
+      <!-- set an invalid value and switch to free - page changed warning expected and no validation error -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setInputField htmlId="editForm:oneTimeFee" value="xxx" />
+      <setRadioButton htmlId="editForm:isfree:0" />
+      <verifyRadioButton htmlId="editForm:isfree:0" checked="true" />
+      <verifyNoDialogs />
+      <login.logout />
+    </webtest>
+    <webtest name="Bug 8002: check that changing my/free price model makes page still dirty.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_2" />
+      <!-- make the page dirty -->
+      <setRadioButton htmlId="editForm:isfree:0" />
+      <!-- select the first service again and verify correct short description -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_1" />
+      <verifyNoDialogs />
+      <login.logout />
+    </webtest>
+    <webtest name="Bug 8002: check that correct values are displayed.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_2" />
+      <!-- make the page dirty -->
+      <setRadioButton htmlId="editForm:isfree:0" />
+      <!-- select the first service again and verify correct price model description instead of short description -->
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_1" />
+      <verifyTextarea htmlId="editForm:priceModelDescription:inp" text="8002_1" regex="true" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_2" />
+      <verifyTextarea htmlId="editForm:priceModelDescription:inp" text="8002_2" regex="true" />
+      <login.logout />
+    </webtest>
+    <webtest name="Bug 8465: check that no page changed warning is shown after saving price model and switching service.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_2" />
+      <!-- make the page dirty -->
+      <setRadioButton htmlId="editForm:isfree:0" />
+      <clickButton label="${button.save}" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="8002_1" />
+      <not>
+        <!-- dialog must still be expected has none must have been shown -->
+        <verifyNoDialogs />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8246" depends="init">
+    <webtest name="Bug 8246: concurrently change user id, user must still be selectable after error">
+      <selectWebClient name="session1">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <!-- create a new user and select it in manage users -->
+        <user.register userId="changeUserConcurrently" />
+        <common.clickAndVerfyLink label="${user.list.title}" />
+        <clickElement xpath="//*[contains(@id, 'userId') and contains(.//text(),'#{uniqueUserId}')]" />
+      </selectWebClient>
+      <selectWebClient name="session2">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <!-- goto manage users and select the new one -->
+        <common.clickAndVerfyLink label="${user.list.title}" />
+        <clickElement xpath="//*[contains(@id, 'userId') and contains(.//text(),'#{uniqueUserId}')]" />
+      </selectWebClient>
+      <selectWebClient name="session1">
+        <!-- rename the user and save it -->
+        <setInputField htmlId="editForm:userId" value="#{uniqueUserId}1" />
+        <clickButton label="${button.save}" />
+        <login.logout />
+      </selectWebClient>
+      <selectWebClient name="session2">
+        <!-- try to rename the user - expects a concurrent modification exception and list must be updated so that the user 
+          is still selectable -->
+        <setInputField htmlId="editForm:userId" value="#{uniqueUserId}2" />
+        <clickButton label="${button.save}" />
+        <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+        <verifyProperty name="errorMsg" value="${ex.ConcurrentModificationException}" />
+        <verifyInputField htmlId="editForm:userId" value="#{uniqueUserId}2" />
+        <clickElement xpath="//*[contains(@id, 'userId') and contains(.//text(),'#{uniqueUserId}1')]" />
+        <verifyInputField htmlId="editForm:userId" value="#{uniqueUserId}1" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="Bug8466" depends="init">
+    <webtest name="Bug 8466: logout must work on insufficient authorities page.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <invoke url="${baseUrl}/operator/manageTimers.jsf" />
+      <common.verifyAuthorityError label="${insufficientAuthorities.toViewPage}" regex="false" />
+      <login.logout />
+      <verifyXPath xpath="//form[@id='loginForm']" />
+    </webtest>
+  </target>
+
+  <target name="Bug8457">
+    <webtest name="Bug 8457: keep the public service value of service even if marketplace which the service belongs deleted">
+      <mail.cleanInbox />
+      <!-- create new marketplace -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="newSupplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="newSupplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="newSupplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="MP_NAME" value="GMP" propertyType="ant" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <operator.createMarketplace ownerId="${newSupplierId}" baseurl="${bes.http.url}/oscm-portal" name="${MP_NAME}" mIdProperty="MPID_MP" />
+      <!-- create marketable services -->
+      <login.initialLoginAndChangePassword url="${newSupplierUrl}" userId="${newSupplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${MPID_MP}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <storeProperty name="SVC_ID" value="publicService" propertyType="ant" />
+      <common.ignorePageScriptError />
+      <service.define serviceId="${SVC_ID}" name="${SVC_ID}" marketplaceId="${MPID_MP}" publicService="true"/>
+      <storeProperty name="SVC_ID2" value="privateService" propertyType="ant" />
+      <service.define serviceId="${SVC_ID2}" name="${SVC_ID2}" marketplaceId="${MPID_MP}" publicService="false"/>
+      <login.logout />
+      <!-- delete marketplace -->
+      <operator.deleteMarketplaces marketplaceIds="${MPID_MP}" baseurl="${bes.http.url}/oscm-portal" />
+      <!-- check the checkbox of public service -->
+      <login.loginAsSupplier url="${newSupplierUrl}" userId="${newSupplierUserId}" password="${common.password}" />
+      <clickLink href="/service/publish.jsf" />
+      <setSelectField name="editForm:selectedServiceId" text="${SVC_ID}" />
+      <verifyCheckbox htmlId="editForm:publicServiceCheckBox" checked="true" />
+      <setSelectField name="editForm:selectedServiceId" text="${SVC_ID2}" />
+      <verifyCheckbox htmlId="editForm:publicServiceCheckBox" checked="false" />
+      <!-- crean up after test -->
+      <service.delete serviceId="${SVC_ID}" />
+      <service.delete serviceId="${SVC_ID2}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8302" depends="init">
+    <webtest name="Bug 8302: Suggestion box keeps last valid entry on 'Manage organizations'">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="PLATFORM_OPERATOR" />
+      <!-- make the page dirty -->
+      <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="non_existing_org" />
+      <clickElement htmlId="selectOrganizationForm:organizationSuggestionImage" />
+      <setInputField htmlId="manageOrganizationsForm:organizationName" value="new" />
+      <setSelectField htmlId="manageOrganizationsForm:organizationCountry" value="EC" />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.saved}" att0="PLATFORM_OPERATOR" />
+      <common.verifySuccess label="#{successMessageRegEx}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8529" depends="init">
+    <webtest name="Bug 8529: Check that no page changed warning is shown on 'Manage organizations'">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <common.clickAndVerfyLink label="${operator.manageOrganizations.title}" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="${supplierId}" />
+      <!-- (1) make the page dirty and save -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setInputField htmlId="manageOrganizationsForm:organizationDescription" value="some" />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+      <not>
+        <!-- verify no page changed warning pops up -->
+        <verifyNoDialogs />
+      </not>
+      <!-- (2) make the page dirty and click on 'Add' button -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setInputField htmlId="manageOrganizationsForm:organizationDescription" value="some data" />
+      <clickElement htmlId="manageOrganizationsForm:addPSPAccount" />
+      <not>
+        <!-- verify no page changed warning pops up -->
+        <verifyNoDialogs />
+      </not>
+      <!-- (3) make the page dirty and edit a row in the table -->
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      <setInputField htmlId="manageOrganizationsForm:organizationDescription" value="some more data" />
+      <clickElement htmlId="manageOrganizationsForm:paymentTypeTable:0:idCol" />
+      <not>
+        <!-- verify no page changed warning pops up -->
+        <verifyNoDialogs />
+      </not>
+      <clickElement htmlId="paymentTypeOrganizationEditForm:paymentTypeOrganizationEditConfirmButton" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug7791" depends="init">
+    <webtest name="Bug 7791 init: register supplier with 'SUPPLIER_SETS_INVOICE_AS_DEFAULT' set to 'true'.">
+      <mail.cleanInbox />
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <storeXPath property="inputFieldId" xpath="//td[text()='SUPPLIER_SETS_INVOICE_AS_DEFAULT']/..//input/@id" />
+      <setInputField htmlId="#{inputFieldId}" value="true" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifySuccess label="${info.configuration.saved}" />
+      <login.logout />
+    </webtest>
+    <webtest name="Bug 7791: register customer must not fail with 'SUPPLIER_SETS_INVOICE_AS_DEFAULT' set to 'true'.">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="Bug7791" orgName="Bug7791 Customer" />
+      <login.logout />
+    </webtest>
+    <webtest name="Bug 7791 cleanup: set 'SUPPLIER_SETS_INVOICE_AS_DEFAULT' back to ''.">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <storeXPath property="inputFieldId" xpath="//td[text()='SUPPLIER_SETS_INVOICE_AS_DEFAULT']/..//input/@id" />
+      <setInputField htmlId="#{inputFieldId}" value="" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifySuccess label="${info.configuration.saved}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="init">
+    <webtest name="Bug retesting: Setup environment">
+      <mail.cleanInbox />
+      <!-- Supplier -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="baseUrl" value="#{baseUrl}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <property name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <property name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey1" marketplaceId="${mId}" serviceId="ExampleTrial" name="Trial" description="Trial description" concurrentUser="3" namedUser="2" configurableChecked="true" />
+      <setup:service.define svcKeyProperty="svcKey2" marketplaceId="${mId}" serviceId="ExampleStarter" name="Starter" description="Starter description" />
+      <setup:service.define svcKeyProperty="svcKey3" marketplaceId="${mId}" serviceId="ExampleProfessional" name="Professional" description="Professional description" concurrentUser="10" configurableChecked="true" />
+      <setup:service.define svcKeyProperty="svcKey4" marketplaceId="${mId}" serviceId="ExampleProfessionalRoles" techServiceId="Example_with_roles 1.00" name="Professional with Role Support" configurablechecked="true" />
+      <setup:service.define svcKeyProperty="svcKey5" marketplaceId="${mId}" serviceId="ToMuchUsersTest" name="ToMuchUsersTest" description="ToMuchUsersTest" concurrentUser="1" namedUser="5" />
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleProfessionalRoles" isFree="false" />
+      <setup:pricemodel.define serviceId="ToMuchUsersTest" isFree="true" />
+      <setup:service.defineMigrationOptions serviceId="ExampleTrial" migrationTargetIds="ExampleStarter,ExampleProfessional" />
+      <setup:service.defineMigrationOptions serviceId="ExampleStarter" migrationTargetIds="ExampleTrial,ExampleProfessional" />
+      <setup:service.activate serviceIds="ExampleTrial,ExampleStarter,ExampleProfessional,ExampleProfessionalRoles,ToMuchUsersTest" />
+      <techservice.import file="data/TechnicalServices-EXTERNAL.xml" />
+      <setup:service.define svcKeyProperty="svcKey_8488" serviceId="EXT_8488" name="EXT_8488" techServiceId="ExampleExternalService" description="External service" marketplaceId="${mId}" useParameters="false" image="data/images/icon1.png" />
+      <setup:service.activate serviceIds="EXT_8488" />
+      <organization.managePayment rowNr="0" paymentType="cust0" />
+      <organization.managePayment rowNr="0" />
+      <setup:accountservice.registerCustomer supplierId="#{supplierId}" userId="${common.userId}" marketplaceId="${mId}" />
+      <login.logout />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <property name="customerUrl" value="#{orgUrl}" />
+      <property name="customerUserId" value="#{userId}" />
+      <property name="customerId" value="#{orgId}" />
+    </webtest>
+  </target>
+
+  <target name="Bug7788" depends="init">
+    <webtest name="Bug 7788: Operator UI Create Organization (e.g. company) validation differs from Edit profile validation.">
+      <mail.cleanInbox />
+      <!-- Log-in in operator portal. -->
+      <operatorPortal.login />
+      <!-- create an organization with a name containing special chars. -->
+      <operatorPortal.createOrganization name="TestGmb &amp; = * Co. K" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="supplierId" group="1" />
+      <!-- Manage an organization, giving a name with special chars, and check if it was saved successfully. -->
+      <operatorPortal.manageOrganization orgId="#{supplierId}" orgName="Test GmbH &amp; Co K" />
+      <login.logout />
+      <!-- Log-in as supplier. -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- goto Register Customer page, give and org name with special chars, and test if the org was saved successfully. -->
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+      <setInputField htmlId="editForm:email" value="bes@fujitsu.com" />
+      <user.createUniqueName userId="bes@fujitsu.ir" />
+      <setInputField htmlId="editForm:userId" value="#{uniqueUserId}" />
+      <setInputField htmlId="editForm:organizationEmail" value="bes@fujitsu.com" />
+      <setInputField htmlId="editForm:organizationPhone" value="0123456789" />
+      <setInputField htmlId="editForm:organizationUrl" value="http://bild.de" />
+      <setInputField htmlId="editForm:organizationName" value="TestGmb &amp; = * Co. K" />
+      <setSelectField htmlId="editForm:country" value="DE" />
+      <setSelectField name="editForm:marketplace" value="${mId}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="." />
+    </webtest>
+  </target>
+
+  <target name="Bug8442" depends="init">
+    <webtest name="Bug 8442: Operator UI: Missing field validation for organization name with blanks only.">
+      <mail.cleanInbox />
+      <!-- Operator: Test create organization page with missing and blank organization name -->
+      <operatorPortal.login />
+      <not>
+        <operatorPortal.createOrganization name="" />
+      </not>
+      <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <not>
+        <operatorPortal.createOrganization name="  " />
+      </not>
+      <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <!-- Operator: Test manage organization page with missing and blank organization name -->
+      <operatorPortal.createOrganization name="Bug8442 ORG" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+      <storeRegEx description="Extract supplier organization ID from success message" text="#{successMessageRegEx}" property="supplierId" group="1" />
+      <operatorPortal.manageOrganizationSelectOrg orgId="#{supplierId}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationName" value=" " />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+      <common.verifyFieldError fieldId="manageOrganizationsForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <!-- Operator: Check edit profile, for operator the organization name is optional here -->
+      <clickLink href="/organization/edit.jsf" />
+      <setInputField htmlId="editForm:organizationName" value=" " />
+      <clickButton htmlId="editForm:saveButton" />
+      <not>
+        <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      </not>
+      <login.logout />
+      <!-- Supplier: Check edit profile, for supplier the organization name is mandatory -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <invoke url="${baseUrl}/organization/edit.jsf" />
+      <setInputField htmlId="editForm:organizationName" value=" " />
+      <clickButton htmlId="editForm:saveButton" />
+      <common.verifyFieldError fieldId="editForm:organizationName" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8222" depends="init">
+    <webtest name="Bug 8222: logout when account is locked on pwd change">
+      <mail.cleanInbox />
+      <operator.createorganization userId="Bug8222" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <user.changePwd oldPwd="wrong_pwd" newPwd="doesn't matter" verifySuccess="false" />
+      <user.changePwd oldPwd="wrong_pwd" newPwd="doesn't matter" verifySuccess="false" />
+      <user.changePwd oldPwd="wrong_pwd" newPwd="doesn't matter" verifySuccess="false" />
+      <!-- now we must have been logged out and see the login screen -->
+      <verifyXPath xpath="//form[@id='loginForm']" />
+    </webtest>
+  </target>
+
+  <target name="Bug8218" depends="init">
+    <webtest name="Bug 8218: testServiceActivationConcurrency">
+      <testInfo type="DESCRIPTION"> Check the correct error message is displayed when the (de)selected service in the service
+        activation page has meanwhile been deleted
+      </testInfo>
+      <selectWebClient name="session1">
+        <setup:service.define marketplaceId="${mId}" serviceId="SERVICE_A" name="SERVICE_A" description="SERVICE_A" />
+        <setup:pricemodel.define serviceId="SERVICE_A" isFree="true" />
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <invoke url="${baseUrl}/service/activation.jsf" />
+        <common.clickAndVerfyLink label="${service.activation.title}" />
+        <storeXPath description="Get row for service" xpath="//tbody[@id='serviceDeActivationForm:activationTable:tb']/tr/td/span[.= 'SERVICE_A']/@id" property="rowID" />
+        <storeXPath property="row" xpath="substring-before(substring-after('#{rowID}', 'serviceDeActivationForm&#58;activationTable&#58;'), ':')" />
+        <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:#{row}:active" checked="false" />
+        <setCheckbox htmlId="serviceDeActivationForm:activationTable:#{row}:active" checked="true" />
+      </selectWebClient>
+      <selectWebClient name="session2">
+        <setup:service.delete serviceIds="SERVICE_A" deactivate="true" />
+      </selectWebClient>
+      <selectWebClient name="session1">
+        <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+        <!-- this was the wrong error message to be fixed with that bugfix -->
+        <common.handleMessageParameters property="stateErrorMessage" value="${ex.ServiceStateException}" att0="INACTIVE" att1="DELETED" />
+        <not>
+          <common.verifyError label="#{stateErrorMessage}" />
+        </not>
+        <!-- expected new error message and verify deleted service is not displayed any more -->
+        <verifyElementText htmlId="errorMessages" text="${error.service.noLonger.exists}" />
+        <not>
+          <verifyXPath xpath="//*[@id='serviceDeActivationForm:activationTable:tb']/tr/td[contains(span,'SERVICE_A')]" />
+        </not>
+      </selectWebClient>
+    </webtest>
+    <webtest name="Bug 8218: testServiceCopyConcurrency">
+      <testInfo type="DESCRIPTION"> Check the correct error message is displayed when a service to be copied has meanwhile
+        been deleted
+      </testInfo>
+      <selectWebClient name="session1">
+        <setup:service.define serviceId="SERVICE_B" name="SERVICE_B" description="SERVICE_B" />
+        <setup:pricemodel.define serviceId="SERVICE_B" isFree="true" />
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <!-- go to copy service page -->
+        <invoke url="${baseUrl}/service/copy.jsf" />
+        <!-- select SERVICE_B -->
+        <setSelectField htmlId="copyForm:selectedServiceId" text="SERVICE_B" />
+      </selectWebClient>
+      <selectWebClient name="session2">
+        <setup:service.delete serviceIds="SERVICE_B" deactivate="true" />
+      </selectWebClient>
+      <selectWebClient name="session1">
+        <clickLink htmlId="copyForm:copyButtonLink" />
+        <!-- this was the wrong error message to be fixed with that bugfix -->
+        <common.handleMessageParameters property="stateErrorMessage" value="${ex.ServiceStateException}" att0="ACTIVE, INACTIVE" att1="DELETED" />
+        <not>
+          <common.verifyError label="#{stateErrorMessage}" />
+        </not>
+        <!-- expected new error message and verify deleted service is not displayed any more -->
+        <verifyElementText htmlId="errorMessages" text="${error.service.deleted}" />
+        <not>
+          <verifyXPath xpath="//*[@id='serviceDeActivationForm:activationTable:tb']/tr/td[contains(span,'SERVICE_B')]" />
+        </not>
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <!-- FIXME: Ignore for fixing for 11061, should be fixed -->
+  <target name="Bug8319" depends="init">
+    <webtest name="Bug 8319: Cannot export texts configuration.">
+      <operator.createMarketplace mIdProperty="mIdBug8319" baseurl="${baseUrl}" name="Local Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mIdBug8319}" />
+      <!-- create text -->
+      <storeProperty property="text" value="0" eval="true" />
+      <common.createString length="32767" property="text" />
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <invoke url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mIdBug8319}" />
+      <!-- valid text length -->
+      <customize.termsAndPrivacyPolicy mId="${mIdBug8319}" terms="Terms" privacyPolicy="Privacy policy" />
+      <!-- 3 UI texts for 1 languages successfully saved. -->
+      <common.verifySuccess label="3.*1" />
+      <!-- invalid text length terms -->
+      <!-- the generated text should be 32767 bytes/characters but in reality it is 32774 bytes -->
+      <customize.termsAndPrivacyPolicy mId="${mIdBug8319}" terms="#{text}" privacyPolicy="123" />
+      <common.initializeDataDrivenErrorMessage errormsg="${ex.ValidationException.LENGTH_TEXT}" att0="${public.terms.error.msg}" att1="32774" att2="32767" />
+      <common.verifyError label="${expectedMessage}" regex="false" />
+      <!-- text must be not cut -->
+      <common.verifyEditorValue htmlId="exportForm:terms" value="XXXXZ" regex="true" />
+      <common.verifyEditorValue htmlId="exportForm:privacypolicy" value="123" regex="false" />
+      <!-- invalid text length privacy policy -->
+      <customize.termsAndPrivacyPolicy mId="${mIdBug8319}" terms="123" privacyPolicy="#{text}" />
+      <common.initializeDataDrivenErrorMessage errormsg="${ex.ValidationException.LENGTH_TEXT}" att0="${public.privacypolicy.error.msg}" att1="32774" att2="32767" />
+      <common.verifyError label="${expectedMessage}" regex="false" />
+      <common.verifyEditorValue htmlId="exportForm:terms" value="123" regex="false" />
+      <!-- text must be not cut -->
+      <common.verifyEditorValue htmlId="exportForm:privacypolicy" value="XXXXZ" regex="true" />
+      <!-- valid text length -->
+      <customize.termsAndPrivacyPolicy mId="${mIdBug8319}" terms="Terms" privacyPolicy="Privacy policy" />
+      <!-- 3 UI texts for 1 languages successfully saved. -->
+      <common.verifySuccess label="3.*1" />
+      <login.logout />
+      <operator.deleteMarketplaces marketplaceIds="${mIdBug8319}" />
+    </webtest>
+  </target>
+
+  <target name="Bug8335" depends="init">
+    <webtest name="Bug 8335: dont show deleted services in managePayments configuration page">
+      <selectWebClient name="user1">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+        <setup:service.define serviceId="Bug8335" name="Bug8335" description="Bug8335 description" configurableChecked="true" />
+        <setup:pricemodel.define serviceId="Bug8335" isFree="false" />
+        <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+        <storeXPath xpath="count(//*[@id='managePayment:serviceTable:tb']/tr)" property="numberOfServicesInTable" />
+      </selectWebClient>
+      <selectWebClient name="user2">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <!-- delete a service -->
+        <service.delete serviceId="Bug8335" />
+      </selectWebClient>
+      <selectWebClient name="user1">
+        <common.reloadCurrentPage />
+        <not>
+          <verifyXPath xpath="count(//*[@id='managePayment:serviceTable:tb']/tr)" text="#{numberOfServicesInTable}" />
+        </not>
+        <not>
+          <verifyXPath xpath="//*[@id='managePayment:serviceTable:tb']//*[contains(text(),'${ServiceStatus.DELETED}')]" />
+        </not>
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="Bug8392" depends="init">
+    <webtest name="Bug8392: user friendly error message when trying to delete active service ">
+      <testInfo type="DESCRIPTION"> a service with a user specific price model cannot be deleted when active (1) disable
+        delete button if customer specific service is active (2) if service is concurrently activated: a user friendly
+        error message should be displayed
+      </testInfo>
+      <selectWebClient name="A">
+        <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+        <operator.createMarketplace ownerId="${supplierId}" baseurl="${baseUrl}" name="MP_8392" mIdProperty="Bug8392mId" />
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <landingpage.setSortOrderForLandingpage mId="${Bug8392mId}" />
+
+        <!-- create a service -->
+        <common.ignorePageScriptError />
+        <invoke url="${baseUrl}/service/add.jsf" />
+        <setSelectField htmlId="editForm:techServiceId" text="Example 1.00" />
+        <setInputField name="editForm:serviceId" value="SERVICE_Bug8392" />
+        <setInputField name="editForm:serviceShortDescription" value="SERVICE_Bug8392 beschreibung" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <invoke url="${baseUrl}/service/publish.jsf" />
+        <setSelectField htmlId="editForm:selectedServiceId" optionIndex="0" />
+        <setSelectField htmlId="editForm:selectedServiceId" text="SERVICE_Bug8392" />
+        <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        <clickLink htmlId="editForm:saveButton" />
+        <!-- define customer specific price model -->
+        <invoke url="${baseUrl}/priceModel/customerPriceModel.jsf" />
+        <clickLink htmlId="editForm:saveButton" />
+        <!-- activate service -->
+        <invoke url="${baseUrl}/service/activation.jsf" />
+        <setCheckbox name="serviceDeActivationForm:activationTable:1:active" />
+        <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+        <common.verifySuccess label="${info.service.statesaved}" />
+        <!-- goto delete page and select service -->
+        <invoke url="${baseUrl}/service/delete.jsf" />
+        <setSelectField name="selectForm:serviceId" text="SERVICE_Bug8392" />
+        <!-- (1) verify delete button is disabled -->
+        <verifyXPath xpath="//*[@id='deleteForm:deleteButtonDisabled' and @class='buttonDisabled']" />
+        <!-- (2) deactivate service -->
+        <invoke url="${baseUrl}/service/activation.jsf" />
+        <setCheckbox name="serviceDeActivationForm:activationTable:1:active" checked="false" />
+        <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+        <common.verifySuccess label="${info.service.statesaved}" />
+        <invoke url="${baseUrl}/service/delete.jsf" />
+        <setSelectField name="selectForm:serviceId" text="SERVICE_Bug8392" />
+        <common.waitForJavaScript />
+        <!-- verify delete button is now enabled -->
+        <not>
+          <verifyXPath xpath="//*[@id='deleteForm:deleteButton' and @class='buttonDisabled']" />
+        </not>
+      </selectWebClient>
+      <selectWebClient name="B">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+        <invoke url="${baseUrl}/service/activation.jsf" />
+        <setCheckbox name="serviceDeActivationForm:activationTable:1:active" checked="true" />
+        <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+        <common.verifySuccess label="${info.service.statesaved}" />
+      </selectWebClient>
+      <selectWebClient name="A">
+        <common.ignorePageScriptError />
+        <clickLink htmlId="deleteForm:deleteButton" />
+        <clickLink htmlId="confirmForm:okButton" />
+        <clickButton htmlId="deleteForm:confirmedButton" />
+        <common.handleMessageParameters property="errMsg" value="${error.service.cannot.delete.active}" att0="${ServiceStatus.ACTIVE}" />
+        <common.verifyError label="#{errMsg}" regex="false" />
+        <!-- cleanup -->
+        <invoke url="${baseUrl}/service/activation.jsf" />
+        <setCheckbox name="serviceDeActivationForm:activationTable:1:active" checked="false" />
+        <setCheckbox name="serviceDeActivationForm:activationTable:0:active" checked="false" />
+        <clickLink htmlId="serviceDeActivationForm:deActivateButtonLink" />
+        <common.verifySuccess label="${info.service.statesaved}" />
+        <invoke url="${baseUrl}/service/delete.jsf" />
+        <setSelectField name="selectForm:serviceId" text="SERVICE_Bug8392" />
+        <clickLink htmlId="deleteForm:deleteButton" />
+        <clickLink htmlId="confirmForm:okButton" />
+        <clickButton htmlId="deleteForm:confirmedButton" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <target name="Bug8688">
+    <webtest name="Bug 8688: use correct URL substitution in case of using a technical service with HTTPS base URL">
+      <config useInsecureSSL="true" />
+      <testInfo type="DESCRIPTION"> Test if the URL processing for services which use HTTPS as base url works properly this
+        includes: 1.) The URL substitution in all service links must use the HTTPS base url 2.) Navigating a HTTPS
+        service url must not trigger a error
+      </testInfo>
+      <mail.cleanInbox />
+      <!-- setup Supplier, Marketplace and Service -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <login.logout />
+      <operator.createMarketplace mIdProperty="mpId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:techservice.import file="data/TechnicalServices-HTTPS.xml" />
+      <setup:service.define svcKeyProperty="svcKeyHttps" marketplaceId="${mpId}" techServiceId="Example 1.0 HTTPS" serviceId="ExampleHTTPS" name="Example HTTPS" description="This servic uses a HTTPS URL as BASE_URL." concurrentUser="3" namedUser="2" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ExampleHTTPS" isFree="true" />
+      <setup:service.activate serviceIds="ExampleHTTPS" />
+      <!-- supplier, create subscription and assing a new user to it -->
+      <login.loginAsSupplier url="#{baseUrl}" userId="#{userId}" />
+      <landingpage.setSortOrderForLandingpage mId="${mpId}" />
+
+      <user.register userId="usera" isSvcMgr="true" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="useraId" value="#{userId}" propertyType="dynamic" />
+      <storeProperty name="userOrgUrl" value="#{baseUrl}" propertyType="dynamic" />
+      <setup:subscription.create subId="Bug8688" marketplaceId="${mpId}" serviceKey="${svcKeyHttps}" userIds="#{useraId}" />
+      <common.ignorePageScriptError />
+      <invoke url="#{userOrgUrl}" />
+      <login.logout />
+      <!-- Check if the URL in the email contains a https URL -->
+      <mail.readServiceUrlFromMail subId="Bug8688" />
+      <verifyProperty name="serviceUrl" text="^https" regex="true" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mpId}" />
+      <!-- check the link element on the "use a service" page and the "select button" -->
+      <mpl_goto.page relpath="/subscriptions/index.jsf" mid="${mpId}" />
+      <verifyElementText description="Verify url" htmlId="subscription0ServiceUrl" text="#{serviceUrl}" />
+      <clickLink htmlId="use0" />
+      <!-- check if it's possible to navigate to the service URL -->
+      <invoke url="#{serviceUrl}" />
+      <!--verifyTitle text="Mock Product" /-->
+      <invoke url="#{orgUrl}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8763" depends="init">
+    <webtest name="Bug 8763 show unmodified userId in delete success message">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <!-- setup: create a user with userid="Bug8763_userid" -->
+      <user.register userId="Bug8763_user1" />
+      <clickLink href="/user/list.jsf" />
+      <clickElement xpath="//*[@id='userListForm:userListTable']//*[contains(text(),'user1')]" />
+      <common.waitForJavaScript />
+      <setInputField name="editForm:userId" value="Bug8763_userid" />
+      <clickLink description="Click link: Save" htmlId="editForm:saveButtonLink" />
+      <!-- now test delete with other values typed in field userid -->
+      <clickElement xpath="//*[@id='userListForm:userListTable']//*[contains(text(),'Bug8763_userid')]" />
+      <common.waitForJavaScript />
+      <setInputField name="editForm:userId" value="XXXXX" />
+      <clickLink htmlId="editForm:deleteButton" />
+      <clickButton label="Delete" />
+      <common.handleMessageParameters property="wrongMessage" value="${info.user.deleted}" att0="XXXXX" />
+      <not>
+        <common.verifySuccess label="#{wrongMessage}" />
+      </not>
+      <common.handleMessageParameters property="infoMsg" value="${info.user.deleted}" att0="Bug8763_userid" />
+      <common.verifySuccess label="#{infoMsg}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug8599" depends="init">
+    <webtest name="Bug8599: password consisting of spaces must be accepted">
+      <mail.cleanInbox />
+      <operator.createorganization userId="sixSpacesPwdUser" />
+      <mail.readPasswordAndUrlFromMail />
+      <invoke url="#{orgUrl}" />
+      <setInputField name="userId" value="#{userId}" />
+      <setInputField name="password" value="#{userPwd}" />
+      <clickButton label="${button.login}" />
+      <!-- change pwd to 8 spaces -->
+      <verifyElementText htmlId="pagelabel" text="${public.pwd.title}" description="we should see the panel title :${public.pwd.title}" />
+      <setInputField htmlId="passwordform:currentPassword" value="#{userPwd}" />
+      <setInputField htmlId="passwordform:password" value="        " />
+      <setInputField htmlId="passwordform:password2" value="        " />
+      <clickLink htmlId="passwordform:changeButtonLink" />
+      <!-- change pwd to 6 spaces -->
+      <user.changePwd oldPwd="        " newPwd="      " />
+      <login.logout />
+      <!-- test login with password consisting of whitespaces -->
+      <login.login url="#{orgUrl}" userId="#{userId}" password="      " />
+      <login.logout />
+    </webtest>
+  </target>
+
+
+  <target name="Bug9023" depends="init">
+
+    <webtest name="Bug9023: setDirtyOnChangeMarketplace_concurrency">
+      <!-- (1) -->
+      <selectWebClient name="ADMIN">
+        <operator.createorganization />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="supplierUrl" value="#{orgUrl}" />
+        <storeProperty name="supplierId9023" value="#{orgId}" />
+        <storeProperty name="supplierUserId9023" value="#{userId}" />
+        <storeProperty name="supplierUserKey9023" value="#{userKey}" />
+        <operator.createMarketplace ownerId="#{supplierId9023}" baseurl="#{baseUrl}" name="ML" open="true" mIdProperty="MPL_ID" />
+        <testInfo type="MPL_ID" info="${MPL_ID}" />
+      </selectWebClient>
+      <!--(2) -->
+
+      <selectWebClient name="SUPPLIER_A">
+        <common.ignorePageScriptError />
+        <login.initialLoginAndChangePassword url="${supplierUrl}" userId="#{supplierUserId9023}" password="#{userPwd}" />
+        <!-- add categories -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/manageCategories.jsf" />
+        <setSelectField name="marketplaceSelectForm:selectMarketplaceId" value="${MPL_ID}" />
+        <clickLink description="Click link: Add" htmlId="categoriesForm:addNewCategoryLink" />
+        <setInputField name="categoriesForm:categoriesTable:0:categoryId" value="c1" />
+        <setInputField name="categoriesForm:categoriesTable:0:localizedValue" value="c1" />
+        <clickLink description="Click link: Add" htmlId="categoriesForm:addNewCategoryLink" />
+        <setInputField name="categoriesForm:categoriesTable:1:categoryId" value="c2" />
+        <setInputField name="categoriesForm:categoriesTable:1:localizedValue" value="c2" />
+        <clickLink description="Click link: Save" htmlId="categoriesForm:saveButton" />
+        <!-- add techservice -->
+        <invoke url="${bes.http.url}/oscm-portal/techservice/add.jsf" />
+
+        <setSelectField name="editForm:accessType" text="External access" />
+        <setInputField htmlId="editForm:technicalServiceId" value="ts1" />
+        <setInputField name="editForm:baseUrl" value="http://dummyhost" />
+
+        <clickLink description="Click link: Save" htmlId="editForm:saveButtonLink" />
+
+        <!-- add service-->
+        <invoke url="${bes.http.url}/oscm-portal/service/add.jsf" />
+        <setSelectField name="editForm:techServiceId" optionIndex="1" />
+        <setInputField name="editForm:serviceId" value="SERVICE_ID" />
+        <setInputField name="editForm:serviceShortDescription" value="SERVICE_ID" />
+        <clickLink description="Click link: Save" htmlId="editForm:saveButtonLink" />
+        <invoke url="${bes.http.url}/oscm-portal/service/publish.jsf" />
+        <setSelectField name="editForm:selectedServiceId" optionIndex="0" />
+        <setSelectField name="editForm:selectedServiceId" text="SERVICE_ID" />
+        <setSelectField htmlId="editForm:marketplace" value="${MPL_ID}" />
+      </selectWebClient>
+      <!-- (3) add to black list -->
+
+      <selectWebClient name="SUPPLIER_B">
+        <login.loginAsSupplier url="${supplierUrl}" userId="#{supplierUserId9023}" password="${common.password}" />
+        <invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+        <testInfo type="MPL_ID" info="${MPL_ID}" />
+        <setSelectField name="marketplaceSelectForm:selectMarketplaceId" value="${MPL_ID}" />
+        <setInputField htmlId="addSupplierForm:supplierId" value="#{supplierId9023}" />
+        <clickElement description="Click 'exclude'" htmlId="addSupplierForm:addSupplierButton" />
+        <clickElement description="Click 'yes' in confirm dialog" htmlId="addForm:okButton" />
+      </selectWebClient>
+
+      <!-- (4)  define a service in ML -->
+      <selectWebClient name="SUPPLIER_A">
+        <common.ignorePageScriptError />
+        <clickLink description="Click link: Save" htmlId="editForm:saveButton" />
+        <!--clickElement htmlId="editForm:confirmedButton" /-->
+        <!-- verify error message -->
+        <common.handleMessageParameters property="errMsg" value="${error.text.fields}" />
+        <common.verifyError label="#{errMsg}" regex="false" />
+      </selectWebClient>
+
+      <!-- (5) remove from black list -->
+      <selectWebClient name="SUPPLIER_B">
+        <invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+        <setSelectField name="marketplaceSelectForm:selectMarketplaceId" value="${MPL_ID}" />
+        <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" />
+        <clickElement htmlId="removeSuppliersForm:deleteButton" />
+      </selectWebClient>
+
+      <!-- (6) try again -->
+      <selectWebClient name="SUPPLIER_A">
+        <common.ignorePageScriptError />
+        <invoke url="${bes.http.url}/oscm-portal/service/add.jsf" />
+        <setSelectField name="editForm:techServiceId" optionIndex="1" />
+        <setInputField name="editForm:serviceId" value="SERVICE_ID2" />
+        <setInputField name="editForm:serviceShortDescription" value="SERVICE_ID2" />
+        <clickLink description="Click link: Save" htmlId="editForm:saveButtonLink" />
+        <invoke url="${bes.http.url}/oscm-portal/service/publish.jsf" />
+        <setSelectField name="editForm:selectedServiceId" optionIndex="0" />
+        <setSelectField name="editForm:selectedServiceId" text="SERVICE_ID2" />
+        <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        <clickLink description="Click link: Save" htmlId="editForm:saveButton" />
+        <common.handleMessageParameters property="infoMsg" value="${info.service.saved}" att0="SERVICE_ID2" />
+        <common.verifySuccess label="#{infoMsg}" />
+      </selectWebClient>
+
+    </webtest>
+
+    <webtest name="Bug9023: cleanup">
+      <operator.deleteMarketplaces marketplaceIds="${MPL_ID}" baseurl="${bes.http.url}/oscm-portal" />
+    </webtest>
+  </target>
+
+  <target name="Bug8904">
+    <webtest name="Bug8904: control view subscription page with terminating subscription concurrently">
+      <!-- setup -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl_8904" value="#{orgUrl}" />
+      <storeProperty name="supplierId_8904" value="#{orgId}" />
+      <storeProperty name="supplierUserId_8904" value="#{userId}" />
+      <storeProperty name="supplierUserKey_8904" value="#{userKey}" />
+      <operator.createMarketplace ownerId="#{supplierId_8904}" mIdProperty="Bug8904mId" name="Global Marketplace" />
+      <login.initialLoginAndChangePassword url="#{supplierUrl_8904}" userId="#{supplierUserId_8904}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug8904mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <login.logout />
+      <setup:store.settings userkey="#{supplierUserKey_8904}" password="${common.password}" />
+      <setup:service.define serviceId="service1" name="service1" description="desc service1" marketplaceId="${Bug8904mId}" />
+      <setup:pricemodel.define serviceId="service1" isFree="true" />
+      <setup:service.activate serviceIds="service1" />
+      <mail.cleanInbox />
+      <setup:accountservice.registerCustomer supplierId="#{supplierId_8904}" userId="customer" marketplaceId="${Bug8904mId}" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <storeProperty name="customerUserId_8904" value="${createdUserId}" />
+      <!-- test -->
+      <selectWebClient name="CUSTOMER" description="create subscription">
+        <mpl_login.user mid="${Bug8904mId}" userId="#{customerUserId_8904}" />
+        <mpl_goto.account />
+        <mpl_service.subscribe mid="${Bug8904mId}" index="0" />
+      </selectWebClient>
+      <selectWebClient name="SUPPLIER" description="open view subscription page">
+        <login.loginAsSupplier url="#{supplierUrl_8904}" userId="#{supplierUserId_8904}" password="${common.password}" />
+        <common.clickAndVerfyLink label="${subscription.view.title}" />
+      </selectWebClient>
+      <selectWebClient name="CUSTOMER" description="remove subscription concurrently">
+        <mpl_subscription.unsubscribe />
+        <mpl_login.logout />
+      </selectWebClient>
+      <selectWebClient name="SUPPLIER" description="select the subscription removed cuncurrently">
+        <clickElement xpath="//*[@id='subscriptionListForm:subListTable:0:subscriptionId']" />
+        <common.handleMessageParameters property="errorMsg" value="${error.subscription.notAccessible}" att0="service1" />
+        <common.verifyError label="#{errorMsg}" />
+        <not>
+          <verifyXPath xpath="//option[contains(@value,'service1')]" />
+        </not>
+        <login.logout />
+      </selectWebClient>
+      <!-- clean up -->
+      <operator.deleteMarketplaces marketplaceIds="${Bug8904mId}" baseurl="${bes.http.url}/oscm-portal" />
+    </webtest>
+  </target>
+
+  <!-- Required indicators for mandatory controls must no be shown in case input it is obvously required.  -->
+  <target name="Bug9454" depends="init">
+    <webtest name="Bug 9454: Required indicators for mandatory controls must no be shown in case input it is obvously required. ">
+      <!-- login as supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <!-- Check goto marketplace page -->
+      <clickLink description="Goto goto marketplace page" href="/oscm-portal/shop/gotoMarketplace.jsf" />
+      <this.checkMandatoryIndicator label="${service.marketplace}" mandatory="false" />
+
+      <!-- Check manage categories page -->
+      <clickLink description="Goto manage categories page" href="/oscm-portal/shop/manageCategories.jsf" />
+      <this.checkMandatoryIndicator label="${service.marketplace}" mandatory="false" />
+
+      <!-- Check manage suppliers page -->
+      <clickLink description="Goto manage suppliers page" href="/shop/manageSuppliers.jsf" />
+      <this.checkMandatoryIndicator label="${service.marketplace}" mandatory="false" />
+
+      <!-- Check update marketplace page -->
+      <clickLink description="Goto update marketplace page" href="/shop/updateMarketplace.jsf" />
+      <this.checkMandatoryIndicator label="${service.marketplace}" mandatory="false" />
+
+      <!-- Check customize branding page -->
+      <clickLink description="Goto customize brand page" href="/shop/customizeBrand.jsf" />
+      <this.checkMandatoryIndicator label="${service.marketplace}" mandatory="false" />
+    </webtest>
+  </target>
+
+  <target name="Bug9833">
+    <webtest name="Bug 9833:  No english-localized value is used in case no language-specific value is provided .">
+      <common.ignorePageScriptError />
+      <!--setup-->
+      <mail.cleanInbox />
+      <!-- setup Supplier, Marketplace and Service -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <operator.createMarketplace ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="Bug9833mId" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug9833mId}" />
+
+      <!-- Set some text for DE locale -->
+      <operator.edit.locale description="set operator locale to en" locale="en" successText="${info.user.profileSaved}" />
+      <customize.termsAndPrivacyPolicy mId="${Bug9833mId}" locale="en" terms="EN1" privacyPolicy="EN2" />
+      <customize.termsAndPrivacyPolicy mId="${Bug9833mId}" locale="de" terms="DE1" privacyPolicy="DE2" />
+
+      <operator.edit.locale description="set operator locale to DE" locale="de" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <this.editEmptyDescription noDescription="true" />
+      <!--check organization description-->
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <verifyTextarea htmlId="editForm:organizationDescription" text="This is a technical provider and supplier" />
+      <mpl_goto.marketplace mid="${Bug9833mId}" />
+
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/terms/terms.jsf?mId=${Bug9833mId}" />
+      <verifyElementText htmlId="termDescription" text="DE1" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/terms/privacypolicy.jsf?mId=${Bug9833mId}" />
+      <verifyElementText htmlId="privacypolicyDescription" text="DE2" />
+
+      <!-- Set empty text for DE locale -->
+      <operator.edit.locale description="set operator locale to en" locale="en" successText="${info.user.profileSaved}" />
+      <customize.termsAndPrivacyPolicy mId="${Bug9833mId}" locale="de" terms=" " privacyPolicy=" " />
+
+      <operator.edit.locale description="set operator locale to DE" locale="de" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/terms/terms.jsf?mId=${Bug9833mId}" />
+      <verifyElementText htmlId="termDescription" text="Geben Sie den Text Ihrer allgemeinen Geschäftsbedingungen ein." />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/terms/privacypolicy.jsf?mId=${Bug9833mId}" />
+      <verifyElementText htmlId="privacypolicyDescription" text="Geben Sie den Text Ihrer Datenschutzerklärung ein." />
+
+      <login.logout />
+      <operator.deleteMarketplaces marketplaceIds="${mIdBug9833}" />
+    </webtest>
+  </target>
+
+  <target name="Bug9885">
+    <webtest name="Bug 9885:  Register service definition: do not use Proxy access as default.">
+      <!--setup-->
+      <mail.cleanInbox />
+      <!-- setup Supplier, Marketplace and Service -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="Bug9885mId" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug9885mId}" />
+
+      <!-- set locale to english -->
+      <operator.edit.locale description="set operator locale to en" locale="en" successText="${info.user.profileSaved}" />
+      <invoke url="${bes.http.url}/oscm-portal/techservice/add.jsf" />
+
+      <!-- verify default is 'select one...' -->
+      <verifySelectField htmlId="editForm:accessType" value="" />
+
+      <!-- verify it is a required field -->
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.verifyFieldError fieldId="editForm:accessType" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <!-- by change of accessType, required message must be gone -->
+      <setSelectField htmlId="editForm:accessType" value="DIRECT" />
+      <common.verifyFieldError_Empty fieldId="editForm:accessType" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.verifyFieldError fieldId="editForm:provisioningUrl" label="${javax.faces.component.UIInput.REQUIRED}" />
+      <setSelectField htmlId="editForm:accessType" value="" />
+      <not description="Verify provisioning url is not rendered">
+        <verifyXPath xpath="//input[@id='editForm:provisioningUrl']" />
+      </not>
+      <login.logout />
+      <operator.deleteMarketplaces marketplaceIds="${Bug9885mId}" />
+    </webtest>
+  </target>
+
+  <target name="Bug10688">
+    <webtest name="Bug10688: check subscription and customer information on View subscriptions,Terminate subscription,Manage subscription attributes page">
+      <!-- setup -->
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl_10688" value="#{orgUrl}" />
+      <storeProperty name="supplierId_10688" value="#{orgId}" />
+      <storeProperty name="supplierUserId_10688" value="#{userId}" />
+      <storeProperty name="supplierUserKey_10688" value="#{userKey}" />
+      <storeProperty name="customerName_10688" value="customer_10688" />
+      <operator.createMarketplace ownerId="#{supplierId_10688}" mIdProperty="Bug10688mId" name="Global Marketplace" />
+      <login.initialLoginAndChangePassword url="#{supplierUrl_10688}" userId="#{supplierUserId_10688}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug10688mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+      <login.logout />
+      <setup:store.settings userkey="#{supplierUserKey_10688}" password="${common.password}" />
+      <storeProperty name="serviceId_10688" value="serviceId" />
+      <storeProperty name="serviceName_10688" value="serviceName" />
+      <setup:service.define serviceId="#{serviceId_10688}" name="#{serviceName_10688}" description="desc service1" marketplaceId="${Bug10688mId}" />
+      <setup:pricemodel.define serviceId="#{serviceId_10688}" isFree="true" />
+      <setup:service.activate serviceIds="#{serviceId_10688}" />
+      <mail.cleanInbox />
+      <setup:accountservice.registerCustomer supplierId="#{supplierId_10688}" orgName="#{customerName_10688}" userId="customer" marketplaceId="${Bug10688mId}" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <storeProperty name="customerUserId_10688" value="${createdUserId}" />
+
+      <mpl_login.user mid="${Bug10688mId}" userId="#{customerUserId_10688}" />
+      <mpl_goto.account />
+      <mpl_service.subscribe mid="${Bug10688mId}" index="0" />
+      <mpl_login.logout />
+
+      <login.login url="#{supplierUrl_10688}" userId="#{supplierUserId_10688}" password="${common.password}" />
+
+      <clickLink href="/oscm-portal/subscription/terminate.jsf" />
+      <storexpath xpath="//td[matches(@id, 'subscriptionListForm:subListTable:0:customerId')]/text()" property="customerId" />
+      <clickElement htmlId="subscriptionListForm:subListTable:0:customerId" />
+      <verifyElementText htmlId="terminateForm:subscriptionText" text="#{serviceName_10688}" />
+      <verifyElementText htmlId="terminateForm:customerText" text="#{customerName_10688} (#{customerId})" />
+
+      <clickLink href="/oscm-portal/subscription/editUdas.jsf" />
+      <verifyElementText htmlId="subscriptionText" text="#{serviceName_10688}" />
+      <verifyElementText htmlId="customerText" text="#{customerName_10688} (#{customerId})" />
+
+      <clickLink href="/oscm-portal/subscription/view.jsf" />
+      <verifyElementText htmlId="viewForm:subscriptionText" text="#{serviceName_10688}" />
+      <verifyElementText htmlId="viewForm:customerText" text="#{customerName_10688} (#{customerId})" />
+      <login.logout />
+
+      <!-- clean up -->
+      <operator.deleteMarketplaces marketplaceIds="${Bug10688mId}" baseurl="${bes.http.url}/oscm-portal" />
+    </webtest>
+  </target>
+
+  <macrodef name="this.checkMandatoryIndicator">
+    <attribute name="label" />
+    <attribute name="mandatory" default="true" />
+    <sequential>
+      <verifyXPath xpath="contains(//*[@class='label']//text(), @{label})" />
+      <ifStep test="@{mandatory}">
+        <verifyXPath xpath=".//*[@class='label']/*[@class='mandatory']" />
+      </ifStep>
+      <ifStep test="not(@{mandatory})">
+        <not>
+          <verifyXPath xpath=".//*[@class='label']/*[@class='mandatory']" />
+        </not>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.editEmptyDescription">
+    <attribute name="noDescription" default="false" />
+    <sequential>
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <ifStep test="@{noDescription}">
+        <setInputField description="select description" htmlId="editForm:organizationDescription" value="" />
+      </ifStep>
+      <clickLink description="save" htmlId="editForm:saveButtonLink" />
+    </sequential>
+  </macrodef>
+
+</project>

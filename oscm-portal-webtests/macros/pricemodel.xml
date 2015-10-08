@@ -1,0 +1,676 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="pricemodel.define">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="isFree" default="true" />
+    <attribute name="basePrice" default="50" />
+    <attribute name="perUser" default="@{basePrice}" />
+    <attribute name="perSub" default="@{basePrice}" />
+    <attribute name="eventPrice" default="1" />
+    <attribute name="paramPrice" default="1" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="description" default="@{serviceId}" />
+    <attribute name="currency" default="EUR" />
+    <attribute name="pricingPeriods" default="Month" />
+    <attribute name="freePeriod" default="0" />
+    <attribute name="isPerTimeUnit" default="false" />
+    <attribute name="verifySuccess" default="true" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+      <pricemodel.setFree isFree="@{isFree}" />
+      <ifStep test="@{isPerTimeUnit}">
+        <then>
+          <setRadioButton htmlId="editForm:isfree:2" />
+        </then>
+      </ifStep>
+
+      <ifStep description="fill descriptions and prices if chargeable" unless="@{isFree}">
+        <then>
+          <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{description}" />
+          <setCheckbox htmlId="editForm:freePeriodAvailable" checked="true" />
+          <setInputField htmlId="editForm:freePeriod" value="@{freePeriod}" />
+          <setSelectField htmlId="editForm:currency" text="@{currency}" />
+          <setSelectField htmlId="editForm:sPricingPeriods" text="@{pricingPeriods}" />
+          <setInputField htmlId="editForm:oneTimeFee" value="@{basePrice}" />
+          <setInputField htmlId="editForm:recChargePerSubs" value="@{perSub}" />
+          <setInputField htmlId="editForm:recChargePerUser" value="@{perUser}" />
+
+          <storeProperty name="priceValue" value="@{eventPrice}" eval="true" />
+          <setInputField name="editForm:eventTable:0:price" value="#{priceValue}" />
+          <storeProperty name="priceValue" value="@{eventPrice}+1" eval="true" />
+          <setInputField name="editForm:eventTable:1:price" value="#{priceValue}" />
+
+          <storeProperty name="priceValue" value="@{paramPrice}" eval="true" />
+          <setInputField name="editForm:parameterTable:1:optionPricePerSubscription" value="#{priceValue}" />
+          <storeProperty name="priceValue" value="@{paramPrice}+1" eval="true" />
+          <setInputField name="editForm:parameterTable:2:optionPricePerSubscription" value="#{priceValue}" />
+          <storeProperty name="priceValue" value="@{paramPrice}+2" eval="true" />
+          <setInputField name="editForm:parameterTable:3:optionPricePerSubscription" value="#{priceValue}" />
+
+          <setInputField name="editForm:parameterTable:5:optionPricePerSubscription" value="@{paramPrice}" />
+          <setInputField name="editForm:parameterTable:6:optionPricePerSubscription" value="@{paramPrice}" />
+          <setInputField name="editForm:parameterTable:7:optionPricePerSubscription" value="@{paramPrice}" />
+
+          <setInputField name="editForm:parameterTable:8:pricePerSubscription" value="@{paramPrice}" />
+          <setInputField name="editForm:parameterTable:9:pricePerSubscription" value="@{paramPrice}" />
+          <setInputField name="editForm:parameterTable:10:pricePerSubscription" value="@{paramPrice}" />
+          <setInputField name="editForm:parameterTable:11:pricePerSubscription" value="@{paramPrice}" />
+        </then>
+        <else>
+          <not description="verify that parameter description is not displayed in free of charge case">
+            <common.verifyEditorValue htmlId="editForm:priceModelDescription" value=".*" regex="true" />
+          </not>
+          <not description="verify that any parameter price fields are not displayed in free of charge case">
+            <verifyInputField htmlId="editForm:oneTimeFee" value=".*" />
+            <verifyInputField htmlId="editForm:recChargePerSubs" value=".*" regex="true" />
+            <verifyInputField htmlId="editForm:recChargePerUser" value=".*" regex="true" />
+            <verifyInputField name="editForm:eventTable:0:price" value=".*" regex="true" />
+            <verifyInputField name="editForm:eventTable:1:price" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:1:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:2:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:3:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:4:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:5:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:6:optionPricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:7:pricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:8:pricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:9:pricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:10:pricePerSubscription" value=".*" regex="true" />
+            <verifyInputField name="editForm:parameterTable:11:pricePerSubscription" value=".*" regex="true" />
+          </not>
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <ifStep test="@{verifySuccess}">
+        <common.verifySuccess label="@{serviceId}" />
+      </ifStep>
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{serviceId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.defineForDirectAccess">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="isFree" default="true" />
+    <attribute name="basePrice" default="50" />
+    <attribute name="paramPrice" default="1" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <pricemodel.setFree isFree="@{isFree}" />
+      <not description="verify that charge per user is not displayed">
+        <verifyInputField htmlId="editForm:recChargePerUser" value=".*" regex="true" />
+      </not>
+      <not description="verify that login event is not displayed">
+        <verifyInputField htmlId="editForm:eventTable:0:price" value=".*" regex="true" />
+      </not>
+      <not description="verify that logout event is not displayed">
+        <verifyInputField htmlId="editForm:eventTable:1:price" value=".*" regex="true" />
+      </not>
+      <ifStep description="fill descriptions and prices if chargeable" unless="@{isFree}">
+        <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{serviceId}" />
+        <setInputField htmlId="editForm:oneTimeFee" value="@{basePrice}" />
+        <setInputField name="editForm:parameterTable:0:pricePerSubscription" value="#{paramPrice}" />
+        <setInputField name="editForm:parameterTable:1:pricePerSubscription" value="#{paramPrice}" />
+        <setInputField name="editForm:parameterTable:2:pricePerSubscription" value="#{paramPrice}" />
+        <setInputField name="editForm:parameterTable:3:pricePerSubscription" value="#{paramPrice}" />
+      </ifStep>
+      <not description="verify that parameter price per user is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:0:pricePerUser" value=".*" regex="true" />
+      </not>
+      <not description="verify that parameter price per user is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:1:pricePerUser" value=".*" regex="true" />
+      </not>
+      <not description="verify that parameter price per user is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:2:pricePerUser" value=".*" regex="true" />
+      </not>
+      <not description="verify that parameter price per user is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:3:pricePerUser" value=".*" regex="true" />
+      </not>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.defineForUserAccess">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="isFree" default="true" />
+    <attribute name="basePrice" default="50" />
+    <attribute name="paramPrice" default="1" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <pricemodel.setFree isFree="@{isFree}" />
+      <ifStep description="fill or verify descriptions and prices if chargeable" unless="@{isFree}">
+        <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{serviceId}" />
+        <verifyInputField htmlId="editForm:recChargePerUser" value=".*" regex="true" description="verify that charge per user is displayed" />
+        <not description="verify that login event is not displayed">
+          <verifyInputField htmlId="editForm:eventTable:0:price" value=".*" regex="true" />
+        </not>
+        <not description="verify that logout event is not displayed">
+          <verifyInputField htmlId="editForm:eventTable:1:price" value=".*" regex="true" />
+        </not>
+        <setInputField htmlId="editForm:oneTimeFee" value="@{basePrice}" />
+        <setInputField name="editForm:parameterTable:0:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:1:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:2:pricePerSubscription" value="@{paramPrice}" />
+        <verifyInputField htmlId="editForm:parameterTable:0:pricePerUser" value=".*" regex="true" description="verify that parameter price per user is displayed" />
+        <verifyInputField htmlId="editForm:parameterTable:1:pricePerUser" value=".*" regex="true" description="verify that parameter price per user is displayed" />
+        <verifyInputField htmlId="editForm:parameterTable:2:pricePerUser" value=".*" regex="true" description="verify that parameter price per user is displayed" />
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.defineForCustomer">
+    <attribute name="customerId" default="" />
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="isFree" default="false" />
+    <attribute name="basePrice" default="30" />
+    <attribute name="eventPrice" default="2" />
+    <attribute name="paramPrice" default="2" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="pmDesc" default="@{serviceId}" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.customer.title}" />
+      <storeProperty name="cust" value="@{customerId}" />
+      <ifStep description="Only select a customer if one is specified - otherwise the first one is selected by default">
+        <condition>
+          <verifyProperty name="cust" text="" regex="false" />
+        </condition>
+        <else>
+          <setSelectField htmlId="serviceSelectForm:customerSelection" value="@{customerId}" />
+        </else>
+      </ifStep>
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+      <pricemodel.setFree isFree="@{isFree}" />
+      <ifStep description="fill descriptions and prices if chargeable" unless="@{isFree}">
+        <!--common.setEditorValue htmlId="editForm:priceModelDescription" value="@{pmDesc}" /-->
+        <setInputField htmlId="editForm:priceModelDescription:inp" value="@{pmDesc}" />
+        <setInputField htmlId="editForm:oneTimeFee" value="@{basePrice}" />
+        <setInputField htmlId="editForm:recChargePerSubs" value="@{basePrice}" />
+        <setInputField htmlId="editForm:recChargePerUser" value="@{basePrice}" />
+
+        <setInputField name="editForm:eventTable:0:price" value="@{eventPrice}" />
+        <setInputField name="editForm:eventTable:1:price" value="@{eventPrice}" />
+
+        <setInputField name="editForm:parameterTable:1:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:2:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:3:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:5:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:6:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:7:optionPricePerSubscription" value="@{paramPrice}" />
+
+        <setInputField name="editForm:parameterTable:8:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:9:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:10:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:11:pricePerSubscription" value="@{paramPrice}" />
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{serviceId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.defineForSubscription">
+    <attribute name="subscriptionId" default="" />
+    <attribute name="currentIsFree" default="false" />
+    <attribute name="basePrice" default="10" />
+    <attribute name="eventPrice" default="3" />
+    <attribute name="paramPrice" default="3" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.subscription.title}" />
+      <storeProperty name="subid" value="@{subscriptionId}" />
+      <ifStep description="Only select a subscription if one is specified - otherwise the first one is selected by default">
+        <condition>
+          <verifyProperty name="subid" text="" regex="false" />
+        </condition>
+        <else>
+		  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'@{subscriptionId}')]" />
+        </else>
+      </ifStep>
+      <pricemodel.verifyDisabledFree currentIsFree="@{currentIsFree}" />
+      <ifStep description="fill descriptions and prices if chargeable" unless="@{currentIsFree}">
+        <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{serviceId}" />
+
+        <setInputField htmlId="editForm:recChargePerSubs" value="@{basePrice}" />
+        <setInputField htmlId="editForm:recChargePerUser" value="@{basePrice}" />
+
+        <setInputField name="editForm:eventTable:0:price" value="@{eventPrice}" />
+        <setInputField name="editForm:eventTable:1:price" value="@{eventPrice}" />
+
+        <setInputField name="editForm:parameterTable:1:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:2:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:3:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:5:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:6:optionPricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:7:optionPricePerSubscription" value="@{paramPrice}" />
+
+        <setInputField name="editForm:parameterTable:8:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:9:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:10:pricePerSubscription" value="@{paramPrice}" />
+        <setInputField name="editForm:parameterTable:11:pricePerSubscription" value="@{paramPrice}" />
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{subscriptionId}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{subscriptionId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.changeLicense">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="licenseText" default="This is the license agreement!" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+      <common.setEditorValue htmlId="editForm:license" value="@{licenseText}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{serviceId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.deleteForCustomer">
+    <attribute name="org" />
+    <attribute name="rowNr" default="0" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.customer.delete.title}" />
+      <setSelectField htmlId="customerPriceModelDeleteForm:customerSelection" text=".*@{org}.*" regex="true" />
+      <setCheckbox htmlId="customerPriceModelDeleteForm:deleteCustPM:@{rowNr}:markForDelete" checked="true" />
+      <clickButton label="${button.delete}" />
+      <clickElement htmlId="confirmForm:okButton" />
+      <common.verifySuccess label="@{org}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.addSteppedPricePerUser">
+    <attribute name="serviceId" default="ExampleProfessional" />
+    <sequential>
+      <pricemodel.addSteppedPrice serviceId="@{serviceId}" priceFieldId="editForm:recChargePerUser" addButtonId="editForm:addButton" rowNr="0" tableId="editForm:steppedPriceTable" steppedPriceFieldId="steppedPricePrice" limitFieldId="steppedPriceLimit" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.addSteppedPriceForEvent">
+    <attribute name="serviceId" default="ExampleProfessional" />
+    <attribute name="rowNr" default="4" />
+    <sequential>
+      <pricemodel.addSteppedPrice serviceId="@{serviceId}" priceFieldId="editForm:eventTable:@{rowNr}:price" addButtonId="editForm:eventTable:@{rowNr}:addButton" rowNr="@{rowNr}" tableId="editForm:eventTable" steppedPriceFieldId="eventSteppedPricePrice" limitFieldId="eventSteppedPriceLimit" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.addSteppedPriceForPrameter">
+    <attribute name="serviceId" default="ExampleProfessional" />
+    <attribute name="rowNr" default="8" />
+    <sequential>
+      <pricemodel.addSteppedPrice serviceId="@{serviceId}" priceFieldId="editForm:parameterTable:@{rowNr}:pricePerSubscription" addButtonId="editForm:parameterTable:@{rowNr}:addButton" rowNr="@{rowNr}" tableId="editForm:parameterTable" steppedPriceFieldId="parameterSteppedPricePrice" limitFieldId="parameterSteppedPriceLimit" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.addSteppedPrice">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="priceFieldId" default="editForm:recChargePerUser" />
+    <attribute name="addButtonId" default="editForm:addButton" />
+    <attribute name="rowNr" />
+    <attribute name="tableId" default="editForm:steppedPriceTable" />
+    <attribute name="steppedPriceFieldId" default="steppedPricePrice" />
+    <attribute name="limitFieldId" default="steppedPriceLimit" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+      <storeProperty name="rowNr" value="@{rowNr}" />
+
+      <setInputField name="@{priceFieldId}" value="10" />
+      <clickElement htmlId="@{addButtonId}" />
+
+      <!-- multible ajax call cause problems save the page to avoid this-->
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+
+      <clickElement htmlId="@{tableId}:#{rowNr}:addButton" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <setInputField name="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" value="8" />
+      <setInputField name="@{tableId}:#{rowNr}:@{limitFieldId}" value="100" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+
+      <clickElement htmlId="@{tableId}:#{rowNr}:addButton" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <setInputField name="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" value="6" />
+      <setInputField name="@{tableId}:#{rowNr}:@{limitFieldId}" value="200" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+
+      <clickElement htmlId="@{tableId}:#{rowNr}:addButton" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <setInputField name="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" value="4" />
+      <setInputField name="@{tableId}:#{rowNr}:@{limitFieldId}" value="400" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <setInputField name="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" value="3" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+
+      <storeProperty name="rowNr" value="@{rowNr}+1" eval="true" />
+      <setInputField name="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" value="6" />
+      <clickElement htmlId="@{tableId}:#{rowNr}:removeButton" />
+
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+
+      <!-- Verification -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+      <verifySteppedPrices rowNr="@{rowNr}" tableId="@{tableId}" steppedPriceFieldId="@{steppedPriceFieldId}" limitFieldId="@{limitFieldId}" />
+
+    </sequential>
+  </macrodef>
+
+  <!-- Verify that pressing the add button does not flush user input-->
+  <macrodef name="verifyAddingSteppedPrices">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="priceFieldId" default="editForm:recChargePerUser" />
+    <attribute name="addButtonId" default="editForm:addButton" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <setInputField name="editForm:eventTable:0:price" value="17.00" />
+      <clickElement htmlId="editForm:eventTable:0:addButton" />
+      <verifyInputField name="editForm:eventTable:0:eventSteppedPricePrice" value="17.00" />
+      <verifyInputField name="editForm:eventTable:1:eventSteppedPricePrice" value="17.00" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifySteppedPrices">
+    <attribute name="rowNr" />
+    <attribute name="tableId" />
+    <attribute name="steppedPriceFieldId" default="steppedPricePrice" />
+    <attribute name="limitFieldId" default="steppedPriceLimit" />
+    <sequential>
+      <storeProperty name="rowNr" value="@{rowNr}" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" text="10.00" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" text="6.00" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{limitFieldId}" text="200" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" text="4.00" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{limitFieldId}" text="400" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{steppedPriceFieldId}" text="3.00" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyBasePrices">
+    <sequential>
+      <verifyElementText htmlId="editForm:oneTimeFee" text="50.00" />
+      <verifyElementText htmlId="editForm:recChargePerSubs" text="50.00" />
+      <verifyElementText htmlId="editForm:recChargePerUser" text="50.00" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyEventPrices">
+    <attribute name="rowNr" />
+    <attribute name="tableId" default="editForm:eventTable" />
+    <attribute name="eventPriceFieldId" default="price" />
+    <sequential>
+      <storeProperty name="rowNr" value="@{rowNr}" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{eventPriceFieldId}" text="1.00" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{eventPriceFieldId}" text="2.00" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyParameterPrices">
+    <attribute name="rowNr" />
+    <attribute name="tableId" default="editForm:eventTable" />
+    <attribute name="priceFieldId" default="optionPricePerSubscription" />
+    <sequential>
+      <storeProperty name="rowNr" value="@{rowNr}" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{priceFieldId}" text="1.00" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{priceFieldId}" text="2.00" />
+      <storeProperty name="rowNr" value="#{rowNr}+1" eval="true" />
+      <verifyElementText htmlId="@{tableId}:#{rowNr}:@{priceFieldId}" text="3.00" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.defineRolePrices">
+    <attribute name="serviceId" default="MarketService1" />
+    <attribute name="basePrice" default="0" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <pricemodel.setFree isFree="false" />
+      <common.setEditorValue htmlId="editForm:priceModelDescription" value="@{serviceId}" />
+
+      <clickElement htmlId="editForm:rolesButton" />
+
+      <setSelectField htmlId="roleForm:roleId" text="ADMIN" />
+      <setInputField htmlId="roleForm:recChargePerUser" value="100" />
+
+      <storeProperty name="rp1" value="@{basePrice}+101" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="#{rp1}" />
+      <storeProperty name="rp2" value="@{basePrice}+102" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="#{rp2}" />
+      <storeProperty name="rp3" value="@{basePrice}+103" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="#{rp3}" />
+      <storeProperty name="rp4" value="@{basePrice}+104" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="#{rp4}" />
+      <storeProperty name="rp5" value="@{basePrice}+105" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="#{rp5}" />
+      <storeProperty name="rp6" value="@{basePrice}+106" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="#{rp6}" />
+      <storeProperty name="rp7" value="@{basePrice}+107" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="#{rp7}" />
+      <storeProperty name="rp8" value="@{basePrice}+108" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="#{rp8}" />
+      <storeProperty name="rp9" value="@{basePrice}+109" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="#{rp9}" />
+      <storeProperty name="rp10" value="@{basePrice}+110" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="#{rp10}" />
+
+      <clickElement htmlId="roleForm:applyButtonHidden" />
+
+      <setSelectField htmlId="roleForm:roleId" text="USER" />
+      <setInputField htmlId="roleForm:recChargePerUser" value="200" />
+
+      <storeProperty name="rp1a" value="@{basePrice}+201" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="#{rp1a}" />
+      <storeProperty name="rp2a" value="@{basePrice}+202" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="#{rp2a}" />
+      <storeProperty name="rp3a" value="@{basePrice}+203" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="#{rp3a}" />
+      <storeProperty name="rp4a" value="@{basePrice}+204" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="#{rp4a}" />
+      <storeProperty name="rp5a" value="@{basePrice}+205" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="#{rp5a}" />
+      <storeProperty name="rp6a" value="@{basePrice}+206" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="#{rp6a}" />
+      <storeProperty name="rp7a" value="@{basePrice}+207" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="#{rp7a}" />
+      <storeProperty name="rp8a" value="@{basePrice}+208" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="#{rp8a}" />
+      <storeProperty name="rp9a" value="@{basePrice}+209" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="#{rp9a}" />
+      <storeProperty name="rp10a" value="@{basePrice}+210" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="#{rp10a}" />
+
+      <clickElement htmlId="roleForm:applyButtonHidden" />
+
+      <setSelectField htmlId="roleForm:roleId" text="GUEST" />
+      <setInputField htmlId="roleForm:recChargePerUser" value="300" />
+
+      <storeProperty name="rp1b" value="@{basePrice}+301" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="#{rp1b}" />
+      <storeProperty name="rp2b" value="@{basePrice}+302" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="#{rp2b}" />
+      <storeProperty name="rp3b" value="@{basePrice}+303" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="#{rp3b}" />
+      <storeProperty name="rp4b" value="@{basePrice}+304" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="#{rp4b}" />
+      <storeProperty name="rp5b" value="@{basePrice}+305" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="#{rp5b}" />
+      <storeProperty name="rp6b" value="@{basePrice}+306" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="#{rp6b}" />
+      <storeProperty name="rp7b" value="@{basePrice}+307" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="#{rp7b}" />
+      <storeProperty name="rp8b" value="@{basePrice}+308" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="#{rp8b}" />
+      <storeProperty name="rp9b" value="@{basePrice}+309" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="#{rp9b}" />
+      <storeProperty name="rp10b" value="@{basePrice}+310" eval="true" />
+      <setInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="#{rp10b}" />
+
+      <clickElement htmlId="roleForm:applyButtonHidden" />
+
+      <setSelectField htmlId="roleForm:roleId" text="ADMIN" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="100.00" />
+
+      <setSelectField htmlId="roleForm:roleId" text="USER" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="200.00" />
+
+      <setSelectField htmlId="roleForm:roleId" text="GUEST" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="300.00" />
+
+      <!-- close the role prices overlay -->
+      <clickElement htmlId="roleForm:saveButtonHidden" />
+
+      <!-- TODO: click on first save seems to do nothing (don't know why) - so click twice -->
+      <clickButton label="${button.save}" />
+      <clickButton label="${button.save}" />
+
+      <common.verifySuccess label="@{serviceId}" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.verifyRolePrices">
+    <attribute name="serviceId" default="MarketService1" />
+    <sequential>
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="@{serviceId}" />
+
+      <pricemodel.setFree isFree="false" />
+
+
+      <clickElement htmlId="editForm:rolesButton" />
+
+      <setSelectField htmlId="roleForm:roleId" text="ADMIN" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="100.00" />
+
+      <verifyInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="101.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="102.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="103.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="104.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="105.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="106.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="107.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="108.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="109.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="110.00" />
+
+      <setSelectField htmlId="roleForm:roleId" text="USER" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="200.00" />
+
+      <verifyInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="201.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="202.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="203.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="204.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="205.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="206.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="207.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="208.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="209.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="210.00" />
+
+      <setSelectField htmlId="roleForm:roleId" text="GUEST" />
+      <verifyInputField htmlId="roleForm:recChargePerUser" value="300.00" />
+
+      <verifyInputField htmlId="roleForm:parameterTable:1:optionPricePerUser" value="301.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:2:optionPricePerUser" value="302.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:3:optionPricePerUser" value="303.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:5:optionPricePerUser" value="304.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:6:optionPricePerUser" value="305.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:7:optionPricePerUser" value="306.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:8:pricePerUser" value="307.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:9:pricePerUser" value="308.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="309.00" />
+      <verifyInputField htmlId="roleForm:parameterTable:11:pricePerUser" value="310.00" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.setFree">
+    <attribute name="isFree" default="true" />
+    <sequential>
+      <ifStep test="@{isFree}">
+        <then>
+          <setRadioButton htmlId="editForm:isfree:0" />
+        </then>
+        <else>
+          <setRadioButton htmlId="editForm:isfree:1" />
+          <setInputField htmlId="editForm:priceModelTypeInitial" value="PRO_RATA"/>
+          <clickButton label="${button.save}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.storeValueOfFree">
+    <attribute name="name" />
+    <sequential>
+      <ifStep>
+        <condition>
+          <verifyRadioButton htmlId="editForm:isfree:0" checked="true" />
+        </condition>
+        <then>
+          <storeProperty name="@{name}" value="true" />
+        </then>
+        <else>
+          <storeProperty name="@{name}" value="false" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="pricemodel.verifyDisabledFree">
+    <attribute name="currentIsFree" />
+    <sequential>
+      <ifStep test="@{currentIsFree}">
+        <then>
+          <verifyRadioButton htmlId="editForm:isfree:0" checked="true" />
+          <setRadioButton htmlId="editForm:isfree:1" />
+          <not>
+            <verifyRadioButton htmlId="editForm:isfree:1" checked="true" />
+          </not>
+        </then>
+        <else>
+          <verifyRadioButton htmlId="editForm:isfree:1" checked="true" />
+          <setRadioButton htmlId="editForm:isfree:0" />
+          <not>
+            <verifyRadioButton htmlId="editForm:isfree:0" checked="true" />
+          </not>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+</project>

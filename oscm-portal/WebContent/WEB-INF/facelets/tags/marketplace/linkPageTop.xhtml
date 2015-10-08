@@ -1,0 +1,23 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+  
+  <c:if test="#{empty showBrowseAll}">
+    <!-- Note: showBrowseAll} requires a form with the predefined fields 'tagFilterValue' and 'applyTagFilter' on the current HTML page -->
+    <c:set var="showBrowseAll" value="false" />
+  </c:if>
+  
+  <a4j:outputPanel layout="block" styleClass="scrolltop">
+    <p>
+      <h:outputLink id="linkBrowseAll" value="#" rendered="#{showBrowseAll}"
+        onclick="#{rich:element('tagFilterValue')}.value=''; #{rich:element('applyTagFilter')}.click(); return false;">
+        <h:outputText value="#{msg['button.browseAll']}" />
+      </h:outputLink>
+      <h:outputLink id="linkPageTop" value="#top">
+        <h:outputText value="#{msg['navigation.pageTop']}" />
+      </h:outputLink>
+    </p>
+  </a4j:outputPanel>
+</ui:composition>

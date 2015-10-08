@@ -1,0 +1,265 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2015 
+ */ 
+@charset "utf-8";
+/*@import url("oscm1.css");*/
+
+body {
+	height: 100%;
+	margin: 0px;
+	padding: 0px;
+	color: #333333;
+	font-size: 75%;
+	font-family: Arial, sans-serif;
+	font-weight: normal;
+	background: #5B6167;
+	/*background: url(../img/log_bg_2.gif) repeat-x;*/
+}
+
+#login_warning{
+	/*color: red; 
+	font-size:16px;
+	background:#F7E5E5;
+	color:#B00404;
+	display:inline-block;
+	-moz-border-radius:3px;
+	border-radius:3px;
+    padding: 10px;
+    border:solid 1px #B00404;*/
+	position: absolute; 
+	color:#FFF;
+	background:#B00404;
+	-moz-border-radius:3px;
+	border-radius:5px;
+
+	font-size:14px;
+	font-weight:500;
+	top: 50%; 
+	left: 50%; 
+
+	margin:-285px;
+	margin-top: 175px;
+
+}
+
+#login_warning .warning{
+	margin:10px 20px;
+	padding:3px 0 0 30px;
+	background:url(../img/error.png) no-repeat;
+	min-height:24px;
+	width: 510px;
+}
+
+#login_main_area_id {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 420px;
+    height: 180px;
+    margin-top: -47px;
+    margin-left: -210px;
+	background:none;
+    background-color: #fff;
+    border-radius: 3px;
+    opacity: 0.9;
+}
+
+#login_form_area_id {
+    cursor: default;
+    width: 335px;
+    height: 76px;
+    margin-top: 50px;
+    margin-right: 57px;
+    margin-left: 42px;
+}
+
+.login_label_class {
+	cursor: text;
+	float: left;
+	width: 100px;
+	margin-top: 4px;
+	text-align: left;
+	overflow:hidden; 
+	white-space:nowrap;
+}
+
+.login_form_class {
+	margin-bottom: 4px;
+	text-align: right;
+}
+
+.login_text_class {
+	width: 221px;
+	height: 14px;
+	text-align: left;
+	padding-left:3px;
+	padding-right:3px;
+
+}
+
+.login_link_class {
+	text-align: right;
+	font-size: 8pt;
+	margin-bottom: 4px;
+	margin-top: -1px;
+}
+
+
+.login_button_area_class {
+	float: right;
+	line-height: 130%;
+	margin-top: 10px;
+	margin-right: -1px;
+	font-size: 9pt;
+}
+
+#login_copyright_id {
+	position: absolute; 
+	left: 15px;
+	margin-top: 65px;
+	color:#FFFFFF;
+	font-size: 12px;
+	font-style:normal;
+}
+
+/*************************
+ Button common
+*************************/
+
+button {
+	cursor: pointer;
+	margin: 0;
+	padding: 0;
+	border: 0px;
+	background-color: transparent; 
+}
+
+button span {
+	font-size: 10pt;
+}
+
+.login_button_class {
+	overflow: visible;
+	margin-left: 3px; 
+	padding: 0;
+	border: 0;
+	color: #333333;
+	font-size: 10pt;
+	text-decoration: none;
+	white-space: nowrap;
+	background-color: transparent; 
+}
+/* IE7 */
+*:first-child+html .login_button_class {
+	margin-left: 6px; 
+}
+/* FireFox */
+html:not([lang*=""]) .login_button_class {
+	margin-left: -3px; 
+}
+
+.login_button_class span.login_button_content {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding: 0 8px 0 12px;
+	white-space: nowrap;
+	background: url(../img/btn_var_bg.gif) no-repeat left 0; 
+}
+.login_button_class span.login_button_bg_class {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding: 0 4px 0 0;
+	white-space: nowrap;
+	background: url(../img/btn_var_right.gif) no-repeat right 0px; 
+}
+
+.login_button_over_class {
+	overflow: visible; 
+	margin-left: 3px; 
+	padding: 0;
+	border: 0;
+	color: #175db5; 
+	font-size: 10pt; 
+	text-decoration: none;
+	white-space: nowrap;
+	background-color: transparent; 
+}
+/* IE7 */
+*:first-child+html .login_button_over_class {
+	margin-left: 6px; 
+}
+/* FireFox */
+html:not([lang*=""]) .login_button_over_class {
+	margin-left: -3px; 
+}
+
+.login_button_over_class span.login_button_content {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding: 0 8px 0 12px;
+	white-space: nowrap;
+	background: url(../img/btn_var_bg.gif) no-repeat left -30px; 
+}
+.login_button_over_class span.login_button_bg_class {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding-top: 0px; 
+	padding-right: 4px; 
+	padding-bottom: 0px; 
+	padding-left: 0px; 
+	white-space: nowrap;
+	background: url(../img/btn_var_right.gif) no-repeat right -30px; 
+}
+
+.login_button_down_class {
+	overflow: visible; 
+	margin-left: 3px; 
+	padding: 0; 
+	border: 0;
+	color: #175db5; 
+	font-size: 10pt; 
+	text-decoration: none;
+	white-space: nowrap;
+	background-color: transparent; 
+}
+/* IE7 */
+*:first-child+html .login_button_down_class {
+	margin-left: 6px; 
+}
+/* FireFox */
+html:not([lang*=""]) .login_button_down_class {
+	margin-left: -3px; 
+}
+
+.login_button_down_class span.login_button_content {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding: 0 8px 0 12px;
+	white-space: nowrap;
+	background: url(../img/btn_var_bg.gif) no-repeat left -60px; 
+}
+.login_button_down_class span.login_button_bg_class {
+	display: block; 
+	min-height: 20px; 
+	line-height: 20px; 
+	padding: 0 4px 0 0;
+	white-space: nowrap;
+	background: url(../img/btn_var_right.gif) no-repeat right -60px; 
+}
+
+
+ input{
+	outline:none;
+	border:solid 1px #afb1b7 !important;
+	padding:2px 0;
+}
+
+ input:focus{
+	outline:none;
+	border:solid 1px #2e75d2 !important;
+}

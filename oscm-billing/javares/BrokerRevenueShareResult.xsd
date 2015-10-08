@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://oscm.org/xsd/billingservice/partnermodel" elementFormDefault="qualified"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://oscm.org/xsd/billingservice/partnermodel">
+
+  <xsd:include schemaLocation="BillingBase.xsd" />
+
+  <xsd:element name="RevenueSharesResults">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element minOccurs="1" maxOccurs="unbounded" name="BrokerRevenueShareResult" type="BrokerRevenueShareResult" />
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="BrokerRevenueShareResult">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Period" type="Period" />
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="Currency" type="Currency" />
+    </xsd:sequence>
+    <xsd:attribute name="organizationKey" use="required" type="xsd:positiveInteger" />
+    <xsd:attribute name="organizationId" use="required" type="xsd:string" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Currency">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Supplier" type="Supplier" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="BrokerRevenue" type="BrokerRevenue" />
+    </xsd:sequence>
+    <xsd:attribute name="id" use="required" type="ISOCodeCurrency" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Supplier">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Service" type="Service" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="BrokerRevenuePerSupplier" type="BrokerRevenuePerSupplier" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Service">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="ServiceRevenue" type="ServiceRevenue" />
+    </xsd:sequence>
+    <xsd:attribute name="id" use="required" type="BesId" />
+    <xsd:attribute name="key" use="required" type="xsd:positiveInteger" />
+    <xsd:attribute name="templateKey" use="required" type="xsd:positiveInteger" />
+  </xsd:complexType>
+
+  <xsd:complexType name="ServiceRevenue">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="ServiceCustomerRevenue" type="ServiceCustomerRevenue"/>
+    </xsd:sequence>
+    <xsd:attribute name="totalAmount" use="required" type="PositiveDecimal2" />
+    <xsd:attribute name="brokerRevenueSharePercentage" use="required" type="PositiveDecimal2" />
+    <xsd:attribute name="brokerRevenue" use="required" type="PositiveDecimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="BrokerRevenuePerSupplier">
+    <xsd:attribute name="totalAmount" use="optional" type="PositiveDecimal2" />
+    <xsd:attribute name="amount" use="required" type="PositiveDecimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="BrokerRevenue">
+    <xsd:attribute name="totalAmount" use="optional" type="PositiveDecimal2" />
+    <xsd:attribute name="amount" use="required" type="PositiveDecimal2" />
+  </xsd:complexType>
+  
+  <xsd:complexType name="ServiceCustomerRevenue">
+    <xsd:attribute name="customerName" use="optional" type="xsd:string" />
+    <xsd:attribute name="customerId" use="optional" type="xsd:string" />
+    <xsd:attribute name="totalAmount" use="optional" type="PositiveDecimal2" />
+	<xsd:attribute name="brokerRevenueSharePercentage" use="optional" type="PositiveDecimal2" />
+	<xsd:attribute name="brokerRevenue" use="optional" type="PositiveDecimal2" />
+  </xsd:complexType>
+
+</xsd:schema>

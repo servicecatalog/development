@@ -1,0 +1,80 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <!-- currently used to replace %blank% in data driven xls files; can be expanded to replace other values -->
+  <macrodef name="common.replaceSpecialInput">
+    <attribute name="value" />
+
+    <sequential>
+      <common.replaceChars value="@{value}" from="%blank%" to=" " property="newVal" />
+      <storeProperty name="value" value="#{newVal}" propertyType="dynamic" />
+      <echo message="value is !#{value}!" />
+    </sequential>
+
+  </macrodef>
+
+  <!-- set a default for a single field, used in data-driven FB tests -->
+  <macrodef name="common.setSingleFieldDefault">
+    <attribute name="fieldId2" />
+    <attribute name="fieldType2" />
+    <attribute name="defaultVal2" />
+
+    <sequential>
+      <ifStep description="select field?">
+        <condition>
+          <verifyProperty description="select field?" name="fieldType2" text="SELECT" regex="false" />
+        </condition>
+        <!-- select field -->
+        <then>
+          <echo message="set select field to !@{defaultVal2}!" />
+          <setSelectField htmlId="#{fieldId2}" text="@{defaultVal2}" />
+        </then>
+        <else>
+
+          <ifStep description="checkbox ?">
+            <condition>
+              <verifyProperty description="checkbox ?" name="fieldType2" text="CHECKBOX" regex="false" />
+            </condition>
+            <then>
+              <echo message="Checkbox: do nothing for default" />
+            </then>
+            <!-- else assume it is a regular input field -->
+            <else>
+              <echo message="input field set" />
+              <setInputField htmlId="#{fieldId2}" value="@{defaultVal2}" />
+            </else>
+          </ifStep>
+
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- set defaults for fields specified in fieldXLS file, used in data-driven FB tests -->
+  <macrodef name="common.setAllDefaults">
+    <attribute name="fieldXLS" />
+
+    <sequential>
+      <dataDriven tableContainer="@{fieldXLS}">
+        <storeProperty name="fieldId2" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType2" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="default2" value="${default}" propertyType="dynamic" />
+
+        <!-- manage special field values with %val% / -->
+        <ifStep description="Special input userid">
+          <condition>
+            <verifyProperty description="%userid% ?" name="default2" text="%userid%" regex="false" />
+          </condition>
+          <then>
+            <echo message="set to real value of userid" />
+            <storeProperty name="default2" value="#{userId}" propertyType="dynamic" />
+          </then>
+        </ifStep>
+
+        <common.setSingleFieldDefault fieldId2="#{fieldId2}" fieldType2="#{fieldType2}" defaultVal2="#{default2}" />
+      </dataDriven>
+    </sequential>
+
+  </macrodef>
+
+</project>

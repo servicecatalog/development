@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<antlib>
+  <taskdef name="store.settings" classname="org.oscm.webtest.setup.StoreSettingsTask" />
+  <taskdef name="service.define" classname="org.oscm.webtest.setup.ServiceDefineTask" />
+  <taskdef name="pricemodel.define" classname="org.oscm.webtest.setup.PricemodelDefineTask" />
+  <taskdef name="pricemodel.modify.define" classname="org.oscm.webtest.setup.PricemodelModifyDefineTask" />
+  <taskdef name="service.activate" classname="org.oscm.webtest.setup.ServiceActivationTask" />
+  <taskdef name="pricemodel.defineForCustomer" classname="org.oscm.webtest.setup.PricemodelDefineForCustomerTask" />
+  <taskdef name="service.deactivate" classname="org.oscm.webtest.setup.ServiceDeactivationTask" />
+  <taskdef name="service.delete" classname="org.oscm.webtest.setup.ServiceDeleteTask" />
+  <taskdef name="service.defineMigrationOptions" classname="org.oscm.webtest.setup.ServiceMigrationTask" />
+  <taskdef name="techservice.delete" classname="org.oscm.webtest.setup.TechServiceDeleteTask" />
+  <taskdef name="techservice.import" classname="org.oscm.webtest.setup.TechServiceImportTask" />
+  <taskdef name="techservice.createProxy" classname="org.oscm.webtest.setup.TechServiceCreateProxyTask" />
+  <taskdef name="techservice.addSupplier" classname="org.oscm.webtest.setup.TechServiceAddSupplier" />
+  <taskdef name="paymentinfo.define" classname="org.oscm.webtest.setup.PaymentInfoDefineTask" />
+  <taskdef name="marketplace.create" classname="org.oscm.webtest.setup.MarketplaceCreateTask" />
+  <taskdef name="marketplace.delete" classname="org.oscm.webtest.setup.MarketplaceDeleteTask" />
+  <taskdef name="marketplace.addSupplier" classname="org.oscm.webtest.setup.MarketplaceAddSupplierTask" />
+  <taskdef name="user.delete" classname="org.oscm.webtest.setup.UserDeleteTask" />
+  <taskdef name="user.grantRoles" classname="org.oscm.webtest.setup.UserGrantRolesTask" />
+  <taskdef name="user.revokeRoles" classname="org.oscm.webtest.setup.UserRevokeRolesTask" />
+  <taskdef name="user.register" classname="org.oscm.webtest.setup.UserRegisterTask" />
+  <taskdef name="user.registerMultiple" classname="org.oscm.webtest.setup.UserRegisterMultipleTask" />
+  <taskdef name="payment.configureDefault" classname="org.oscm.webtest.setup.PaymentDefaultConfigurationTask" />
+  <taskdef name="accountservice.registerCustomer" classname="org.oscm.webtest.setup.RegisterCustomerTask"/>
+  <taskdef name="subscription.create" classname="org.oscm.webtest.setup.SubscriptionCreateTask" />
+  <taskdef name="subscription.modifyParameter" classname="org.oscm.webtest.setup.SubscriptionModifyParameterTask" />
+  <taskdef name="subscription.rename" classname="org.oscm.webtest.setup.SubscriptionRenameTask" />
+  <taskdef name="subscription.unsubscribe" classname="org.oscm.webtest.setup.SubscriptionUnsubscribeTask" />
+  <taskdef name="subscription.addRevokeUser" classname="org.oscm.webtest.setup.SubscriptionAddRevokeUserTask" />
+  <taskdef name="subscription.setOwner" classname="org.oscm.webtest.setup.SubscriptionSetOwnerTask" />
+  <taskdef name="billingContact.create" classname="org.oscm.webtest.setup.BillingContactCreateTask" />
+  <taskdef name="udaDef.create" classname="org.oscm.webtest.setup.UdaDefinitionCreateTask" />
+  <taskdef name="udaDef.delete" classname="org.oscm.webtest.setup.UdaDefinitionDeleteTask" />
+  <taskdef name="configuration.setValue" classname="org.oscm.webtest.setup.ConfigurationSetValueTask" />
+  <taskdef name="paymenttype.define" classname="org.oscm.webtest.setup.PaymentTypeDefineTask" />
+</antlib>
+      

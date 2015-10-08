@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <LocalizedResource tkey="1" version="0" locale="ja" objectkey="0" objecttype="REPORT_DESC" value="利用者情報レポート" />
+  <LocalizedResource tkey="2" version="0" locale="ja" objectkey="1" objecttype="REPORT_DESC" value="支払い請求可能なイベント情報レポート" />
+  <LocalizedResource tkey="3" version="0" locale="ja" objectkey="2" objecttype="REPORT_DESC" value="サービス情報レポート" />
+  <LocalizedResource tkey="4" version="0" locale="ja" objectkey="3" objecttype="REPORT_DESC" value="利用部門情報レポート" />
+  <LocalizedResource tkey="5" version="0" locale="ja" objectkey="4" objecttype="REPORT_DESC" value="技術サービス使用レポート" />
+  <LocalizedResource tkey="6" version="0" locale="ja" objectkey="5" objecttype="REPORT_DESC" value="サービス提供部門情報レポート" />
+  <LocalizedResource tkey="7" version="0" locale="ja" objectkey="6" objecttype="REPORT_DESC" value="購入済サービスレポート" />
+  <LocalizedResource tkey="8" version="0" locale="ja" objectkey="7" objecttype="REPORT_DESC" value="インスタンスレポート" />
+  <LocalizedResource tkey="9" version="0" locale="ja" objectkey="8" objecttype="REPORT_DESC" value="請求書レポート" />
+  <LocalizedResource tkey="10" version="0" locale="ja" objectkey="9" objecttype="REPORT_DESC" value="支払処理ステータスレポート" />
+  <LocalizedResource tkey="11" version="0" locale="ja" objectkey="10" objecttype="REPORT_DESC" value="利用部門の既存請求書の明細レポート" />
+  <LocalizedResource tkey="12" version="0" locale="ja" objectkey="11" objecttype="REPORT_DESC" value="既存請求書の明細レポート" />
+  <LocalizedResource tkey="13" version="0" locale="ja" objectkey="12" objecttype="REPORT_DESC" value="月初から現在までの支払プレビュー" />
+  <LocalizedResource tkey="14" version="0" locale="ja" objectkey="1000" objecttype="PARAMETER_DEF_DESC" value="購入済サービスの最大同時利用者数" />
+  <LocalizedResource tkey="15" version="0" locale="ja" objectkey="1001" objecttype="PARAMETER_DEF_DESC" value="購入済サービスの最大登録利用者数" />
+  <LocalizedResource tkey="16" version="0" locale="ja" objectkey="1002" objecttype="PARAMETER_DEF_DESC" value="購入済サービスが無効化されるまでの日数" />
+  <LocalizedResource tkey="17" version="0" locale="ja" objectkey="1000" objecttype="EVENT_DESC" value="サービスへの利用者のログイン" />
+  <LocalizedResource tkey="18" version="0" locale="ja" objectkey="1001" objecttype="EVENT_DESC" value="サービスからの利用者のログアウト" />
+  
+  <LocalizedResource tkey="19" version="0" locale="ja" objectkey="13" objecttype="REPORT_DESC" value="サービス提供部門収入レポート" />
+  <LocalizedResource tkey="20" version="0" locale="ja" objectkey="14" objecttype="REPORT_DESC" value="外部サービスレポート" />
+  <LocalizedResource tkey="21" version="0" locale="ja" objectkey="1" objecttype="PAYMENT_TYPE_NAME" value="クレジットカード" />
+  <LocalizedResource tkey="22" version="0" locale="ja" objectkey="2" objecttype="PAYMENT_TYPE_NAME" value="口座振替" />
+  <LocalizedResource tkey="23" version="0" locale="ja" objectkey="3" objecttype="PAYMENT_TYPE_NAME" value="請求書" />
+</dataset>

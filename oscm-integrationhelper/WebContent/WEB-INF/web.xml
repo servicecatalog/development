@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee"
+	version="2.5"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+  <display-name>integrationHelper</display-name>
+
+<!-- The following servlet configuration is an example of the integration of a 
+     token handler in a custom Web application. The URL pattern, "/resolveToken", 
+     must be used as the login path in the technical service definition for
+     the application -->
+  <servlet>
+    <display-name>TokenhandlerServlet</display-name>
+    <servlet-name>TokenhandlerServlet</servlet-name>
+    <servlet-class>org.oscm.integrationhelper.TokenhandlerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TokenhandlerServlet</servlet-name>
+    <url-pattern>/resolveToken</url-pattern>
+  </servlet-mapping>
+<!-- End of the servlet configuration  -->
+
+<!-- The following listener configuration is an example of the integration of a 
+     logout listener into a custom Web application. -->
+  <listener>
+  	<listener-class>org.oscm.integrationhelper.LogoutListener</listener-class>
+  </listener>
+<!-- End of the listener configuration   -->
+</web-app>
+

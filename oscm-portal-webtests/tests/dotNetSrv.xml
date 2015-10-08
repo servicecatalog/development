@@ -1,0 +1,93 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testDotNetService" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testDotNetService">
+    <webtest name="setup .net test">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+
+      <!-- Register supplier organization, add currency-->
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+
+      <!-- Add payment type, create marketplace -->
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" name="Marketplace" />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+
+      <!-- Login as supplier and change password -->
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <setup:payment.configureDefault customerTypes="CREDIT_CARD,INVOICE" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+
+      <!-- Import .net technical service, create marketable service and publish -->
+      <setup:techservice.import file="data/TechnicalServicesDotNet.xml" />
+      <setup:service.define marketplaceId="${mId}" techServiceId="BES 15.2 .Net-Integration" serviceId="BES 15.2 .Net-Integration" name="DotNetStarter" description="This is a service which is based on a technical service implemented in .NET. http://www.tds.de/isv-services" shortDescription="Short description for .NET specific service." />
+      <setup:pricemodel.define serviceId="BES 15.2 .Net-Integration" isFree="true" />
+      <setup:service.activate serviceIds="BES 15.2 .Net-Integration" />
+
+      <!-- Register customer and login -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <echo level="warning" message="CustomerUrl: #{orgUrl}" />
+      <storeProperty name="customerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="customerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="customerUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="customerUserPwd" value="#{userPwd}" propertyType="ant" />
+    </webtest>
+
+    <webtest name="test .net srv">
+      <echo level="info" message="supplier user id: ${supplierUserId}" />
+      <echo level="info" message="customer user id: ${customerUserId}" />
+      <mpl_login.loginWithChangePassword userId="${customerUserId}" oldPassword="${customerUserPwd}" mid="${mId}" />
+
+      <mpl_service.subscribe mid="${mId}" index="0" />
+      <setup:store.settings userkey="${customerUserKey}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="DotNetStarter" usersToAdd="${customerUserKey}" />
+      <mpl_goto.subscriptions />
+      <storeXPath xpath="//a[@target=&quot;_blank&quot;][1]/@href" property="serviceUrl" propertyType="dynamic" />
+
+      <clickLink htmlId="use0" />
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//th[text()='OperationName']" />
+        </condition>
+        <else>
+          <setInputField htmlId="loginForm:loginUserId" value="customer" />
+          <setInputField htmlId="loginForm:loginPassword" value="${common.password}" />
+          <clickButton htmlId="loginForm:loginButton" />
+        </else>
+      </ifStep>
+      <storeXPath xpath="/html/body/form/div[4]/table/tbody/tr[last()-1]/td[3]" property="resultInstanceRequest1" propertyType="dynamic" />
+      <verifyProperty name="resultInstanceRequest1" text=".*ProvisioningService.createInstance.*" regex="true" />
+
+      <storeXPath xpath="/html/body/form/div[4]/table/tbody/tr[last()]/td[3]" property="resultInstanceRequest2" propertyType="dynamic" />
+      <verifyProperty name="resultInstanceRequest2" text=".*ProvisioningService.createUsers.*" regex="true" />
+
+      <storeXPath xpath="/html/body/form/div[4]/table/tbody/tr[last()]/td[4]" property="resultInstanceRequest3" propertyType="dynamic" />
+      <verifyProperty name="resultInstanceRequest3" text=".*4711.*" regex="true" />
+
+      <setSelectField htmlId="ddlOperations" text="AccountService.getOrganizationData" />
+      <clickButton label="Execute" />
+
+      <storeXPath xpath="/html/body/form/div[4]/table/tbody/tr[last()]/td[3]" property="resultGetOrganizationData1" propertyType="dynamic" />
+      <verifyProperty name="resultGetOrganizationData1" text=".*AccountService.getOrganizationData.*" regex="true" />
+
+      <invoke url="${customerUrl}" />
+
+    </webtest>
+
+    <webtest name="cleanup .net test">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+
+</project>

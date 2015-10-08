@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<tns:TechnicalServices xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd">
+  <tns:TechnicalService id="ExampleSAML 1.00" build="14.06.2011" provisioningType="SYNCHRONOUS"
+    provisioningUrl="@techService.https.baseurl@/oscm-integrationtests-mockproduct/ProvisioningService?wsdl"
+    provisioningVersion="1.0" accessType="USER"
+    provisioningUsername="admin" provisioningPassword="adminadmin">
+    <AccessInfo locale="en">@techService.http.baseurl@/oscm-integrationtests-mockproduct/menu.jsp</AccessInfo>
+    <LocalizedDescription locale="en">Just a mock service.</LocalizedDescription>
+    <LocalizedLicense locale="en">License</LocalizedLicense>
+    <ParameterDefinition id="STRING_DATA_TYPE" valueType="STRING" mandatory="false" configurable="true"
+      default="">
+      <LocalizedDescription locale="en"> Number2 of folders that can be created.</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition id="MAX_FILE_NUMBER" valueType="INTEGER" mandatory="false" configurable="true"
+      minValue="12" maxValue="500" default="200">
+      <LocalizedDescription locale="en">Number of files that can be uploaded.</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition id="MAX_FOLDER_NUMBER" valueType="INTEGER" mandatory="false" configurable="true"
+      minValue="12" maxValue="500" default="200">
+      <LocalizedDescription locale="en">Number of folders that can be created.</LocalizedDescription>
+    </ParameterDefinition>
+    <ParameterDefinition id="RENAME_FOLDER" valueType="BOOLEAN" default="true">
+      <LocalizedDescription locale="en">Rename any user folder</LocalizedDescription>
+    </ParameterDefinition>
+  </tns:TechnicalService>
+</tns:TechnicalServices>

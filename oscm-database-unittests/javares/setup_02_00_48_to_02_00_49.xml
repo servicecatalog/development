@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="11000" version="0" organizationid="TP1" name="TP1" registrationdate="1234" />
+  <Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" />
+  <Organization tkey="11002" version="0" organizationid="SUPP2" name="SUPP2" registrationdate="1234" />
+  <Organization tkey="11003" version="0" organizationid="TP2" name="TP2" registrationdate="1234" />
+  <Organization tkey="11004" version="0" organizationid="SUPP3" name="SUPP3" registrationdate="1234" />
+  <Organization tkey="11005" version="0" organizationid="SUPP4" name="SUPP4" registrationdate="1234" />
+  <Organization tkey="11006" version="0" organizationid="TP3" name="TP3" registrationdate="1234" />
+  <Organization tkey="11007" version="0" organizationid="OP" name="OP" registrationdate="1234" />
+
+  <OrganizationReference tkey="1234" version="1" targetkey="11001" sourcekey="11000"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1238" version="1" targetkey="11002" sourcekey="11000"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1235" version="1" targetkey="11004" sourcekey="11003"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1236" version="1" targetkey="11005" sourcekey="11003"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1237" version="1" targetkey="11001" sourcekey="11003"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1244" version="1" targetkey="11001" sourcekey="11006"
+    referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReference tkey="1245" version="1" targetkey="11001" sourcekey="11007"
+    referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+  <OrganizationReference tkey="1246" version="1" targetkey="11001" sourcekey="11007"
+    referencetype="SUPPLIER_TO_CUSTOMER" />
+
+  <OrganizationReferenceHistory tkey="1" modtype="ADD" moduser="1000" moddate="2011-12-06 14:56:55"
+    objkey="1234" objversion="1" targetobjkey="11001" sourceobjkey="11000" referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+  <OrganizationReferenceHistory tkey="2" modtype="ADD" moduser="1000" moddate="2011-12-06 14:56:55"
+    objkey="1244" objversion="1" targetobjkey="11001" sourceobjkey="11006" referencetype="TECHNOLOGY_PROVIDER_TO_SUPPLIER" />
+
+  <PlatformUser tkey="10000" creationdate="98765432" failedlogincounter="0" locale="en" status="ACTIVE"
+    passwordsalt="324" userid="admin" version="0" organizationkey="11000" />
+  <PlatformUserHistory tkey="10000" modtype="ADD" moduser="1000" moddate="2011-12-06 14:56:55"
+    objkey="10000" objversion="1" creationdate="98765432" failedlogincounter="0" locale="en" status="ACTIVE"
+    passwordsalt="324" userid="admin" organizationobjkey="11000" />
+
+  <TechnicalProduct tkey="5000" version="0" provisioningurl="someurl" technicalproductid="tpid1"
+    organizationkey="11000" />
+  <TechnicalProduct tkey="5001" version="0" provisioningurl="someurl" technicalproductid="tpid2"
+    organizationkey="11000" />
+  <TechnicalProduct tkey="5002" version="0" provisioningurl="someurl" technicalproductid="tpid3"
+    organizationkey="11003" />
+
+  <TriggerDefinition tkey="98761" version="0" target="http://someNotificationServiceURL1" targettype="WEB_SERVICE"
+    type="ADD_SUPPLIER_TO_TECHNOLOGY_PROVIDER" organization_tkey="11000" suspendprocess="true" />
+  <TriggerDefinition tkey="98762" version="0" target="http://someNotificationServiceURL2" targettype="WEB_SERVICE"
+    type="DEACTIVATE_SERVICE" organization_tkey="11001" suspendprocess="true" />
+  <TriggerDefinition tkey="98763" version="1" target="http://someNotificationServiceURL3" targettype="WEB_SERVICE"
+    type="REMOVE_SUPPLIER_FROM_TECHNOLOGY_PROVIDER" organization_tkey="11000" suspendprocess="false" />
+  <TriggerDefinition tkey="98764" version="0" target="http://someNotificationServiceURL4" targettype="WEB_SERVICE"
+    type="REMOVE_SUPPLIER_FROM_TECHNOLOGY_PROVIDER" organization_tkey="11006" suspendprocess="true" />
+
+  <TriggerDefinitionHistory tkey="95001" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="98761" objversion="0" target="http://someNotificationServiceURL1" targettype="WEB_SERVICE"
+    type="ADD_SUPPLIER_TO_TECHNOLOGY_PROVIDER" organizationobjkey="11000" suspendprocess="true" />
+  <TriggerDefinitionHistory tkey="95002" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="98762" objversion="0" target="http://someNotificationServiceURL2" targettype="WEB_SERVICE" type="DEACTIVATE_SERVICE"
+    organizationobjkey="11001" suspendprocess="true" />
+  <TriggerDefinitionHistory tkey="95003" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="98763" objversion="0" target="http://someNotificationServiceURL" targettype="WEB_SERVICE"
+    type="REMOVE_SUPPLIER_FROM_TECHNOLOGY_PROVIDER" organizationobjkey="11000" suspendprocess="false" />
+  <TriggerDefinitionHistory tkey="95004" moddate="2011-12-06 14:56:55" modtype="MODIFY"
+    moduser="1000" objkey="98763" objversion="1" target="http://someNotificationServiceURL3" targettype="WEB_SERVICE"
+    type="REMOVE_SUPPLIER_FROM_TECHNOLOGY_PROVIDER" organizationobjkey="11000" suspendprocess="false" />
+  <TriggerDefinitionHistory tkey="95005" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="98764" objversion="0" target="http://someNotificationServiceURL4" targettype="WEB_SERVICE"
+    type="REMOVE_SUPPLIER_FROM_TECHNOLOGY_PROVIDER" organizationobjkey="11006" suspendprocess="true" />
+
+  <TriggerProcess tkey="96001" version="0" activationdate="12345678" status="CANCELLED"
+    triggerdefinition_tkey="98761" user_tkey="10000" />
+  <TriggerProcess tkey="96002" version="1" activationdate="12345678" status="APPROVED"
+    triggerdefinition_tkey="98761" user_tkey="10000" />
+  <TriggerProcess tkey="96003" version="0" activationdate="12345678" status="WAITING_FOR_APPROVAL"
+    triggerdefinition_tkey="98762" user_tkey="10000" />
+  <TriggerProcess tkey="96004" version="1" activationdate="12345678" status="NOTIFIED"
+    triggerdefinition_tkey="98763" user_tkey="10000" />
+  <TriggerProcess tkey="96005" version="0" activationdate="12345678" status="REJECTED"
+    triggerdefinition_tkey="98764" user_tkey="10000" />
+  <TriggerProcess tkey="96006" version="0" activationdate="12345678" status="FAILED"
+    triggerdefinition_tkey="98764" user_tkey="10000" />
+  <TriggerProcess tkey="96007" version="0" activationdate="12345678" status="WAITING_FOR_APPROVAL"
+    triggerdefinition_tkey="98764" user_tkey="10000" />
+
+  <TriggerProcessHistory tkey="96501" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96001" objversion="0" activationdate="12345678" status="CANCELLED" triggerdefinitionobjkey="98761"
+    userobjkey="10000" />
+  <TriggerProcessHistory tkey="96502" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96002" objversion="0" activationdate="12345678" status="INITIAL" triggerdefinitionobjkey="98761" userobjkey="10000" />
+  <TriggerProcessHistory tkey="96503" moddate="2011-12-06 14:56:55" modtype="MODIFY" moduser="1000"
+    objkey="96002" objversion="1" activationdate="12345678" status="APPROVED" triggerdefinitionobjkey="98761"
+    userobjkey="10000" />
+  <TriggerProcessHistory tkey="96504" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96003" objversion="0" activationdate="12345678" status="WAITING_FOR_APPROVAL" triggerdefinitionobjkey="98762"
+    userobjkey="10000" />
+  <TriggerProcessHistory tkey="96505" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96004" objversion="0" activationdate="12345678" status="INITIAL" triggerdefinitionobjkey="98763" userobjkey="10000" />
+  <TriggerProcessHistory tkey="96506" moddate="2011-12-06 14:56:55" modtype="MODIFY" moduser="1000"
+    objkey="96004" objversion="1" activationdate="12345678" status="NOTIFIED" triggerdefinitionobjkey="98763"
+    userobjkey="10000" />
+  <TriggerProcessHistory tkey="96507" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96005" objversion="0" activationdate="12345678" status="REJECTED" triggerdefinitionobjkey="98764"
+    userobjkey="10000" />
+  <TriggerProcessHistory tkey="96508" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96006" objversion="0" activationdate="12345678" status="FAILED" triggerdefinitionobjkey="98764" userobjkey="10000" />
+  <TriggerProcessHistory tkey="96509" moddate="2011-12-06 14:56:55" modtype="ADD" moduser="1000"
+    objkey="96007" objversion="0" activationdate="12345678" status="WAITING_FOR_APPROVAL" triggerdefinitionobjkey="98764"
+    userobjkey="10000" />
+
+  <TriggerProcessParameter tkey="47001" version="0" name="name" triggerprocess_tkey="96001" />
+  <TriggerProcessParameter tkey="47002" version="0" name="name" triggerprocess_tkey="96002" />
+  <TriggerProcessParameter tkey="47003" version="0" name="name" triggerprocess_tkey="96003" />
+  <TriggerProcessParameter tkey="47004" version="0" name="name" triggerprocess_tkey="96004" />
+  <TriggerProcessParameter tkey="47005" version="0" name="name" triggerprocess_tkey="96005" />
+  <TriggerProcessParameter tkey="47006" version="0" name="name" triggerprocess_tkey="96006" />
+  <TriggerProcessParameter tkey="47007" version="0" name="name" triggerprocess_tkey="96007" />
+
+</dataset>

@@ -1,0 +1,1 @@
+The unit tests of the event management component.

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+ <PriceModel tkey="1" ischargeable="false" onetimefee="0" priceperperiod="0" priceperuserassignment="0"
+    version="0" />
+    
+ <pricemodelhistory tkey="2" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    ischargeable="0" onetimefee="0" priceperuserassignment="0" priceperperiod="0" productobjkey="0" />
+    
+</dataset>

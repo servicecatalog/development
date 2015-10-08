@@ -1,0 +1,478 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <!-- verify success message -->
+  <macrodef name="mpl_verify.success">
+    <attribute name="label" />
+    <attribute name="infoFieldId" default="infoMessages" />
+    <attribute name="matchWithWildCard" default="true" />
+    <sequential>
+      <ifStep test="@{matchWithWildCard}">
+        <then>
+          <verifyElementText htmlId="@{infoFieldId}" text=".*@{label}.*" regex="@{matchWithWildCard}" />
+        </then>
+        <else>
+          <verifyElementText htmlId="@{infoFieldId}" text="@{label}" regex="@{matchWithWildCard}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- verify progress message -->
+  <macrodef name="mpl_verify.progress">
+    <attribute name="label" />
+    <attribute name="infoFieldId" default="progressMessages" />
+    <attribute name="matchWithWildCard" default="true" />
+    <sequential>
+      <mpl_verify.success label="@{label}" infoFieldId="@{infoFieldId}" matchWithWildCard="@{matchWithWildCard}" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify error message -->
+  <macrodef name="mpl_verify.error">
+    <attribute name="label" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <sequential>
+      <verifyElementText htmlId="@{errorFieldId}" text=".*@{label}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify error message (included by attribute in request) -->
+  <macrodef name="mpl_verify.errorPanel">
+    <attribute name="label" />
+    <sequential>
+      <storeXPath description="Check error message" xpath="//dl[@id='errorMessages1']/dt/text()" property="errorMsg" />
+      <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify error message -->
+  <macrodef name="mpl_verify.fieldError">
+    <attribute name="fieldId" />
+    <attribute name="label" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <sequential>
+      <verifyElementText htmlId="@{fieldId}ErrorMsg" text=".*@{label}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify given field with invalid field values -->
+  <macrodef name="mpl_verify.invalidFieldValue">
+    <attribute name="fieldId" />
+    <attribute name="fieldType" />
+    <attribute name="required" />
+    <attribute name="buttonLinkId" default="true" />
+    <attribute name="hintMsgKey" default="" />
+    <attribute name="att0Name" default="att0" />
+    <attribute name="att1Name" default="att1" />
+    <attribute name="att2Name" default="att2" />
+    <attribute name="topErrorMessage" default="true" />
+    <sequential>
+      <!-- Check mandatory field values -->
+      <ifStep description="Mandatory field?" test="@{required}">
+        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="@{buttonLinkId}" topErrorMessage="@{topErrorMessage}" />
+      </ifStep>
+      <storeProperty name="hintKey" value="@{hintMsgKey}" propertyType="dynamic" />
+      <!-- Check hint message and button -->
+      <ifStep description="Hint message given?">
+        <condition>
+          <not>
+            <verifyProperty name="hintKey" value="" />
+          </not>
+        </condition>
+        <then>
+          <mpl_verify.hintButton fieldId="@{fieldId}" msgKey="@{hintMsgKey}" />
+        </then>
+      </ifStep>
+      <!-- Check invalid field values -->
+      <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
+        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
+      </dataDriven>
+    </sequential>
+  </macrodef>
+
+  <!-- check given field with its hint component and invalid input values -->
+  <macrodef name="mpl_verify.checkHintAndFieldValues">
+    <attribute name="hintMsgKey" />
+    <attribute name="fieldId" />
+    <attribute name="fieldType" />
+    <attribute name="required" />
+    <attribute name="buttonLinkId" default="true" />
+    <attribute name="att0Name" default="att0" />
+    <attribute name="att1Name" default="att1" />
+    <attribute name="att2Name" default="att2" />
+    <sequential>
+      <mpl_verify.invalidFieldValue hintMsgKey="@{hintMsgKey}" fieldId="@{fieldId}" fieldType="@{fieldType}" required="@{required}" buttonLinkId="@{buttonLinkId}" att0Name="@{att0Name}" att1Name="@{att1Name}" att2Name="@{att2Name}" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify (non) existence of button -->
+  <macrodef name="mpl_verify.button">
+    <attribute name="id" />
+    <attribute name="enabled" default="true" />
+    <attribute name="invisible" default="false" />
+    <!-- styleClass + htmlType are optional and must only be set if not making use of enabled + visibled -->
+    <attribute name="styleClass" default="" />
+    <attribute name="htmlType" default="a" />
+
+    <sequential>
+      <storeProperty name="class" value="@{styleClass}" />
+      <ifStep description="If styleClass is given explicitly use it, otherwise use 'enabled' property">
+        <condition>
+          <verifyProperty name="class" text="" regex="false" />
+        </condition>
+        <then>
+          <ifStep description="Set class according to enablement" test="@{enabled}">
+            <then>
+              <storeProperty name="class" value="button" propertyType="dynamic" />
+              <storeProperty name="type" value="a" propertyType="dynamic" />
+            </then>
+            <else>
+              <storeProperty name="class" value="buttonDisabled" propertyType="dynamic" />
+              <storeProperty name="type" value="span" propertyType="dynamic" />
+            </else>
+          </ifStep>
+        </then>
+        <else>
+          <storeProperty name="class" value="@{styleClass}" propertyType="dynamic" />
+          <storeProperty name="type" value="@{htmlType}" propertyType="dynamic" />
+        </else>
+      </ifStep>
+
+      <!-- actual check -->
+      <ifStep description="Check for (invisible) button" test="@{invisible}">
+        <then>
+          <verifyXPath xpath="//#{type}[@id='@{id}' and contains(@class, '#{class}') and contains(@style, 'display: none')]" />
+        </then>
+        <else>
+          <verifyXPath xpath="//#{type}[@id='@{id}' and contains(@class, '#{class}')]" />
+        </else>
+      </ifStep>
+
+    </sequential>
+  </macrodef>
+
+  <!-- Verify the hint button and message for the given field -->
+  <macrodef name="mpl_verify.hintButton">
+    <attribute name="fieldId" />
+    <attribute name="msgKey" />
+    <attribute name="expectHintInvisible" default="true" />
+    <sequential>
+      <storeProperty name="hintId" value="@{fieldId}Hint" />
+      <storeProperty name="expectHintInvisible" value="@{expectHintInvisible}" />
+      <verifyXPath description="Ensure hint button is available" xpath="//*[@id='#{hintId}' and contains(@class, 'hint')]" />
+      <storeXPath xpath="//*[@id='#{hintId}']/@style" property="buttonStyle" />
+      <verifyXPath xpath="//*[@id='#{hintId}']/../*[@class='hintMarker']" />
+      <storeProperty name="visible" value="false" />
+      <ifStep description="Check if hint is currently visible">
+        <condition>
+          <not>
+            <verifyProperty name="buttonStyle" value=".*display:.*none;.*" regex="true" />
+          </not>
+        </condition>
+        <then>
+          <verifyProperty name="expectHintInvisible" value="false" />
+          <storeProperty name="visible" value="true" />
+          <clickElement xpath="//*[@id='#{hintId}']" />
+          <!-- Wait for button style update -->
+          <common.waitForJavaScript description="Wait for button style update" />
+          <verifyXPath xpath="//*[@id='#{hintId}' and contains(@style,'display:none;')]" />
+        </then>
+      </ifStep>
+
+      <verifyXPath xpath="//*[@id='#{hintId}']/../*[@class='hintMarker']" />
+
+      <clickElement xpath="//*[@id='#{hintId}']" />
+      <!-- Wait for button style update -->
+      <common.waitForJavaScript description="Wait for button style update" />
+
+      <storeXPath xpath="//*[@id='#{hintId}']/@style" property="buttonStyle" />
+      <verifyProperty name="buttonStyle" value="" regex="false" />
+
+      <storeXPath xpath="//*[@id='#{hintId}']/text()" property="currentMsg" />
+      <storeProperty name="msg" value="${@{msgKey}}" />
+      <verifyProperty description="Check if correct hint message is shown" name="currentMsg" value=".*#{msg}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify title of current main section -->
+  <macrodef name="mpl_verify.contentTitle">
+    <attribute name="title" />
+    <sequential>
+      <verifyXPath xpath="//div[@class='maincontents']//*[normalize-space()='@{title}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify title of currently selected register tab -->
+  <macrodef name="mpl_verify.selectedTab">
+    <attribute name="label" />
+    <sequential>
+      <verifyXPath xpath="//td[contains(@class, 'rf-tab-hdr-act')]//span[.='@{label}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify service on home page -->
+  <macrodef name="mpl_verify.service_home">
+    <attribute name="pos" />
+    <attribute name="checkName" default="true" />
+    <attribute name="svcName" default="" />
+    <sequential>
+      <verifyElement description="Verify existence panel" text="servicePanel@{pos}" type="div" />
+      <ifStep description="Skip verification of concrete value if not desired">
+        <condition>
+          <verifyProperty name="checkName" />
+        </condition>
+        <then>
+          <ifStep description="Verify explicitly given svc name (if given)">
+            <condition>
+              <verifyProperty name="svcName" text="" regex="false" />
+            </condition>
+            <then>
+              <verifyElementText description="Verify existence service name " htmlId="service@{pos}Name" text="Mega Office @{pos}" type="h1" />
+            </then>
+            <else>
+              <verifyElementText description="Verify existence service name " htmlId="service@{pos}Name" text="@{svcName}" type="h1" />
+            </else>
+          </ifStep>
+        </then>
+      </ifStep>
+      <verifyElement description="Verify existence supplier text" text="service@{pos}Supplier" type="h3" />
+      <verifyElement description="Verify existence button" text="serviceButton@{pos}" type="a" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_verify.service_allServices">
+    <attribute name="pos" />
+    <attribute name="checkName" default="true" />
+    <attribute name="svcName" default="" />
+    <sequential>
+      <ifStep description="Skip verification of concrete value if not desired">
+        <condition>
+          <verifyProperty name="checkName" />
+        </condition>
+        <then>
+          <ifStep description="Verify explicitly given svc name (if given)">
+            <condition>
+              <verifyProperty name="svcName" text="" regex="false" />
+            </condition>
+            <then>
+              <verifyElementText description="Verify existence service name " htmlId="service@{pos}Name" text="Mega Office @{pos}" type="h1" />
+            </then>
+            <else>
+              <verifyElementText description="Verify existence service name " htmlId="service@{pos}Name" text="@{svcName}" type="h1" />
+            </else>
+          </ifStep>
+        </then>
+      </ifStep>
+      <verifyElement description="Verify existence supplier text" text="service@{pos}Supplier" type="h3" />
+      <verifyElement description="Verify existence button" text="serviceButton@{pos}" type="a" />
+      <mpl_verify.serviceTags pos="@{pos}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_verify.service_details">
+    <attribute name="svcName" />
+    <attribute name="isFree" default="false" />
+    <attribute name="admin" default="true" />
+    <sequential>
+      <verifyXPath description="Verify we are on correct page" xpath="//li['@{svcName}']" />
+      <verifyXPath xpath="normalize-space(//h2[@id='serviceDetailName'])" regex="true" text="@{svcName}" />
+      <verifyElement description="Verify existence supplier" text="serviceDetailSupplier" type="h3" />
+      <ifStep test="@{admin}" description="Only administrator can subscribe services">
+        <verifyElement description="Verify existence 'Get it now' button" text="buyme" type="a" />
+      </ifStep>
+      <verifyElement description="Verify existence 'Description' tab" text="tabDescription:header" type="td" />
+      <ifStep description="Verify (non)existence 'Price Model' tab (depending on chargeable flag of service)" test="@{isFree}">
+        <then>
+          <not>
+            <verifyElement description="Verify absence 'Price Model' tab" text="tabPriceModel:header" type="td" />
+          </not>
+        </then>
+        <else>
+          <verifyElement description="Verify existence 'Price Model' tab" text="tabPriceModel:header" type="td" />
+        </else>
+      </ifStep>
+      <mpl_verify.serviceTags pos="Detail" />
+    </sequential>
+  </macrodef>
+
+  <!--verify if list of service tags is displayed -->
+  <macrodef name="mpl_verify.serviceTags">
+    <attribute name="pos" default="0" />
+    <attribute name="checkContains" default="true" />
+    <attribute name="tag" default="" />
+    <attribute name="searchWithPhrase" default="false" />
+    <sequential>
+      <storeProperty name="checkSearch" value="@{searchWithPhrase}" propertyType="dynamic" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="checkSearch" text="true" />
+        </condition>
+        <then>
+          <storeProperty name="xpathText" value="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]" />
+          <storeProperty name="xpathTextA" value="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]//a" />
+        </then>
+        <else>
+          <storeProperty name="xpathText" value="//div[@id=&quot;service@{pos}Tags&quot;]" />
+          <storeProperty name="xpathTextA" value="//div[@id=&quot;service@{pos}Tags&quot;]//a" />
+        </else>
+      </ifStep>
+      <ifStep description="Verify label only displayed when tags present">
+        <condition>
+          <verifyXPath xpath="#{xpathText}" />
+        </condition>
+        <then>
+          <verifyXPath xpath="#{xpathTextA}" />
+        </then>
+      </ifStep>
+      <ifStep description="Verify given tag exists">
+        <condition>
+          <verifyProperty name="checkContains" />
+        </condition>
+        <then>
+          <mpl_verify.serviceTag pos="@pos" tag="@tag" searchWithPhrase="@{searchWithPhrase}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+  <!-- verify given service tag in tag list -->
+  <macrodef name="mpl_verify.serviceTag">
+    <attribute name="pos" default="0" />
+    <attribute name="tag" default="" />
+    <attribute name="searchWithPhrase" default="true" />
+    <sequential>
+      <storeProperty name="serviceTag" value="@{tag}" eval="false" />
+      <storeProperty name="checkSearch" value="@{searchWithPhrase}" propertyType="dynamic" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="checkSearch" text="true" />
+        </condition>
+        <then>
+          <storeProperty name="elem" value="service@{pos}Tags" />
+        </then>
+        <else>
+          <storeProperty name="elem" value="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]" />
+        </else>
+      </ifStep>
+
+      <ifStep description="Verify given tag exists">
+        <condition>
+          <verifyProperty name="serviceTag" text="" regex="false" />
+        </condition>
+        <then>
+          <ifStep>
+            <condition>
+              <verifyProperty name="checkSearch" text="true" />
+            </condition>
+            <then>
+              <verifyXPath xpath="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]//a[contains(text(),'${service.tags}')]" />
+            </then>
+            <else>
+              <verifyElementText description="Verify note text of tags exist" text="${service.tags}:" htmlId="service@{pos}Tags" />
+            </else>
+          </ifStep>
+        </then>
+        <else>
+          <ifStep>
+            <condition>
+              <verifyProperty name="checkSearch" text="true" />
+            </condition>
+            <then>
+              <verifyXPath xpath="//div[contains(@id, &quot;@{pos}:serviceTags&quot;)]//a[contains(text(),'@{tag}')]" />
+            </then>
+            <else>
+              <verifyElementText description="Verify given tag exist" htmlId="service@{pos}Tags" text=".*@{tag}.*" regex="true" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- verify if tag cloud is present -->
+  <macrodef name="mpl_verify.tagCloud">
+    <sequential>
+      <verifyXPath xpath="//div[@id=&quot;tagCloud&quot;]" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify if given tag is present in tag cloud -->
+  <macrodef name="mpl_verify.tagCloudEntry">
+    <attribute name="tag" default="" />
+    <sequential>
+      <mpl_verify.tagCloud />
+      <verifyXPath description="Verify tag cloud contains given tag" xpath="//a[contains(@class, 'tagCloud tag') and normalize-space()='@{tag}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify that the logging window has popped up -->
+  <macrodef name="mpl_verify.loginDialog">
+    <sequential>
+      <verifyXPath xpath="//*[@id='rerenderPanel']" />
+      <verifyElement text="loginForm" type="form" />
+      <common.verifyPasswordFields />
+    </sequential>
+  </macrodef>
+
+  <!-- verify that we are on the right page -->
+  <macrodef name="mpl_verify.breadCrumb">
+    <attribute name="actualPage" />
+    <sequential>
+      <verifyXPath description="Verify we are on correct page" xpath="//li[contains(.,'@{actualPage}')]" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify that we are on the right page -->
+  <macrodef name="mpl_verify.breadCrumbLink">
+    <attribute name="actualPage" />
+    <sequential>
+      <verifyXPath description="Verify we are on correct page" xpath="//li/a[contains(text(),'@{actualPage}')]" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify that we are on the all services page -->
+  <macrodef name="mpl_verify.verifyServicesPage">
+    <attribute name="nOfServices" default="8" />
+    <sequential>
+      <mpl_verify.breadCrumb actualPage="${marketplace.services.title}" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="@{nOfServices}" />
+      <!-- Verify that all services and corresponding detail buttons are shown (and not more) -->
+      <repeat count="@{nOfServices}" countername="i">
+        <mpl_verify.service_allServices pos="#{i}" />
+      </repeat>
+      <not>
+        <verifyElementText description="Verify no further service is visible" htmlId="service@{nOfServices}Name" text=".*" regex="true" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- verify that we are on the right sub-page of the subscriptionProcess -->
+  <macrodef name="mpl_verify.subscriptionProgress">
+    <attribute name="currentStep" />
+    <sequential>
+      <verifyXPath xpath="//p[contains(@class, 'progress')]//span[normalize-space()='@{currentStep}' and contains(@class, 'current')]" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_verify.ratingInput">
+    <attribute name="title" default="" />
+    <attribute name="comment" default="" />
+    <attribute name="star" default="0" />
+    <sequential>
+      <storeProperty name="starProp" value="@{star}" eval="false" />
+      <ifStep description="Verify stars">
+        <condition>
+          <verifyProperty name="starProp" text="0" regex="false" />
+        </condition>
+        <then>
+          <verifyXPath xpath="//div[@id='ratingText']" text="${ratingText.noReviews}" />
+        </then>
+        <else>
+          <storeProperty name="starText" value="service.reviews.star.@{star}" propertyType="dynamic" />
+        </else>
+      </ifStep>
+      <verifyElementText description="Verify title text" text="@{title}" htmlId="commentForm:title" />
+      <verifyElementText description="Verify comment area" text="@{comment}" htmlId="commentForm:comment" />
+    </sequential>
+  </macrodef>
+</project>

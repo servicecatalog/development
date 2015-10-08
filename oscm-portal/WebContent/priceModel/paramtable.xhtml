@@ -1,0 +1,114 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+  <a4j:outputPanel id="parameterTablePanel" layout="block" styleClass="tablePanel">
+    <adm:dataTable tableId="parameterTable" value="#{priceModelBean.parameters}"   columnClasses="descriptionColumn, priceColumn, priceColumn,none"
+      label="#{msg['parameter.table.header']}" collapsible="true" rendered="#{not priceModelBean.priceModelFree}">
+
+      <!-- description-->
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['service.parameter.description']}" />
+        </f:facet>
+        <adm:spacer width="30" rendered="#{rowItem.option}" />
+        <h:outputText id="parameterId" value="#{rowItem.description}" />
+      </rich:column>
+
+      <!--  price per user -->
+      <rich:column rendered="#{not priceModelBean.directAccess}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['service.parameter.pricePerUser']}" />
+        </f:facet>
+        <h:inputText id="pricePerUser" label="#{rowItem.label}" styleClass="fieldXS"
+          rendered="#{not (rowItem.parameterDefinition.valueTypeEnumeration) and not (rowItem.option) and rowItem.emptyOrFirstSteppedPrice}"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)"
+          value="#{rowItem.pricedParameter.pricePerUser}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <h:inputText id="optionPricePerUser" label="#{rowItem.label}" styleClass="fieldXS" rendered="#{rowItem.option}"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)"
+          value="#{rowItem.pricedOption.pricePerUser}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+
+        <t:div styleClass="errorPanelTr">
+          <adm:message for="pricePerUser"
+            rendered="#{not (rowItem.parameterDefinition.valueTypeEnumeration) and not (rowItem.option)}" />
+          <adm:message for="optionPricePerUser" rendered="#{rowItem.option}" />
+        </t:div>
+      </rich:column>
+
+      <!--  price per subscription -->
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['service.parameter.pricePerSubscription']}" />
+        </f:facet>
+        <h:inputText id="pricePerSubscription" label="#{rowItem.label}" styleClass="fieldXS"
+          rendered="#{not (rowItem.parameterDefinition.valueTypeEnumeration) and not (rowItem.option) and empty rowItem.steppedPrice}"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)"
+          value="#{rowItem.pricedParameter.pricePerSubscription}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <h:inputText id="parameterSteppedPricePrice" label="#{rowItem.label}" styleClass="fieldXS"
+          rendered="#{not empty rowItem.steppedPrice}" disabled="#{priceModelBean.editDisabled}"
+          onchange="setDirty(true)" value="#{rowItem.steppedPrice.price}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <h:inputText id="optionPricePerSubscription" label="#{rowItem.label}" styleClass="fieldXS"
+          rendered="#{rowItem.option}" disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)"
+          value="#{rowItem.pricedOption.pricePerSubscription}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <t:div styleClass="errorPanelTr">
+          <adm:message for="pricePerSubscription" />
+          <adm:message for="parameterSteppedPricePrice" />
+          <adm:message for="optionPricePerSubscription" />
+        </t:div>
+      </rich:column>
+
+      <rich:column rendered="#{steppedPriceBean.parametersWithSteppedPrices}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+        </f:facet>
+        <h:inputText id="parameterSteppedPriceLimit" styleClass="fieldXS" style="margin-right:6px;"
+          rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)" value="#{rowItem.steppedPrice.limit}"
+          maxlength="#{appBean.longLen}" required="#{!empty param['editForm:confirmedButton']}"
+          dataType="#{rowItem.valueTypeToLower}" minValue="#{rowItem.minValue}" maxValue="#{rowItem.maxValue}">
+          <f:validator validatorId="ParameterValueValidator" />
+        </h:inputText>
+        <h:outputText id="parameterSteppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+          rendered="#{rowItem.lastSteppedPrice}" />
+        <ui:fragment
+          rendered="#{steppedPriceBean.type == steppedPriceBean.typePricedParameter and steppedPriceBean.index == rowKey}">
+          <script type="text/javascript">
+          function steppedPriceFocus() { var e = #{rich:element('parameterSteppedPriceLimit')}; if (e) { e.focus(); e.select(); } }
+          </script>
+        </ui:fragment>
+        <h:outputText value="#{rowItem.rangeLabel}" rendered="#{rowItem.firstSteppedPrice}" />
+        <t:div styleClass="errorPanelTr">
+          <adm:message for="parameterSteppedPriceLimit" rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}"/>
+        </t:div>
+      </rich:column>
+
+      <rich:column styleClass="fieldXS"
+        rendered="#{priceModelBean.priceModel.chargeable and not priceModelBean.editDisabled}">
+        <t:div id="focusButtons" style="display:none;">
+          <adm:buttonCustomizedOnClick id="addButton" value="" buttonType="add"
+            onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedParameter}', #{rowKey}, true, '#{rowItem.minValue}');"
+            rendered="#{not rowItem.lastSteppedPrice and (rowItem.parameterDefinition.valueTypeInteger or rowItem.parameterDefinition.valueTypeLong)}" />
+          <adm:buttonCustomizedOnClick id="removeButton" value="" buttonType="minus"
+            onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedParameter}', #{rowKey}, false, '#{rowItem.minValue}');"
+            rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice and (rowItem.parameterDefinition.valueTypeInteger or rowItem.parameterDefinition.valueTypeLong)}" />
+        </t:div>
+      </rich:column>
+
+    </adm:dataTable>
+  </a4j:outputPanel>
+</ui:composition>

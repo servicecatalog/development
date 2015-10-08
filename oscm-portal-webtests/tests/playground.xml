@@ -1,0 +1,91 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="playground" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="playground">
+
+    <webtest name="Create a playground environment">
+      <mail.cleanInbox />
+      <!-- Supplier -->
+      <operator.addCurrency />
+      <operator.createorganization createUniqueId="false" roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      
+      <echo level="warning" message="Marketplace Url: #{baseUrl}/marketplace/index.jsf?mId=${mId}" />
+      <echo level="warning" message="SupplierUrl: #{orgUrl}" />
+      <echo level="warning" message="RegistrationUrl: #{baseUrl}/marketplace/registration.jsf?mId=${mId}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId_local" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="#{supplierId}" baseurl="#{baseUrl}" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+	  <landingpage.setSortOrderForLandingpage mId="${mId_local}" />
+
+      <!-- Activate credit card and invoice as default payment for new customers; all for new services -->
+      <setup:payment.configureDefault customerTypes="CREDIT_CARD,INVOICE" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+
+      <techservice.import file="data/TechnicalServicesPlayground.xml" />
+
+      <!-- services for local marketplace -->
+      <setup:service.define marketplaceId="${mId}" serviceId="ExampleTrial" name="Trial" description="Trial description" shortDescription="Trial short description" concurrentUser="3" namedUser="2" />
+      <setup:service.define marketplaceId="${mId}" serviceId="ExampleStarter" name="Starter" description="Starter description" shortDescription="Starter short description" />
+      <setup:service.define marketplaceId="${mId}" serviceId="ExampleProfessional" name="Professional" description="Professional description" shortDescription="Professional short description" concurrentUser="10" configurableChecked="true" />
+
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <setup:pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+
+      <setup:service.defineMigrationOptions serviceId="ExampleTrial" migrationTargetIds="ExampleStarter,ExampleProfessional" />
+      <setup:service.defineMigrationOptions serviceId="ExampleStarter" migrationTargetIds="ExampleTrial,ExampleProfessional" />
+
+      <setup:service.activate serviceIds="ExampleTrial,ExampleStarter,ExampleProfessional" />
+
+      <!-- services for global marketplace -->
+      <setup:service.define serviceId="MegaOffice1" name="Mega Office Trial" description="Limited evaluation version." shortDescription="Manages small documents independent of their content." namedUser="1" image="data/images/icon1.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="MegaOffice2" name="Mega Office Starter" description="Starter bundle with limited features." shortDescription="Manage documents and adds randomly different colors to the headings." configurableChecked="true" namedUser="1" image="data/images/icon2.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="MegaOffice3" name="Mega Office Basic" description="Basic bundle with all features but no support." shortDescription="Manage documents in any way, but is limited to only 52 pages per document." configurableChecked="true" namedUser="1" image="data/images/icon3.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="MegaOffice4" name="Mega Office Student" description="Basic bundle with all features but no support - special student price." shortDescription="Automatically writes dissertations while you are on vacations." configurableChecked="true" namedUser="1" image="data/images/icon4.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="MegaOffice5" name="Mega Office Enterprise" description="Enterprise edition with full support and unlimited usage licenses." shortDescription="Manages all documents, e-mails and screensavers automatically. Web-Services and any other kind of integration is supported as well." configurableChecked="true" image="data/images/icon5.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="MegaOffice6" name="Mega Office Professional" description="'Professional edition with full support - up to 5 users" shortDescription="Manages all kind of documents for small companies." configurableChecked="true" namedUser="5" image="data/images/icon6.png" marketplaceId="${mId}" />
+      <!-- higlander is testing the onlyOneSubscription feature -->
+      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Can't get more than one!" configurableChecked="true" namedUser="1" image="data/images/icon4.png" marketplaceId="${mId}" />
+
+      <setup:pricemodel.define serviceId="MegaOffice1" isFree="true" />
+      <common.ignorePageScriptError/>
+      <setup:pricemodel.define serviceId="MegaOffice2" isFree="false"  basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:pricemodel.define serviceId="MegaOffice3" isFree="false"  basePrice="49" steppedPriceForParameter="0" steppedPriceForEvent="0" perSub="19" />
+      <setup:pricemodel.define serviceId="MegaOffice4" isFree="false"  basePrice="0" steppedPriceForParameter="0" steppedPriceForEvent="0" perUser="19" />
+      <setup:pricemodel.define serviceId="MegaOffice5" isFree="false"  basePrice="0" steppedPriceForParameter="3" steppedPriceForEvent="1" />
+      <setup:pricemodel.define serviceId="MegaOffice6" isFree="false"  basePrice="199" steppedPriceForParameter="2" steppedPriceForEvent="2" />
+      <setup:pricemodel.define serviceId="Highlander" isFree="true" />
+
+      <setup:service.defineMigrationOptions serviceId="MegaOffice1" migrationTargetIds="MegaOffice2,MegaOffice3,MegaOffice4" />
+      <setup:service.defineMigrationOptions serviceId="MegaOffice2" migrationTargetIds="MegaOffice3,MegaOffice4,MegaOffice5" />
+      <setup:service.defineMigrationOptions serviceId="MegaOffice3" migrationTargetIds="MegaOffice4,MegaOffice5,MegaOffice6" />
+
+      <setup:service.activate serviceIds="MegaOffice1,MegaOffice2,MegaOffice3,MegaOffice4,MegaOffice5,MegaOffice6,Highlander" />
+
+      <!-- Create a Customer -->
+      <user.registerCustomer marketplaceId="${mId}" createUniqueId="false" userId="customer" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <echo level="warning" message="CustomerUrl: #{orgUrl}" />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <storeProperty name="customerUserKey" value="#{userKey}" propertyType="ant" />
+
+      <mpl_login.loginWithChangePassword userId="#{customerUserId}" oldPassword="#{userPwd}" mid="${mId}" />
+    </webtest>
+  </target>
+
+
+</project>

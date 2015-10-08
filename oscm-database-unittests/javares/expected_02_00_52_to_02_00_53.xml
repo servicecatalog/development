@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="2" version="0" organization_tkey="2" organizationrole_tkey="2"/>
+  <OrganizationToRole tkey="3" version="0" organization_tkey="3" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="4" version="0" organization_tkey="4" organizationrole_tkey="4"/>
+  <OrganizationToRole tkey="5" version="0" organization_tkey="5" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="6" version="0" organization_tkey="5" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="7" version="0" organization_tkey="6" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="8" version="0" organization_tkey="6" organizationrole_tkey="2"/>
+
+  <OrganizationToRole tkey="9" version="0" organization_tkey="1" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="10" version="0" organization_tkey="2" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="11" version="0" organization_tkey="4" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="12" version="0" organization_tkey="6" organizationrole_tkey="3"/>
+
+  <OrganizationToRoleHistory modtype="ADD" moduser="1000" objkey="9" objversion="0" organizationtkey="1" organizationroletkey="3"/>
+  <OrganizationToRoleHistory modtype="ADD" moduser="1000" objkey="10" objversion="0" organizationtkey="2" organizationroletkey="3"/>
+  <OrganizationToRoleHistory modtype="ADD" moduser="1000" objkey="11" objversion="0" organizationtkey="4" organizationroletkey="3"/>
+  <OrganizationToRoleHistory modtype="ADD" moduser="1000" objkey="12" objversion="0" organizationtkey="6" organizationroletkey="3"/>
+
+</dataset>

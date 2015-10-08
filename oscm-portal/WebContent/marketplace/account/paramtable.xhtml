@@ -1,0 +1,216 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <c:set var="showConfigurable" value="false" />
+  <c:set var="subscriptionExisting" value="#{bean.model.subscriptionExisting}" />
+  <c:set var="showSteppedPrices" value="#{bean.model.parametersWithSteppedPrices}" />
+  <c:set var="readOnly" value="#{bean.model.readOnlyParams}" />
+  <c:if test="#{empty showParameterPrices}">
+    <c:set var="showParameterPrices" value="true" />
+  </c:if>
+
+  <script type="text/javascript">
+  	var selectedRadioOptions = new Object();
+  </script>
+    
+    
+  <rich:dataTable id="parameterConfigTable" value="#{inputList}" var="row" width="100%" rowKeyVar="rowKey"
+    headerClass="rowTitle" rowClasses="rowOdd,rowEven">
+    <c:set var="readOnly" value="#{bean.model.readOnlyParams or (row.oneTimeParameter and subscriptionExisting)}" />
+    <!-- parameter description -->
+    <rich:column>
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.description']}" />
+      </f:facet>
+      <adm:paramLabel id="description" value="#{row.parameterDefinition.description}"
+        rendered="#{not (row.option) and row.emptyOrFirstSteppedPrice}" required="#{row.parameterDefinition.mandatory and ((not subscriptionExisting) or (not row.oneTimeParameter and subscriptionExisting))}"
+        renderFootNote="#{row.oneTimeParameter and not subscriptionExisting}" />
+    </rich:column>
+
+    <!--  configurable parameter -->
+    <rich:column rendered="#{showConfigurable}" width="1px">
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.configurable']}" />
+      </f:facet>
+      <c:if test="#{not (row.option) and row.emptyOrFirstSteppedPrice}">
+        <h:selectBooleanCheckbox id="configurable" onchange="setDirty(true)" value="#{row.parameter.configurable}"
+                                 disabled="#{not (row.parameter.parameterDefinition.configurable) or readOnly}" />
+      </c:if>
+    </rich:column>
+
+    <!-- parameter value (only rendered when subscription does not exist or the current row is not oneTimeParameter) -->
+    <rich:column>
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.value']}" />
+      </f:facet>
+      <t:div style="white-space:nowrap;">
+        <h:selectBooleanCheckbox id="booleanValue" label="#{row.label}" onchange="setDirty(true)"
+          value="#{row.booleanParameterValue}" disabled="#{readOnly}"
+          rendered="#{row.parameterDefinition.valueTypeBoolean}">
+        </h:selectBooleanCheckbox>
+        <h:inputText id="integerValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
+          maxlength="#{appBean.intLen}" required="#{row.parameterDefinition.mandatory}" dataType="integer"
+          minValue="#{row.minValue}" maxValue="#{row.maxValue}" disabled="#{readOnly}"
+          rendered="#{row.parameterDefinition.valueTypeInteger and row.emptyOrFirstSteppedPrice}">
+          <f:validator validatorId="ParameterValueValidator" />
+        </h:inputText>
+        <h:inputText id="longValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
+          maxlength="#{appBean.longLen}" required="#{row.parameterDefinition.mandatory}" dataType="long"
+          minValue="#{row.minValue}" maxValue="#{row.maxValue}" disabled="#{readOnly}"
+          rendered="#{row.parameterDefinition.valueTypeLong and row.emptyOrFirstSteppedPrice}">
+          <f:validator validatorId="ParameterValueValidator" />
+        </h:inputText>
+        <h:inputText id="durationValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
+          maxlength="#{appBean.longLen}" required="#{row.parameterDefinition.mandatory}" dataType="duration"
+          minValue="#{row.minValue}" maxValue="#{row.maxValue}" disabled="#{readOnly}"
+          rendered="#{row.parameterDefinition.valueTypeDuration}">
+          <f:converter converterId="duration.converter" />
+        </h:inputText>
+        <h:inputText id="stringValue" label="#{row.label}" onchange="setDirty(true)" value="#{row.parameter.value}"
+          maxlength="#{appBean.descriptionLen}" required="#{row.parameterDefinition.mandatory}" dataType="string"
+          disabled="#{readOnly}" rendered="#{row.parameterDefinition.valueTypeString}">
+          <f:validator validatorId="ParameterValueValidator" />
+          <f:converter converterId="trimConverter" />
+        </h:inputText>
+        <!-- enumeration value-->
+        <t:inputHidden id="enumValue" value="#{row.parameter.value}"
+          rendered="#{row.parameterDefinition.valueTypeEnumeration and not row.option}" />
+        <ui:fragment rendered="#{row.parameterDefinition.valueTypeEnumeration and not row.option}">
+          <script type="text/javascript">
+            selectedRadioOptions['#{row.parameterDefinition.parameterId}'] = document.getElementById('#{formName}:parameterConfigTable:#{rowKey}:enumValue').value;
+          </script>
+        </ui:fragment>
+        <!-- enumeration option-->
+        <ui:fragment rendered="#{row.option}">
+          <c:set var="onclick"
+            value="document.getElementById('#{formName}:parameterConfigTable:#{rowKey - row.optionIndex - 1}:enumValue').value='#{row.parameterOption.optionId}';setDirty(true);" />
+          <c:set var="radioId"
+            value="#{formName}:parameterConfigTable:#{rowKey}:radioOption" />
+          <c:set var="style" value="margin-right:4px;" />
+          <ui:fragment rendered="#{row.parameterOption.optionId == row.parameter.value and readOnly}">
+            <input type="radio" id="#{radioId}" name="#{row.parameterOption.paramDefId}" value="#{row.parameterOption.optionId}"
+              onclick="#{onclick}" checked="checked" disabled="disabled" />
+          </ui:fragment>
+          <ui:fragment rendered="#{row.parameterOption.optionId == row.parameter.value and not readOnly}">
+            <input type="radio" id="#{radioId}" name="#{row.parameterOption.paramDefId}" value="#{row.parameterOption.optionId}"
+              onclick="#{onclick}" checked="checked" />
+          </ui:fragment>
+          <ui:fragment rendered="#{row.parameterOption.optionId != row.parameter.value and readOnly}">
+            <input type="radio" id="#{radioId}" name="#{row.parameterOption.paramDefId}" value="#{row.parameterOption.optionId}"
+              onclick="#{onclick}" disabled="disabled" />
+          </ui:fragment>
+          <ui:fragment rendered="#{row.parameterOption.optionId != row.parameter.value and not readOnly}">
+            <input type="radio" id="#{radioId}" name="#{row.parameterOption.paramDefId}" value="#{row.parameterOption.optionId}"
+              onclick="#{onclick}" />
+          </ui:fragment>
+          <h:outputText value="#{row.parameterOption.optionDescription}" />
+        </ui:fragment>
+        <adm:spacer width="10" />
+        <h:outputText value="#{row.rangeLabel}" rendered="#{row.rangeRendered and row.emptyOrFirstSteppedPrice}" />
+      </t:div>
+      <t:div styleClass="errorPanelTr">
+        <adm:message for="booleanValue" rendered="#{row.parameterDefinition.valueTypeBoolean and not (subscriptionExisting and row.oneTimeParameter)}" />
+        <adm:message for="integerValue" rendered="#{row.parameterDefinition.valueTypeInteger and not (subscriptionExisting and row.oneTimeParameter)}" />
+        <adm:message for="longValue" rendered="#{row.parameterDefinition.valueTypeLong and not (subscriptionExisting and row.oneTimeParameter)}" />
+        <adm:message for="stringValue" rendered="#{row.parameterDefinition.valueTypeString and not (subscriptionExisting and row.oneTimeParameter)}" />
+        <adm:message for="durationValue" rendered="#{row.parameterDefinition.valueTypeDuration and not (subscriptionExisting and row.oneTimeParameter)}" />
+        <adm:message for="enumValue"
+          rendered="#{row.parameterDefinition.valueTypeEnumeration and not row.option and not (subscriptionExisting and row.oneTimeParameter)}" />
+      </t:div>
+    </rich:column>
+
+    <!--  price per user  -->
+    <rich:column
+      rendered="#{showParameterPrices and showPrices and not (subscriptionExisting and row.oneTimeParameter)}">
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.pricePerUser']}" />
+      </f:facet>
+      <!--  parameter  -->
+      <h:outputText id="pricePerUser"
+        rendered="#{not (row.option) and not (row.parameterDefinition.valueTypeEnumeration) and row.emptyOrFirstSteppedPrice}"
+        value="#{row.pricedParameter.pricePerUser}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+      <!-- parameter option -->
+      <h:outputText id="pricePerUserOption" rendered="#{row.option}" value="#{row.pricedOption.pricePerUser}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+    </rich:column>
+
+    <!--  price per user (special handling to oneTimeParameter) -->
+    <rich:column rendered="#{showParameterPrices and showPrices and subscriptionExisting and row.oneTimeParameter}">
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.pricePerUser']}" />
+      </f:facet>
+      <h:outputText value="#{row.pricedParameter.pricePerUser}" rendered="#{row.emptyOrFirstSteppedPrice}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+    </rich:column>
+
+    <!--  price per subscription -->
+    <rich:column rendered="#{showParameterPrices and showPrices and not (subscriptionExisting and row.oneTimeParameter)}">
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.pricePerSubscription']}" />
+      </f:facet>
+      <!-- parameter -->
+      <h:outputText id="pricePerSubscription"
+        rendered="#{not (row.option) and not (row.parameterDefinition.valueTypeEnumeration) and empty row.steppedPrice}"
+        value="#{row.pricedParameter.pricePerSubscription}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+      <h:outputText id="parameterSteppedPricePrice" rendered="#{not empty row.steppedPrice}"
+        value="#{row.steppedPrice.price}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+      <!-- parameter option-->
+      <h:outputText id="pricePerSubscriptionOption" rendered="#{row.option}"
+        value="#{row.pricedOption.pricePerSubscription}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+    </rich:column>
+
+    <!--  price per subscription (special handling to oneTimeParameter) -->
+    <rich:column rendered="#{showParameterPrices and  showPrices and subscriptionExisting and row.oneTimeParameter}">
+      <f:facet name="header">
+        <h:outputText value="#{msg['service.parameter.pricePerSubscription']}" />
+      </f:facet>
+      <!-- parameter -->
+      <h:outputText value="#{row.pricedParameter.pricePerSubscription}" rendered="#{empty row.steppedPrice}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+      <h:outputText value="#{row.steppedPrice.price}" rendered="#{not empty row.steppedPrice}">
+        <f:converter converterId="currency.converter" />
+      </h:outputText>
+    </rich:column>
+
+    <rich:column rendered="#{showParameterPrices and showSteppedPrices}">
+      <f:facet name="header">
+        <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+      </f:facet>
+      <h:outputText id="parameterSteppedPriceLimit" value="#{row.steppedPrice.limit}"
+        rendered="#{not row.lastSteppedPrice and not empty row.steppedPrice}" />
+      <h:outputText id="parameterSteppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+        rendered="#{row.lastSteppedPrice}" />
+    </rich:column>
+  </rich:dataTable>
+  
+  <script type="text/javascript">
+    AdmUtils.selectRadioButtons(selectedRadioOptions);
+  </script>
+
+  <c:forEach items="#{inputList}" var="row" varStatus="v">
+    <c:if test="#{row.oneTimeParameter and not subscriptionExisting}">
+      <c:set var="showFootNote" value="TRUE" />
+    </c:if>
+  </c:forEach>
+
+  <a4j:outputPanel layout="block" rendered="#{showFootNote}">
+    <h:outputText value="#{msg['service.parameter.footnoteForCustomer']}" />
+  </a4j:outputPanel>
+</ui:composition>

@@ -1,0 +1,91 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.manageOperatorRevenueShare" />
+    <c:set var="focusElement" value="editForm:templateKey" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{manageOperatorRevenueShareCtrl.initializePage}" />
+      
+    <h:form id="selectForm">
+                                    <!-- operator...  Eclipse Refactoring??? -->
+      <adm:outputStep value="#{msg['operator.manageOperatorRevenueShare.step1']}" />
+
+      <adm:panelGrid>
+        <h:panelGroup>
+          <adm:outputLabel value="#{msg['service.serviceId']}" />
+        </h:panelGroup>
+        <h:panelGroup>
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu styleClass="select" id="templateKey" value="#{manageOperatorRevenueShareModel.selectedTemplateKey}"
+              valueChangeListener="#{manageOperatorRevenueShareCtrl.templateChanged}" immediate="true"
+              onchange="if(AdmUtils.isNotDirtyOrConfirmed()){
+                 #{rich:element('selectForm')}.submit();
+               } else{AdmUtils.restoreValue(this);}"
+              onclick="AdmUtils.storeValue(this);AdmUtils.initFocus();">
+              <adm:selectItemPleaseSelect itemValue="0" />
+              <f:selectItems value="#{manageOperatorRevenueShareModel.templates}" />
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+        </h:panelGroup>
+        <h:panelGroup>
+          <adm:message for="templateKey" />
+        </h:panelGroup>
+      </adm:panelGrid>
+    </h:form>
+    
+    <h:form id="editForm">
+      <adm:outputStep value="#{msg['operator.manageOperatorRevenueShare.step2']}"
+        rendered="#{manageOperatorRevenueShareModel.serviceSelected}" />
+        
+        
+      <a4j:outputPanel layout="block" styleClass="tablePanel" rendered="#{manageOperatorRevenueShareModel.serviceSelected}">
+        <adm:dataTable tableId="operatorRevenueShareTable"
+          value="#{manageOperatorRevenueShareModel.operatorRevenueShare}">
+          
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.manageOperatorRevenueShare.header.defaultRevenueShare']}" />
+            </f:facet>
+            <h:outputText
+              value="#{manageOperatorRevenueShareModel.defaultOperatorRevenueShare.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </rich:column>
+          
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.manageOperatorRevenueShare.header.revenueShare']}" />
+            </f:facet>
+            <h:inputText id="operatorRevenueShare" styleClass="fieldXS" onchange="setDirty(true)"
+              value="#{manageOperatorRevenueShareModel.operatorRevenueShare.revenueShare}" required="true"
+              maxlength="#{appBean.percentValueLen}">
+              <f:validator validatorId="revenueShareValue" />
+              <f:converter converterId="bigDecimal.converter" />
+            </h:inputText>
+            <adm:message for="operatorRevenueShare" />
+          </rich:column>
+          
+        </adm:dataTable>
+      </a4j:outputPanel>
+      
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{manageOperatorRevenueShareCtrl}"
+          action="save" disabled="#{manageOperatorRevenueShareModel.saveDisabled}" buttonType="save" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

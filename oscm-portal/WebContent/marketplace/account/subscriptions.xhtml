@@ -1,0 +1,168 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+                template="../templates/main.xhtml">
+  
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.account.subscriptions" />
+    <c:set var="dirty" value="false" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <mp:breadcrumbs>
+      <mp:crumb labelPageId="marketplace.account" link="/marketplace/account/index.jsf" />
+      <mp:crumb labelPageId="marketplace.account.subscriptions" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="aside">
+    <mp:navigationMenu bean="#{accountNavigationBean}" selected="marketplace.account.subscriptions.title" />
+  </ui:define>
+  
+    <ui:define name="contents">
+        <a4j:queue name="accountSubscriptionsQueue" requestDelay="400" ignoreDupResponses="true"/>
+        <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
+        <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+        <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
+    
+        <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
+          <a4j:outputPanel layout="block" styleClass="box">
+
+            <h:form id="triggerSubListForm" rendered="#{not empty subscriptionsCtrl.triggerProcessesModel.waitingForApprovalSubs}">
+              <ui:include src="../subscriptions/triggerProcessesTable.xhtml">
+                <ui:param name="data" value="#{subscriptionsCtrl.triggerProcessesModel.waitingForApprovalSubs}" />
+              </ui:include>
+            </h:form>
+
+        <mp:outputStep id="pageHeader" value="#{msg['subscriptions.table.availableToAdministrate']}" />
+
+        <h:form id="subListForm">
+
+          <a4j:jsFunction name="validateSubscriptionStatus"
+                          action="#{subscriptionsCtrl.showSubscriptionDetails}"
+                          render=":hiddenErrorPanel subListForm">
+            <a4j:param name="param1" assignTo="#{subscriptionsCtrl.model.selectedSubscriptionId}" />
+            <a4j:param name="param2" assignTo="#{subscriptionsCtrl.model.selectedSubscriptionKey}" />
+          </a4j:jsFunction>
+
+          <rich:dataTable rows="10" id="subscriptionsList" value="#{subscriptionsCtrl.model}" var="sub"
+            headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable" styleClass="sortable"
+            headerCellClass="rowTitle sortable" columnClasses="wrapColumns" rowClasses="rowOdd,rowEven"
+            onRowMouseOver="AdmUtils.mouseOverRowCell(this);" onRowMouseOut="AdmUtils.mouseOutRowCell(this)"
+            noDataLabel=" " style="width:100%">
+
+            <f:facet name="header">
+              <a4j:outputPanel>
+                <adm:pager pagerId="subListPager" />
+              </a4j:outputPanel>
+            </f:facet>
+            <rich:column width="#{iconWidth}" styleClass="tableColumnCheckBox">
+              <a4j:commandLink
+                      onclick="validateSubscriptionStatus('#{sub.subscriptionId}', '#{sub.subscriptionKey}');"
+                      render=":hiddenErrorPanel subListForm">
+                <img src="#{imgUrl}/transparentPixel.png" id="editSubImage#{sub.subscriptionId}" class="editPen" />
+                <f:setPropertyActionListener target="#{subscriptionsCtrl.model.selectedSubscription}" value="#{sub}" />
+                <!--<f:param name="action" value="#{param.action}" />-->
+              </a4j:commandLink>
+            </rich:column>
+
+            <ui:include src="../subscriptions/subscriptionTableColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.SUBSCRIPTION_ID}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscriptions.table.name']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+              <ui:param name="styleClass" value="column-max-width"/>
+            </ui:include>
+            <ui:include src="../subscriptions/subscriptionTableColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.PURCHASE_ORDER_NUMBER}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscriptions.table.reference']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+              <ui:param name="styleClass" value="table-column-with-max-width"/>
+            </ui:include>
+            <ui:include src="../subscriptions/subscriptionTableColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.UNIT}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscription.unit']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+              <ui:param name="styleClass" value="column-max-width"/>
+            </ui:include>
+            <ui:include src="../subscriptions/subscriptionTableColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.SERVICE_NAME}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscription.service']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+              <ui:param name="styleClass" value="column-max-width"/>
+            </ui:include>
+            <ui:include src="../subscriptions/subscriptionTableDateColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.ACTIVATION}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscriptions.table.activation']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+            </ui:include>
+            <ui:include src="../subscriptions/subscriptionTableStatusColumn.xhtml">
+              <ui:param name="bean" value="#{subscriptionsCtrl.model}" />
+              <ui:param name="property" value="#{subscriptionsCtrl.model.STATUS}" />
+              <ui:param name="tableName" value="subscriptionsList" />
+              <ui:param name="record" value="#{sub}" />
+              <ui:param name="columnHeaderName" value="#{msg['subscription.status']}" />
+              <ui:param name="scroller" value="subListPager" />
+              <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+              <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+              <ui:param name="queueName" value="accountSubscriptionsQueue"/>
+              <ui:param name="styleClass" value="table-column-with-max-width"/>
+            </ui:include>
+          </rich:dataTable>
+        </h:form>
+
+        <ui:include src="subscriptionAdministratePanel.xhtml">
+          <ui:param name="dialogId" value="subscriptionAdministratePanel" />
+        </ui:include>
+
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+
+    <mp:linkPageTop />
+
+    <a4j:outputPanel id="subscriptionsListScripts" layout="block">
+        <script type="text/javascript">
+            //script used to mark column header blue
+            $(".sort-icons img").parents("th").addClass("tableColumnSelected");
+        </script>
+    </a4j:outputPanel>
+
+  </ui:define>
+</ui:composition>

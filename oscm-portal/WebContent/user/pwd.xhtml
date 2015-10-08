@@ -1,0 +1,55 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="user.pwd" />
+    <c:set var="focusElement" value="currentPassword" />
+  </ui:define>
+  <ui:define name="body">
+    <h:form id="validateCurrentUserRolesForm">
+      <a4j:jsFunction name="validateCurrentUserRoles"
+        data="#{userBean.currentUserRolesChanged}"
+        oncomplete="if(event.data==true){#{rich:component('reLogining')}.show();}
+                     else{setOnSubmit(true);setDirty(false);
+                     #{rich:element('changeButton')}.click();setOnSubmit(false);} return false;">
+      </a4j:jsFunction>
+    </h:form>
+    <adm:outputStep value="#{msg['user.pwd.step1']}" />
+    <h:form id="passwordform">
+      <adm:panelGrid>
+        <adm:outputLabel for="currentPassword" value="#{msg['user.currentPassword']}" required="true" />
+        <h:inputSecret id="currentPassword" label="#{msg['user.currentPassword']}" required="true"
+          value="#{userBean.currentPassword}" styleClass="field" maxlength="#{appBean.nameLen}"
+          onchange="setDirty(true)" autocomplete="off" />
+        <adm:message for="currentPassword" />
+
+        <adm:outputLabel for="password" value="#{msg['user.newPassword']}" required="true" />
+        <adm:password required="true" strengthDemRequired="true" passwordStrengthId="passwordStrengthLogin"
+          length="#{appBean.nameLen}" label="#{msg['user.newPassword']}" beanValue="#{userBean.password}" validatorId="password" />
+        <adm:message id="passwordErrorMsg" for="password" />
+
+        <adm:outputLabel for="password2" value="#{msg['user.password2']}" required="true" />
+        <h:inputSecret id="password2" label="#{msg['user.password2']}" required="true" value="#{userBean.password2}"
+          styleClass="field" maxlength="#{appBean.nameLen}" onchange="setDirty(true)" autocomplete="off"
+          connectedTo="passwordform:password">
+          <f:validator validatorId="password" />
+        </h:inputSecret>
+        <adm:message for="password2" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <h:commandButton id="changeButton" action="#{userBean.change}" value="#{msg['button.change']}"
+          style="display:none;" />
+        <adm:buttonCustomizedOnClick id="changeButtonLink" value="#{msg['button.change']}" buttonType="save"
+          onclick="validateCurrentUserRoles();return false;" />
+      </adm:buttonPanel>
+    </h:form>
+    <adm:reloginConfirmPanel />
+  </ui:define>
+</ui:composition>

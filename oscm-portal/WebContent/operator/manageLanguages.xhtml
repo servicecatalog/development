@@ -1,0 +1,102 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.manageLanguages" />
+    <c:set var="focusElement" value="addLanguages:languageToAdd" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{manageLanguageCtrl.initialize}" />
+
+  <script language="JavaScript1.2" type="text/javascript">
+    function getConfirmMessage() { return "#{appBean.getJSMessageByKey('confirm.language.deactive')}"; }
+  </script>
+    <adm:outputStep value="#{msg['operator.manageLanguages.step1']}" />
+    <h:form id="languages">
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="languagesTable" value="#{manageLanguageModel.languages}"
+          onRowClick="AdmUtils.selectRow(this);selectItem('#{rowItem.languageISOCode}');"
+          onRowMouseOver="AdmUtils.mouseOverRow(this);" onRowMouseOut="AdmUtils.mouseOutRow(this)"
+          selectionMode="single">
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.manageLanguages.table.isocode']}" />
+            </f:facet>
+            <h:outputText id="isocode" value="#{rowItem.languageISOCode}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.manageLanguages.table.active']}" />
+            </f:facet>
+            <h:selectBooleanCheckbox value="#{rowItem.active}" id="checkboxId"
+              disabled="#{rowItem.defaultLanguageStatus}" onclick="if(!this.checked ){if(!confirm(getConfirmMessage())){this.checked=true; return;};}; setDirty(true);">
+              <a4j:ajax event="click" render="languagesTable" />
+            </h:selectBooleanCheckbox>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.manageLanguages.table.language']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.languageName}" />
+            <h:outputText value="#{msg['operator.manageLanguages.table.default']}"
+              rendered="#{rowItem.defaultLanguageStatus}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <h:commandButton style="display:none;" id="downloadButton" value="" action="#{manageLanguageCtrl.exportTranslations}" />        
+      <adm:buttonPanel columns="3">
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{manageLanguageCtrl}" action="save"
+          buttonType="save" />        
+        <adm:buttonCustomizedOnClick id="exportButton" value="#{msg['button.export']}" buttonType="export"
+          onclick="AdmUtils.clearMsgrPanel(); var f=#{rich:element('languages')}; if(AdmUtils.isIE()){f.target='_blank';} #{rich:element('downloadButton')}.click(); if(AdmUtils.isIE()){f.target='';}" />  
+      </adm:buttonPanel>
+      <h:inputHidden value="#{manageLanguageModel.token}" />
+    </h:form>
+
+    <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
+      <a4j:jsFunction name="selectItem" render="exportButton"
+        oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+        <a4j:param name="param1" assignTo="#{manageLanguageModel.selectedLanguageCode}" />
+      </a4j:jsFunction>
+    </h:form>
+
+    <h:form id="addLanguages">
+      <adm:panelGrid>
+        <adm:labelAndInputText id="languageToAdd" label="#{msg['operator.manageLanguages.isocode']}"
+          value="#{manageLanguageModel.newISOCode}" styleClass="fieldXS" maxlength="2" required="true"
+          validatorId="languageISOCode" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="addButton" value="#{msg['button.add']}" bean="#{manageLanguageCtrl}" action="addLanuage"
+          buttonType="add" />
+      </adm:buttonPanel>
+
+      <a4j:jsFunction name="importLocalizedData"
+        render="importLocalizedData"
+        oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();RichFaces.$('importLocalizedData').show();AdmUtils.setUIElements();">
+      </a4j:jsFunction>  
+      
+      <h:inputHidden value="#{manageLanguageModel.token}" />
+    </h:form>
+    
+    <h:form id="importForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('file')});">
+      <adm:panelGrid>
+        <adm:fileUpload value="#{manageLanguageCtrl.excel}" />
+      </adm:panelGrid>
+      <adm:buttonPanel columns="2">
+        <adm:button id="uploadButton" value="#{msg['button.import']}" bean="#{manageLanguageCtrl}" buttonType="fileUpload"
+          action="importTranslations" render="#{dialogId}RerenderPanel, mainTmplMessagesPanel"/>
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

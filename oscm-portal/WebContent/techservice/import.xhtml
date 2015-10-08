@@ -1,0 +1,70 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="techService.import" />
+    <c:set var="focusElement" value="file" />
+  </ui:define>
+
+  <ui:define name="body">
+
+    <h:form id="importForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('file')});">
+
+      <adm:outputStep value="#{msg['techService.import.step1']}" />
+      <adm:panelGrid>
+        <adm:fileUpload value="#{techServiceBean.uploadedFile}" disabled="#{editDisabled}"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanelSub>
+        <adm:button id="importButton" value="#{msg['button.import']}" bean="#{techServiceBean}" action="xmlImport" buttonType="confirm" />
+      </adm:buttonPanelSub>
+
+      <adm:outputStep value="#{msg['techService.importedServices']}" />
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="techServiceTable" value="#{techServiceBean.technicalServices}"
+          onRowClick="AdmUtils.selectRow(this);selectTechService(#{rowItem.key});"
+          onRowMouseOver="AdmUtils.mouseOverRow(this)" onRowMouseOut="AdmUtils.mouseOutRow(this)"
+          label="#{msg['techService.import.table.header']}" >
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.techServiceId']}" />
+            </f:facet>
+            <h:outputText id="techServiceId" value="#{rowItem.technicalServiceId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.build']}" />
+            </f:facet>
+            <h:outputText id="techSrvBuildId" value="#{rowItem.technicalServiceBuildId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.description']}" />
+            </f:facet>
+            <adm:outputLarge style="border-style: none;" value="#{rowItem.technicalServiceDescription}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+    </h:form>
+
+    <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
+      <a4j:queue requestDelay="500" ignoreDupResponses="true" />
+      <a4j:jsFunction name="selectTechService" render="detailPanel"
+        oncomplete="AdmUtils.showProgress(false);RichFaces.$('detailPanel').show();">
+        <a4j:param name="param1" assignTo="#{techServiceBean.selectedTechnicalServiceKeyWithValidation}" />
+      </a4j:jsFunction>
+    </h:form>
+
+    <ui:include src="detail.xhtml" />
+
+  </ui:define>
+</ui:composition>

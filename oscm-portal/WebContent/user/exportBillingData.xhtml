@@ -1,0 +1,68 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="user.exportBillingData" />
+    <c:set var="focusElement" value="billingTypeSelector" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{exportBillingDataCtrl.initializeExportBillingData}" />
+    
+    <h:form id="showBillingData" target="#{sessionBean.ie?'_blank':''}">
+      <h:commandButton style="display:none;" id="hiddenShowButton" value="hiddenShowButton"
+        action="#{exportBillingDataCtrl.showBillingData}" />
+      <script type="text/javascript">
+        function windowOnLoad() {
+          #{rich:element('hiddenShowButton')}.click();
+        }
+        if (#{exportBillingDataCtrl.dataAvailable}) {
+          window.onload=windowOnLoad;
+        }
+      </script>
+    </h:form>
+ 
+    <h:form id="billingData">
+      <h:panelGroup rendered="#{exportBillingDataCtrl.showBillingTypeSelectStep}">
+        <adm:outputStep value="#{msg['user.exportBillingData.step1']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['user.exportBillingData.billingType']}" />
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu id="billingTypeSelector" value="#{exportBillingDataModel.selectedBillingDataType}"
+              styleClass="select" valueChangeListener="#{exportBillingDataCtrl.billingTypeChanged}">
+              <a4j:ajax event="change"
+                render="sharesExportInclude,customerBillingDataExportInclude,customerStep,sharesPanel,customerTable,mainTmplMessagesPanel"
+                onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
+                oncomplete="AdmUtils.setUIElements();" />
+              <adm:selectItemPleaseSelect itemValue="#{null}" />
+              <f:selectItems value="#{exportBillingDataModel.billingDataTypeOptions}" />
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+          <adm:message id="billingTypeSelectorErrorMsg" for="billingTypeSelector" />
+        </adm:panelGrid>
+      </h:panelGroup>
+      
+      <h:panelGroup id="sharesExportInclude"> 
+        <ui:include src="/user/exportShares.xhtml"/>
+      </h:panelGroup>
+      
+      <h:panelGroup id="customerBillingDataExportInclude">
+        <ui:include  src="/user/exportCustomerBillingData.xhtml"/>
+      </h:panelGroup>
+      
+    </h:form>
+    <script type="text/javascript">
+      function hideClean() {
+        // hide clean buttons
+        $(".rf-cal div:contains(\"Clean\")").hide();
+      }
+    </script>
+  </ui:define>
+</ui:composition>

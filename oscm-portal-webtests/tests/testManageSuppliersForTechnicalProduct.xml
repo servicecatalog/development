@@ -1,0 +1,313 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="manageSuppliersForTechnologyProviderTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="manageSuppliersForTechnologyProviderTests" depends="testCommonDialogBehavior, testGrantRevokePermission, testDeleteTs" />
+  <!-- The focus of this test suite is the "Manage Suppliers" dialog and the vibility of the technical services for the suppliers -->
+
+  <!-- Common initialization. Used for all targets in the test. -->
+  <target name="init">
+    <webtest name="testManageTP_Suppliers_setup">
+      <mail.cleanInbox />
+
+      <!-- Create supplier 1 (only SUPPLIER role) -->
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_1_OrgId" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_1_UserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+
+      <!-- Create supplier 2 (SUPPLIER and TECHNOLOGY_PROVIDER role) -->
+      <operator.createorganization />
+      <storeProperty name="supplier_2_OrgId" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_2_UserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplier_2_UserKey" value="#{userKey}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+
+      <!-- Create technology provider 1 -->
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <storeProperty name="tp_OrgId" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="tp_UserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="tp_UserKey" value="#{userKey}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+
+      <!-- Create technology provider 2 -->
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <storeProperty name="tp2_OrgId" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="tp2_UserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+
+      <!-- Create technical services for technology provider 1 -->
+      <setup:techservice.createProxy runAs="${tp_UserKey}" id="T1" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+      <setup:techservice.createProxy runAs="${tp_UserKey}" id="T2" serviceUrl="http://techService2.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+
+    </webtest>
+  </target>
+
+  <target name="testCommonDialogBehavior" depends="init">
+    <webtest name="testManageTP_Suppliers_commonDialogBehavior">
+      <testInfo type="DESCRIPTION">
+        Tests the common behaviour of the manage suppliers dialog.
+        1.) Check initial state
+        2.) Enablement of "add" before and after selection of TP
+        3.) Invalid input of org id text field
+      </testInfo>
+
+      <!-- Check that there are no TS available for the suppliers -->
+      <this.verifyTs expectedOptionCount="1" supplierUserId="${supplier_1_UserId}" />
+      <this.verifyTs expectedOptionCount="1" supplierUserId="${supplier_2_UserId}" />
+
+      <login.login userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+
+      <!-- verify initial appearance of the page and the page behaviour-->
+      <common.verifyInputFields />
+      <verifyXPath xpath="count(.//*[@id='selectForm:techServiceId']/option)" text="3" description="Verify that that this TP has 2 TSs" />
+      <verifyXPath xpath="//*[@id='addSupplierForm:supplierId' and @disabled='disabled']" />
+
+      <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButtonDisabled']" />
+      <not>
+        <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton']" />
+      </not>
+      <this.verifyNoTable />
+
+      <!-- select a TS and check the enablement -->
+      <setSelectField htmlId="selectForm:techServiceId" text="T1" />
+      <verifyXPath xpath="//*[@id='addSupplierForm:supplierId' and not(@disabled='disabled')]" />
+      <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton']" />
+      <this.verifyNoTable />
+
+      <!--check invalid org id -->
+      <dataDriven tableContainer="data/pageFields/accountManageSuppliers.xls">
+        <dataDriven tableContainer="data/invalidInput/${fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="${fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="addSupplierForm:addSupplierButtonLink" />
+        </dataDriven>
+      </dataDriven>
+
+      <login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="testGrantRevokePermission" depends="init">
+    <webtest name="testManageTP_Suppliers_grantPermission">
+      <testInfo type="DESCRIPTION">
+        Tests the use case that a TP grants the permission to use a TS to a supplier.
+        1.) Try to add organization which is no supplier
+        2.) Grant permission to supplier
+        3.) Grant permission to the same supplier a second time
+      </testInfo>
+
+      <login.loginAsSupplier userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="T1" />
+
+      <!-- bad case: select a org without the supplier role -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${tp2_OrgId}" />
+      <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+      <common.verifyError label="${ex.AddMarketingPermissionException}" regex="false" />
+
+      <!-- good case: grant permission sup1 for T1-->
+      <common.handleMessageParameters property="infoMsg" value="${info.supplier.added}" att0="${supplier_1_OrgId}" />
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_1_OrgId}" />
+      <common.waitForJavaScript />
+      <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+      <common.verifySuccess label="#{infoMsg}" />
+      <this.verifyTable_oneSupplier expectedsupplier="${supplier_1_OrgId}" />
+
+      <!-- good case: grant permission to same supplier a second time -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_1_OrgId}" />
+      <common.waitForJavaScript />
+      <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+      <common.verifySuccess label="#{infoMsg}" />
+
+      <!-- good case: grant permission sup2 for T2-->
+      <common.handleMessageParameters property="infoMsg" value="${info.supplier.added}" att0="${supplier_2_OrgId}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="T2" />
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2_OrgId}" />
+      <common.waitForJavaScript />
+      <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+      <common.verifySuccess label="#{infoMsg}" />
+      <this.verifyTable_oneSupplier expectedsupplier="${supplier_2_OrgId}" />
+
+      <login.logout />
+
+      <!-- TODO: add this as soon as the prov. seervice was adapted
+      <this.verifyTs expectedTs="T1" expectedOptionCount="2" supplierUserId="${supplier_1_UserId}" />
+      <this.verifyTs expectedTs="T2" expectedOptionCount="2" supplierUserId="${supplier_2_UserId}" />
+      -->
+    </webtest>
+
+    <webtest name="testManageTP_Suppliers_revokePermission">
+      <testInfo type="DESCRIPTION">
+        Revoke permission to use a TP.
+      </testInfo>
+
+      <login.login userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+
+      <setSelectField htmlId="selectForm:techServiceId" text="T1" />
+      <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <common.waitForJavaScript />
+      <clickLink htmlId="removeSuppliersForm:deleteButton" />
+      <clickLink htmlId="confirmSaveButton" />
+      <common.verifySuccess label="${info.supplier.removed}" regex="false" />
+      <this.verifyNoTable />
+
+      <login.logout />
+
+      <!-- TODO: add this as soon as the prov. seervice was adapted
+      <this.verifyTs expectedOptionCount="1" supplierUserId="${supplier_1_UserId}" />
+      <this.verifyTs expectedTs="T2" expectedOptionCount="2" supplierUserId="${supplier_2_UserId}" />
+      -->
+
+    </webtest>
+
+    <webtest name="testManageTP_Suppliers_ConcurrentlyAddSameSupplier">
+      <testInfo type="DESCRIPTION">
+        Add the permission to use a TP concurrently for the same supplier.
+        The operation should be executed without problems.
+      </testInfo>
+
+      <selectWebClient name="browser1">
+        <!-- open manageSupplier page in 1st browser and check supplier is not added yet-->
+        <login.loginAsSupplier userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+        <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+        <setSelectField htmlId="selectForm:techServiceId" text="T1" />
+        <this.verifyNoTable />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- open manageSupplier page in 2nd browser and check supplier is not added yet-->
+        <login.login userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+        <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+        <setSelectField htmlId="selectForm:techServiceId" text="T1" />
+        <this.verifyNoTable />
+      </selectWebClient>
+
+      <selectWebClient name="browser1">
+        <!-- add supplier in 1st browser and check that added supplier is shown -->
+        <setInputField name="addSupplierForm:supplierId" value="${supplier_1_OrgId}" />
+        <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+        <common.handleMessageParameters property="infoMsg" value="${info.supplier.added}" att0="${supplier_1_OrgId}" />
+        <common.verifySuccess label="#{infoMsg}" />
+        <this.verifyTable_oneSupplier expectedsupplier="${supplier_1_OrgId}" />
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- try to remove same supplier in 2nd browser, check that error msg is shown and added supplier is shown anyway -->
+        <setInputField name="addSupplierForm:supplierId" value="${supplier_1_OrgId}" />
+        <clickLink htmlId="addSupplierForm:addSupplierButtonLink" />
+        <common.handleMessageParameters property="infoMsg" value="${info.supplier.added}" att0="${supplier_1_OrgId}" />
+        <common.verifySuccess label="#{infoMsg}" />
+        <this.verifyTable_oneSupplier expectedsupplier="${supplier_1_OrgId}" />
+        <login.logout />
+      </selectWebClient>
+
+    </webtest>
+
+    <webtest name="testManageTP_Suppliers_revokePermissionConcurrently">
+      <testInfo type="DESCRIPTION">
+        Revoke the permission to use a TS concurrently from the same supplier.
+        This should trigger a exception and a error message is shown to the user.
+      </testInfo>
+
+      <selectWebClient name="browser1">
+        <!-- open manageSupplier page in 1st browser and check supplier 2 is still in the table-->
+        <login.loginAsSupplier userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+        <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+        <setSelectField htmlId="selectForm:techServiceId" text="T2" />
+        <this.verifyTable_oneSupplier expectedsupplier="${supplier_2_OrgId}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- open manageSupplier page in 2nd browser and check supplier 2 is still in the table-->
+        <login.login userId="${tp_UserId}" url="${bes.http.url}/oscm-portal" />
+        <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+        <setSelectField htmlId="selectForm:techServiceId" text="T2" />
+        <this.verifyTable_oneSupplier expectedsupplier="${supplier_2_OrgId}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser1">
+        <!-- remove supplier in 1st browser and check that it's not shown anymore -->
+        <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+        <clickLink htmlId="removeSuppliersForm:deleteButton" />
+        <clickLink htmlId="confirmSaveButton" />
+        <common.verifySuccess label="${info.supplier.removed}" regex="false" />
+        <this.verifyNoTable />
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- try to remove same supplier in 2nd browser, check that error msg is shown -->
+        <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+        <clickLink htmlId="removeSuppliersForm:deleteButton" />
+        <clickLink htmlId="confirmSaveButton" />
+        <common.verifyError label="${ex.MarketingPermissionNotFoundException}" regex="false" />
+        <login.logout />
+      </selectWebClient>
+
+      <!-- TODO: add this as soon as the prov. seervice was adapted
+      <this.verifyTs expectedOptionCount="1" supplierUserId="${supplier_1_UserId}" />
+      <this.verifyTs expectedOptionCount="1" supplierUserId="${supplier_2_UserId}" />
+      -->
+
+    </webtest>
+  </target>
+
+  <target name="testDeleteTs" depends="init">
+    <webtest name="testManageMP_Suppliers_deleteTs">
+      <testInfo type="DESCRIPTION">
+        Delete the previously created TS.
+      </testInfo>
+      <setup:techservice.delete runAs="${tp_UserKey}" serviceIds="T1" />
+      <setup:techservice.delete runAs="${tp_UserKey}" serviceIds="T2" />
+    </webtest>
+  </target>
+
+  <!-- -======- local macro definitions -======- -->
+  <macrodef name="this.verifyTs">
+    <attribute name="expectedTs" default="false" />
+    <attribute name="expectedOptionCount" />
+    <attribute name="supplierUserId" />
+    <sequential> 
+      <login.loginAsSupplier userId="@{supplierUserId}" url="${bes.http.url}/oscm-portal" />
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <verifyXPath xpath="count(//*[@id='editForm:techServiceId']/option)" text="@{expectedOptionCount}" />
+      <ifStep description="Test if required" test="@{expectedTs}">
+        <verifyXPath xpath="//*[@id='selectForm:techServiceId']/option[contains(text(),'@{expectedTs}')]" />
+      </ifStep>
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.verifyNoTable">
+    <sequential>
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.verifyTable_oneSupplier">
+    <attribute name="expectedSupplier" />
+    <sequential>
+      <verifyXPath xpath="count(//*[@id='removeSuppliersForm:supplierTable']//tr)" text="3" />
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable:0:organizationId']" text="@{expectedSupplier}" />
+    </sequential>
+  </macrodef>
+
+</project>

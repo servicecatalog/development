@@ -1,0 +1,256 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.manageOrganizations" />
+    <c:set var="focusElement" value="selectOrganizationForm:organizationId" />
+  </ui:define>
+
+  <ui:define name="body">
+    <c:set var="orgSelected" value="#{operatorSelectOrgBean.organization != null}" />
+    <c:set var="selectedOrg" value="#{operatorOrgBean.selectedOrganization}" />
+    <c:set var="allPSPs" value="#{operatorOrgBean.PSPs}" />
+    <c:set var="normalWidth" value="20%" />
+    <c:set var="moreWidth" value="60%" />
+
+    <a4j:outputPanel layout="block">
+      <ui:include src="paymentTypeOrganization.xhtml">
+        <ui:param name="dialogId" value="paymentTypeOrganization" />
+        <ui:param name="dialogHelpId" value="organization_managePaymentTypes" />
+        <c:if test="#{!sessionBean.ie}">
+          <ui:param name="dialogHeight" value="275" />
+        </c:if>
+        <c:if test="#{sessionBean.ie}">
+          <ui:param name="dialogHeight" value="245" />
+        </c:if>
+        <c:if test="#{empty allPSPs}">
+          <ui:param name="dialogHeight" value="95" />
+        </c:if>
+      </ui:include>
+    </a4j:outputPanel>
+
+    <a4j:outputPanel layout="block">
+      <ui:include src="paymentTypeOrganizationEdit.xhtml">
+        <ui:param name="dialogId" value="paymentTypeOrganizationEdit" />
+        <ui:param name="dialogHelpId" value="organization_managePaymentTypesEdit" />
+        <c:if test="#{!sessionBean.ie}">
+          <ui:param name="dialogHeight" value="275" />
+        </c:if>
+        <c:if test="#{sessionBean.ie}">
+          <ui:param name="dialogHeight" value="245" />
+        </c:if>
+        <c:if test="#{empty allPSPs}">
+          <ui:param name="dialogHeight" value="95" />
+        </c:if>
+      </ui:include>
+    </a4j:outputPanel>
+
+    <adm:outputStep value="#{msg['operator.manageOrganizations.step1']}" />
+    <adm:selectOrganization />
+
+
+    <h:form id="manageOrganizationsForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('image')});">
+
+      <a4j:outputPanel id="manageSupplierRerenderPanel" layout="block">
+        <ui:param name="orgSelected" value="#{operatorSelectOrgBean.organization.organizationId != null}" />
+        <ui:param name="selectedOrg" value="#{operatorOrgBean.selectedOrganization}" />
+
+
+        <adm:outputStep value="#{msg['operator.manageOrganizations.step2']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['operator.createOrganization.role']}" />
+
+          <h:panelGroup>
+            <h:selectBooleanCheckbox id="checkboxRoleSupplier" value="#{operatorOrgBean.supplier}"
+              disabled="#{!orgSelected || operatorOrgBean.supplierDisabled}" valueChangeListener="#{operatorOrgBean.supplierRoleChanged}" immediate="true">
+              <a4j:ajax render="manageSupplierRerenderPanel" immediate="true" bypassUpdates="true" event="click"
+               onbeforedomupdate="var e=#{rich:element('operatorRevenueShare')};if (e!=null){AdmUtils.storeValue(e);} return false;"
+               onbegin="AdmUtils.storeFormState('#manageOrganizationsForm');"
+               oncomplete="setDirty(true);AdmUtils.setUIElements();AdmUtils.restoreFormState();var e=#{rich:element('operatorRevenueShare')};if(e!=null){AdmUtils.restoreValue(e);} return false;" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.supplier']}" />
+          </h:panelGroup>
+          <adm:message for="checkboxRoleSupplier" />
+
+          <adm:nbsp />
+          <h:panelGroup>
+            <h:selectBooleanCheckbox id="checkboxRoleTechnologyProvider" value="#{operatorOrgBean.technologyProvider}"
+              disabled="#{!orgSelected || operatorOrgBean.technologyProviderDisabled}"
+              valueChangeListener="#{operatorOrgBean.technologyProviderRoleChanged}" immediate="true">
+              <a4j:ajax render="manageSupplierRerenderPanel"
+              onbegin="AdmUtils.storeFormState('#manageOrganizationsForm');"
+              oncomplete="setDirty(true);AdmUtils.setUIElements();AdmUtils.restoreFormState();" immediate="true" bypassUpdates="true" event="click" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.technologyProvider']}" />
+          </h:panelGroup>
+          <adm:message for="checkboxRoleTechnologyProvider" />
+
+          <adm:nbsp />
+          <h:panelGroup>
+            <h:selectBooleanCheckbox id="checkboxRoleReseller" value="#{operatorOrgBean.reseller}"
+              disabled="#{!orgSelected || operatorOrgBean.resellerDisabled}"
+              valueChangeListener="#{operatorOrgBean.resellerRoleChanged}" immediate="true">
+              <a4j:ajax render="manageSupplierRerenderPanel"
+              onbegin="AdmUtils.storeFormState('#manageOrganizationsForm');"
+              oncomplete="setDirty(true);AdmUtils.setUIElements();AdmUtils.restoreFormState();" immediate="true" bypassUpdates="true" event="click" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.reseller']}" />
+          </h:panelGroup>
+          <adm:message for="checkboxRoleReseller" />
+
+          <adm:nbsp />
+          <h:panelGroup>
+            <h:selectBooleanCheckbox id="checkboxRoleBroker" value="#{operatorOrgBean.broker}"
+              disabled="#{!orgSelected || operatorOrgBean.brokerDisabled}"
+              valueChangeListener="#{operatorOrgBean.brokerRoleChanged}" immediate="true">
+              <a4j:ajax render="manageSupplierRerenderPanel"
+              onbegin="AdmUtils.storeFormState('#manageOrganizationsForm');"
+              oncomplete="setDirty(true);AdmUtils.setUIElements(); AdmUtils.restoreFormState();"  immediate="true" bypassUpdates="true" event="click" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.broker']}" />
+          </h:panelGroup>
+          <adm:message for="checkboxRoleBroker" />
+
+          <adm:outputLabel value="#{msg['organization.organizationId']}" />
+          <h:outputText id="organizationIdSelected" value="#{operatorSelectOrgBean.organization.organizationId}" />
+          <h:outputText value="" />
+
+          <adm:labelAndInputText id="operatorRevenueShare" label="#{msg['supplier.operatorRevenueShare']}"
+            value="#{selectedOrg.operatorRevenueShare}" maxlength="#{appBean.percentValueLen}"
+            converterId="bigDecimal.converter" validatorId="revenueShareValue"
+            required="true" rendered="#{operatorOrgBean.supplier}" />
+
+          <adm:labelAndInputText id="organizationName" label="#{msg['organization.name']}" value="#{selectedOrg.name}"
+            maxlength="#{appBean.nameLen}" disabled="#{!orgSelected}" required="#{operatorOrgBean.vendor}"
+            renderRequired="true" displayRequired="#{operatorOrgBean.vendor}" requiredId="requiredName"
+            converterId="trimConverter" />
+
+          <adm:labelAndInputText id="organizationEmail" label="#{msg['organization.email']}" disabled="#{!orgSelected}"
+            value="#{selectedOrg.email}" maxlength="#{appBean.nameLen}" validatorId="email" converterId="trimConverter"
+            required="#{operatorOrgBean.vendor}" renderRequired="true" displayRequired="#{operatorOrgBean.vendor}"
+            requiredId="requiredEmail" />
+
+          <adm:labelAndInputText id="organizationPhone" label="#{msg['organization.phone']}"
+            value="#{selectedOrg.phone}" maxlength="#{appBean.nameLen}" disabled="#{!orgSelected}"
+            required="#{operatorOrgBean.vendor}" renderRequired="true" displayRequired="#{operatorOrgBean.vendor}"
+            requiredId="requiredPhone" converterId="trimConverter" />
+
+          <adm:labelAndInputText id="organizationUrl" label="#{msg['organization.url']}" value="#{selectedOrg.url}"
+            maxlength="#{appBean.descriptionLen}" validatorId="url" disabled="#{!orgSelected}"
+            converterId="trimConverter" required="#{operatorOrgBean.vendor}" renderRequired="true"
+            displayRequired="#{operatorOrgBean.vendor}" requiredId="requiredUrl" />
+
+          <adm:imageUpload messagePrefix="organization" imageDefined="#{selectedOrg.imageDefined}"
+            imageUrl="/image?type=ORGANIZATION_IMAGE&amp;sId=#{selectedOrg.key}" uploader="#{operatorOrgBean.imageUploader}"
+            editDisabled="#{!orgSelected}" rendered="#{operatorOrgBean.vendor}" sizeFunction="profileImageSize"
+            sizeError="#{msg['organization.image.hint']}" />
+
+          <adm:labelAndSelect id="organizationLocale" label="#{msg['organization.locale']}"
+            value="#{selectedOrg.locale}" disabled="#{!orgSelected}">
+            <adm:localeItems />
+            <f:validator validatorId="SupportedLanguageValidator" />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputTextarea id="organizationAddress" label="#{msg['organization.address']}"
+            value="#{selectedOrg.address}" maxlength="#{appBean.descriptionLen}" disabled="#{!orgSelected}"
+            required="#{operatorOrgBean.vendor}" renderRequired="true" displayRequired="#{operatorOrgBean.vendor}"
+            converterId="trimConverter" requiredId="requiredAddress" />
+
+          <adm:labelAndSelect id="organizationCountry" label="#{msg['common.country']}"
+            value="#{selectedOrg.domicileCountry}" styleClass="select" required="true" disabled="#{!orgSelected}">
+            <adm:countryItems supportedCountries="#{countryBean.supportedCountryCodesForCustomer}" />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputTextarea id="organizationDescription" label="#{msg['organization.description']}"
+            maxlength="#{appBean.descriptionLen}" value="#{selectedOrg.description}" disabled="#{!orgSelected}" />
+
+        </adm:panelGrid>
+
+
+        <adm:outputStep value="#{msg['operator.manageOrganizations.step3']}" />
+        <adm:panelGrid>
+          <adm:labelAndInputText id="distinguishedName" label="#{msg['organization.distinguishedName']}"
+            value="#{selectedOrg.distinguishedName}" maxlength="#{appBean.DNLen}" disabled="#{!orgSelected}" converterId="trimConverter"/>
+        </adm:panelGrid>
+
+
+        <adm:outputStep value="#{msg['operator.manageOrganizations.paymentTypes.title']}"
+          rendered="#{operatorOrgBean.supplierOrResellerPersisted}" />
+        <a4j:outputPanel layout="block" styleClass="tablePanel"
+          rendered="#{operatorOrgBean.supplierOrResellerPersisted}">
+          <a4j:jsFunction name="selectPaymentTypeItem"
+            render=":paymentTypeOrganizationEditForm"
+            oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();RichFaces.$('paymentTypeOrganizationEdit').show();AdmUtils.setUIElements();">
+            <a4j:param name="param1" assignTo="#{operatorOrgBean.selectedPspAccountKey}" />
+          </a4j:jsFunction>
+          <a4j:jsFunction name="newPaymentTypeItem"
+            render=":paymentTypeOrganizationForm"
+            oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();RichFaces.$('paymentTypeOrganization').show();AdmUtils.setUIElements();">
+            <a4j:param name="param1" value="0" assignTo="#{operatorOrgBean.selectedPspAccountKey}" />
+          </a4j:jsFunction>
+          <a4j:outputPanel layout="block" styleClass="tablePanel table_padding" style="margin-top: 10px;" rendered="#{not empty allPSPs}">
+
+            <rich:dataTable width="100%" style="min-width:680px;position:relative;" headerClass="rowTitle"
+              rowClasses="rowOdd,rowEven" id="paymentTypeTable" value="#{operatorOrgBean.PSPAccounts}" var="pspAccount"
+              columnClasses="smallCell,smallCell,smallCell,smallCell" selectionMode="single"
+              onrowclick="AdmUtils.selectRow(this);selectPaymentTypeItem(#{pspAccount.key});"
+              onrowmouseover="AdmUtils.mouseOverRow(this);" onrowmouseout="AdmUtils.mouseOutRow(this);"
+              enableContextMenu="false" noDataLabel=" ">
+              <rich:column id="idCol" width="#{normalWidth}" sortBy="#{pspAccount.psp.id}">
+                <f:facet name="header">
+                  <h:outputText value="#{msg['operator.managePSP.psp']}" />
+                </f:facet>
+                <h:outputText value="#{pspAccount.psp.id}" />
+              </rich:column>
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="#{msg['payment.pspid']}" />
+                </f:facet>
+                <h:outputText value="#{pspAccount.pspIdentifier}" />
+              </rich:column>
+            </rich:dataTable>
+
+            <adm:buttonPanel>
+              <adm:buttonCustomizedOnClick id="addPSPAccount" value="#{msg['button.add']}" buttonType="add"
+                disabled="#{!orgSelected or !operatorOrgBean.supplier} " onclick="newPaymentTypeItem(); return false;" />
+            </adm:buttonPanel>
+          </a4j:outputPanel>
+          <a4j:outputPanel layout="block" styleClass="tablePanel table_padding" style="margin-top: 10px;" rendered="#{empty allPSPs}">
+           <h:outputText value="#{msg['operator.manageOrganizations.noPaymentServiceProvideDefined']}" />
+          </a4j:outputPanel>
+          
+        </a4j:outputPanel>
+
+      </a4j:outputPanel>
+
+      <adm:spacer height="14" />
+      <h:commandButton style="display:none;" id="hiddenSaveButton" value="hiddenSaveButton"
+        action="#{operatorOrgBean.saveOrganization}" />
+
+      <script>
+			//<![CDATA[
+				function profileImageSize(w,h){
+					return w<= 154 && h<=154;
+				}
+				//]]>
+		  </script>
+
+
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}" disabled="#{!orgSelected}"
+          buttonType="save"
+          onclick="setDirty(false);
+        		   #{rich:element('hiddenSaveButton')}.click();
+        		   return true;" />
+      </adm:buttonPanel>
+
+    </h:form>
+  </ui:define>
+</ui:composition>

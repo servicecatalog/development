@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+ <Organization tkey="11000" version="0" organizationid="CUSTOMER1" name="OrgA" registrationdate="1234" cutoffday="1"/>
+<Platformuser tkey="11000" additionalname="" address="" creationdate="1359538315333" email="useraemail@orga.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="en" phone="" salutation="MR" status="ACTIVE" passwordsalt="1441738011085557673" passwordhash="xyz" userid="usera" version="0" organizationkey="11000"  olduserid="" realmuserid="usera" />
+<Platformuserhistory tkey="11000" additionalname="" address="" creationdate="1359538315333" email="useraemail@orga.com" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="en" phone="" salutation="MR" status="ACTIVE" passwordsalt="1441738011085557673" passwordhash="xyz" userid="usera" modDate="2013-01-30 17:35:01" modtype="ADD" moduser="ANONYMOUS" objkey="11000" objversion="0" organizationobjkey="11000" invocationdate="2013-01-01 01:01:01" realmuserid="usera" passwordrecoverystartdate="0" />
+</dataset>

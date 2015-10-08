@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <SupplierRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <Period endDate="534523578" startDate="9823544793" />
+
+    <Currency id="EUR">
+      <Marketplace id="12345678" key="867896">
+        <MarketplaceOwner>
+          <OrganizationData key="27534" id="supplier1">
+            <Email>mpo@owners.com</Email>
+            <Name>Marketplace Owning Organization</Name>
+            <Address>Address of mpo</Address>
+          </OrganizationData>
+        </MarketplaceOwner>
+
+        <Service key="11000" id="direct_mode_service" model="DIRECT">
+          <Subscription key="37645" id="sub1" billingKey="18373" revenue="266.00">
+            <Period endDate="534523578" startDate="9823544793" />
+          </Subscription>
+          <Subscription key="12987" id="sub2" billingKey="12343" revenue="234.00">
+          </Subscription>
+          <RevenueShareDetails serviceRevenue="500.00" marketplaceRevenueSharePercentage="15.0"
+            marketplaceRevenue="75.00" operatorRevenueSharePercentage="0.00" operatorRevenue="0.00" amountForSupplier="425.00" />
+        </Service>
+
+        <RevenuePerMarketplace serviceRevenue="1000.00" marketplaceRevenue="-150.00"
+          operatorRevenue="0.00" resellerRevenue="425.00" brokerRevenue="25.00" overallRevenue="1275.00" />
+      </Marketplace>
+    </Currency>
+
+  </SupplierRevenueShareResult>
+</RevenueSharesResults>

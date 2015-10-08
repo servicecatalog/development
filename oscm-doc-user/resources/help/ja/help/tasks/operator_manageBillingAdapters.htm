@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Managing billing systems"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task634"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../book.css"/>
+<title>Managing billing systems</title>
+</head>
+<body id="task634">
+
+
+  <h1 class="topictitle1">Managing billing systems</h1>
+
+  <div>
+    <div class="section">
+      <p><span>The platform</span> supports the integration of third-party or proprietary billing systems. Technology providers have the choice of using <span>the platform's</span> billing system or an external billing system of their choice when integrating their applications with <span>the platform</span>.</p>
+
+      <p>On the <strong>Manage billing systems</strong> page, you can link an external system to <span>the platform</span>. For successfully linking a system, the following prerequisites must be fulfilled:</p>
+
+      <ul>
+        <li class="liexpand">
+          <p>The connection properties specified by the operator need to point to the external billing system.</p>
+
+        </li>
+
+      </ul>
+
+      <p>One of the supported billing systems must be set as default. The default billing system is predefined for technology providers who register an application as a technical service to make it available <span>on the platform</span>.</p>
+
+      <p>When accessing the <span class="uicontrol">Manage billing systems</span> page, the details of the billing system that is currently configured as default are expanded. On the page, you can: </p>
+
+      <div class="p">
+        <ul>
+          <li class="liexpand">View the list of supported billing systems.</li>
+
+          <li class="liexpand">Add a new billing system.</li>
+
+          <li class="liexpand">Update the name and connection properties of a billing system.</li>
+
+          <li class="liexpand">Set the default billing system.</li>
+
+          <li class="liexpand">Remove a billing system.</li>
+
+        </ul>
+
+      </div>
+
+      <p><strong>To define a new billing system</strong>:</p>
+
+    </div>
+
+    <ol><li class="stepexpand">
+        <span>Click <span class="uicontrol">Add</span>.</span>
+         This inserts an empty section for defining the billing system details.
+      </li>
+<li class="stepexpand">
+        <span>Enter the <span class="uicontrol">Billing System ID</span> of the billing system. </span>
+         This ID uniquely identifies the billing system in the platform. Once the new billing system is defined, the ID cannot be changed.  <p>IDs are restricted to 40 characters and must not contain any of the following characters:</p>
+<p><samp class="codeph">! " # $ % &amp; ' * + , / : ; &lt; = &gt; ? \ ^ `</samp>
+          </p>
+
+      </li>
+<li class="stepexpand">
+        <span>Enter the <span class="uicontrol">Name</span> of the billing system.</span>
+         
+          <p>Names are restricted to 40 characters. Any character is allowed.</p>
+
+        
+      </li>
+<li class="stepexpand">
+        <span>Enter the <span class="uicontrol">Connection Properties</span>. </span>
+         Depending on the billing adapter implemented to connect the platform with the external billing system, the number of connection properties and their semantic can be different. However, they must point at the specific external billing system and specify such data as the port with which the billing system is connecting, or a provider URL. The connection between the billing system and the adapter is done using JNDI lookup.  <p>Enter the name of a property in the first field and the corresponding property value in the second field.</p>
+<p>Use the plus sign to add an additional property, the minus sign to remove a property.</p>
+
+      </li>
+<li class="stepexpand">
+        <span>Click <span class="uicontrol">Test Connection</span> to make sure that the connection to the billing system can be established.</span>
+         A corresponding message is shown telling you whether the connection was successfully established.
+      </li>
+<li class="stepexpand">
+        <span>Click <span class="uicontrol">Set as Default</span> to define the new billing system as default billing system, if required.</span>
+         The new billing system is instantly marked as default. The marker is removed from the previous default system.
+      </li>
+<li class="stepexpand">
+        <span>To define the billing system, click <span class="uicontrol">Save</span>. </span>
+      </li>
+</ol>
+
+    <div class="section">
+      <p>Technology providers can now select this billing system when registering an application as a technical service <span>on the platform</span>.</p>
+
+      <p><strong>To update an existing billing system</strong>: </p>
+
+      <div class="p">
+        <ol>
+          <li class="liexpand">Expand the details of the billing system to be updated.</li>
+
+          <li class="liexpand">Change the <span class="uicontrol">Name</span> of the billing system, if required.</li>
+
+          <li class="liexpand">Change the values of the connection properties. Use the plus sign to add an additional property, or the minus sign to remove a property, if required.</li>
+
+          <li class="liexpand">Click <span class="uicontrol">Test Connection</span> to make sure that the connection to the billing system can still be established.</li>
+
+          <li class="liexpand">Click <span class="uicontrol">Set as Default</span> to define the billing system as default.</li>
+
+          <li class="liexpand">Click <span class="uicontrol">Save</span> for your changes to become effective. </li>
+
+        </ol>
+
+      </div>
+
+      <p><strong>To remove a billing system</strong>: </p>
+
+      <div class="p">
+        <ol>
+          <li class="liexpand">Expand the details of the billing system to be deleted. <p>The following prerequisites must be fulfilled for deleting a billing system:</p>
+<div class="p">
+              <ul>
+                <li>The billing system must not be marked as default.</li>
+
+                <li>There is no technical service, marketable service and no active subscription that uses the billing system.</li>
+
+              </ul>
+
+            </div>
+</li>
+
+          <li class="liexpand">Click <span class="uicontrol">Delete</span> and confirm the deletion. <p>The billing system is instantly deleted. </p>
+</li>
+
+        </ol>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</body>
+</html>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <SupportedCurrency tkey="15" currencyisocode="EUR" version="0" />
+
+  <BillingResult tkey="1" creationtime="910" organizationtkey="2" periodendtime="900" subscriptionkey="1002"
+    periodstarttime="800" resultxml="XML" version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15"
+    vendorkey="1" netamount="12500" />
+
+  <BillingResult tkey="2" creationtime="950" organizationtkey="2" periodendtime="930" subscriptionkey="1001"
+    periodstarttime="830" resultxml="XML" version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15"
+    vendorkey="1" netamount="12500" />
+
+  <BillingResult tkey="3" creationtime="1010" organizationtkey="2" periodendtime="1000" subscriptionkey="1002"
+    periodstarttime="900" resultxml="XML" version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15"
+    vendorkey="1" netamount="12500" />
+
+  <BillingResult tkey="4" creationtime="1050" organizationtkey="2" periodendtime="1030" subscriptionkey="1001"
+    periodstarttime="930" resultxml="XML" version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15"
+    vendorkey="1" netamount="12500" />
+
+  <BillingResult tkey="5" creationtime="1110" organizationtkey="2" periodendtime="1100" subscriptionkey="1002"
+    periodstarttime="1000" resultxml="XML" version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15"
+    vendorkey="1" netamount="12500" />
+</dataset> 
+  

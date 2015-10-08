@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- The new organization roles must be added to the DB -->
+  <OrganizationRole tkey="6" rolename="BROKER" version="0" />
+  <OrganizationRole tkey="7" rolename="RESELLER" version="0" />
+  
+  <!-- The new user roles must be added to the DB -->
+  <UserRole tkey="6" rolename="BROKER_MANAGER" version="0" />
+  <UserRole tkey="7" rolename="RESELLER_MANAGER" version="0" />
+</dataset>

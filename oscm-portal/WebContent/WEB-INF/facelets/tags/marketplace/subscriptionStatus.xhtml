@@ -1,0 +1,27 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+  <!-- requires attributes fieldId (String) and subscription (Subscription) -->
+  <c:if test="#{not subscription.statusActive and not subscription.statusPending and not subscription.statusPendingUpd}">
+    <c:set var="statusClass" value="subscriptionError" />
+  </c:if>
+  <c:if test="#{subscription.statusPending}">
+    <c:set var="statusClass" value="subscriptionPending" />
+  </c:if>
+  <c:if test="#{subscription.statusActive}">
+    <c:set var="statusClass" value="subscriptionActive" />
+  </c:if>
+  <c:if test="#{subscription.statusPendingUpd}">
+    <c:set var="statusClass" value="subscriptionPendingUpd" />
+  </c:if>
+  <c:if test="#{subscription.statusWaitingForApproval}">
+    <c:set var="statusClass" value="subscriptionWaitingForApproval" />
+  </c:if>
+
+  <a4j:outputPanel layout="block" styleClass="subscriptionStatus #{statusClass}">
+    <h:outputText id="#{fieldId}Status" value="#{msg[subscription.statusTextKey]}" style="margin-left: 18px;" />
+  </a4j:outputPanel>
+
+</ui:composition>

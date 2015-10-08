@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Build all ADM UM Projects" basedir=".">
+
+  <description>
+    Main build file for all ADM UM projects. It triggers the build of a given
+    list of sub projects as well as
+    all required projects. Build steps are:
+
+    1. Compile ADM UM specific Ant tasks
+    2. Resolve dependencies between projects
+    3. Build all projects in the resolved order with the given target
+
+  </description>
+
+  <tstamp>
+    <format property="timestamp" pattern="yyyyMMddHHmmss" timezone="GMT+0" />
+  </tstamp>
+  <tstamp>
+    <format property="timestampForKPI" pattern="dd.MM.yyyy HH:mm" />
+  </tstamp>
+  <exec executable="hostname" outputproperty="hostname" />
+
+  <!-- Optional Input Parameters -->
+  <property name="workspace.dir" location=".." />
+
+  <property name="webtest-results" location="${workspace.dir}/oscm-portal-webtests" />
+  <property name="cruisecontrolBaseDir" location="../../.." />
+  <property name="result.dir" location="result" />
+  <property name="result.log.dir" location="${result.dir}/log" />
+  <property name="result.reports.dir" location="${result.dir}/reports" />
+  <property name="result.reports.test.dir" location="${result.reports.dir}/test-junit" />
+  <property name="result.reports.test.it.dir" location="${result.reports.dir}/test-it" />
+  <property name="result.reports.test.ws.dir" location="${result.reports.dir}/test-ws" />
+  <property name="result.reports.test.ws.saml.dir" location="${result.reports.dir}/test-ws-saml" />
+  <property name="result.reports.test.web.dir" location="${result.reports.dir}/test-web" />
+  <property name="result.reports.test.web.saml.dir" location="${result.reports.dir}/test-web-saml" />
+
+  <property name="result.log.glassfish.dir" location="${result.reports.dir}/glassfish-logs" />
+  <!-- no subdirectory per default -->
+  <property name="glassfish.log.subdirectory" value="" />
+
+  <property name="coverage.web.dir.name" value="coverage-web" />
+  <property name="coverage.junit.dir.name" value="coverage-junit" />
+  <property name="coverage.it.dir.name" value="coverage-it" />
+  <property name="result.package.dir" location="${result.dir}/package" />
+  <property name="artifacts.properties.dir" location="${artifacts.dir}/properties" />
+  <property name="artifacts.dir" location="${result.dir}/artifacts" />
+  <property name="artifacts.delivery.dir" location="${artifacts.dir}/delivery" />
+  <property name="artifacts.optional.dir" location="${artifacts.dir}/optional" />
+  <property name="artifacts.testing.dir" location="${artifacts.dir}/testing" />
+  <property name="artifacts.testing.results.dir" location="${artifacts.testing.dir}/results" />
+  <property name="artifacts.testing.coverage.dir" location="${artifacts.testing.dir}/coverage" />
+  <property name="artifacts.testing.jmx-internal.dir" location="${artifacts.testing.dir}/jmx-internal" />
+  <property name="artifacts.testing.glassfish-logs.dir" location="${artifacts.testing.dir}/glassfish-logs" />
+  <property name="artifacts.testing.ant-logs.dir" location="${artifacts.testing.dir}/ant-logs" />
+  <property name="buildid.prefix" value="private-build-on-${hostname}" />
+
+
+  <!-- string to lower case-->
+  <scriptdef name="lc" language="javascript">
+    <attribute name="property" />
+    <attribute name="value" />
+		        project.setNewProperty(attributes.get("property"),
+		attributes.get("value").toLowerCase());
+		    </scriptdef>
+
+  <!-- string to upper case-->
+  <scriptdef name="uc" language="javascript">
+    <attribute name="property" />
+    <attribute name="value" />
+		        project.setNewProperty(attributes.get("property"),
+		attributes.get("value").toUpperCase());
+		    </scriptdef>
+
+  <property name="projects" value="" />
+  <uc property="uc.buildid.prefix" value="${buildid.prefix}" />
+  <property name="buildid" value="${uc.buildid.prefix}-${timestamp}" />
+
+
+  <property name="defaultprojectbuild.file" location="defaultprojectbuild.xml" />
+
+  <property name="artifacts.kpi.file" value="${result.reports.test.dir}/kpi.txt" />
+  <property name="kpi.file" value="/opt/kpi/kpi.txt" />
+
+  <property environment="env" />
+  <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+  <property file="${workspace.dir}/oscm-devruntime/javares/local/${env.HOSTNAME}/integration.properties" />
+
+  <property name="glassfish.domains.dir" location="${glassfish.home}/glassfish/domains" />
+
+  <taskdef file="${workspace.dir}/oscm-build-antextensions/javares/org/oscm/build/ant/tasks.xml">
+    <classpath>
+      <fileset dir="${workspace.dir}/oscm-build/javalib" includes="*.jar" />
+      <fileset dir="${workspace.dir}/libraries/bouncycastle/javalib" includes="*.jar" />
+      <fileset dir="${workspace.dir}/libraries/apache-lang/javalib" includes="*.jar" />
+      <fileset dir="${workspace.dir}/libraries/sun-metro/javalib" includes="*.jar" />
+    </classpath>
+  </taskdef>
+
+  <taskdef name="wsgen" classname="com.sun.tools.ws.ant.WsGen">
+    <classpath>
+      <fileset dir="${workspace.dir}/libraries/sun-glassfish-rt31/javalib/" includes="javaee.jar" />
+      <fileset dir="${workspace.dir}/libraries/sun-glassfish-rt31/modules/" includes="webservices-osgi.jar" />
+      <fileset dir="${workspace.dir}/libraries/sun-metro/javalib" includes="*.jar" />
+    </classpath>
+  </taskdef>
+
+  <taskdef name="wsit-service" classname="com.appsecinc.ant.WsitServiceTask">
+    <classpath>
+      <fileset dir="${workspace.dir}/libraries/apache-ant/javalib/" includes="wsit-ant-tasks.jar" />
+    </classpath>
+  </taskdef>
+
+  <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+    <classpath>
+      <fileset dir="${workspace.dir}/libraries/jacoco/javalib" includes="*.jar" />
+      <fileset dir="${workspace.dir}/libraries/asm/javalib" includes="*.jar" />
+    </classpath>
+  </taskdef>
+
+  <target name="_log">
+    <mkdir dir="${result.log.dir}" />
+    <record action="start" name="${result.log.dir}/warnings.log" loglevel="warn" />
+    <record action="start" name="${result.log.dir}/info.txt" loglevel="info" />
+    <echo level="info">build id ${buildid}</echo>
+    <echo level="info">host ${hostname}</echo>
+    <echo level="info">time stamp ${timestamp}</echo>
+    <echo level="info">ant version ${ant.version}</echo>
+    <echo level="info">java version ${ant.java.version}</echo>
+    <echo level="info">
+    </echo>
+    <record action="stop" name="${result.log.dir}/info.txt" />
+    <java fork="true" classname="x" output="${result.log.dir}/info.txt" append="true">
+      <jvmarg value="-version" />
+    </java>
+  </target>
+
+  <target name="_dependencies">
+    <dependencyresolver workspacedir="${workspace.dir}" projects="${projects}" />
+  </target>
+  
+  <target name="_copyDocument">
+    <copy todir="${workspace.dir}/oscm-app-aws/doc">
+      <fileset dir="../../document/Development/oscm-app-aws/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-app-openstack/doc">
+      <fileset dir="../../document/Development/oscm-app-openstack/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-app-ror/doc">
+      <fileset dir="../../document/Development/oscm-app-ror/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-app-sample/doc">
+      <fileset dir="../../document/Development/oscm-app-sample/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-doc-user">
+      <fileset dir="../../document/Development/oscm-doc-user" />
+    </copy>
+    <copy todir="${workspace.dir}/oscm-integration-app-pack/resources/doc">
+      <fileset dir="../../document/Development/oscm-integration-app-pack/resources/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-integration-psp-pack/resources/doc">
+      <fileset dir="../../document/Development/oscm-integration-psp-pack/resources/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-integrationtests-parameter-configurator/doc">
+      <fileset dir="../../document/Development/oscm-integrationtests-parameter-configurator/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/oscm-portal/resources/branding/Readme">
+      <fileset dir="../../document/Development/oscm-portal/resources/branding/Readme">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
+    <copy todir="${workspace.dir}/UserDoc">
+      <fileset dir="../../document/Development/UserDoc" />
+    </copy>
+  </target>
+
+  <macrodef name="buildproject">
+    <attribute name="target" />
+    <sequential>
+      <subant target="@{target}" genericantfile="projectbuild.xml" buildpathref="resolved.projects.path">
+        <property name="defaultprojectbuild.file" value="${defaultprojectbuild.file}" />
+        <property name="workspace.dir" value="${workspace.dir}" />
+        <property name="result.dir" value="${result.dir}" />
+        <property name="result.log.dir" value="${result.log.dir}/projects" />
+        <property name="result.reports.dir" value="${result.reports.dir}" />
+        <property name="buildid" value="${buildid}" />
+        <property name="fakejavadoc" value="${fakejavadoc}" />
+      </subant>
+    </sequential>
+  </macrodef>
+
+  <!-- creates junit test report -->
+  <macrodef name="createtestreport">
+    <sequential>
+      <mkdir dir="${result.reports.test.dir}" />
+      <junitreport todir="${result.reports.test.dir}">
+        <fileset dir="${result.dir}">
+          <include name="work/*/test/*.xml" />
+        </fileset>
+        <report format="noframes" todir="${result.reports.test.dir}" />
+      </junitreport>
+
+      <ant antfile="coveragereport.xml">
+        <property name="workspace.dir" value="${workspace.dir}" />
+        <property name="result.reports.coverage.dir" value="${result.reports.dir}/${coverage.junit.dir.name}" />
+        <property name="result.dir" value="${result.dir}" />
+        <property name="result.reports.dir" value="${result.reports.dir}" />
+        <property name="footer" value="Unit Tests ${buildid}" />
+      </ant>
+
+      <antcall target="createKPI" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="createittestreport">
+    <sequential>
+      <mkdir dir="${result.reports.test.it.dir}" />
+      <junitreport todir="${result.reports.test.it.dir}">
+        <fileset dir="${result.dir}">
+          <include name="work/*/test-it/*.xml" />
+        </fileset>
+        <report format="noframes" todir="${result.reports.test.it.dir}" />
+      </junitreport>
+      <ant antfile="coveragereport.xml">
+        <property name="workspace.dir" value="${workspace.dir}" />
+        <property name="result.reports.coverage.dir" value="${result.reports.dir}/${coverage.it.dir.name}" />
+        <property name="result.dir" value="${result.dir}" />
+        <property name="result.reports.dir" value="${result.reports.dir}" />
+        <property name="execdata.dir" location="${workspace.dir}" />
+        <property name="execdata.includes" value="oscm-build/result/work/*/test-it/jacoco.exec" />
+        <property name="footer" value="Unit Tests ${buildid}" />
+      </ant>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="createwstestreport">
+    <sequential>
+      <mkdir dir="${result.reports.test.ws.dir}" />
+      <junitreport todir="${result.reports.test.ws.dir}">
+        <fileset dir="${result.dir}">
+          <include name="work/*/test-ws/*.xml" />
+        </fileset>
+        <report format="noframes" todir="${result.reports.test.ws.dir}" />
+      </junitreport>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="createwssamltestreport">
+    <sequential>
+      <mkdir dir="${result.reports.test.ws.saml.dir}" />
+      <junitreport todir="${result.reports.test.ws.saml.dir}">
+        <fileset dir="${result.dir}">
+          <include name="work/*/test-ws-saml/*.xml" />
+        </fileset>
+        <report format="noframes" todir="${result.reports.test.ws.saml.dir}" />
+      </junitreport>
+    </sequential>
+  </macrodef>
+
+  <target name="coverageWebtests" xmlns:jacoco="antlib:org.jacoco.ant">
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+      <classpath>
+        <fileset dir="../libraries/jacoco/javalib" includes="*.jar" />
+        <fileset dir="../libraries/asm/javalib" includes="*.jar" />
+      </classpath>
+    </taskdef>
+
+    <property name="result.reports.coverage.web.dir" value="${result.reports.dir}/${coverage.web.dir.name}" />
+
+    <jacoco:dump destfile="${result.reports.coverage.web.dir}/jacoco.exec" port="8163" />
+
+    <ant antfile="coveragereport.xml">
+      <property name="workspace.dir" location=".." />
+      <property name="result.dir" location="${result.dir}" />
+      <property name="result.reports.coverage.dir" location="${result.reports.coverage.web.dir}" />
+      <property name="execdata.dir" location="${result.reports.coverage.web.dir}" />
+      <property name="execdata.includes" value="jacoco.exec" />
+      <property name="footer" value="${label}-${cctimestamp}-webtests" />
+    </ant>
+  </target>
+
+  <target name="compile" depends="_log, _dependencies" description="Resolves dependencies and compiles all source code">
+    <buildproject target="compile" />
+  </target>
+
+  <target name="wsdl" depends="_log, _dependencies" description="Resolves dependencies, compiles and creates WSDLs">
+    <buildproject target="wsdl" />
+  </target>
+
+  <target name="javadoc" depends="_log, _dependencies" description="Resolves dependencies, compiles and creates javadoc">
+    <buildproject target="javadoc" />
+  </target>
+
+
+  <target name="package" depends="_log, _dependencies, _copyDocument" description="Resolves dependencies, compiles, creates javadoc and packages">
+    <buildproject target="package" />
+  </target>
+
+  <target name="clean">
+    <delete dir="${result.dir}" />
+  </target>
+
+
+  <target name="createKPI" description="only call createKPI macro">
+    <createKPI inputFile="${result.reports.test.dir}/TESTS-TestSuites.xml" outputFile="${artifacts.kpi.file}" />
+  </target>
+
+  <condition property="tests.executed">
+    <available file="${artifacts.kpi.file}" />
+  </condition>
+
+  <target name="publishKpi" if="tests.executed">
+    <loadfile property="content" srcFile="${artifacts.kpi.file}" />
+    <echo file="${kpi.file}" append="true" message="${timestampForKPI} ${content}${line.separator}" />
+  </target>
+
+  <target name="publishKpiOnBuildFailed" unless="tests.executed">
+    <echo file="${kpi.file}" append="true" message="${timestampForKPI} Build failed${line.separator}" />
+  </target>
+
+  <target name="onBuildSuccess">
+    <antcall target="publishKpi" />
+  </target>
+
+  <target name="onBuildFailure">
+    <antcall target="publishKpi" />
+    <antcall target="publishKpiOnBuildFailed" />
+  </target>
+
+  <target name="copyGlassfishLogs">
+    <echo message="Copy server log files to: ${result.log.glassfish.dir}" />
+    <copy todir="${result.log.glassfish.dir}/${glassfish.log.subdirectory}" overwrite="true">
+      <fileset dir="${glassfish.domains.dir}/" includes="*/logs/*.log" />
+      <fileset dir="${glassfish.domains.dir}/" includes="*/logs/*.log_*" />
+    </copy>
+  </target>
+
+  <target name="checkTestStatus" description="Checks if any unit test failed and causes the build to fail in this case">
+    <fail if="${unittests.failure}" message="At least one unit test failed!" />
+  </target>
+
+  <target name="unittests" depends="_log, _dependencies" description="Resolves dependencies, runs unittests">
+    <buildproject target="unittests" />
+    <createtestreport />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.dir}" />
+    </antcall>
+  </target>
+
+
+  <target name="integrationtests" depends="_log, _dependencies" description="Resolves dependencies, runs unittests">
+    <buildproject target="integrationtests" />
+    <createittestreport />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.it.dir}" />
+    </antcall>
+  </target>
+
+  <target name="setAuthModeForIntegration_SAML_SP">
+    <property name="configsettings_integration.properties" location="${workspace.dir}/oscm-integrationtests-setup/resources/work/oscm-install-pack/databases/bes_db/configsettings.properties" />
+    <echo level="info">Setting SAML_SP authentication mode in configsettings ${configsettings_integration.properties}</echo>
+    <propertyfile file="${configsettings_integration.properties}">
+      <entry key="AUTH_MODE" value="SAML_SP" />
+    </propertyfile>
+  </target>
+
+  <target name="webservicetests" depends="_log, _dependencies" description="Resolves dependencies, compiles and runs the web service tests without clean. Requires a running version of BES.">
+    <buildproject target="webservicetests" />
+    <createwstestreport />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.ws.dir}" />
+    </antcall>
+  </target>
+
+  <target name="webservicesamltests" depends="_log, _dependencies" description="Resolves dependencies, compiles and runs the web service tests without clean. Requires a running version of BES.">
+    <buildproject target="webservicesamlsptests" />
+    <createwssamltestreport />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.ws.saml.dir}" />
+    </antcall>
+  </target>
+
+  <!-- copies web tests results to build reports directory -->
+  <target name="copyWebtestResults">
+    <delete dir="${result.reports.test.web.dir}" failonerror="false" />
+    <echo message="Directory ${result.reports.test.web.dir} deleted before copying webtest results." />
+    <copy todir="${result.reports.test.web.dir}" overwrite="true">
+      <fileset dir="${workspace.dir}/oscm-portal-webtests/results" />
+    </copy>
+  </target>
+
+  <target name="copyWebtestSAMLResults">
+    <delete dir="${result.reports.test.web.saml.dir}" failonerror="false" />
+    <echo message="Directory ${result.reports.test.web.saml.dir} deleted before copying webtest results." />
+    <copy todir="${result.reports.test.web.saml.dir}" overwrite="true">
+      <fileset dir="${workspace.dir}/oscm-portal-webtests/results" />
+    </copy>
+  </target>
+
+
+  <target name="combineCoverage">
+    <ant antfile="coveragereport.xml">
+      <property name="workspace.dir" location=".." />
+      <property name="result.dir" location="${result.dir}" />
+      <property name="result.reports.coverage.dir" location="${result.reports.dir}/coverage-combined" />
+      <property name="execdata.dir" location="${workspace.dir}" />
+      <property name="execdata.includes" value="oscm-build/result/work/*/test/jacoco.exec,oscm-build/result/work/*/test-it/jacoco.exec,oscm-build/result/reports/${coverage.web.dir.name}/jacoco.exec" />
+      <property name="footer" value="${label}-${cctimestamp}-coverage-combined" />
+    </ant>
+  </target>
+
+
+  <target name="checkUnitResult" description="Lets the build fail if failing unit tests are present">
+    <fail message="Unit tests failed">
+      <condition>
+        <and>
+          <available file="${unit.result.dir}/TESTS-TestSuites.xml" />
+          <xpath file="${unit.result.dir}/TESTS-TestSuites.xml" path="/testsuites/testsuite[@errors>0 or @failures>0]" />
+        </and>
+      </condition>
+    </fail>
+  </target>
+
+  <target name="osslist">
+    <osslist workspace="${workspace.dir}" licensesDir="${basedir}/result/licenses" outputDir="${basedir}/result/osslist" outputFileName="osslist.txt" />
+  </target>
+
+
+  <!-- Generate the schema files for birt designer -->
+  <target name="wsdlForBirt">
+    <property name="result.report.dir" value="${result.dir}/birt" />
+    <mkdir dir="${result.report.dir}" />
+    <mkdir dir="${result.report.dir}/gen" />
+    <wsgen sei="org.oscm.reportingservice.bean.ReportingServiceBean" genwsdl="true" sourcedestdir="${result.report.dir}/gen" destdir="${result.report.dir}/gen" resourcedestdir="${result.report.dir}">
+      <classpath>
+        <pathelement path="${workspace.dir}\oscm-extsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-intsvc-base\bin" />
+        <pathelement path="${workspace.dir}\oscm-reporting\bin" />
+        <pathelement path="${workspace.dir}\oscm-reporting-intsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-productsessionmgmt-intsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-i18n-intsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-identitymgmt-intsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-configservice-intsvc\bin" />
+        <pathelement path="${workspace.dir}\oscm-domainobjects\bin" />
+        <pathelement path="${workspace.dir}\oscm-common\bin" />
+      </classpath>
+    </wsgen>
+  </target>
+
+  <target name="copyResultArtifacts" description="Collect all needed artifacts and copy it to temp direcory.">
+    <delete dir="${artifacts.dir}" failonerror="false" />
+
+    <!-- build results -->
+
+    <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-i18n/diff_Mail.properties.log" />
+    <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/eclipse-birt-runtime/diff_reportLabels.properties.log" />
+    <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-portal/diff_Messages.properties.log" />
+    <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-portal/syntax_Messages.properties.log" />
+
+    <copy failonerror="false" todir="${artifacts.delivery.dir}">
+      <fileset file="${result.package.dir}/oscm-install-pack/oscm-install-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-integration-pack/oscm-integration-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-integration-psp-pack/oscm-integration-psp-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-integration-app-pack/oscm-integration-app-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-ror-install-pack/oscm-ror-install-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-openstack-install-pack/oscm-openstack-install-pack.zip" />
+      <fileset file="${result.package.dir}/oscm-aws-install-pack/oscm-aws-install-pack.zip" />
+    </copy>
+
+    <!-- testing -->
+    <copy failonerror="false" todir="${artifacts.testing.dir}" file="${result.package.dir}/oscm-integrationtests-pack/oscm-integrationtests-pack.zip" />
+
+    <!-- test results -->
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/web">
+      <fileset dir="${result.reports.test.web.dir}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/webSAML">
+      <fileset dir="${result.reports.test.web.saml.dir}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/ws">
+      <fileset dir="${result.reports.test.ws.dir}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/wsSAML">
+      <fileset dir="${result.reports.test.ws.saml.dir}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/junit">
+      <fileset dir="${result.reports.test.dir}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.results.dir}/it">
+      <fileset dir="${result.reports.test.it.dir}" />
+    </copy>
+
+    <!-- coverage -->
+    <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/junit">
+      <fileset dir="${result.reports.dir}/coverage-junit" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/it">
+      <fileset dir="${result.reports.dir}/coverage-it" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/web">
+      <fileset dir="${result.reports.dir}/${coverage.web.dir.name}" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/combined">
+      <fileset dir="${result.reports.dir}/coverage-combined" />
+    </copy>
+
+    <!-- JMX internal -->
+    <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">
+      <fileset file="${result.package.dir}/oscm-jmx-internal/fujitsu-jmx-internal.war" />
+      <fileset file="${result.package.dir}/jolokia/jolokia.war" />
+    </copy>
+
+    <!-- glassfish logs -->
+    <copy failonerror="false" todir="${artifacts.testing.glassfish-logs.dir}">
+      <fileset dir="${result.log.glassfish.dir}" />
+    </copy>
+
+    <!-- antBuilderOutput.log -->
+    <copy failonerror="false" todir="${artifacts.testing.ant-logs.dir}">
+      <fileset file="${cruisecontrolBaseDir}/antBuilderOutput.log" />
+    </copy>
+  </target>
+</project>

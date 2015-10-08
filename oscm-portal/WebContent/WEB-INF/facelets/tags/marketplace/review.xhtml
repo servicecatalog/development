@@ -1,0 +1,35 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+  xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:ui="http://java.sun.com/jsf/facelets" 
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j" 
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  
+  <!-- requires a review (POServiceReview) -->
+  <a4j:outputPanel layout="block" styleClass="#{styleClass}" style="#{style}">
+    <h2 id="review#{reviewNumber}" style="margin-bottom: 0px;" class="preWrapping">#{review.po.title}</h2>
+
+    <h:outputText class="serviceRating" rendered="#{not sessionBean.nameSequenceReversed}"
+      value="#{msg['review.by']} #{empty review.po.firstName and empty review.po.lastName ? msg['review.name.unknown'] : review.po.firstName} #{review.po.lastName} #{msg['review.on']}" />
+    <h:outputText class="serviceRating" rendered="#{sessionBean.nameSequenceReversed}"
+      value="#{msg['review.by']} #{empty review.po.firstName and empty review.po.lastName ? msg['review.name.unknown'] : review.po.lastName} #{review.po.firstName} #{msg['review.on']}" />
+
+    <adm:nbsp />
+    <h:outputText class="serviceRating" value="#{review.po.modificationDate}" >
+      <f:convertDateTime pattern="#{msg[appBean.dateInputPattern]}" />
+    </h:outputText>
+
+    <br />
+    <adm:spacer height="10" />
+
+    <pre>
+      <a4j:outputPanel layout="block" styleClass="reviewComment preWrapping">#{review.po.comment}</a4j:outputPanel>
+    </pre>
+  </a4j:outputPanel>
+</ui:composition>

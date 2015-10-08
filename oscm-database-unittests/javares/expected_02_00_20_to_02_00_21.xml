@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <OrganizationRefToPaymentType tkey="1" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="11" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="2" version="0" usedasdefault="false"
+    organizationrole_tkey="3" organizationreference_tkey="10" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="3" version="0" usedasdefault="false"
+    organizationrole_tkey="3" organizationreference_tkey="13" paymenttype_tkey="2" />
+
+  <PaymentInfo tkey="1" creationtime="1" externalidentifier="Invoice for Customer 2" version="0"
+    paymenttype_tkey="1" orgreftopaymenttype_tkey="2" />
+  <PaymentInfo tkey="2" creationtime="2" externalidentifier="DirectDebit for Customer 3" version="0"
+    paymenttype_tkey="2" orgreftopaymenttype_tkey="3" />
+
+  <BillingContact tkey="1" address="Nirvana 1" companyname="Customer 2" email="a@b.com" orgaddressused="false"
+    version="0" organization_tkey="2" paymentinfo_tkey="1" />
+  <BillingContact tkey="2" address="Nirvana 2" companyname="Customer 3" email="a@b.com" orgaddressused="false"
+    version="0" organization_tkey="3" paymentinfo_tkey="2" />
+
+  <Subscription tkey="1" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0" version="0"
+    product_tkey="1" paymentinfo_tkey="1" />
+  <Subscription tkey="2" creationdate="0" status="0" subscriptionid="2" timeoutmailsent="0" version="0"
+    product_tkey="2" paymentinfo_tkey="1" />
+  <Subscription tkey="3" creationdate="0" status="0" subscriptionid="3" timeoutmailsent="0" version="0"
+    product_tkey="2" paymentinfo_tkey="1" />
+  <Subscription tkey="4" creationdate="0" status="0" subscriptionid="4" timeoutmailsent="0" version="0"
+    product_tkey="1" paymentinfo_tkey="2" />
+
+  <PaymentInfoHistory tkey="30" creationtime="1" externalidentifier="Invoice" objkey="3" objversion="0"
+    modtype="t1" moduser="u1" paymenttypeobjkey="1" orgreftopaymenttypeobjkey="2" billingcontactobjkey="1" />
+  <PaymentInfoHistory tkey="10" creationtime="1" externalidentifier="DirectDebit" objkey="1"
+    objversion="0" modtype="t1" moduser="u1" paymenttypeobjkey="2" orgreftopaymenttypeobjkey="2" billingcontactobjkey="1" />
+  <PaymentInfoHistory tkey="11" creationtime="1" externalidentifier="Invoice" objkey="1" objversion="0"
+    modtype="t1" moduser="u1" paymenttypeobjkey="1" orgreftopaymenttypeobjkey="3" billingcontactobjkey="1" />
+  <PaymentInfoHistory tkey="20" creationtime="1" externalidentifier="DirectDebit" objkey="2"
+    objversion="0" modtype="t1" moduser="u1" paymenttypeobjkey="1" orgreftopaymenttypeobjkey="3" billingcontactobjkey="2" />
+
+  <SubscriptionHistory tkey="10" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="1" objversion="0" organizationobjkey="2" productobjkey="1" paymentinfoobjkey="3" />
+  <SubscriptionHistory tkey="11" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="1" objversion="0" organizationobjkey="2" productobjkey="1" paymentinfoobjkey="1" />
+  <SubscriptionHistory tkey="12" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="1" objversion="0" organizationobjkey="2" productobjkey="1" paymentinfoobjkey="1" />
+  <SubscriptionHistory tkey="20" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="2" objversion="0" organizationobjkey="2" productobjkey="2" paymentinfoobjkey="1" />
+  <SubscriptionHistory tkey="30" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="3" objversion="0" organizationobjkey="2" productobjkey="2" paymentinfoobjkey="1" />
+  <SubscriptionHistory tkey="40" creationdate="0" status="0" subscriptionid="1" timeoutmailsent="0"
+    modtype="t1" moduser="u1" objkey="4" objversion="0" organizationobjkey="3" productobjkey="1" paymentinfoobjkey="2" />
+
+  <BillingContactHistory tkey="20" objkey="1" organizationobjkey="2" objversion="0" companyname="Customer 2"
+    address="Nirvana 0" email="a@b.com" orgaddressused="false" modtype="t1" moduser="u1" invocationdate="2011-04-05 14:40:00"
+    paymentinfoobjkey="3" />
+  <BillingContactHistory tkey="10" objkey="1" organizationobjkey="2" objversion="0" companyname="Customer 2"
+    address="Nirvana 1" email="a@b.com" orgaddressused="false" modtype="t1" moduser="u1" invocationdate="2011-04-05 14:40:00"
+    paymentinfoobjkey="1" />
+  <BillingContactHistory tkey="11" objkey="1" organizationobjkey="2" objversion="0" companyname="Customer 2"
+    address="Nirvana 2" email="a@b.com" orgaddressused="false" modtype="t1" moduser="u1" invocationdate="2011-04-05 14:40:00"
+    paymentinfoobjkey="1" />
+  <BillingContactHistory tkey="40" objkey="2" organizationobjkey="3" objversion="0" companyname="Customer 3"
+    address="Nirvana 4" email="a@b.com" orgaddressused="false" modtype="t1" moduser="u1" invocationdate="2011-04-05 14:40:00"
+    paymentinfoobjkey="2" />
+
+</dataset>

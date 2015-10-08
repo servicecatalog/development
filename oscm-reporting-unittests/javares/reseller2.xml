@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<ResellerRevenueShareResult xmlns="http://oscm.org/xsd/billingservice/partnermodel"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel ResellerRSResult.xsd"
+  organizationKey="7897" organizationId="abcdefgh">
+
+  <Period startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z" endDate="1341100800000"
+    endDateIsoFormat="2012-07-01T00:00:00.000Z" />
+
+  <Currency id="EUR">
+    <Supplier>
+      <OrganizationData key="27534" id="supp1">
+        <Email>supplier1@supplier.com</Email>
+        <Name>Supplier for Reseller</Name>
+        <Address>
+          street, number
+          zip city       
+        </Address>
+        <CountryIsoCode>EN</CountryIsoCode>
+      </OrganizationData>
+      
+      <Service key="11001" id="reseller_mode_service" templateKey="10500">
+        <Subscription key="12001" id="mySub1" billingKey="18256" revenue="168.60" />
+        <ServiceRevenue totalAmount="168.60" resellerRevenueSharePercentage="25.00" resellerRevenue="42.15" >
+          <ServiceCustomerRevenue customerName="customerX" customerId="d23823782" totalAmount="98.40"
+            resellerRevenueSharePercentage="10.00" resellerRevenue="9.84" purchasePrice="88.56" />
+          <ServiceCustomerRevenue customerName="customerY" customerId="g26754723" totalAmount="70.20"
+            resellerRevenueSharePercentage="10.00" resellerRevenue="7.02" purchasePrice="63.18" />
+        </ServiceRevenue>
+      </Service>
+      <Service key="11007" id="another_service" templateKey="10510">
+        <Subscription key="14231" id="file_explorer_starter" billingKey="17253" revenue="150.00" />
+        <Subscription key="14232" id="file_explorer" billingKey="12345" revenue="100.00" />
+        <ServiceRevenue totalAmount="250.00" resellerRevenueSharePercentage="15.00" resellerRevenue="37.50" >
+          <ServiceCustomerRevenue customerName="customerZ" customerId="a26768672" totalAmount="250.00"
+            resellerRevenueSharePercentage="15.00" resellerRevenue="37.50" purchasePrice="212.50" />
+        </ServiceRevenue>
+      </Service>
+      
+      <ResellerRevenuePerSupplier totalAmount="418.60" amount="79.65" purchasePrice="364.61"/>
+    </Supplier>
+    <ResellerRevenue totalAmount="418.60" amount="53.99" purchasePrice="364.61"/>
+  </Currency>
+
+</ResellerRevenueShareResult>

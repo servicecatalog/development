@@ -1,0 +1,96 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:t="http://myfaces.apache.org/tomahawk"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="subscription.editUdas" />
+    <c:set var="focusElement" value="subscriptionSelection" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
+      <a4j:jsFunction name="selectItem" 
+        action="#{subscriptionViewBean.selectSubscriptionIdAndCustomerId}"
+         render="details,mainTmplMessagesPanel,editForm"
+        oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+          <a4j:param name="param1" assignTo="#{subscriptionViewBean.subscriptionId}" />
+          <a4j:param name="param2" assignTo="#{subscriptionViewBean.customerId}" />
+      </a4j:jsFunction>
+    </h:form>
+
+    <h:form id="subscriptionListForm">
+
+      <c:set var="chargeable"
+        value="#{not empty subscriptionViewBean.selectedSubscriptionAndCustomer and subscriptionViewBean.selectedSubscription.priceModel.chargeable}" />
+      <c:set var="free"
+        value="#{not empty subscriptionViewBean.selectedSubscriptionAndCustomer and not subscriptionViewBean.selectedSubscription.priceModel.chargeable}" />
+      <adm:outputStep value="#{msg['subscription.setUdas.step.select']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
+        <ui:include src="subscriptionTable.xhtml">
+          <ui:param name="lazyModel" value="#{subscriptionViewBean.model}" />
+          <ui:param name="pagerId" value="subListTablePager"/>
+          <ui:param name="sortIcon" value="/img/transparentPixel.png?id=sort" />
+          <ui:param name="sortIconAscending" value="/img/transparentPixel.png?id=sortAscending" />
+          <ui:param name="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
+        </ui:include>
+      </a4j:outputPanel>
+    </h:form> 
+     
+   <a4j:outputPanel id="scriptPanel" layout="block">
+      <script type="text/javascript">
+        AdmUtils.highlightTableHeader();
+      </script>
+    </a4j:outputPanel>
+
+   </ui:define>
+ 
+ <ui:define name="body_sub">
+    <a4j:outputPanel id="details" layout="block">
+      <adm:outputStep value="#{msg['subscription.view.step.detail']}" />
+      <adm:panelGrid>
+      
+        <adm:outputLabel value="#{msg['subscription.subscriptionInfo']}" />
+          <h:outputText id="subscriptionText" value="#{subscriptionViewBean.selectedSubscription.subscriptionId}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:outputLabel value="#{msg['subscription.customerInfo']}" />
+          <h:outputText id="customerText" value="#{subscriptionViewBean.selectedCustomerIdAndName}" styleClass="label" />
+          <h:outputText value="" />
+        
+        <adm:outputLabel value="#{msg['subscription.activationDate']}" />
+        <h:outputText value="#{subscriptionViewBean.selectedSubscription.activationDate}" styleClass="label">
+          <f:convertDateTime pattern="#{msg[appBean.datePattern]}" timeZone="#{appBean.timeZoneId}" />
+        </h:outputText>
+        <h:outputText value="" />
+
+        <adm:outputLabel value="#{msg['subscription.view.numOfAssigendUsers']}" />
+        <h:outputText value="#{subscriptionViewBean.numberOfAssignedUsers}" styleClass="label"/>
+        <h:outputText value="" />
+      </adm:panelGrid>
+    
+
+    <h:form id="editForm">
+      <adm:outputStep value="#{msg['subscription.setUdas.title']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <ui:include src="../organization/udaTable.xhtml">
+          <ui:param name="inputList" value="#{subscriptionViewBean.subscriptionUdas}" />
+          <ui:param name="disabled" value="#{empty subscriptionViewBean.selectedSubscriptionAndCustomer}" />
+          <ui:param name="collapsible" value="false" />
+          <ui:param name="height" value="#{sessionBean.tableHeightMap[330]}px" />
+        </ui:include>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel rendered="#{subscriptionViewBean.anyUdasEditable}" >
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{subscriptionViewBean}" buttonType="save"
+          action="updateSubscription" disabled="#{empty subscriptionViewBean.selectedSubscriptionAndCustomer}" render="editForm"/>
+      </adm:buttonPanel>
+    </h:form>
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

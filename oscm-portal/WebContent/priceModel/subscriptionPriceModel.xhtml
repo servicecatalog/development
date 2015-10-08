@@ -1,0 +1,88 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="localizeVisible" value="#{priceModelBean.localizeVisible}" />
+    <c:set var="pageId" value="${localizeVisible ? 'priceModel.localize' : 'priceModel.subscription'}"  />
+    <c:set var="focusElement" value="subscriptionSelection" />
+  </ui:define>
+  <ui:define name="body">
+    
+    <a4j:outputPanel id="mainSection" rendered="#{!priceModelBean.localizeVisible}">
+	    <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
+	      <a4j:jsFunction name="selectItem" action="#{priceModelBean.selectSubscriptionIdAndCustomerId}"
+	        render="editForm,roleForm,mainTmplMessagesPanel"
+	        oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+	          <a4j:param name="param1" assignTo="#{priceModelBean.subscriptionId}" />
+	          <a4j:param name="param2" assignTo="#{priceModelBean.customerId}" />
+	      </a4j:jsFunction>
+	    </h:form>
+	
+	    <h:form id="subscriptionListForm">
+	      <adm:outputStep value="#{msg['priceModel.subscription.select']}" />
+	      <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
+	        <ui:include src="../subscription/subscriptionTable.xhtml">
+	          <ui:param name="lazyModel" value="#{priceModelBean.model}" />
+	        </ui:include>
+	      </a4j:outputPanel>
+	    </h:form>
+	
+	    <a4j:outputPanel id="scriptPanel" layout="block">
+	      <script type="text/javascript">
+								AdmUtils.highlightTableHeader();
+							</script>
+	    </a4j:outputPanel>
+    </a4j:outputPanel>
+    <a4j:outputPanel id="localizeSection" rendered="#{priceModelBean.localizeVisible}">
+        <ui:include src="localize.xhtml" />
+    </a4j:outputPanel>
+  </ui:define>
+
+subscription.view.step.serviceDetails
+
+  <ui:define name="body_sub">
+    <a4j:outputPanel id="details" layout="block" rendered="#{!priceModelBean.localizeVisible}">
+      <h:form id="editForm">
+        <adm:outputStep value="#{msg['subscription.view.step.serviceDetails']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+          <h:outputText id="serviceName" value="#{priceModelBean.selectedServiceNameToDisplay}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:labelAndOutputLarge label="#{msg['service.shortDescription']}" inline="false"
+            value="#{priceModelBean.selectedService.shortDescription}" />
+
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['priceModel.subscription.define.title']}" />
+
+        <ui:include src="priceModelDescription.xhtml" />
+
+        <h:inputHidden id="steppedPriceIndex" value="#{steppedPriceBean.index}" />
+        <h:inputHidden id="steppedPriceType" value="#{steppedPriceBean.type}" />
+        <h:inputHidden id="dirty" value="#{priceModelBean.dirty}" />
+        <h:commandButton style="display:none;" id="localizeButtonHidden" value="#{msg['button.localize']}"
+          action="#{priceModelBean.localize}" />
+
+        <ui:include src="priceModelButtonPanelInclude.xhtml" />
+
+      </h:form>
+
+      <c:if test="#{priceModelBean.dirty}">
+        <script type="text/javascript">
+          $(document).ready(function() {
+              setDirty(true);
+          });
+        </script>
+      </c:if>
+
+      <ui:include src="roles.xhtml" />
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

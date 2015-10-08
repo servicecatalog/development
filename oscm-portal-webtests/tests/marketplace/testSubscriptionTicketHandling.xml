@@ -1,0 +1,249 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testTicketHandling" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testTicketHandling" depends="testReportIssue_endUser, testReportIssue_admin, testReportIssue_concurrent, cleanup" />
+
+  <target name="setup">
+    <webtest name="testMPL_setup">
+      <!-- add default currency, create supplier and a free service -->
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="marketplaceId" value="${marketplaceId}" propertyType="ant" />
+
+      <!-- register a customer (using old portal) -->
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
+      <property name="customerUserA" value="#{userId}" />
+
+      <mpl_login.user userId="${customerUserA}" mid="${marketplaceId}" />
+      <mpl_service.subscribe mid="${marketplaceId}" index="0" />
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administrate" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <!-- Check user assignment handling -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+      <!-- At this point there are no users assigned and there should be a "warning" message -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+      <!-- Assing a user -->
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testReportIssue_endUser" depends="setup">
+    <webtest name="testMPL_reportIssue_endUser">
+      <testInfo type="DESCRIPTION">
+        Tests the behaviour of visibility of ReportIssue button by end user.
+        1.) Create a end user by CustomerUserA
+        2.) Enter the marketplace with new created EndUserA
+        3.) Check the "Report Issue" button is not reachable
+      </testInfo>
+
+      <!-- 1.) Create a end user by CustomerUserA -->
+      <mpl_login.user mid="${marketplaceId}" userId="${customerUserA}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="endUserA" />
+      <property name="endUserA" value="#{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${marketplaceId}" />
+      <login.logout />
+      <!-- 2.) Enter the marketplace with new created EndUserA -->
+      <mpl_login.user userId="${endUserA}" mid="${marketplaceId}" />
+      <!-- 3.) Check the "Report Issue" button is not reachable -->
+      <verifyNoReportIssueButtonFromServiceDetails mId="${marketplaceId}" serviceIndex="0" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testReportIssue_admin" depends="setup">
+    <webtest name="testMPL_reportIssue_admin">
+      <testInfo type="DESCRIPTION">
+        Tests the behaviour of visibility of ReportIssue button by Administrator.
+        1.) Login as administrator customerUserA
+        2.) check the "Report Issue" button is valid
+        3.) Report an Issue
+        4.) Check the Email Content
+      </testInfo>
+      <!-- 1.) Login as administrator customerUserA -->
+      <mpl_login.user mid="${marketplaceId}" userId="${customerUserA}" />
+      <!-- 2.) check the "Report Issue" button is valid -->
+      <verifyReportIssueButtonFromSubscription subscriptionIndex="0" isReportIssueVisible="true" />
+      <!-- 3.) Report an Issue -->
+      <common.ignorePageScriptError />
+      <clickLink htmlId="reportIssue" />
+      <common.reSetPageScriptError />
+      <storeProperty name="subject" value="Test REPORT ISSUE Subject" />
+      <storeProperty name="details" value="test blablabla..." />
+      <reportIssue subject="#{subject}" details="#{details}" />
+      <mpl_verify.success label="${info.supportemail.sent}" />
+      <login.logout />
+      <!-- 4.) Check the Email Content of the IssueReport -->
+      <common.handleMessageParameters property="subjectMsg" value="${SUPPORT_ISSUE.subject}" att0="#{subject}" />
+      <mail.readReportIssue emailSubject="#{subjectMsg}" />
+      <checkMailContent details="#{details}" organizationName="Testorg" organizationid="${orgIdCustomerUserA}" serviceName="${SERVICE_NAME}" technicalServiceId="${TECHNICAL_SERVICE_ID}" />
+    </webtest>
+  </target>
+
+  <target name="testReportIssue_concurrent" depends="setup">
+    <webtest name="testMPL_reportIssue_concurrent">
+      <testInfo type="DESCRIPTION">
+        Tests the ReportIssue behavior when the service is removed
+        1.) Login as administrator customerUserA who has subscribed the service
+        2.) Goto the "Report Issue" sub dialog
+        3.) Remove the Service in another browser
+        4.) ReportIssue and Check the error
+      </testInfo>
+      <selectWebClient name="webbrowser1">
+        <!-- 1.) Login as administrator customerUserA and subscribe a service -->
+        <mpl_login.user mid="${marketplaceId}" userId="${customerUserA}" />
+        <!-- 2.) Goto the "Report Issue" sub dialog -->
+        <verifyReportIssueButtonFromSubscription subscriptionIndex="0" isReportIssueVisible="true" />
+        <common.ignorePageScriptError />
+        <clickLink htmlId="reportIssue" />
+        <common.reSetPageScriptError />
+      </selectWebClient>
+
+      <!-- 3.) Remove the Service in another browser -->
+      <selectWebClient name="webbrowser2">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+        <subscription.terminateBySupplier subscriptionId="Mega Office Trial" />
+        <login.logout />
+      </selectWebClient>
+
+      <!-- 4.) ReportIssue and Check the error -->
+      <selectWebClient name="webbrowser1">
+        <reportIssue subject="Test ReportIssue" details="test blablabla..." />
+        <common.waitForJavaScript />
+        <common.handleMessageParameters property="errorMsg" value="${error.subscription.notAccessible}" att0="Mega Office Trial" />
+        <login.logout />
+      </selectWebClient>
+
+    </webtest>
+  </target>
+
+  <target name="cleanup" depends="setup">
+    <webtest name="testMPL_cleanup">
+      <!-- Clean-up: deactivate and delete service   -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <service.deActivate rowNr="0" active="false" />
+      <service.delete serviceId="MegaOffice0" />
+      <login.logout />
+      <mail.cleanInbox />
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+
+  <!-- add default currency, create supplier and a free service -->
+  <macrodef name="setupSupplier">
+    <sequential>
+      <storeProperty name="TECHNICAL_SERVICE_ID" value="PROXY_SERVICE" propertyType="ant" />
+      <storeProperty name="SERVICE_NAME" value="Mega Office Trial" propertyType="ant" />
+      <storeProperty name="SERVICE_ID" value="MegaOffice0" propertyType="ant" />
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <setup:techservice.createProxy id="${TECHNICAL_SERVICE_ID}" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+      <setup:service.define serviceId="${SERVICE_ID}" description="Limited evaluation version." name="${SERVICE_NAME}" techServiceId="${TECHNICAL_SERVICE_ID}" marketplaceId="${marketplaceId}" namedUser="1" />
+      <setup:pricemodel.define serviceId="${SERVICE_ID}" isFree="true" />
+      <setup:service.activate serviceIds="${SERVICE_ID}" />
+    </sequential>
+  </macrodef>
+
+  <!-- register a customer (using old portal) -->
+  <macrodef name="registerCustomerBySupplier">
+    <attribute name="marketplaceId" default="" />
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer marketplaceId="@{marketplaceId}" userId="userA" />
+      <landingpage.setSortOrderForLandingpage mId="@{marketplaceId}" />      
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUserA" value="#{userId}" propertyType="dynamic" />
+      <storeProperty name="orgIdCustomerUserA" value="#{orgId}" propertyType="ant" />
+
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="@{marketplaceId}" />
+      <login.logout />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Goto the service details and check report issue button not shown on supplier tab -->
+  <macrodef name="verifyNoReportIssueButtonFromServiceDetails">
+    <attribute name="mId" />
+    <attribute name="serviceIndex" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{mId}" />
+      <clickLink htmlId="serviceButton@{serviceIndex}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_goto.tab label="Supplier" />
+      <!-- verify the existence of "Report Issue" button, should not be visible at anytime -->
+      <not>
+        <verifyXPath description="verify the existence of 'Report Issue' button " xpath="//*[@id='reportIssue']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- Click administrate button on a subscription and check report issue button in supplier tab -->
+  <macrodef name="verifyReportIssueButtonFromSubscription">
+    <attribute name="subscriptionIndex" />
+    <attribute name="isReportIssueVisible" default="false" />
+    <sequential>
+      <!-- click Account tab -->
+      <mpl_goto.account.subscriptions />
+      <!-- click the "administrate" button -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:@{subscriptionIndex}']/td[1]/a" />
+      
+      <!-- click the "Supplier" tab -->
+      <mpl_goto.tab label="Supplier" />
+      <!-- verify the existence of "Report Issue" button -->
+      <ifStep test="@{isReportIssueVisible}">
+        <then>
+          <verifyXPath xpath="//*[@id='reportIssue']" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//*[@id='reportIssue']" />
+          </not>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Check mail content  -->
+  <macrodef name="checkMailContent">
+    <attribute name="details" />
+    <attribute name="serviceName" />
+    <attribute name="technicalServiceId" />
+    <attribute name="organizationName" />
+    <attribute name="organizationID" />
+    <sequential>
+      <verifyProperty name="mailContent" text=".*@{details}.*" regex="true" />
+      <verifyProperty name="mailContent" text=".*\[Customer\]['\ ']*@{organizationName}['\ ']*\(ID\:['\ ']@{organizationID}\).*" regex="true" />
+      <verifyProperty name="mailContent" text=".*\[Subscription\]['\ ']*@{serviceName}['\ ']\(ID\:['\ '][A-Za-z0-9]*\).*" regex="true" />
+      <verifyProperty name="mailContent" text=".*\[Marketable Service\]['\ ']*@{serviceName}['\ ']\(ID\:.*" regex="true" />
+      <verifyProperty name="mailContent" text=".*\[Technical Service\]['\ ']*@{technicalServiceId}['\ ']*\(Build:['\ ']\-.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Invoke report sending  -->
+  <macrodef name="reportIssue">
+    <attribute name="subject" />
+    <attribute name="details" />
+    <sequential>
+      <setInputField htmlId="reportIssuePanelForm:title" value="@{subject}" />
+      <setInputField htmlId="reportIssuePanelForm:content" value="@{details}" />
+      <!-- click the send button -->
+      <clickElement htmlId="reportIssuePanelForm:reportIssuePanelSendButton" />
+    </sequential>
+  </macrodef>
+
+</project>

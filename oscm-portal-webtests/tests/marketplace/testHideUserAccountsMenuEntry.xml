@@ -1,0 +1,75 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testHideUserAccountsMenuEntry">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testHideUserAccountsMenuEntry">
+    <webtest name="setup">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+    </webtest>
+  
+    <webtest name="addHideMenuEntrys">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <setInputField htmlId="configurationSettings:settingTable:7:configurationValue" value="marketplace.navigation.Users,marketplace.navigation.Processes" />
+      <clickElement htmlId="configurationSettings:saveButtonLink" />
+      <login.logout/>
+    </webtest>
+    
+    <webtest name="verifyMenuEntrysHidden">
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink label="Login" />
+      <setInputField htmlId="loginForm:loginUserId" value="administrator" />
+      <setInputField htmlId="loginForm:loginPassword" value="admin123" />
+      <clickElement htmlId="loginForm:loginButtonLink" />
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <not>
+        <verifyXPath xpath="//*[@id='menu4']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='menu7']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='users']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='processes']" />
+      </not>
+      <login.logout/>
+    </webtest>
+    
+    
+    <webtest name="deleteHideMenuEntry">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <setInputField htmlId="configurationSettings:settingTable:7:configurationValue" value="marketplace.navigation.Users" />
+      <clickElement htmlId="configurationSettings:saveButtonLink" />
+      <login.logout/>
+    </webtest>
+        
+    <webtest name="verifyMenuEntrys">
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink label="Login" />
+      <setInputField htmlId="loginForm:loginUserId" value="administrator" />
+      <setInputField htmlId="loginForm:loginPassword" value="admin123" />
+      <clickElement htmlId="loginForm:loginButtonLink" />
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <verifyXPath xpath="//*[@id='menu7']" text=".*Processes.*" regex="true" />
+      <not>
+        <verifyXPath xpath="//*[@id='menu4']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='users']" />
+      </not>
+      <verifyXPath xpath="//*[@id='processes']" />
+      <login.logout/>
+    </webtest>
+    
+    <webtest name="restore">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <setInputField htmlId="configurationSettings:settingTable:7:configurationValue" value=""/>
+      <clickElement htmlId="configurationSettings:saveButtonLink" />
+      <login.logout/>
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+    </webtest>
+  </target>
+</project>

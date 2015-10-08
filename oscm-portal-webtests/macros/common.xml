@@ -1,0 +1,645 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <macrodef name="common.ignorePageScriptError">
+    <sequential>
+      <groovy>
+       step.context.webClient.throwExceptionOnScriptError = false
+      </groovy>
+    </sequential>
+  </macrodef>
+	
+  <macrodef name="common.reSetPageScriptError">
+    <sequential>
+	  <groovy>
+	    step.context.webClient.throwExceptionOnScriptError = true
+	  </groovy>
+	</sequential>
+  </macrodef>
+
+  <macrodef name="common.clickAndVerfyLink">
+    <attribute name="label" />
+    <sequential>
+      <clickLink xpath="//a[.//*[normalize-space(text())='@{label}']]" />
+      <verifyElementText htmlId="pagelabel" text="@{label}" />
+      <common.verifyInputFields />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.clickLink">
+    <attribute name="label" />
+    <sequential>
+      <clickLink xpath="//a[.//*[normalize-space(text())='@{label}']]" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifySuccess">
+    <attribute name="label" />
+    <attribute name="suspended" default="false" />
+    <attribute name="regex" default="true" />
+    <sequential>
+      <ifStep description="Check string w or w/o regex" test="@{regex}">
+        <then>
+          <ifStep test="@{suspended}">
+            <then>
+              <verifyXPath xpath="//*[@id='progressMessages:progressPanel']//*" text=".*${progress.default}.*" regex="true" />
+            </then>
+            <else>
+              <storeXPath description="Check info message" xpath="//*[@id='infoMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="infoMsg" />
+              <verifyProperty name="infoMsg" value="@{label}" regex="true" />
+            </else>
+          </ifStep>
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <verifyXPath xpath="//*[@id='progressMessages:progressPanel']//*[normalize-space()='${progress.default}']" />
+            </then>
+            <else>
+              <storeXPath description="Check info message" xpath="//*[@id='infoMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="infoMsg" />
+              <verifyProperty name="infoMsg" value="@{label}" regex="false" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+      <common.verifyInputFields />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyError">
+    <attribute name="label" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <attribute name="regex" default="true" />
+  	<attribute name="enableFieldId" default="false" />
+    <sequential>
+      <ifStep test='@{enableFieldId}'>
+        <then>
+          <ifStep description="Check string w or w/o regex" test="@{regex}">
+            <then>
+        	  <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+        	  <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+        	</then>
+            <else>
+        	  <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+        	  <verifyProperty name="errorMsg" value="@{label}" regex="false" />
+        	</else>
+          </ifStep>
+        </then>
+      	<else>
+      	  <ifStep description="Check string w or w/o regex" test="@{regex}">
+      	    <then>
+      		  <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+      		  <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+      		</then>
+      		<else>
+      		  <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+      		  <verifyProperty name="errorMsg" value="@{label}" regex="false" />
+      		</else>
+      	  </ifStep>
+      	</else>
+      </ifStep>
+      
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyAuthorityError">
+    <attribute name="label" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <attribute name="regex" default="true" />
+    <sequential>
+      <ifStep description="Check string w or w/o regex" test="@{regex}">
+        <then>
+          <verifyElementText htmlId="@{errorFieldId}" text=".*@{label}.*" regex="true" />
+        </then>
+        <else>
+          <verifyElementText htmlId="@{errorFieldId}" text="@{label}" regex="false" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="common.verifyInputFields">
+    <sequential>
+      <groovy description="check maxlength">
+        def document = step.context.currentResponse.documentElement
+        def ids = ''
+        def excludeList = [
+        'editForm:tagList','javax.faces.ViewState','.*:fromDateInputDate','.*:toDateInputDate',
+                           'subscriptionListForm:subListTable:.*','subscriptionListForm:subscriptionsTable:.*','userListForm:userListTable:.*','.*:sharesfromDateInputDate','.*:sharestoDateInputDate',
+                           'groupsListForm:groupListTable:filter.*','editForm:parameterTable:\\d*:description', 'editForm:parameterTable:\\d*:optionDescription',
+        'eventTable:\\d*:description','editForm:roleTable:\\d*:description','editForm:operationTable:\\d*:operationDescription',
+        '.*Form:.*WTSetValue',
+        'editForm:oneTimeFee','editForm:recChargePerSubs','.*Form:recChargePerUser','editForm:.*steppedPricePrice',
+        'editForm:eventTable:.*price','editForm:eventTable:.*eventSteppedPricePrice',
+        '.*Form:parameterTable:.*pricePerUser','.*Form:parameterTable:.*optionPricePerUser',
+        'editForm:parameterTable:.*pricePerSubscription','editForm:parameterTable:.*parameterSteppedPricePrice',
+        'editForm:parameterTable:.*optionPricePerSubscription','userListForm:userListTable:col.*fsp','subscriptionListForm:subListTable:col.*fsp',
+        'userListForm:userListTable:.*fsp','subscriptionListForm:subListTable:.*fsp','groupsListForm:groupListTable:col.*fsp',
+        'groupsListForm:groupListTable:col.*fsp', 'groupsListForm:groupListTable:col.*fsp','.*Form:organizationIdInput', 'manageUsers:userIdInput','.*flt']
+
+        T: document.getElementsByAttribute('input', 'type', 'text').each{
+          def id = it.getAttribute('id')
+          if (id) {
+            def excluded = false
+            for (regex in excludeList){
+              if (id.find(regex) != null) {
+                excluded = true
+              }
+            }
+            if (!excluded) {
+              out.println(id)
+              def maxlength = it.getAttribute('maxlength')
+              out.println(maxlength)
+              if (!maxlength) {
+                if (ids) {
+                  ids += ', '
+                }
+                ids += id
+              }
+            }
+          }
+        }
+        step.setWebtestProperty('ids', ids)
+      </groovy>
+      <verifyProperty description="maxlength attribute missing for ids" name="ids" text="#{ids}" regex="false" />
+      <verifyProperty description="" name="ids" text="" regex="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyPasswordFields">
+    <sequential>
+      <groovy description="check autocomplete turned off for password fields">
+        def document = step.context.currentResponse.documentElement
+        def ids = ''
+        T: document.getElementsByAttribute('input', 'type', 'password').each{
+          def id = it.getAttribute('id')
+		  if (id) {
+		  	def autocomplete = it.getAttribute('autocomplete')
+	        out.println(autocomplete)
+		    if (!autocomplete || !autocomplete.equals('off')) {
+	          if (ids) {
+	            ids += ', '
+	          }
+	          ids += id
+		    }
+          }
+        }
+        step.setWebtestProperty('ids', ids)
+      </groovy>
+      <verifyProperty description="autocomplete='off' attribute missing for ids" name="ids" text="#{ids}" regex="false" />
+      <verifyProperty description="" name="ids" text="" regex="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyPageChangedWarning">
+    <attribute name="response" default="true" />
+    <attribute name="enableVerifyNoDialogs" default="false" />
+    <sequential>
+      <!-- Cancel - the page must not change -->
+      <storeDigest property="beforeDigest" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <clickLink label="${organization.edit.title}" />
+      <ifStep test="@{enableVerifyNoDialogs}">
+        <verifyNoDialogs />
+        <storeDigest property="afterDigest" />
+        <verifyProperty name="afterDigest" text="#{beforeDigest}" />
+      </ifStep>
+
+      <ifStep test="@{response}">
+        <!-- Ok - the new page must be loaded -->
+        <expectDialogs>
+          <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+        </expectDialogs>
+        <clickLink label="${organization.edit.title}" />
+        <ifStep test="@{enableVerifyNoDialogs}">
+          <verifyNoDialogs />
+        </ifStep>
+        <verifyElementText htmlId="pagelabel" text="${organization.edit.title}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- replace all occurences of 'from' in 'value' with 'to', and save in 'property'-->
+  <macrodef name="common.replaceChars">
+    <attribute name="value" />
+    <attribute name="from" />
+    <attribute name="to" />
+    <attribute name="property" />
+    <sequential>
+      <storeProperty name="groovyParmValue" value="@{value}" />
+      <storeProperty name="groovyParmFrom" value="@{from}" />
+      <storeProperty name="groovyParmTo" value="@{to}" />
+      <storeProperty name="groovyParmProperty" value="@{property}" />
+      <groovy description="Substitute strings">
+        def newValue = step.webtestProperties.groovyParmValue
+        newValue = newValue.replaceAll(step.webtestProperties.groovyParmFrom, step.webtestProperties.groovyParmTo);
+        println "Assigning " + newValue + " to property "+ step.webtestProperties.groovyParmProperty 
+        step.setWebtestProperty(step.webtestProperties.groovyParmProperty, newValue)
+      </groovy>
+    </sequential>
+  </macrodef>
+
+  <!-- replace double single quotes with single quote in 'property' -->
+  <macrodef name="common.handleSpecialChars">
+    <attribute name="value" />
+    <attribute name="property" />
+    <sequential>
+      <storeProperty name="groovyParmValue" value="@{value}" />
+      <storeProperty name="groovyParmProperty" value="@{property}" />
+      <groovy description="Substitute double single quotes with just a single quote in message property">
+        def newValue = step.webtestProperties.groovyParmValue
+        newValue = newValue.replaceAll("\'\'", "\'");
+        println "Assigning " + newValue + " to property "+ step.webtestProperties.groovyParmProperty 
+        step.setWebtestProperty(step.webtestProperties.groovyParmProperty, newValue)
+      </groovy>
+    </sequential>
+  </macrodef>
+
+  <!-- pass the id of the field to test the validation for and the expected error message
+  (or a part of it if regex=true)  -->
+  <macrodef name="common.verifyFieldError">
+    <attribute name="label" />
+    <attribute name="fieldId" />
+    <attribute name="regex" default="true" />
+    <sequential>
+      <storeProperty name="messageProp" value="@{label}" propertyType="dynamic" />
+      <common.handleSpecialChars property="messageProp" value="@{label}" />
+      <ifStep description="Check string w or w/o regex" test="@{regex}">
+        <then>
+          <storeXPath description="Check field error message" xpath="//*[@id='@{fieldId}ErrorMsg:@{fieldId}']//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
+          <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+        </then>
+        <else>
+          <storeXPath description="Check field error message" xpath="//*[@id='@{fieldId}ErrorMsg:@{fieldId}']//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
+          <verifyProperty name="errorMsg" value="@{label}" regex="false" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyFieldError_Empty">
+    <attribute name="fieldId" />
+    <sequential>
+      <verifyElementText htmlId="@{fieldId}ErrorMsg" text="" regex="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.testFieldValidation">
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <attribute name="error" />
+    <attribute name="buttonLabel" default="${button.save}" />
+    <attribute name="buttonLinkId" default="true" />
+    <attribute name="errorFieldId" default="errorMessages" />
+    <attribute name="topErrorMessage" default="true" />
+    <attribute name="steppedPrice" default="false" />
+    <attribute name="regex" default="true" />
+    <sequential>
+      <setInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+
+      <ifStep description="If htmlid for save link is set" test="@{buttonLinkId}">
+        <then>
+          <clickButton label="@{buttonLabel}" />
+        </then>
+        <else>
+          <ifStep description="Is stepped price" test="@{steppedPrice}">
+            <clickButton label="@{buttonLabel}" />
+          </ifStep>
+          <clickElement htmlId="@{buttonLinkId}" />
+        </else>
+      </ifStep>
+
+      <ifStep test="@{topErrorMessage}" description="If the error message can be displayed on the top">
+        <then description="test both of the beside of field and the top message">
+          <ifStep>
+            <condition>
+              <common.verifyFieldError fieldId="@{fieldId}" label="@{error}" regex="@{regex}" />
+            </condition>
+            <else>
+              <!-- If the field error message doesn't contain the required information, the 
+          top (or specified) message should -->
+              <common.verifyError label="@{error}" errorFieldId="@{errorFieldId}" regex="@{regex}" />
+            </else>
+          </ifStep>
+        </then>
+        <else description="test only the beside of field">
+          <common.verifyFieldError fieldId="@{fieldId}" label="@{error}" regex="@{regex}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.tableEmpty">
+    <attribute name="tableId" />
+    <attribute name="emptyText" default="${table.empty}" />
+    <sequential>
+      <not>
+        <verifyXPath xpath="//table[@id=&quot;@{tableId}&quot;]" />
+      </not>
+      <verifyElementText htmlId="@{tableId}EmptyText" text="@{emptyText}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.isButtonDisabled">
+    <attribute name="buttonId" />
+    <sequential>
+      <storeElementAttribute htmlid="@{buttonId}Disabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.setEditorValue">
+    <attribute name="htmlId" />
+    <attribute name="value" />
+    <sequential>
+      <!-- Special handling for updating the content of a rich editor -->
+      <setInputField htmlId="@{htmlId}WTSetValue" value="@{value}" />
+      <setInputField htmlId="@{htmlId}:inp" value="@{value}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyEditorValue">
+    <attribute name="htmlId" />
+    <attribute name="value" />
+    <attribute name="regex" default="false" />
+    <sequential>
+      <!-- Special handling for updating the content of a rich editor -->
+      <verifyInputField htmlId="@{htmlId}WTSetValue" value="@{value}" regex="@{regex}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.initializeDataDrivenErrorMessage">
+    <attribute name="errormsg" />
+    <attribute name="att0" default="" />
+    <attribute name="att1" default="" />
+    <attribute name="att2" default="" />
+    <sequential>
+      <common.initializeDataDrivenMessage property="errorMessage" value="@{errormsg}" />
+      <common.initializeDataDrivenMessage property="att0Property" value="@{att0}" />
+      <common.initializeDataDrivenMessage property="att1Property" value="@{att1}" />
+      <common.initializeDataDrivenMessage property="att2Property" value="@{att2}" />
+      <common.handleMessageParameters property="errorMessage" value="#{errorMessage}" att0="#{att0Property}" att1="#{att1Property}" att2="#{att2Property}" />
+      <storeProperty name="expectedMessage" value="#{errorMessage}" propertyType="ant" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.initializeDataDrivenMessage">
+    <attribute name="property" default="message" />
+    <attribute name="value" />
+    <sequential>
+      <!-- Special handling for updating the content of a rich editor -->
+      <ifStep description="Test if is message key">
+        <condition>
+          <verifyProperty property="@{value}" propertyType="ant" />
+        </condition>
+        <then>
+          <storeProperty name="@{property}" value="${@{value}}" propertyType="dynamic" />
+        </then>
+        <else>
+          <storeProperty name="@{property}" value="@{value}" propertyType="dynamic" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.handleMessageParameters">
+    <attribute name="value" />
+    <attribute name="property" />
+    <attribute name="att0" default="\\E.*\\Q" />
+    <attribute name="att1" default="\\E.*\\Q" />
+    <attribute name="att2" default="\\E.*\\Q" />
+    <sequential>
+      <storeProperty name="groovyParmValue" value="@{value}" />
+      <storeProperty name="groovyParmProperty" value="@{property}" />
+      <storeProperty name="groovyParmAtt0" value="@{att0}" />
+      <storeProperty name="groovyParmAtt1" value="@{att1}" />
+      <storeProperty name="groovyParmAtt2" value="@{att2}" />
+      <groovy description="Substitute placeholders in message property">
+        def newValue = step.webtestProperties.groovyParmValue
+        newValue = newValue.replaceAll("\\'\\'", "\\'") // replace escaped single quotes
+        newValue = newValue.replaceAll("\\{0\\}", step.webtestProperties.groovyParmAtt0)
+        newValue = newValue.replaceAll("\\{1\\}", step.webtestProperties.groovyParmAtt1)
+        newValue = newValue.replaceAll("\\{2\\}", step.webtestProperties.groovyParmAtt2)
+        newValue = "\\Q"+newValue.replaceAll("\\{\\d*\\}", "\\\\E.*\\\\Q")+"\\E"
+        newValue = newValue.replaceAll("\\\\Q", "")
+        newValue = newValue.replaceAll("\\\\E", "")
+        step.setWebtestProperty(step.webtestProperties.groovyParmProperty, newValue)
+      </groovy>
+    </sequential>
+  </macrodef>
+
+  <!-- Compute the number of occurrences of substring in string and store the result in given property -->
+  <macrodef name="common.numberOfOccurences">
+    <attribute name="substring" />
+    <attribute name="string" />
+    <attribute name="property" />
+    <sequential>
+      <storeProperty name="groovy_substring" value="@{substring}" />
+      <storeProperty name="groovy_string" value="@{string}" />
+      <storeProperty name="groovy_property" value="@{property}" />
+      <groovy description="Count occurrences of @{substring} in given string.">
+            def substring = step.webtestProperties.groovy_substring
+            def stringValue = step.webtestProperties.groovy_string
+            def result = stringValue.count(substring);
+            step.setWebtestProperty(step.webtestProperties.groovy_property, Integer.toString(result))
+        </groovy>
+    </sequential>
+  </macrodef>
+
+
+  <!-- Create a string with given length into the given property -->
+  <macrodef name="common.createString">
+    <attribute name="length" />
+    <attribute name="property" />
+    <sequential>
+      <storeProperty name="groovy_length" value="@{length}" />
+      <storeProperty name="groovy_property" value="@{property}" />
+
+      <groovy>
+        def str = new String()
+        def len = Integer.parseInt(step.webtestProperties.groovy_length);
+
+        if (len > 0) {
+          for ( i in 1..(len-1) ) {
+            str = str + "X"
+          }
+        str = str + "Z"
+        }
+        
+        step.setWebtestProperty(step.webtestProperties.groovy_property, str)
+      </groovy>
+
+    </sequential>
+  </macrodef>
+
+
+  <!-- Determines the current URL and executes a "invokes" to this URL -->
+  <macrodef name="common.reloadCurrentPage">
+    <sequential>
+      <common.getCurrentRequestUrl property="tmp.currentRequestUrl" />
+      <!-- now you can use it like this or pass it to a definition -->
+      <invoke url="#{tmp.currentRequestUrl}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Determines the current URL and store it in the given property -->
+  <macrodef name="common.getCurrentRequestUrl">
+    <attribute name="property" default="tmp.currentRequestUrl" />
+    <sequential>
+      <groovy>
+        def url = step.getContext()
+                      .getCurrentResponse()
+                      .getWebResponse()
+                      .getRequestSettings()
+                      .getUrl()
+                      .toExternalForm();
+            step.setWebtestProperty('@{property}', url, step.PROPERTY_TYPE_DYNAMIC);
+      </groovy>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.getCurrentResponseUrl">
+    <attribute name="property" default="tmp.currentResponseUrl" />
+    <sequential>
+      <groovy>
+        def url = step.getContext()
+                      .getCurrentResponse()
+        			  .getWebResponse();
+        	url= 'http://g08fnstd121105.g08.fujitsu.local:8180/oscm-portal/service/edit.jsf';
+            step.setWebtestProperty('@{property}', url, step.PROPERTY_TYPE_DYNAMIC);
+      </groovy>
+      <invoke url="#{tmp.currentResponseUrl}" />
+    </sequential>
+  </macrodef>
+
+  
+  <!-- verify error message in an modal dialog -->
+  <macrodef name="common.verifyModalErrorPanel">
+    <attribute name="label" />
+    <attribute name="modalPanelId" />
+    <sequential>
+      <storeXPath description="Check error message" xpath="//*[@id='@{modalPanelId}ErrorMessages']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+      <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- verify success message in modal dialog -->
+  <macrodef name="common.verifyModalMessagePanel">
+    <attribute name="label" />
+    <attribute name="panelId" />
+    <attribute name="regex" default="true" />
+    <sequential>
+      <storeXPath description="Check message" xpath="//*[@id='@{panelId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="message" />
+
+      <ifStep description="Check string w or w/o regex" test="@{regex}">
+        <then>
+          <verifyProperty name="message" value=".*@{label}.*" regex="true" />
+        </then>
+        <else>
+          <verifyProperty name="message" value="@{label}" regex="false" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- verify filed error message in modal dialog -->
+  <macrodef name="common.verifyModalFieldError">
+    <attribute name="modalPanelId" />
+    <attribute name="fieldId" />
+    <attribute name="label" />
+    <attribute name="errorFieldId" default="@{modalPanelId}Form:@{fieldId}ErrorMsg" />
+    <sequential>
+      <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}:@{fieldId}']//*[contains(@class, 'rf-msg-det')]/text()" property="errorMsg" />
+      <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- This macro can be used for links which trigger a AJAX action. -->
+  <!-- After the link is clicked, the webtest will wait until the underlaying -->
+  <!-- Javascript function finished-->
+  <macrodef name="common.clickAjaxLink">
+    <attribute name="htmlId" />
+    <attribute name="timeout" default="10000" />
+    <sequential>
+      <clickElement htmlId="@{htmlId}" />
+      <common.waitForJavaScript timeout="@{timeout}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.verifyModalPanelVisible">
+    <attribute name="htmlId" />
+    <sequential>
+      <verifyElement description="Verify existence of modal panel with ID @{htmlId}" text="@{htmlId}" type="div" />
+      <storeXPath description="Check css styleclass of modal panel" xpath="//*[@id='@{htmlId}']/@class" property="cssClass" />
+      <verifyProperty name="cssClass" value=".*rf-pp-cntr*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Wait for asyncronous java script processing (e.g. modifying the HTML dom) -->
+  <macrodef name="common.waitForJavaScript">
+    <attribute name="timeout" default="10000" />
+    <sequential>
+      <groovy>
+        def currectContext = step.context        
+        currectContext.webClient.waitForBackgroundJavaScript(@{timeout})
+      </groovy>
+    </sequential>
+  </macrodef>
+
+  <!-- verify given field with invalid field values -->
+  <macrodef name="common.verifyInvalidFieldValue">
+    <attribute name="fieldId" />
+    <attribute name="fieldType" />
+    <attribute name="required" />
+    <attribute name="buttonLinkId" default="true" />
+    <attribute name="hintMsgKey" default="" />
+    <attribute name="att0Name" default="att0" />
+    <attribute name="att1Name" default="att1" />
+    <attribute name="att2Name" default="att2" />
+    <attribute name="topErrorMessage" default="true" />
+    <sequential>
+      <!-- Check mandatory field values -->
+      <ifStep description="Mandatory field?" test="@{required}">
+        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="@{buttonLinkId}" topErrorMessage="@{topErrorMessage}" />
+      </ifStep>
+      <storeProperty name="hintKey" value="@{hintMsgKey}" propertyType="dynamic" />
+      <!-- Check invalid field values -->
+      <dataDriven tableContainer="data/invalidInput/@{fieldType}.xls">
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${@{att0Name}}" att1="${@{att1Name}}" att2="${@{att2Name}}" />
+        <common.testFieldValidation fieldId="@{fieldId}" fieldValue="${value}" buttonLinkId="@{buttonLinkId}" error="${expectedMessage}" topErrorMessage="@{topErrorMessage}" />
+      </dataDriven>
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="common.storePropertyWithRetry">
+    <attribute name="propertyName" />
+    <attribute name="propertyValue" />
+    <attribute name="verifyText" default="@{propertyValue}"/>
+    <attribute name="regex" default="false" />
+    <attribute name="propertyType" default="dynamic" />
+    <attribute name="waiting" default="400" />
+    <sequential>
+      <storeProperty name="@{propertyName}" value="@{propertyValue}" propertyType="@{propertyType}" />
+      <ifStep>
+        <condition>
+          <verifyProperty property="@{propertyName}" text="@{verifyText}" propertyType="@{propertyType}" regex="@{regex}" />
+        </condition>
+        <else>
+          <echo message="Variables @{propertyName} NOT stored! Try to store once again." />
+          <storeProperty name="@{propertyName}" value="@{propertyValue}" propertyType="@{propertyType}" />
+        </else>
+      </ifStep>
+      <sleep milliseconds="@{waiting}" />
+      <ifStep>
+        <condition>
+          <verifyProperty property="@{propertyName}" text="@{verifyText}" propertyType="@{propertyType}" regex="@{regex}" />
+        </condition>
+        <else>
+          <fail message="ERROR: Variable '@{propertyName}' is not resolved! Maybe storeProperty mechanism sucks... or variable resolving by ANT." />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+</project>

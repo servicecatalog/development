@@ -1,0 +1,132 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.manageBrokerRevenueShare" />
+    <c:set var="focusElement" value="editForm:templateKey" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{manageRevenueShareCtrl.initializePage}" />
+    <h:form id="selectForm">
+      <adm:outputStep value="#{msg['marketplace.manageBrokerRevenueShare.step1']}" />
+
+      <adm:panelGrid>
+        <h:panelGroup>
+          <adm:outputLabel value="#{msg['service.serviceId']}" />
+        </h:panelGroup>
+        <h:panelGroup>
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu styleClass="select" id="templateKey" value="#{manageRevenueShareModel.selectedTemplateKey}"
+              valueChangeListener="#{manageRevenueShareCtrl.templateChanged}" immediate="true"
+              onchange="if(AdmUtils.isNotDirtyOrConfirmed()){
+                 #{rich:element('selectForm')}.submit();
+               } else{AdmUtils.restoreValue(this);}"
+              onclick="AdmUtils.storeValue(this);AdmUtils.initFocus();">
+              <adm:selectItemPleaseSelect itemValue="0" />
+              <f:selectItems value="#{manageRevenueShareModel.templates}" />
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+        </h:panelGroup>
+        <h:panelGroup>
+          <adm:message for="templateKey" />
+        </h:panelGroup>
+      </adm:panelGrid>
+    </h:form>
+
+    <h:form id="editForm">
+      <adm:outputStep value="#{msg['marketplace.manageBrokerRevenueShare.step2']}"
+        rendered="#{manageRevenueShareModel.serviceSelected}" />
+
+      <a4j:outputPanel layout="block" styleClass="stepDescription"
+        rendered="#{manageRevenueShareModel.serviceNotPublished}">
+        <h:outputText value="#{msg['marketplace.manageRevenueShare.serviceNotPublished']}" />
+      </a4j:outputPanel>
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel"
+        rendered="#{manageRevenueShareModel.servicePublished}">
+        <adm:dataTable tableId="defaultRevenueShareTable"
+          value="#{manageRevenueShareModel.partnerPriceModelForSelectedTemplate}">
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.marketplace']}" />
+            </f:facet>
+            <h:outputText
+              value="#{manageRevenueShareModel.pricingOfMarketplaceForSelectedTemplate.marketplace.displayName}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['marketplace.manageBrokerRevenueShare.header.defaultRevenueShare']}" />
+            </f:facet>
+            <h:outputText
+              value="#{manageRevenueShareModel.pricingOfMarketplaceForSelectedTemplate.partnerPriceModel.revenueShareBrokerModel.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['marketplace.manageRevenueShare.header.revenueShare']}" />
+            </f:facet>
+
+            <h:inputText id="serviceRevenueShare" styleClass="fieldXS" onchange="setDirty(true)"
+              value="#{rowItem.revenueShareBrokerModel.revenueShare}" required="true"
+              maxlength="#{appBean.percentValueLen}">
+              <f:validator validatorId="revenueShareValue" />
+              <f:converter converterId="bigDecimal.converter" />
+            </h:inputText>
+
+            <adm:message for="serviceRevenueShare" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:outputStep value="#{msg['marketplace.manageBrokerRevenueShare.step3']}"
+        rendered="#{manageRevenueShareModel.serviceSelected}" />
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel" rendered="#{manageRevenueShareModel.serviceSelected}">
+        <adm:dataTable tableId="partnerRevenueShareTable" value="#{manageRevenueShareModel.brokerServicePricings}">
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['marketplace.manageBrokerRevenueShare.header.organization']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.serviceForPricing.vendor.organizationName}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.organizationId']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.serviceForPricing.vendor.organizationId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['marketplace.manageRevenueShare.header.revenueShare']}" />
+            </f:facet>
+            <h:inputText id="partnerRevenueShare" styleClass="fieldXS" onchange="setDirty(true)"
+              value="#{rowItem.partnerPriceModel.revenueShareBrokerModel.revenueShare}" required="true"
+              maxlength="#{appBean.percentValueLen}" rendered="#{not empty rowItem.serviceForPricing}">
+              <f:validator validatorId="revenueShareValue" />
+              <f:converter converterId="bigDecimal.converter" />
+            </h:inputText>
+            <adm:message for="partnerRevenueShare" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{manageRevenueShareCtrl}"
+          action="saveForBroker" disabled="#{manageRevenueShareModel.brokerSaveDisabled}" buttonType="save" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

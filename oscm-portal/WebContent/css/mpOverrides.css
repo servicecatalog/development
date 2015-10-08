@@ -1,0 +1,123 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2015 
+ */ 
+#contentPanelDiv .rf-tab-hdr-tabs {
+	background: rgb(248, 248, 248);
+	background-color: rgb(248, 248, 248);
+	border: 0;
+	border-style: none;
+	border-bottom: 1px solid #CCC;
+	border-collapse: collapse;
+}
+
+#contentPanelDiv .rf-tab-hdr {
+	background-color: #C6CCD1;
+	border: 1px solid #CCC;
+	padding: 5px 19px;
+}
+
+#contentPanelDiv .rf-tab-lbl {
+	font-family: OpenSansSemiBold, Arial, Verdana, 'Lucida Grande', 'ＭＳ Ｐゴシック', 'ヒラギノ角ゴ Pro W3', sans-serif;
+	font-size: 14px;
+	font-weight: normal;
+	color: #666;
+}
+
+#contentPanelDiv .rf-tab-hdr-brd {
+	height: 0px;
+	border: none;
+}
+
+#contentPanelDiv .rf-tab-hdr-tabline-vis.rf-tab-hdr-tabline-top {
+	border-style: none;
+	padding-top: 0px;
+	height: auto;
+}
+
+#contentPanelDiv .rf-tab-hdr-act.rf-tab-hdr-top {
+	background-image: none;
+	background-color: #FFF;
+	border-bottom: 1px solid white;
+	padding: 5px 19px;
+}
+
+#contentPanelDiv .rf-tab-hdr-inact.rf-tab-hdr-top {
+	background-image: none;
+}
+
+#contentPanelDiv .rf-tab-cnt {
+	border: none;
+}
+
+#tabSupplier div.rf-tab-cnt span div:last-child.col4span {
+	float: none;
+}
+
+div[id="confirmForm:licensePanel"]{
+    display:none;   
+}
+
+div#subscriptionTablePanel div.suspended{
+	display:block;
+	padding:0px 15px !important;
+}
+
+div#subscriptionTablePanel div.suspended dt:before{
+    content: "";
+    float: left;
+    width: 29px;
+    height: 25px;
+    margin: 0 20px 0 0;
+    background: url(../marketplace/img/mp_icon_sprite.png);
+    background-position: -8px -205px;
+}
+
+div#subscriptionAdministratePanelGrid.grid2span, 
+div#subscriptionUsagePanelGrid.grid2span{
+    width: 730px;
+}
+
+div#subscriptionAdministratePanelGrid.grid2span .leftCenterBorder,
+div#subscriptionUsagePanelGrid.grid2span .leftCenterBorder  {
+    width: 560px;
+    float: left;
+    padding-right: 14px;
+    border-right: 1px solid #b8b8b8;
+    min-height:28px;
+}
+
+div#subscriptionAdministratePanelGrid.grid2span .left,
+div#subscriptionUsagePanelGrid.grid2span .left {
+    width: 100px;
+    float: left;
+    margin-right: 15px;
+}
+
+div#subscriptionUsagePanelGrid.grid2span .center {
+    width: 440px;
+    float: left;
+    margin-right: 0;
+}
+
+div#subscriptionAdministratePanelGrid.grid2span .right,
+div#subscriptionUsagePanelGrid.grid2span .right {
+    width: 140px;
+    float: left;
+    margin-left: 0;
+    padding-left: 15px;
+    margin-right: 0;
+}
+
+div#subscriptionUsagePanelGrid.grid2span .supplier{
+    margin-bottom: 0.87em;
+}
+
+div#subscriptionUsagePanelGrid.grid2span .leftCenterBorder .button,
+div#subscriptionUsagePanelGrid.grid2span .leftCenterBorder .buttonDisabled {
+    float:right;
+    margin-right: 200px;
+}
+
+form#subListForm div.subscriptionError{
+    height: auto;
+}

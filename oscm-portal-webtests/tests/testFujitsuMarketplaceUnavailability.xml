@@ -1,0 +1,24 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testFujitsuMarketplaceUnavailability" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testFujitsuMarketplaceUnavailability">
+    <webtest name="test unavailability in select box">
+      <!-- create marketplace so that the marketplace menu group is available -->
+      <operator.createMarketplace mIdProperty="mId" name="MP" />
+    </webtest>
+
+  </target>
+
+  <macrodef name="this.verifyNoFujitsuInSelect">
+    <attribute name="menuentry" />
+    <sequential>
+      <common.clickAndVerfyLink label="@{menuentry}" />
+      <not>
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="FUJITSU" />
+      </not>
+    </sequential>
+  </macrodef>
+
+</project>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <!-- Event -->
+  <Event tkey="1100" version="0" eventidentifier="eventid_1" eventtype="eventtype"/>
+  <Localizedresource tkey="1100" version="0" objectkey="1100" objecttype="EVENT_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="1101" version="0" objectkey="1100" objecttype="EVENT_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="1102" version="0" objectkey="1100" objecttype="EVENT_DESC" locale="ja" value="x"/> 
+  <Event tkey="1101" version="0" eventidentifier="eventid_2" eventtype="eventtype"/>
+  <Localizedresource tkey="1103" version="0" objectkey="1102" objecttype="EVENT_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="1104" version="0" objectkey="1102" objecttype="EVENT_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="1105" version="0" objectkey="1102" objecttype="EVENT_DESC" locale="ja" value="x"/>
+   
+  <!-- Organization -->
+  <Organization tkey="1100" version="0" organizationid="TP1" name="TP1" registrationdate="1234" locale="en"/>
+  <Localizedresource tkey="3100" version="0" objectkey="1100" objecttype="ORGANIZATION_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="3101" version="0" objectkey="1100" objecttype="ORGANIZATION_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="3102" version="0" objectkey="1100" objecttype="ORGANIZATION_DESCRIPTION" locale="ja" value="x"/> 
+  <Organization tkey="1101" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" locale="de"/>
+  <Localizedresource tkey="3103" version="0" objectkey="1102" objecttype="ORGANIZATION_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="3104" version="0" objectkey="1102" objecttype="ORGANIZATION_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="3105" version="0" objectkey="1102" objecttype="ORGANIZATION_DESCRIPTION" locale="ja" value="x"/>
+  
+  <!-- Marketplace -->
+  <Marketplace tkey="1100" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101" creationdate="121312312"/>
+  <Localizedresource tkey="2100" version="0" objectkey="1100" objecttype="MARKETPLACE_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="2101" version="0" objectkey="1100" objecttype="MARKETPLACE_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="2102" version="0" objectkey="1100" objecttype="MARKETPLACE_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="2103" version="0" objectkey="1100" objecttype="MARKETPLACE_STAGE" locale="en" value="x"/> 
+  <Localizedresource tkey="2104" version="0" objectkey="1100" objecttype="MARKETPLACE_STAGE" locale="de" value="x"/> 
+  <Localizedresource tkey="2105" version="0" objectkey="1100" objecttype="MARKETPLACE_STAGE" locale="ja" value="x"/> 
+  <Localizedresource tkey="2106" version="0" objectkey="1100" objecttype="SHOP_MESSAGE_PROPERTIES" locale="en" value="x"/> 
+  <Localizedresource tkey="2107" version="0" objectkey="1100" objecttype="SHOP_MESSAGE_PROPERTIES" locale="de" value="x"/> 
+  <Localizedresource tkey="2108" version="0" objectkey="1100" objecttype="SHOP_MESSAGE_PROPERTIES" locale="ja" value="x"/> 
+  <Marketplace tkey="1101" version="0" marketplaceid="marketplaceid_2" organization_tkey="1101" creationdate="121312312"/>
+  <Localizedresource tkey="2109" version="0" objectkey="1102" objecttype="MARKETPLACE_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="2110" version="0" objectkey="1102" objecttype="MARKETPLACE_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="2111" version="0" objectkey="1102" objecttype="MARKETPLACE_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="2112" version="0" objectkey="1102" objecttype="MARKETPLACE_STAGE" locale="en" value="x"/> 
+  <Localizedresource tkey="2113" version="0" objectkey="1102" objecttype="MARKETPLACE_STAGE" locale="de" value="x"/> 
+  <Localizedresource tkey="2114" version="0" objectkey="1102" objecttype="MARKETPLACE_STAGE" locale="ja" value="x"/> 
+  <Localizedresource tkey="2115" version="0" objectkey="1102" objecttype="SHOP_MESSAGE_PROPERTIES" locale="en" value="x"/> 
+  <Localizedresource tkey="2116" version="0" objectkey="1102" objecttype="SHOP_MESSAGE_PROPERTIES" locale="de" value="x"/> 
+  <Localizedresource tkey="2117" version="0" objectkey="1102" objecttype="SHOP_MESSAGE_PROPERTIES" locale="ja" value="x"/>
+   
+  <!-- ParameterDefinition -->
+  <Parameterdefinition tkey="1100" version="0" parameterid="paramid_1" parametertype="paramtype" valuetype="valuetype" configurable="true" mandatory="false"/>
+  <Localizedresource tkey="4100" version="0" objectkey="1100" objecttype="PARAMETER_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="4101" version="0" objectkey="1100" objecttype="PARAMETER_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="4102" version="0" objectkey="1100" objecttype="PARAMETER_DEF_DESC" locale="ja" value="x"/> 
+  <Parameterdefinition tkey="1101" version="0" parameterid="paramid_2" parametertype="paramtype" valuetype="valuetype" configurable="true" mandatory="false"/>
+  <Localizedresource tkey="4103" version="0" objectkey="1102" objecttype="PARAMETER_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="4104" version="0" objectkey="1102" objecttype="PARAMETER_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="4105" version="0" objectkey="1102" objecttype="PARAMETER_DEF_DESC" locale="ja" value="x"/>
+   
+  <!-- ParameterOption -->
+  <Parameteroption tkey="1100" version="0" optionid="optionid_1" parameterdefinition_tkey="1101"/>
+  <Localizedresource tkey="5100" version="0" objectkey="1100" objecttype="OPTION_PARAMETER_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="5101" version="0" objectkey="1100" objecttype="OPTION_PARAMETER_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="5102" version="0" objectkey="1100" objecttype="OPTION_PARAMETER_DEF_DESC" locale="ja" value="x"/> 
+  <Parameteroption tkey="1101" version="0" optionid="optionid_2" parameterdefinition_tkey="1101"/>
+  <Localizedresource tkey="5103" version="0" objectkey="1102" objecttype="OPTION_PARAMETER_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="5104" version="0" objectkey="1102" objecttype="OPTION_PARAMETER_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="5105" version="0" objectkey="1102" objecttype="OPTION_PARAMETER_DEF_DESC" locale="ja" value="x"/>
+   
+  <!-- PaymentType -->
+  <Psp tkey="1100" version="0" identifier="pspid" wsdlurl="http:/xxx.de"/>
+  <Paymenttype tkey="1100" version="0" paymenttypeid="ptid_1" collectiontype="ctype" psp_tkey="1100"/>
+  <Localizedresource tkey="6100" version="0" objectkey="1100" objecttype="PAYMENT_TYPE_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="6101" version="0" objectkey="1100" objecttype="PAYMENT_TYPE_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="6102" version="0" objectkey="1100" objecttype="PAYMENT_TYPE_NAME" locale="ja" value="x"/> 
+  <Paymenttype tkey="1101" version="0" paymenttypeid="ptid_2" collectiontype="ctype" psp_tkey="1100"/>
+  <Localizedresource tkey="6103" version="0" objectkey="1102" objecttype="PAYMENT_TYPE_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="6104" version="0" objectkey="1102" objecttype="PAYMENT_TYPE_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="6105" version="0" objectkey="1102" objecttype="PAYMENT_TYPE_NAME" locale="ja" value="x"/>
+   
+  <!-- PriceModel -->
+  <Pricemodel tkey="1100" version="0" ischargeable="true" onetimefee="1" priceperperiod="10" priceperuserassignment="10"/>
+  <Localizedresource tkey="7100" version="0" objectkey="1100" objecttype="PRICEMODEL_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="7101" version="0" objectkey="1100" objecttype="PRICEMODEL_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="7102" version="0" objectkey="1100" objecttype="PRICEMODEL_DESCRIPTION" locale="ja" value="x"/> 
+  <Localizedresource tkey="7103" version="0" objectkey="1100" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="7104" version="0" objectkey="1100" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="7105" version="0" objectkey="1100" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="ja" value="x"/> 
+  <Localizedresource tkey="7106" version="0" objectkey="1100" objecttype="PRICEMODEL_LICENSE" locale="en" value="x"/> 
+  <Localizedresource tkey="7107" version="0" objectkey="1100" objecttype="PRICEMODEL_LICENSE" locale="de" value="x"/> 
+  <Localizedresource tkey="7108" version="0" objectkey="1100" objecttype="PRICEMODEL_LICENSE" locale="ja" value="x"/> 
+  <Pricemodel tkey="1101" version="0" ischargeable="true" onetimefee="1" priceperperiod="10" priceperuserassignment="10"/>
+  <Localizedresource tkey="7109" version="0" objectkey="1102" objecttype="PRICEMODEL_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="7110" version="0" objectkey="1102" objecttype="PRICEMODEL_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="7111" version="0" objectkey="1102" objecttype="PRICEMODEL_DESCRIPTION" locale="ja" value="x"/> 
+  <Localizedresource tkey="7112" version="0" objectkey="1102" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="7113" version="0" objectkey="1102" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="7114" version="0" objectkey="1102" objecttype="PRICEMODEL_SHORT_DESCRIPTION" locale="ja" value="x"/> 
+  <Localizedresource tkey="7115" version="0" objectkey="1102" objecttype="PRICEMODEL_LICENSE" locale="en" value="x"/> 
+  <Localizedresource tkey="7116" version="0" objectkey="1102" objecttype="PRICEMODEL_LICENSE" locale="de" value="x"/> 
+  <Localizedresource tkey="7117" version="0" objectkey="1102" objecttype="PRICEMODEL_LICENSE" locale="ja" value="x"/>
+   
+  <!-- TechnicalProduct -->
+  <Technicalproduct tkey="1100" version="0" technicalproductid="tpid_1" organizationkey="1101" provisioningurl="url"/>
+  <Localizedresource tkey="8100" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8101" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8102" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8103" version="0" objectkey="1100" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8104" version="0" objectkey="1100" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8105" version="0" objectkey="1100" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8106" version="0" objectkey="1100" objecttype="PRODUCT_LICENSE_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8107" version="0" objectkey="1100" objecttype="PRODUCT_LICENSE_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8108" version="0" objectkey="1100" objecttype="PRODUCT_LICENSE_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8109" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8110" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8111" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8112" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8113" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8114" version="0" objectkey="1100" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="ja" value="x"/> 
+  <Technicalproduct tkey="1101" version="0" technicalproductid="tpid_2" organizationkey="1101" provisioningurl="url"/>
+  <Localizedresource tkey="8115" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8116" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8117" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_ACCESS_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8118" version="0" objectkey="1102" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8119" version="0" objectkey="1102" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8120" version="0" objectkey="1102" objecttype="TEC_PRODUCT_TECHNICAL_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8121" version="0" objectkey="1102" objecttype="PRODUCT_LICENSE_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8122" version="0" objectkey="1102" objecttype="PRODUCT_LICENSE_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8123" version="0" objectkey="1102" objecttype="PRODUCT_LICENSE_DESC" locale="ja" value="x"/>
+  <Localizedresource tkey="8124" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8125" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8126" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_SUBS_USER_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="8127" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="8128" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="8129" version="0" objectkey="1102" objecttype="TEC_PRODUCT_LOGIN_PROV_DESC" locale="ja" value="x"/> 
+
+  <!-- Product -->
+  <Product tkey="1100" version="0" productid="pid_1" supplierkey="1101" provisioningdate="12121212" status="status" technicalproduct_tkey="1101"/>
+  <Localizedresource tkey="9100" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="9101" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="9102" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="9103" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="9104" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="9105" version="0" objectkey="1100" objecttype="PRODUCT_MARKETING_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="9106" version="0" objectkey="1100" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="9107" version="0" objectkey="1100" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="9708" version="0" objectkey="1100" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="ja" value="x"/> 
+  <Product tkey="1101" version="0" productid="pid_2" supplierkey="1101" provisioningdate="12121212" status="status" technicalproduct_tkey="1101"/>
+  <Localizedresource tkey="9109" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="9110" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="9111" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="9112" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="9113" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="9114" version="0" objectkey="1102" objecttype="PRODUCT_MARKETING_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="9115" version="0" objectkey="1102" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="9116" version="0" objectkey="1102" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="9117" version="0" objectkey="1102" objecttype="PRODUCT_SHORT_DESCRIPTION" locale="ja" value="x"/>
+   
+  <!-- Report -->
+  <Organizationrole tkey="1100" version="0" rolename="orgrole"/>
+  <Report tkey="1100" version="0" reportname="report_1" organizationrole_tkey="1100"/>
+  <Localizedresource tkey="10100" version="0" objectkey="1100" objecttype="REPORT_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="10101" version="0" objectkey="1100" objecttype="REPORT_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="10102" version="0" objectkey="1100" objecttype="REPORT_DESC" locale="ja" value="x"/>    
+  <Report tkey="1101" version="0" reportname="report_2" organizationrole_tkey="1100"/> 
+  <Localizedresource tkey="10103" version="0" objectkey="1102" objecttype="REPORT_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="10104" version="0" objectkey="1102" objecttype="REPORT_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="10105" version="0" objectkey="1102" objecttype="REPORT_DESC" locale="ja" value="x"/>
+      
+  <!-- RoleDefinition -->
+  <Roledefinition tkey="1100" version="0" roleid="role_1" technicalproduct_tkey="1101"/>
+  <Localizedresource tkey="11100" version="0" objectkey="1100" objecttype="ROLE_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="11101" version="0" objectkey="1100" objecttype="ROLE_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="11102" version="0" objectkey="1100" objecttype="ROLE_DEF_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="11103" version="0" objectkey="1100" objecttype="ROLE_DEF_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="11104" version="0" objectkey="1100" objecttype="ROLE_DEF_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="11105" version="0" objectkey="1100" objecttype="ROLE_DEF_NAME" locale="ja" value="x"/>   
+  <Roledefinition tkey="1101" version="0" roleid="role_2" technicalproduct_tkey="1101"/>
+  <Localizedresource tkey="11106" version="0" objectkey="1102" objecttype="ROLE_DEF_DESC" locale="en" value="x"/> 
+  <Localizedresource tkey="11107" version="0" objectkey="1102" objecttype="ROLE_DEF_DESC" locale="de" value="x"/> 
+  <Localizedresource tkey="11108" version="0" objectkey="1102" objecttype="ROLE_DEF_DESC" locale="ja" value="x"/> 
+  <Localizedresource tkey="11109" version="0" objectkey="1102" objecttype="ROLE_DEF_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="11110" version="0" objectkey="1102" objecttype="ROLE_DEF_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="11111" version="0" objectkey="1102" objecttype="ROLE_DEF_NAME" locale="ja" value="x"/>
+     
+  <!-- Subscription -->
+  <Subscription tkey="1100" version="0" subscriptionid="sid_1" product_tkey="1101" creationdate="121210" status="status" timeoutmailsent="1" organizationkey="1100"/>
+  <Localizedresource tkey="12100" version="0" objectkey="1100" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="en" value="x"/> 
+  <Localizedresource tkey="12101" version="0" objectkey="1100" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="de" value="x"/> 
+  <Localizedresource tkey="12102" version="0" objectkey="1100" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="ja" value="x"/>    
+  <Subscription tkey="1101" version="0" subscriptionid="sid_1" product_tkey="1101" creationdate="121210" status="status" timeoutmailsent="1" organizationkey="1101"/>
+  <Localizedresource tkey="12103" version="0" objectkey="1102" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="en" value="x"/> 
+  <Localizedresource tkey="12104" version="0" objectkey="1102" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="de" value="x"/> 
+  <Localizedresource tkey="12105" version="0" objectkey="1102" objecttype="SUBSCRIPTION_PROVISIONING_PROGRESS" locale="ja" value="x"/>
+      
+  <!-- TriggerProcess -->
+  <Triggerdefinition tkey="1100" version="0" type="type" target="target" targettype="ttype" suspendprocess="true" organization_tkey="1101"/>
+  <Triggerprocess tkey="1100" version="0" triggerdefinition_tkey="1100" activationdate="12121" status="status"/>
+  <Localizedresource tkey="13100" version="0" objectkey="1100" objecttype="TRIGGER_PROCESS_REASON" locale="en" value="x"/> 
+  <Localizedresource tkey="13101" version="0" objectkey="1100" objecttype="TRIGGER_PROCESS_REASON" locale="de" value="x"/> 
+  <Localizedresource tkey="13102" version="0" objectkey="1100" objecttype="TRIGGER_PROCESS_REASON" locale="ja" value="x"/>    
+  <Triggerprocess tkey="1101" version="0" triggerdefinition_tkey="1100" activationdate="12121" status="status"/>
+  <Localizedresource tkey="13103" version="0" objectkey="1102" objecttype="TRIGGER_PROCESS_REASON" locale="en" value="x"/> 
+  <Localizedresource tkey="13104" version="0" objectkey="1102" objecttype="TRIGGER_PROCESS_REASON" locale="de" value="x"/> 
+  <Localizedresource tkey="13105" version="0" objectkey="1102" objecttype="TRIGGER_PROCESS_REASON" locale="ja" value="x"/>    
+
+  <!-- TechnicalProductOperation -->
+  <Technicalproductoperation tkey="1100" version="0" operationid="tpo_1" operationtype="type" actionurl="url" technicalproduct_tkey="1100"/>
+  <Localizedresource tkey="14100" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="14101" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="14102" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="14103" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="14104" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="14105" version="0" objectkey="1100" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="ja" value="x"/> 
+  <Technicalproductoperation tkey="1101" version="0" operationid="tpo_2" operationtype="type" actionurl="url" technicalproduct_tkey="1100"/>
+  <Localizedresource tkey="14106" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="en" value="x"/> 
+  <Localizedresource tkey="14107" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="de" value="x"/> 
+  <Localizedresource tkey="14108" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_NAME" locale="ja" value="x"/> 
+  <Localizedresource tkey="14109" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="en" value="x"/> 
+  <Localizedresource tkey="14110" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="de" value="x"/> 
+  <Localizedresource tkey="14111" version="0" objectkey="1102" objecttype="TECHNICAL_PRODUCT_OPERATION_DESCRIPTION" locale="ja" value="x"/> 
+   
+
+</dataset>

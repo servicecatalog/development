@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+ 
+    <BillingResult tkey="1" creationtime="1234" organizationtkey="2" periodendtime="1234" periodstarttime="1234" 
+        resultxml="empty" version="0" chargingorgkey="1"/>
+      
+</dataset>

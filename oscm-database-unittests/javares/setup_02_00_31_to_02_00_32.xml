@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" organizationid="Organization1"  version="0" registrationdate="123" />
+ 
+  <TechnicalProduct tkey="1" technicalproductid="tpid1" version="0" provisioningurl="url" 
+    organizationkey="1" />
+
+  <TechnicalProduct tkey="2" technicalproductid="tpid2" version="0" provisioningurl="url" 
+    organizationkey="1" />
+    
+</dataset>

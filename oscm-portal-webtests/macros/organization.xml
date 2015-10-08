@@ -1,0 +1,168 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <macrodef name="organization.managePaymentforsupplier">
+     <sequential>
+       <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+       <setCheckbox htmlId="managePayment:serviceDefault0" checked="true" />
+       <setCheckbox htmlId="managePayment:serviceDefault1" checked="true" />
+         <setCheckbox htmlId="managePayment:serviceDefault2" checked="true" />
+       <clickButton label="${button.save}" />
+     </sequential>
+    </macrodef>
+  <macrodef name="organization.managePaymentforcustomer">
+     <sequential>
+       <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+       <setCheckbox htmlId="managePayment:serviceDefault0" checked="true" />
+       <setCheckbox htmlId="managePayment:serviceDefault1" checked="true" />
+         <setCheckbox htmlId="managePayment:serviceDefault2" checked="true" />
+       <setCheckbox htmlId="managePayment:default0" checked="true" />
+        <setCheckbox htmlId="managePayment:default1" checked="true" />
+         <setCheckbox htmlId="managePayment:default2" checked="true" />
+       <clickButton label="${button.save}" />
+     </sequential>
+    </macrodef>
+  <macrodef name="organization.create">
+    <attribute name="adminSalution" default="${user.salutation}" />
+    <attribute name="adminFirstName" default="${user.firstname}" />
+    <attribute name="adminLastName" default="${user.lastname}" />
+    <attribute name="adminId" default="${user.identifier}" />
+    <attribute name="adminEmail" default="${common.email}" />
+    <attribute name="adminLocale" default="${user.locale}" />
+    <attribute name="name" default="Organization Name" />
+    <attribute name="email" default="${common.email}" />
+    <attribute name="phone" default="${test.organization.phone}" />
+    <attribute name="url" default="${test.organization.url}" />
+    <attribute name="address" default="${test.organization.address}" />
+    <attribute name="country" default="${test.organization.country}" />
+    <attribute name="description" default="${test.organization.description}" />
+    <attribute name="mId" default="" />
+    <attribute name="supplier" default="true" />
+    <attribute name="provider" default="true" />
+    <attribute name="broker" default="false" />
+    <attribute name="reseller" default="false" />
+    <attribute name="label" default="${operator.createOrganization.title}" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="verifyCheck" default="true" />
+    <sequential>
+      <common.clickLink label="@{label}" />
+      <!-- Administrator data -->
+      <setSelectField htmlId="editForm:administratorSalutation" value="@{adminSalution}" />
+      <setInputField htmlId="editForm:administratorFirstName" value="@{adminFirstName}" />
+      <setInputField htmlId="editForm:administratorLastName" value="@{adminLastName}" />
+      <setInputField htmlId="editForm:administratorUserId" value="@{adminId}" />
+      <setInputField htmlId="editForm:administratorEmail" value="@{adminEmail}" />
+      <setSelectField htmlId="editForm:administratorLocale" value="@{adminLocale}" />
+      <!-- Basic organization data -->
+      <setInputField htmlId="editForm:organizationName" value="@{name}" />
+      <setInputField htmlId="editForm:organizationEmail" value="@{email}" />
+      <setInputField htmlId="editForm:organizationPhone" value="@{phone}" />
+      <setInputField htmlId="editForm:organizationUrl" value="@{url}" />
+      <setSelectField htmlId="editForm:organizationCountry" value="@{country}" />
+      <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="@{supplier}" />
+      <setCheckbox htmlId="editForm:checkboxRoleTechnologyProvider" checked="@{provider}" />
+      <setCheckbox htmlId="editForm:checkboxRoleBroker" checked="@{broker}" />
+      <setCheckbox htmlId="editForm:checkboxRoleReseller" checked="@{reseller}" />
+      <setInputField htmlId="editForm:organizationDescription" value="@{description}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      
+      <setInputField htmlId="editForm:organizationAddress" value="@{address}" />
+
+      <ifStep description="Ensure the marketplace is selectable">
+        <condition>
+          <verifyXPath xpath="//*[@id='editForm:marketplace']" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" value="@{mId}" />
+        </then>
+      </ifStep>
+
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <ifStep test="@{verifyCheck}">
+        <common.verifySuccess label="." />
+        <ifStep test="@{concurrencyCheck}">
+          <clickLink htmlId="editForm:saveButtonLink" />
+          <common.verifySuccess label="." />
+        </ifStep>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="organization.edit">
+    <attribute name="name" default="Organization Name" />
+    <attribute name="email" default="${common.email}" />
+    <attribute name="phone" default="${test.organization.phone}" />
+    <attribute name="url" default="${test.organization.url}" />
+    <attribute name="image" default="" />
+    <attribute name="address" default="${test.organization.address}" />
+    <attribute name="country" default="${test.organization.country}" />
+    <attribute name="description" default="${test.organization.description}" />
+    <attribute name="label" default="${organization.edit.title}" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="verifyCheck" default="true" />
+    <sequential>
+      <common.clickAndVerfyLink label="@{label}" />
+      <setInputField htmlId="editForm:organizationName" value="@{name}" />
+      <setInputField htmlId="editForm:organizationEmail" value="@{email}" />
+      <setInputField htmlId="editForm:organizationPhone" value="@{phone}" />
+      <setInputField htmlId="editForm:organizationUrl" value="@{url}" />
+      <setSelectField htmlId="editForm:country" value="@{country}" />
+      <setInputField htmlId="editForm:organizationDescription" value="@{description}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      <ifStep description="Only set the image if specified">
+        <condition>
+          <verifyProperty name="imageFile" text="" regex="false" />
+        </condition>
+        <else>
+          <setFileField htmlId="editForm:image" fileName="@{image}" />
+        </else>
+      </ifStep>
+      <setInputField htmlId="editForm:organizationAddress" value="@{address}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <ifStep test="@{verifyCheck}">
+        <common.verifySuccess label="." />
+        <ifStep test="@{concurrencyCheck}">
+          <clickLink htmlId="editForm:saveButtonLink" />
+          <common.verifySuccess label="." />
+        </ifStep>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="organization.exportBillingData">
+    <attribute name="from" default="1/1/11" />
+    <attribute name="to" default="28/2/11" />
+    <sequential>
+      <setCheckbox htmlId="billingData:customerTable:allCheckBoxes" checked="true" />
+      <clickLink href="/organization/exportBillingData.jsf" />
+      <setInputField htmlId="billingData:fromDateInputDate" value="@{from}" />
+      <setInputField htmlId="billingData:toDateInputDate" value="@{to}" />
+      <clickLink htmlId="billingData:billingDataButton" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="organization.managePayment">
+    <attribute name="rowNr" default="0" />
+    <attribute name="paymentType" default="cust2" />
+    <attribute name="enabled" default="true" />
+    <attribute name="forCustomer" default="true" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+      <ifStep test="@{forCustomer}">
+        <then>
+          <setCheckbox htmlId="managePayment:customerTable:@{rowNr}:@{paymentType}" checked="@{enabled}" />
+        </then>
+        <else>
+          <setCheckbox htmlId="managePayment:serviceTable:@{rowNr}:@{paymentType}" checked="@{enabled}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+</project>

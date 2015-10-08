@@ -1,0 +1,48 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <a4j:outputPanel layout="block" styleClass="tablePanel">
+    <adm:dataTable tableId="operationTable" value="#{data}" collapsible="true"
+      label="#{msg['techService.edit.operations.table.header']}"
+      columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2,labelAndValuePanelCol3,none">
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['operation.operationId']}" />
+        </f:facet>
+        <h:outputText id="operationId" value="#{rowItem.operationId}" />
+      </rich:column>
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['operation.parameter.Id']}" />
+        </f:facet>
+        <h:outputText id="operationParameterId" value="#{rowItem.parameterId}" />
+      </rich:column>
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['operation.name']}" />
+        </f:facet>
+        <a4j:outputPanel layout="block">
+          <h:inputText id="operationName" label="#{msg['operation.name']}" onchange="setDirty(true);"
+            value="#{rowItem.name}" styleClass="field" maxlength="#{appBean.nameLen}">
+            <f:validateLength maximum="#{appBean.nameLen}" />
+            <f:converter converterId="trimToNotNullConverter" />
+          </h:inputText>
+          <adm:message id="operationNameErrorMsg" for="operationName" />
+        </a4j:outputPanel>
+      </rich:column>
+      <rich:column>
+        <f:facet name="header">
+          <h:outputText value="#{msg['operation.description']}" />
+        </f:facet>
+        <h:inputText id="operationDescription" label="#{msg['operation.description']}" onchange="setDirty(true);"
+          value="#{rowItem.operationDescription}" styleClass="field" rendered="#{rowItem.operation}" />
+      </rich:column>
+    </adm:dataTable>
+  </a4j:outputPanel>
+</ui:composition>

@@ -1,0 +1,85 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <target name="all" depends="setup, allTest" />
+
+  <target name="setup">
+    <webtest name="setup">
+      <testInfo type="DESCRIPTION">testProvisioninigService_Setup:
+    			</testInfo>
+      <!-- create a supplier account -->
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <mock.settings userKey="#{supplierUserKey}" />
+
+      <!-- create marketplace for the supplier -->
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- create services -->
+      <mpl_setup.createLoginService mId1="${MID1}" serviceId="S1" serviceKey="svcKey1" autoAssignUserEnabled="false" />
+      <mpl_setup.createLoginService mId1="${MID1}" serviceId="S2" serviceKey="svcKey2" autoAssignUserEnabled="false" />
+
+      <!-- create two marketplace customer -->
+      <setup:user.register userId="customer1" organizationId="${supplierId}" marketplaceId="${MID1}" roles="SUBSCRIPTION_MANAGER" />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customer1Key" value="#{userKey}" />
+      <property name="customer1Id" value="#{userId}" />
+      
+      <setup:user.register userId="customer2" organizationId="${supplierId}" marketplaceId="${MID1}" roles="SUBSCRIPTION_MANAGER" />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customer2Key" value="#{userKey}" />
+      <property name="customer2Id" value="#{userId}" />
+      
+    </webtest>
+  </target>
+
+  <target name="allTest" depends="setup">
+    <!-- On "Subscribe to Servce" the ProvisioningService.createInstance should be called -->
+    <webtest name="testSubscribeToService">
+      <!-- when -->
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${MID1}" serviceKey="${svcKey1}" />
+
+      <!-- than -->
+      <mock.requestlog />
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      
+      <!-- ProvisioningService.createInstance should be called -->
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*ProvisioningService.createInstance.*" regex="true" />
+      
+      <!-- check available parameter -->
+      <verifyElementText htmlId="params:#{requestCount}:key:2" text=".*requestingUser.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:2" text=".*userFirstName=Firstname.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:2" text=".*userLastName=Lastname.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:2" text=".*userId=${supplierUserId}.*" regex="true" />
+    </webtest>
+
+    <!-- On "Assigning user" to given subscription the ProvisioningService.createInstance should be called -->
+    <webtest name="testAssignUser">
+      <!-- when assign two customers -->
+      <property name="subscriptionName" value="subscribeUserService2" />
+      <setup:subscription.create subId="${subscriptionName}" marketplaceId="${MID1}" serviceKey="${svcKey2}" />
+      <setup:subscription.addRevokeUser subscriptionId="${subscriptionName}" usersToAdd="${customer1Key}, ${customer2Key}" />
+
+      <!-- than -->
+      <mock.requestlog />
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <!-- ProvisioningService.createInstance should be called -->
+      <verifyElementText htmlId="logentry:#{requestCount}" text=".*ProvisioningService.createUsers.*" regex="true" />
+      <!-- check available parameter -->
+      <verifyElementText htmlId="params:#{requestCount}:key:1" text=".*instanceId.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:1" text=".*${subscriptionName}.*" regex="true" />
+
+      <verifyElementText htmlId="params:#{requestCount}:key:2" text=".*users.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:2" text=".*userId=${customer1Id}.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:2" text=".*userId=${customer2Id}.*" regex="true" />
+
+      <verifyElementText htmlId="params:#{requestCount}:key:3" text=".*requestingUser.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:3" text=".*userFirstName=Firstname.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:3" text=".*userLastName=Lastname.*" regex="true" />
+      <verifyElementText htmlId="params:#{requestCount}:value:3" text=".*userId=${supplierUserId}.*" regex="true" />
+    </webtest>
+  </target>
+
+
+</project>

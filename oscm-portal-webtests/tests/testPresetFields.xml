@@ -1,0 +1,236 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testPresetFields" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="testPresetFields" depends="testTechnicalService,testService,testCustomer,testSubscription">
+  </target>
+
+  <target name="init">
+    <webtest name="setup for testing of preset fields">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="supplierUrl" value="#{orgUrl}" />
+      <property name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <property name="firstTechnicalService" value="TestPresetFields 1.0" />
+      <property name="secondTechnicalService" value="TestPresetFields2 1.0" />
+      <property name="firstService" value="TestPresetFields" />
+      <property name="secondService" value="TestPresetFields2" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="firstCustomerId" value="Testorg (#{orgId})" />
+      <property name="firstCustomerIdOnly" value="#{orgId}" />
+      <property name="firstCustomerUrl" value="#{orgUrl}" />
+      <property name="firstCustomerUserId" value="#{userId}" />
+      <property name="firstCustomerUserKey" value="#{userKey}" />
+      <property name="firstCustomerUserPwd" value="#{userPwd}" />
+      <property name="baseUrl" value="#{baseUrl}" />
+    </webtest>
+  </target>
+
+  <target name="testTechnicalService" depends="init">
+    <webtest name="Test preset fields for selected technical service.">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.ignorePageScriptError />
+
+      <!-- test selection after creation -->
+      <techservice.createExternal id="TestPresetFields 1.0" />
+
+      <clickLink href="/techservice/edit.jsf" />
+      <verifySelectField htmlId="techServiceForm:techServiceId" text="${firstTechnicalService}" />
+
+      <clickLink href="/techservice/delete.jsf" />
+      <verifySelectField htmlId="selectForm:techServiceKey" text="${firstTechnicalService}" />
+
+      <clickLink href="/service/add.jsf" />
+      <verifySelectField htmlId="editForm:techServiceId" text="${firstTechnicalService}" />
+
+      <!-- create a second service and switch to edit page -->
+      <techservice.createExternal id="TestPresetFields2 1.0" />
+      <clickLink href="/techservice/edit.jsf" />
+      <verifySelectField htmlId="techServiceForm:techServiceId" text="${secondTechnicalService}" />
+
+      <!-- test if selection is saved in edit page, verify on delete page -->
+      <setSelectField htmlId="techServiceForm:techServiceId" text="${firstTechnicalService}" />
+      <clickLink href="/techservice/delete.jsf" />
+      <verifySelectField htmlId="selectForm:techServiceKey" text="${firstTechnicalService}" />
+
+      <!-- test if selection is saved in delete page, verify on define service page -->
+      <setSelectField htmlId="selectForm:techServiceKey" text="${secondTechnicalService}" />
+      <clickLink href="/service/add.jsf" />
+      <verifySelectField htmlId="editForm:techServiceId" text="${secondTechnicalService}" />
+
+      <!-- test if selection is saved in define service page, verify on delete page -->
+      <setSelectField htmlId="editForm:techServiceId" text="${firstTechnicalService}" />
+      <clickLink href="/techservice/delete.jsf" />
+      <verifySelectField htmlId="selectForm:techServiceKey" text="${firstTechnicalService}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testService" depends="testTechnicalService">
+    <webtest name="test preset fields for selected service">
+      <property name="copiedService" value="TestPresetFieldsCopy" />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <service.defineWithoutParams marketplaceId="${mId}" serviceId="${firstService}" techServiceId="${firstTechnicalService}" name="${firstService}" />
+      <service.defineWithoutParams marketplaceId="${mId}" serviceId="${secondService}" techServiceId="${secondTechnicalService}" name="${secondService}" />
+      <!-- test if second created service is selected on edit service page -->
+      <clickLink href="/service/edit.jsf" />
+      <verifySelectField htmlId="editForm:selectedServiceId" text="${secondService}" />
+
+      <!-- select the first service and check if it is selected on the copy service page -->
+      <setSelectField htmlId="editForm:selectedServiceId" text="${firstService}" />
+      <clickLink href="/service/copy.jsf" />
+      <verifySelectField htmlId="copyForm:selectedServiceId" text="${firstService}" />
+
+      <!-- copy the service (redirecting to edit page) and switch back to copy page -->
+      <service.copy serviceId="${firstService}" newServiceId="${copiedService}" />
+      <clickLink href="/service/copy.jsf" />
+      <verifySelectField htmlId="copyForm:selectedServiceId" text="${copiedService}" />
+
+      <!-- select the second service and check if it is selected on the delete service page -->
+      <setSelectField htmlId="copyForm:selectedServiceId" text="${secondService}" />
+      <clickLink href="/service/delete.jsf" />
+      <verifySelectField htmlId="selectForm:serviceId" text="${secondService}" />
+
+      <!-- select the first service and check if it is selected on the up/downgrade options page -->
+      <setSelectField htmlId="selectForm:serviceId" text="${firstService}" />
+      <clickLink href="/service/upgradeoptions.jsf" />
+      <verifySelectField htmlId="editForm:srcServiceId" text="${firstService}" />
+
+      <!-- select the second service and check if it is selected on the define pricemodel page -->
+      <setSelectField htmlId="editForm:srcServiceId" text="${secondService}" />
+      <clickLink href="/priceModel/servicePriceModel.jsf" />
+      <verifySelectField htmlId="serviceSelectForm:serviceSelection" text="${secondService}" />
+
+      <!-- select the first service and check if it is selected on the define customer pricemodel page -->
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${firstService}" />
+      <clickLink href="/priceModel/customerPriceModel.jsf" />
+      <verifySelectField htmlId="serviceSelectForm:serviceSelection" text="${firstService}" />
+
+      <!-- select the second service and check if it is selected on the edit service page -->
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${secondService}" />
+      <clickLink href="/service/edit.jsf" />
+      <verifySelectField htmlId="editForm:selectedServiceId" text="${secondService}" />
+      <pricemodel.define serviceId="${firstService}" />
+      <pricemodel.define serviceId="${secondService}" />
+      <!-- row 1 is the copied product without price model - cannot be activated -->
+      <service.deActivate rowNr="0" />
+      <service.deActivate rowNr="2" />
+
+      <service.getKey serviceId="${firstService}" keyProperty="firstServiceKey" />
+      <service.getKey serviceId="${secondService}" keyProperty="secondServiceKey" />
+
+      <property name="firstServiceKey" value="#{firstServiceKey}" />
+      <property name="secondServiceKey" value="#{secondServiceKey}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testCustomer" depends="testService">
+    <webtest name="test preset fields for customer">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <!-- create a customer and read the customer id from the mail -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="secondCustomerId" value="Testorg (#{orgId})" />
+      <invoke url="${supplierUrl}" />
+
+      <!-- open manage customer page, check the id and set the first one -->
+      <clickLink href="/organization/editCustomer.jsf" />
+      <verifySelectField htmlId="selectForm:organizationId" text="${secondCustomerId}" />
+      <setSelectField htmlId="selectForm:organizationId" text="${firstCustomerId}" />
+
+      <!-- open define customer pricemodel page; check id and select the second one -->
+      <clickLink href="/priceModel/customerPriceModel.jsf" />
+      <verifySelectField htmlId="serviceSelectForm:customerSelection" text="${firstCustomerId}" />
+      <setSelectField htmlId="serviceSelectForm:customerSelection" text="${secondCustomerId}" />
+
+      <!-- open delete customer pricemodel page; check id and select the first one -->
+      <clickLink href="/priceModel/customerPriceModelDelete.jsf" />
+      <verifySelectField htmlId="customerPriceModelDeleteForm:customerSelection" text="${secondCustomerId}" />
+      <setSelectField htmlId="customerPriceModelDeleteForm:customerSelection" text="${firstCustomerId}" />
+
+      <!-- open manage customer page and check the id -->
+      <clickLink href="/organization/editCustomer.jsf" />
+      <verifySelectField htmlId="selectForm:organizationId" text="${firstCustomerId}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testSubscription" depends="testCustomer">
+    <webtest name="test preset fields for subscriptions">
+ 
+      <property name="firstSubId" value="sub1" />
+      <property name="secondSubId" value="sub2" />
+      <property name="marketServiceId" value="mySpecialServiceId" />
+
+      <!-- login and setup technical service with DIRECT access type -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- Register new or updated technical service  -->
+      <techservice.import file="data/TechnicalServices-DIRECT.xml" />
+      <!-- Define Market Service, check that no user based parameters are available -->
+      <service.defineForDirectAccess serviceId="${marketServiceId}" techServiceId="ExampleDirect 1.00" marketplaceId="${mId}" />
+      <service.getKey serviceId="${marketServiceId}" keyProperty="serviceKey1" />
+      <!-- use the old marcro since the parameter prices need to be defined -->
+      <pricemodel.define serviceId="${marketServiceId}" isFree="true" />
+      <service.deActivate rowNr="0" active="true" />
+            
+      <setup:store.settings userkey="${firstCustomerUserKey}" password="${firstCustomerUserPwd}" />
+      
+      <setup:subscription.create subId="${secondSubId}" marketplaceId="${mId}" serviceKey="#{serviceKey1}" />
+      <setup:subscription.create subId="${firstSubId}" marketplaceId="${mId}" serviceKey="#{serviceKey1}" />
+	  
+      <!-- setup completed, now we can logout -->
+      <login.logout />
+
+      <!-- for the supplier the value of the sub selector is subId:customerId-->
+      <property name="firstSubValue" value="${firstSubId}" />
+      <property name="secondSubValue" value="${secondSubId}" />
+      <property name="firstRowSelected" value="rf-dt-r rf-dt-fst-r rowOdd rowSelected" />
+      <property name="secondRowSelected" value="rf-dt-r rowEven rowSelected" />
+      
+      <!-- open sub details page and select first sub -->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/subscription/view.jsf" />
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${firstSubValue}')]" />
+
+      <!-- open sub attributes page and check that first sub is selected; select second sub -->
+      <clickLink href="/subscription/editUdas.jsf" />
+      <verifyXPath xpath="//*[@id='subscriptionListForm:subscriptionsTable:tb']//tr[@class='${firstRowSelected}']" />
+      <verifyXPath xpath="//*[@id='editForm:udaTableEmptyText']" text="No custom attributes defined" />
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${secondSubValue}')]" />
+      <!-- open sub termination page and check that second sub is selected; select first sub -->
+      <clickLink href="/subscription/terminate.jsf" />
+      <verifyXPath xpath="//*[@id='subscriptionListForm:subscriptionsTable:tb']//tr[@class='${secondRowSelected}']" />
+      <verifyXPath xpath="//*[@id='terminateForm:reason'] " text=""/>
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${firstSubValue}')]" />     
+
+      <!-- open sub pricemodel page and check that first sub is selected; select second sub -->
+      <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
+      <verifyXPath xpath="//*[@id='subscriptionListForm:subscriptionsTable:tb']//tr[@class='${firstRowSelected}']" />
+      <verifyXPath xpath="//*[@id='editForm:isfree:0']/@checked='checked'"/>
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${secondSubValue}')]" />  
+      <!-- open sub details page and check that second sub is selected -->
+      <clickLink href="/subscription/view.jsf" />
+      <verifyXPath xpath="//*[@id='subscriptionListForm:subscriptionsTable:tb']//tr[@class='${secondRowSelected}']" />
+      <verifyXPath xpath="//*[@id='viewForm:parameterTable:3:integerValue']/@value='200'"/>
+      <verifyXPath xpath="//*[@id='viewForm:parameterTable:0:configurable']/@checked='checked'"/>
+      <login.logout />
+    </webtest>
+  </target>
+</project>

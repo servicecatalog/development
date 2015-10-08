@@ -1,0 +1,50 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <!-- create categories for the given marketplace -->
+  <macrodef name="category.defineCategories">
+    <attribute name="marketplaceId" />
+    <attribute name="categoryPrefix" default="cat" />
+    <attribute name="locale" default="en" />
+    <attribute name="count" default="1" />
+    <sequential>
+      <clickLink href="/shop/manageCategories.jsf" />
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="0" />
+      <verifySelectField htmlId="categoriesForm:locale" value="en" />
+      <verifyXPath xpath="//*[@id='categoriesForm:addNewCategoryDisabled']/@class='buttonDisabled'" />
+      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled']/@class='buttonDisabled'" />
+
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <verifyXPath xpath="//*[@id='categoriesForm:addNewCategoryLink']/@class='button'" />
+      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled']/@class='buttonDisabled'" />
+
+      <repeat startCount="0" count="@{count}" countername="i">
+        <clickLink htmlId="categoriesForm:addNewCategoryLink" />
+        <verifyXPath xpath="//*[@id='categoriesForm:saveButton']/@class='button'" />
+        <setInputField htmlId="categoriesForm:categoriesTable:#{i}:categoryId" value="@{categoryPrefix}#{i}" />
+        <setInputField htmlId="categoriesForm:categoriesTable:#{i}:localizedValue" value="@{categoryPrefix}#{i} @{locale}" />
+      </repeat>
+
+      <clickLink htmlId="categoriesForm:saveButton" />
+      <common.verifySuccess label="${info.categories.saved}" />
+    </sequential>
+  </macrodef>
+
+
+  <!-- delete categories for the given marketplace -->
+  <macrodef name="category.deleteCategories">
+    <attribute name="count" default="1" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <clickLink href="/shop/manageCategories.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <repeat startCount="0" count="@{count}" countername="i">
+        <setCheckbox htmlId="categoriesForm:categoriesTable:#{i}:deleteCategory" checked="true" />
+      </repeat>
+
+      <clickElement htmlId="categoriesForm:confirmedButton" />
+      <common.verifySuccess label="${info.categories.saved}" />
+    </sequential>
+  </macrodef>
+
+</project>

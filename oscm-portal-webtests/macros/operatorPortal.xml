@@ -1,0 +1,313 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <!-- login without the need for changing the password -->
+  <macrodef name="operatorPortal.login">
+    <sequential>
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <storeProperty name="orgId" value="PLATFORM_OPERATOR" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="operatorPortal.ssoLogin">
+    <sequential>
+      <invoke url="${bes.http.url}/oscm-portal/" />
+      <followFrame htmlId="saml2PostFrame"/>
+      <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
+      <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
+      <clickButton name="Login.Submit" />
+      <verifyXPath xpath="//*[@id='headerUserId']" text=".*${sso.user.id}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.createOrganization">
+    <attribute name="email" default="${common.email}" />
+    <attribute name="userId" default="${common.userId}" />
+    <!-- the locale code -->
+    <attribute name="locale" default="en" />
+    <!-- the country code -->
+    <attribute name="country" default="DE" />
+    <attribute name="supplier" default="true" />
+    <attribute name="provider" default="true" />
+    <attribute name="broker" default="false" />
+    <attribute name="reseller" default="false" />
+    <attribute name="name" default="Red Skin Ltd." />
+    <attribute name="revenueshare" default="${test.supplier.operatorrevenueshare}" />
+    <attribute name="address" default="${test.organization.address}" />
+    <attribute name="organizationEmail" default="${common.email}" />
+    <attribute name="phone" default="${test.organization.phone}" />
+    <attribute name="url" default="${test.organization.url}" />
+    <attribute name="image" default="data/images/icon1.png" />
+    <sequential>
+      <user.createUniqueName userId="@{userId}" />
+      <clickLink href="/operator/createOrganization.jsf" />
+      <setCheckbox htmlId="editForm:checkboxRoleSupplier" checked="@{supplier}" />
+      <setCheckbox htmlId="editForm:checkboxRoleTechnologyProvider" checked="@{provider}" />
+      <setCheckbox htmlId="editForm:checkboxRoleBroker" checked="@{broker}" />
+      <setCheckbox htmlId="editForm:checkboxRoleReseller" checked="@{reseller}" />
+      <setInputField htmlId="editForm:administratorEmail" value="@{email}" />
+      <setInputField htmlId="editForm:administratorUserId" value="#{uniqueUserId}" />
+      <setSelectField htmlId="editForm:administratorLocale" value="@{locale}" />
+      <setSelectField htmlId="editForm:organizationCountry" value="@{country}" />
+      <setInputField htmlId="editForm:organizationName" value="@{name}" />
+      <setInputField htmlId="editForm:organizationAddress" value="@{address}" />
+      <setInputField htmlId="editForm:organizationEmail" value="@{organizationEmail}" />
+      <setInputField htmlId="editForm:organizationPhone" value="@{phone}" />
+      <setInputField htmlId="editForm:organizationUrl" value="@{url}" />
+      <ifStep test="@{supplier}">
+        <setInputField htmlId="editForm:operatorRevenueShare" value="@{revenueshare}" />
+      </ifStep>
+      <!-- Warning: only possible if organization is not assigned any role: -->
+      <setInputField htmlId="editForm:image" value="@{image}" />
+      <!-- TODO define payment types for supplier -->
+      <clickElement htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="." />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.manageOrganizationSelectOrg">
+    <attribute name="orgId" />
+    <sequential>
+      <clickLink href="/operator/manageOrganizations.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageOrganizations.title}" />
+      <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="@{orgId}" />
+      <clickElement xpath="//*[@id='selectOrganizationForm:organizationIdItems']//*[contains(.//text(), '@{orgId}')]" />      
+    </sequential>
+  </macrodef>
+
+  <!-- set Advanced organization settings-->
+  <macrodef name="operatorPortal.manageOrganization">
+    <attribute name="orgId" />
+    <attribute name="distinguishName" default="@{orgId}" />
+    <attribute name="pspId" default="@{orgId}" />
+
+    <attribute name="email" default="${common.email}" />
+    <attribute name="orgName" default="MyOrganization" />
+    <attribute name="orgPhone" default="MyOrganization" />
+    <attribute name="orgURL" default="http://bild.de" />
+    <attribute name="orgImage" default="data/images/icon1.png" />
+    <attribute name="orgAddress" default="MyOrganization Address" />
+    <!-- the locale code -->
+    <attribute name="locale" default="en" />
+    <!-- the country code -->
+    <attribute name="country" default="DE" />
+    <attribute name="supplier" default="true" />
+    <attribute name="provider" default="true" />
+    <attribute name="broker" default="false" />
+    <attribute name="reseller" default="false" />
+    <attribute name="revenueshare" default="" />
+
+    <sequential>
+      <clickLink href="/operator/manageOrganizations.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageOrganizations.title}" />
+      <setInputField htmlId="selectOrganizationForm:organizationIdInput" value="@{orgId}" />
+      <clickElement xpath="//*[@id='selectOrganizationForm:organizationIdItems']//*[contains(.//text(), '@{orgId}')]" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleSupplier" checked="@{supplier}" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleTechnologyProvider" checked="@{provider}" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleBroker" checked="@{broker}" />
+      <setCheckbox htmlId="manageOrganizationsForm:checkboxRoleReseller" checked="@{reseller}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationEmail" value="@{email}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationName" value="@{orgName}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationPhone" value="@{orgPhone}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationUrl" value="@{orgURL}" />
+      <!-- Warning: may not work because role checkboxes are set below -->
+      <ifStep test="@{supplier or provider}">
+        <then>
+          <setInputField htmlId="manageOrganizationsForm:image" value="@{orgImage}" />
+        </then>
+      </ifStep>
+      <setSelectField htmlId="manageOrganizationsForm:organizationLocale" value="@{locale}" />
+      <setInputField htmlId="manageOrganizationsForm:organizationAddress" value="@{orgAddress}" />
+      <setSelectField htmlId="manageOrganizationsForm:organizationCountry" value="@{country}" />
+      <storeProperty name="revenueShareAttribute" value="@{revenueshare}" eval="false" />
+      <ifStep description="Check if the revenueShare exists">
+        <condition>
+          <verifyProperty
+             name="revenueShareAttribute"
+             text=".+"
+             regex="true" />
+        </condition>
+        <then>
+          <setInputField htmlId="manageOrganizationsForm:operatorRevenueShare" value="@{revenueshare}" />
+        </then>
+      </ifStep>
+      <setInputField htmlId="manageOrganizationsForm:distinguishedName" value="@{distinguishName}" />
+      <clickElement htmlId="manageOrganizationsForm:hiddenSaveButton" />
+
+      <common.verifySuccess label="." />
+      <verifyInputField htmlId="manageOrganizationsForm:organizationEmail" value="@{email}" />
+      <verifyInputField htmlId="manageOrganizationsForm:organizationPhone" value="@{orgPhone}" />
+      <verifyInputField htmlId="manageOrganizationsForm:organizationUrl" value="@{orgURL}" />
+      <ifStep test="@{supplier or provider}">
+        <then>
+          <verifyXPath xpath="//img[substring(@src, 1, 49)='/oscm-portal/image?type=ORGANIZATION_IMAGE']" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.executeBillingTasks">
+    <!-- by default sop is not properly configured or no data is available - so the execution must fail. 
+    If the sop data handling and billing is expected to succeed, set this attribute to 'true' -->
+    <sequential>
+      <clickLink href="/operator/executeBillingTasks.jsf" />
+      <clickElement htmlId="billingTasks:startBillingRunButtonLink" />
+      <common.verifySuccess label="${operator.task.successful}" />
+      <clickElement htmlId="billingTasks:retryFailedPaymentProcessesButtonLink" />
+      <common.verifySuccess label="${operator.task.successful}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.manageTimers">
+    <sequential>
+      <clickLink href="/operator/manageTimers.jsf" />
+      <!-- verify that the timer table is displayed -->
+      <verifyXPath xpath="//table[@id=&quot;manageTimers:timerTable&quot;]" />
+      <!-- and additional check for some content -->
+      <verifyText text="BILLING_INVOCATION" />
+      <verifyText text="DISCOUNT_END_CHECK" />
+      <clickButton label="${operator.reInitTimers}" />
+      <common.verifySuccess label="${operator.task.successful}" />
+      <!-- verify that the timer table is still displayed -->
+      <verifyXPath xpath="//table[@id=&quot;manageTimers:timerTable&quot;]" />
+      <!-- and additional check for some content -->
+      <verifyText text="BILLING_INVOCATION" />
+      <verifyText text="DISCOUNT_END_CHECK" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.exportBillingData">
+    <attribute name="orgId" />
+    <attribute name="from" default="2011-01-01" />
+    <attribute name="to" default="2011-02-28" />
+    <sequential>
+      <clickLink href="/operator/exportBillingData.jsf" />
+      <setInputField htmlId="getBillingData:organizationIdValue" value="@{orgId}" />
+      <clickElement htmlId="getBillingData:organizationSuggestionImage" />
+      <clickElement xpath="//*[@id='getBillingData:organizationIdItems']//*[contains(.//text(), '@{orgId}')]" />
+      <setInputField htmlId="getBillingData:fromDateInputDate" value="@{from}" />
+      <setInputField htmlId="getBillingData:toDateInputDate" value="@{to}" />
+      <clickElement htmlId="getBillingData:hiddenBillingDataButton" />
+      <verifyXPath xpath="/Billingdata" />
+      <previousResponse />
+    </sequential>
+  </macrodef>
+ 
+  <macrodef name="operatorPortal.manageConfigurationSettings">
+    <attribute name="key" />
+    <attribute name="value" />
+    <attribute name="validationFails" default="false" />
+    <attribute name="errorMessage" default="" />
+    <sequential>
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageConfiguration.title}" />
+      <storeProperty name="inputFieldXPath" value="//td[text()='@{key}']/..//input" />
+      <setInputField xpath="#{inputFieldXPath}" value="@{value}" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <ifStep test="@{validationFails}">
+        <then>
+          <verifyXPath xpath="//td[text()='@{key}']/..//*[contains(@id, 'configurationValueErrorMsg')]//text()='@{errorMessage}'" />
+        </then>
+        <else>
+          <common.verifySuccess label="${info.configuration.saved}" />
+        </else>
+      </ifStep>
+      <verifyInputField xpath="#{inputFieldXPath}" value="@{value}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.manageCurrencies">
+    <attribute name="currencyCode" />
+    <sequential>
+      <clickLink href="/operator/manageCurrencies.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageCurrencies.title}" />
+      <setInputField htmlId="currencies:currencyToManage" value="@{currencyCode}" />
+      <clickElement htmlId="currencies:addButton" />
+      <common.verifySuccess label="@{currencyCode}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.lockUser">
+    <attribute name="userId" />
+    <sequential>
+      <invoke url="${bes.http.url}/oscm-portal" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
+      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
+      <clickElement htmlId="manageUsers:userSuggestionImage" />
+      <clickElement xpath="//*[@id='manageUsers:userIdItems']//*[contains(.//text(), '@{userId}')]" />
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="manageUsers:lockUser" />
+      <common.verifySuccess label="${operator.task.successful}" />
+      <mail.readCreateSalutationFromMail subject="${USER_LOCKED.subject}" />
+      <verifyProperty name="salutationText" text="user," />
+      <common.reSetPageScriptError/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.unlockUser">
+    <attribute name="userId" />
+    <sequential>
+      <invoke url="${bes.http.url}/oscm-portal" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
+      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="manageUsers:unlockUser" />
+      <common.verifySuccess label="${operator.task.successful}" />
+      <mail.readCreateSalutationFromMail subject="${USER_UNLOCKED.subject}" />
+      <verifyProperty name="salutationText" text="user," />
+      <common.reSetPageScriptError/>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.resetPassword">
+    <attribute name="userId" />
+    <sequential>
+      <invoke url="${bes.http.url}/oscm-portal" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${operator.manageUsers.title}" />
+      <setInputField htmlId="manageUsers:userIdInput" value="@{userId}" />
+      <clickElement htmlId="manageUsers:resetPassword" />
+      <common.verifySuccess label="${operator.task.successful}" />
+      <login.logout />
+      <mail.readResetPasswordFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="@{userId}" password="#{userPwd}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operatorPortal.exportAuditLogData">
+    <attribute name="value" />
+    <attribute name="from" default="2011-01-01" />
+    <attribute name="to" default="2011-02-28" />
+    <sequential>
+      <clickLink href="/operator/exportAuditLogData.jsf" />
+      <setSelectField htmlId="getAuditLogData:entityType" value="@{value}" />
+      <setCheckbox htmlId="getAuditLogData:operationTable:0:checkboxId" checked="true" />
+      <setInputField htmlId="getAuditLogData:fromDateInputDate" value="@{from}" />
+      <setInputField htmlId="getAuditLogData:toDateInputDate" value="@{to}" />
+      <clickElement htmlId="getAuditLogData:hiddenAuditLogDataButton" />
+      <common.verifyError label="${operator.showAuditLogData.error}" />
+      <invoke url="${bes.http.url}/oscm-portal/operator/exportAuditLogData.jsf" />
+
+      <setSelectField htmlId="getAuditLogData:entityType" value="@{value}" />
+      <setCheckbox htmlId="getAuditLogData:operationTable:0:checkboxId" checked="true" />
+      <setInputField htmlId="getAuditLogData:fromDateInputDate" value="2011-08-13" />
+      <setInputField htmlId="getAuditLogData:toDateInputDate" value="2011-08-13" />
+      <clickElement htmlId="getAuditLogData:hiddenAuditLogDataButton" />
+      <common.verifyError label="${operator.showAuditLogData.error}" />
+      <!-- Bug #8586: When this error message appears, it means that the date bug does not occurr any more -->
+      <!-- no error message shows in canoo /-->
+      <!--verifyXPath xpath="//span[@class='rich-messages-label']" text=".*${operator.showAuditLogData.error}.*" regex="true" /-->
+
+      <setInputField htmlId="getAuditLogData:fromDateInputDate" value="2011-08-15" />
+      <setInputField htmlId="getAuditLogData:toDateInputDate" value="2011-08-15" />
+      <clickElement htmlId="getAuditLogData:hiddenAuditLogDataButton" />
+      <common.verifyError label="${operator.showAuditLogData.error}" />
+      <!-- Bug #8586: When this error message appears, it means that the date bug does not occurr any more -->
+      <!-- no error message shows in canoo /-->
+      <!--verifyXPath xpath="//span[@class='rich-messages-label']" text=".*${operator.showAuditLogData.error}.*" regex="true" /-->
+
+    </sequential>
+  </macrodef>
+</project>

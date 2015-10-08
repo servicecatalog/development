@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <MarketplaceHistory tkey="0" objkey="1" objversion="0" marketplaceid="FUJITSU" organizationobjkey="1000"
+    moduser="ANONYMOUS" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00" open="false"
+    taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" pricemodelobjkey="30"
+    brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="1" objkey="10001" objversion="0" marketplaceid="aa34vgh"
+    organizationobjkey="13000" moduser="user" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="2" objkey="20" objversion="0" marketplaceid="cd83d05" organizationobjkey="12000"
+    moduser="user" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00" open="false"
+    taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" pricemodelobjkey="30"
+    brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="3" objkey="20" objversion="1" marketplaceid="cd83d05" organizationobjkey="12000"
+    moduser="user" modtype="DELETE" creationdate="121312312" invocationdate="2011-04-05 11:32:00" open="false"
+    taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true" pricemodelobjkey="30"
+    brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="4" objkey="12000" objversion="0" marketplaceid="bn5edh64"
+    organizationobjkey="12000" moduser="user" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="5" objkey="12000" objversion="1" marketplaceid="bn5edh64"
+    organizationobjkey="12000" moduser="user" modtype="MODIFY" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="6" objkey="12000" objversion="2" marketplaceid="bn5edh64"
+    organizationobjkey="12000" moduser="user" modtype="DELETE" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="7" objkey="15000" objversion="0" marketplaceid="xyz"
+    organizationobjkey="12000" moduser="user" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="8" objkey="15000" objversion="1" marketplaceid="xyz"
+    organizationobjkey="12000" moduser="user" modtype="DELETE" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="9" objkey="16000" objversion="0" marketplaceid="xyz"
+    organizationobjkey="12000" moduser="user" modtype="ADD" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+  <MarketplaceHistory tkey="10" objkey="16000" objversion="1" marketplaceid="xyz"
+    organizationobjkey="12000" moduser="user" modtype="DELETE" creationdate="121312312" invocationdate="2011-04-05 11:32:00"
+    open="false" taggingenabled="true" reviewenabled="true" socialbookmarkenabled="true" categoriesenabled="true"
+    pricemodelobjkey="30" brokerpricemodelobjkey="10" resellerpricemodelobjkey="20" />
+
+</dataset>

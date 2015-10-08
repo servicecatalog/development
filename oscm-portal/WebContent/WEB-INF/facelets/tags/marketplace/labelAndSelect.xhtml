@@ -1,0 +1,71 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"  
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+  xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+  <c:if test="#{empty styleClass}">
+    <c:set var="styleClass" value="select"/>
+  </c:if>
+
+  <c:choose>
+    <c:when test="#{labelEllipsisRequired == 'true'}">
+      <adm:outputLabelEllipsized
+        value="#{label}" 
+        rendered="#{empty rendered or rendered}" 
+        required="#{required}" />
+    </c:when>
+    <c:otherwise> 
+      <adm:outputLabel
+        value="#{label}"
+        rendered="#{empty rendered or rendered}"
+        required="#{required}" />
+    </c:otherwise>
+  </c:choose>   
+
+
+
+     
+  <c:if test="#{empty required}">
+    <h:selectOneMenu
+      id="#{id}"      
+      value="#{value}"
+      onchange="setDirty(true)"
+      styleClass="#{styleClass}"
+      rendered="#{empty rendered or rendered}"
+      disabled="#{disabled}"      
+      required="#{required}" >
+      <ui:insert />
+    </h:selectOneMenu>
+  </c:if>
+    
+  <c:if test="#{not empty required}">
+    <!-- Here a tomahawk component is used to prevent the menu to get its value -->
+    <!-- via the value-binding in case a validation error occurred (see #8313). -->
+    <t:selectOneMenu
+      id="#{id}"
+      value="#{value}"
+      onchange="setDirty(true)"
+      styleClass="#{styleClass}"
+      rendered="#{empty rendered or rendered}"
+      disabled="#{disabled}"
+      required="#{required}" >
+      <ui:insert />
+    </t:selectOneMenu>
+  </c:if>  
+  <c:choose>
+    <c:when test="#{(not empty showHint)}">
+      <mp:messageAndHint id="#{id}ErrorMsg" for="#{id}"/>
+    </c:when>
+    <c:otherwise>
+      <mp:message id="#{id}ErrorMsg" for="#{id}" rendered="#{empty rendered or rendered}" />
+    </c:otherwise>
+  </c:choose>
+</ui:composition>

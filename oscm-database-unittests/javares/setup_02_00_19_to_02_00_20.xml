@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <catalogentryhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" position="0" />
+
+  <organizationtocountryhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" />
+
+  <vatratehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    rate="0" owningorganizationobjkey="0" />
+
+</dataset>

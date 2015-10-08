@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <!-- FREE OF CHARGE -->
+  <PriceModel tkey="1" ischargeable="false" onetimefee="1" priceperperiod="1" priceperuserassignment="1"
+    version="1" />
+  <PriceModel tkey="2" ischargeable="false" onetimefee="2" priceperperiod="2" priceperuserassignment="2"
+    version="0" />
+
+  <PriceModelHistory tkey="1" ischargeable="true" objversion="0" onetimefee="1" priceperperiod="1"
+    priceperuserassignment="1" moddate="2012-01-01 01:00:00" modtype="ADD" moduser="A" objkey="1" productobjkey="1"
+    invocationdate="2012-01-01 01:00:00" />
+  <PriceModelHistory tkey="2" objkey="1" ischargeable="false" objversion="1" onetimefee="1"
+    priceperperiod="1" priceperuserassignment="1" invocationdate="2012-01-01 02:00:00" moddate="2012-01-01 02:00:00"
+    modtype="MODIFY" moduser="A" productobjkey="1" />
+  <PriceModelHistory tkey="3" objkey="2" ischargeable="false" objversion="0" onetimefee="1"
+    priceperperiod="1" priceperuserassignment="1" invocationdate="2012-01-01 01:00:00" moddate="2012-01-01 01:00:00"
+    modtype="ADD" moduser="A" productobjkey="1" />
+
+  <!-- PRO RATA -->
+  <PriceModel tkey="3" ischargeable="true" onetimefee="2" priceperperiod="2" priceperuserassignment="2"
+    version="0" />
+  <PriceModel tkey="4" ischargeable="true" onetimefee="2" priceperperiod="2" priceperuserassignment="2"
+    version="0" />
+  <PriceModelHistory tkey="4" objkey="3" ischargeable="true" objversion="1" onetimefee="1"
+    priceperperiod="1" priceperuserassignment="1" invocationdate="2012-01-01 01:00:00" moddate="2012-01-01 01:00:00"
+    modtype="ADD" moduser="A" productobjkey="1" />
+  <PriceModelHistory tkey="5" objkey="4" ischargeable="true" objversion="2" onetimefee="1"
+    priceperperiod="1" priceperuserassignment="1" invocationdate="2012-01-01 02:00:00" moddate="2012-01-01 02:00:00"
+    modtype="ADD" moduser="A" productobjkey="1" />
+
+
+  <!-- CORRESPONDING PRICE MODEL IS DELETED -->
+  <PriceModelHistory tkey="6" objkey="12" ischargeable="true" objversion="0" onetimefee="2"
+    priceperperiod="2" priceperuserassignment="2" invocationdate="2012-01-01 02:00:00" moddate="2012-01-01 02:00:00"
+    modtype="ADD" moduser="A" productobjkey="2" />
+  <PriceModelHistory tkey="7" objkey="12" ischargeable="true" objversion="1" onetimefee="2"
+    priceperperiod="2" priceperuserassignment="2" invocationdate="2012-01-01 02:00:01" moddate="2012-01-01 02:00:01"
+    modtype="DELETE" moduser="A" productobjkey="2" />
+
+
+</dataset>

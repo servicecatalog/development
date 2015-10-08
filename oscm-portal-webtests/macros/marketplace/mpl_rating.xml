@@ -1,0 +1,54 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <macrodef name="mpl_rating.create">
+      <attribute name="title" default="" />
+      <attribute name="comment" default="" />
+      <attribute name="star" default="0" />
+      <sequential>
+          <verifyText description="Verify existence 'Write review' button" text="${service.reviews.write}" />
+          <clickElement htmlId="btnWriteFeedback" />
+          <!--  verify empty fields-->
+          <verifyXPath xpath="//div[@id='writeReviewPanelRerenderPanel']//h2[normalize-space()='${service.reviews.write}']" />       
+          <mpl_verify.ratingInput />
+          <setInputField htmlId="commentForm:title" value="@{title}" />
+          <setInputField htmlId="commentForm:comment" value="@{comment}" />
+          <clickElement xpath="//div[@id='star@{star}']" />
+          <clickElement htmlId="commentForm:btnPublishLink" />
+          <verifyText description="Verify added title" text="@{title}" />
+          <verifyText description="Verify added comment" text="@{comment}" />
+          <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+      </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_rating.update">
+      <attribute name="oldTitle" />
+      <attribute name="oldComment" />
+      <attribute name="oldStar" />
+      <attribute name="newTitle" />
+      <attribute name="newComment" />
+      <attribute name="newStar" />
+      <sequential>
+          <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+
+          <!-- change comment, star and title -->
+          <clickElement htmlId="btnWriteFeedback" />
+
+          <verifyXPath xpath="//div[@id='writeReviewPanelRerenderPanel']//h2[normalize-space()='${service.reviews.manage}']" />
+          <!-- enes -->
+          <mpl_verify.ratingInput title="@{oldTitle}" comment="@{oldComment}" star="@{oldStar}" />
+
+          <!-- set review -->
+          <setInputField htmlId="commentForm:title" value="@{newTitle}" />
+          <setInputField htmlId="commentForm:comment" value="@{newComment}" />
+          <clickElement xpath="//div[@id='star@{newStar}']" />
+          <!-- try to publish changes -->
+          <clickElement htmlId="commentForm:btnPublishLink" />
+
+          <verifyText description="Verify added title" text="@{newTitle}" />
+          <verifyText description="Verify added comment" text="@{newComment}" />
+          <verifyXPath xpath="//div[@id='ratingText']" text="${service.reviews.star.@{newStar}}" />
+          <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+      </sequential>
+  </macrodef>
+
+</project>

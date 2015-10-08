@@ -1,0 +1,304 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:a4j="http://richfaces.org/a4j">
+
+  <!-- chargeable radio button -->
+  <adm:panelGrid panelId="free" columns="2">
+    <a4j:region>
+      <h:selectOneRadio id="isfree" value="#{priceModelBean.selectedPriceModelType}"
+        disabled="#{priceModelBean.editDisabled or pageId == 'priceModel.subscription'}" layout="pageDirection">
+        <f:selectItem itemValue="FREE_OF_CHARGE" itemLabel="#{msg['priceModel.radio.freeOfCharge']}" />
+        <f:selectItem itemValue="PRO_RATA" itemLabel="#{msg['priceModel.radio.proRata']}" />
+        <f:selectItem itemValue="PER_UNIT" itemLabel="#{msg['priceModel.radio.perTimeUnit']}" />
+        <a4j:ajax event="click"
+                  render="pmPanel,buttonPanel,:mainTmplMessagesPanel"
+                  onbeforesubmit="if(!checkDirtyAndRestoreValue(this)) {return false;}"
+                  oncomplete="setOnlyPMTypeDirty();AdmUtils.initFocus();" />
+      </h:selectOneRadio>
+    </a4j:region>
+    <adm:message for="isfree" />
+  </adm:panelGrid>
+  <script type="text/javascript">
+    checkDirtyAndRestoreValue = function(element) {
+      var free = #{rich:element('priceModelTypeInitial')}.value == 'FREE_OF_CHARGE';
+      if (!free &amp;&amp; !isOnlyPMTypeDirty()) {
+    	// only check state when switching from my to free
+        if (!AdmUtils.isNotDirtyOrConfirmed()) {
+          var proRata = #{rich:element('priceModelTypeInitial')}.value == 'PRO_RATA';
+          var perUnit = #{rich:element('priceModelTypeInitial')}.value == 'PER_UNIT';
+          document.getElementById('editForm:isfree:0').checked=(free ? 'checked' : '');
+          document.getElementById('editForm:isfree:1').checked=(proRata ? 'checked' : '');
+          document.getElementById('editForm:isfree:2').checked=(perUnit ? 'checked' : '');
+          
+          return false;
+        }
+      }
+      return true;
+    }
+  </script>
+
+  <a4j:outputPanel id="pmPanel">
+    <h:inputHidden id="priceModelTypeInitial" value="#{priceModelBean.selectedPriceModelType}" />
+    <a4j:outputPanel rendered="#{not priceModelBean.priceModelFree}">
+      <t:panelGrid columns="1"  width="100%">
+        <adm:labelAndRichEditor id="priceModelDescription" label="#{msg['priceModel.textarea.description']}"
+          value="#{priceModelBean.description}" disabled="#{priceModelBean.editDisabled}" />
+      </t:panelGrid>
+
+      <!-- free trial period -->
+      <h:inputHidden id="freePeriodHidden" />
+      <adm:panelGrid panelId="freePeriodAvailablePanel" columns="1" minColWidth="false">
+        <t:div>
+          <h:selectBooleanCheckbox id="freePeriodAvailable" value="#{priceModelBean.freePeriodAvailable}"
+            disabled="#{priceModelBean.editDisabled or pageId == 'priceModel.subscription'}" onchange="setDirty(true);"
+            onclick="toggleFreePeriod();" />
+          <h:outputLabel value="#{msg['priceModel.checkbox.freePeriod']}" />
+        </t:div>
+      </adm:panelGrid>
+      <adm:panelGrid panelId="freePeriodPanel" columns="3" minColWidth="false"
+        columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2,labelAndValuePanelCol3" >
+		<adm:outputLabel value="#{msg['priceModel.text.freePeriod']}"
+            required="#{not priceModelBean.editDisabled and pageId != 'priceModel.subscription'}" />
+           <h:inputText id="freePeriod" value="#{priceModelBean.priceModel.freePeriod}" styleClass="fieldXS"
+            disabled="#{priceModelBean.editDisabled or pageId == 'priceModel.subscription'}" required="true"
+            maxlength="#{appBean.intLen}" minValue="#{priceModelBean.freePeriodMinValue}" maxValue="#{priceModelBean.freePeriodMaxValue}">
+            <f:validator validatorId="longValue" />
+          </h:inputText>
+          <a4j:outputPanel layout="block">
+            <adm:message id="freePeriodErrorMsg" for="freePeriod" />
+          </a4j:outputPanel>
+
+          <t:panelGroup colspan="3">
+            <h:outputText value="#{msg['priceModel.text.freePeriodExplanation']}" class="label"/>
+                <!-- Next scripts need to be inside the panel, to be re-initialized when the panel is re-rendered -->
+		        <rich:jQuery selector="document"
+		          query="ready(function() {
+		            jQuery('input#editForm\\:freePeriod').focus(
+		              function() {
+		                jQuery(this).parents('tbody:eq(0)').find('tr').addClass('formHighlight');
+		              });
+		          })" />
+		        <rich:jQuery selector="document"
+		          query="ready(function() {
+		            jQuery('input#editForm\\:freePeriod').blur(
+		              function() {
+		                jQuery(this).parents('tbody:eq(0)').find('tr').removeClass('formHighlight');
+		              });
+		          })" />	            
+          </t:panelGroup>
+      </adm:panelGrid>
+
+      <adm:panelGrid panelId="panel2" columns="3" minColWidth="false">
+
+        <!-- currency -->
+        <adm:outputLabel value="#{msg['priceModel.text.currency.label']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="currency" styleClass="selectXS" onchange="setDirty(true)"
+	          value="#{priceModelBean.priceModel.currencyISOCode}" disabled="#{priceModelBean.editDisabled or priceModelBean.editDisabledInSubscriptionPage}">
+	          <c:forEach items="#{priceModelBean.supportedCurrencies}" var="curr">
+	            <f:selectItem itemLabel="#{curr}" itemValue="#{curr}" />
+	          </c:forEach>
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <adm:message for="currency" />
+
+        <!-- Period -->
+        <adm:outputLabel value="#{msg['priceModel.pricingPeriod']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="sPricingPeriods" styleClass="selectXS" onchange="setDirty(true)"
+	          value="#{priceModelBean.priceModel.period}" disabled="#{priceModelBean.editDisabled or priceModelBean.editDisabledInSubscriptionPage}">
+	          <c:forEach items="#{priceModelBean.pricingPeriods}" var="speriod">
+	            <c:set var="key" value="PricingPeriod.#{speriod}" />
+	            <f:selectItem itemLabel="#{msg[key]}" itemValue="#{speriod}" />
+	          </c:forEach>
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <adm:message for="sPricingPeriods" />
+
+        <!-- one time fee-->
+        <adm:outputLabel value="#{msg['priceModel.edit.oneTimeFee.label']}"
+          rendered="#{not priceModelBean.oneTimeFeeDisabled}" />
+        <h:inputText id="oneTimeFee" label="#{msg['priceModel.edit.oneTimeFee.label']}"
+          value="#{priceModelBean.priceModel.oneTimeFee}" styleClass="fieldXS" disabled="#{priceModelBean.editDisabled}"
+          rendered="#{not priceModelBean.oneTimeFeeDisabled}" onchange="setDirty(true)">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <adm:message for="oneTimeFee" rendered="#{not priceModelBean.oneTimeFeeDisabled}"/>
+
+        <!-- recurring charge per subscription -->
+        <adm:outputLabel value="#{msg['priceModel.combobox.chargePerSubscription.label']}" />
+        <h:inputText id="recChargePerSubs" label="#{msg['priceModel.combobox.chargePerSubscription.label']}"
+          value="#{priceModelBean.priceModel.pricePerPeriod}" styleClass="fieldXS"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <adm:message for="recChargePerSubs" />
+
+        <!-- recurring charge per user-->
+        <adm:outputLabel value="#{msg['priceModel.combobox.chargePerUser.label']}"
+          rendered="#{not priceModelBean.directAccess}" />
+        <h:inputText id="recChargePerUser" label="#{msg['priceModel.combobox.chargePerUser.label']}"
+          value="#{priceModelBean.priceModel.pricePerUserAssignment}" onchange="setDirty(true)" styleClass="fieldXS"
+          disabled="#{priceModelBean.editDisabled}"
+          rendered="#{empty priceModelBean.priceModel.steppedPrices and not priceModelBean.directAccess}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+
+        <rich:dataTable headerClass="rowTitle" rowClasses="rowOdd,rowEven"
+           id="steppedPriceTable"  rendered="#{not empty priceModelBean.priceModel.steppedPrices}" 
+           value="#{priceModelBean.steppedPrices}"  var="row" rowKeyVar="rowKey" >
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['priceModel.steppedPrice.price']}" />
+            </f:facet>
+            <h:inputText id="steppedPricePrice" styleClass="fieldXS" disabled="#{priceModelBean.editDisabled}"
+              onchange="setDirty(true)" value="#{row.price}">
+              <f:converter converterId="currency.converter" />
+            </h:inputText>
+            <t:div styleClass="errorPanelTr">
+              <adm:message for="steppedPricePrice" />
+            </t:div>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+            </f:facet>
+            <h:inputText id="steppedPriceLimit" styleClass="fieldXS" disabled="#{priceModelBean.editDisabled}"
+              onchange="setDirty(true)" value="#{row.limit}" required="#{!empty param['editForm:confirmedButton']}"
+              rendered="#{fn:length(priceModelBean.steppedPrices) - 1 != rowKey}" maxlength="#{appBean.longLen}">
+              <f:validateLongRange minimum="1" />
+            </h:inputText>
+            <h:outputText id="steppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+              rendered="#{fn:length(priceModelBean.steppedPrices) - 1 == rowKey}" />
+            <ui:fragment
+              rendered="#{steppedPriceBean.type == steppedPriceBean.typePriceModel and steppedPriceBean.index == rowKey}">
+              <script type="text/javascript">
+              	function steppedPriceFocus() { var e = #{rich:element('steppedPriceLimit')}; if (e) { e.focus(); e.select(); } }
+              </script>
+            </ui:fragment>
+            <t:div styleClass="errorPanelTr">
+              <adm:message for="steppedPriceLimit" />
+            </t:div>
+          </rich:column>
+          <rich:column styleClass="fieldXS"
+            rendered="#{priceModelBean.priceModel.chargeable and not priceModelBean.editDisabled}">
+            <t:div id="focusButtons" style="display:none;">
+              <adm:buttonCustomizedOnClick id="addButton" value=""
+                onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePriceModel}', #{rowKey}, true);"
+                rendered="#{fn:length(priceModelBean.steppedPrices) - 1 != rowKey}" buttonType="plus" />
+              <adm:buttonCustomizedOnClick id="removeButton" value=""
+                onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePriceModel}', #{rowKey}, false);"
+                rendered="#{fn:length(priceModelBean.steppedPrices) - 1 != rowKey}" buttonType="minus"  />
+            </t:div>
+          </rich:column>
+        </rich:dataTable>
+        <!-- Bug 8479: Empty panelGroup avoids warning message in log files, since three columns are expected. -->
+        <h:panelGroup rendered="#{not priceModelBean.directAccess}">
+          <t:div id="focusButtons" style="display:none;">
+            <adm:buttonCustomizedOnClick id="addButton" value=""
+              onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePriceModel}', 0, true, 0);" buttonType="plus" />
+          </t:div>
+          <adm:message id="recChargePerUserErrorMsg" for="recChargePerUser" />
+          <input type="hidden" id="steppedPriceErrorElements" value="#{additionalErrorElements}" />
+        </h:panelGroup>
+
+      </adm:panelGrid>
+
+      <!-- call event table -->
+
+      <ui:include src="eventTable.xhtml" />
+
+      <!-- call to the parameter table -->
+      <ui:include src="paramtable.xhtml" />
+
+      <script type="text/javascript">
+        function addRemoveSteppedPrice(element, type, index, add, limit) {
+          AdmUtils.hideMessages();
+          AdmUtils.removeChildren(document.getElementById('errorPanel'));
+          #{rich:element('steppedPriceType')}.value=type;
+          #{rich:element('steppedPriceIndex')}.value=index;
+          if (add) { 
+            #{rich:element('addButtonHidden')}.click();
+          } else {
+            resetFieldsInTableRow(element.parentNode.parentNode.parentNode.parentNode.parentNode, limit);
+            #{rich:element('removeButtonHidden')}.click();
+          }
+        }
+        function resetFieldsInTableRow(tr, limit) {
+          if (tr == null || tr.childNodes == null) {
+            return;
+          }
+          for (var i=1; i&lt; tr.childNodes.length-1; i++) {
+            for (var j=0; j &lt; tr.childNodes[i].childNodes.length; j++) {
+              var e = tr.childNodes[i].childNodes[j];
+              if (e.type == "text") {
+                if (e.id.indexOf("Limit") >=0 ) {
+                  var l = 0;
+                  if (typeof(limit) != "undefined") {
+                    l = parseInt(limit);
+                    if (isNaN(l)) {
+                      l = 0;
+                    }  
+                  }
+                  e.value = "";
+                } else {
+                  e.value = 0;
+                }
+                break;
+              }
+            }
+          }
+        }
+      </script>
+    </a4j:outputPanel>
+    <script type="text/javascript">
+      syncFreePeriod = function() {
+        if(#{rich:element('freePeriod')}) {
+          // synchronize the hidden field, as the validation of freePeriod might fail
+          #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
+        }
+      }
+      toggleFreePeriod = function() {
+        if(#{rich:element('freePeriod')}) {
+          var isFreePeriodAvailable = #{rich:element('freePeriodAvailable')}.checked;
+          
+         switch(isFreePeriodAvailable) {
+	         case false:
+	        	  jQuery( #{rich:element('freePeriodPanel')}).css('display','none');
+	        	  break;
+	         case true:
+	        	 // remove display on element. using block or inline introduces unwanted padding
+	        	 jQuery( #{rich:element('freePeriodPanel')}).css('display','');
+	        	 break;
+          }
+
+          if(isFreePeriodAvailable) {
+            // restore the freePeriod from hidden, as it might have been reseted
+            #{rich:element('freePeriod')}.value=#{rich:element('freePeriodHidden')}.value;
+          } else {
+            // store the freePeriod in hidden and reset it, as it might be invalid
+            #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
+            #{rich:element('freePeriod')}.value=0;
+          }
+        }
+        AdmUtils.setUIElements();
+      }
+      // initialize the freePeriodHidden field after page load, to avoid being resetted by JSF on validation errors
+      syncFreePeriod();
+      // initialize the freePeriod visibility
+      toggleFreePeriod();
+    </script>
+  </a4j:outputPanel>
+</ui:composition>

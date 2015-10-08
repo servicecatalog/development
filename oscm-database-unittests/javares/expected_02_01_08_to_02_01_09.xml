@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <triggerprocessidentifier tkey="1" version="0" triggerprocess_tkey="10000" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="2" version="0" triggerprocess_tkey="10000" name="SERVICE_KEY" value="10000"/>
+  <triggerprocessidentifier tkey="3" version="0" triggerprocess_tkey="10026" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="4" version="0" triggerprocess_tkey="10026" name="SERVICE_KEY" value="10003"/>
+  <triggerprocessidentifier tkey="5" version="0" triggerprocess_tkey="10019" name="ORGANIZATION_KEY" value="10002"/>
+  <triggerprocessidentifier tkey="6" version="0" triggerprocess_tkey="10019" name="SUBSCRIPTION_ID" value="My subscription"/>
+  <triggerprocessidentifier tkey="7" version="0" triggerprocess_tkey="10019" name="USER_TO_ADD" value="customer_admin"/>
+  <triggerprocessidentifier tkey="8" version="0" triggerprocess_tkey="10019" name="USER_TO_REVOKE" value="cust_admin2"/>
+  <triggerprocessidentifier tkey="9" version="0" triggerprocess_tkey="10030" name="ORGANIZATION_KEY" value="10003"/>
+  <triggerprocessidentifier tkey="10" version="0" triggerprocess_tkey="10030" name="SUBSCRIPTION_ID" value="Example_with_roles 1.00"/>
+  <triggerprocessidentifier tkey="11" version="0" triggerprocess_tkey="10030" name="USER_TO_ADD" value="user2"/>
+  <triggerprocessidentifier tkey="12" version="0" triggerprocess_tkey="10030" name="USER_TO_ADD" value="user4"/>
+  <triggerprocessidentifier tkey="13" version="0" triggerprocess_tkey="10030" name="USER_TO_ADD" value="user6"/>
+  <triggerprocessidentifier tkey="14" version="0" triggerprocess_tkey="10030" name="USER_TO_REVOKE" value="user1"/>
+  <triggerprocessidentifier tkey="15" version="0" triggerprocess_tkey="10030" name="USER_TO_REVOKE" value="user3"/>
+  <triggerprocessidentifier tkey="16" version="0" triggerprocess_tkey="10030" name="USER_TO_REVOKE" value="user5"/>
+  <triggerprocessidentifier tkey="17" version="0" triggerprocess_tkey="10030" name="USER_TO_REVOKE" value="user7"/>
+  <triggerprocessidentifier tkey="18" version="0" triggerprocess_tkey="10007" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="19" version="0" triggerprocess_tkey="10007" name="SERVICE_KEY" value="10000"/>
+  <triggerprocessidentifier tkey="20" version="0" triggerprocess_tkey="10020" name="ORGANIZATION_KEY" value="10002"/>
+  <triggerprocessidentifier tkey="21" version="0" triggerprocess_tkey="10020" name="SUBSCRIPTION_KEY" value="10000"/>
+  <triggerprocessidentifier tkey="22" version="0" triggerprocess_tkey="10021" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="23" version="0" triggerprocess_tkey="10021" name="USER_ID" value="customer_adminxxx"/>
+  <triggerprocessidentifier tkey="24" version="0" triggerprocess_tkey="10021" name="USER_EMAIL" value="mike.jaeger@est.fujitsu.com"/>
+  <triggerprocessidentifier tkey="25" version="0" triggerprocess_tkey="10012" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="26" version="0" triggerprocess_tkey="10013" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="27" version="0" triggerprocess_tkey="10014" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="28" version="0" triggerprocess_tkey="10015" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="29" version="0" triggerprocess_tkey="10016" name="ORGANIZATION_KEY" value="10001"/>
+  <triggerprocessidentifier tkey="30" version="0" triggerprocess_tkey="10017" name="ORGANIZATION_KEY" value="10002"/>
+  <triggerprocessidentifier tkey="31" version="0" triggerprocess_tkey="10017" name="SUBSCRIPTION_ID" value="My subscription"/>
+  <triggerprocessidentifier tkey="32" version="0" triggerprocess_tkey="10028" name="ORGANIZATION_KEY" value="10002"/>
+  <triggerprocessidentifier tkey="33" version="0" triggerprocess_tkey="10028" name="SUBSCRIPTION_ID" value="My subscription modified"/>
+  <triggerprocessidentifier tkey="34" version="0" triggerprocess_tkey="10027" name="ORGANIZATION_KEY" value="10002"/>
+  <triggerprocessidentifier tkey="35" version="0" triggerprocess_tkey="10027" name="SUBSCRIPTION_KEY" value="10000"/>
+
+</dataset>

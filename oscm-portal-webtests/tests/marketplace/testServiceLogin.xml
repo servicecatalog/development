@@ -1,0 +1,235 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="initSetupServiceLogin">
+    <webtest name="testMPL_initSetupServiceLogin">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <!-- Create new organization  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="#{supplierId}" baseurl="#{baseUrl}" />
+      <storeProperty name="antBaseUrl" propertyType="ant" value="#{baseUrl}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <!-- Platform login (admin) -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <!-- Import technical service  -->
+      <techservice.import file="data/TechnicalServices-ServiceLogin.xml" />
+
+      <setup:service.define serviceId="#{marketServiceName}" name="#{marketServiceName}" description="Limited evaluation version." namedUser="2" marketplaceId="${mId}" />
+
+      <!-- Define marketable service price model  -->
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="true" description="Completely free"/>
+
+      <!-- Activate marketable service  -->
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+
+      <!-- Create Customer User1 -->
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="User1" isAdmin="true" isSvcMgr="true" isTechMgr="true" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <storeProperty name="customerUserKey" value="#{userKey}" />
+
+      <!-- Change User1 password to default-->
+      <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <storeProperty name="customerPwd" value="#{userPwd}" />
+      <login.logout />
+
+      <!-- Create Customer User2 -->
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="User2" isAdmin="true" isSvcMgr="true" isTechMgr="true" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customer2Url" value="#{orgUrl}" />
+      <storeProperty name="customer2UserId" value="#{userId}" />
+    	<storeProperty name="customer2UserKey" value="#{userKey}" />
+      <storeProperty name="customer2Pwd" value="#{userPwd}" />
+
+      <!-- Customer subscribes himself-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <property name="subscriptionName" value="#{marketServiceName}" />
+      <mpl_login.user userId="#{supplierUserId}" mid="${mId}" />
+
+      <mpl_service.subscribe mid="${mId}" index="0" />
+    	<!--<mpl_subscription.assignUserModal userIndex="1"/>-->
+      <mpl_login.logout />
+      <setup:store.settings userkey="#{customerUserKey}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="${subscriptionName}" usersToAdd="#{customerUserKey}" />
+      <mail.readServiceUrlFromMail subId="#{marketServiceName}" />
+
+      <!-- Keep some properties for the following tests -->
+      <property name="customerUrl" value="#{customerUrl}" />
+      <property name="customerUserId" value="#{customerUserId}" />
+      <property name="customerPwd" value="#{customerPwd}" />
+
+      <property name="customer2Url" value="#{customer2Url}" />
+      <property name="customer2UserId" value="#{customer2UserId}" />
+      <property name="customer2UserKey" value="#{customer2UserKey}" />
+      <property name="customer2Pwd" value="#{customer2Pwd}" />
+
+      <property name="serviceUrl" value="#{serviceUrl}" />
+      <property name="serviceUserId" value="#{supplierUserId}" />
+
+      <property name="supplierUserId" value="#{supplierUserId}" />
+      <property name="supplierUrl" value="#{supplierUrl}" />
+
+    </webtest>
+  </target>
+
+  <!-- TODO fix commented tests -->
+  <!-- Test the login to a global marketplace subscription -->
+  <!--<target name="testBasicServiceLogin" depends="initSetupServiceLogin">-->
+    <!--<webtest name="testMPL_testBasicServiceLogin">-->
+      <!--&lt;!&ndash; configure the mock &ndash;&gt;-->
+      <!--<mock.settings userKey="${supplierUserKey}" />-->
+
+      <!--&lt;!&ndash; Service login. &ndash;&gt;-->
+      <!--&lt;!&ndash; Note: The example service index page uses a refresh to redirect to the example servlet and the Canoo test &ndash;&gt;-->
+      <!--&lt;!&ndash; cannot follow this request. Therefore we directly invoke the example service.&ndash;&gt;-->
+      <!--<mpl_login.loginService url="${serviceUrl}example.do" userId="${customerUserId}" password="secret" />-->
+
+      <!--<retry maxcount="5">-->
+        <!--<sleep seconds="1" />-->
+        <!--<verifyTitle text="Example Service" />-->
+      <!--</retry>-->
+      <!-- -->
+      <!--<common.ignorePageScriptError/>-->
+      <!--&lt;!&ndash; Service logout &ndash;&gt;-->
+      <!--<clickLink label="Logout" />-->
+
+      <!--&lt;!&ndash; Test if logout panel is displayed &ndash;&gt;-->
+      <!--<retry maxcount="5">-->
+        <!--<sleep seconds="1" />-->
+        <!--<verifyXPath description="Check if logout panel exists" xpath="//div[@id='logoutPanel']" />-->
+      <!--</retry>-->
+    <!--</webtest>-->
+  <!--</target>-->
+
+  <!--<target name="testServiceLogin_withPwdChange" depends="initSetupServiceLogin">-->
+    <!--<webtest name="testMPL_testServiceLogin_withPwdChange">-->
+
+      <!--&lt;!&ndash; assign second user &ndash;&gt;-->
+      <!--<mpl_login.user userId="${supplierUserId}" mid="${mId}" />-->
+      <!--<mpl_goto.account.subscriptions />-->
+      <!--<clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />-->
+      <!-- -->
+      <!--<setup:store.settings userkey="${supplierUserKey}" password="secret" />-->
+      <!--<setup:subscription.addRevokeUser subscriptionId="${subscriptionName}" usersToAdd="${customer2UserKey}" />-->
+      <!--<mpl_login.logout />-->
+      <!--&lt;!&ndash; configure the mock &ndash;&gt;-->
+      <!--<mock.settings userKey="${supplierUserKey}" />-->
+
+      <!--&lt;!&ndash; Service login with password change &ndash;&gt;-->
+      <!--&lt;!&ndash; Note: The example service index page uses a refresh to redirect to the example servlet and the Canoo test &ndash;&gt;-->
+      <!--&lt;!&ndash; cannot follow this request. Therefore we directly invoke the example service. &ndash;&gt;-->
+      <!--<mpl_login.loginServiceWithChangePassword url="${serviceUrl}example.do" userId="${customer2UserId}" oldPassword="${customer2Pwd}" />-->
+
+      <!--<retry maxcount="5">-->
+        <!--<sleep seconds="1" />-->
+        <!--<verifyTitle text="Example Service" />-->
+      <!--</retry>-->
+
+      <!--&lt;!&ndash; Service logout &ndash;&gt;-->
+      <!--<common.ignorePageScriptError/>-->
+      <!--<clickLink label="Logout" />-->
+
+      <!--&lt;!&ndash; Test if logout panel is displayed &ndash;&gt;-->
+      <!--<retry maxcount="5">-->
+        <!--<sleep seconds="1" />-->
+        <!--<verifyXPath description="Check if logout panel exists" xpath="//div[@id='logoutPanel']" />-->
+      <!--</retry>-->
+
+    <!--</webtest>-->
+  <!--</target>-->
+
+
+  <!-- Test the login failure user not assigned -->
+  <target name="testServiceLoginFail_UserNotAssigned" depends="initSetupServiceLogin">
+    <webtest name="testMPL_loginFail_UserNotAssigned">
+      <!-- configure the mock -->
+      <mock.settings userKey="${supplierUserKey}" />
+
+      <!-- Service login. -->
+      <!-- Note: The example service index page uses a refresh to redirect to the example servlet and the Canoo test -->
+      <!-- cannot follow this request. Therefore we directly invoke the example service.-->
+      <mpl_login.loginService url="${serviceUrl}example.do" userId="${supplierUserId}" password="secret" />
+
+      <verifyXPath description="Check error message" xpath="//*[@id='errorMessages1']//*[normalize-space(text())='${ex.UserNotAssignedException}']" />
+    </webtest>
+  </target>
+
+  <!-- Test repeated login failure empty values  -->
+  <target name="testServiceLoginFail_EmptyValues" depends="initSetupServiceLogin">
+    <webtest name="testMPL_loginFail_EmptyValues">
+      <!-- Service login. -->
+      <mpl_login.loginService url="${serviceUrl}example.do" userId="" password="" />
+      <verifyXPath description="Ensure that login panel is still displayed." xpath="//body/div[@id='loginPanel_container']" />
+      <clickButton htmlId="loginForm:loginButton" />
+      <verifyXPath description="Again, ensure that login panel is still displayed." xpath="//body/div[@id='loginPanel_container']" />
+    </webtest>
+  </target>
+
+  <!-- Test login failure to non-existing subscription -->
+  <target name="testServiceLoginFail_SubscriptionNotExisting" depends="initSetupServiceLogin">
+    <webtest name="testMPL_loginFail_SubscriptionNotExisting">
+      <!-- Invoke URL of a non-existing subscription. -->
+      <invoke url="${antBaseUrl}/opt/ffff" />
+      <storeXPath description="Check error message" xpath="//body/div[position()=1]/text()" property="errorMsg" />
+      <common.handleMessageParameters property="refMsg" value="${ex.ObjectNotFoundException.SUBSCRIPTION}" att0="65535" />
+      <verifyXPath description="Check not found error message." xpath="//div[contains(text(),'#{refMsg}')]" />
+    </webtest>
+  </target>
+
+  <!-- Clean-up remaining services -->
+  <target name="testServiceLogin_cleanUp" depends="initSetupServiceLogin">
+    <webtest name="testMPL_testServiceLogin_cleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="all" depends="testServiceLoginFail_UserNotAssigned, testServiceLoginFail_SubscriptionNotExisting, testServiceLoginFail_EmptyValues, testServiceLogin_cleanUp" />
+
+  <!-- Subscribe to a service -->
+  <macrodef name="chooseService">
+    <attribute name="buttonId" />
+    <attribute name="svcName" />
+    <sequential>
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="@{buttonId}" />
+      <mpl_verify.service_details svcName="@{svcName}" isFree="true" />
+      <clickLink htmlId="getItForLoggedUser" />
+
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox description="Agree to license" htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink description="Confirm subscription" htmlId="confirmForm:confirmLink" />
+      <mpl_subscription.assignUserModal userIndex="0" />
+    </sequential>
+  </macrodef>
+
+</project>

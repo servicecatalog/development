@@ -1,0 +1,20 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="psp.createPsp">
+    <attribute name="identifier" />
+    <attribute name="wsdl" />
+    <attribute name="dn" />
+
+    <sequential>
+      <clickLink href="/operator/createPSP.jsf" />
+      <setInputField htmlId="editForm:pspIdentifier" value="@{identifier}" />
+      <setInputField htmlId="editForm:pspWsdl" value="@{wsdl}" />
+      <setInputField htmlId="editForm:pspDistinguishedName" value="@{dn}" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.handleMessageParameters property="msg" value="${info.psp.created}" att0="@{identifier}" />
+      <common.verifySuccess label="#{msg}" />      
+    </sequential>
+  </macrodef>
+
+</project>

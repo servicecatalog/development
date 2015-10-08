@@ -1,0 +1,863 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="run_tests" xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="run_tests" depends="testMPL_ManageSubscription_ExtIntfBtn,testMPL_UpgradeSubscription_ExtIntfBtn,testManageSubscription" />
+
+  <target name="testMPL_ManageSubscription_ExtIntfBtn">
+    <webtest name="testMPL_ManageSubscription_ExtIntfBtn">
+      <testInfo type="DESCRIPTION">
+        An external configurator tool is specified, the parameter configuration button must be shown when managing the subscription configuration.
+      </testInfo>
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExtIntSrv0" svcKeyProperty="serviceKey" name="ExtIntSrv0" description="Ext Int Test" configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="1" image="data/images/icon6.png" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.activate serviceIds="ExtIntSrv" start="0" count="1" />
+      <organization.managePayment rowNr="0" />
+      <setup:billingContact.create bcId="bc1"/>
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${marketplaceId}" serviceKey="${serviceKey}" bcId="bc1" piId="Invoice"/>
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyXPath xpath="//a[@id='configurationForm:btnConfigure']" />
+      <verifyXPath xpath="//colgroup[@span='4']"/>
+      <mpl_login.logout />
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+  <target name="testMPL_UpgradeSubscription_ExtIntfBtn">
+    <webtest name="testMPL_UpgradeSubscription_ExtIntfBtn">
+      <testInfo type="DESCRIPTION">
+         An external configurator tool is specified, the parameter configuration button must be shown when upgrading the subscription.
+       </testInfo>
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExtIntSrv0" name="ExtIntSrv0" svcKeyProperty="serviceKey" description="Ext Int Test" configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="1" image="data/images/icon6.png" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.define serviceId="ExtIntSrv1" name="ExtIntSrv1" description="Ext Int Test" configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="1" image="data/images/icon6.png" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv1" isFree="false" description="Only 20,- per Month" basePrice="20" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.defineMigrationOptions serviceId="ExtIntSrv0" migrationTargetIds="ExtIntSrv1" />
+      <setup:service.activate serviceIds="ExtIntSrv" start="0" count="2" />
+      <organization.managePayment rowNr="0" />
+      <setup:billingContact.create bcId="bc1"/>
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${marketplaceId}" serviceKey="${serviceKey}" bcId="bc1" piId="Invoice"/>
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <common.ignorePageScriptError />
+      <clickLink label="${button.select}" />
+      <verifyXPath xpath="//a[@id='configurationForm:btnConfigure']" />
+      <mpl_login.logout />
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+  <target name="setup">
+    <webtest name="testMPL_ManageSubscription_setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <scenario.createSimpleServices namedUser="5" mid="${mId}" />
+      <createServiceWithTimeSlices />
+      <setup:service.define serviceId="Mega Office X" techServiceId="Example_with_roles 1.00" name="Mega Office X" description="This service has limited users" concurrentUser="3" namedUser="1" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="Mega Office X" isFree="true" />
+      <setup:service.activate serviceIds="Mega Office X" />
+      <createUpgradeAndDowngradeServices />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:accountservice.registerCustomer supplierId="${supplierId}" userId="userA" marketplaceId="${mId}" />
+      <organization.managePayment rowNr="0" />
+      <organization.managePayment rowNr="1" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <property name="customerUserA" value="${createdUserId}" />
+      <mpl_login.user userId="${customerUserA}" mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="1" />
+      <mpl_service.subscribe mid="${mId}" index="2" />
+      <mpl_service.subscribe mid="${mId}" index="3" chargeable="true" />
+      <mpl_service.subscribe mid="${mId}" index="4" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="userB" firstname="first" lastname="last" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customerUserB" value="#{userId}" />
+    </webtest>
+  </target>
+
+  <target name="testManageSubscription" depends="setup">
+    <webtest name="testMPL_ManageSubscription_Bug10022">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to "Upgrade/Downgrade" tab -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- Invoke select -->
+      <clickLink label="${button.select}" />
+
+      <mpl_verify.breadCrumb actualPage="#{givenSubscriptionId}" />
+
+      <verifyXPath xpath="//input[@id='configurationForm:subscriptionIdText']/@value" text="#{givenSubscriptionId}" />
+
+      <clickLink htmlId="configurationForm:previousUpgradeLink" />
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_CheckTableContent">
+      <testInfo type="DESCRIPTION">
+                  Check the content of the three tables "assinged users", "user to assign" and "edit roles".
+                  1.) "assigned users" shows all assigned users 
+                  2.) "user to assign" shows all users which can be assinged to the subscription
+                  3.) "edit roles" shows all assigned users + roles column
+                </testInfo>
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]/a" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- No user assinged ... no table but a warning is shown -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+      <not>
+        <verifyXPath xpath="//*[@id='userListForm:userTable']" />
+      </not>
+
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//div[@id='assignUsersPanel_content']" description="modalDialog is shown" />
+      <!-- assign first user -->
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+      <mpl_subscription.setUserRoleInAllUserGroups userId="${customerUserA}" />
+      <!-- verify that table is displayed and contains 1 row -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]/a" />
+
+      <verifyXPath xpath="//*[@id='userListForm:userTable']" />
+      <verifyXPath xpath="count(//*[@id='userListForm:userTable:tb']/tr)" text="1" />
+
+      <!-- open modal dialog again and verify that only 1 unassigned user is shown -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//div[@id='assignUsersPanel_content']"  description="modalDialog is shown" />
+      <this.countRowInModalTable expected="1" />
+
+      <!-- assign the remaining user -->
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserB}" />
+
+      <!-- verify the number of assigned users in the subscription details page is 2 -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]/a" />
+
+      <verifyXPath xpath="count(//*[@id='userListForm:userTable:tb']/tr)" text="2" description="number of assigned users should be 2" />
+
+      <!-- All users have been assigned .. but try to assign more -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <mpl_verify.error label="${info.subscriptions.noMoreUsersForAssignment}" />
+      <!-- reset -->
+      <deAssignUser userIndex="0" />
+      <deAssignUser userIndex="0" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_AssignUser">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- Check that both users are displayed and are unchecked -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <!-- At this point there are no users assigned and there should be a "warning" message -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+      <mpl_service.validateUser index="0" userId="${customerUserA}" assigned="false" />
+      <mpl_service.validateUser index="1" userId="${customerUserB}" assigned="false" />
+
+      <!-- BUG 8759: no error/warning shown when leaving popup without any checkbox checked -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
+      <!-- click save without checking any checkbox -->
+      <clickLink htmlId="assignUsersPanelForm:saveButton" />
+      <not>
+        <verifyXPath xpath=".//*[@id='errorMessages']" />
+      </not>
+      <not>
+        <verifyXPath xpath=".//*[@id='progressMessages']" />
+      </not>
+      <not>
+        <verifyXPath xpath=".//*[@id='infoMessages']" />
+      </not>
+
+      <!-- Now check first user and save -->
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+
+      <verifyElementText htmlId="subscriptionUsers" text="1" />
+      <mpl_service.validateUser index="0" userId="${customerUserA}" assigned="true" />
+      <mpl_service.validateUser index="1" userId="${customerUserB}" assigned="false" />
+
+      <!-- The warning should be gone -->
+      <not>
+        <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt" />
+      </not>
+
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_AssignUser_UserLimit">
+      <testInfo type="DESCRIPTION">
+                Check the behaviour of the assign users page in case the maximum amount of users will be reached.        
+                1. Check behaviour of modal dialog (error message in modal dialog)
+                2. Check behaviour of "Assign Users" button and page (error on sub.details page) 
+              </testInfo>
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office X')]/../td[1]/a" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- Check user assingment handling -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <!-- At this point there are no users assinged and there should be a "warning" message -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+
+      <!-- try to assign 2 users -->
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserB}" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ServiceParameterException.PLATFORM_PARAMETER.NAMED_USER}" att0="1" att1="Mega Office X" />
+      <common.verifyError label="#{errorMsg}" />
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office X')]/../td[1]/a" />
+
+      <verifyElementText htmlId="subscriptionUsers" text="1" />
+
+      <!-- try to assign another user, this should trigger an error -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <mpl_verify.error label="${info.subscriptions.maximumNumberOfUsersReached}" />
+
+      <deAssignUser userIndex="0" />
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_CheckRolesElements">
+      <testInfo type="DESCRIPTION">
+                Check if all elements to edit/view roles exists for services which defines service roles and
+                that they not exists for other services.
+                1.) Check "edit roles" button (exists only if the service supports roles, is active if at least one user is assigned)
+                2.) Check the content of the edit roles table (must contain only assinged users) 
+              </testInfo>
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- 1. Check subscription without roles -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+      <!-- Since the service defines no roles, the "edit roles" btn must not be visible -->
+      <not>
+        <verifyXPath xpath=".//*[@id='usersForm:editRolesLink']" />
+      </not>
+      <!-- There must be no roles column in the table -->
+      <not>
+        <verifyXPath xpath=".//*[@id='assignUsersPanelForm:userTable:0:role']" />
+      </not>
+
+      <!-- 2. Check subscription with roles enabled-->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office X')]/../td[1]/a" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- "editRoles" will be visible after the first user was assinged -->
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+      <not>
+        <verifyXPath xpath=".//*[@id='usersForm:editRolesLink']" />
+      </not>
+
+      <!-- The table must contain the roles column -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath=".//*[@id='assignUsersPanelForm:userTable:0:role']" />
+
+      <!-- After the user was assinged the edit roles btn is visible -->
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office X')]/../td[1]/a" />
+
+      <verifyXPath xpath=".//*[@id='usersForm:editRolesLink']" />
+
+      <!-- Clean up -->
+      <deAssignUser userIndex="0" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_verifyLazyInitialization_AssignUser">
+      <testInfo type="DESCRIPTION">verifyLazyInitialization_AssignUser : 
+                               verify that the userTable of the modal dialog is only rendered after invoking the modal dialog
+                               Expected Outcome: 
+                               (1) no userTable is rendered before showing the modal panel
+                               (2) userTable for assignment IS shown in modal panel
+                     </testInfo>
+
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+
+      <!-- (2) must  contain .//*[contains(.,'assignUsersPanelForm:userTable')] after opening popup -->
+      <clickButton htmlId="usersForm:assignUsers" />
+      <common.waitForJavaScript />
+      <verifyXPath xpath="//*[contains(.,'assignUsersPanelForm')]" />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_DeassignUser">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- Check that both users are displayed and are unchecked -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+
+      <!-- The following line does not work at the moment because of a JavaScript error, which does not occur in a browser -->
+      <!--deAssignUserButCancel userIndex="1" /-->
+      <!-- Check if we are still on the subscription.users page -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <verifyElementText htmlId="subscriptionUsers" text="1" />
+      <mpl_service.validateUser index="0" userId="${customerUserA}" assigned="true" />
+      <mpl_service.validateUser index="1" userId="${customerUserB}" assigned="false" />
+
+      <!-- Now delete first user   -->
+
+      <deAssignUser userIndex="0" />
+
+      <verifyElementText htmlId="subscriptionUsers" text="0" />
+      <mpl_service.validateUser index="0" userId="${customerUserA}" assigned="false" />
+      <mpl_service.validateUser index="1" userId="${customerUserB}" assigned="false" />
+
+      <!-- Check if the warning appears -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_UpdateConfiguration">
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+      <dataDriven tableContainer="data/pageFields/marketplace/subscriptionModifyFields.xls">
+        <mpl_goto.account.subscriptions />
+        <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+        <mpl_goto.tab label="${subscription.configuration}" />
+        <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" buttonLinkId="configurationForm:saveConfigurationButtonLink" />
+      </dataDriven>
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="testMPL_ManageSubscription_Upgrade">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to "Upgrade/Downgrade" tab -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+      <!-- Invoke "Select" -->
+      <clickLink label="${button.select}" />
+
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.title}" />
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.subscriptions.title}" />
+      <mpl_verify.breadCrumb actualPage="#{givenSubscriptionId}" />
+
+      <verifyXPath xpath="//input[@id='configurationForm:subscriptionIdText']/@value" text="#{givenSubscriptionId}" />
+      <verifyXPath xpath="//input[@id='configurationForm:subscriptionIdText']/@disabled" text="disabled" />
+      <mpl_verify.hintButton description="Check hint button and message" fieldId="configurationForm:subscriptionIdText" msgKey="marketplace.subscriptions.upgrade.hint.subscriptionIdText" />
+
+      <verifyXPath xpath="//input[@id='configurationForm:purchaseOrderNumberText']/@value" text="" />
+      <verifyXPath xpath="//input[@id='configurationForm:purchaseOrderNumberText']/@disabled" text="disabled" />
+      <mpl_verify.hintButton description="Check hint button and message" fieldId="configurationForm:purchaseOrderNumberText" msgKey="marketplace.subscriptions.upgrade.hint.purchaseOrderNumberText" />
+
+      <clickLink htmlId="configurationForm:nextLink" />
+
+      <!-- Bug 8414 verify correct bread crumb -->
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.title}" />
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.subscriptions.title}" />
+      <mpl_verify.breadCrumb actualPage="#{givenSubscriptionId}" />
+
+      <mpl_user.selectBillingContact />
+
+      <verifyXPath xpath="//a[@id='payment:previousLink']" />
+      <verifyXPath xpath="//a[@id='payment:nextLink']" />
+
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.title}" />
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.subscriptions.title}" />
+      <mpl_verify.breadCrumb actualPage="#{givenSubscriptionId}" />
+      <verifyText text="${subscription.confirm.details.title}" />
+      <verifyText text="${subscription.confirm.paymentOptions.title}" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:subscriptionIdLabel'][.='${subscription.subscriptionId}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:purchaseOrderNumberLabel'][.='${subscription.purchaseOrderNumber}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:subscriptionIdValue'][.='#{givenSubscriptionId}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:purchaseOrderNumberValue'][.='']" />
+
+      <!-- the payment info id (display name) of the selected payment info -->
+      <verifyXPath xpath="//span[@id='confirmForm:paymentId'][.='Invoice']" />
+      <!-- Bug 10050 correct edit configuration link during upgrade -->
+      <clickLink xpath="//form[@id='confirmForm']//a[@id='confirmForm:editConfigurationLink']" />
+      <verifyXPath xpath="//a[@id='configurationForm:nextLink']" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="//a[@id='payment:nextLink']" />
+      <clickLink htmlId="payment:nextLink" />
+
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+
+      <clickButton name="confirmForm:confirm" />
+      <verifyText text="The subscription #{givenSubscriptionId} has been successfully upgraded or downgraded." />
+
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+
+    <webtest name="testMPL_ManageSubscription_UpgradeThenDowngrade">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+      <!-- Switch to "Upgrade/Downgrade" tab -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+      <thisSubscriptionUpgrade />
+      <verifyText text="The subscription #{givenSubscriptionId} has been successfully upgraded or downgraded." />
+      <!--Downgrade and verify -->
+      <thisSubscriptionUpgrade />
+      <verifyText text="The subscription #{givenSubscriptionId} has been successfully upgraded or downgraded." />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_ShowLicense">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+
+      <clickLink htmlId="openLicenseLink" />
+      <verifyElementText htmlId="licensePanelTitle" text="${priceModel.service.license}" />
+      <clickButton htmlId="closeLicenseButton" />
+      <login.logout />
+    </webtest>
+
+
+    <webtest name="testMPL_ManageSubscription_PriceModel">
+      <!-- depends on the upgrade test as this one will upgrade to a chargeable subscription 
+      Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]/a" />
+
+      <clickElement htmlId="tabPriceModel:header" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_Unsubscribe">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to "Administer" tab -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//td[contains(text(), 'ServiceC')]/../td[1]/a" />
+
+      <mpl_verify.selectedTab label="${subscription.users}" />
+      <deassignUserIfNecessary />
+      <deassignUserIfNecessary />
+
+      <!-- Invoke "Terminate" -->
+      <clickLink label="${button.terminate}" />
+
+      <!-- Cancel confirmation -->
+      <mpl_service.confirmPanel panelId="unsubscribeConfirmPl" title="${confirm.title}" buttonId="CancelButton" />
+
+      <!-- Check whether we are still on our page -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <!-- Again invoke "Terminate" -->
+      <clickLink label="${button.terminate}" />
+
+      <!-- Confirm confirmation -->
+      <mpl_service.confirmPanel panelId="unsubscribeConfirmPl" title="${confirm.title}" buttonId="OkButton" />
+
+      <!-- Successfully terminated? -->
+      <mpl_verify.success label="successfully terminated" />
+
+      <!-- Check whether we were redirected to the subscriptions page -->
+      <!-- a. no tab visible -->
+      <not>
+        <verifyXPath xpath="//td[contains(@class, 'rich-tab-active')]" />
+      </not>
+      <!-- b. subscriptions page -->
+      <verifyXPath xpath="//div[@id='location']/ol/li[2]/a[contains(normalize-space(),'${marketplace.account.title}')]" />
+      <verifyXPath xpath="(//div[@id='location']/ol/li[3])[contains(normalize-space(),'${marketplace.account.subscriptions.title}')]" />
+
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_LoginDuringShowDetails_B7518">
+      <!-- switch to marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <!-- Click on the details button of the service Mega Office Starter -->
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="Mega Office Starter" />
+
+      <!-- Login as customer -->
+      <clickLink label="${login}" />
+      <setInputField name="loginForm:loginUserId" value="${customerUserA}" />
+      <setInputField name="loginForm:loginPassword" value="secret" />
+      <clickButton htmlId="loginForm:loginButton" />
+
+      <!-- Check whether selected service is still displayed -->
+      <mpl_verify.service_details svcName="Mega Office Starter" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_RemoveSupplier">
+      <!-- login as techprovider (old portal), used supplier is also techprovider -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- first check existence of supplier id list, cancel -->
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="Example 1.00" />
+
+      <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <clickLink htmlId="removeSuppliersForm:deleteButton" />
+      <storeXPath description="Get the list as string" xpath="//textarea[@id='instanceIdsToDelete']" property="instanceIdsList" propertyType="dynamic" />
+      <common.handleMessageParameters property="infoMsg" value="${confirm.suppliers.remove.instanceIds}" att0="#{instanceIdsList}" />
+      <verifyXPath description="String length of list is > 2, i.e. at least one element contained" xpath="string-length('#{instanceIdsList}')-1 &gt; 2" />
+      <clickLink htmlId="confirmCancelButton" />
+
+      <!-- terminate subscription -->
+      <common.clickAndVerfyLink label="${subscription.terminate.title}" />
+      <clickElement xpath="//td[contains(text(), 'Mega Office Trial')]/../td[1]" />
+      <clickElement htmlId="terminateForm:terminateButton" />
+      <clickElement htmlId="confirmForm:okButton" />
+
+      <!-- now check for another error msg, cancel -->
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="Example 1.00" />
+      <setCheckbox name="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <clickLink htmlId="removeSuppliersForm:deleteButton" />
+      <verifyText description="Verify we get another error msg since the subscription list should be empty now" text="${confirm.suppliers.remove}" />
+      <clickLink htmlId="confirmCancelButton" />
+      <!-- finally really delete -->
+      <clickLink htmlId="removeSuppliersForm:deleteButton" />
+      <clickLink htmlId="confirmSaveButton" />
+
+      <!-- Check that the table is not rendered anymore -->
+      <not>
+        <verifyXPath xpath="//table[@id='removeSuppliersForm:supplierTable']" />
+      </not>
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_Bug8791_ManageSubscription_Assign_Concurrency">
+      <selectWebClient name="client_A">
+        <!-- Login as customer -->
+        <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+        <mpl_goto.account.subscriptions />
+        <clickLink xpath="//td[contains(text(), 'ServiceB')]/../td[1]/a" />
+
+        <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+        <!-- Switch to account / users page -->
+        <mpl_goto.account.users />
+        <mpl_user.display userId="${customerUserA}" />
+        <setCheckbox xpath="//td[text()='#{givenSubscriptionId}']/..//input" checked="true" />
+        <!-- not yet press save -->
+      </selectWebClient>
+
+      <selectWebClient name="client_B">
+        <terminateSubscriptionByXpath subsXpath="//td[contains(text(), 'ServiceB')]/../td[1]/a" />
+      </selectWebClient>
+
+      <selectWebClient name="client_A">
+        <clickButton label="${button.save}" />
+        <not>
+          <mpl_verify.success label="${info.user.saved}" matchWithWildCard="false" />
+        </not>
+        <verifyXPath xpath="//*[@id='editUserForm']" />
+        <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.SUBSCRIPTION}" att0="#{givenSubscriptionId}" />
+        <common.verifyError label="#{errorMsg}" regex="false" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_Bug8791_ManageSubscription_DeAssign_Concurrency">
+      <selectWebClient name="client_A">
+        <!-- Login as customer -->
+        <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+        <mpl_service.subscribe mid="${mId}" index="0" />
+        <mpl_goto.account.subscriptions />
+        <!-- Invoke "administer" of first displayed service -->
+        <clickLink xpath="//td[contains(text(), 'Mega Office X(2)')]/../td[1]/a" />
+
+        <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+        <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
+
+        <!-- Invoke "administer" of first displayed service -->
+        <mpl_goto.account.subscriptions />
+        <clickLink xpath="//td[contains(text(), 'Mega Office X(2)')]/../td[1]/a" />
+
+
+      </selectWebClient>
+
+      <selectWebClient name="client_B">
+        <terminateSubscriptionByXpath subsXpath="//td[contains(text(), 'Mega Office X(2)')]/../td[1]/a" />
+      </selectWebClient>
+
+      <selectWebClient name="client_A">
+        <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+        <clickButton htmlId="userListForm:userTable:0:deassignBt" />
+        <mpl_service.confirmPanel panelId="userListForm:deassignConfirmPl" title="${subscription.users.deassign.title}" buttonId="OkButton" />
+        <not>
+          <mpl_verify.success label="${info.subscriptions.userAssigned.success}" matchWithWildCard="false" />
+        </not>
+        <common.handleMessageParameters property="errorMsg" value="${error.subscription.notAccessible}" att0="#{givenSubscriptionId}" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_ManageSubscription_tearDown">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <macrodef name="createServiceWithTimeSlices">
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceB" name="ServiceB" description="DescriptionServiceB" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ServiceB" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.activate serviceIds="ServiceB" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="terminateSubscription">
+    <attribute name="subsXpath" />
+    <sequential>
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <deassignUserIfNecessary />
+      <deassignUserIfNecessary />
+      <!-- Invoke "Terminate" -->
+      <clickLink label="${button.terminate}" />
+
+      <!-- Confirm confirmation -->
+      <mpl_service.confirmPanel panelId="unsubscribeConfirmPl" title="${confirm.title}" buttonId="OkButton" />
+
+      <!-- Successfully terminated? -->
+      <mpl_verify.success label="successfully terminated" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="terminateSubscriptionByXpath">
+    <attribute name="subsXpath" />
+    <sequential>
+      <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+
+      <!-- Switch to account / subscriptions page -->
+      <mpl_goto.account.subscriptions />
+
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="@{subsXpath}" />
+
+
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <deassignUserIfNecessary />
+      <deassignUserIfNecessary />
+      <!-- Invoke "Terminate" -->
+      <clickLink label="${button.terminate}" />
+
+      <!-- Confirm confirmation -->
+      <mpl_service.confirmPanel panelId="unsubscribeConfirmPl" title="${confirm.title}" buttonId="OkButton" />
+
+      <!-- Successfully terminated? -->
+      <mpl_verify.success label="successfully terminated" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="assignUser">
+    <attribute name="userIndex" />
+    <attribute name="checked" default="true" />
+    <sequential>
+      <setCheckbox htmlId="userListForm:userTable:@{userIndex}:assignCheckbox" checked="@{checked}" />
+      <clickLink label="${button.save}" />
+      <mpl_verify.success label="successfully saved" />
+    </sequential>
+  </macrodef>
+
+  <!-- deassign -->
+  <macrodef name="deAssignUser">
+    <attribute name="userIndex" />
+    <sequential>
+      <clickButton htmlId="userListForm:userTable:@{userIndex}:deassignBt" />
+      <mpl_service.confirmPanel panelId="userListForm:deassignConfirmPl" title="${subscription.users.deassign.title}" buttonId="OkButton" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="deassignUserIfNecessary">
+    <sequential>
+      <ifStep description="assignee exists">
+        <condition>
+          <verifyXPath xpath=".//*[@id='userListForm:userTable:0:deassignBt']" />
+        </condition>
+        <then>
+          <deAssignUser userIndex="0" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="deAssignUserButCancel">
+    <attribute name="userIndex" />
+    <sequential>
+      <clickButton htmlId="userListForm:userTable:@{userIndex}:deassignBt" />
+      <mpl_service.confirmPanel panelId="userListForm:deassignConfirmPl" title="${subscription.users.deassign.title}" buttonId="CancelButton" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.countRowInModalTable">
+    <attribute name="expected" />
+    <sequential>
+      <!-- workaround because this xpath does not count correctly  <verifyXPath xpath="count(//*[@id='assignUsersPanelForm:userTable:tb']/tr)" text="1" /> -->
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm:userTable:0:assignCheckbox']" />
+      <not>
+        <verifyXPath xpath="//*[@id='assignUsersPanelForm:userTable:1:assignCheckbox']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="createUpgradeAndDowngradeServices">
+    <sequential>
+
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+
+      <setup:service.define serviceId="Upgrade" name="ServiceC" description="Limited evaluation version." namedUser="1" image="data/images/icon1.png" marketplaceId="${mId}" />
+      <setup:service.define serviceId="Downgrade" name="ServiceD" description="Starter bundle with limited features." configurableChecked="true" namedUser="1" image="data/images/icon2.png" marketplaceId="${mId}" />
+
+      <setup:pricemodel.define serviceId="Upgrade" isFree="true" />
+      <setup:pricemodel.define serviceId="Downgrade" isFree="true" />
+
+      <setup:service.defineMigrationOptions serviceId="Upgrade" migrationTargetIds="Downgrade" />
+      <setup:service.defineMigrationOptions serviceId="Downgrade" migrationTargetIds="Upgrade" />
+      <setup:service.activate serviceIds="Upgrade" />
+      <setup:service.activate serviceIds="Downgrade" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="thisSubscriptionUpgrade">
+    <attribute name="chargeable" default="false" />
+    <sequential>
+      <!-- Invoke "Select" -->
+      <clickLink label="${button.select}" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <ifStep test="@{chargeable}">
+        <then>
+          <mpl_user.selectBillingContact />
+          <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+          <clickLink htmlId="payment:nextLink" />
+        </then>
+      </ifStep>
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+    </sequential>
+  </macrodef>
+</project>

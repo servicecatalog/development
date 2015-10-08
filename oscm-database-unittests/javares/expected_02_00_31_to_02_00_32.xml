@@ -1,0 +1,10 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<dataset>
+  
+  <TechnicalProduct tkey="1" technicalproductid="tpid1" version="0" provisioningurl="url" 
+    organizationkey="1" allowingonbehalfacting="false" />
+
+  <TechnicalProduct tkey="2" technicalproductid="tpid2" version="0" provisioningurl="url" 
+    organizationkey="1" allowingonbehalfacting="false" />
+    
+</dataset>

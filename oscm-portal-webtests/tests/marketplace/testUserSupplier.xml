@@ -1,0 +1,518 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testUserSupplier" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="testMPL_UserSupplier_Setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <!-- Setup an organization (using old portal) -->
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="groupIdA" value="userGroupA" propertyType="ant" />
+      <storeProperty name="groupDescriptionA" value="userGroupDescriptionA" propertyType="ant" />
+      <storeProperty name="groupIdB" value="userGroupB" propertyType="ant" />
+      <storeProperty name="groupDescriptionB" value="userGroupDescriptionB" propertyType="ant" />
+      <storeProperty name="usernameM" value="userM0001" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testUserSupplier" depends="setup">
+
+    <webtest name="testMPL_UserSupplier_userGroup">
+      <!--there is no group and check default value of User groups:-->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="userListForm:addUserButtonLink" />
+      <!-- bug 11148 -->
+      <not>
+        <verifyXPath xpath="userForm:userGroupsTable" />
+      </not>
+
+      <!--create groupIdA and groupIdB-->
+      <mpl_user.createGroup groupId="${groupIdA}" groupDescription="${groupDescriptionA}" />
+      <mpl_user.createGroup groupId="${groupIdB}" groupDescription="${groupDescriptionB}" />
+
+      <!--create userM , add groupIdA and groupIdB, verify profile-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickLink htmlId="userListForm:addUserButtonLink" />
+
+      <setInputField htmlId="userForm:firstName" value="first" />
+      <setInputField htmlId="userForm:lastName" value="last" />
+      <setInputField htmlId="userForm:email" value="${common.email}" />
+      <setInputField htmlId="userForm:userId" value="${usernameM}" />
+      <setSelectField htmlId="userForm:locale" value="en" />
+      <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="true" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
+      <clickElement htmlId="userForm:createButtonLink" />
+      <common.verifySuccess label="${usernameM}" />
+      <mpl_login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="passwdA" value="#{userPwd}" />
+      <mpl_login.loginWithChangePassword userId="${usernameM}" oldPassword="#{userPwd}" checkHint="true" mid="${mId}" />
+      <mpl_goto.account.profile />
+      <verifyElementText htmlId="editForm:userGroups" text="${groupIdA}, ${groupIdB}" />
+      <mpl_login.logout />
+
+      <!--create userN and belonging to group groupIdA-->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.create userId="userN" firstname="first" lastname="last" isAdmin="true" />
+      <storeProperty name="usernameN" value="#{userId}" propertyType="ant" />
+      <clickElement xpath="//td[@id='userListForm:userListTable:2:colUserId']/..//img[@class='editPen']" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+
+      <!--verify userM and userN in groupIdA-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:1:groupUserNumber" text="2" />
+
+      <!--verify userM and userN in defaultGroup-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:0:groupUserNumber" text="3" />
+
+      <!--edit userM and make setCheckbox unchecked-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage${usernameM}" />
+      <setCheckbox htmlId="editUserForm:userGroupsTable:1:groupsCheckbox" checked="false" />
+      <clickLink htmlId="editUserForm:saveButtonLink" />
+      <common.verifySuccess label="${usernameM}" />
+
+      <!--check user count in groupIdA-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:1:numberOfUsers" text="1" />
+
+      <!--delete userM and userN-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage${usernameM}" />
+      <clickElement htmlId="editUserForm:deleteButton" />
+      <clickElement htmlId="editUserForm:confirmPanelOkButton" />
+      <common.verifySuccess label="${usernameM}" />
+
+      <clickElement htmlId="editUserImage${usernameN}" />
+      <clickElement htmlId="editUserForm:deleteButton" />
+      <clickElement htmlId="editUserForm:confirmPanelOkButton" />
+      <common.verifySuccess label="${usernameN}" />
+
+      <!--verify groupIdA has no user-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:1:numberOfUsers" text="0" />
+      <mpl_login.logout />
+      <mail.cleanInbox />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_RemoveAdminRole">
+      <!-- Retest for bug 7647 -->
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new admin user -->
+
+      <mpl_user.create userId="userA" firstname="first" lastname="last" isAdmin="true" />
+      <property name="usernameA" value="#{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="passwdA" value="#{userPwd}" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" checkHint="true" mid="${mId}" />
+
+      <storeProperty name="customerPwd" value="#{userPwd}" />
+      <mpl_goto.account.users />
+
+      <!-- edit and save changed field value -->
+      <mpl_user.display userId="#{userId}" />
+      <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="false" />
+      <clickButton label="${button.save}" />
+
+      <!-- After the save operation we should be on the profile page -->
+      <mpl_verify.contentTitle title="${marketplace.account.users.title.management}" />
+      <mpl_verify.success label="${info.user.saved.itself}" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_CreateUser">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create some new users -->
+      <mpl_user.create userId="operFL" firstname="first" lastname="last" />
+      <property name="userIdOperFL" value="#{userId}" />
+
+      <mpl_user.create userId="operF" firstname="first" lastname="" />
+      <property name="userIdOperF" value="#{userId}" />
+
+      <mpl_user.create userId="operL" firstname="" lastname="last" />
+      <property name="userIdOperL" value="#{userId}" />
+
+      <mpl_user.create userId="oper" firstname="" lastname="" />
+      <property name="userIdOper" value="#{userId}" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="false" />
+
+      <!-- Verify user riles invisible on user create-->
+      <mpl_goto.account.users />
+      <clickLink htmlId="userListForm:addUserButtonLink" />
+      <mpl_verify.contentTitle title="Add user" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.PLATFORM_OPERATOR}" visible="false" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_CreateAdminUser">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new admin user -->
+      <mpl_user.create userId="oper2A" isAdmin="true" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="true" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" isChecked="false" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="false" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_CreateFullRoleUser">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a new admin user -->
+      <mpl_user.create userId="oper3FR" isAdmin="true" isSvcMgr="true" isTechMgr="true" isSubMgr="true" />
+
+      <!-- Verify user roles registered -->
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.ORGANIZATION_ADMIN}" isChecked="true" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SERVICE_MANAGER}" isChecked="true" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.TECHNOLOGY_MANAGER}" isChecked="true" />
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.SUBSCRIPTION_MANAGER}" isChecked="true" />
+
+      <!-- Verify user riles invisible on user edit-->
+      <mpl_user.verifyUserRoleCheckBox roleDisplayName="${UserRoleType.PLATFORM_OPERATOR}" visible="false" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_CreateDuplicateUser">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Create a user with an already existing name (must fail) -->
+      <mpl_user.create userId="${userIdOper}" createUniqueUserId="false" submit="false" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.error label="The user ID ${userIdOper} already exists." />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_CreateUserCheckInvalidFieldValues">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Check all editable fields -->
+      <dataDriven tableContainer="data/pageFields/marketplace/accountAddUserFields.xls">
+        <!-- Switch to account / users page and prepare default content -->
+        <mpl_goto.account.users />
+        <mpl_user.create userId="oper3" submit="false" createUniqueUserId="false" />
+        <!-- Validate all registered fields -->
+        <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" required="${required}" />
+      </dataDriven>
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_EditUser">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Edit some user  -->
+      <mpl_goto.account.users />
+
+      <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:firstName" fieldValue="changed first" />
+      <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:lastName" fieldValue="changed last" />
+      <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:email" fieldValue="CHG${common.email}" />
+      <mpl_user.editInputValue userId="${userIdOperFL}" fieldId="editUserForm:userId" fieldValue="${userIdOperFL}_changed" isUserIdField="true" />
+      <mpl_user.editSelectionValue userId="${userIdOperFL}" fieldId="editUserForm:salutation" fieldValue="${user.salutation.MS}" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" fieldValue="true" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" fieldValue="false" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" fieldValue="true" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" fieldValue="false" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" fieldValue="true" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" fieldValue="false" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" fieldValue="true" />
+      <mpl_user.editCheckboxValueByXPath userId="${userIdOperFL}" fieldXpath="//td[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" fieldValue="false" />
+
+      <!-- Edit other users (check title) -->
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${userIdOperF}" />
+      <mpl_verify.contentTitle title="Edit user first" />
+
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${userIdOperL}" />
+      <mpl_verify.contentTitle title="Edit user last" />
+
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${userIdOper}" />
+      <mpl_verify.contentTitle title="Edit user ${userIdOper}" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+      <mail.cleanInbox />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_EditUserCheckInvalidFieldValues">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Check all editable fields -->
+      <dataDriven tableContainer="data/pageFields/marketplace/accountEditUserFields.xls">
+        <!-- Switch to account / users page and display an registered user -->
+        <mpl_goto.account.users />
+        <mpl_user.display userId="${userIdOperFL}" />
+        <!-- Validate all registered fields -->
+        <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${supplier.required}" topErrorMessage="false" />
+      </dataDriven>
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_EditUserResetPassword">
+      <mail.cleanInbox />
+
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <!-- Check validation of field values -->
+      <mpl_user.display userId="${userIdOperL}" />
+      <clickLink label="${button.resetPwd}" />
+      <mpl_verify.success label="${info.user.pwdReset}" />
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+
+      <!-- Check whether an e-mail has been received -->
+      <mail.readResetPasswordFromMail />
+
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_DeleteUser">
+      <mail.cleanInbox />
+
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+      <mpl_user.display userId="${userIdOperL}" />
+
+      <!-- Select 'DELETE' but cancel -->
+      <mpl_verify.contentTitle title="Edit user last" />
+      <clickLink label="${button.delete}" />
+      <mpl_user.confirmPanel title="${marketplace.account.delete.title}" confirm="false" />
+      <mpl_verify.contentTitle title="Edit user last" />
+
+      <!-- Select 'DELETE' and confirm -->
+      <clickLink label="${button.delete}" />
+      <mpl_user.confirmPanel title="${marketplace.account.delete.title}" confirm="true" />
+      <not>
+        <mpl_verify.contentTitle title="Edit user last" />
+      </not>
+      <mpl_verify.contentTitle title="${marketplace.account.users.title.management}" />
+      <not>
+        <verifyXPath xpath="//span[@class='selectable' and contains(text(),'@{userIdOperL}')]" />
+      </not>
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_EditProfile">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <!-- Check all editable fields -->
+      <dataDriven tableContainer="data/pageFields/marketplace/accountEditProfileFields.xls">
+        <!-- Switch to account / profile page -->
+        <mpl_goto.account.profile />
+        <!-- Validate all registered fields -->
+        <mpl_verify.invalidFieldValue fieldId="${fieldId}" fieldType="${fieldType}" required="${supplier.required}" topErrorMessage="false" />
+      </dataDriven>
+
+      <!-- And logoff -->
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testNoEmptySubscriptionTable">
+      <testInfo type="DESCRIPTION">testNoEmptySubscriptionTable : 
+                    if there is no subscription in the organization of the current user
+                    do not display an empty table of subscriptions.
+                    Expected Outcome: 
+                    (1) no table is displayed.
+          </testInfo>
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <mpl_goto.account.users />
+      <mpl_user.create userId="assignTestUser_01" submit="false" />
+      <!--   (1) no table is displayed. -->
+      <not>
+        <verifyXPath xpath="//*[@id='userForm:assignUserTitle']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='userForm:orgSubscriptionsTable']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testCreateUserWithSubscriptionsOK">
+      <testInfo type="DESCRIPTION">testCreateUserWithSubscriptionsOK : 
+                        create user and assign successfully 2 subscriptions
+                        Expected Outcome: 
+                        (1) table with two subscriptions is displayed
+                        (2) success message
+                        (3) redirect to overview
+                        (4) all subscriptions are checked in editUser page
+              </testInfo>
+
+      <!-- prepare 2subscriptions for this organization -->
+      <storeProperty name="newUserId" value="assignTestUser_01" />
+      <operator.addCurrency />
+      <scenario.createServices numberAdditionalServices="4" mid="${mId}" />
+	  <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}"/>
+      <organization.managePaymentforsupplier/>
+      <organization.managePayment rowNr="0" />
+      <login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${mId}" serviceKey="${svcKey1}" bcId="bc1" piId="Invoice" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <storeXPath xpath="//*[@id='serviceDetailName']/text()" property="s" />
+      <storeProperty name="subscription0" value="#{s}" propertyType="ant" />
+      <setup:subscription.create subId="subscribeUserService2" marketplaceId="${mId}" serviceKey="${svcKey2}" bcId="bc1" piId="Invoice" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <storeXPath xpath="//*[@id='serviceDetailName']/text()" property="subscription1" propertyType="ant" />
+
+      <mpl_goto.account.users />
+      <mpl_user.create userId="#{newUserId}" createUniqueUserId="false" submit="false" />
+
+      <!--  (1) table with two subscriptions is displayed -->
+      <verifyXPath xpath="//*[contains(text(),'${marketplace.account.adduser.assignUser.title}')]" />
+      <verifyXPath xpath="//*[@id='userForm:orgSubscriptionsTable']" />
+
+      <setCheckbox htmlId="userForm:orgSubscriptionsTable:0:subscriptionCheckbox" checked="true" />
+      <setCheckbox htmlId="userForm:orgSubscriptionsTable:1:subscriptionCheckbox" checked="true" />
+      <clickLink htmlId="userForm:createButtonLink" />
+      <!--  (2) success message -->
+      <common.handleMessageParameters property="infoMsg" value="${info.user.created}" att0="#{newUserId}" />
+      <common.verifySuccess label="#{infoMsg}" />
+
+      <!--  (3) redirect to overview -->
+      <verifyView view="marketplace/account/users.jsf" />
+
+      <verifyXPath xpath="//*[contains(text(),'#{newUserId}')]" />
+      <mpl_user.display userId="#{newUserId}" />
+
+      <!-- (4) all subscriptions are checked in editUser page -->
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="true" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testCreateUserWithoutSubscriptionAssignment">
+      <testInfo type="DESCRIPTION">testCreateUserWithoutSubscriptionAssignment : 
+                            create user and dont check any subscription
+                            Expected Outcome: 
+                            (1) success message 
+                            (2) redirect to overview page
+                            (3) no subscriptions are checked in edit page
+                  </testInfo>
+      <storeProperty name="newUserId" value="assignTestUser_03" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="#{newUserId}" createUniqueUserId="false" submit="false" />
+      <clickLink htmlId="userForm:createButtonLink" />
+
+      <!-- (1) success message -->
+      <common.handleMessageParameters property="infoMsg" value="${info.user.created}" att0="#{newUserId}" />
+      <common.verifySuccess label="#{infoMsg}" />
+
+      <!-- (2) redirect to overview page -->
+      <verifyView view="marketplace/account/users.jsf" />
+
+      <verifyXPath xpath="//*[contains(text(),'#{newUserId}')]" />
+      <mpl_user.display userId="#{newUserId}" />
+
+      <!-- (3) no subscriptions are checked in edit page -->
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="false" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_UserSupplier_finalCleanup">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+
+  </target>
+
+  <macrodef name="verifyView">
+    <attribute name="view" />
+    <sequential>
+      <common.getCurrentRequestUrl property="redirectedPageUrl" />
+      <common.numberOfOccurences substring="@{view}" string="#{redirectedPageUrl}" property="property_count" />
+      <verifyProperty name="property_count" text="1" />
+    </sequential>
+  </macrodef>
+</project>

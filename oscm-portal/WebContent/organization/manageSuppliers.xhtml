@@ -1,0 +1,136 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.manageSuppliers" />
+
+    <c:if test="#{not organizationBean.showConfirm}">
+      <c:set var="focusElement" value="techServiceId" />
+    </c:if>
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="selectForm">
+      <adm:outputStep value="#{msg['organization.manageSuppliers.selectTechnicalService']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu id="techServiceId" styleClass="select"
+            value="#{techServiceBean.selectedTechnicalServiceKeyReadonly}" onclick="AdmUtils.storeValue(this);"
+            onchange="if(AdmUtils.isNotDirtyOrConfirmed()){submit();}else{AdmUtils.restoreValue(this);}"
+            valueChangeListener="#{organizationBean.technicalServiceChanged}">
+            <adm:selectItemPleaseSelect itemValue="0" />
+            <c:forEach items="#{techServiceBean.technicalServices}" var="techService">
+              <f:selectItem itemLabel="#{techService.technicalServiceId}" itemValue="#{techService.key}" />
+            </c:forEach>
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="techServiceId" />
+      </adm:panelGrid>
+    </h:form>
+
+    <h:form id="addSupplierForm">
+      <h:inputHidden value="#{organizationBean.token}" />
+      <adm:outputStep value="#{msg['organization.manageSuppliers.addNewSupplier']}" />
+
+      <adm:panelGrid>
+        <adm:labelAndInputText id="supplierId" label="#{msg['organization.manageSuppliers.supplierId']}" required="true"
+          value="#{organizationBean.supplierIdToAdd}" styleClass="field" maxlength="#{appBean.idLen}"
+          disabled="#{empty techServiceBean.selectedTechnicalService}" validatorId="idChar" converterId="trimConverter" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="addSupplierButton" value="#{msg['button.add']}" bean="#{organizationBean}"
+          action="addSuppliersForTechnicalService" disabled="#{empty techServiceBean.selectedTechnicalService}"
+          buttonType="add" />
+      </adm:buttonPanel>
+    </h:form>
+
+    <h:form id="removeSuppliersForm"
+      rendered="#{(not empty techServiceBean.selectedTechnicalService) and (organizationBean.existSuppliersForTechnicalService)}">
+      <adm:outputStep value="#{msg['organization.manageSuppliers.table.title']}" />
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="supplierTable" value="#{organizationBean.suppliersForTechnicalService}"
+          height="#{sessionBean.tableHeightMap[270]}px" label="#{msg['organization.manageSuppliers.table.header']}">
+          <rich:column styleClass="checkBoxColumn">
+            <h:selectBooleanCheckbox id="checkboxId" value="#{rowItem.selected}" onchange="setDirty(true)"
+              immediate="true">
+              <a4j:ajax render="removeSuppliersForm:deleteButtonPanel" event="click" />
+            </h:selectBooleanCheckbox>
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.organizationId']}" />
+            </f:facet>
+            <h:outputText id="organizationId" value="#{rowItem.organizationId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.name']}" />
+            </f:facet>
+            <h:outputText id="name" value="#{rowItem.name}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.address']}" />
+            </f:facet>
+            <h:outputText id="address" value="#{rowItem.address}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <h:inputHidden id="confirmed" value="#{organizationBean.confirmed}" />
+      <h:inputHidden value="#{organizationBean.token}" />
+      <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+        value="#{msg['button.delete']}" action="#{organizationBean.removeSuppliersFromTechnicalService}" />
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}"
+          onclick="#{rich:element('confirmedButton')}.click();return false;"
+          disabled="#{not organizationBean.deleteSupplierEnabled}" buttonType="delete" />
+      </adm:buttonPanel>
+    </h:form>
+
+    <rich:popupPanel id="confirmPanel" onhide="setFocusToInputField();" show="#{organizationBean.showConfirm}" minWidth="400"
+      autosized="true">
+      <f:facet name="header">
+        <h:outputText value="#{msg['confirm.title']}" />
+      </f:facet>
+
+      <a4j:outputPanel id="confirmInstanceIds" layout="block" style="padding: 0px 15px 20px 10px;"
+        rendered="#{not empty organizationBean.instanceIdsForSuppliers}">
+
+        <h:outputText value="#{msg['confirm.suppliers.remove.instanceIds']}" />
+        <h:inputTextarea id="instanceIdsToDelete" rows="5" style="width:100%; background:#FFFFFF;" readonly="true"
+          value="#{organizationBean.instanceIdsForSuppliers}" onfocus="AdmUtils.setFocusBackgroundColor('#FFFFFF');"
+          onblur="AdmUtils.setFocusBackgroundColor('#{skinBean.properties.focusBackgroundColor}');" />
+
+      </a4j:outputPanel>
+      <a4j:outputPanel id="confirmDetails" layout="block" style="padding:10px;">
+        <h:outputText value="#{msg['confirm.suppliers.remove']}" />
+      </a4j:outputPanel>
+
+      <adm:buttonPanel columns="2" styleClass="buttonPanel relative">
+        <adm:buttonCustomizedOnClick id="confirmSaveButton" value="#{msg['button.yes']}" bean="#{organizationBean}"
+          onclick="#{rich:element('confirmed')}.value='true';#{rich:element('confirmedButton')}.click();return false;" buttonType="confirm" />
+        <adm:buttonCustomizedOnClick id="confirmCancelButton" value="#{msg['button.no']}"
+          onclick="#{rich:component('confirmPanel')}.hide();return false;" buttonType="cancel" />
+      </adm:buttonPanel>
+    </rich:popupPanel>
+
+    <script type="text/javascript">
+      function setFocusToInputField() {
+      	var element = #{rich:element('techServiceId')};
+          try {element.focus();} catch (e) {/* if the element cannot get the focus, ignore it */}
+      }
+    </script>
+  </ui:define>
+</ui:composition>

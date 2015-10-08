@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <OrganizationRole tkey="2" version="0" rolename="TECHNOLOGY_PROVIDER" />
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER" />
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR" />
+
+  <Organization tkey="1" version="0" organizationid="PLATFORM_OPERATOR" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+
+  <Marketplace tkey="2" organization_tkey="1" marketplaceid="supplier1" global="false" creationdate="0"
+    version="1" />
+  <Marketplace tkey="3" organization_tkey="1" marketplaceid="supplier2" global="false" creationdate="0"
+    version="1" />
+
+  <Organization tkey="2" version="0" organizationid="supplier1" registrationdate="1234"
+    localmarketplace_tkey="2" />
+  <Organization tkey="3" version="0" organizationid="supplier2" registrationdate="1234"
+    localmarketplace_tkey="3" />
+  <Organization tkey="4" version="0" organizationid="customer" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="5" version="0" organizationid="provider" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="4" />
+  <OrganizationToRole tkey="2" version="0" organization_tkey="2" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="3" version="0" organization_tkey="3" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="4" version="0" organization_tkey="3" organizationrole_tkey="2" />
+  <OrganizationToRole tkey="5" version="0" organization_tkey="4" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="6" version="0" organization_tkey="5" organizationrole_tkey="2" />
+
+</dataset>

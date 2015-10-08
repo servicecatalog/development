@@ -1,0 +1,716 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testGroup" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  <import file="../../macros/all.xml" />
+
+  <target name="testGroup" depends="testGroupOperate,testGroupTable,testGroupService,testGroupServiceTable" />
+
+  <target name="init">
+    <webtest name="setup">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="userId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="groupId" value="userGroup" propertyType="ant" />
+
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="groupDescription" value="userGroupDescription" propertyType="ant" />
+      <storeProperty name="serviceName" value="Trial" propertyType="ant" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <operator.createMarketplace mIdProperty="mId_New" ownerId="${supplierId}" baseurl="#{baseUrl}" name="globle Marketplace" />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="${userId}" password="#{userPwd}" />
+
+      <!--define service-->
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExampleTrial" name="${serviceName}" useParameters="false" svcKeyProperty="svcKey1"/>
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="true" description="Completely free"/>
+      <service.publish serviceId="ExampleTrial" marketplaceId="${mId}" />
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testGroupOperate" depends="init">
+    <webtest name="testDefaultGroup">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.profile />
+      <!-- bug11355 -->
+      <verifyXPath xpath="//*[@id='editForm:userId']" />
+      <verifyElementText htmlId="editForm:userId" text="${userId}" />
+      <!-- bug11194 -->
+      <verifyXPath xpath="//*[@id='editForm:userGroups']" />
+      <verifyElementText htmlId="editForm:userGroups" text="" />
+      <login.logout />
+    </webtest>
+
+    <!--addGroup-->
+    <webtest name="testGroupAdd">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_user.createGroup groupId="${groupId}" groupDescription="${groupDescription}" hasService="true" />
+      <clickElement htmlId="tabGroups:header" />
+      <!--bug11193 -->
+      <clickElement htmlId="tabUser:header" />
+      <setFileField htmlId="userListForm:file" fileName="../tests/data/importUsers_Operator.csv" />
+      <clickElement htmlId="tabGroups:header" />
+      <!--bug11126 -->
+      <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:1:deleteBt' and @title='${group.delete.title}']" />
+      <!--bug11115 -->
+      <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:0:groupNameText' and @class='stringInMultiLine preserveWhitespaces']" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testGroupCancel">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <!--clickElement xpath="//td[@id='groupsListForm:groupListTable:0:colEditGroup']/img[@class='editPen']" /-->
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:0:colEditGroup']/a/img[@class='editPen']" />
+      <clickLink htmlId="editGroupForm:cancelButton" />
+      
+      <clickElement htmlId="tabUser:header" />
+      <common.ignorePageScriptError/>
+      <clickElement xpath="//*[@id='editUserImage${userId}']" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickButton htmlId="editUserForm:saveButton" />
+
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <clickLink htmlId="editGroupForm:cancelButton" />
+      <clickElement xpath="//*[@style='white-space: nowrap;' and contains(text(), 'Yes')]" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyXPath xpath="//span[@id='editGroupForm:userTable:0:userId']" />
+      <verifyXPath xpath="//*[@class='deassignButton']" />
+      <clickButton htmlId="editGroupForm:userTable:0:deassignBt" />
+      <clickLink htmlId="deleteForm:deassignConfirmPlOkButton" />
+      <verifyXPath xpath="//*[@class='rich-messages box warning']" />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testGroupEdit">
+      <!--define userM and userN, both in userGroup-->
+      <mpl_login.user mid="${mId}" userId="${userId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="userM" firstname="first" lastname="last" isAdmin="true" />
+      <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
+      <clickElement xpath="//td[@id='userListForm:userListTable:1:colUserId']/..//img[@class='editPen']" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.create userId="userN" firstname="first" lastname="last" isAdmin="true" />
+      <storeProperty name="usernameN" value="#{userId}" propertyType="ant" />
+      <clickElement xpath="//td[@id='userListForm:userListTable:2:colUserId']/..//img[@class='editPen']" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+
+      <!--edit  userGroup-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+
+      <!--there are three users in userGroup-->
+      <verifyElementText htmlId="groupsListForm:groupListTable:1:numberOfUsers" text="3" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setInputField htmlId="editGroupForm:groupDescription" value="new${groupDescription}" />
+
+      <clickLink htmlId="editGroupForm:createButtonLink" />
+      <common.verifySuccess label="${groupId}" />
+
+      <!-- Bug 11184 -->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyElementText htmlId="editGroupForm:groupDescription" text="new${groupDescription}" />
+      <clickButton htmlId="editGroupForm:userTable:1:deassignBt" />
+      <clickLink htmlId="deleteForm:deassignConfirmPlOkButton" />
+      <mpl_goto.account.users />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+      
+      <!--delete user in userGroup-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyElementText htmlId="editGroupForm:groupDescription" text="new${groupDescription}" />
+      <clickButton htmlId="editGroupForm:userTable:1:deassignBt" />
+      <clickLink htmlId="deleteForm:deassignConfirmPlOkButton" />
+      <clickLink htmlId="editGroupForm:createButtonLink" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage${userId}" />
+      <not>
+        <verifyXPath xpath="//input[@id='editUserForm:userGroupsTable:1:groupsCheckbox']/@checked='false'" />
+      </not>
+
+      <!--search user in userGroup-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyElementText htmlId="editGroupForm:userTable:1:userId" text="${usernameN}" />
+
+      <!--delete userM and userN -->
+      <mpl_user.deleteUser userId="${usernameM}" row="1" />
+      <mpl_user.deleteUser userId="${usernameN}" row="1" />
+
+    </webtest>
+
+    <webtest name="testGroupEdit_modifyService">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:0:colEditGroup']/a/img[@class='editPen']" />
+      <verifyCheckbox xpath="//input[@id='editGroupForm:servicesTable:0:serviceCheckbox']" checked="true" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:0:serviceCheckbox" checked="false" />
+      <clickButton htmlId="editGroupForm:createButton" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:0:colEditGroup']/a/img[@class='editPen']" />
+      <verifyCheckbox xpath="//input[@id='editGroupForm:servicesTable:0:serviceCheckbox']" checked="false" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:0:serviceCheckbox" checked="true" />
+      <clickButton htmlId="editGroupForm:createButton" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testEditAndAssignUsers">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+
+      <clickElement htmlId="tabUser:header" />
+      <!--mpl_user.editCheckboxValue userId="${userId}" fieldId="editUserForm:userGroupsTable:0:groupsCheckbox" fieldValue="true" /-->
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="editUserImage${userId}" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickButton htmlId="editUserForm:saveButton" />
+
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <common.waitForJavaScript timeout="5000" />
+
+      <!--bug11107-->
+      <clickElement xpath="//a[@id='editGroupForm:assignUsers']" />
+      <verifyXPath xpath="//*[@id='errorMessages']" text="${info.subscriptions.noMoreUsersForAssignment}" />
+    	
+
+      <clickElement htmlId="editGroupForm:createButtonLink" />
+      <common.verifySuccess label="${groupId}" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyXPath xpath="//table[@id='editGroupForm:userTable']" />
+
+      <!--create userN -->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.create userId="userN" firstname="first" lastname="last" isAdmin="true" />
+      <storeProperty name="usernameN" value="#{userId}" propertyType="ant" />
+
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <!--AssignUsers isabled-->
+      <verifyXPath xpath="//a[@id='editGroupForm:assignUsers']" />
+      <mpl_user.deleteUser userId="${usernameN}" row="1" />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testGroupDelete">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_user.deleteGroup rowId="1" groupName="${groupId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="userListForm:addUserButtonLink" />
+      <not>
+        <verifyXPath xpath="//*[@text()='${groupId}']" />
+      </not>
+      <mpl_login.logout />
+      <common.reSetPageScriptError/>
+    </webtest>
+  </target>
+
+  <target name="testGroupTable" depends="init">
+    <!-- Setup environment with group -->
+    <webtest name="testMPL_createGroups">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_user.createGroups mid="${mId}" number="22" offset="10" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_groupPaging">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_user.groupPage page="arrow_next" groupNumber="10" groupName="20" />
+      <mpl_user.groupPage page="arrow_last" groupNumber="20" groupName="30" />
+      <mpl_user.groupPage page="arrow_back" groupNumber="10" groupName="20" />
+      <mpl_user.groupPage page="arrow_start" groupNumber="0" groupName="10" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="groupsListForm:groupListTable:groupListPager_ds_next" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:11:groupName" text="21" />
+
+    </webtest>
+
+    <webtest name="testMPL_deleteGroups">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.deleteGroups number="22" offset="10" />
+    </webtest>
+  </target>
+
+  <target name="testGroupService" depends="init">
+    <webtest name="testServiceVisibility">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+
+      <!--get service Url-->
+      <mpl_goto.page mid="${mId}" relpath="index.jsf" />
+      <clickElement htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.getCurrentRequestUrl property="tmp.currentRequestUrl" />
+      <mpl_login.logout />
+
+      <!--create userM in group userGroup-->
+      <mail.cleanInbox />
+      <mpl_login.user mid="${mId}" userId="${userId}" />
+      <mpl_goto.account.users />
+      
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.create userId="userM" firstname="first" lastname="last" isSubMgr="true" isSvcMgr="true" />
+
+      <mpl_login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="${usernameM}" password="#{userPwd}" />
+      <login.logout />
+
+      <!-- userM subscribtion -->
+      <mpl_login.user userId="${usernameM}" mid="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <common.ignorePageScriptError />
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="mySubscription" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <mpl_goto.account.subscriptions />
+      <verifyElementText htmlId="pageHeader" text="Available to administrate" />
+      <mpl_login.logout />
+
+
+      <!--create group-->
+      <mpl_goto.GroupsTab mid="${mId}" userId="${userId}" />
+      <mpl_user.createGroup groupId="${groupId}" groupDescription="${groupDescription}" hasService="false" />
+
+      <!-- add user for group-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage${usernameM}" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+
+
+      <!--check in homePage, no service is accessible-->
+      <mpl_login.user userId="${usernameM}" mid="${mId}" />
+      <mpl_goto.page mid="${mId}" relpath="index.jsf" />
+      <not>
+        <verifyXPath xpath="//*[@text()='${button.showDetails}']" />
+      </not>
+
+      <!--check in browseAllServices, serviceCount is 0-->
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="0" />
+
+      <!--Subscriptions are not affected by ServiceVisibility -->
+      <mpl_goto.account.subscriptions />
+      <verifyElementText htmlId="pageHeader" text="Available to administrate" />
+
+      <!--search service-->
+      <setInputField htmlId="Search" value="${serviceName}" />
+      <not>
+        <verifyXPath xpath="//*[@text()='${button.showDetails}']" />
+      </not>
+      <mpl_login.logout />
+
+      <!--access service using serviceUrl-->
+      <mpl_login.user userId="${usernameM}" mid="${mId}" />
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/serviceDetails.jsf?selectedServiceKey=${svcKey1}&amp;mId=${mId}"/>
+      <verifyXPath xpath="//*[@id='linkMPHomePage']" />
+
+      <!--clean-->
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+      <mpl_user.deleteGroup rowId="1" groupName="${groupId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <mpl_user.deleteUser userId="${usernameM}" row="1"/>
+      <mpl_login.logout />
+      <common.reSetPageScriptError />
+    </webtest>
+
+
+    <webtest name="testServiceVisibleToAllGroup">
+      <!--service is visible to all the groups-->
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement htmlId="groupsListForm:addGroupButton" />
+      <verifyXPath xpath="//*[@id='groupForm:servicesTable:0:serviceCheckbox']" />
+    </webtest>
+
+    <webtest name="testDefaultGroupUserAccessService">
+      <!--set service of default group checked -->
+      <mpl_goto.GroupsTab mid="${mId}" userId="${userId}" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:0:colEditGroup']/a/img[@class='editPen']" />
+      <setCheckbox name="editGroupForm:servicesTable:0:serviceCheckbox" checked="true" />
+      <clickLink htmlId="editGroupForm:createButtonLink" />
+      <login.logout />
+
+      <!--create userL-->
+      <mail.cleanInbox />
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_goto.tab label="${subscription.users}" />
+      <mpl_user.create userId="userL" firstname="first" lastname="last" isSvcMgr="true" />
+      <storeProperty name="usernameL" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <!--check userL can access service-->
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="${usernameL}" password="#{userPwd}" />
+      <login.logout />
+      <mpl_login.user userId="${usernameL}" mid="${mId}" />
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="1" />
+      <mpl_login.logout />
+
+      <!--set default group service unchecked -->
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:0:colEditGroup']/a/img[@class='editPen']" />
+      <setCheckbox name="editGroupForm:servicesTable:0:serviceCheckbox" checked="false" />
+      <clickLink htmlId="editGroupForm:createButtonLink" />
+      <mpl_login.logout />
+
+      <!--check userL can not access service-->
+      <mpl_login.user userId="${usernameL}" mid="${mId}" />
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="0" />
+      <mpl_login.logout />
+    </webtest>
+
+    <!-- Setup environment with group -->
+    <webtest name="testMPL_serviceAccessibility">
+
+      <!--create   userGroup1 and userGroup2,default group service unchecked -->
+      <mpl_goto.GroupsTab mid="${mId}" userId="${userId}" />
+      <mpl_user.createGroup groupId="${groupId}1" groupDescription="${groupDescription}" hasService="true" />
+      <mpl_user.createGroup groupId="${groupId}2" groupDescription="${groupDescription}" hasService="false" />
+
+      <!--userL belong to both userGroup1 and userGroup2-->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="editUserImage${usernameL}" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+      <mpl_login.logout />
+
+      <!--userL can access service-->
+      <mpl_login.user userId="${usernameL}" mid="${mId}" />
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="1" />
+      <mpl_login.logout />
+
+      <!-- service is not accessible for userGroup1-->
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+      <mpl_user.deleteGroup rowId="1" groupName="${groupId}" />
+      <mpl_user.createGroup groupId="${groupId}1" groupDescription="${groupDescription}" hasService="false" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage${userId}" />
+      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
+      <mpl_login.logout />
+
+      <!--userL can not access service-->
+      <mpl_login.user userId="${usernameL}" mid="${mId}" />
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="0" />
+      <mpl_login.logout />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testUserInDifferentMPL">
+      <!--publish service in mId_New-->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${userId}" />
+      <service.deActivate rowNr="0" active="false" />
+      <service.publish serviceId="ExampleTrial" marketplaceId="${mId_New}" />
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+      <!--user can not access service same to in mId-->
+      <mpl_login.user userId="${usernameL}" mid="${mId_New}" />
+      <clickElement htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText htmlId="serviceCount" text="0" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testEditAndDeleteUserGroup_bug11106">
+      <!--click row edit UserGroup -->
+      <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyElementText htmlId="editGroupForm:labelgroupId" text="Name" />
+
+      <!--delete UserGroup -->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement htmlId="groupsListForm:groupListTable:1:deleteBt" />
+      <clickElement htmlId="deleteGroupForm:deleteConfirmPlOkButton" />
+      <common.verifySuccess label="${groupId}1" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="testGroupServiceTable">
+    <webtest name="setup_ServiceTable">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="userId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="groupId" value="userGroup" propertyType="ant" />
+      <storeProperty name="groupDescription" value="userGroupDescription" propertyType="ant" />
+      <storeProperty name="serviceName" value="Trial" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="MarketplaceA" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="${userId}" password="#{userPwd}" />
+
+      <!--define service-->
+      <techservice.import file="${techService.import.file}" />
+      <repeat count="11" counterName="count">
+        <storeProperty name="index" value="(#{count} + 10)" eval="true" />
+        <service.defineWithoutParams serviceId="ExampleTrial#{index}" name="${serviceName}#{index}" techServiceId="Example 1.00" />
+        <setup:pricemodel.define serviceId="ExampleTrial#{index}" isFree="true"  description="Completely free"/>        
+        <service.publish serviceId="ExampleTrial#{index}" marketplaceId="${mId}" />
+        <service.deActivate rowNr="#{count}" active="true" />
+      </repeat>
+      <login.logout />
+    </webtest>
+
+    <!--change serviceTable page-->
+    <webtest name="testMPL_ServiceTablePager">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_user.createGroup groupId="${groupId}" groupDescription="${groupDescription}" hasService="true" />
+
+      <mpl_user.servicePage page="arrow_next" number="10" serviceName="Trial20" />
+      <mpl_user.servicePage page="arrow_back" number="0" serviceName="Trial10" />
+      <mpl_user.servicePage page="arrow_last" number="10" serviceName="Trial20" />
+      <mpl_user.servicePage page="arrow_start" number="0" serviceName="Trial10" />
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setInputField htmlId="editGroupForm:servicesTable:editGroupServiceListPagerpageValue" value="2" />
+      <clickElement htmlId="editGroupForm:servicesTable:editGroupServiceListPagerpagerButton" />
+      <verifyElementText htmlId="editGroupForm:servicesTable:10:serviceName" text="Trial20" />
+      
+      <!-- bug11189 bug11190 -->
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <repeat count="11">
+        <mpl_user.create userId="usr#{count}" firstname="first" lastname="last" isAdmin="false" />
+      </repeat>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement htmlId="groupsListForm:addGroupButton" />
+      
+      <!--Bug 11158-->
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:allServiceCheckbox']" checked="true" />
+      <setCheckbox htmlId="groupForm:servicesTable:0:serviceCheckbox" checked="false" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:allServiceCheckbox']" checked="false" />
+      <setCheckbox htmlId="groupForm:servicesTable:0:serviceCheckbox" checked="true" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:allServiceCheckbox']" checked="true" />
+      <setCheckbox htmlId="groupForm:servicesTable:allServiceCheckbox" checked="false" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:0:serviceCheckbox']" checked="false" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:9:serviceCheckbox']" checked="false" />
+        
+      <setInputField htmlId="groupForm:servicesTable:filterServiceName" value="Trial16" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:allServiceCheckbox']" checked="false" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:6:serviceCheckbox']" checked="false" />
+      <setCheckbox htmlId="groupForm:servicesTable:allServiceCheckbox" checked="true" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:6:serviceCheckbox']" checked="true" />
+      <setInputField htmlId="groupForm:servicesTable:filterServiceName" value="Trial" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:5:serviceCheckbox']" checked="false" />
+      <verifyCheckbox xpath="//*[@id='groupForm:servicesTable:6:serviceCheckbox']" checked="true" />
+      <setCheckbox htmlId="groupForm:servicesTable:allServiceCheckbox" checked="true" />
+      
+      <clickElement htmlId="groupForm:assignUsers" />
+      <setCheckbox htmlId="assignUsersPanelForAddGroupForm:userTable:1:assignCheckbox" checked="true" />
+      <clickElement htmlId="assignUsersPanelForAddGroupForm:saveButton" />
+      <not>
+        <verifyXPath xpath="//*[@id='userListForm:userListTable:userListPagerpageValue']" />
+        <verifyXPath xpath="//*[@id='userListForm:userListTable:userListPagerpagerButton']" />
+      </not>
+      
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ServiceTableFilter">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setInputField htmlId="editGroupForm:servicesTable:filterServiceName" value="a" />
+      <not>
+        <verifyXPath xpath="//span[@id='editGroupForm:servicesTable:0:serviceName']" />
+      </not>
+
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setInputField htmlId="editGroupForm:servicesTable:filterServiceName" value="Trial10" />
+      <verifyElementText htmlId="editGroupForm:servicesTable:0:serviceName" text="Trial10" />
+      <verifyCheckbox xpath="//*[@id='editGroupForm:servicesTable:0:serviceCheckbox']" checked="true" />
+
+      <not>
+        <verifyXPath xpath="//a[@id='editGroupForm:servicesTable:editGroupServiceListPagerPanel']" />
+      </not>
+
+      <setCheckbox htmlId="editGroupForm:servicesTable:allServiceCheckbox" checked="true" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:allServiceCheckbox" checked="false" />
+      <verifyCheckbox xpath="//*[@id='editGroupForm:servicesTable:0:serviceCheckbox']" checked="false" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:0:serviceCheckbox" checked="true" />
+
+      <not>
+        <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:1:serviceName']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ServiceTableSelectAll">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:1:serviceCheckbox" checked="false" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:2:serviceCheckbox" checked="false" />
+      <clickButton htmlId="editGroupForm:createButton" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:allServiceCheckbox" checked="true" />
+      <clickButton htmlId="editGroupForm:createButton" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <verifyCheckbox xpath="//input[@id='editGroupForm:servicesTable:1:serviceCheckbox']" checked="true" />
+      <verifyCheckbox xpath="//input[@id='editGroupForm:servicesTable:2:serviceCheckbox']" checked="true" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ServiceTableSelectAllverifyPage">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:1:serviceCheckbox" checked="false" />
+      <mpl_user.servicePage page="arrow_next" number="9" serviceName="Trial19" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:9:serviceCheckbox" checked="false" />
+
+      <clickButton htmlId="editGroupForm:createButton" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <mpl_user.servicePage page="arrow_back" number="0" serviceName="Trial10" />
+      <setCheckbox htmlId="editGroupForm:servicesTable:allServiceCheckbox" checked="true" />
+      <mpl_user.servicePage page="arrow_next" number="9" serviceName="Trial19" />
+      <verifyCheckbox xpath="//*[@id='editGroupForm:servicesTable:9:serviceCheckbox']" checked="false" />
+    </webtest>
+
+    <webtest name="testMPL_ServiceTableSorter">
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <clickElement htmlId="editGroupForm:servicesTable:colServiceName" />
+      <clickElement htmlId="editGroupForm:servicesTable:colServiceName" />
+      <verifyElementText htmlId="editGroupForm:servicesTable:10:serviceName" text="Trial20" />
+      <clickElement htmlId="editGroupForm:servicesTable:colServiceName" />
+      <verifyElementText htmlId="editGroupForm:servicesTable:0:serviceName" text="Trial10" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <!--change serviceTable pages-->
+  <macrodef name="mpl_user.servicePage">
+    <attribute name="page" />
+    <attribute name="number" />
+    <attribute name="serviceName" />
+    <sequential>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a/img[@class='editPen']" />
+      <clickElement xpath="//*[contains(@class,'@{page}')]" />
+      <verifyElementText htmlId="editGroupForm:servicesTable:@{number}:serviceName" text="@{serviceName}" />
+    </sequential>
+  </macrodef>
+
+  <!--goto groupsTab-->
+  <macrodef name="mpl_goto.GroupsTab">
+    <attribute name="userId" />
+    <attribute name="mid" />
+    <sequential>
+      <mpl_login.user userId="${userId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+    </sequential>
+  </macrodef>
+
+  <!--change pages-->
+  <macrodef name="mpl_user.groupPage">
+    <attribute name="page" default="" />
+    <attribute name="groupNumber" default="" />
+    <attribute name="groupName" default="" />
+    <sequential>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header" />
+      <mpl_goto.account.users />
+      <clickElement xpath="//*[contains(@class,'@{page}')]" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:@{groupNumber}:groupName" text="@{groupName}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.editCheckboxValue">
+    <attribute name="userId" />
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <sequential>
+      <mpl_user.display userId="@{userId}" />
+      <storeXPath xpath="//input[@id='@{fieldId}']/@value" property="oldFieldValue" />
+      <setCheckbox htmlId="@{fieldId}" checked="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.deleteUser">
+    <attribute name="userId" />
+    <attribute name="row" />
+    <sequential>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabUser:header" />
+      <clickElement htmlId="editUserImage@{userId}" />
+      <clickLink label="${button.delete}" />
+      <mpl_user.confirmPanel title="${marketplace.account.delete.title}" confirm="true" />
+      <mpl_verify.success label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+</project>
+

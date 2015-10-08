@@ -1,0 +1,113 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.addCustomer" />
+    <c:set var="focusElement" value="editForm:salutation" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{platformSettingsCtrl.initialize}" />
+
+    <h:form id="editForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('file')});">
+
+      <adm:outputStep value="#{msg['organization.addCustomer.step1']}" />
+      <adm:panelGrid>
+
+        <adm:labelAndSelect id="salutation" label="#{msg['user.salutation']}"
+          value="#{organizationBean.customerUserToAdd.salutation}" styleClass="selectXS">
+          <adm:salutationItems />
+        </adm:labelAndSelect>
+
+        <adm:userName firstNameId="firstName" firstNameValue="#{organizationBean.customerUserToAdd.firstName}"
+          lastNameId="lastName" lastNameValue="#{organizationBean.customerUserToAdd.lastName}" />
+
+        <adm:labelAndInputText id="email" label="#{msg['user.email']}" required="true"
+          value="#{organizationBean.customerUserToAdd.email}" maxlength="#{appBean.nameLen}" validatorId="email"
+          converterId="trimConverter" />
+
+        <adm:labelAndInputText id="userId" label="#{msg['public.registration.userId']}" required="true"
+          value="#{organizationBean.customerUserToAdd.userId}" maxlength="#{appBean.userIdLen}" validatorId="userId"
+          converterId="trimConverter" />
+
+        <adm:labelAndSelect id="locale" label="#{msg['organization.locale']}"
+          value="#{organizationBean.customerToAdd.locale}" styleClass="select">
+          <adm:localeItems />
+          <f:validator validatorId="SupportedLanguageValidator" />
+        </adm:labelAndSelect>
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['organization.addCustomer.step2']}" />
+      <adm:panelGrid>
+        <adm:labelAndInputText id="organizationName" label="#{msg['organization.name']}"
+          value="#{organizationBean.customerToAdd.name}" converterId="trimConverter" styleClass="field"
+          maxlength="#{appBean.nameLen}" />
+
+        <adm:labelAndInputText id="organizationEmail" label="#{msg['organization.email']}"
+          value="#{organizationBean.customerToAdd.email}" styleClass="field" maxlength="#{appBean.nameLen}"
+          validatorId="email" converterId="trimConverter" />
+
+        <adm:labelAndInputText id="organizationPhone" label="#{msg['organization.phone']}"
+          value="#{organizationBean.customerToAdd.phone}" styleClass="field" maxlength="#{appBean.nameLen}"
+          converterId="trimConverter" />
+
+        <adm:labelAndInputText id="organizationUrl" label="#{msg['organization.url']}"
+          value="#{organizationBean.customerToAdd.url}" styleClass="field" maxlength="#{appBean.descriptionLen}"
+          validatorId="url" converterId="trimConverter" />
+
+        <adm:labelAndInputTextarea id="organizationAddress" label="#{msg['organization.address']}"
+          value="#{organizationBean.customerToAdd.address}" styleClass="field" maxlength="#{appBean.descriptionLen}"
+          converterId="trimConverter" />
+
+        <adm:labelAndSelect id="country" label="#{msg['common.country']}"
+          value="#{organizationBean.customerToAdd.domicileCountry}" styleClass="select" required="true">
+          <adm:countryItems supportedCountries="#{countryBean.supportedCountryCodesForCustomer}" />
+        </adm:labelAndSelect>
+
+        <adm:labelAndInputTextarea id="organizationDescription" label="#{msg['organization.description']}"
+          maxlength="#{appBean.descriptionLen}" value="#{organizationBean.customerToAdd.description}" styleClass="field" />
+
+        <adm:labelAndSelect id="marketplace" label="#{msg['service.marketplace']}"
+          value="#{organizationBean.marketplaceId}" required="true">
+          <adm:selectItemPleaseSelect itemValue="" />
+          <c:forEach items="#{marketplaceBean.marketplacesForSupplier}" var="mp">
+            <f:selectItem itemLabel="#{mp.displayName}" itemValue="#{mp.marketplaceId}" />
+          </c:forEach>
+        </adm:labelAndSelect>
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['organization.addCustomer.step3']}" rendered="#{organizationBean.internalAuthMode}"/>
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['organization.addCustomer.useLdap']}" rendered="#{organizationBean.internalAuthMode}"/>
+        <h:selectBooleanCheckbox id="ldapBasedUserMgmt" value="#{organizationBean.ldapManaged}" rendered="#{organizationBean.internalAuthMode}">
+          <a4j:ajax event="click" render="ldapFile,ldapSettingsTable"
+            oncomplete="setDirty(true);AdmUtils.setUIElements()" />
+        </h:selectBooleanCheckbox>
+        <h:panelGroup  rendered="#{organizationBean.internalAuthMode}"/>
+      </adm:panelGrid>
+
+      <a4j:outputPanel id="ldapSettingsTable" layout="block" rendered="#{organizationBean.internalAuthMode}">
+        <a4j:outputPanel layout="block" rendered="#{organizationBean.ldapManaged}">
+          <ui:include src="../operator/ldapPlatformSettings.xhtml" />
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+      <adm:panelGrid panelId="ldapFile" rendered="#{organizationBean.internalAuthMode}">
+        <adm:fileUpload label="organization.settings" rendered="#{organizationBean.ldapManaged}"
+          value="#{organizationBean.organizationProperties}" disabled="#{editDisabled}"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{organizationBean}" action="addCustomer"
+          buttonType="save" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

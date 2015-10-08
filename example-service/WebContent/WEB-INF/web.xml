@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+  version="2.4">
+
+  <display-name>Example Service</display-name>
+
+  <!-- Define session timeout value -->
+  <session-config>
+    <session-timeout>60</session-timeout>
+  </session-config>
+
+  <!-- servlet>
+     <servlet-name>SOAPMonitorService</servlet-name>
+     <servlet-class>
+       org.apache.axis2.soapmonitor.servlet.SOAPMonitorService
+     </servlet-class>
+     <init-param>
+        <param-name>SOAPMonitorPort</param-name>
+        <param-value>5001</param-value>
+     </init-param>
+     <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet-mapping>
+      <servlet-name>SOAPMonitorService</servlet-name>
+      <url-pattern>/SOAPMonitor</url-pattern>
+  </servlet-mapping -->
+
+  <servlet>
+    <servlet-name>ExampleServlet</servlet-name>
+    <servlet-class>org.oscm.example.servlets.ExampleServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>ExampleServlet</servlet-name>
+    <url-pattern>/login</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>ExampleServlet</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+
+  <servlet>
+    <servlet-name>SimpleLoginServlet</servlet-name>
+    <servlet-class>org.oscm.example.servlets.SimpleLoginServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>SimpleLoginServlet</servlet-name>
+    <url-pattern>/simple/login</url-pattern>
+  </servlet-mapping>
+
+  <!-- Axis configuration -->
+  <servlet>
+    <display-name>
+    Apache-Axis Servlet</display-name>
+    <servlet-name>AxisServlet</servlet-name>
+    <servlet-class>
+    org.apache.axis2.transport.http.AxisServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/servlet/AxisServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>*.jws</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AxisServlet</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+
+  <error-page>
+  	<error-code>404</error-code>
+  	<location>/axis2-web/Error/error404.jsp</location>
+  </error-page>
+  <error-page>
+  	<error-code>500</error-code>
+  	<location>/axis2-web/Error/error500.jsp</location>
+  </error-page>
+  
+</web-app>

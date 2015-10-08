@@ -1,0 +1,195 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.createOrganization" />
+    <c:set var="focusElement" value="editForm:administratorSalutation" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{platformSettingsCtrl.initialize}" />
+    <h:form id="editForm" enctype="multipart/form-data"
+      onsubmit="return AdmUtils.ie7UploadValidation(#{rich:element('image')});">
+      <a4j:outputPanel id="createOrganizationPanel" layout="block">
+        <ui:param name="isCustomerOrg" value="#{operatorOrgBean.customerOrganization}" />
+        <ui:param name="isSupplierOrg" value="#{operatorOrgBean.newSupplier}" />
+        <adm:outputStep value="#{msg['operator.createOrganization.step2']}" />
+        <adm:panelGrid>
+
+          <adm:labelAndSelect id="administratorSalutation" label="#{msg['user.salutation']}"
+            value="#{operatorOrgBean.newAdministrator.salutation}" styleClass="selectXS">
+            <adm:salutationItems />
+          </adm:labelAndSelect>
+
+          <adm:userName firstNameId="administratorFirstName"
+            firstNameValue="#{operatorOrgBean.newAdministrator.firstName}" lastNameId="administratorLastName"
+            lastNameValue="#{operatorOrgBean.newAdministrator.lastName}" />
+
+          <adm:labelAndInputText id="administratorEmail" label="#{msg['user.email']}" required="true"
+            value="#{operatorOrgBean.newAdministrator.EMail}" maxlength="#{appBean.nameLen}" validatorId="email"
+            converterId="trimConverter" />
+
+          <adm:labelAndInputText id="administratorUserId" label="#{msg['public.registration.userId']}" required="true"
+            value="#{operatorOrgBean.newAdministrator.userId}" maxlength="#{appBean.userIdLen}" validatorId="userId"
+            converterId="trimConverter" />
+
+          <adm:labelAndSelect id="administratorLocale" label="#{msg['user.locale']}" required="true"
+            value="#{operatorOrgBean.newAdministrator.locale}" styleClass="select">
+            <adm:localeItems />
+            <f:validator validatorId="SupportedLanguageValidator" />
+          </adm:labelAndSelect>
+
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['operator.createOrganization.step1']}" />
+
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['operator.createOrganization.role']}" />
+          <t:div>
+            <h:selectBooleanCheckbox id="checkboxRoleSupplier" value="#{operatorOrgBean.newSupplier}" disabled="false"
+              valueChangeListener="#{operatorOrgBean.newSupplierRoleChanged}" immediate="true">
+              <a4j:ajax render="createOrganizationPanel" immediate="true" bypassUpdates="true" event="click"
+                onbeforedomupdate="var e=#{rich:element('operatorRevenueShare')};if (e!=null){AdmUtils.storeValue(e);} return false;"
+                onbegin="AdmUtils.storeFormState('#editForm');"
+                oncomplete="setDirty(true);AdmUtils.setUIElements();var e=#{rich:element('operatorRevenueShare')};if(e!=null){AdmUtils.restoreValue(e);} AdmUtils.restoreFormState(); return false;" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.supplier']}" />
+          </t:div>
+          <adm:message for="checkboxRoleSupplier" />
+
+          <adm:nbsp />
+          <t:div>
+            <h:selectBooleanCheckbox id="checkboxRoleTechnologyProvider"
+              value="#{operatorOrgBean.newTechnologyProvider}" disabled="false"
+              valueChangeListener="#{operatorOrgBean.newTechnologyProviderRoleChanged}" immediate="true">
+              <a4j:ajax render="createOrganizationPanel" immediate="true" bypassUpdates="true" event="click"
+                onbegin="AdmUtils.storeFormState('#editForm');"
+                oncomplete="setDirty(true);AdmUtils.setUIElements(); AdmUtils.restoreFormState();" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.technologyProvider']}" />
+          </t:div>
+          <adm:message for="checkboxRoleTechnologyProvider" />
+
+          <adm:nbsp />
+          <t:div>
+            <h:selectBooleanCheckbox id="checkboxRoleReseller" value="#{operatorOrgBean.newReseller}" disabled="false"
+              valueChangeListener="#{operatorOrgBean.newResellerRoleChanged}" immediate="true">
+              <a4j:ajax render="createOrganizationPanel" immediate="true" bypassUpdates="true" event="click"
+                onbegin="AdmUtils.storeFormState('#editForm');"
+                oncomplete="setDirty(true);AdmUtils.setUIElements(); AdmUtils.restoreFormState();" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.reseller']}" />
+          </t:div>
+          <adm:message for="checkboxRoleReseller" />
+
+          <adm:nbsp />
+          <t:div>
+            <h:selectBooleanCheckbox id="checkboxRoleBroker" value="#{operatorOrgBean.newBroker}" disabled="false"
+              valueChangeListener="#{operatorOrgBean.newBrokerRoleChanged}" immediate="true">
+              <a4j:ajax render="createOrganizationPanel" immediate="true" bypassUpdates="true" event="click"
+                onbegin="AdmUtils.storeFormState('#editForm');"
+                oncomplete="setDirty(true);AdmUtils.setUIElements(); AdmUtils.restoreFormState();" />
+            </h:selectBooleanCheckbox>
+            <h:outputLabel value="#{msg['organization.role.name.broker']}" />
+          </t:div>
+          <adm:message for="checkboxRoleBroker" />
+
+
+          <adm:labelAndInputText id="operatorRevenueShare" label="#{msg['supplier.operatorRevenueShare']}"
+            value="#{operatorOrgBean.newOrganization.operatorRevenueShare}" maxlength="#{appBean.percentValueLen}"
+            converterId="bigDecimal.converter" validatorId="revenueShareValue" required="true" rendered="#{isSupplierOrg}" >
+          </adm:labelAndInputText>
+
+          <adm:labelAndInputText id="organizationName" label="#{msg['organization.name']}"
+            value="#{operatorOrgBean.newOrganization.name}" maxlength="#{appBean.nameLen}" converterId="trimConverter"
+            required="#{not isCustomerOrg}" />
+
+          <adm:labelAndInputText id="organizationEmail" label="#{msg['organization.email']}"
+            value="#{operatorOrgBean.newOrganization.email}" maxlength="#{appBean.nameLen}" validatorId="email"
+            converterId="trimConverter" required="#{not isCustomerOrg}" />
+
+          <adm:labelAndInputText id="organizationPhone" label="#{msg['organization.phone']}"
+            value="#{operatorOrgBean.newOrganization.phone}" maxlength="#{appBean.nameLen}" styleClass="field"
+            required="#{not isCustomerOrg}" converterId="trimConverter" />
+
+
+          <adm:labelAndInputText id="organizationUrl" label="#{msg['organization.url']}"
+            value="#{operatorOrgBean.newOrganization.url}" maxlength="#{appBean.descriptionLen}" validatorId="url"
+            styleClass="field" required="#{not isCustomerOrg}" converterId="trimConverter" />
+
+          <adm:imageUpload messagePrefix="organization" imageDefined="#{operatorOrgBean.newOrganization.imageDefined}"
+            imageUrl="/image?type=ORGANIZATION_IMAGE&amp;sId=#{operatorOrgBean.newOrganization.key}"
+            uploader="#{operatorOrgBean.imageUploader}" rendered="#{not isCustomerOrg}" sizeFunction="profileImageSize"
+            sizeError="#{msg['organization.image.hint']}" />
+
+
+          <adm:labelAndSelect id="organizationLocale" label="#{msg['organization.locale']}"
+            value="#{operatorOrgBean.newOrganization.locale}" styleClass="select" required="true">
+            <adm:localeItems />
+            <f:validator validatorId="SupportedLanguageValidator" />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputTextarea id="organizationAddress" label="#{msg['organization.address']}"
+            value="#{operatorOrgBean.newOrganization.address}" styleClass="field" maxlength="#{appBean.descriptionLen}"
+            converterId="trimConverter" required="#{not isCustomerOrg}" />
+
+          <adm:labelAndSelect id="organizationCountry" label="#{msg['common.country']}"
+            value="#{operatorOrgBean.newOrganization.domicileCountry}" styleClass="select" required="true">
+            <adm:countryItems supportedCountries="#{countryBean.supportedCountryCodesForCustomer}" />
+          </adm:labelAndSelect>
+
+          <adm:labelAndInputTextarea id="organizationDescription" label="#{msg['organization.description']}"
+            value="#{operatorOrgBean.newOrganization.description}" styleClass="field"
+            maxlength="#{appBean.descriptionLen}" />
+
+          <adm:labelAndSelect id="marketplace" label="#{msg['service.marketplace']}"
+            value="#{operatorOrgBean.selectedMarketplace}" rendered="#{isCustomerOrg}" required="true">
+            <adm:selectItemPleaseSelect itemValue="" />
+            <f:selectItems value="#{operatorOrgBean.selectableMarketplaces}" />
+          </adm:labelAndSelect>
+
+        </adm:panelGrid>
+        <script>
+			//<![CDATA[
+				function profileImageSize(w,h){
+					return w<= 154 && h<=154;
+				}
+				//]]>
+		  </script>
+      </a4j:outputPanel>
+
+      <a4j:outputPanel id="createOrganizationFileChooserPanel" layout="block" rendered="#{operatorOrgBean.ldapSettingVisible}">
+        <adm:outputStep value="#{msg['operator.createOrganization.step3']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['operator.createOrganization.useLdap']}" />
+          <h:selectBooleanCheckbox id="ldapBasedUserMgmt" value="#{operatorOrgBean.ldapManaged}">
+            <a4j:ajax event="click" render="ldapFile,ldapSettingsTable"
+              oncomplete="setDirty(true);AdmUtils.setUIElements();" />
+          </h:selectBooleanCheckbox>
+          <h:panelGroup/>
+        </adm:panelGrid>
+      </a4j:outputPanel>
+
+      <a4j:outputPanel id="ldapSettingsTable" layout="block">
+        <a4j:outputPanel layout="block" rendered="#{operatorOrgBean.ldapManaged}">
+          <ui:include src="../operator/ldapPlatformSettings.xhtml" />
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+      <adm:panelGrid panelId="ldapFile">
+        <adm:fileUpload label="organization.settings" rendered="#{operatorOrgBean.ldapManaged}"
+          value="#{operatorOrgBean.organizationProperties}" disabled="#{editDisabled}"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{operatorOrgBean}" action="createOrganization"
+          buttonType="save" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

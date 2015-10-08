@@ -1,0 +1,108 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails key="10000">
+  <Period endDate="1314741600000" endDateIsoFormat="2011-08-30T22:00:00.000Z" startDate="1312149600000"
+    startDateIsoFormat="2011-07-31T22:00:00.000Z"/>
+  <OrganizationDetails>
+    <Email>sven.kulle@est.fujitsu.com</Email>
+    <Name>homeorg</Name>
+    <Address>1</Address>
+    <Paymenttype>INVOICE</Paymenttype>
+  </OrganizationDetails>
+  <Subscriptions>
+    <Subscription id="Php - Silver Edition" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="11002" calculationMode="PRO_RATA">
+          <UsagePeriod endDate="1314741600000" endDateIsoFormat="2011-08-30T22:00:00.000Z" startDate="1314354962345"
+            startDateIsoFormat="2011-08-26T10:36:02.345Z"/>
+          <GatheredEvents>
+            <Event id="USER_LOGOUT_FROM_SERVICE">
+              <Description xml:lang="en">Logout of a user from the service.</Description>
+              <Description xml:lang="ja">サービスからのユーザーのログアウト</Description>
+              <Description xml:lang="de">Abmeldung eines Benutzers von dem Service.</Description>
+              <SingleCost amount="0.001"/>
+              <NumberOfOccurrence amount="1"/>
+              <CostForEventType amount="0.001"/>
+            </Event>
+            <Event id="USER_LOGIN_TO_SERVICE">
+              <Description xml:lang="en">Login of a user to the service.</Description>
+              <Description xml:lang="de">Anmeldung eines Benutzers bei dem Service.</Description>
+              <Description xml:lang="ja">サービスへのユーザーのログイン</Description>
+              <SingleCost amount="0.001"/>
+              <NumberOfOccurrence amount="1"/>
+              <CostForEventType amount="0.001"/>
+            </Event>
+            <GatheredEventsCosts amount="0.00"/>
+          </GatheredEvents>
+          <PeriodFee basePeriod="MONTH" basePrice="1.00" factor="0.1443539631869773" price="0.14"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="0.50" factor="0.1443539631869773"
+            numberOfUsersTotal="1" price="0.07">
+            <UserAssignmentCostsByUser factor="0.1443539631869773" userId="admin"/>
+          </UserAssignmentCosts>
+          <OneTimeFee amount="0.00" baseAmount="80.00" factor="0"/>
+          <Parameters>
+            <Parameter id="CONCURRENT_USER">
+              <ParameterValue amount="2" type="LONG"/>
+              <PeriodFee basePeriod="MONTH" factor="0.1443539631869773" price="0.14" valueFactor="2.0">
+                <SteppedPrices amount="0.43">
+                  <SteppedPrice additionalPrice="0.00" basePrice="0.50" freeAmount="0" limit="5"/>
+                  <SteppedPrice additionalPrice="2.50" basePrice="0.20" freeAmount="5" limit="null"/>
+                </SteppedPrices>
+              </PeriodFee>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="1.00" factor="0.1443539631869773"
+                price="0.29" valueFactor="2.0"/>
+              <ParameterCosts amount="0.43"/>
+            </Parameter>
+            <Parameter id="NAMED_USER">
+              <ParameterValue amount="4" type="LONG"/>
+              <PeriodFee basePeriod="MONTH" basePrice="1.00" factor="0.1443539631869773" price="0.58"
+                valueFactor="4.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="1.00" factor="0.1443539631869773"
+                price="0.58" valueFactor="4.0"/>
+              <ParameterCosts amount="1.16"/>
+            </Parameter>
+            <ParametersCosts amount="1.59"/>
+          </Parameters>
+          <PriceModelCosts amount="1.80"/>
+        </PriceModel>
+
+        <PriceModel id="11001" calculationMode="PRO_RATA">
+          <UsagePeriod endDate="1314354962345" endDateIsoFormat="2011-08-26T10:36:02.345Z" startDate="1314354863361"
+            startDateIsoFormat="2011-08-26T10:34:23.361Z"/>
+          <GatheredEvents>
+            <Event id="USER_LOGOUT_FROM_SERVICE">
+              <Description xml:lang="en">Logout of a user from the service.</Description>
+              <Description xml:lang="ja">サービスからのユーザーのログアウト</Description>
+              <Description xml:lang="de">Abmeldung eines Benutzers von dem Service.</Description>
+              <SingleCost amount="0.001"/>
+              <NumberOfOccurrence amount="1"/>
+              <CostForEventType amount="0.001"/>
+            </Event>
+            <Event id="USER_LOGIN_TO_SERVICE">
+              <Description xml:lang="en">Login of a user to the service.</Description>
+              <Description xml:lang="de">Anmeldung eines Benutzers bei dem Service.</Description>
+              <Description xml:lang="ja">サービスへのユーザーのログイン</Description>
+              <SingleCost amount="0.001"/>
+              <NumberOfOccurrence amount="1"/>
+              <CostForEventType amount="0.001"/>
+            </Event>
+            <GatheredEventsCosts amount="0.00"/>
+          </GatheredEvents>
+          <PeriodFee basePeriod="MONTH" basePrice="0.50" factor="3.695639187574671E-5" price="0.00"/>
+          <UserAssignmentCosts basePeriod="MONTH" factor="3.405503285543608E-5"
+            numberOfUsersTotal="1" price="0.00">
+            <UserAssignmentCostsByUser factor="3.405503285543608E-5" userId="admin"/>
+            <SteppedPrices amount="0.00">
+              <SteppedPrice additionalPrice="0.00" basePrice="1.00" freeAmount="0" limit="10"/>
+              <SteppedPrice additionalPrice="10.00" basePrice="0.80" freeAmount="10" limit="100"/>
+              <SteppedPrice additionalPrice="82.00" basePrice="0.20" freeAmount="100" limit="null"/>
+            </SteppedPrices>
+          </UserAssignmentCosts>
+          <OneTimeFee amount="20.00" baseAmount="20.00" factor="1"/>
+          <PriceModelCosts amount="20.00"/>
+        </PriceModel>
+      </PriceModels>
+
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts currency="EUR" grossAmount="21.80" netAmount="21.80"/>
+</BillingDetails>

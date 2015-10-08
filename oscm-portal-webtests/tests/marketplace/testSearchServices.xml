@@ -1,0 +1,295 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <!-- Enable tagging for the marketplace -->
+    <webtest name="setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_createAccount" depends="setup">
+    <!-- Create supplier account -->
+    <webtest name="testMPL_createAccount">
+      <!-- add default currency, create supplier-->
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <!-- store settings for web service access -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_initSetup" depends="testMPL_createAccount">
+    <webtest name="testMPL_setupServices">
+      <!-- Setup and activate marketable services -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="data/TechnicalServices-Search.xml" />
+      <mpl_search.createService mid="${mId}" index="1" name="Java WS Developer Trial" techServiceId="Example1" shortDescription="Limited evaluation version." description="long description1" />
+      <mpl_search.createService mid="${mId}" index="2" name="Java WS Developer Starter" techServiceId="Example1" shortDescription="Starter bundle with limited features." description="long description2" />
+      <mpl_search.createService mid="${mId}" index="3" name="Java WS Project Builder " techServiceId="Example1" shortDescription="Basic bundle with all features but no support." description="long description3" />
+      <mpl_search.createService mid="${mId}" index="4" name="Public Page Encryption" techServiceId="Example2" shortDescription="Basic bundle with all features but no support - special student price." description="long description4" />
+      <mpl_search.createService mid="${mId}" index="5" name="Firewall Service" techServiceId="Example2" shortDescription="Enterprise edition with full support and unlimited usage licenses." description="long description5" />
+      <mpl_search.createService mid="${mId}" index="6" name="Anti Virus Professional" techServiceId="Example2" shortDescription="Professional edition with full support - up to 5 users" description="long description6" />
+      <mpl_search.createService mid="${mId}" index="7" name="Mega Office Ultimate" techServiceId="Example3" shortDescription="The edition with full support and unlimited usage licenses." description="In computing, an office suite, sometimes called an office software suite or productivity suite is a collection of programs intended to be used by knowledge workers. The components are generally distributed together, have a consistent user interface and usually can interact with each other, sometimes in ways that the operating system would not normally allow." />
+      <mpl_search.createService mid="${mId}" index="8" name="Mega Office Profi" techServiceId="Example3" shortDescription="The professional edition with full support - up to 5 users" description="In computing, an office suite, sometimes called an office software suite or productivity suite is a collection of programs intended to be used by knowledge workers. The components are generally distributed together, have a consistent user interface and usually can interact with each other, sometimes in ways that the operating system would not normally allow. &lt;br/&gt;This version is recommended to experienced users who are already familiar with office business." />
+      <!-- The last one is inactive (invisible) -->
+      <mpl_search.createService mid="${mId}" index="9" name="Mega Office Basic" techServiceId="Example3" shortDescription="The simple edition with little support - up to 1 user" description="In computing, an office suite, sometimes called an office software suite or productivity suite is a collection of programs intended to be used by knowledge workers. The components are generally distributed together, have a consistent user interface and usually can interact with each other, sometimes in ways that the operating system would not normally allow." />
+      <setup:service.activate serviceIds="S" start="1" count="8" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testMPL_SearchServices" depends="testMPL_initSetup">
+    <webtest name="testMPL_BasicSearch">
+
+      <!-- Go to Home page, click on Browse All button => Goto All services page -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_verify.verifyServicesPage />
+
+      <!-- Ensure all services exist -->
+      <mpl_search.verifyMatchingServicesExist numberOfServices="8" phrase="Java" />
+      <mpl_search.verifyMatchingServicesExist numberOfServices="8" phrase="Mega" />
+      <not>
+        <mpl_search.verifyMatchingServicesExist numberOfServices="8" phrase="hello" />
+      </not>
+
+      <!-- Test search field, no matching phrase -->
+      <mpl_search.execute phrase="hello" />
+      <mpl_search.verifySearchResultPage nOfServices="0" />
+      <not>
+        <verifyElementText description="Verify inexistence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+
+      <mpl_search.execute phrase="hello" useButton="false" />
+      <mpl_search.verifySearchResultPage nOfServices="0" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <mpl_search.execute phrase="Java" />
+      <mpl_search.verifyServicesList numberOfServices="3" phrase="Java" />
+      <mpl_search.execute phrase="Mega" />
+      <mpl_search.verifyServicesList numberOfServices="2" phrase="Mega" />
+
+      <mpl_search.execute phrase="Mega Office Ultimate" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute phrase="  Mega Office Ultimate" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute phrase=" Mega Office Ultimate  " />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute phrase="  Mega  Office  Ultimate  " />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute phrase="Mega Ultimate  " />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute description="\u3000 leading" phrase="　Mega Ultimate" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <mpl_search.execute description="\u3000 trailing" phrase="Mega Ultimate　" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <!-- TODO \u3000 as seperator doesn't work in the web test (here it is with \u3000\u0020) -->
+      <mpl_search.execute description="\u3000 middle" phrase="Mega　 Ultimate" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+      <not>
+        <verifyElementText description="Verify existence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+
+      <!-- TODO \u3000 as seperator doesn't work in the web test (here it is with \u3000\u0020) -->
+      <mpl_search.execute description="\u3000 leading, middle, trailing" phrase="　Mega　 Ultimate　" />
+      <mpl_search.verifyServicesList numberOfServices="1" phrase="Mega Office Ultimate" />
+
+      <!-- Service matching 'basic' in name is inactive and must not be listed -->
+      <mpl_search.execute phrase="Basic" />
+      <not>
+        <mpl_search.verifyServicesList numberOfServices="8" phrase="Basic" name="true" tag="false" shortDescription="false" description="false" />
+      </not>
+    </webtest>
+  </target>
+
+  <target name="testMPL_SearchServicesByCategory">
+    <webtest name="testMPL_SearchServicesByCategory_Setup">
+      <testInfo type="DESCRIPTION">testMPL_SearchServicesByCategory_Setup:
+        Creates three new categories. 
+        Expected Outcome:
+        (1) Add three new categories (Verification of created categories is already done in testManageCategories)
+            This test expects that 8 services exist. See webtest "testMPL_setupServices"
+      </testInfo>
+
+      <storeProperty name="antNumberCategories" value="3" propertyType="ant" />
+      <storeProperty name="antCategoryPrefix" value="category" propertyType="ant" />
+      <storeProperty name="antLocale" value="en" propertyType="ant" />
+
+      <!-- (1) Add three new categories -->
+      <operatorPortal.login />
+      <category.defineCategories marketplaceId="${mId}" count="${antNumberCategories}" categoryPrefix="${antCategoryPrefix}" locale="${antLocale}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_SearchServicesByCategory_VerifyCategoryServiceAssignmentOnMp">
+      <testInfo type="DESCRIPTION">testMPL_SearchServicesByCategory_VerifyCategoryServiceAssignmentOnMp:
+        Creates three new categories.
+        Expected Outcome:
+        (1) Add categories C1 and C2 to service S1
+        (2) Add category C1 to service S2
+        (3) Go to marketplace, verify categories with assigned services
+      </testInfo>
+
+      <!-- (1) Add categories category_0 and category_1 to service S1 -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:service.deactivate serviceIds="S1" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="S1" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="true" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="false" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="S1" />
+      <setup:service.activate serviceIds="S1" />
+
+      <!-- (2) Add category category_0 to service S2 -->
+      <setup:service.deactivate serviceIds="S2" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="S2" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="false" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="false" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="S2" />
+      <setup:service.activate serviceIds="S2" />
+
+      <login.logout />
+
+      <!-- (3) Go to marketplace, verify categories with assigned services -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'${antCategoryPrefix}0 ${antLocale}')]" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="2" />
+
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'${antCategoryPrefix}1 ${antLocale}')]" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="1" />
+
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'${antCategoryPrefix}2 ${antLocale}')]" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="0" />
+    </webtest>
+
+    <webtest name="testMPL_SearchServicesByCategory_ClickButtonAllServices">
+      <testInfo type="DESCRIPTION">testMPL_SearchServicesByCategory_ClickLinkAllServices:
+        Clicks on the 'All Services' button 
+        Expected Outcome:
+        (1) Clicks on the 'All services' button on marketplace
+        (2) Verifies number of found services and the existence of the 'All Services' button
+      </testInfo>
+
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <!-- (1) Bug 9198: Clicks first on a category with no services -->
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'${antCategoryPrefix}2 ${antLocale}')]" />
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="0" />
+
+      <!-- (2) Clicks on the 'All services' link on marketplace -->
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+
+      <!-- (3) Verifies number of found services and the existence of the 'All Services' link -->
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="8" />
+      <verifyXPath xpath="//a[@id='categorySelectionForm:buttonBrowseAllLink']" />
+    </webtest>
+
+    <webtest name="testMPL_SearchServicesByCategory_DeleteCategories_VerifyOnMarketplace">
+      <testInfo type="DESCRIPTION">testMPL_SearchServicesByCategory_DeleteCategories:
+        Delete all created categories.
+        Expected Outcome:
+        (1) Delete categories
+        (2) Verify categories to not exist on marketplace
+      </testInfo>
+
+      <!-- (1) Delete categories -->
+      <operatorPortal.login />
+      <category.deleteCategories marketplaceId="${mId}" count="${antNumberCategories}" />
+
+      <!-- (2) Verify categories to not exist on marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <repeat startCount="0" count="${antNumberCategories}" countername="i">
+        <not>
+          <verifyXPath xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'${antCategoryPrefix}#{i} ${antLocale}')]" />
+        </not>
+      </repeat>
+    </webtest>
+  </target>
+
+
+  <!-- Search and check occurrences in long description -->
+  <target name="testMPL_SearchVerifyLongDescription" depends="testMPL_initSetup">
+    <webtest name="testMPL_SearchVerifyLongDescription">
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_search.execute phrase="productivity" />
+      <mpl_search.verifyServicesList numberOfServices="2" phrase="productivity" name="false" tag="false" shortDescription="false" description="true" />
+      <mpl_login.logout />
+      <verifyProperty property="result" value="1" regex="false" />
+    </webtest>
+  </target>
+
+  <!-- Search and check occurrences in tags -->
+  <target name="testMPL_SearchVerifyTags" depends="testMPL_initSetup">
+    <webtest name="testMPL_Tags">
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_search.execute phrase="media" />
+      <mpl_search.verifyServicesList numberOfServices="6" phrase="media" name="false" tag="true" shortDescription="false" description="false" />
+      <mpl_search.execute phrase="banana" />
+      <mpl_search.verifySearchResultPage nOfServices="0" />
+      <mpl_search.verifyServicesList numberOfServices="0" phrase="banana" name="false" tag="true" shortDescription="false" description="false" />
+    </webtest>
+  </target>
+
+  <!-- Search and check occurrences short descriptions -->
+  <target name="testMPL_SearchVerifyShortDescription" depends="testMPL_initSetup">
+    <webtest name="testMPL_SearchVerifyShortDescription">
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_search.execute phrase="unlimited" />
+      <mpl_search.verifyServicesList numberOfServices="2" phrase="unlimited" name="false" tag="false" shortDescription="true" description="false" />
+    </webtest>
+  </target>
+
+  <!-- Test failure -->
+  <target name="testMPL_SearchFailure" depends="testMPL_initSetup">
+    <webtest name="testMPL_SearchFailure">
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_search.execute phrase="" />
+      <mpl_search.verifySearchResultPage nOfServices="0" />
+      <mpl_verify.errorPanel label="${error.search.emptyInput}" />
+    </webtest>
+  </target>
+
+  <!-- Clean-up test data -->
+  <target name="testMPL_CleanUp" depends="testMPL_initSetup">
+    <webtest name="testSearchSerivces_deleteServices">
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+      <storeProperty name="userId" value="${supplierUserId}" />
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+      <setup:service.delete serviceIds="S" start="1" count="8" deactivate="true" />
+      <setup:service.delete serviceIds="S" start="9" count="1" deactivate="false" />
+      <setup:techservice.delete serviceIds="S" start="1" count="9" />
+      <login.logout />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.verifyNoServices />
+    </webtest>
+
+    <webtest name="testMPL_BrowseCatalog_finalCleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+  </target>
+
+  <target name="all" depends="testMPL_initSetup, testMPL_SearchServices, testMPL_SearchServicesByCategory, testMPL_SearchVerifyLongDescription, testMPL_SearchVerifyTags, testMPL_SearchVerifyShortDescription,testMPL_SearchFailure, testMPL_CleanUp" />
+</project>

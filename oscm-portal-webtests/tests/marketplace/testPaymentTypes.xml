@@ -1,0 +1,325 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testPaymentTypes" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  <import file="../../macros/paymentTypeSetup.xml" />
+
+  <!-- click and subscribe first available service in MPL -->
+  <macrodef name="selectServiceForSubscription">
+    <sequential>
+      <verifyXPath xpath="//*[@id='serviceButton0']" description="verify that 1 service is available" />
+      <clickLink htmlId="serviceButton0" description="click on 1st services" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <clickLink htmlId="getItForLoggedUser" description="click on subscribe services" />
+      <clickLink htmlId="configurationForm:nextLink" />
+    </sequential>
+  </macrodef>
+
+  <!-- TODO verfify if login/logout is needed -->
+  <macrodef name="enablePaymenTypesAsSupplier">
+    <attribute name="invoice" default="" />
+    <attribute name="cc" default="" />
+    <attribute name="dd" default="" />
+    <sequential>
+      <login.loginAsSupplier url="${orgUrl}" userId="${pt.supplierUserId}" />
+      <paymentTypeSetup.enablePaymentTypes invoice="@{invoice}" cc="@{cc}" dd="@{dd}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="setupPaymentTypesAndPaymentInfo">
+    <attribute name="marketplaceId" default="" />
+    <sequential>
+      <paymentTypeSetup.setPSPSettings />
+      <login.loginAsSupplier url="${orgUrl}" userId="${pt.supplierUserId}" />
+      <paymentTypeSetup.enablePaymentTypes invoice="true" cc="true" dd="true" />
+      <!-- prepare: create payment infos -->
+      <paymentTypeSetup.createPaymentInfo userkey="${pt.supplierUserKey}" id="Giro 1" paymentType="DIRECT_DEBIT" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <paymentTypeSetup.createPaymentInfo userkey="${pt.supplierUserKey}" id="Giro 2" paymentType="DIRECT_DEBIT" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <paymentTypeSetup.createPaymentInfo userkey="${pt.supplierUserKey}" id="Premium VISA" paymentType="CREDIT_CARD" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <paymentTypeSetup.createPaymentInfo userkey="${pt.supplierUserKey}" id="Golden Amex" paymentType="CREDIT_CARD" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <!-- prepare: create billing contacts -->
+      <invoke url="${orgUrl}/marketplace/account/payments.jsf?mId=@{marketplaceId}" />
+      <clickLink htmlId="billingContactListForm:addBillingContact" />
+      <paymentTypeSetup.addBillingContact displayName="second billing contact" companyName="Accounting Department" />
+      <clickLink htmlId="billingContactListForm:addBillingContact" />
+      <paymentTypeSetup.addBillingContact displayName="third billing contact" companyName="Subsidiary" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- setup new organization and a chargeable service -->
+  <target name="init">
+    <webtest name="testMPLPaymentTypes_setup">
+      <!-- POST-CONDITION: orgUrl and pt.supplierUserId set -->
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+
+      <paymentTypeSetup.initialSetup createLocalMP="false" globalMpId="${mId}" />
+      <storeProperty name="pt.supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testPaymentTypes" depends="init">
+
+    <!-- PRECONDITION: no other public services are published -->
+    <webtest name="testMPLPaymentTypes_NoPaymentsForOrganizationAllowed" description="verify that no payment types are shown">
+
+      <testInfo type="DESCRIPTION">testNoPaymentsForOrganizationAllowed : 
+                plattform operator has no payment types enabled for an organization. 
+                Expected Outcome: 
+                (1) no payment option available in subscription uc 
+                (2) only invoice option available in payment enablement uc 
+      </testInfo>
+
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <common.ignorePageScriptError />
+      <selectServiceForSubscription />
+      <verifyXPath xpath="//*[@id='payment:noPaymenttypesAvailableForAdmin']" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPLPaymentTypes_InvoiceEnabled4NewCustomer" description="testInvoiceEnabled4NewCustomer">
+      <testInfo type="DESCRIPTION">testInvoiceEnabled4NewCustomer : 
+                              invoice enabled by supplier for new customers, no payment enabled for registered customers.
+                              Expected Outcome: 
+                              (1) registered user sees no payment option in subscribe uc
+                              (2) new customer can only choose INVOICE in subscribe uc
+          </testInfo>
+
+      <!-- prepare: supplier enables INVOICE for **NEW** Customers -->
+      <login.loginAsSupplier url="${orgUrl}" userId="${pt.supplierUserId}" />
+      <paymentTypeSetup.enableInvoiceForNEWCustomers />
+      <login.logout />
+
+      <!-- prepare: create new customer / unknown to the service provider organization -->
+      <paymentTypeSetup.createNewCustomer />
+
+      <!-- (1) registered user does not see payment option -->
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <selectServiceForSubscription />
+
+      <verifyXPath description="message payment:noPaymenttypesAvailable" xpath=".//*[@id='payment:noPaymenttypesAvailableForAdmin']" />
+      <mpl_login.logout />
+
+      <!-- (2) subscribe as new customer -->
+      <mpl_login.user mid="${mId}" userId="${pt.customerUserId}" />
+      <common.ignorePageScriptError />
+      <selectServiceForSubscription />
+
+      <!-- INVOICE must exist -->
+      <verifyXPath description="only one option + 'please select' should be present " xpath="count(//select[@name='payment:selectPaymentInfo']/option)" text="2" />
+      <verifyXPath description="select option must contain Invoice" xpath="//select[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      <!-- other options must NOT exist -->
+      <not>
+        <verifyXPath description="select option must NOT contain CREDIT" xpath="//select[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CREDIT']" />
+        <verifyXPath description="select option must NOT contain DEBIT" xpath="//select[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DEBIT']" />
+        <verifyElementText text="${organization.payment.noEnabledPayment}" htmlId="payment:noPaymenttypesAvailable" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+
+    <webtest name="testMPLPaymentTypes_CardOptions4KnownCustomer" description="testCardOptions4KnownCustomer">
+      <testInfo type="DESCRIPTION">testCardOptions4KnownCustomer : 
+                                 DIRECT_DEBIT, CREDIT_CARD enabled by supplier for registered customers.
+                                 Customer has no payment info yet.
+                                 Expected Outcome: 
+                                 (1) registered user has no choice options as payment info in subscribe uc
+                                 (2) new payment info link available
+                                 (3) subdialog allows Direct Debit and Credit Card
+        </testInfo>
+
+      <!-- prepare: as platform operator allow all payment types -->
+      <operator.addAvailablePaymentTypes orgId="${pt.supplierId}" />
+
+      <!-- prepare: supplier enables DIRECT_DpaymentTypeSetup.enablePaymentTypestered Customers -->
+      <enablePaymenTypesAsSupplier cc="true" dd="true" />
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+
+      <!-- (1) verify registered user has no choice options as payment info in subscribe uc -->
+      <selectServiceForSubscription />
+      <verifyXPath description="paymentInfo-Select is empty (except for ..please select)" xpath="count(//select[@name='payment:selectPaymentInfo']/option)" text="1" />
+      <!-- (2) verify new payment info link available -->
+      <verifyXPath description="Link for new Payment info must exist" xpath=".//*[@id='payment:newPaymentInfo']" />
+      <!-- (3) verify subdialog allows Direct Debit and Credit Card -->
+      <clickLink description="new payment info" htmlId="payment:newPaymentInfo" />
+      <verifyXPath description="CREDIT_CARD must exist" xpath="//*[@name='paymentOptionPanelForm:paymentTypeSelection' and contains(@value,'CREDIT_CARD')]" />
+      <verifyXPath description="DIRECT_DEBIT must exist" xpath="//*[@name='paymentOptionPanelForm:paymentTypeSelection' and contains(@value,'DIRECT_DEBIT')]" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPLPaymentTypes_RevokePaymentType" description="testRevokePaymentTypeForExistingSubscrition">
+      <testInfo type="DESCRIPTION">testRevokedPaymentType : 
+                                        supplier revokes invoice for registered customers.
+                                        registered customer has subscription payed by invoice
+                                        registered customer has no other payment info-
+                                        Expected Outcome: 
+                                        (1) new subscription sees only payment options in create new payment info link
+                                        (2) subdialog does not allow invoice
+                                        (3) payment info in manage subscription payment is empty. 
+                                        (4) no links for new payment info or new billing contacts may be present.
+               </testInfo>
+
+      <!-- prepare: supplier enables DIRECT_DEBIT, CREDIT_CARD, INVOICE for registered Customers -->
+      <enablePaymenTypesAsSupplier invoice="true" cc="true" dd="true" />
+
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <!-- prepare: subscribe, payed by  INVOICE  -->
+      <selectServiceForSubscription />
+      <!-- prepare: add billing contact -->
+      <mpl_user.selectBillingContact billingCompanyName="billingContact1" />
+
+      <setSelectField xpath="//*[@id='payment:selectPaymentInfo']/option[contains(.,'Invoice')]" />
+      <clickLink description="click next" htmlId="payment:nextLink" />
+
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink description="click confirm" htmlId="confirmForm:confirmLink" />
+      <verifyText text="has been successfully created." />
+
+      <!-- verify subscription is payed by INVOICE -->
+      <mpl_goto.tab label="${subscription.payment}" />
+
+      <verifyXPath description="INVOICE must be selected" xpath="//*[@id='payment:selectPaymentInfo']/option[@selected='selected' and contains(.,'Invoice')]" />
+      <mpl_login.logout />
+
+      <!-- prepare: revoke payment type -->
+      <enablePaymenTypesAsSupplier invoice="false" />
+
+      <!--go to subscription: verify payment type has been revoked -->
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']/td[7]/div/span" text="${SubscriptionStatus.SUSPENDED}" />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.payment}" />
+      <not>
+        <verifySelectField description="INVOICE must NOT exist" xpath="//*[@id='payment:selectPaymentInfo']" text="Invoice" />
+      </not>
+      <!-- (4) no link for new Billing contact and no link for new payment info may be present 
+           only Link for 'save' may be present in payment container 
+           allowed save-Link is "//*[@id='payment']/descendant::a[@id='payment:nextLink']" -->
+      <verifyXPath xpath="count(//*[@id='payment']/descendant::a)" text="1" description="no links except for save/next allowed." />
+      <mpl_login.logout />
+    </webtest>
+
+
+    <webtest name="testMPLPaymentTypes_UpgradeSubscription" description="testupgradeSubscrition">
+      <testInfo type="DESCRIPTION">testUpgradeSubscription : 
+                                     customer has an existing subscription, payed by Invoice
+                                     supplier allows only DD.
+                                     customer upgrades subscription
+                                     Expected Outcome: 
+                                     (1) no payment option is selected
+                                     (2) combo box does not allow Invoice
+                                     (3) new payment Link does only allow DD
+                                    
+            </testInfo>
+      <!-- prepare: as supplier enable payment types and create payment info DD -->
+      <paymentTypeSetup.setPSPSettings />
+      <login.loginAsSupplier url="${orgUrl}" userId="${pt.supplierUserId}" />
+      <paymentTypeSetup.enablePaymentTypes invoice="false" dd="true" cc="false" />
+      <paymentTypeSetup.prepareUpgrade />
+      <paymentTypeSetup.createPaymentInfo userkey="${pt.supplierUserKey}" id="Giro1" paymentType="DIRECT_DEBIT" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <login.logout />
+
+      <!-- go to subscription-upgrade tab -->
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+
+      <clickLink xpath="//a[@class='button' and contains(@id,'serviceButton')]" />
+      <clickLink htmlId="configurationForm:nextLink" />
+
+      <!-- (1) verify that no currently selected payment option -->
+      <not>
+        <verifyXPath xpath="//*[@id='payment:selectPaymentInfo']/option[@selected]" />
+      </not>
+
+      <!-- (2) verify that combo box does not include INVOICE but ONLY Giro1 -->
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Giro1']" />
+
+      <!-- (3) verify that new payment Link does only allow DD -->
+      <common.clickAjaxLink htmlId="payment:newPaymentInfo" />
+
+      <!-- only one payment type option enabled thus no radio group -->
+      <verifyXPath xpath="//*[@id='paymentOptionPanelForm:singlePaymentTypeOption' and normalize-space(text())='DIRECT_DEBIT']" description="Direct debit as text not as radio option" />
+      <not>
+        <verifyXPath xpath="paymentOptionPanelForm:paymentTypeSelection" description="radio group" />
+        <verifyXPath xpath="//*[@name='paymentOptionPanelForm:paymentTypeSelection' and @value='DIRECT_DEBIT']" description="Radio Option DIRECT_DEBIT" />
+        <verifyXPath xpath="//*[@name='paymentOptionPanelForm:paymentTypeSelection' and @value='Invoice']" description="Radio Option Invoice" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPLPaymentTypes_PaymentOptionSelectionInSubscription" description="testPaymentOptionSelectionInSubscription">
+      <testInfo type="DESCRIPTION">testPaymentOptionSelectionInSubscription : 
+                                    customer has 3 billing contacts
+                                    customer has 2 debit card and 2 credit card and invoice payment info
+                                    supplier revokes credit card payment option.
+                                    Expected Outcome: 
+                                    (1) before revocation all payment option can be chosen
+                                    (2) all three billing contacts can be selected
+                                    (3) after revocation of credit card option by supplier 
+                                        in manage payment info dialog customer seas only his debit card options and invoice
+           </testInfo>
+      <setupPaymentTypesAndPaymentInfo marketplaceId="${mId}" />
+
+      <!-- goto subscription payment -->
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.payment}" />
+
+      <!-- (1) all options are visible -->
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Giro 1']" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Giro 2']" />
+
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Premium VISA']" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Golden Amex']" />
+
+      <!-- (2) all billing contacts are visible -->
+      <verifyXPath xpath="//*[@name='payment:selectBillingContact']/option[normalize-space(text())='billingContact1']" />
+      <verifyXPath xpath="//*[@name='payment:selectBillingContact']/option[normalize-space(text())='second billing contact']" />
+      <verifyXPath xpath="//*[@name='payment:selectBillingContact']/option[normalize-space(text())='third billing contact']" />
+      <mpl_login.logout />
+
+      <!-- prepare: revoke payment type -->
+      <enablePaymenTypesAsSupplier cc="false" />
+
+      <!-- (3) after revocation of CREDIT_CARD only Invoice and DIRECT DEBIT are visible -->
+      <!-- goto manage subscription payment -->
+      <mpl_login.user mid="${mId}" userId="${pt.supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.payment}" />
+
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Giro 1']" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Giro 2']" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Premium VISA']" />
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Golden Amex']" />
+      </not>
+    </webtest>
+
+    <webtest name="testMPLPaymentTypes_tearDown">
+      <sequential>
+        <setup:service.delete serviceIds="*" deactivate="true" />
+      </sequential>
+    </webtest>
+
+  </target>
+</project>

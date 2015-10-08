@@ -1,0 +1,106 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="bugTests">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="bugTests">
+
+    <webtest name="Bug 11886 - Inner Chart Navigation on Table View">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <clickButton label="Add" />
+      <verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterId" text="Billing system ID" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="Bug 11916">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <clickButton label="Add" />
+      <verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterName" text="Short description" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="Bug 11885 - Operation/Manage billing systems Add button can be pressed multiple times">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <clickButton label="Add" />
+      <verifyXPath xpath="//*[contains(@id, 'addButtonDisabled')]" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="Bug 11883 - Operation/Manage billing systems fields not verified">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <clickButton label="Add" />
+      <dataDriven tableContainer="data/pageFields/manageBillingAdapters.xls">
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}"
+                                      buttonLinkId="panels:1:panelAdapterItemForm:saveButton"/>
+        </ifStep>
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}"
+                                      buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
+        </dataDriven>
+      </dataDriven>
+      <login.logout />
+    </webtest>
+    
+    <webtest name="Bug 11902 - Set as Default button not working">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <clickButton label="Add" />
+      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
+      <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
+      <clickButton label="Save"/>
+      <clickLink htmlId="panels:1:panelAdapterItemForm:setDefaultButton"/>
+      <verifyXPath xpath="//*[text()[contains(.,'Test service (Default)')]]"/>
+      <clickLink htmlId="panels:0:panelAdapterItemForm:setDefaultButton"/>
+      <clickLink htmlId="panels:1:panelAdapterItemForm:deleteButton"/>
+      <verifyXPath xpath="//*[text()[contains(.,'NATIVE_BILLING')]]"/>
+     </webtest> 
+    
+    <webtest name="Bug 11912 - Operation/Manage billing systems, connection properties - does not remove empty line">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageBillingAdapters.jsf" />
+      <common.ignorePageScriptError />
+      <!-- Try to add a new billing adapter -->
+      <clickButton label="Add" />
+      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
+      <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
+      <setInputField xpath="//input[starts-with(@name,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" value="Test connection1" />
+      <!-- Try to add  a second connection property -->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="Second property" />
+      <setInputField xpath="//input[starts-with(@name,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:j_')]" value="Test connection2" />
+      <!-- Add third connection property -->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" />
+      <verifyXPath xpath="//*[@value='Test connection1']"/>
+      <verifyXPath xpath="//*[@value='Second property']"/>
+      <verifyXPath xpath="//*[@value='Test connection2']"/>
+      <!-- Remove the second property -->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:j_')]" />
+      <verifyXPath xpath="//*[not(@value='Second property')]"/>
+      <verifyXPath xpath="//*[not(@value='Test connection2')]"/>
+     </webtest>
+    
+    <webtest name="Bug 11919 - Technical service/View billing systems ':' missing after labels">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <clickLink href="/techservice/viewBillingAdapters.jsf" />
+      <verifyXPath xpath="//*[text()[contains(.,'Billing system ID:')]]"/>
+      <verifyXPath xpath="//*[text()[contains(.,'Short description:')]]"/>
+    </webtest> 
+  </target>
+
+</project>

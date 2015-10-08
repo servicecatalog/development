@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <LocalizedResource tkey="1" locale="ja" objectkey="0" objecttype="REPORT_DESC" value="利用者情報" version="0" />
+  <LocalizedResource tkey="2" locale="ja" objectkey="3" objecttype="REPORT_DESC" value="利用部門情報"  version="0" />
+  <LocalizedResource tkey="3" locale="ja" objectkey="10" objecttype="REPORT_DESC" value="利用部門の請求書明細" version="0" />
+  <LocalizedResource tkey="4" locale="ja" objectkey="15" objecttype="REPORT_DESC" value="サービス仲介部門の料金配分明細" version="0" />
+  <LocalizedResource tkey="5" locale="ja" objectkey="16" objecttype="REPORT_DESC" value="サービス再提供部門の料金配分明細"  version="0" />
+  <LocalizedResource tkey="6" locale="ja" objectkey="17" objecttype="REPORT_DESC" value="サービス仲介部門/サービス再提供部門の料金配分明細" version="0" />
+  <LocalizedResource tkey="7" locale="ja" objectkey="18" objecttype="REPORT_DESC" value="料金配分明細" version="0" />
+  <LocalizedResource tkey="8" locale="ja" objectkey="19" objecttype="REPORT_DESC" value="サービス提供部門の料金配分明細"  version="0" />
+</dataset>

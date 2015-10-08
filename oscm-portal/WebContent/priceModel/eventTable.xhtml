@@ -1,0 +1,76 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:a4j="http://richfaces.org/a4j">
+  <!-- EVENT TABLE -->
+  <a4j:outputPanel id="eventTablePanel" layout="block" styleClass="tablePanel">
+    <adm:dataTable tableId="eventTable" value="#{priceModelBean.pricedEvents}" label="#{msg['eventTable.table.header']}"
+      collapsible="true" rendered="#{not priceModelBean.priceModelFree}" columnClasses="descriptionColumn, priceColumn, priceColumn,none">
+      <!--  Description -->
+      <rich:column>
+        <f:facet name="header">
+          <h:outputLabel value="#{msg['eventTable.description']}" />
+        </f:facet>
+        <h:outputLabel id="eventDescription" value="#{rowItem.eventDescription}" />
+      </rich:column>
+      <!--  Price  -->
+      <rich:column>
+        <f:facet name="header">
+          <h:outputLabel value="#{msg['eventTable.price']}" />
+        </f:facet>
+        <h:inputText id="price" onchange="setDirty(true)" label="#{rowItem.eventDescription}"
+          rendered="#{empty rowItem.steppedPrice}" styleClass="fieldXS" disabled="#{priceModelBean.editDisabled}"
+          value="#{rowItem.eventPrice}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <h:inputText id="eventSteppedPricePrice" label="#{rowItem.eventDescription}" styleClass="fieldXS"
+          rendered="#{not empty rowItem.steppedPrice}" disabled="#{priceModelBean.editDisabled}"
+          onchange="setDirty(true)" value="#{rowItem.price}">
+          <f:converter converterId="currency.converter" />
+        </h:inputText>
+        <t:div styleClass="errorPanelTr">
+          <adm:message for="eventSteppedPricePrice" />
+          <adm:message for="price" />
+        </t:div>
+      </rich:column>
+      <rich:column styleClass="fieldXS" rendered="#{steppedPriceBean.pricedEventsWithSteppedPrices}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+        </f:facet>
+        <h:inputText id="eventSteppedPriceLimit" styleClass="fieldXS"
+          rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}"
+          disabled="#{priceModelBean.editDisabled}" onchange="setDirty(true)" value="#{rowItem.limit}"
+          maxlength="#{appBean.longLen}" required="#{!empty param['editForm:confirmedButton']}">
+          <f:validateLongRange minimum="1" />
+        </h:inputText>
+        <h:outputText id="eventSteppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+          rendered="#{rowItem.lastSteppedPrice}" />
+        <ui:fragment
+          rendered="#{steppedPriceBean.type == steppedPriceBean.typePricedEvent and steppedPriceBean.index == rowKey}">
+          <script type="text/javascript">
+          function steppedPriceFocus() { var e = #{rich:element('eventSteppedPriceLimit')}; if (e) { e.focus(); e.select(); } }
+          </script>
+        </ui:fragment>
+        <t:div styleClass="errorPanelTr">
+          <adm:message for="eventSteppedPriceLimit" rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}"/>
+        </t:div>
+      </rich:column>
+      <rich:column styleClass="fieldXS"
+        rendered="#{priceModelBean.priceModel.chargeable and not priceModelBean.editDisabled}">
+        <t:div id="focusButtons" style="display:none;">
+          <adm:buttonCustomizedOnClick id="addButton" value="" buttonType="add"
+            onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedEvent}', #{rowKey}, true);"
+            rendered="#{not rowItem.lastSteppedPrice}" />
+          <adm:buttonCustomizedOnClick id="removeButton" value="" buttonType="minus"
+            onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedEvent}', #{rowKey}, false);"
+            rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}" />
+        </t:div>
+      </rich:column>
+
+    </adm:dataTable>
+  </a4j:outputPanel>
+</ui:composition>

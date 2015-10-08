@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+
+<antlib>
+   <taskdef name="operatorclient" classname="org.oscm.operatorsvc.client.ant.OperatorClientTask"/>
+</antlib>

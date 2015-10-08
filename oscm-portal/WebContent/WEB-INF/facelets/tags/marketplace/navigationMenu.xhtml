@@ -1,0 +1,60 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+  <c:set var="first" value="#{bean['title'][0]}" />
+  <a4j:outputPanel layout="block" styleClass="accd1span">
+    <!-- First row -->
+    <a4j:outputPanel layout="block" styleClass="accdsection first">
+      <h:outputLink id="link0" value="#{mpBaseUrl}/#{bean['link'][0]}" onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}"
+        style="text-decoration:none;" onmouseover="this.style.cursor='pointer'">
+        <a4j:outputPanel layout="block" styleClass="heading accordion-open">
+          <h4 id="menu0">
+            <h:outputText value="#{msg[first]}" />
+          </h4>
+        </a4j:outputPanel>
+      </h:outputLink>
+    </a4j:outputPanel>
+
+    <a4j:outputPanel layout="block" styleClass="accdsection">
+      <a4j:outputPanel layout="block" styleClass="content">
+        <a4j:outputPanel layout="block" styleClass="innerframe">
+          <a4j:outputPanel layout="block" styleClass="innerblock">
+            <!--  Menu Rows -->
+            <c:forEach items="#{bean['title']}" var="key" varStatus="index">
+              <c:if test="#{not(first eq key)}">
+                <c:if test="#{selected eq key}">
+                  <h:outputLink id="link#{index.index}" value="#{mpBaseUrl}/#{bean['link'][index.index]}"
+                    style="text-decoration:none;"
+                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}">
+                    <a4j:outputPanel layout="block" styleClass="menubox menuActive"
+                      onmouseover="this.style.cursor='pointer'">
+                      <h4 id="menu#{index.index}">
+                        <h:outputText value="#{msg[key]}" />
+                      </h4>
+                    </a4j:outputPanel>
+                  </h:outputLink>
+                </c:if>
+                <c:if test="#{not(selected eq key)}">
+                  <h:outputLink id="link#{index.index}" value="#{mpBaseUrl}/#{bean['link'][index.index]}"
+                    style="text-decoration:none;" rendered="#{bean.isLinkVisible(index.index)}"
+                    onclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.showProgress(true);return true;}else{return false;}">
+                    <a4j:outputPanel layout="block" styleClass="menubox menuActive menuStyle"
+                      onmouseover="this.className=this.className.replace('menuStyle','menuStyleOver')"
+                      onmouseout="this.className=this.className.replace('menuStyleOver','menuStyle')">
+                      <h4 id="menu#{index.index}">
+                        <h:outputText value="#{msg[key]}" />
+                      </h4>
+                    </a4j:outputPanel>
+                  </h:outputLink>
+                </c:if>
+              </c:if>
+            </c:forEach>
+          </a4j:outputPanel>
+        </a4j:outputPanel>
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+  </a4j:outputPanel>
+</ui:composition>

@@ -1,0 +1,29 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testStory8">
+  <import file="../macros/all.xml" />
+  <target name="testStory8">
+
+    <webtest name="testStory8_TECHNOLOGY_PROVIDER">
+      <mail.cleanInbox />
+      <operator.addCurrency/>
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER"/>
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <report.checkForRole orgUrl="#{orgUrl}" role="TECHNOLOGY_PROVIDER"
+        indexFiledName="TECHNOLOGY_PROVIDER_INDEX" />
+    </webtest>
+         
+    <webtest name="testStory8_SUPPLIER">
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <report.checkForRole orgUrl="#{orgUrl}/organization/edit.jsf" role="SUPPLIER"
+        indexFiledName="SUPPLIER_INDEX" />
+      <login.logout />
+    </webtest>    
+ 
+  </target>
+</project>

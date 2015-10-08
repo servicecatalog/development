@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <MarketplaceOwnerRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <Period endDate="534523578" startDate="9823544793" />
+
+    <Currency id="EUR">
+      <Marketplace id="12345678" key="234">
+        <Service key="11000" id="direct_mode_service" model="DIRECT">
+          <!-- <Supplier> MISSING! -->
+          <RevenueShareDetails baseRevenue="500.00" marketplaceRevenueShare="15.0"
+            marketplaceRevenue="75.00" amountForSupplier="-75.00" />
+        </Service>
+
+        <Balance>
+          <Brokers>
+            <Organization identifier="broker1" amount="25.00" name="name"/>
+          </Brokers>
+          <Resellers>
+            <Organization identifier="reseller1" amount="-475.00" name="name"/>
+          </Resellers>
+          <Supplier>
+            <Organization identifier="supplier1" amount="275.00" name="name"/>
+          </Supplier>
+          <MarketplaceOwner amount="175.00" />
+        </Balance>
+      </Marketplace>
+
+      <MarketplaceRevenue>
+        <Balance>
+          <Brokers>
+            <Organization identifier="broker1" amount="25.00" name="name" />
+          </Brokers>
+          <Resellers>
+            <Organization identifier="reseller1" amount="-475.00" name="name"/>
+          </Resellers>
+          <Suppliers>
+            <Organization identifier="supplier1" amount="275.00" name="name"/>
+          </Suppliers>
+          <MarketplaceOwner amount="175.00" />
+        </Balance>
+      </MarketplaceRevenue>
+    </Currency>
+
+  </MarketplaceOwnerRevenueShareResult>
+</RevenueSharesResults>

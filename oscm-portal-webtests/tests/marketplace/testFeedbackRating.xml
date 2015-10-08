@@ -1,0 +1,545 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testFeedbackRating" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testFeedbackRating">
+
+    <webtest name="testMPL_Rating_Setup">
+
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+
+      <property name="ratingValue5" value="5" />
+      <property name="ratingValue4" value="4" />
+      <property name="ratingValue3" value="3" />
+      <property name="ratingValue2" value="2" />
+      <property name="ratingValue1" value="1" />
+
+      <mpl_setup.createSupplierAccount />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+
+
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <mpl_setup.createServices mId1="${mId}" />
+
+      <registerCustomerBySupplier userId="customer1" marketplaceId="${mId}" />
+      <storeProperty name="u1Key" value="#{userKey}" propertyType="ant" />
+
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="#{customerName1}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <mpl_user.create userId="user1_1" firstname="first" lastname="last" isAdmin="true" />
+      <property name="customer1_user1" value="#{userId}" />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customer1_user1_pwd" value="#{userPwd}" />
+      <storeProperty name="u2Key" value="#{userKey}" propertyType="ant" />
+
+
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="#{customerName1}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <mpl_user.create userId="user1_2" firstname="first" lastname="last" isAdmin="true" />
+      <property name="customer1_user2" value="#{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customer1_user2_pwd" value="#{userPwd}" />
+      <storeProperty name="u3Key" value="#{userKey}" propertyType="ant" />
+
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="#{customerName1}" />
+
+      <!-- Switch to account / users page -->
+      <mpl_goto.account.users />
+
+      <mpl_user.create userId="user1_3" firstname="first" lastname="last" isAdmin="true" />
+      <property name="customer1_user3" value="#{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customer1_user3_pwd" value="#{userPwd}" />
+      <storeProperty name="u4Key" value="#{userKey}" propertyType="ant" />
+
+      <mpl_login.loginWithChangePassword userId="${customer1_user1}" oldPassword="${customer1_user1_pwd}" mid="${mId}" />
+      <login.logout />
+
+      <mpl_login.loginWithChangePassword userId="${customer1_user2}" oldPassword="${customer1_user2_pwd}" mid="${mId}" />
+      <login.logout />
+
+      <mpl_login.loginWithChangePassword userId="${customer1_user3}" oldPassword="${customer1_user3_pwd}" mid="${mId}" />
+      <login.logout />
+      <mail.cleanInbox />
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <setup:store.settings userkey="${u1Key}" password="secret" />
+      <!-- subscribe to be able to review-->
+      <subscribeAndAssignFourUsers index="0" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+      <mail.cleanInbox />
+      <subscribeAndAssignFourUsers index="1" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+      <mail.cleanInbox />
+      <subscribeAndAssignFourUsers index="2" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+      <mail.cleanInbox />
+      <subscribeAndAssignFourUsers index="3" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+      <mail.cleanInbox />
+      <subscribeAndAssignFourUsers index="4" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+      <mail.cleanInbox />
+      <subscribeAndAssignFourUsers index="5" userKeys="${u1Key},${u2Key},${u3Key},${u4Key}" />
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_DeleteRatingFromOtherAdminOfSameOrg_Bug8616">
+      <testInfo type="DESCRIPTION">testManageMP_Update_setup:
+        A registered user from the platform operator deletes a review from the operator. 
+        Expected Outcome:
+      	(1) Platform operator registers a new user
+      	(2) Platform operator subscribes a service
+      	(3) Created user selects service
+      	(4) Created user deletes review from operator
+      </testInfo>
+
+      <!-- (1) Platform operator registers a new user -->
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <invoke url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <user.register userId="newOperateur" admin="true" isMpOwner="true" isPlatformOperator="true" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="newOperatorUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="newOperatorPassword" value="#{userPwd}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword userId="${newOperatorUserId}" oldPassword="${newOperatorPassword}" mid="${mId}" />
+      <login.logout />
+
+      <!-- (2) Platform operator subscribes a service -->
+      <mpl_login.operator mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_rating.create title="administrator" comment="administrator" star="2" />
+      <mpl_login.logout />
+
+      <!-- (3) Created user selects service -->
+      <mpl_login.user mid="${mId}" userId="${newOperatorUserId}" />
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <!-- (4) Created user deletes review from operator -->
+      <verifyXPath xpath="//*[@id='review1']" />
+      <clickElement xpath="//a[text()='Delete']" />
+      <setInputField name="removeReviewPanelForm:deletionReason" value="deletion_reason" />
+      <clickLink htmlId="removeReviewPanelForm:deleteButtonLink" />
+      <not>
+        <verifyXPath xpath="//*[@id='review1']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_Rating_CheckNoRating">
+      <!-- switch to marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <!-- check if in service list shown is not rated yet -->
+      <verifyXPath xpath="//div[@class='ratingStars rating0_0']" />
+
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <!-- check if in service detail shown is not rated yet -->
+      <verifyXPath xpath="//span[@class='serviceRating']" text="${ratingText.noReviews}" />
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_SortingRatedNotRated">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
+
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <!-- open write review modal window -->
+      <verifyText description="Verify existence 'Write review' button" text="${service.reviews.write}" />
+      <clickElement htmlId="btnWriteFeedback" />
+
+      <!--  verify empty fields-->
+      <verifyXPath xpath="//*[@id='writeReviewPanelRerenderPanel']//*[normalize-space()='${service.reviews.write}']" />
+      <mpl_verify.ratingInput />
+
+      <!-- set review -->
+      <setInputField htmlId="commentForm:title" value="${customer1_user2}_title" />
+      <setInputField htmlId="commentForm:comment" value="${customer1_user2}_comment" />
+      <!-- give some stars... -->
+      <clickElement xpath="//div[@id='star${ratingValue1}']" />
+
+      <!-- try to publish it -->
+      <clickElement htmlId="commentForm:btnPublishLink" />
+
+
+      <verifyText description="Verify added title" text="${customer1_user2}_title" />
+      <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
+      <verifyXPath xpath="//div[@id='ratingText']" text="${service.reviews.star.1}" />
+      <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+
+      <not>
+        <!-- the deletion link must not be visible to normal users -->
+        <verifyXPath xpath="//a[@id='deleteReview1']" />
+      </not>
+
+      <verifyXPath xpath="//span[@class='serviceRating']" text="1 ${ratingText.reviews}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_ASCENDING}" />
+      <mpl_paging.verifyServices fromIndex="0" count="8" total="9" up="true" />
+
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_DESCENDING}" />
+      <mpl_paging.verifyServices fromIndex="1" count="8" total="9" up="true" />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_checkDeletionLinkSupplier">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <verifyText description="Verify added title" text="${customer1_user2}_title" />
+      <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
+
+      <not>
+        <!-- since the supplier is not the creator of the review, the manage link is not visible -->
+        <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+      </not>
+
+      <not>
+        <!-- the deletion link must not be visible to normal users -->
+        <verifyXPath xpath="//a[@id='deleteReview1']" />
+      </not>
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_Rating_deleteReviewByMplAdmin">
+      <mpl_login.operator mid="${mId}" />
+
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <verifyText description="Verify added title" text="${customer1_user2}_title" />
+      <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
+
+      <not>
+        <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+      </not>
+
+      <!-- the deletion link is visible to the mpl admin -->
+      <verifyXPath xpath="//a[text()='Delete']" />
+
+      <clickElement xpath="//a[text()='Delete']" />
+
+      <storeXPath description="Check if the review key was passed properly" xpath="//input[@id='removeReviewPanelForm:param1']/@value" property="reviewKey" />
+      <not>
+        <verifyProperty description="Check the filed does not contain the default value 0" name="reviewKey" value="0" />
+      </not>
+
+      <!-- check field validation -->
+      <clickLink htmlId="removeReviewPanelForm:deleteButtonLink" />
+      <common.verifyError errorFieldId="removeReviewPanelErrorMessages" label="${error.text.fields}" enableFieldId="true"/>
+
+      <!-- test the 2 canel btns -->
+      <clickLink htmlId="removeReviewPanelForm:cancelButton" />
+      <clickLink xpath="//a[text()='Delete']" />
+      <not>
+        <common.verifyError errorFieldId="removeReviewPanelErrorMessages" label="${error.text.fields}" enableFieldId="true"/>
+      </not>
+      <clickLink htmlId="removeReviewPanelForm:deleteButtonLink" />
+      <common.verifyError errorFieldId="removeReviewPanelErrorMessages" label="${error.text.fields}" enableFieldId="true"/>
+      <clickButton htmlId="removeReviewPanelCancelButton" />
+      <clickLink xpath="//a[text()='Delete']" />
+      <not>
+        <common.verifyError errorFieldId="removeReviewPanelErrorMessages" label="${error.text.fields}" enableFieldId="true"/>
+      </not>
+
+      <!-- enter a reason and delete the review -->
+      <setInputField name="removeReviewPanelForm:deletionReason" value="deletion_reason" />
+      <clickLink htmlId="removeReviewPanelForm:deleteButtonLink" />
+
+      <mail.readReviewRemoved />
+      <verifyProperty name="mailContent" text=".*S1.*deletion_reason.*" regex="true" />
+
+      <!-- the email of the platform operator is not set, but is reqired for a subscription -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.profile />
+      <setInputField htmlId="editForm:email" value="${common.email}" />
+      <setSelectField name="editForm:country" value="DE" />
+      <clickButton label="${button.save}" />
+
+      <!-- Subscribe as platform operator to a service -->
+      <mpl_service.subscribe mid="${mId}" index="0" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+
+      <!-- Check that there is no review yet -->
+      <not>
+        <verifyText description="Verify added title" text="${customer1_user2}_title" />
+        <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
+      </not>
+
+      <!-- publish a rating as mpl admin -->
+      <mpl_rating.create title="admin_title" comment="admin_comment" star="${ratingValue1}" />
+
+      <!-- check that only the manage btn is shown -->
+      <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+      <not>
+        <verifyXPath xpath="//a[text()='Delete']" />
+      </not>
+      <!-- clean up -->
+
+      <clickLink htmlId="btnWriteFeedback" />
+      <clickLink htmlId="commentForm:btnRemove" />
+
+      <login.logout />
+
+      <!-- clean up / recreate the deleted review for the following tests -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
+    </webtest>
+
+    <!-- all the same rated should be sorted by name -->
+    <webtest name="testMPL_Rating_SortingManyRated">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
+
+      <mpl_goto.service svcButtonId="serviceButton1" svcName="MS S2" isFree="true" />
+      <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton2" svcName="MS S3" isFree="true" />
+      <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton3" svcName="MS S4" isFree="true" />
+      <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton4" svcName="MS S5" isFree="true" />
+      <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_ASCENDING}" />
+      <mpl_paging.verifyServices fromIndex="4" count="5" total="9" up="true" />
+
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_DESCENDING}" />
+      <mpl_paging.verifyServices fromIndex="0" count="5" total="9" up="true" />
+
+    </webtest>
+
+    <!-- give star from 1 till 5 and check sorting by stars -->
+    <webtest name="testMPL_Rating_SortingByStars">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user3}" />
+
+      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue1}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton1" svcName="MS S2" isFree="true" />
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue2}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton2" svcName="MS S3" isFree="true" />
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue3}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton3" svcName="MS S4" isFree="true" />
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue4}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.service svcButtonId="serviceButton4" svcName="MS S5" isFree="true" />
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue5}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_ASCENDING}" />
+      <mpl_paging.verifyServices fromIndex="4" count="5" total="9" up="true" />
+
+      <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.RATING_DESCENDING}" />
+      <mpl_paging.verifyServices fromIndex="4" count="5" total="9" up="true" />
+
+    </webtest>
+
+
+    <webtest name="testMPL_Rating_New">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <mpl_rating.create title="${customer1_user1}_title" comment="${customer1_user1}_comment" star="${ratingValue5}" />
+
+      <verifyText description="Verify added title" text="${customer1_user1}_title" />
+      <verifyText description="Verify added comment" text="${customer1_user1}_comment" />
+      <verifyXPath xpath="//div[@id='ratingText']" text="${service.reviews.star.5}" />
+      <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_Update">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_rating.update oldTitle="${customer1_user1}_title" oldComment="${customer1_user1}_comment" oldStar="${ratingValue5}" newTitle="${customer1_user1}_title_updated" newComment="${customer1_user1}_comment_updated" newStar="3" />
+    </webtest>
+
+    <webtest name="testMPL_Rating_Remove">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <verifyText description="Verify added title" text="${customer1_user1}_title_updated" />
+      <verifyText description="Verify added comment" text="${customer1_user1}_comment_updated" />
+      <verifyXPath xpath="//div[@id='ratingText']" text="${service.reviews.star.3}" />
+      <verifyText description="Verify existence 'Manage review' button" text="${service.reviews.manage}" />
+
+      <!-- we want to remove our rating -->
+      <clickElement htmlId="btnWriteFeedback" />
+      <verifyXPath xpath="//*[@id='writeReviewPanelRerenderPanel']//*[normalize-space()='${service.reviews.manage}']" />
+      <clickElement htmlId="commentForm:btnRemove" />
+
+      <verifyXPath xpath="//div[@id='ratingText']" text="${ratingText.noReviews}" />
+      <verifyText description="Verify existence 'Write review' button" text="${service.reviews.write}" />
+
+    </webtest>
+
+
+    <webtest name="testMPL_Rating_ManyReviews">
+
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <!--open write review modal window-->
+      <mpl_rating.create title="${customer1_user1}_title" comment="${customer1_user1}_comment" star="${ratingValue2}" />
+
+
+      <login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <!-- open write review modal window-->
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue3}" />
+
+      <login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${customer1_user3}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue5}" />
+
+      <verifyXPath xpath="//div[@class='ratingStars rating3_5']" />
+      <verifyXPath xpath="//span[@class='serviceRating']" text="3 ${ratingText.reviews}" />
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_CheckSorting">
+      <!-- switch to marketplace -->
+      <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <mpl_rating.update oldTitle="${customer1_user1}_title" oldComment="${customer1_user1}_comment" oldStar="${ratingValue2}" newTitle="${customer1_user1}_title_a" newComment="${customer1_user1}_comment_a" newStar="4" />
+
+      <login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
+
+      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+
+      <mpl_rating.update oldTitle="${customer1_user3}_title" oldComment="${customer1_user3}_comment" oldStar="${ratingValue5}" newTitle="${customer1_user3}_title_b" newComment="${customer1_user3}_comment_b" newStar="2" />
+
+      <verifyXPath xpath="//*[@id='review1'][.='${customer1_user3}_title_b']" />
+      <verifyXPath xpath="//*[@id='review2'][.='${customer1_user1}_title_a']" />
+
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_Rating_finalCleanup">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <login.logout />
+    </webtest>
+
+  </target>
+
+  <!-- chooses a service -->
+  <macrodef name="goto.service">
+    <attribute name="index" />
+    <attribute name="svcName" />
+    <sequential>
+      <clickLink htmlId="serviceButton@{index}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <mpl_verify.service_details svcName="@{svcName}" isFree="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- register a customer (using old portal) -->
+  <macrodef name="registerCustomerBySupplier">
+    <attribute name="setupPayment" default="false" />
+    <attribute name="userId" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <mail.cleanInbox />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer marketplaceId="@{marketplaceId}" userId="@{userId}" />
+
+      <ifStep test="@{setupPayment}">
+        <then>
+          <organization.managePayment rowNr="0" />
+          <organization.managePayment rowNr="1" />
+        </then>
+      </ifStep>
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerName1" value="#{userId}" propertyType="dynamic" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="@{marketplaceId}" />
+      <mpl_login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="subscribeAndAssignFourUsers">
+    <attribute name="index" />
+    <attribute name="userKeys" />
+    <sequential>
+      <mpl_service.subscribe mid="${mId}" index="@{index}" />
+      <storeXPath xpath="//*[@id='serviceDetailName']/text()" property="subId" />
+      <setup:subscription.addRevokeUser subscriptionId="#{subId}" usersToAdd="@{userKeys}" />
+    </sequential>
+  </macrodef>
+
+</project>

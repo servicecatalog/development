@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="101" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en"
+    cutoffday="1" />
+  <Organization tkey="102" version="0" organizationid="CUSTOMER" name="CUST1" registrationdate="1" locale="en"
+    cutoffday="1" />
+  <Organization tkey="103" version="0" organizationid="RESELLER" name="RESELLER1" registrationdate="1"
+    locale="en" cutoffday="1" />
+
+  <Technicalproduct tkey="1" version="0" technicalproductid="tpid_1" organizationkey="101"
+    provisioningurl="url" />
+  <Technicalproduct tkey="2" version="0" technicalproductid="tpid_2" organizationkey="101"
+    provisioningurl="url" />
+
+  <!-- TEMPLATE PRODUCT -->
+  <Product tkey="1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_1" vendorkey="101"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="1" type="TEMPLATE" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="1" objversion="0" productid="pid_1" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10001"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="TEMPLATE" />
+
+  <!-- SUBSCRIPTION COPY -->
+  <Product tkey="2" template_tkey="1" targetcustomer_tkey="[NULL]" version="0" productid="pid_1#0" vendorkey="101"
+    provisioningdate="10" status="ACTIVE" technicalproduct_tkey="1" type="SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="2" objversion="0" productid="pid_1#0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10002"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="SUBSCRIPTION" />
+  <Subscription tkey="1" version="0" subscriptionid="sid_1" product_tkey="2" creationdate="30" status="status"
+    timeoutmailsent="1" organizationkey="102" owner_tkey="[NULL]" cutoffday="1" />
+  <SubscriptionHistory tkey="10001" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="ADD" moduser="1" objkey="1" objversion="0" organizationobjkey="102" productobjkey="2" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_1" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+
+  <!-- CUSTOMER TEMPLATE -->
+  <Product tkey="3" template_tkey="1" targetcustomer_tkey="102" version="0" productid="pid_1#10" vendorkey="101"
+    provisioningdate="20" status="ACTIVE" technicalproduct_tkey="1" type="CUSTOMER_TEMPLATE" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="3" objversion="0" productid="pid_1#10" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10003"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="CUSTOMER_TEMPLATE" />
+
+  <!-- CUSTOMER SUBSCRIPTION -->
+  <Product tkey="4" template_tkey="3" targetcustomer_tkey="102" version="0" productid="pid_1#100" vendorkey="101"
+    provisioningdate="30" status="ACTIVE" technicalproduct_tkey="1" type="CUSTOMER_SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="4" objversion="0" productid="pid_1#100" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1"
+    tkey="10004" vendorobjkey="101" autoassignuserenabled="FALSE" type="CUSTOMER_SUBSCRIPTION" />
+
+  <!-- RESELLER SPECIFIC COPY -->
+  <Product tkey="5" template_tkey="1" targetcustomer_tkey="103" version="0" productid="pid_1#1000" vendorkey="101"
+    provisioningdate="20" status="ACTIVE" technicalproduct_tkey="1" type="PARTNER_TEMPLATE" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="3" objversion="0" productid="pid_1#1000" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1"
+    tkey="10005" vendorobjkey="101" autoassignuserenabled="FALSE" type="PARTNER_TEMPLATE" />
+
+  <!-- RESELLER SPECIFIC COPY FOR SUBSCRIPTION -->
+  <Product tkey="6" template_tkey="5" targetcustomer_tkey="103" version="0" productid="pid_1#10000" vendorkey="101"
+    provisioningdate="30" status="ACTIVE" technicalproduct_tkey="1" type="PARTNER_SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="4" objversion="0" productid="pid_1#10000" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1"
+    tkey="10006" vendorobjkey="101" autoassignuserenabled="FALSE" type="PARTNER_SUBSCRIPTION" />
+
+  <!-- TEMPLATE - DELETED -->
+  <Product tkey="7" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_7" vendorkey="101"
+    provisioningdate="0" status="DELETED" technicalproduct_tkey="1" type="TEMPLATE" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-01 10:00:00" moddate="2011-04-01 14:28:10" modtype="1" moduser="1"
+    objkey="7" objversion="0" productid="pid_7" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10007"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="TEMPLATE" />
+
+  <!-- TEMPLATE PRODUCT - TECHNICAL PRODUCT 2 -->
+  <Product tkey="8" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_8" vendorkey="101"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="2" type="TEMPLATE" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="8" objversion="0" productid="pid_8" provisioningdate="0" status="ACTIVE" technicalproductobjkey="2" tkey="10008"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="TEMPLATE" />
+
+  <!-- SUBSCRIPTION COPY - INVALID STATE -->
+  <Product tkey="9" template_tkey="1" targetcustomer_tkey="[NULL]" version="0" productid="pid_9#0" vendorkey="101"
+    provisioningdate="10" status="ACTIVE" technicalproduct_tkey="1" type="SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="9" objversion="0" productid="pid_9#0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10009"
+    vendorobjkey="101" autoassignuserenabled="FALSE" type="SUBSCRIPTION" />
+  <Subscription tkey="2" version="0" subscriptionid="sid_2" product_tkey="9" creationdate="30" status="INVALID"
+    timeoutmailsent="1" organizationkey="102" owner_tkey="[NULL]" cutoffday="1" />
+  <SubscriptionHistory tkey="10002" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="ADD" moduser="11" objkey="2" objversion="0" organizationobjkey="102" productobjkey="9" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+  <SubscriptionHistory tkey="10003" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="MODIFY" moduser="11" objkey="2" objversion="1" organizationobjkey="102" productobjkey="9" creationdate="30"
+    status="INVALID" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+
+  <!-- CUSTOMER SUBSCRIPTION - INVALID STATE -->
+  <Product tkey="10" template_tkey="3" targetcustomer_tkey="102" version="0" productid="pid_1#101" vendorkey="101"
+    provisioningdate="30" status="ACTIVE" technicalproduct_tkey="1" type="CUSTOMER_SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="1"
+    objkey="10" objversion="0" productid="pid_1#101" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1"
+    tkey="10010" vendorobjkey="101" autoassignuserenabled="FALSE" type="CUSTOMER_SUBSCRIPTION" />
+  <Subscription tkey="3" version="0" subscriptionid="sid_3" product_tkey="10" creationdate="30" status="INVALID"
+    timeoutmailsent="1" organizationkey="102" owner_tkey="[NULL]" cutoffday="1" />
+  <SubscriptionHistory tkey="10004" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="ADD" moduser="11" objkey="3" objversion="0" organizationobjkey="102" productobjkey="10" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+  <SubscriptionHistory tkey="10005" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="MODIFY" moduser="11" objkey="3" objversion="1" organizationobjkey="102" productobjkey="10" creationdate="30"
+    status="INVALID" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+
+  <!-- RESELLER - PARTNER SUBSCRIPTION - INVALID STATE -->
+  <Product tkey="11" template_tkey="5" targetcustomer_tkey="103" version="0" productid="pid_1#10001" vendorkey="101"
+    provisioningdate="30" status="ACTIVE" technicalproduct_tkey="1" type="PARTNER_SUBSCRIPTION" autoassignuserenabled="FALSE" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="11" objversion="0" productid="pid_1#10001" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1"
+    tkey="10011" vendorobjkey="101" autoassignuserenabled="FALSE" type="PARTNER_SUBSCRIPTION" />
+  <Subscription tkey="4" version="0" subscriptionid="sid_4" product_tkey="11" creationdate="30" status="INVALID"
+    timeoutmailsent="1" organizationkey="102" owner_tkey="[NULL]" cutoffday="1" />
+  <SubscriptionHistory tkey="10006" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="ADD" moduser="11" objkey="4" objversion="0" organizationobjkey="102" productobjkey="11" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+  <SubscriptionHistory tkey="10007" invocationdate="2011-04-04 10:00:00" moddate="2011-04-04 10:00:00"
+    modtype="MODIFY" moduser="11" objkey="4" objversion="1" organizationobjkey="102" productobjkey="11" creationdate="30"
+    status="INVALID" subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" ownerobjkey="[NULL]" />
+
+</dataset>

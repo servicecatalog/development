@@ -1,0 +1,178 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+    <h:form id="localizeForm">
+      <c:forEach items="#{serviceBean.localization.names}" var="it">
+        <h:inputHidden id="name_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
+      <c:forEach items="#{serviceBean.localization.shortDescriptions}" var="it">
+        <h:inputHidden id="shortdesc_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
+      <c:forEach items="#{serviceBean.localization.descriptions}" var="it">
+        <h:inputHidden id="desc_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
+
+      <adm:outputStep value="#{msg['service.localize.step1']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['common.locale']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="srcLocale" styleClass="select" onchange="localizeLocaleChanged('src')">
+	          <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <adm:message for="srcLocale" />
+
+        <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+        <h:panelGroup>
+          <h:inputText id="srcServiceName" label="#{msg['service.nameForCustomer']}" styleClass="field"
+            maxlength="#{appBean.nameLen}" disabled="true" required="false">
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="serviceName" />
+        
+        <adm:labelAndInputTextarea id="srcServiceShortDescription" label="#{msg['service.shortDescription']}" styleClass="field" 
+          maxlength="#{appBean.descriptionLen}" disabled="true" required="false" />
+      </adm:panelGrid>
+      
+      <adm:collapsibleSection sectionId="srcDescriptionSection" label="#{msg['service.description']}">
+        <adm:richEditor id="srcDescription"
+          oninit="Localize.translation2Editor('srcLocale', 'desc_', Localize.getEditor('srcDescription'));"
+          readonly="true">
+        </adm:richEditor>
+        <adm:message for="srcDescription" />
+      </adm:collapsibleSection>
+
+      <adm:outputStep value="#{msg['service.localize.step2']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['common.locale']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="trgLocale" styleClass="select" onchange="localizeLocaleChanged('trg')">
+	          <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <adm:message for="trgLocale" />
+
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['service.localize.step3']}" />
+      <adm:panelGrid>
+        <!-- text area for the editable name-->
+        <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+        <h:panelGroup>
+          <h:inputText id="trgServiceName" label="#{msg['service.nameForCustomer']}" styleClass="field"
+            maxlength="#{appBean.nameLen}" onchange="Localize.field2Translation('trgLocale', 'name_', this)" >
+            <f:validateLength maximum="#{appBean.nameLen}" />
+            <f:converter converterId="trimConverter" />
+          </h:inputText>
+        </h:panelGroup>
+        <adm:message for="trgServiceName" />
+        
+        <!-- text area for the editable short description -->
+        <adm:outputLabel value="#{msg['service.shortDescription']}" />
+        <h:inputTextarea
+          id="trgServiceShortDescription"
+          label="#{msg['service.shortDescription']}" maxlength="#{appBean.descriptionLen}"
+          rows="3" styleClass="field" onchange="Localize.field2Translation('trgLocale', 'shortdesc_', this);" >
+            <f:validateLength maximum="#{appBean.descriptionLen}" />
+        </h:inputTextarea>
+        <adm:message for="trgServiceShortDescription" />
+      </adm:panelGrid>
+
+      <!-- text area for the editable description-->
+      <adm:collapsibleSection sectionId="trgDescriptionSection" label="#{msg['service.description']}">
+        <table width="100%">
+          <tr>
+            <td>
+            <adm:richEditor id="trgDescription" styleClass="field"
+              oninit="Localize.translation2Editor('trgLocale', 'desc_', Localize.getEditor('trgDescription'));"
+              ondirty="Localize.editor2Translation('trgLocale', 'desc_', Localize.getEditor('trgDescription'));"
+              readonly="false">
+            </adm:richEditor> 
+            <adm:message for="trgDescription" /></td>
+          </tr>
+        </table>
+      </adm:collapsibleSection>
+
+      <h:inputHidden id="dirtyLocalize" value="#{serviceBean.dirty}" />
+      <h:commandButton style="display:none;" id="saveLocalizedValuesButtonHidden" value="#{msg['button.ok']}"
+        action="#{serviceBean.saveLocalizedValues}" />
+      <adm:buttonPanel columns="2">
+        <adm:buttonCustomizedOnClick id="saveLocalizedValuesButton" value="#{msg['button.ok']}" onclick="localizeSave()" />
+        <adm:buttonCustomizedOnClick id="cancelButton" value="#{msg['button.cancel']}" onclick="localizeCancel()" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+    <h:form id="resetForm">
+      <h:commandButton style="display:none;" id="resetLocalizedValuesButtonHidden" value="#{msg['button.cancel']}"
+        action="#{serviceBean.cancelLocalize}" />
+    </h:form>
+
+    <script src="#{facesContext.externalContext.requestContextPath}/scripts/localize.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+	localizeStart = function() {
+	  Localize.init('#{userBean.myLocale}');
+	  localizeLocaleChanged('src');
+	  localizeLocaleChanged('trg')
+	  setDirty(eval(#{rich:element('dirtyLocalize')}.value));
+	
+	  var e1 = #{rich:element('srcLocale')};
+	  var e2 = #{rich:element('trgLocale')};
+	  if (e1 &amp;&amp; e2) {
+	    e1 = e1.parentNode.parentNode.firstChild;
+	    e2 = e2.parentNode.parentNode.firstChild;
+	    var w = e1.offsetWidth;
+	    if ( e2.offsetWidth > w ) {
+	      w = e2.offsetWidth;
+	    }
+	    e1.style.width = w + "px";
+	    e2.style.width = w + "px";
+	  }
+	}
+	
+	localizeSave = function() {
+	  if (getDirty()) {
+	    #{rich:element('dirtyLocalize')}.value = "true";
+	  }
+	  setOnSubmit(true);
+	  setDirty(false);
+	  #{rich:element('saveLocalizedValuesButtonHidden')}.click();
+	  setOnSubmit(false);
+	  return false;
+	}
+	
+	localizeCancel = function() {
+	  setDirty(false);
+	  #{rich:element('resetLocalizedValuesButtonHidden')}.click();
+	  return false;
+	}
+	
+	localizeLocaleChanged = function(prefix) {
+	  Localize.translation2Field(prefix+'Locale', 'name_', Localize.getElement(prefix+'ServiceName'));
+	  Localize.translation2Field(prefix+'Locale', 'shortdesc_', Localize.getElement(prefix+'ServiceShortDescription'));
+	  Localize.translation2Editor(prefix+'Locale', 'desc_', Localize.getEditor(prefix+'Description'));
+	}
+	
+	jQuery().ready(function(){
+		localizeStart();
+	})
+
+    </script>
+
+</ui:composition>

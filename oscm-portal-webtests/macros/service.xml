@@ -1,0 +1,596 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="service.define">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="You can register up to three user from which two can simultaneously use the service. After five minutes the subscription will be deactivated automatically if you do not change the rate." />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="concurrentUser" default="" />
+    <attribute name="namedUser" default="" />
+    <attribute name="configurableChecked" default="false" />
+    <attribute name="publicService" default="true" />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="image" default="" />
+    <attribute name="expectedSaveState" default="ok" />
+    <attribute name="autoAssignUsers" default="false" />
+    <attribute name="externalConfiguratorUrl" default="" />
+
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      <ifStep description="Only set the image if specified">
+        <condition>
+          <verifyProperty name="imageFile" text="" regex="false" />
+        </condition>
+        <else>
+          <setFileField htmlId="editForm:image" fileName="@{image}" />
+        </else>
+      </ifStep>
+      <common.setEditorValue htmlId="editForm:description" value="@{description}" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription}" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <setInputField htmlId="editForm:parameterTable:0:longValue" value="@{concurrentUser}" />
+      <setInputField htmlId="editForm:parameterTable:1:longValue" value="@{namedUser}" />
+      <setCheckbox htmlId="editForm:parameterTable:3:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:7:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:11:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:12:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:13:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:14:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:15:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:16:configurable" checked="@{configurableChecked}" />
+      <verifyElementText htmlId="editForm:parameterTable:15:parameterDescription" text="Rename any user folder" />
+      <setInputField htmlId="editForm:externalConfiguratorUrl" value="@{externalConfiguratorUrl}" />
+      <clickButton label="${button.save}" />
+
+      <verifyTextarea htmlId="editForm:description:inp" text="@{description}" />
+      <verifyTextarea htmlId="editForm:serviceShortDescription" text="@{shortDescription}" />
+      <ifStep test="@{autoAssignUsers}">
+        <verifyXPath xpath="//*[@id='editForm:checkboxAutoAssignUser']/@checked='checked'" />
+      </ifStep>
+
+      <verifyInputField htmlId="editForm:externalConfiguratorUrl" value="@{externalConfiguratorUrl}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <setCheckbox htmlId="editForm:publicServiceCheckBox" checked="@{publicService}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <storeProperty name="expectedSaveState" value="@{expectedSaveState}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="expectedSaveState" text="ok" regex="true" />
+        </condition>
+        <then>
+          <common.verifySuccess label="@{serviceId}" />
+        </then>
+        <else>
+          <verifyXPath xpath="//dl[@id='errorMessages']//span[.='@{expectedSaveState}']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="service.defineForOnetimeParameter">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="You can register up to three user from which two can simultaneously use the service. After five minutes the subscription will be deactivated automatically if you do not change the rate." />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="concurrentUser" default="" />
+    <attribute name="namedUser" default="" />
+    <attribute name="configurableChecked" default="false" />
+    <attribute name="isTrial" default="false" />
+    <attribute name="publicService" default="true" />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="image" default="" />
+    <attribute name="expectedSaveState" default="ok" />
+    <attribute name="autoAssignUsers" default="false" />
+
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      <ifStep description="Only set the image if specified">
+        <condition>
+          <verifyProperty name="imageFile" text="" regex="false" />
+        </condition>
+        <else>
+          <setFileField htmlId="editForm:image" fileName="@{image}" />
+        </else>
+      </ifStep>
+      <common.setEditorValue htmlId="editForm:description" value="@{description}" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription}" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <setInputField htmlId="editForm:parameterTable:0:longValue" value="@{concurrentUser}" />
+      <setInputField htmlId="editForm:parameterTable:1:longValue" value="@{namedUser}" />
+      <setCheckbox htmlId="editForm:parameterTable:3:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:7:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:11:configurable" checked="@{isTrial}" />
+      <setCheckbox htmlId="editForm:parameterTable:12:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:13:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:14:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:15:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:16:configurable" checked="@{isTrial}" />
+      <verifyElementText htmlId="editForm:parameterTable:15:parameterDescription" text="Rename any user folder" />
+      <clickButton label="${button.save}" />
+
+      <verifyTextarea htmlId="editForm:description:inp" text="@{description}" />
+      <verifyTextarea htmlId="editForm:serviceShortDescription" text="@{shortDescription}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <setCheckbox htmlId="editForm:publicServiceCheckBox" checked="@{publicService}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <storeProperty name="expectedSaveState" value="@{expectedSaveState}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="expectedSaveState" text="ok" regex="true" />
+        </condition>
+        <then>
+          <common.verifySuccess label="@{serviceId}" />
+        </then>
+        <else>
+          <verifyXPath xpath="//dl[@id='errorMessages']//span[.='@{expectedSaveState}']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="service.defineWithoutParameter">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="You can register up to three user from which two can simultaneously use the service. After five minutes the subscription will be deactivated automatically if you do not change the rate." />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="concurrentUser" default="" />
+    <attribute name="namedUser" default="" />
+    <attribute name="publicService" default="true" />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="image" default="" />
+    <attribute name="autoAssignUsers" default="false" />
+
+    <sequential>
+      <common.ignorePageScriptError />
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="imageFile" value="@{image}" />
+      <ifStep description="Only set the image if specified">
+        <condition>
+          <verifyProperty name="imageFile" text="" regex="false" />
+        </condition>
+        <else>
+          <setFileField htmlId="editForm:image" fileName="@{image}" />
+        </else>
+      </ifStep>
+      <common.setEditorValue htmlId="editForm:description" value="@{description}" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription}" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <setCheckbox htmlId="editForm:publicServiceCheckBox" checked="@{publicService}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.defineForDirectAccess">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="A longer description" />
+    <attribute name="configurableChecked" default="true" />
+    <attribute name="marketplaceId" default="" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <not description="verify that concurrent user parameter is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:0:longValue" value="" />
+      </not>
+      <not description="verify that named user parameter is not displayed">
+        <verifyInputField htmlId="editForm:parameterTable:1:longValue" value="" />
+      </not>
+      <verifyInputField description="verify that expiration period is on first position" htmlId="editForm:parameterTable:0:durationValue" value=".*" regex="true" />
+      <setCheckbox htmlId="editForm:parameterTable:0:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:1:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:2:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:3:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:4:configurable" checked="@{configurableChecked}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.defineForUserAccess">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="A longer description" />
+    <attribute name="configurableChecked" default="true" />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="autoAssignUsers" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <verifyInputField description="verify that named user parameter is on first position" htmlId="editForm:parameterTable:0:longValue" value="" />
+      <verifyInputField description="verify that expiration period is on second position" htmlId="editForm:parameterTable:1:durationValue" value=".*" regex="true" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <setCheckbox htmlId="editForm:parameterTable:0:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:1:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:2:configurable" checked="@{configurableChecked}" />
+      <setCheckbox htmlId="editForm:parameterTable:3:configurable" checked="@{configurableChecked}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.defineWithoutParams">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="techServiceId" default="Example 1.00" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="You can register up to three user from which two can simultaneously use the service. After five minutes the subscription will be deactivated automatically if you do not change the rate." />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="autoAssignUsers" default="false" />
+
+    <sequential>
+      <common.clickAndVerfyLink label="${service.add.title}" />
+      <setSelectField htmlId="editForm:techServiceId" text="@{techServiceId}" />
+      <setInputField htmlId="editForm:serviceId" value="@{serviceId}" />
+      <setInputField htmlId="editForm:serviceName" value="@{name}" />
+      <common.setEditorValue htmlId="editForm:description" value="@{description}" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription}" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <common.clickAndVerfyLink label="${service.publish.title}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <setSelectField htmlId="editForm:marketplace" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+        </else>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.defineMigrationOption">
+    <attribute name="srcServiceId" default="ExampleTrial" />
+    <attribute name="trgServiceIndex" default="0" />
+    <attribute name="checked" default="true" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.upgradeOptions.title}" />
+      <setSelectField name="editForm:srcServiceId" text="@{srcServiceId}" />
+      <setCheckbox htmlId="editForm:serviceTable:@{trgServiceIndex}:selected" checked="@{checked}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{srcServiceId}" />
+      <ifStep description="Bug 6557: No concurrency exception must occur with second click on save." test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{srcServiceId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.localize">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="name" default="Trial" />
+    <attribute name="description" default="You can register up to three user from which two can simultaneously use the service. After five minutes the subscription will be deactivated automatically if you do not change the rate." />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="autoAssignUsers" default="false" />
+    <sequential>
+      <clickLink href="/service/edit.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.edit.title}" description="we should see the panel title :${service.edit.title}" />
+      <setSelectField name="editForm:selectedServiceId" text="@{serviceId}" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="updatedShortDscr" value="@{shortDescription} upd" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="#{updatedShortDscr}" />
+
+
+      <clickLink label="${button.localize}" />
+
+      <!-- validate bug 7611 -->
+      <setSelectField htmlId="localizeForm:srcLocale" value="de" />
+      <setSelectField htmlId="localizeForm:srcLocale" value="en" />
+      <verifyTextarea htmlId="localizeForm:srcServiceShortDescription" text="#{updatedShortDscr}" />
+
+      <setSelectField name="localizeForm:trgLocale" value="de" />
+      <setInputField htmlId="localizeForm:trgServiceName" value="@{name} de" />
+      <common.setEditorValue htmlId="localizeForm:trgDescription" value="@{description} de" />
+      <setInputField htmlId="localizeForm:trgServiceShortDescription" value="@{shortDescription} de" />
+
+      <setSelectField name="localizeForm:trgLocale" value="en" />
+
+      <setInputField htmlId="localizeForm:trgServiceName" value="@{name} en" />
+      <common.setEditorValue htmlId="localizeForm:trgDescription" value="@{description} en" />
+      <setInputField htmlId="localizeForm:trgServiceShortDescription" value="@{shortDescription} en" />
+
+      <clickLink htmlId="localizeForm:saveLocalizedValuesButton" />
+
+      <clickButton label="${button.save}" />
+      <!--setSelectField htmlId="editForm:marketplace" optionIndex="1" /-->
+      <clickElement htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{serviceId}" />
+
+      <!-- verification -->
+      <clickLink href="/service/edit.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.edit.title}" description="we should see the panel title :${service.edit.title}" />
+      <setSelectField name="editForm:selectedServiceId" text="@{serviceId}" />
+      <clickLink label="${button.localize}" />
+      <setSelectField name="localizeForm:trgLocale" value="de" />
+      <verifyInputField htmlId="localizeForm:trgServiceName" value="@{name} de" />
+      <verifyTextarea htmlId="localizeForm:trgServiceShortDescription" text="@{shortDescription} de" />
+      <setSelectField name="localizeForm:trgLocale" value="en" />
+      <verifyInputField htmlId="localizeForm:trgServiceName" value="@{name} en" />
+      <verifyTextarea htmlId="localizeForm:trgServiceShortDescription" text="@{shortDescription} en" />
+      <clickLink htmlId="localizeForm:cancelButton" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.deActivate">
+    <attribute name="rowNr" default="0" />
+    <attribute name="active" default="true" />
+    <attribute name="suspended" default="false" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="reExecution" default="false" />
+    <attribute name="checkCat" default="true" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:@{rowNr}:active" checked="@{active}" />
+      <ifStep test="@{checkCat}">
+        <then>
+          <setCheckbox htmlId="serviceDeActivationForm:activationTable:@{rowNr}:visibleInCatalog" checked="@{active}" />
+        </then>
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <ifStep test="@{reExecution}">
+        <then>
+          <ifStep test="@{active}">
+            <then>
+              <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.ACTIVATE_SERVICE}" att0=".*" />
+            </then>
+            <else>
+              <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.DEACTIVATE_SERVICE}" att0=".*" />
+            </else>
+          </ifStep>
+          <common.verifyError label="#{errMsg}" />
+        </then>
+        <else>
+          <common.verifySuccess label="${info.service.statesaved}" suspended="@{suspended}" />
+          <ifStep test="@{concurrencyCheck}">
+            <clickButton label="${button.save}" />
+            <!-- no error must be shown -->
+            <not>
+              <common.verifyError label="." />
+            </not>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.delete">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <sequential>
+      <clickLink href="/service/delete.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.delete.title}" description="we should see the panel title :${service.edit.title}" />
+      <setSelectField htmlId="selectForm:serviceId" text="@{serviceId}" />
+      <clickLink htmlId="deleteForm:deleteButton" />
+      <clickLink htmlId="confirmForm:okButton" />
+      <clickButton htmlId="deleteForm:confirmedButton" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="service.update">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="concurrencyCheck" default="false" />
+    <attribute name="marketplaceId" default="" />
+    <attribute name="shortDescription" default="Some short description about this service." />
+    <attribute name="checkShortDescription" default="true" />
+    <attribute name="autoAssignUsers" default="false" />
+    <attribute name="externalConfiguratorUrl" default="" />
+    <sequential>
+      <clickLink href="/service/edit.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.edit.title}" description="we should see the panel title :${service.edit.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+      <common.setEditorValue htmlId="editForm:description" value="@{description} update" />
+      <setInputField htmlId="editForm:serviceShortDescription" value="@{shortDescription} update" />
+      <setCheckbox htmlId="editForm:checkboxAutoAssignUser" checked="@{autoAssignUsers}" />
+      <storeProperty name="mpid" value="@{marketplaceId}" />
+      <ifStep description="Only select a marketplace if one is specified - otherwise the local one is selected by default">
+        <condition>
+          <verifyProperty name="mpid" text="" regex="false" />
+        </condition>
+        <then>
+          <!--setSelectField htmlId="editForm:marketplace" optionIndex="1" /-->
+        </then>
+        <else>
+          <!--setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" /-->
+        </else>
+      </ifStep>
+      <setInputField htmlId="editForm:externalConfiguratorUrl" value="@{externalConfiguratorUrl}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{serviceId}" />
+      <verifyTextarea htmlId="editForm:description:inp" text="@{description} update" />
+      <ifStep test="@{checkShortDescription}">
+        <verifyTextarea htmlId="editForm:serviceShortDescription" text="@{shortDescription} update" />
+      </ifStep>
+
+      <ifStep test="@{autoAssignUsers}">
+        <verifyXPath xpath="//*[@id='editForm:checkboxAutoAssignUser']/@checked='checked'" />
+      </ifStep>
+
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{serviceId}" />
+      </ifStep>
+
+      <verifyInputField htmlId="editForm:externalConfiguratorUrl" value="@{externalConfiguratorUrl}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.getKey">
+    <attribute name="serviceId" />
+    <attribute name="keyProperty" />
+    <sequential>
+      <clickLink href="/service/edit.jsf" />
+      <storeXPath description="Get service key" xpath="//*[@id='editForm:selectedServiceId']/option[text()='@{serviceId}']/@value" property="@{keyProperty}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.copy">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="newServiceId" default="Copy of ExampleTrial" />
+    <sequential>
+      <clickLink href="/service/copy.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.copy.title}" description="we should see the panel title :${service.copy.title}" />
+      <setSelectField htmlId="copyForm:selectedServiceId" text="@{serviceId}" />
+      <setInputField htmlId="copyForm:newServiceId" value="@{newServiceId}" />
+      <clickButton label="${button.copy}" />
+      <!-- redirect to edit page -->
+      <verifyElementText htmlId="pagelabel" text="${service.edit.title}" description="we should see the panel title :${service.edit.title}" />
+      <common.verifySuccess label="@{newServiceId}" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="service.upgradeDef">
+    <attribute name="fromServiceId" default="ExampleTrial" />
+    <attribute name="toServiceIndex" default="0" />
+    <sequential>
+      <clickLink href="/service/upgradeoptions.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.upgradeOptions.title}" description="we should see the panel title :${service.upgradeOptions.title}" />
+      <setSelectField htmlId="editForm:srcServiceId" text="@{fromServiceId}" />
+      <setCheckbox htmlId="editForm:serviceTable:@{toServiceIndex}:selected" checked="true" />
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{fromServiceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.publish">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="marketplaceId" default="" />
+    <sequential>
+      <clickLink href="/service/publish.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.publish.title}" description="we should see the panel title :${service.publish.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="service.assignToCategory">
+    <attribute name="serviceId" default="ExampleTrial" />
+    <attribute name="marketplaceId" />
+    <attribute name="category" />
+    <attribute name="assign" default="true"/>
+    <sequential>
+      <clickLink href="/service/publish.jsf" />
+      <verifyElementText htmlId="pagelabel" text="${service.publish.title}" description="we should see the panel title :${service.publish.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+      <setCheckbox htmlId="editForm:catTable:@{category}:catCheckbox" checked="@{assign}" />
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{serviceId}" />
+    </sequential>
+  </macrodef>
+
+</project>

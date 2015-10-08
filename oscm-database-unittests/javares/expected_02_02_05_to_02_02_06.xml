@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Parameterdefinition tkey="1000" configurable="true" mandatory="false" minimumvalue="1"
+    parameterid="CONCURRENT_USER" parametertype="PLATFORM_PARAMETER" valuetype="LONG" version="0" modificationtype="STANDARD" />
+
+  <Parameterdefinitionhistory tkey="1000" configurable="false" mandatory="false"
+    minimumvalue="0" parameterid="CONCURRENT_USER" parametertype="PLATFORM_PARAMETER" valuetype="DURATION" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1002" objversion="0" technicalproductobjkey="123" modificationtype="STANDARD" />
+</dataset>

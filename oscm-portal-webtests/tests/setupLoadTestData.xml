@@ -1,0 +1,198 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="setupLoadTestData">
+  <import file="../macros/all.xml" />
+  <target name="setupLoadTestData">
+    <webtest name="Create the loadtest data">
+      <mail.cleanInbox />
+
+      <!-- Technology provider -->
+      <operator.addCurrency/>
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER"/>
+      <mail.readPasswordAndUrlFromMail />
+      <echo level="warning" message="TechnologyProviderUrl: #{orgUrl}" />
+      <echo level="warning" message="TechnologyProviderId: #{orgId}" />
+      <storeProperty name="tpUrl" value="#{orgUrl}" />
+      <storeProperty name="tpId" value="#{orgId}" />
+      <storeProperty name="tpUserId" value="#{userId}" />
+
+      <login.initialLoginAndChangePassword url="#{tpUrl}" userId="#{tpUserId}" password="#{userPwd}" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <login.logout />
+      
+      <this.registerUserAndChangePwd curUserId="#{tpUserId}" url="#{tpUrl}" userId="tpUser1"/>
+      <this.registerUserAndChangePwd curUserId="#{tpUserId}" url="#{tpUrl}" userId="tpUser2"/>
+      <this.registerUserAndChangePwd curUserId="#{tpUserId}" url="#{tpUrl}" userId="tpUser3"/>
+      <this.registerUserAndChangePwd curUserId="#{tpUserId}" url="#{tpUrl}" userId="tpUser4"/>
+      
+      
+      <!-- Supplier -->
+      <operator.createorganization roles="SUPPLIER"/>
+      <mail.readPasswordAndUrlFromMail />
+      <echo level="warning" message="SupplierUrl: #{orgUrl}" />
+      <echo level="warning" message="SupplierId: #{orgId}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <login.logout />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" paymentTypes="INVOICE"/>
+
+      <!-- Technology provider -->
+      <login.login url="#{tpUrl}" userId="#{tpUserId}" />
+      <user.addSuppliers supplierID="#{supplierId}" />
+      <login.logout />
+      
+      
+      <!-- Supplier -->
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" />      
+      
+      <service.define serviceId="ExampleTrial" name="Trial" description="Trial description" />
+      <service.define serviceId="ExampleStarter" name="Starter" description="Starter description" />
+      <service.define serviceId="ExampleProfessional" name="Professional" description="Professional description" configurableChecked="true" />
+      <service.define serviceId="ExampleProfessional2" name="Professional2" description="Professional2 description" configurableChecked="true" />
+
+      <pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+      <pricemodel.define serviceId="ExampleProfessional2" isFree="false" />
+
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="0" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="1" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="0" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="1" checked="true" />
+
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <service.deActivate rowNr="2" active="true" />
+      <service.deActivate rowNr="3" active="true" />
+
+      <user.registerCustomer userId="${common.userId}" />
+      <login.logout />
+
+      <!-- Customer -->
+      <mail.readPasswordAndUrlFromMail />
+      <echo level="warning" message="CustomerUrl: #{orgUrl}" />
+      <echo level="warning" message="CustomerId: #{orgId}" />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerId" value="#{orgId}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <login.initialLoginAndChangePassword url="#{customerUrl}" userId="#{customerUserId}" password="#{userPwd}" />
+      <login.logout />
+
+      <!-- Supplier: enable INVOICE for customer -->
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" />
+      <organization.managePayment rowNr="0"/>
+      <login.logout />
+
+      <this.registerUserAndChangePwd curUserId="#{supplierUserId}" url="#{supplierUrl}" userId="suppUser1"/>
+      <this.registerUserAndChangePwd curUserId="#{supplierUserId}" url="#{supplierUrl}" userId="suppUser2"/>
+      <this.registerUserAndChangePwd curUserId="#{supplierUserId}" url="#{supplierUrl}" userId="suppUser3"/>
+      <this.registerUserAndChangePwd curUserId="#{supplierUserId}" url="#{supplierUrl}" userId="suppUser4"/>
+
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser1"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser2"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser3"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser4"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser5"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser6"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser7"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser8"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser9"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser10"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser11"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser12"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser13"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser14"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser15"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser16"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser17"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser18"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser19"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser20"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser21"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser22"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser23"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser24"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser26"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser27"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser28"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser29"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser30"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser31"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser32"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser33"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser34"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser35"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser36"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser37"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser38"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser39"/>
+      <this.registerUserAndChangePwd curUserId="#{customerUserId}" url="#{customerUrl}" userId="custUser40"/>
+      
+      <!-- Customer subscribe and assign users -->
+      <login.login url="#{customerUrl}" userId="#{customerUserId}" />
+      <storeProperty name="subscriptionName" value="sub1" />
+      <subscription.create rowNr="2" name="#{subscriptionName}"/>
+      <subscription.assign name="#{subscriptionName}" rowNr="0" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="1" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="2" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="3" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="4" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="5" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="6" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="7" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="8" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="9" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="10" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="11" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="12" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="13" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="14" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="15" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="16" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="17" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="18" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="19" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="20" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="21" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="22" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="23" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="24" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="25" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="26" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="27" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="28" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="29" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="30" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="31" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="32" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="33" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="34" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="35" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="36" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="37" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="38" assign="true" />
+      <subscription.assign name="#{subscriptionName}" rowNr="39" assign="true" />
+      
+    </webtest>
+  </target>
+
+  
+  <macrodef name="this.registerUserAndChangePwd">
+    <attribute name="curUserId" />
+    <attribute name="url" />
+    <attribute name="userId" />
+    <sequential>
+      <login.login url="@{url}" userId="@{curUserId}" />
+      <user.register userId="@{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="@{url}" userId="#{userId}" password="#{userPwd}" />
+      <login.logout />
+    </sequential>
+  </macrodef>  
+  
+</project>

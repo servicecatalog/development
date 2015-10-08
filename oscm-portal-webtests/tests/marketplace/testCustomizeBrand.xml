@@ -1,0 +1,187 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="runTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="runTests" depends="testCustomizeBrand,bug9210">
+  </target>
+
+  <target name="setup">
+    <webtest name="setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testCustomizeBrand" depends="setup">
+
+    <webtest name="testCustomizeBrand_WhiteLabelSet">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+
+      <!-- Check that the Save button is disabled if no marketplace is selected. -->
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="0" />
+      <verifyXPath xpath="//*[@id='defineBrandForm:saveButtonDisabled']/@class='buttonDisabled'" />
+
+      <!-- Input an empty string to set the white label URL for a selected marketplace. -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <setInputField htmlId="defineBrandForm:brandUrl" value="" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.whiteLabelBrandingUrl.set}" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+
+      <!-- Verify that the white label CSS is actually used by marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+
+    </webtest>
+
+    <webtest name="testCustomizeBrand_RelativeBrandingUrlSet_Bug9405">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+
+      <!-- Input the path of a reachable style sheet file. -->
+      <setInputField htmlId="defineBrandForm:brandUrl" value="/oscm-portal/css/main.css" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.brandingUrl.set}" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+
+      <!-- Verify that the specified CSS is actually used by marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/css/main.css']" />
+    </webtest>
+
+    <webtest name="testCustomizeBrand_BrandingUrlSet">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+
+      <!-- Input the path of a reachable style sheet file. -->
+      <setInputField htmlId="defineBrandForm:brandUrl" value="${bes.http.url}/oscm-portal/css/main.css" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.brandingUrl.set}" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+
+      <!-- Verify that the specified CSS is actually used by marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//link[@href='${bes.http.url}/oscm-portal/css/main.css']" />
+    </webtest>
+
+    <webtest name="testCustomizeBrand_InvalidUrl">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+
+      <!-- Input an empty string to set the white label URL for a selected marketplace. -->
+      <setInputField htmlId="defineBrandForm:brandUrl" value="" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.whiteLabelBrandingUrl.set}" />
+
+      <!-- Type an invalid url. -->
+      <setInputField htmlId="defineBrandForm:brandUrl" value="test" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+
+      <!-- Verify the field error message. -->
+      <common.handleMessageParameters property="errorMsg" value="${ex.ValidationException.URL}" att0="${marketplace.brandUrl}" />
+      <common.verifyFieldError fieldId="defineBrandForm:brandUrl" label="#{errorMsg}" />
+
+      <!-- Verify that the white label CSS is actually used by marketplace -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+      <common.reSetPageScriptError/>
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testCustomizeBrand_DownloadBranding">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <clickLink htmlId="downloadBrandForm:downloadBrandButton" />
+      <selectWindow index="0" />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testCustomizeBrand_WhiteLabelSetToNewMarketplace">
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" mIdProperty="createdMarketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${createdMarketplaceId}" userId="${supplierUserId}" password="secret" />
+
+      <mpl_goto.marketplace mid="${createdMarketplaceId}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+      <!-- Bug 9018: verify the customizable copyright info -->
+      <verifyXPath xpath="//*[@id='termsLink']" text="${marketplace.copyright}" />
+    </webtest>
+
+    <webtest name="testCustomizeBrand_ResetWhiteLabel">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+
+      <!-- Reset the white label URL for the marketplace. -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <setInputField htmlId="defineBrandForm:brandUrl" value="" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.whiteLabelBrandingUrl.set}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="bug9210">
+    <webtest name="setupTestBug9210">
+      <operator.createMarketplace mIdProperty="mId_bug9210" name="Marketplace1" />
+      <operator.createMarketplace mIdProperty="mId2_bug9210" name="Marketplace2" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId_bug9210}" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId2_bug9210}" />
+    </webtest>
+
+    <webtest name="testBug9210">
+      <operatorPortal.login />
+      <common.ignorePageScriptError/>
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId_bug9210}" />
+
+      <!-- Input the path of a reachable style sheet file. -->
+      <setInputField htmlId="defineBrandForm:brandUrl" value="${bes.http.url}/oscm-portal/css/main.css" />
+      <clickElement htmlId="defineBrandForm:saveButtonLink" />
+      <common.verifySuccess label="${info.brandingUrl.set}" />
+      <login.logout />
+
+      <!-- Verify that the specified CSS is actually used by marketplace -->
+      <mpl_goto.marketplace mid="${mId_bug9210}" />
+      <verifyXPath xpath="//link[@href='${bes.http.url}/oscm-portal/css/main.css']" />
+
+      <!-- Verify that the correct branding is used when changing the mId parameter in the marketplace URL -->
+      <mpl_goto.marketplace mid="${mId2_bug9210}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+
+      <!-- Verify that the correct branding is used when going to 'Global Marketplace' via 'Go To Marketplace'  -->
+      <operatorPortal.login />
+      <common.clickLink label="${marketplace.link.title}" />
+      <setSelectField htmlId="gotoMarketplaceForm:marketplace" text="Marketplace1(${mId_bug9210})" />
+      <clickButton label="${button.goto}" />
+      <verifyXPath xpath="//link[@href='${bes.http.url}/oscm-portal/css/main.css']" />
+
+      <!-- Verify that the correct branding is used when going to 'Second Marketplace' via 'Go To Marketplace'  -->
+      <invoke url="${bes.http.url}/oscm-portal" />
+      <common.clickLink label="${marketplace.link.title}" />
+      <setSelectField htmlId="gotoMarketplaceForm:marketplace" text="Marketplace2(${mId2_bug9210})" />
+      <clickButton label="${button.goto}" />
+      <verifyXPath xpath="//link[@href='/oscm-portal/marketplace/css/mp.css']" />
+      <common.reSetPageScriptError/>
+      <login.logout />
+    </webtest>
+  </target>
+
+</project>

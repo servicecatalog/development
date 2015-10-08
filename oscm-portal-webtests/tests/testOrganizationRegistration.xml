@@ -1,0 +1,70 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testSelfRegistration">
+  <import file="../macros/all.xml" />
+
+  <target name="testSelfRegistration">
+    <webtest name="testEnterOrganizationData" description="
+      Goto 'Operation-> Create Organization' 
+      Test organization creation behaviour
+      ">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <storeProperty name="mId" value="${mId}" propertyType="ant" />
+      <operator.addCurrency />
+      <!--<scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" /> -->
+      <!--login.login url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" /-->
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+
+      <!-- positive test -->
+      <!-- 1.1) Create a customer organization, with the following optional fields empty:
+		  Organization name
+		  Organization e-mail
+		  Organization phone
+		  Organization URL
+		  Address -->
+      <organization.create adminId="admin_c" name="" email="" phone="" url="" address="" mId="${mId}" supplier="false" provider="false" broker="false" reseller="false" country="CG" description="I feel god" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+
+      <!--1.2) Create an organization with roles, with more mandatory fields filled; -->
+      <organization.create adminId="admin_n" name="JQ Consulting GmbH" email="info@jq-consulting.de" phone="001 90 343829" url="http://jq-consulting.de" country="CC" description="I feel god" address="Schillerstr. 23\nMünchen" />
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.organization.created}" att0="(.+)" />
+
+      <!-- nagative test: customer organizatio without mid -->
+      <organization.create adminId="admin_wrong" supplier="false" provider="false" broker="false" reseller="false" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:marketplaceErrorMsg" />
+
+      <!-- negative test: no name -->
+      <organization.create adminId="admin_wrong" name="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationNameErrorMsg" />
+
+      <!-- negative test: no email -->
+      <organization.create adminId="admin_wrong" email="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationEmailErrorMsg" />
+
+      <!-- negative test: wrong email format -->
+      <organization.create adminId="admin_wrong" email="oleole" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationEmailErrorMsg" />
+
+      <!-- negative test: no phone -->
+      <organization.create adminId="admin_wrong" phone="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationPhoneErrorMsg" />
+
+      <!-- negative test: no url -->
+      <organization.create adminId="admin_wrong" url="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationUrlErrorMsg" />
+
+      <!-- negative test: wrong url -->
+      <organization.create adminId="admin_wrong" url="wrongUrl" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationUrlErrorMsg" />
+
+      <!-- negative test: no country -->
+      <organization.create adminId="admin_wrong" country="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationCountryErrorMsg" />
+
+    </webtest>
+  </target>
+
+</project>

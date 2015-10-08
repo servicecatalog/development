@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="Macros for developer scripts" default="" basedir=".">
+  <macrodef name="verifyFileExists">
+    <attribute name="filePath" />
+    <sequential>
+      <fail message="File not found: @{filePath}">
+        <condition>
+          <not>
+            <available file="@{filePath}" />
+          </not>
+        </condition>
+      </fail>
+    </sequential>
+  </macrodef>
+</project>

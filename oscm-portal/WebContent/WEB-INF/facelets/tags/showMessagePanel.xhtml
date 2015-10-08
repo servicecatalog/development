@@ -1,0 +1,28 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+  
+  <script type="text/javascript">
+    var panel;
+ 
+    <ui:fragment rendered="#{(facesContext.maximumSeverity.ordinal == 0)}">
+      panel = "infoPanel";
+    </ui:fragment>
+    <ui:fragment rendered="#{(facesContext.maximumSeverity.ordinal == 1)}">
+      panel = "warnPanel"; 
+    </ui:fragment>
+    <ui:fragment rendered="#{(facesContext.maximumSeverity.ordinal > 1)}">
+      panel = "errorPanel";
+    </ui:fragment>
+        
+    AdmUtils.moveChildren(document.getElementById(#{sourceMessageContainer}), document.getElementById(panel));
+    AdmUtils.showPanel(#{not empty facesContext.maximumSeverity.ordinal or not empty errorKey}, panel);
+      
+    <c:forEach items="#{additionalErrorElements}" var="ee">
+      AdmUtils.setHighlight("#{ee}");
+    </c:forEach>
+  
+  </script>
+</ui:composition>

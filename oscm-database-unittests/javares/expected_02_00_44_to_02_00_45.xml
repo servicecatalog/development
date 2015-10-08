@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <PspAccount tkey="1" organization_tkey="1" version="0" pspidentifier="12345" />
+  <PspAccountHistory tkey="1" objversion="0" pspidentifier="12345" organizationobjkey="1" />
+</dataset>

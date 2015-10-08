@@ -1,0 +1,128 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <!-- This test covers only the creation of a technical service with USER access type. -->
+  <!-- The access to services using the BES SAML IDP for SSO is covered by the webtest 'saml.xml' -->
+  <target name="all" depends="setup, allTest" />
+
+  <target name="setup">
+    <!-- Creates a technical service with USER access type, creates a marketable service and a proce model for it -->
+    <!-- Also covers bug #7642 -->
+    <webtest name="initAccessTypeUSER">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+      <!-- Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="midGlobal" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Global Marketplace" />
+
+      <!-- Platform login (admin) -->
+      <login.initialLoginAndChangePasswordAsSupplier url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${midGlobal}" />
+
+      <!-- Activate credit card and invoice as default payment for new customers; all for new services -->
+      <setup:payment.configureDefault customerTypes="INVOICE" serviceTypes="INVOICE" />
+
+      <!-- Register new or updated technical service containing AccessInfo  -->
+      <techservice.import file="data/TechnicalServices-USER.xml" />
+
+      <!-- Define Market Service, check that the max concurrent user parameter is not available -->
+      <common.ignorePageScriptError />
+      <service.defineForUserAccess serviceId="#{marketServiceName}" techServiceId="ExampleSAML 1.00" />
+      <service.getKey serviceId="#{marketServiceName}" keyProperty="serviceKey1" />
+
+      <!-- Define Market Service price model and check that price per user can be defined, but no platform events are available -->
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="false" />
+
+      <!-- Activate Market Service  -->
+      <service.deActivate rowNr="0" active="true" />
+
+      <!-- Customer registration by supplier (admin)  -->
+      <user.registerCustomer marketplaceId="${midGlobal}" userId="${common.userId}" />
+      <organization.managePayment rowNr="0" />
+
+      <login.logout />
+
+      <!-- Platform login (admin) -->
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${midGlobal}" />
+      <storeProperty name="customerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="customerOrgId" value="#{orgId}" />
+      <storeProperty name="customerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="customerUserKey" value="#{userKey}" />
+
+      <!-- Subscribe to service -->
+      <setup:billingContact.create bcId="bc1" runAs="#{customerUserKey}" />
+      <setup:subscription.create subId="#{subscriptionName}" marketplaceId="${midGlobal}" serviceKey="#{serviceKey1}" bcId="bc1" piId="Invoice" runAs="#{customerUserKey}" />
+
+      <!-- Assign user to subscription -->
+      <setup:subscription.addRevokeUser subscriptionId="#{subscriptionName}" usersToAdd="#{customerUserKey}" runAs="#{customerUserKey}" />
+
+      <!-- Read the access info from the email -->
+      <mail.readAccessInfoFromMail subId="#{subscriptionName}" />
+      <storeProperty name="accessInfo" value="#{accessInfo}" propertyType="ant" />
+    </webtest>
+
+    <!-- FCIP Setup: Creates a technical service with USER access type, creates a marketable service and a proce model for it. 
+    The technical service contains the baseUrl property with the serviceAccessUrl.-->
+    <webtest name="testUserFCIP_Setup">
+      <testInfo type="DESCRIPTION">testUserFCIP_Setup:
+        			</testInfo>
+
+      <mpl_setup.createSupplierAccount />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <mpl_setup.createUserService mId1="${MID1}" serviceId="S1" serviceKey="svcKey"/>
+
+      <setup:subscription.create subId="subscribeUserService" marketplaceId="${MID1}" serviceKey="${svcKey}" />
+    </webtest>
+  </target>
+
+
+  <target name="allTest" depends="setup">
+    <webtest name="testAccessTypeUSER_direct">
+      <!-- Service url must also work without beeing logged in -->
+      <invoke url="${accessInfo}" />
+      <verifyTitle text="Mock Product - Menu" />
+    </webtest>
+
+    <webtest name="testAccessTypeUSER_useViaPortal">
+      <mpl_login.user userId="${customerUserId}" mid="${midGlobal}" />
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      <!-- verify existence of access info -->
+      <verifyElementText htmlId="subscriptionUsagePanelForm:subscriptionBlockAccessInfo" text="${accessInfo}" />
+      <!-- Ensure that no use link is available  -->
+      <not>
+        <clickElement htmlId="subscriptionUsagePanelForm:useSubscription" />
+      </not>
+      <invoke url="${accessInfo}" />
+      <verifyTitle text="Mock Product - Menu" />
+    </webtest>
+
+    <!-- If the baseurl  is available in the technical service definition, than the use button is shown.-->
+    <webtest name="testAccessTypeUSER_FCIP">
+      <landingpage.loginAsSupplier />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      <!-- Ensure that use button is available  -->
+      <clickElement htmlId="subscriptionUsagePanelForm:useSubscription" />
+      <verifyTitle text="Mock Product - Menu" />
+    </webtest>
+  </target>
+</project>

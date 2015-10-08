@@ -1,0 +1,108 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="service.upgradeOptions" />
+    <c:set var="focusElement" value="srcServiceId" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="selectForm">
+      <h:inputHidden id="selectedKey" value="#{serviceBean.selectedServiceKey}" />
+    </h:form>
+
+    <h:form id="editForm">
+
+      <adm:outputStep value="#{msg['service.upgradeOptions.step1']}" />
+      <adm:panelGrid>
+
+        <adm:outputLabel value="#{msg['service.serviceId']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu styleClass="select" id="srcServiceId" value="#{serviceBean.selectedServiceKeyReadOnly}"
+            onclick="AdmUtils.storeValue(this);"
+            onchange="if(AdmUtils.isNotDirtyOrConfirmed()){#{rich:element('selectedKey')}.value=this.options[this.selectedIndex].value;#{rich:element('selectForm')}.submit();}else{AdmUtils.restoreValue(this)}">
+            <adm:selectItemPleaseSelect itemValue="0" />
+            <c:forEach items="#{serviceBean.serviceNames}" var="service">
+              <f:selectItem itemLabel="#{service.serviceId}" itemValue="#{service.key}" />
+            </c:forEach>
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="selectedServiceId" />
+
+        <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+        <h:panelGroup>
+          <h:outputText value="#{serviceBean.selectedService.technicalId}" styleClass="label" />
+        </h:panelGroup>
+        <h:outputText value="" />
+
+        <adm:outputLabel value="#{msg['service.marketplace']}" />
+        <h:panelGroup>
+          <h:outputText
+            value="#{(serviceBean.selectedServiceKeyReadOnly ne 0) ? marketplaceBean.selectedMarketplaceName : ''}"
+            styleClass="label" />
+        </h:panelGroup>
+        <h:outputText value="" />
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['service.upgradeOptions.step2']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="serviceTable" value="#{serviceBean.possibleCompatibleServices}"
+          height="#{sessionBean.tableHeightMap[320]}px" label="#{msg['service.upgradeOptions.table.header']}">
+          <rich:column>
+            <h:selectBooleanCheckbox id="selected" onchange="setDirty(true)" value="#{rowItem.selected}"
+              disabled="#{serviceBean.editDisabled}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.serviceId']}" />
+            </f:facet>
+            <h:outputText id="serviceId" value="#{rowItem.serviceId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.marketplace']}" />
+            </f:facet>
+            <h:outputText id="marketplaceName" value="#{rowItem.marketplaceName}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.nameForCustomer']}" />
+            </f:facet>
+            <h:outputText id="version" value="#{rowItem.nameToDisplay}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.shortDescription']}" />
+            </f:facet>
+            <adm:outputLarge style="border-style: none;" value="#{rowItem.shortDescription}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel columns="1">
+        <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);" value="#{msg['button.save']}"
+          action="#{serviceBean.saveUpgradeOptions}" />
+
+        <!-- button: save page -->
+        <adm:buttonCustomizedOnClick
+          disabled="#{serviceBean.editDisabled or empty serviceBean.possibleCompatibleServices}"
+          value="#{msg['button.save']}" id="saveButton" buttonType="save"
+          onclick="#{rich:element('saveButtonHidden')}.click(); return false;" />
+        <a4j:commandButton style="display:none;" id="saveButtonHidden" value="#{msg['button.save']}"
+          oncomplete="AdmUtils.showProgress(false);if(#{serviceBean.showConfirm}) {RichFaces.$('confirmPanel').show();} else { #{rich:element('confirmedButton')}.click();}">
+        </a4j:commandButton>
+      </adm:buttonPanel>
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.upgrade.perunit']}" />
+
+  </ui:define>
+</ui:composition>

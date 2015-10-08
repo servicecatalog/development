@@ -1,0 +1,271 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testConfigurableMarketplaces" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testConfigurableMarketplaces" depends="init,testMPL_ConfigurableMarketplaces_DisabledMarketplaceSettings,testMPL_ConfigurableMarketplaces_MarketplaceSettings_concurrency,testMPL_ConfigurableMarketplaces_tearDown" />
+
+  <target name="init">
+    <webtest name="testMPL_ConfigurableMarketplaces_Setup">
+      <testInfo type="DESCRIPTION">testConfigurableMarketplaces_Setup:
+        Creates test data.
+        Expected Outcome:
+        (1) Supplier account is created
+        (2) A marketplace is created with disabled settings (reviews, bookmarks and tagging)
+        (3) Proxy service SERVICE_1 is created, published on the MP (enabled settings)
+        (4) Proxy service SERVICE_2 is created, published on in point 2 created marketplace
+	  </testInfo>
+
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" socialBookmarksEnabled="true" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <operator.createMarketplace mIdProperty="mId2" name="Global Marketplace2" socialBookmarksEnabled="false" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId2}" />
+      
+      <!-- (1) Supplier account is created -->
+      <mpl_setup.createSupplierAccount />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId2}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+
+      <!-- (2) Create global marketplace -->
+      <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" taggingEnabled="false" reviewEnabled="false" socialBookmarksEnabled="false" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+
+      <!-- (3) Service is created and published on the marketplace -->
+      <setup:techservice.createProxy id="PROXY_SERVICE" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" tags="FNST,EST" />
+      <setup:service.define serviceId="SERVICE_1" techServiceId="PROXY_SERVICE" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="SERVICE_1" isFree="true" />
+      <setup:service.activate serviceIds="SERVICE_1" />
+
+      <setup:service.define serviceId="SERVICE_M2" techServiceId="PROXY_SERVICE" marketplaceId="${mId2}" />
+      <setup:pricemodel.define serviceId="SERVICE_M2" isFree="true" />
+      <setup:service.activate serviceIds="SERVICE_M2" />
+
+      <!-- (4) Service is created and published on the created marketplace -->
+      <setup:service.define serviceId="SERVICE_2" techServiceId="PROXY_SERVICE" marketplaceId="${MID1}" />
+      <setup:pricemodel.define serviceId="SERVICE_2" isFree="true" />
+      <setup:service.activate serviceIds="SERVICE_2" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_ConfigurableMarketplaces_DisabledMarketplaceSettings" depends="init">
+    <webtest name="testMPL_ConfigurableMarketplaces_DisabledTags">
+      <testInfo type="DESCRIPTION">test:testDisabledTags:
+        Test if tag cloud and service tags are invisible in the UI.
+        Expected outcome:
+        (1) Tag cloud exists on public marketplace.
+        (2) Tag cloud does not exist on created marketplace.
+        (3) Service tags component does not exist on created marketplace.
+      </testInfo>
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//div[@id=&quot;filterSelectionForm:tagCloud&quot;]" />
+      <mpl_goto.marketplace mid="${MID1}" />
+      <not>
+        <verifyXPath xpath="//div[@id=&quot;filterSelectionForm:tagCloud&quot;]" />
+      </not>
+      <verifyXPath xpath="//div[@id=&quot;servicePanel0&quot;]" />
+      <not>
+        <verifyXPath xpath="//div[@id=&quot;service0ServiceTags&quot;]" />
+      </not>
+    </webtest>
+
+    <webtest name="testMPL_ConfigurableMarketplaces_DisabledReviews">
+      <testInfo type="DESCRIPTION">test:testReviews:
+        Test if service rating stars are invisible in the UI.
+        Expected Outcome:
+        (1) Service rating stars exist on marketplace.
+        (2) Service rating stars don't exist on created marketplace.
+        (3) Manage review component does not exist.
+      </testInfo>
+      <!-- Check service details of marketplace service -->
+      <mpl_goto.marketplace mid="${mId2}" />
+      <not>
+        <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+      </not>
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <verifyXPath xpath="//span[contains(@class, 'serviceRating')]" />
+      <not>
+        <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+      </not>
+      <!-- Check service details with disabled settings -->
+      <mpl_goto.marketplace mid="${MID1}" />
+      <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <not>
+        <verifyXPath xpath="//span[contains(@class, 'serviceRating')]" />
+      </not>
+      <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+    </webtest>
+
+  </target>
+
+  <target name="testMPL_ConfigurableMarketplaces_MarketplaceSettings_concurrency" depends="init">
+    <webtest name="testMPL_ConfigurableMarketplaces_DisabledTags_concurrently">
+      <testInfo type="DESCRIPTION">test:testDisabledTags_concurrently:
+        Expected outcome:
+        (1) At the beginning, User1 access marketplace
+        portal to verify that Tag cloud exists on public
+        marketplace.
+        (2) At the same time, another user(operator)
+        changed the marketplace configuration in
+        blue portal.
+        (3) Then, it should be possible for the User1 to access Tag
+        cloud even it's still displayed in UI of marketplace portal, 
+        but when the page forwards to the next, Tag cloud should not
+        exist any more. 
+      </testInfo>
+
+      <!-- User1 access marketplace portal -->
+      <selectWebClient name="browser1">
+        <mpl_goto.marketplace mid="${mId}" />
+        <verifyXPath xpath="//div[@id=&quot;filterSelectionForm:tagCloud&quot;]" />
+      </selectWebClient>
+
+      <!-- Operator changed the marketplace configuration in blue portal. -->
+      <selectWebClient name="browser2">
+        <operatorPortal.login />
+        <clickLink href="/shop/updateMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+        <setCheckbox htmlId="updateForm:taggingEnabled" checked="false" />
+        <clickButton htmlId="updateForm:saveButton" />
+        <login.logout />
+      </selectWebClient>
+
+      <!-- Open marketplace in new session and User should be access the tag cloud -->
+      <selectWebClient name="browser3">
+        <mpl_goto.marketplace mid="${mId}" />
+        <not>
+          <verifyXPath xpath="//div[@id=&quot;filterSelectionForm:tagCloud&quot;]" />
+        </not>
+        <not>
+          <verifyXPath xpath="//div[@id=&quot;service0Tags&quot;]" />
+        </not>
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_ConfigurableMarketplaces_DisabledReviews_concurrently">
+      <testInfo type="DESCRIPTION">test:testReviews_concurrently:
+        Expected outcome:
+        (1) At the beginning, User1 access red
+        portal to verify that rating
+        stars exists on public marketplace.
+        (2) At the same time, another
+        user(operator) changed the marketplace
+        configuration in blue portal.
+        (3) Then, it should be possible for the User1
+        to access rating stars
+        even it's still displayed in UI of red portal, but when the page
+        forwards to the next,
+        rating stars should not exist any more. 
+      </testInfo>
+
+      <!-- User1 access red portal -->
+      <selectWebClient name="browser1">
+        <mpl_goto.marketplace mid="${mId}" />
+        <verifyXPath xpath="//div[contains(@class, 'ratingStars')]" />
+        <not>
+          <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+        </not>
+      </selectWebClient>
+
+      <!-- Operator changed the marketplace configuration in blue portal. -->
+      <selectWebClient name="browser2">
+        <operatorPortal.login />
+        <clickLink href="/shop/updateMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+        <setCheckbox htmlId="updateForm:reviewEnabled" checked="false" />
+        <clickButton htmlId="updateForm:saveButton" />
+        <login.logout />
+      </selectWebClient>
+
+      <!-- Open marketplace with new session and User3 should not be able to access the rating stars and review anymore -->
+      <selectWebClient name="browser3">
+        <mpl_goto.marketplace mid="${mId}" />
+        <not>
+          <verifyXPath xpath="//span[contains(@class, 'serviceRating')]" />
+        </not>
+        <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testMPL_ConfigurableMarketplaces_Bug9576">
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+      <!--disable category-->
+      <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <clickElement htmlId="updateForm:categoriesEnabled" />
+      <clickElement htmlId="updateForm:saveButton" />
+      <!--go to marketplace and verify the category is not displayed in page-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <not>
+        <verifyXPath xpath="//form[@id='categorySelectionForm']" />
+      </not>
+      <!--enable category-->
+      <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+      <clickElement htmlId="updateForm:categoriesEnabled" />
+      <clickElement htmlId="updateForm:saveButton" />
+      <!--go to marketplace and verify the category is displayed in page-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <verifyXPath xpath="//form[@id='categorySelectionForm']" />
+    </webtest>
+      
+  </target>
+
+  <target name="testMPL_ConfigurableMarketplaces_tearDown">
+    <webtest name="testMPL_ConfigurableMarketplaces_finalCleanup">
+      <testInfo type="DESCRIPTION">testConfigurableMarketplaces_finalCleanup:
+        Deleted all test data.
+        Expected Outcome:
+        (1) Services are de-activated and deleted
+        (2) Created marketplace is deleted
+	  </testInfo>
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <setup:techservice.delete serviceIds="*" />
+      <operator.deleteMarketplaces marketplaceIds="${MID1},${mId},${mId2}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+	
+  <target name="testMPL_ConfigurableMarketplaces_Filter">
+	<webtest name="testMPL_ConfigurableMarketplaces_Bug9695">
+	  <operator.createMarketplace mIdProperty="mId" name="local Marketplace" socialBookmarksEnabled="true" />
+	  <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+
+	  <!-- (1) Supplier account is created -->
+      <mpl_setup.createSupplierAccount />
+	  <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+	  <!-- (2) Create local marketplace -->
+	  <operator.createMarketplace mIdProperty="MID1" ownerId="${supplierId}" name="mp1" taggingEnabled="false" reviewEnabled="false" socialBookmarksEnabled="false" baseurl="${bes.http.url}/oscm-portal" failonerror="true" />
+	  <!-- (3) Service is created and published on the marketplace -->
+	  <setup:techservice.createProxy id="PROXY_SERVICE1" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" tags="OFFICE" />
+	  <setup:techservice.createProxy id="PROXY_SERVICE2" serviceUrl="http://techService2.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" tags="BUSINESS" />
+	  <setup:service.define serviceId="NEW_SERVICE_1" techServiceId="PROXY_SERVICE1" marketplaceId="${mId}" />
+	  <setup:pricemodel.define serviceId="NEW_SERVICE_1" isFree="true" />
+	  <setup:service.activate serviceIds="NEW_SERVICE_1" />
+	  <setup:service.define serviceId="NEW_SERVICE_2" techServiceId="PROXY_SERVICE1" marketplaceId="${mId}" />
+	  <setup:pricemodel.define serviceId="NEW_SERVICE_2" isFree="true" />
+	  <setup:service.activate serviceIds="NEW_SERVICE_2" />
+	  <setup:service.define serviceId="NEW_SERVICE_3" techServiceId="PROXY_SERVICE2" marketplaceId="${mId}" />
+	  <setup:pricemodel.define serviceId="NEW_SERVICE_3" isFree="true" />
+	  <setup:service.activate serviceIds="NEW_SERVICE_3" />
+	  
+	  
+      <login.login url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+	  <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+	  <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+	  <clickElement htmlId="updateForm:categoriesEnabled" />
+	  <clickElement htmlId="updateForm:saveButton" />
+      <mpl_goto.marketplace mid="${mId}" />
+	  <clickLink htmlId="filterSelectionForm:cloudlink1" />
+      <verifyXPath xpath="//*[@id='service']" text="Services" />
+	  <clickLink htmlId="filterSelectionForm:cloudlink0" />
+	  <verifyXPath xpath="//*[@id='service']" text="Service" />
+	</webtest>
+  </target>
+</project>

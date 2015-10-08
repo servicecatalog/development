@@ -1,0 +1,66 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.editCustomer" />
+    <c:set var="focusElement" value="organizationId" />
+  </ui:define>
+  <ui:define name="body">
+
+    <adm:outputStep value="#{msg['organization.editCustomer.select']}" />
+
+    <ui:fragment>
+      <ui:include src="customerSelection.xhtml" />
+    </ui:fragment>
+
+    <h:form id="editForm" enctype="multipart/form-data">
+      
+      <ui:fragment>
+        <ui:include src="customerData.xhtml" />
+      </ui:fragment>
+
+      <adm:outputStep value="#{msg['organization.editCustomer.edit']}"
+        rendered="#{not empty organizationBean.organizationUdas}" />
+      <ui:fragment rendered="#{not empty organizationBean.organizationUdas}">
+        <ui:include src="udaTable.xhtml">
+          <ui:param name="inputList" value="#{organizationBean.organizationUdas}" />
+          <ui:param name="disabled" value="#{empty organizationBean.selectedCustomerId}" />
+          <ui:param name="collapsible" value="true" />
+        </ui:include>
+      </ui:fragment>
+
+      <adm:outputStep value="#{msg['organization.editCustomer.discount.edit']}" />
+      <adm:panelGrid  columnClasses='labelAndValuePanelCol1,labelAndValuePanelCol2 shortColumn,labelAndValuePanelCol3'>
+        <adm:labelAndInputText id="discountValue" styleClass="fieldXS" label="#{msg['organization.editCustomer.value']}"
+          value="#{organizationBean.selectedCustomer.discountValue}" maxlength="#{appBean.percentValueLen}"
+          onchange="setDirty(true)" disabled="#{empty organizationBean.selectedCustomerId}"
+          converterId="bigDecimal.converter" validatorId="discount.value.validator" />
+        <adm:outputLabel value="#{msg['organization.editCustomer.from']}" />
+        <h:inputText id="discountFrom" styleClass="fieldXS" label="#{msg['organization.editCustomer.from']}"
+          value="#{organizationBean.selectedCustomer.discountBegin}" maxlength="#{appBean.discountPeriodLen}"
+          onchange="setDirty(true)" disabled="#{empty organizationBean.selectedCustomerId}">
+          <f:converter converterId="discount.date.converter" />
+        </h:inputText>
+        <adm:message id="discountFromErrorMsg" for="discountFrom" />
+        <adm:outputLabel value="#{msg['organization.editCustomer.thru']}" />
+        <h:inputText id="discountThru" styleClass="fieldXS" label="#{msg['organization.editCustomer.thru']}"
+          value="#{organizationBean.selectedCustomer.discountEnd}" maxlength="#{appBean.discountPeriodLen}"
+          onchange="setDirty(true)" disabled="#{empty organizationBean.selectedCustomerId}">
+          <f:converter converterId="discount.date.converter" />
+        </h:inputText>
+        <adm:message id="discountThruErrorMsg" for="discountThru" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{organizationBean}" action="updateCustomer"
+          disabled="#{empty organizationBean.selectedCustomerId}" buttonType="save"/>
+      </adm:buttonPanel>
+
+    </h:form>
+  </ui:define>
+</ui:composition>

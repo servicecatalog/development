@@ -1,0 +1,52 @@
+<HTML><HEAD><TITLE>Readme</TITLE>
+<META NAME="GENERATOR" CONTENT="ForeHTML Pro 5.0">
+<link href="doc/commonltr.css" type="text/css" rel="stylesheet" />
+<link href="doc/book.css" type="text/css" rel="stylesheet" />
+
+</HEAD>
+
+<BODY>
+<H1>Integration Package for Asynchronous Provisioning</H1><HR>
+
+<P>
+Welcome to the integration package for asynchronous provisioning. This package helps 
+you integrate your applications or other external systems, which need asynchronous provisioning, with CT-MG. </p>
+<p>This package includes the Asynchronous Provisioning Platform (APP). APP is a framework which provides a provisioning service, an operation service, as well as functions, data persistence, and notification features which are always required for integrating applications with CT-MG in asynchronous mode. The package contains setup and configuration files for APP, an API to connect the applications with APP, samples, and the corresponding documentation.</P>
+<H2>
+Package Content</H2>
+<P>This package contains the following items:</P>
+<ul>
+<li><b>APP Web service API</b>. The API is used to implement service controllers managing the communication with the applications which are to be integrated with CT-MG.    
+<ul>
+<LI><A HREF="apis/lib/oscm-app-extsvc.jar">oscm-app-extsvc.jar</A> - a library containing the Web service API of APP.</LI>
+<LI><A HREF="apis/javadoc/index.html">API javadoc</A> - the javadoc for the Web service API of APP.</LI>
+<LI><A HREF="doc/changes_v15.3.2_v15.3.2_Fix5.zip">API changes</A> - 
+Archive file where you can find detailed information on changes to the APP Web service API as compared to a previous release.
+Use the <code>changes.html</code> file for viewing the respective documentation. </li>
+</ul>
+</li>
+<li><b>Installation and configuration files</b>:    
+<ul>
+<LI><A HREF="oscm-app-install-pack.zip">oscm-app-install-pack.zip</A> - ZIP file containing the installation scripts and configuration files for APP. <p>
+When you extract the <code>.zip</code> file, you will find the <code>oscm-app.ear</code> file for APP in the 
+<code>domains/app_domain/applications</code> subdirectory. This <code>.ear</code> file is to be deployed on an application server.</LI>
+</ul>
+</li>
+<li><b>Samples</b>:  
+<ul>
+<LI><b>GettingStarted</b> - A simple implementation of a service controller which does not require a real application. <br>
+    <A HREF="samples/GettingStarted/oscm-app-sampleSRC.zip">oscm-app-sampleSRC.zip</A> - ZIP file containing the sources of the sample service controller.<br>
+    <A HREF="samples/GettingStarted/oscm-app-sample.ear">oscm-app-sample.ear</A> - EAR file containing the sample service controller ready to be deployed on an application server.<br>
+    <A HREF="samples/GettingStarted/doc/APPSamplesSimple.htm">Documentation</A> - the description of the sample.<br>
+	</LI>
+</ul>
+</li>
+<li><b>Documentation</b>: 
+<ul>
+<LI><A HREF="doc/APPInt/APP/c_ImplAPP.htm">Step-by-step instruction</A> of how to install APP and integrate applications with CT-MG for asynchronous provisioning.</li>
+</ul>
+</li>
+</ul>
+<HR>
+<p>Copyright FUJITSU LIMITED 2015</p>
+</BODY></HTML>

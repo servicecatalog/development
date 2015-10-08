@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project>
+
+  <property environment="env" />
+  <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+  <property name="local.properties.dir" location="${basedir}/../oscm-devruntime/javares/local/${env.HOSTNAME}" />
+  <property name="local.properties.file" location="${local.properties.dir}/integration.properties" />
+  <property file="${local.properties.file}" />
+
+  <target name="verify_hook">
+    <fail>
+       Please specify the psql command location in property 'dbinterpreter'.
+       <condition>
+        <not>
+          <available file="${dbinterpreter}" />
+        </not>
+      </condition>
+    </fail>
+
+    <property name="build-dev-db.file" location="${project.oscm-devruntime.dir}/javares/devscripts/build-dev-Database.xml" />
+
+    <ant antfile="${build-dev-db.file}">
+      <target name="unit.STANDALONE.Init" />
+      <target name="unit.UpdateSchema" />
+      <property name="work.dir" value="${project.oscm-devruntime.dir}/javares/devscripts" />
+      <property name="database.interpreter" value="${dbinterpreter}" />
+      <property name="dbproperties.file" location="${local.properties.dir}/db.properties" />
+      <property name="sqlscripts.dir" location="${project.oscm-devruntime.dir}/javares/sql" />
+      <property name="db.url" value="jdbc:postgresql://localhost:5432/bssunittests" />      
+      <reference refid="dependencies.runtime.path" torefid="client.path" />
+    </ant>
+    
+  </target>
+
+
+</project>

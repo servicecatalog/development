@@ -1,0 +1,110 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="run_tests">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="run_tests" depends="testManageOperaitons, cleanUp" />
+
+  <target name="setup">
+    <webtest name="testMPL_ManageOperations_setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierAdminUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <scenario.createSimpleServices mid="${mId}" />
+      <mail.cleanInbox />
+      <!-- create nonAdmin for supplier organization -->
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="supplier_nonadmin" isSvcMgr="true" />
+      <storeProperty name="supplier_nonadmin" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="supplier_nonadmin" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <!-- create customerAdmin and customerNonAdmin -->
+      <login.login url="${supplierUrl}" userId="${supplierAdminUserId}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="customerAdmin" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customerAdminUserId" value="#{userId}" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="customerAdminUserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <mail.cleanInbox />
+      <!-- create nonAdmin for customer organization -->
+      <mpl_login.user mid="${mId}" userId="${customerAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="customer_nonadmin" />
+      <storeProperty name="customer_nonadmin" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="customer_nonadmin" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      
+      <mail.cleanInbox />
+      <!-- create submanager for customer organization -->
+      <mpl_login.user mid="${mId}" userId="${customerAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="customer_submanager" isSubMgr="true" />
+      <storeProperty name="customer_submanager" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="customer_submanager" value="#{userId}" propertyType="ant" />
+      <login.logout />
+     </webtest>
+  </target>
+
+  <target name="testManageOperaitons" depends="setup">
+    <webtest name="testMPL_ManageOperations">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account />
+      <verifyXPath xpath="//*[@id='menu8' and contains(.,'${marketplace.account.operations.title}')]" />
+      <verifyXPath xpath="//*[@id='operations']" />
+      <mpl_goto.account.operations />
+      <verifyXPath xpath="//*[@id='operationsListForm:deleteOperationsDisabled']" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageOperations_VerifyMyOperationsOnly">
+      <mpl_login.user mid="${mId}" userId="${customerAdminUserId}" />
+      <mpl_goto.account />
+      <mpl_goto.account.operations />
+      <verifyCheckbox xpath="//*[@id='operationsListForm:filterOperations']" checked="true"/>
+      <mpl_login.logout />
+
+      <mpl_login.user mid="${mId}" userId="${customer_submanager}" />
+      <mpl_goto.account />
+      <mpl_goto.account.operations />
+      <verifyCheckbox xpath="//*[@id='operationsListForm:filterOperations']" checked="true"/>
+      <mpl_login.logout />   
+
+      <mpl_login.user mid="${mId}" userId="${customer_nonadmin}" />
+      <mpl_goto.account />
+      <mpl_goto.account.operations />
+      <not>
+        <verifyCheckbox xpath="//*[@id='operationsListForm:filterOperations']" checked="true"/>
+      </not>
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="cleanUp">
+    <webtest name="testMPL_ManageProcesses_cleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierAdminUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+</project>

@@ -1,0 +1,284 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <macrodef name="udas.create">
+    <attribute name="udaName" default="uda" />
+    <attribute name="numOfUdas" default="1" />
+    <attribute name="defaultValue" default="" />
+    <attribute name="forCustomer" default="true" />
+    <attribute name="userOption" default="false" />
+    <attribute name="mandatory" default="false" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <clickLink href="/organization/manageUdas.jsf" />
+      <ifStep description="Customer or Subscription udas?" test="@{forCustomer}">
+        <then>
+          <storeProperty name="buttonId" value="udaDefinitionsCustomerForm:createUdaHiddenButton" />
+        </then>
+        <else>
+          <storeProperty name="buttonId" value="udaDefinitionsSubscriptionForm:createUdaHiddenButton" />
+        </else>
+      </ifStep>
+      <repeat count="@{numOfUdas}">
+        <clickElement htmlId="#{buttonId}" />
+        <setInputField htmlId="createForm:createUdaIdInput" value="@{udaName}#{count}" />
+        <setInputField htmlId="createForm:createUdaDefaultValueInput" value="@{defaultValue}" />
+        <setCheckbox htmlId="createForm:createUdaUserOptionCheckBox" checked="@{userOption}" />
+        <setCheckbox htmlId="createForm:createUdaMandatoryCheckBox" checked="@{mandatory}" />
+        <clickElement htmlId="createForm:createUdaHiddenButton" />
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <!-- Accout - Custom User Attributes -->
+  <macrodef name="udas.delete">
+    <attribute name="rowNr" default="0" />
+    <attribute name="forCustomer" default="true" />
+    <sequential>
+      <clickLink href="/organization/manageUdas.jsf" />
+      <ifStep description="Customer or Subscription udas?" test="@{forCustomer}">
+        <then>
+          <clickElement htmlId="udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:editCustomerUdaLink" />
+        </then>
+        <else>
+          <clickElement htmlId="udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:editSubscriptionUdaLink" />
+        </else>
+      </ifStep>
+      <clickElement htmlId="updateForm:deleteUdaHiddenButton" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="udas.update">
+    <attribute name="rowNr" default="0" />
+    <attribute name="udaId" />
+    <attribute name="defaultValue" />
+    <attribute name="userOption" default="false" />
+    <attribute name="mandatory" default="false" />
+    <attribute name="forCustomer" default="true" />
+    <attribute name="verify" default="false" />
+    <sequential>
+      <clickLink href="/organization/manageUdas.jsf" />
+      <ifStep description="Customer or Subscription udas?" test="@{forCustomer}">
+        <then>
+          <clickElement htmlId="udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:editCustomerUdaLink" />
+        </then>
+        <else>
+          <clickElement htmlId="udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:editSubscriptionUdaLink" />
+        </else>
+      </ifStep>
+      <setInputField htmlId="updateForm:updateUdaIdInput" value="@{udaId}" />
+      <setInputField htmlId="updateForm:updateUdaDefaultValueInput" value="@{defaultValue}" />
+      <setCheckbox htmlId="updateForm:updateUdaUserOptionCheckBox" checked="@{userOption}" />
+      <ifStep description="check the mandatory checkbox" test="@{userOption}">
+        <then>
+          <setCheckbox htmlId="updateForm:updateUdaMandatoryCheckBox" checked="@{mandatory}" />
+        </then>
+        <else>
+          <verifyXPath xpath="//*[@id='updateForm:updateUdaMandatoryCheckBox' and @disabled='disabled']" />
+        </else>
+      </ifStep>
+      <common.clickAjaxLink htmlId="updateForm:updatePanelSaveButton" />
+      <ifStep description="Verify saved changes." test="@{verify}">
+        <udas.verify rowNr="@{rowNr}" udaId="@{udaId}" defaultValue="@{defaultValue}" userOption="@{userOption}" mandatory="@{mandatory}" forCustomer="@{forCustomer}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <!-- The common.verifySuccess does not handle the action in onComplete event,
+  		So the udas.verify checks the correct response after an creation or update
+   -->
+  <macrodef name="udas.verify">
+    <attribute name="rowNr" default="0" />
+    <attribute name="udaId" />
+    <attribute name="defaultValue" />
+    <attribute name="userOption" default="false" />
+    <attribute name="mandatory" default="false" />
+    <attribute name="forCustomer" default="true" />
+    <sequential>
+      <clickLink href="/organization/manageUdas.jsf" />
+      <ifStep description="Customer or Subscription udas?" test="@{forCustomer}">
+        <then description="verify customer uda definition">
+          <verifyElementText htmlId="udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:udaId" text="@{udaId}" />
+          <verifyElementText htmlId="udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:defaultValue" text="@{defaultValue}" />
+          <ifStep description="check the existence of user option" test="@{userOption}">
+            <then>
+              <verifyXPath xpath="//img[@id='udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:isUserOption']" />
+            </then>
+            <else>
+              <not>
+                <verifyXPath xpath="//img[@id='udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:isUserOption']" />
+              </not>
+            </else>
+          </ifStep>
+          <ifStep description="check the existence of mandatory option" test="@{mandatory}">
+            <then>
+              <verifyXPath xpath="//img[@id='udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:isMandatory']" />
+            </then>
+            <else>
+              <not>
+                <verifyXPath xpath="//img[@id='udaDefinitionsCustomerForm:customerUdaTable:@{rowNr}:isMandatory']" />
+              </not>
+            </else>
+          </ifStep>
+        </then>
+        <else description="verify subsctiption uda definition">
+          <verifyElementText htmlId="udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:udaId" text="@{udaId}" />
+          <verifyElementText htmlId="udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:defaultValue" text="@{defaultValue}" />
+          <ifStep description="check the existence of user option" test="@{userOption}">
+            <then>
+              <verifyXPath xpath="//img[@id='udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:isUserOption']" />    
+            </then>
+            <else>
+              <not>
+                <verifyXPath xpath="//img[@id='udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:isUserOption']" />
+              </not>
+            </else>
+          </ifStep>
+          <ifStep description="check the existence of mandatory option" test="@{mandatory}">
+            <then>
+              <verifyXPath xpath="//img[@id='udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:isMandatory']" />
+            </then>
+            <else>
+              <not>
+                <verifyXPath xpath="//img[@id='udaDefinitionsSubscriptionForm:subscriptionUdaTable:@{rowNr}:isMandatory']" />
+              </not>
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="udas.checkCustomerUdaCount">
+    <attribute name="expectedCount" />
+    <attribute name="orgName" />
+    <attribute name="orgId" />
+    <sequential>
+      <clickLink href="/organization/editCustomer.jsf" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <udas.checkUdaCount expectedCount="@{expectedCount}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="udas.checkSubscriptionUdaCount">
+    <attribute name="expectedCount" />
+    <attribute name="subscriptionId" />
+    <sequential>
+      <clickLink href="/subscription/editUdas.jsf" />
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'@{subscriptionId}')]" />
+      <storeXPath description="Get the number of uda rows." xpath="count(//*[@class=&quot;rf-dt-c labelAndValuePanelCol1&quot;])" property="udaCount" propertyType="dynamic" />
+      <verifyProperty description="Verify that row number equals expected" name="udaCount" text="@{expectedCount}" regex="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="udas.checkUdaCount">
+    <attribute name="expectedCount" />
+    <sequential>
+      <storeXPath description="Get the number of uda rows." xpath="count(//*[@id=&quot;editForm:udaTable&quot;]/tbody[1]/tr)" property="udaCount" propertyType="dynamic" />
+      <verifyProperty description="Verify that row number equals expected" name="udaCount" text="@{expectedCount}" regex="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="udas.updateCustomerUda">
+    <attribute name="orgName" />
+    <attribute name="orgId" />
+    <attribute name="newValue" />
+    <attribute name="oldValueToCheck" default="" />
+    <attribute name="rowNr" default="0" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <clickLink href="/organization/editCustomer.jsf" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{oldValueToCheck}" />
+      <setInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{orgId}" />
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{orgId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="udas.checkCustomerUda">
+    <attribute name="udaId" />
+    <attribute name="udaValue" />
+    <attribute name="userOption" default="false" />
+    <attribute name="mandatory" default="false" />
+    <attribute name="rowNr" default="0" />
+    <sequential>
+      <clickLink href="/organization/editCustomer.jsf" />
+      <clickElement htmlId="udaDefinitionsCustomerForm:@{rowNr}:editCustomerUdaLink" />
+
+      <verifyInputField htmlId="updateForm:updateUdaIdInput" value="@{udaId}" />
+      <verifyInputField htmlId="updateForm:updateUdaDefaultValueInput" value="@{udaValue}" />
+      <verifyCheckbox htmlId="updateForm:createUdaUserOptionCheckBox" value="@{userOption}" />
+      <verifyCheckbox htmlId="updateForm:createUdaMandatoryCheckBox" value="@{mandatory}" />
+
+      <clickElement htmlId="updateForm:updatePanelCancelButton" />
+
+      <clickLink href="/organization/editCustomer.jsf" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <ifstep test="@{editable}">
+        <then>
+          <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{value}" />
+        </then>
+        <else>
+          <not>
+            <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{value}" />
+          </not>
+          <verifyElementText htmlId="editForm:udaTable:@{rowNr}:.*" value="@{value}" />
+        </else>
+      </ifstep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="udas.updateSubscriptionUda">
+    <attribute name="subscriptionId" />
+    <attribute name="newValue" />
+    <attribute name="oldValueToCheck" default="" />
+    <attribute name="rowNr" default="0" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <clickLink href="/subscription/editUdas.jsf" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'@{subscriptionId}')]" />  
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{oldValueToCheck}" />
+      <setInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{subscriptionId}" />
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{subscriptionId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="udas.updateSubscriptionUda">
+    <attribute name="subscriptionId" />
+    <attribute name="newValue" />
+    <attribute name="oldValueToCheck" default="" />
+    <attribute name="rowNr" default="0" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <clickLink href="/subscription/editUdas.jsf" />
+	  <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'@{subscriptionId}')]" />
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{oldValueToCheck}" />
+      <setInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{subscriptionId}" />
+      <verifyInputField htmlId="editForm:udaTable:@{rowNr}:udaValue" value="@{newValue}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{subscriptionId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+</project>

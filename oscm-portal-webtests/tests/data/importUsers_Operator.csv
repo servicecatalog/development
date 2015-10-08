@@ -1,0 +1,3 @@
+userOp120, user1@org.com, en, MR, "John", "Doe", "ORGANIZATION_ADMIN"
+userOp220, user2@org.com, en, , , , "TECHNOLOGY_MANAGER,PLATFORM_OPERATOR"
+userOp320, user3@org.com, en, MR, , "Miller", ""

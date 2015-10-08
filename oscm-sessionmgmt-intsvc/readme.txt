@@ -1,0 +1,1 @@
+The local interface and assembler of the product session management component.

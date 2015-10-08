@@ -1,0 +1,101 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="tests">
+    <import file="../../macros/marketplace/all.xml" />
+    <target name="setup">
+        <webtest name="testReferenceToUnits_setup">
+
+            <!-- Create marketplace and add user to it -->
+            <operator.addCurrency />
+            <scenario.setupSupplier />
+            <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+            <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+            <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+
+            <!-- Add sample units as supplier (tests unit creation) -->
+            <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+            <mpl_user.createGroup groupId="Group1" groupDescription="Group 1 description" groupReferenceId="Ref1" hasService="true" />
+            <mpl_user.createGroup groupId="Group2" groupDescription="Group 2 description" groupReferenceId="Ref2" hasService="true" />
+            <mpl_user.createGroup groupId="Group3" groupDescription="Group 3 description" groupReferenceId="Ref3" hasService="true" />
+            <mpl_user.createGroup groupId="Group4" groupDescription="Group 4 description" groupReferenceId="Ref4" hasService="true" />
+            <mpl_user.createGroup groupId="Group5" groupDescription="Group 5 description" groupReferenceId="Ref5" hasService="true" />
+            <mpl_user.createGroup groupId="Group6" groupDescription="Group 6 description" groupReferenceId="TestRef" hasService="true" />
+            <mpl_user.createGroup groupId="Group7" groupDescription="Group 7 description" hasService="true" />
+            <mpl_user.createGroup groupId="TestGroup" hasService="true" />
+
+             <!-- End setup -->
+            <mpl_login.logout />
+
+        </webtest>
+    </target>
+    <target name="tests" depends="setup">
+        <webtest name="testReferenceToUnits_testUnitEdition">
+
+            <!-- Login as supplier, go to Account > Users & Units page and click Units tab -->
+            <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+            <mpl_goto.account.users />
+            <clickElement htmlId="tabGroups:header"/>
+
+            <!-- Edit Group1 unit reference ID-->
+            <clickLink xpath="//*[@id='groupsListForm:groupListTable:1']//a" />
+            <common.waitForJavaScript />
+            <setInputField htmlId="editGroupForm:groupReferenceId" value="Ref1 modification test" />
+            <clickElement htmlId="editGroupForm:createButtonLink"/>
+
+            <!-- Verify results -->
+            <mpl_goto.account.users />
+            <clickElement htmlId="tabGroups:header"/>
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:1']//*[contains(@id,'groupReferenceId') and @title='Ref1 modification test']" />
+
+            <!-- End test -->
+            <mpl_login.logout />
+
+        </webtest>
+        <webtest name="testReferenceToUnits_testTableSortingAndFilteringByReferenceId">
+
+            <!-- Login as supplier, go to Account > Users & Units page and click Units tab -->
+            <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+            <mpl_goto.account.users />
+            <clickElement htmlId="tabGroups:header"/>
+
+            <!-- Apply sorting (ascending) on Reference ID column and verify it -->
+            <clickElement htmlId="groupsListForm:groupListTable:colGroupReferenceId"/>
+            <common.waitForJavaScript />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:0']//*[contains(@id,'groupReferenceId') and @title='']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:1']//*[contains(@id,'groupReferenceId') and @title='']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:2']//*[contains(@id,'groupReferenceId') and @title='']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:3']//*[contains(@id,'groupReferenceId') and @title='Ref1 modification test']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:4']//*[contains(@id,'groupReferenceId') and @title='Ref2']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:5']//*[contains(@id,'groupReferenceId') and @title='Ref3']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:6']//*[contains(@id,'groupReferenceId') and @title='Ref4']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:7']//*[contains(@id,'groupReferenceId') and @title='Ref5']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:8']//*[contains(@id,'groupReferenceId') and @title='TestRef']" />
+
+            <!-- Apply sorting (descending) on Reference ID column and verify it -->
+            <clickElement htmlId="groupsListForm:groupListTable:colGroupReferenceId"/>
+            <common.waitForJavaScript />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:0']//*[contains(@id,'groupReferenceId') and @title='TestRef']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:1']//*[contains(@id,'groupReferenceId') and @title='Ref5']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:2']//*[contains(@id,'groupReferenceId') and @title='Ref4']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:3']//*[contains(@id,'groupReferenceId') and @title='Ref3']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:4']//*[contains(@id,'groupReferenceId') and @title='Ref2']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:5']//*[contains(@id,'groupReferenceId') and @title='Ref1 modification test']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:6']//*[contains(@id,'groupReferenceId') and @title='']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:7']//*[contains(@id,'groupReferenceId') and @title='']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:8']//*[contains(@id,'groupReferenceId') and @title='']" />
+
+            <!-- Apply filtering on Reference ID column and verify it -->
+            <setInputField htmlId="groupsListForm:groupListTable:filterGroupReferenceId" value="Ref" />
+            <common.waitForJavaScript />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:0']//*[contains(@id,'groupReferenceId') and @title='Ref5']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:1']//*[contains(@id,'groupReferenceId') and @title='Ref4']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:2']//*[contains(@id,'groupReferenceId') and @title='Ref3']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:3']//*[contains(@id,'groupReferenceId') and @title='Ref2']" />
+            <verifyXPath xpath="//*[@id='groupsListForm:groupListTable:4']//*[contains(@id,'groupReferenceId') and @title='Ref1 modification test']" />
+
+            <!-- End test -->
+            <mpl_login.logout />
+
+        </webtest>
+    </target>
+</project>

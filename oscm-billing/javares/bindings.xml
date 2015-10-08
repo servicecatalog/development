@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<bindings xmlns="http://java.sun.com/xml/ns/jaxb" version="2.0" xmlns:xs="http://www.w3.org/2001/XMLSchema"
+ xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc">
+ <globalBindings>
+  <javaType name="java.math.BigDecimal" xmlType="xsd:decimal"
+   parseMethod="org.oscm.billingservice.sharesassembler.BigDecimalJaxbCustomBinder.parseBigDecimal"
+   printMethod="org.oscm.billingservice.sharesassembler.BigDecimalJaxbCustomBinder.printBigDecimal" />
+ </globalBindings>
+</bindings>

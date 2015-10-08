@@ -1,0 +1,73 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="user.add" />
+    <c:set var="focusElement" value="userForm:salutation" />
+  </ui:define>
+  <ui:define name="body">
+
+    <adm:outputStep value="#{msg['user.add.step1']}" />
+    <h:form id="userForm">
+      <adm:panelGrid>
+
+        <adm:labelAndSelect id="salutation" label="#{msg['user.salutation']}" value="#{userBean.newUser.salutation}"
+          styleClass="selectXS">
+          <adm:salutationItems />
+        </adm:labelAndSelect>
+
+        <adm:userName firstNameId="firstName" firstNameValue="#{userBean.newUser.firstName}" lastNameId="lastName"
+          lastNameValue="#{userBean.newUser.lastName}" />
+
+        <adm:labelAndInputText id="email" label="#{msg['user.email']}" required="true" value="#{userBean.newUser.email}"
+          maxlength="#{appBean.nameLen}" validatorId="email" converterId="trimConverter" />
+
+        <adm:labelAndInputText id="userId" label="#{msg['user.userId']}" required="true"
+          value="#{userBean.newUser.userId}" maxlength="#{appBean.userIdLen}" validatorId="userId"
+          converterId="trimConverter" />
+
+        <adm:labelAndSelect id="locale" label="#{msg['user.locale']}" value="#{userBean.newUser.locale}"
+          styleClass="select">
+          <adm:localeItems />
+          <f:validator validatorId="SupportedLanguageValidator" />
+        </adm:labelAndSelect>
+
+        <adm:outputLabel value="#{msg['user.role']}" renderRequired="true" />
+        <rich:dataTable rowClasses="rowOdd" value="#{userBean.userRolesForNewUser}" var="userRole" id="userRolesTable"
+          styleClass="checkBoxList">
+          <rich:column>
+            <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}" onchange="setDirty(true)" />
+            <h:outputText styleClass="" value="#{userRole.displayName}" />
+          </rich:column>
+
+        </rich:dataTable>
+        <adm:message for="asAdmin" />
+
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="createButton" value="#{msg['button.create']}" bean="#{userBean}" action="createClassic"
+          buttonType="save" />
+      </adm:buttonPanel>
+      <h:inputHidden value="#{userBean.token}" />
+    </h:form>
+
+    <adm:outputStep value="#{msg['user.add.step2']}" />
+    <h:form id="userImportForm" enctype="multipart/form-data">
+      <adm:panelGrid>
+        <adm:fileUpload value="#{userBean.userImport}" disabled="#{editDisabled}" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{userBean}" action="importUsersOnPortal"
+          buttonType="confirm" />
+      </adm:buttonPanel>
+
+    </h:form>
+  </ui:define>
+</ui:composition>

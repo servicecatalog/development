@@ -1,0 +1,1088 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<java version="1.5.0_15" class="java.beans.XMLDecoder">
+  <object class="org.oscm.internal.vo.VOService">
+    <void property="key">
+      <long>10001</long>
+    </void>
+    <void property="licenseDescription">
+      <string>&lt;b&gt;License Agreement&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;The license terms of (hereinafter called
+        &quot;licensor&quot;) are appliedfor the concession of the rights of use for the entire or partlyuse of the
+        object code of the software SmartSVN (hereinafter called &quot;SOFTWARE&quot;)to contractors, juristic persons
+        under public law or official fund assets in termsof �310 in conjunction with �14 BGB [Civil Code] (hereinafter
+        called &quot;licensee&quot;).Herewith the inclusion of the licensee&apos;s own terms and conditions is
+        contradicted,unless their validity has explicitly been agreed to.&lt;br/&gt;&lt;br/&gt;2 Scope of the Rights of
+        Use&lt;br/&gt;&lt;br/&gt;2.1 The following terms are valid for the assignment and use of the SOFTWAREfor an
+        unlimited period of time including any documentation and the licensefile (a file that is custom-made for each
+        individual granting of a license,the file being necessary for the operation of the
+        SOFTWARE).&lt;br/&gt;&lt;br/&gt;2.2 They are not valid for additional services such as installation,integration,
+        parameterization and customization of the SOFTWAREto the licensee&apos;s requirements.</string>
+    </void>
+    <void property="licenseName">
+      <string>LICENSE_NAME</string>
+    </void>
+    <void property="description">
+      <string>You can register up to three user from which two can simultaneously use the service. After five minutes
+        the subscription will be deactivated automatically if you do not change the rate.</string>
+    </void>
+    <void property="name">
+      <string>Trial</string>
+    </void>
+    <void property="parameters">
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10008</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="defaultValue">
+                <string>2</string>
+              </void>
+              <void property="description">
+                <string>Incremental memory storage</string>
+              </void>
+              <void property="key">
+                <long>10008</long>
+              </void>
+              <void property="parameterId">
+                <string>MEMORY_STORAGE</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList">
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10006</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Minimum Storage (1GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>1</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>MEMORY_STORAGE</string>
+                      </void>
+                    </object>
+                  </void>
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10007</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Optimum storage (2GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>2</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>MEMORY_STORAGE</string>
+                      </void>
+                    </object>
+                  </void>
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10008</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Maximum storage (4GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>3</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>MEMORY_STORAGE</string>
+                      </void>
+                    </object>
+                  </void>
+                </object>
+              </void>
+              <void property="parameterType">
+                <object id="ParameterType0" class="org.oscm.types.enumtypes.ParameterType" method="valueOf">
+                  <string>SERVICE_PARAMETER</string>
+                </object>
+              </void>
+              <void property="valueType">
+                <object id="ParameterValueType0" class="org.oscm.types.enumtypes.ParameterValueType"
+                  method="valueOf">
+                  <string>ENUMERATION</string>
+                </object>
+              </void>
+              <void property="version">
+                <int>1</int>
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>2</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10009</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="description">
+                <string>Incremental disk storage</string>
+              </void>
+              <void property="key">
+                <long>10009</long>
+              </void>
+              <void property="parameterId">
+                <string>DISK_SPACE</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList">
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10009</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Minimum Storage (100GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>1</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>DISK_SPACE</string>
+                      </void>
+                    </object>
+                  </void>
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10010</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Optimum storage (200GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>2</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>DISK_SPACE</string>
+                      </void>
+                    </object>
+                  </void>
+                  <void method="add">
+                    <object class="org.oscm.vo.VOParameterOption">
+                      <void property="key">
+                        <long>10011</long>
+                      </void>
+                      <void property="optionDescription">
+                        <string>Maximum storage (400GB)</string>
+                      </void>
+                      <void property="optionId">
+                        <string>3</string>
+                      </void>
+                      <void property="paramDefId">
+                        <string>DISK_SPACE</string>
+                      </void>
+                    </object>
+                  </void>
+                </object>
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object idref="ParameterValueType0" />
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>1</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10010</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="defaultValue">
+                <string>200</string>
+              </void>
+              <void property="description">
+                <string>Number2 of folders that can be created.</string>
+              </void>
+              <void property="key">
+                <long>10010</long>
+              </void>
+              <void property="mandatory">
+                <boolean>true</boolean>
+              </void>
+              <void property="maxValue">
+                <long>500</long>
+              </void>
+              <void property="minValue">
+                <long>12</long>
+              </void>
+              <void property="parameterId">
+                <string>MAX_FOLDER_NUMBER2</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object id="ParameterValueType1" class="org.oscm.types.enumtypes.ParameterValueType"
+                  method="valueOf">
+                  <string>INTEGER</string>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>200</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10011</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="description">
+                <string>Number2 of folders that can be created.</string>
+              </void>
+              <void property="key">
+                <long>10011</long>
+              </void>
+              <void property="parameterId">
+                <string>STRING_DATA_TYPE</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object id="ParameterValueType2" class="org.oscm.types.enumtypes.ParameterValueType"
+                  method="valueOf">
+                  <string>STRING</string>
+                </object>
+              </void>
+            </object>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10012</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="defaultValue">
+                <string>200</string>
+              </void>
+              <void property="description">
+                <string>Number of files that can be uploaded.</string>
+              </void>
+              <void property="key">
+                <long>10012</long>
+              </void>
+              <void property="maxValue">
+                <long>500</long>
+              </void>
+              <void property="minValue">
+                <long>12</long>
+              </void>
+              <void property="parameterId">
+                <string>MAX_FILE_NUMBER</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object idref="ParameterValueType1" />
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>200</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10013</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="defaultValue">
+                <string>200</string>
+              </void>
+              <void property="description">
+                <string>Number of folders that can be created.</string>
+              </void>
+              <void property="key">
+                <long>10013</long>
+              </void>
+              <void property="maxValue">
+                <long>500</long>
+              </void>
+              <void property="minValue">
+                <long>12</long>
+              </void>
+              <void property="parameterId">
+                <string>MAX_FOLDER_NUMBER</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object idref="ParameterValueType1" />
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>200</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="key">
+            <long>10014</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="defaultValue">
+                <string>200</string>
+              </void>
+              <void property="description">
+                <string>Cannot be configured</string>
+              </void>
+              <void property="key">
+                <long>10014</long>
+              </void>
+              <void property="maxValue">
+                <long>500</long>
+              </void>
+              <void property="minValue">
+                <long>12</long>
+              </void>
+              <void property="parameterId">
+                <string>NON_CONFIGURABLE</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object idref="ParameterValueType1" />
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>200</string>
+          </void>
+        </object>
+      </void>
+      <void method="add">
+        <object class="org.oscm.vo.VOParameter">
+          <void property="configurable">
+            <boolean>true</boolean>
+          </void>
+          <void property="key">
+            <long>10015</long>
+          </void>
+          <void property="parameterDefinition">
+            <object class="org.oscm.vo.VOParameterDefinition">
+              <void property="configurable">
+                <boolean>true</boolean>
+              </void>
+              <void property="defaultValue">
+                <string>true</string>
+              </void>
+              <void property="description">
+                <string>Rename any user folder</string>
+              </void>
+              <void property="key">
+                <long>10015</long>
+              </void>
+              <void property="parameterId">
+                <string>RENAME_FOLDER</string>
+              </void>
+              <void property="parameterOptions">
+                <object class="java.util.ArrayList" />
+              </void>
+              <void property="parameterType">
+                <object idref="ParameterType0" />
+              </void>
+              <void property="valueType">
+                <object id="ParameterValueType3" class="org.oscm.types.enumtypes.ParameterValueType"
+                  method="valueOf">
+                  <string>BOOLEAN</string>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void property="value">
+            <string>true</string>
+          </void>
+        </object>
+      </void>
+    </void>
+    <void property="priceModel">
+      <object class="org.oscm.vo.VOPriceModel">
+        <void property="chargeable">
+          <boolean>true</boolean>
+        </void>
+        <void property="consideredEvents">
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedEvent">
+              <void property="eventDefinition">
+                <object class="org.oscm.vo.VOEventDefinition">
+                  <void property="eventDescription">
+                    <string>Login of a user to the service.</string>
+                  </void>
+                  <void property="eventId">
+                    <string>USER_LOGIN_TO_SERVICE</string>
+                  </void>
+                  <void property="eventType">
+                    <object id="EventType0" class="org.oscm.types.enumtypes.EventType" method="valueOf">
+                      <string>PLATFORM_EVENT</string>
+                    </object>
+                  </void>
+                  <void property="key">
+                    <long>1000</long>
+                  </void>
+                </object>
+              </void>
+              <void property="eventPrice">
+                <long>100</long>
+              </void>
+              <void property="key">
+                <long>10002</long>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedEvent">
+              <void property="eventDefinition">
+                <object class="org.oscm.vo.VOEventDefinition">
+                  <void property="eventDescription">
+                    <string>Logout of a user from the service.</string>
+                  </void>
+                  <void property="eventId">
+                    <string>USER_LOGOUT_FROM_SERVICE</string>
+                  </void>
+                  <void property="eventType">
+                    <object idref="EventType0" />
+                  </void>
+                  <void property="key">
+                    <long>1001</long>
+                  </void>
+                </object>
+              </void>
+              <void property="eventPrice">
+                <long>100</long>
+              </void>
+              <void property="key">
+                <long>10003</long>
+              </void>
+            </object>
+          </void>
+        </void>
+        <void property="currencyISOCode">
+          <string>EUR</string>
+        </void>
+        <void property="description">
+          <string>a longer description</string>
+        </void>
+        <void property="key">
+          <long>10001</long>
+        </void>
+        <void property="oneTimeFee">
+          <long>5000</long>
+        </void>
+        <void property="period">
+          <object class="org.oscm.types.enumtypes.PricingPeriod" method="valueOf">
+            <string>MONTH</string>
+          </object>
+        </void>
+        <void property="pricePerPeriod">
+          <long>5000</long>
+        </void>
+        <void property="pricePerUserAssignment">
+          <long>5000</long>
+        </void>
+        <void property="selectedParameters">
+          <void method="add">
+            <object id="VOPricedParameter0" class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10007</long>
+              </void>
+              <void property="parameterKey">
+                <long>10008</long>
+              </void>
+              <void property="pricedOptions">
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10006</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10006</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10007</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10007</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10008</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10008</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="defaultValue">
+                    <string>2</string>
+                  </void>
+                  <void property="description">
+                    <string>Incremental memory storage</string>
+                  </void>
+                  <void property="key">
+                    <long>10008</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>MEMORY_STORAGE</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList">
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10006</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Minimum Storage (1GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>1</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>MEMORY_STORAGE</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10007</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Optimum storage (2GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>2</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>MEMORY_STORAGE</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10008</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Maximum storage (4GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>3</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>MEMORY_STORAGE</string>
+                          </void>
+                        </object>
+                      </void>
+                    </object>
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType0" />
+                  </void>
+                  <void property="version">
+                    <int>1</int>
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object id="VOPricedParameter1" class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10008</long>
+              </void>
+              <void property="parameterKey">
+                <long>10009</long>
+              </void>
+              <void property="pricedOptions">
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10009</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10009</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10010</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10010</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+                <void method="add">
+                  <object class="org.oscm.vo.VOPricedOption">
+                    <void property="key">
+                      <long>10011</long>
+                    </void>
+                    <void property="parameterOptionKey">
+                      <long>10011</long>
+                    </void>
+                    <void property="pricePerSubscription">
+                      <long>100</long>
+                    </void>
+                  </object>
+                </void>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="description">
+                    <string>Incremental disk storage</string>
+                  </void>
+                  <void property="key">
+                    <long>10009</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>DISK_SPACE</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList">
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10009</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Minimum Storage (100GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>1</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>DISK_SPACE</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10010</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Optimum storage (200GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>2</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>DISK_SPACE</string>
+                          </void>
+                        </object>
+                      </void>
+                      <void method="add">
+                        <object class="org.oscm.vo.VOParameterOption">
+                          <void property="key">
+                            <long>10011</long>
+                          </void>
+                          <void property="optionDescription">
+                            <string>Maximum storage (400GB)</string>
+                          </void>
+                          <void property="optionId">
+                            <string>3</string>
+                          </void>
+                          <void property="paramDefId">
+                            <string>DISK_SPACE</string>
+                          </void>
+                        </object>
+                      </void>
+                    </object>
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType0" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10009</long>
+              </void>
+              <void property="parameterKey">
+                <long>10010</long>
+              </void>
+              <void property="pricePerSubscription">
+                <long>100</long>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="defaultValue">
+                    <string>200</string>
+                  </void>
+                  <void property="description">
+                    <string>Number2 of folders that can be created.</string>
+                  </void>
+                  <void property="key">
+                    <long>10010</long>
+                  </void>
+                  <void property="mandatory">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="maxValue">
+                    <long>500</long>
+                  </void>
+                  <void property="minValue">
+                    <long>12</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>MAX_FOLDER_NUMBER2</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList" />
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType1" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10010</long>
+              </void>
+              <void property="parameterKey">
+                <long>10011</long>
+              </void>
+              <void property="pricePerSubscription">
+                <long>100</long>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="description">
+                    <string>Number2 of folders that can be created.</string>
+                  </void>
+                  <void property="key">
+                    <long>10011</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>STRING_DATA_TYPE</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList" />
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType2" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10011</long>
+              </void>
+              <void property="parameterKey">
+                <long>10012</long>
+              </void>
+              <void property="pricePerSubscription">
+                <long>100</long>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="defaultValue">
+                    <string>200</string>
+                  </void>
+                  <void property="description">
+                    <string>Number of files that can be uploaded.</string>
+                  </void>
+                  <void property="key">
+                    <long>10012</long>
+                  </void>
+                  <void property="maxValue">
+                    <long>500</long>
+                  </void>
+                  <void property="minValue">
+                    <long>12</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>MAX_FILE_NUMBER</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList" />
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType1" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10012</long>
+              </void>
+              <void property="parameterKey">
+                <long>10013</long>
+              </void>
+              <void property="pricePerSubscription">
+                <long>100</long>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="defaultValue">
+                    <string>200</string>
+                  </void>
+                  <void property="description">
+                    <string>Number of folders that can be created.</string>
+                  </void>
+                  <void property="key">
+                    <long>10013</long>
+                  </void>
+                  <void property="maxValue">
+                    <long>500</long>
+                  </void>
+                  <void property="minValue">
+                    <long>12</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>MAX_FOLDER_NUMBER</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList" />
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType1" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+          <void method="add">
+            <object class="org.oscm.vo.VOPricedParameter">
+              <void property="key">
+                <long>10013</long>
+              </void>
+              <void property="parameterKey">
+                <long>10015</long>
+              </void>
+              <void property="pricePerSubscription">
+                <long>100</long>
+              </void>
+              <void property="voParameterDef">
+                <object class="org.oscm.vo.VOParameterDefinition">
+                  <void property="configurable">
+                    <boolean>true</boolean>
+                  </void>
+                  <void property="defaultValue">
+                    <string>true</string>
+                  </void>
+                  <void property="description">
+                    <string>Rename any user folder</string>
+                  </void>
+                  <void property="key">
+                    <long>10015</long>
+                  </void>
+                  <void property="parameterId">
+                    <string>RENAME_FOLDER</string>
+                  </void>
+                  <void property="parameterOptions">
+                    <object class="java.util.ArrayList" />
+                  </void>
+                  <void property="parameterType">
+                    <object idref="ParameterType0" />
+                  </void>
+                  <void property="valueType">
+                    <object idref="ParameterValueType3" />
+                  </void>
+                </object>
+              </void>
+            </object>
+          </void>
+        </void>
+        <void property="shortDescription">
+          <string>MarketProduct1</string>
+        </void>
+        <void property="version">
+          <int>1</int>
+        </void>
+      </object>
+    </void>
+    <void property="accessType">
+      <object class="org.oscm.types.enumtypes.ServiceAccessType" method="valueOf">
+        <string>PLATFORM</string>
+      </object>
+    </void>
+    <void property="serviceId">
+      <string>MarketProduct1</string>
+    </void>
+    <void property="status">
+      <object class="org.oscm.types.enumtypes.ServiceStatus" method="valueOf">
+        <string>INACTIVE</string>
+      </object>
+    </void>
+    <void property="technicalDescription">
+      <string>You can create \tfolders upload files and share them with other users.</string>
+    </void>
+    <void property="technicalId">
+      <string>Example</string>
+    </void>
+    <void property="technicalVersion">
+      <string>1.00</string>
+    </void>
+    <void property="version">
+      <int>1</int>
+    </void>
+  </object>
+</java>

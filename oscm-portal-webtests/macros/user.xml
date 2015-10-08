@@ -1,0 +1,615 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="user.register">
+    <attribute name="userId" />
+    <attribute name="admin" default="false" />
+    <attribute name="isSvcMgr" default="false" />
+    <attribute name="isTechMgr" default="false" />
+    <attribute name="isMpOwner" default="false" />
+    <attribute name="isPlatformOperator" default="false" />
+    <attribute name="isBroker" default="false" />
+    <attribute name="isReseller" default="false" />
+    <attribute name="isSubMgr" default="false" />
+    <attribute name="salutation" default="" />
+
+    <sequential>
+      <user.createUniqueName userId="@{userId}" />
+      <common.clickAndVerfyLink label="${user.add.title}" />
+      <setInputField htmlId="userForm:userId" value="#{uniqueUserId}" />
+      <setSelectField htmlId="userForm:salutation" text="@{salutation}" />
+      <setInputField htmlId="userForm:email" value="${common.email}" />
+      <setInputField htmlId="userForm:firstName" value="First name" />
+      <setInputField htmlId="userForm:lastName" value="Last name" />
+      <setCheckbox xpath="//span[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="@{admin}" />
+
+      <!-- Set the user roles, which correspond to the organization's roles -->
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.SERVICE_MANAGER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.MARKETPLACE_OWNER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.MARKETPLACE_OWNER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.PLATFORM_OPERATOR}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.PLATFORM_OPERATOR}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.BROKER_MANAGER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.BROKER_MANAGER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.RESELLER_MANAGER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.RESELLER_MANAGER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//span[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//span[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" checked="true" />
+        </then>
+      </ifStep>
+
+      <clickButton label="${button.create}" />
+      <common.verifySuccess label="#{uniqueUserId}" />
+
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement xpath="//*[text()='#{uniqueUserId}']/../*" />
+
+      <!-- Clear all user roles, that correspond to the organization's roles -->
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.SERVICE_MANAGER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.SERVICE_MANAGER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.PLATFORM_OPERATOR}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.PLATFORM_OPERATOR}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.BROKER_MANAGER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.BROKER_MANAGER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.RESELLER_MANAGER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.RESELLER_MANAGER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[contains(text(), '${UserRoleType.SUBSCRIPTION_MANAGER}')]/../*[1]/@type" text="checkbox" />
+        </condition>
+        <then>
+          <setCheckbox xpath="//*[contains(text(), '${UserRoleType.SUBSCRIPTION_MANAGER}')]/../*[1]" checked="false" />
+        </then>
+      </ifStep>
+
+      <!-- Set the user roles again according to the passed parameter(s) -->
+      <ifStep test="@{isTechMgr}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isSvcMgr}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.SERVICE_MANAGER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isMpOwner}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isPlatformOperator}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.PLATFORM_OPERATOR}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isBroker}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.BROKER_MANAGER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isReseller}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.RESELLER_MANAGER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <ifStep test="@{isSubMgr}">
+        <setCheckbox xpath="//*[contains(text(), '${UserRoleType.SUBSCRIPTION_MANAGER}')]/../*[1]" checked="true" />
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="#{uniqueUserId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- the tableRowId is built from <formId>:<tableId>:n:<rowNumber> -->
+  <macrodef name="user.resetUserPwd">
+    <attribute name="rowNr" />
+    <attribute name="userId" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement htmlId="userListForm:userListTable:@{rowNr}:userId" />
+      <verifyInputField htmlId="editForm:userId" value="@{userId}" />
+      <clickButton label="${button.resetPwd}" />
+      <common.verifySuccess label="${info.user.pwdReset}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.changePwd">
+    <attribute name="oldPwd" />
+    <attribute name="newPwd" />
+    <attribute name="verifySuccess" default="true" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.pwd.title}" />
+      <common.verifyPasswordFields />
+      <setInputField htmlId="passwordform:currentPassword" value="@{oldPwd}" />
+      <setInputField htmlId="passwordform:password" value="@{newPwd}" />
+      <setInputField htmlId="passwordform:password2" value="@{newPwd}" />
+      <clickButton htmlId="passwordform:changeButton" />
+      <ifStep test="@{verifySuccess}">
+        <common.verifySuccess label="${info.password.changed}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.editProfile">
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.edit.title}" />
+      <setInputField htmlId="editForm:firstName" value="test first name" />
+      <setInputField htmlId="editForm:lastName" value="test last name" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.user.profileSaved}" />
+      <verifyInputField htmlId="editForm:firstName" value="test first name" />
+      <verifyInputField htmlId="editForm:lastName" value="test last name" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="${info.user.profileSaved}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.manage">
+    <attribute name="rowNr" default="0" />
+    <attribute name="admin" default="false" />
+
+    <sequential>
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement htmlId="userListForm:userListTable:@{rowNr}:userId" />
+      <storeInputFieldAttribute property="userId" name="editForm:userId" attributeName="value" propertyType="dynamic" />
+      <setInputField htmlId="editForm:firstName" value="test first name" />
+      <setInputField htmlId="editForm:lastName" value="test last name" />
+      <setCheckbox htmlId="editForm:userRolesTable:0:rolesCheckbox" checked="@{admin}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="#{userId}" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.delete">
+    <attribute name="userId" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement xpath="//*[contains(@id, 'userId') and contains(.//text(),'@{userId}')]" />
+      <clickElement htmlId="editForm:deleteButton" />
+      <clickLink htmlId="deleteConfirmForm:okButton" />
+      <common.verifySuccess label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.addSuppliers">
+    <attribute name="supplierID" />
+    <attribute name="technicalServiceID" default="Example 1.00" />
+    <attribute name="suspended" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="@{technicalServiceID}" />
+      <setInputField htmlId="addSupplierForm:supplierId" value="@{supplierID}" />
+      <clickButton label="${button.add}" />
+      <common.handleMessageParameters property="infoMsg" value="${info.supplier.added}" att0="@{supplierID}" />
+      <common.verifySuccess label="#{infoMsg}" suspended="@{suspended}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.registerCustomer">
+    <attribute name="userId" default="" />
+    <attribute name="orgName" default="${common.orgName}" />
+    <attribute name="orgSettingsFile" default="" />
+    <attribute name="suspended" default="false" />
+    <attribute name="country" default="DE" />
+    <attribute name="phone" default="${test.organization.phone}" />
+    <attribute name="url" default="${test.organization.url}" />
+    <attribute name="address" default="${test.organization.address}" />
+    <attribute name="description" default="${test.organization.description}" />
+    <attribute name="createUniqueId" default="true" />
+    <attribute name="reExecution" default="false" />
+    <attribute name="email" default="${common.email}" />
+    <attribute name="marketplaceId" default="" />
+
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+
+      <!-- set input fields -->
+      <setInputField htmlId="editForm:email" value="@{email}" />
+      <ifStep test="@{createUniqueId}">
+        <then>
+          <user.createUniqueName userId="@{userId}" />
+        </then>
+        <else>
+          <storeProperty name="uniqueUserId" value="@{userId}" />
+        </else>
+      </ifStep>
+      <setInputField htmlId="editForm:userId" value="#{uniqueUserId}" />
+      <setSelectField name="editForm:locale" value="${common.locale}" />
+      <setInputField htmlId="editForm:organizationEmail" value="@{email}" />
+      <setInputField htmlId="editForm:organizationName" value="@{orgName}" />
+      <setInputField htmlId="editForm:organizationPhone" value="@{phone}" />
+      <setInputField htmlId="editForm:organizationUrl" value="@{url}" />
+      <setInputField htmlId="editForm:organizationAddress" value="@{address}" />
+      <setInputField htmlId="editForm:organizationDescription" value="@{description}" />
+      <setSelectField name="editForm:country" value="@{country}" />
+      <storeProperty name="file" value="@{orgSettingsFile}" />
+      <ifStep description="We only set the file field if we have a file name">
+        <condition>
+          <verifyProperty name="file" text="" regex="false" />
+        </condition>
+        <else>
+          <setCheckbox htmlId="editForm:ldapBasedUserMgmt" checked="true" />
+          <setFileField htmlId="editForm:file" fileName="@{orgSettingsFile}" />
+        </else>
+      </ifStep>
+      <setSelectField name="editForm:marketplace" value="@{marketplaceId}" />
+
+      <clickButton label="${button.save}" />
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.REGISTER_CUSTOMER_FOR_SUPPLIER}" att0="#{uniqueUserId}" att1="@{email}" />
+          <common.verifyError label="#{errMsg}" />
+        </then>
+        <else>
+          <common.verifySuccess label="." suspended="@{suspended}" />
+          <ifStep test="@{suspended}">
+            <else>
+              <storeRegEx description="Store ID of created organization" text="organization\s(\S*)\shas" property="orgId" group="1" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.ldapImport">
+    <attribute name="userroleNumber" default="0" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.import.title}" />
+      <setInputField htmlId="searchForm:userId" value="bes-*" />
+      <clickElement htmlId="searchForm:searchButtonLink" />
+
+      <!-- Bug 9806: at least one priveleged userrole must be selected before import -->
+      <setCheckbox htmlId="importForm:userRolesTable:@{userroleNumber}:rolesCheckbox" checked="true" />
+
+      <ifStep description="Check if we have a checkbox in the first line otherwise use the second line">
+        <condition>
+          <verifyXPath xpath="//input[@id='importForm:userListTable:0:import' and @type='checkbox']" />
+        </condition>
+        <then>
+          <setCheckbox htmlId="importForm:userListTable:0:import" checked="true" />
+        </then>
+        <else>
+          <setCheckbox htmlId="importForm:userListTable:1:import" checked="true" />
+        </else>
+      </ifStep>
+      <common.waitForJavaScript description="Wait for activate import button" />
+      <clickLink htmlId="importForm:importButtonLink" />
+      <common.handleMessageParameters property="infoMsg" att0="1" value="${info.user.imported}" />
+      <mpl_verify.success label="#{infoMsg}" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="user.removeSuppliers">
+    <attribute name="rowNr" default="0" />
+    <attribute name="supplierID" />
+    <attribute name="technicalServiceID" default="Example 1.00" />
+    <attribute name="suspended" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageSuppliers.title}" />
+      <setSelectField htmlId="selectForm:techServiceId" text="@{technicalServiceID}" />
+      <setCheckbox name="removeSuppliersForm:supplierTable:@{rowNr}:checkboxId" checked="true" />
+      <clickLink htmlId="removeSuppliersForm:deleteButton" />
+      <clickLink htmlId="confirmSaveButton" />
+      <common.verifySuccess label="." suspended="@{suspended}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.checkCustomerInfo">
+    <attribute name="orgName" />
+    <attribute name="orgId" />
+    <attribute name="email" />
+    <attribute name="address" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <verifyElementText htmlId="editForm:organizationEmail" text="@{email}" />
+      <verifyElementText htmlId="editForm:organizationAddress" text="@{address}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.updateCustomerDiscount">
+    <attribute name="orgName" />
+    <attribute name="orgId" />
+    <attribute name="value" />
+    <attribute name="from" />
+    <attribute name="thru" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <setInputField htmlId="editForm:discountValue" value="@{value}" />
+      <setInputField htmlId="editForm:discountFrom" value="@{from}" />
+      <setInputField htmlId="editForm:discountThru" value="@{thru}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{orgId}" />
+      <verifyInputField name="editForm:discountValue" value="@{value}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="@{orgId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.updateCustomerDiscountConcurrently">
+    <attribute name="orgUrl" />
+    <attribute name="userId" />
+    <attribute name="value1" />
+    <attribute name="value2" />
+    <attribute name="value3" default="55" />
+    <sequential>
+      <selectWebClient name="session1">
+        <login.login url="@{orgUrl}" userId="@{userId}" password="secret" />
+        <user.selectDiscount organizationId="#{customerInCombobox}" />
+      </selectWebClient>
+
+      <selectWebClient name="session2">
+        <login.login url="@{orgUrl}" userId="@{userId}" password="secret" />
+        <user.selectDiscount organizationId="#{customerInCombobox}" />
+      </selectWebClient>
+
+      <selectWebClient name="session1">
+        <setInputField htmlId="editForm:discountValue" value="@{value1}" />
+        <clickButton label="${button.save}" />
+
+        <common.handleMessageParameters property="infoMsg" value="${info.organization.saved}" att0="#{orgId}" />
+        <verifyXPath xpath="//*[@id='infoMessages:']//span[@class='rf-msgs-sum' and contains(text(),'#{infoMsg}')]" />
+      </selectWebClient>
+
+      <selectWebClient name="session2">
+        <setInputField htmlId="editForm:discountValue" value="@{value2}" />
+        <clickButton label="${button.save}" />
+
+        <common.handleMessageParameters property="infoMsg" value="${info.organization.saved}" att0="#{orgId}" />
+        <common.verifyError label="${ex.ConcurrentModificationException}" />
+
+        <user.selectDiscount organizationId="#{customerInCombobox}" />
+        <setInputField htmlId="editForm:discountValue" value="@{value3}" />
+        <clickButton label="${button.save}" />
+        <common.handleMessageParameters property="infoMsg" value="${info.organization.saved}" att0="#{orgId}" />
+        <verifyXPath xpath="//*[@id='infoMessages:']//*[@class='rf-msgs-sum' and contains(text(),'#{infoMsg}')]" />
+      </selectWebClient>
+
+      <selectWebClient name="session1">
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="session2">
+        <login.logout />
+      </selectWebClient>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.selectDiscount">
+    <attribute name="organizationId" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+      <setSelectField name="selectForm:organizationId" text="@{organizationId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.checkCustomerDiscount">
+    <attribute name="orgName" />
+    <attribute name="orgId" />
+    <attribute name="value" />
+    <attribute name="from" />
+    <attribute name="thru" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+      <storeProperty name="customerInCombobox" value="@{orgName} (@{orgId})" />
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}" />
+      <verifyInputField name="editForm:discountValue" value="@{value}" />
+      <verifyInputField name="editForm:discountFrom" value="@{from}" />
+      <verifyInputField name="editForm:discountThru" value="@{thru}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.createUniqueName">
+    <attribute name="userId" />
+    <sequential>
+      <ifStep description="User given?">
+        <condition>
+          <verifyProperty name="userId" text="" regex="false" />
+        </condition>
+        <then>
+          <storeProperty name="uniqueUserId" value="" />
+        </then>
+        <else>
+          <timestamp name="usersuffix_timestamp" />
+          <storeProperty name="uniqueUserId" value="@{userId}_${usersuffix_timestamp}" propertyType="dynamic" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="user.manageRoles">
+    <attribute name="rowNr" default="0" />
+    <attribute name="isAdmin" default="false" />
+    <attribute name="isSupplier" default="false" />
+    <attribute name="isTechnicalProvider" default="false" />
+    <attribute name="isMarketplaceOwner" default="false" />
+    <attribute name="checked" default="false" />
+    <attribute name="changeCurrentUser" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement htmlId="userListForm:userListTable:@{rowNr}:userId" />
+      <storeInputFieldAttribute property="userId" name="editForm:userId" attributeName="value" propertyType="dynamic" />
+      <ifStep test="@{isAdmin}">
+        <setCheckbox xpath="//*[contains(text(),'${UserRoleType.ORGANIZATION_ADMIN}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isSupplier}">
+        <setCheckbox xpath="//*[contains(text(),'${UserRoleType.SERVICE_MANAGER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isTechnicalProvider}">
+        <setCheckbox xpath="//*[contains(text(),'${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isMarketplaceOwner}">
+        <setCheckbox xpath="//*[contains(text(),'${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <clickButton label="${button.save}" />
+      <ifStep test="@{changeCurrentUser}">
+        <then>
+          <common.verifySuccess label="${info.user.saved.itself}" />
+        </then>
+        <else>
+          <common.verifySuccess label="#{userId}" />
+        </else>
+      </ifStep>
+
+      <clickElement htmlId="userListForm:userListTable:@{rowNr}:userId" />
+      <ifStep test="@{isAdmin}">
+        <verifyCheckbox xpath="//*[contains(text(),'${UserRoleType.ORGANIZATION_ADMIN}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isSupplier}">
+        <verifyCheckbox xpath="//*[contains(text(),'${UserRoleType.SERVICE_MANAGER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isTechnicalProvider}">
+        <verifyCheckbox xpath="//*[contains(text(),'${UserRoleType.TECHNOLOGY_MANAGER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+      <ifStep test="@{isMarketplaceOwner}">
+        <verifyCheckbox xpath="//*[contains(text(),'${UserRoleType.MARKETPLACE_OWNER}')]/../*[1]" checked="@{checked}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- modifies a selection field value, validate save and reset it afterwards -->
+  <macrodef name="user.editCheckboxValue">
+    <attribute name="userId" />
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <sequential>
+      <!-- edit and save changed field value -->
+      <user.display userId="@{userId}" />
+      <!--<storeXPath xpath="//input[@id='@{fieldId}']/@value" property="oldFieldValue" /> -->
+      <storeElementAttribute htmlId="@{fieldId}" attributeName="checked" property="oldFieldValue" />
+      <setCheckbox htmlId="@{fieldId}" checked="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{userId}" />
+
+      <!-- invoke a 2nd time and valiate changed field value -->
+      <user.display userId="@{userId}" />
+      <verifyCheckbox htmlId="@{fieldId}" checked="@{fieldValue}" />
+
+      <!-- revert change -->
+      <setCheckbox htmlId="@{fieldId}" checked="#{oldFieldValue}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- edit given user -->
+  <macrodef name="user.display">
+    <attribute name="userId" default="${common.userId}" />
+    <sequential>
+      <common.clickAndVerfyLink label="${user.list.title}" />
+      <clickElement xpath="//*[@id='userListForm:userListTable']//tr//td[text()='@{userId}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- set user locale (tested with service manager) -->
+  <macrodef name="user.edit.locale">
+    <attribute name="locale" />
+    <attribute name="successText" default="${info.user.profileSaved}" />
+    <sequential>
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <setSelectField description="select locale" xpath="//select[@id='editForm:locale']" text="@{locale}" />
+      <!-- <setInputField description="set email" htmlId="editForm:email" value="${common.email}" /> -->
+      <clickLink description="save" htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="@{successText}" />
+    </sequential>
+  </macrodef>
+
+  <!-- set user email -->
+  <macrodef name="user.edit.email">
+    <attribute name="email" default="${common.email}" />
+    <attribute name="country" default="DE" />
+    <attribute name="successText" default="${info.user.profileSaved}" />
+    <sequential>
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <setInputField description="set email" htmlId="editForm:email" value="@{email}" />
+      <setSelectField description="set country" htmlId="editForm:country" value="@{country}" />
+      <clickLink description="save" htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="@{successText}" />
+    </sequential>
+  </macrodef>
+
+</project>

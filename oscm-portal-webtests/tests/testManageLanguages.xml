@@ -1,0 +1,215 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManageLanguages" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  
+  <target name="testManageLanguages" depends="Support further languages,Export localized data,Import localized data,Bug10601,Bug10586,Bug10746"/>
+  
+  <target name="Support further languages">
+    <webtest name="Support further languages">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+
+      <verifyElementText htmlId="languages:languagesTable:0:isocode" text="en" />
+      <verifyElementText htmlId="languages:languagesTable:1:isocode" text="de" />
+      <verifyElementText htmlId="languages:languagesTable:2:isocode" text="ja" />
+      <verifyCheckbox htmlId="languages:languagesTable:0:checkboxId" checked="true" />
+      <verifyCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="true" />
+      <verifyCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="true" />
+
+      <!--Modify the active status of one language listed on page -->
+      <!--verify the dialog for confirm deactive langauge-->
+      <expectDialogs>
+          <confirm text="${confirm.language.deactive}" response="true" />
+      </expectDialogs>
+      <setCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="false" />
+      <!--Click save button-->
+      <clickButton htmlId="languages:saveButton" />
+      <common.verifySuccess label="${info.supportedlanguage.saved}" />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--verify Not Dirty-->
+      <verifyCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="false" />
+      <!--Reset to active, No dialog for confirm-->
+      <setCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="true"/>
+      <verifyNoDialogs />
+      <!--verify Dirty-->
+      <expectDialogs>
+          <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <clickButton htmlId="languages:saveButton" />
+      <verifyNoDialogs />
+      <!--Add a new language, the language code was invalid-->
+      <setInputField htmlId="addLanguages:languageToAdd" value="f" />
+      <!--verify dirty-->
+      <expectDialogs>
+          <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click add button-->
+      <clickButton htmlId="addLanguages:addButton" />
+      <!--verify dirty since the validator was failed-->
+      <verifyNoDialogs />
+      <expectDialogs>
+           <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+      </expectDialogs>
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Add a new language, the language code was valid-->
+      <setInputField htmlId="addLanguages:languageToAdd" value="fr" />
+      <!--Click add button-->
+      <clickButton htmlId="addLanguages:addButton" />
+      <common.handleMessageParameters property="infoMsg" value="${info.supportedlanguage.added}" att0="fr" />
+      <common.verifySuccess label="#{infoMsg}" />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <verifyNoDialogs />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Export localized data">
+    <webtest name="Export localized data">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click export button-->
+      <clickButton htmlId="languages:downloadButton" />
+      <storeHeader description="store content-type" name="Content-Type" property="contentType" />
+      <verifyProperty name="contentType" text="application/vnd.ms-excel" />
+      <previousResponse />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <verifyNoDialogs />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Import localized data">
+    <webtest name="Import localized data">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click import button-->
+      <property name="import.file" location="data/LocalizedLanguage.xls" />
+      <setFileField htmlId="importForm:file" fileName="${import.file}" />
+      <clickButton htmlId="importForm:uploadButton" />
+      <common.handleMessageParameters property="infoMsg" value="${info.shop.translations.saved}" att0="18" att1="1" />
+      <common.verifySuccess label="#{infoMsg}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import localized data with invalid language code">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click import button-->
+      <property name="import.file.invalidlanguagecode" location="data/LocalizedLanguage_InvalidLanguageCode.xls" />
+      <setFileField htmlId="importForm:file" fileName="${import.file.invalidlanguagecode}" />
+      <clickButton htmlId="importForm:uploadButton" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ValidationException.FILE_IMPORT_FAILED_ISOCODE_INVALID}" att0="jaa" />
+      <common.verifyError label="#{errorMsg}"/>
+      <login.logout />
+    </webtest>
+
+    <webtest name="Import localized data with language not supported">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click import button-->
+      <property name="import.file.languagenotsupported" location="data/LocalizedLanguage_LanguageNotSupported.xls" />
+      <setFileField htmlId="importForm:file" fileName="${import.file.languagenotsupported}" />
+      <clickButton htmlId="importForm:uploadButton" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ValidationException.LANGUAGE_ISOCODE_NOT_SUPPORTED}" att0="ar" />
+      <common.verifyError label="#{errorMsg}"/>
+      <login.logout />
+    </webtest>
+  </target>
+  
+  <target name="Bug10601">
+    <webtest name="Bug10601">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <!--Click import button-->
+      <property name="import.file" location="data/LocalizedLanguage_TranslationsMissing.xls" />
+      <setFileField htmlId="importForm:file" fileName="${import.file}" />
+      <clickButton htmlId="importForm:uploadButton" />
+      <clickLink href="/operator/manageUsers.jsf" />
+      <verifyNoDialogs />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug10586">
+    <webtest name="Bug10586">
+      <mail.cleanInbox />
+      <selectWebClient name="admin1">
+        <operatorPortal.login />
+        <clickLink href="/operator/manageLanguages.jsf" />
+        <setCheckbox htmlId="languages:languagesTable:0:checkboxId" checked="true" />
+        <setCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="true" />
+        <setCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="true" />
+        <clickLink xpath="//*[@id='languages:saveButtonLink']" />
+      </selectWebClient>
+      
+      <selectWebClient name="admin2">
+        <operatorPortal.login />
+        <clickLink href="/organization/edit.jsf" />
+        <setSelectField xpath="//select[@id='editForm:locale']" value="de" />
+        <setInputField htmlId="editForm:email" value="${common.email}" />
+        <setSelectField htmlId="editForm:country" optionIndex="1" />
+      </selectWebClient>
+      
+      <selectWebClient name="admin1">
+        <setCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="false" />
+        <clickLink xpath="//*[@id='languages:saveButtonLink']" />
+      </selectWebClient>
+      
+      <selectWebClient name="admin2">
+        <clickLink xpath="//*[@id='editForm:saveButtonLink']" />
+        <verifyXPath xpath="//*[text()='The language German is not supported.']" /> 
+      </selectWebClient>  
+    </webtest>
+    
+    <webtest name="CleanUp">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageLanguages.jsf" />
+      <setCheckbox htmlId="languages:languagesTable:0:checkboxId" checked="true" />
+      <setCheckbox htmlId="languages:languagesTable:1:checkboxId" checked="true" />
+      <setCheckbox htmlId="languages:languagesTable:2:checkboxId" checked="true" />
+      <clickLink xpath="//*[@id='languages:saveButtonLink']" />
+    </webtest>
+    
+  </target>
+  
+  <target name="Bug10746">
+     <webtest name="Bug10746">
+       <operatorPortal.login />
+       <clickLink href="/operator/manageLanguages.jsf" />
+       <clickButton htmlId="importForm:uploadButton" />
+       <common.verifyAuthorityError errorFieldId="importForm:fileErrorMsg" label="${error.upload.fileNotNullNorEmpty}" />
+       <login.logout />
+       <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+       <operatorPortal.login />
+       <common.ignorePageScriptError />
+       <clickLink href="/shop/translations.jsf" />
+       <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mId}" />
+       <verifyXPath xpath="//*[@id='exportForm:srcLocale' and @class='select']" />
+       <clickButton htmlId="importForm:uploadButton" />
+       <common.verifyAuthorityError errorFieldId="importForm:fileErrorMsg" label="${error.upload.fileNotNullNorEmpty}" />
+       <login.logout />
+       <operator.deleteMarketplaces marketplaceIds="${mId}" />
+     </webtest>
+   </target>
+	
+  <target name="Bug10877">
+	<webtest name="Bug10877">
+	  <operatorPortal.login />
+	  <clickLink href="/operator/manageLanguages.jsf" />
+	  <clickButton htmlId="importForm:uploadButton" />
+	  <common.verifyError errorFieldId="importForm:fileErrorMsg" label="${error.upload.fileNotNullNorEmpty}" />
+	  <clickButton htmlId="languages:downloadButton" />
+	  <storeHeader description="store content-type" name="Content-Type" property="contentType" />
+	  <verifyProperty name="contentType" text="application/vnd.ms-excel" />
+	  <previousResponse />
+	  <not>
+	   	<common.verifyError errorFieldId="importForm:fileErrorMsg" label="${error.upload.fileNotNullNorEmpty}" />
+	  </not>
+	  <login.logout />
+	</webtest>
+  </target>
+  
+</project>

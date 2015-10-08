@@ -1,0 +1,816 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="manageMarketplaceTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <!-- The focus of this test suite is the "Manage marketplaces" dialog and menue visibility. -->
+
+  <target name="manageMarketplaceTests" depends="testUpdateMP, testCreateMP, testDeleteMP, testConcurrentMP, tearDown" />
+
+  <target name="InitForUpdate">
+    <webtest name="testManageMP_Update_setup">
+      <testInfo type="DESCRIPTION">testManageMP_Update_setup:
+        Creates test data.
+        Expected Outcome:
+        (1) One global and one local marketplace
+        (2) One Supplier (needed to switch to other OrganizationId than PLATFORM_OPERATOR)
+      </testInfo>
+
+      <storeProperty name="administrator" value="administrator" propertyType="ant" />
+      <storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+
+      <storeProperty name="MPChooser_SelectOneItem" value="" propertyType="ant" />
+
+      <mail.cleanInbox />
+
+      <!-- (1) Set the common email address for 'administrator', to receive marketplace creation emails -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <user.edit.email />
+      <login.logout />
+
+      <!-- (2) Create new marketplaces -->
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="upd_mp1" mIdProperty="MPID_MP1" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MPID_MP1}" />      
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="upd_mp2" mIdProperty="MPID_MP2" open="true" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MPID_MP2}" />      
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="upd_mp3" mIdProperty="MPID_MP3" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MPID_MP3}" />      
+      <mail.readMarketplaceUrlsFromMail />
+
+      <!-- (3) Create new supplier -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <!-- (4) marketplace check -->
+      <invoke description="invoke a marketplace public URL" url="#{mpPublicUrl}" />
+      <verifyInputField htmlId="searchForm:submit" value="" />
+      <login.login description="login as administrator" url="#{mpAdminUrl}" userId="${administrator}" password="${administratorPwd}" />
+      <this.verifyMPContent marketplaceId="${MPID_MP2}" expectedOrganizationId="PLATFORM_OPERATOR" expectedMarketplaceName="upd_mp2" />
+      <this.verifyMPContent marketplaceId="${MPID_MP3}" expectedOrganizationId="PLATFORM_OPERATOR" expectedMarketplaceName="upd_mp3" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testUpdateMP" depends="InitForUpdate">
+
+    <webtest name="testManageMP_Update_CheckEnablementOnMarketplaceSelection">
+      <testInfo type="DESCRIPTION">testManageMP_Update_CheckEnablement:
+        Checks if UI component on page are enabled if a marketplace was selected in marketplace combobox.
+        Expected Outcome:
+        (1) --- Select one --- menuitem is selected : All UI elements are disabled
+        (2) [MARKETPLACE 1] menuitem is selected : All UI elements are disabled
+        (3) --- Select one --- menuitem is selected : All UI elements are disabled
+        (4) warning is displayed
+			</testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <!-- (1) UI elements are disabled -->
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPChooser_SelectOneItem}" />
+      <this.checkUIEnablement select-one="true" />
+
+      <!-- (2) UI elements are enabled -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP1}" />
+      <this.checkUIEnablement select-one="false" />
+      
+      <!-- Bug#10801 -->
+      <verifyXPath xpath="//*[@class='labelAndValuePanel']//*[@class='labelAndValuePanelCol2 minColWidth']/*[@class='labelAndValuePanelCol2 labelWarning']" text="${marketplace.update.changeOwnerWarning}" regex="true" />
+
+      <!-- (3) UI elements are disabled -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPChooser_SelectOneItem}" />
+      <this.checkUIEnablement select-one="true" />
+
+      <!-- (4) verify warning is displayed -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP1}" />
+      <verifyText text="${marketplace.update.changeOwnerWarning}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_Bug9066">
+      <testInfo type="DESCRIPTION">testManageMP_Update_Bug9066:
+        Checks if the update marketplace page is dirty after error message :
+        (1) Create marketplace MPID_MP4 for supplier with browser1,login as administrator.
+        (2) In browser2,lonin as supplier and invoke to UpdateMarketplace page, select MPID_MP4
+        (3) In browser1, go to deleteMarketplace page and delete MPID_MP4.
+        (4) In browser2, click save. Error message occurred. go to other page, no warning information has occurred.
+    	</testInfo>
+
+      <selectWebClient name="browser1">
+        <operator.createMarketplace ownerId="${supplierId}" name="upd_mp4" mIdProperty="MPID_MP4" open="false" baseurl="${bes.http.url}/oscm-portal" />
+        <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <login.login description="login as supplier admin" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" password="secret" />
+        <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP4}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser1">
+        <invoke description="invoke shop/deleteMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP4}" />
+        <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+        <!-- a dialog will pop up and click the okButton to continue -->
+        <clickElement htmlId="confirmForm:okButton" />
+        <common.handleMessageParameters property="msg" value="${info.marketplace.deleted}" att0="${MPID_MP4}" />
+        <common.verifySuccess label="#{msg}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <clickElement htmlId="updateForm:saveButton" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MPID_MP4}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+        <clickLink href="/organization/edit.jsf" />
+        <verifyNoDialogs />
+        <verifyText text="${organization.edit.description}" />
+      </selectWebClient>
+    </webtest>
+
+    <webtest name="testManageMP_Update_VerifyMarketplaceType">
+      <testInfo type="DESCRIPTION">testManageMP_Update_VerifyMarketplaceType:
+        Checks if UI component marketplace type is visible. Dependent whether the marketplace is global or local, different types are shown.
+        Expected Outcome:
+        (1) No marketplace is selected. Therefore no marketplace type should be displayed
+        (2) Marketplace 2 is global and open
+        (3) Marketplace 3 is local and closed
+      </testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <!-- (1) No marketplace is selected. Therefore no marketplace type should be displayed -->
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPChooser_SelectOneItem}" />
+      <verifyCheckbox name="updateForm:closed" checked="false" />
+
+      <!-- (2) Marketplace 2 is open -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <verifyCheckbox name="updateForm:closed" checked="false" />
+
+      <!-- (3) Marketplace 3 is closed -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP3}" />
+      <verifyCheckbox name="updateForm:closed" checked="true" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_VerifyMarketplaceId">
+      <testInfo type="DESCRIPTION">testManageMP_Update_VerifyMarketplaceId:
+        Checks if UI component marketplace id is visible.
+        Expected Outcome:
+        (1) If no marketplace is selected then no marketplace id should be displayed
+        (2) Check marketplace id for marketplace 2
+        (3) Check marketplace id for marketplace 3
+      </testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <!-- (1) No marketplace is selected. Therefore no marketplace id should be displayed -->
+      <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPChooser_SelectOneItem}" />
+      <verifyXPath xpath="//span[@id='updateForm:marketplaceId']" text="" />
+
+
+      <!-- (2) Check marketplace id for marketplace 2 -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <verifyElementText htmlId="updateForm:marketplaceId" text="${MPID_MP2}" />
+
+      <!-- (3) Check marketplace id for marketplace 3 -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP3}" />
+      <verifyElementText htmlId="updateForm:marketplaceId" text="${MPID_MP3}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_CheckEnablementOnOwnerUpdate">
+      <testInfo type="DESCRIPTION">testManageMP_Update_VerifyMarketplaceNameEnablement:
+        Checks if UI component marketplaceName is disabled if marketplace belongs to other organization.
+        Expected Outcome:
+        (1) Marketplace name and configuration settings are enabled, because marketplace belongs to PLATFORM_OPERATOR and PLATFORM_OPERATOR is logged in
+        (2) Supplier is owner, marketplace name and configuration settings are disabled 
+        (3) Supplier has owner role and logged in, marketplace name and configuration settings are enabled
+        (4) Supplier is logged in, but has no owner role, marketplace name and configuration settings are disabled
+      </testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <common.clickAndVerfyLink label="${marketplace.update.title}" />
+
+      <!--
+        (1) Marketplace name is enabled, marketplace belongs to PLATFORM_OPERATOR and PLATFORM_OPERATOR is logged in
+      -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <verifyInputField htmlId="updateForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+      <this.checkUIEnablement operator="true" owner="true" />
+
+      <!-- (2) Change owner to supplier, check fields are disabled -->
+      <setInputField htmlId="updateForm:organizationIdInput" value="${supplierId}" />
+      <common.ignorePageScriptError />
+      <clickButton htmlId="updateForm:saveButton" />
+      <this.checkMPSuccessfullySaved marketplaceId="${MPID_MP2}" />
+      <verifyInputField htmlId="updateForm:organizationIdInput" value="${supplierId}" />
+      <this.checkUIEnablement operator="true" owner="false" />
+      <login.logout />
+
+      <login.login description="login as supplier" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" password="secret" />
+      <common.clickAndVerfyLink label="${marketplace.update.title}" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <this.checkUIEnablement operator="false" owner="true" />
+      <login.logout />
+
+      <!-- (3) Remove SUPPLIER marketplace owner role, check fields are disabled-->
+      <setup:user.revokeRoles userId="${supplierUserId}" roles="MARKETPLACE_OWNER" runAs="${supplierKey}" />
+
+      <login.login description="login as supplier" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" password="secret" />
+      <not description="menu entry must not be there">
+        <common.clickAndVerfyLink label="${marketplace.update.text}" />
+      </not>
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+      <!-- we must see insufficient authorities message -->
+      <common.verifyAuthorityError label="${insufficientAuthorities.toViewPage}" regex="false" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_SaveWithMissingValues">
+      <testInfo type="DESCRIPTION">testManageMP_Update_SaveWithMissingValues:
+        Checks if update works if mandatory ui components are not set
+        Expected Outcome:
+        (1) Organization id not set. Save Marketplace breaks up with an error msg
+        (2) Marketplace name not set. Save Marketplace breaks up with an error msg
+			</testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <!-- (1) Error msg because organization id is not set -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP1}" />
+      <storeXPath xpath="//input[@id='updateForm:organizationIdInput']/@value" property="oldOrganizationId" />
+      <setInputField htmlId="updateForm:organizationIdInput" value="" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <common.verifyError label="${error.text.fields}" />
+      <setInputField htmlId="updateForm:organizationIdInput" value="#{oldOrganizationId}" />
+      <clickElement xpath="//*[@id='updateForm:organizationIdItems']//*[contains(.//text(), '#{oldOrganizationId}')]" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <this.checkMPSuccessfullySaved marketplaceId="${MPID_MP1}" />
+
+      <!-- (2) Error msg because marketplace name is not set -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP1}" />
+      <storeXPath xpath="//input[@id='updateForm:marketplaceName']/@value" property="oldMarketplaceName" />
+      <setInputField htmlId="updateForm:marketplaceName" value="" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <common.verifyError label="${error.text.fields}" />
+      <setInputField htmlId="updateForm:marketplaceName" value="#{oldMarketplaceName}" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <this.checkMPSuccessfullySaved marketplaceId="${MPID_MP1}" />
+
+      <this.verifyMPContent marketplaceId="${MPID_MP1}" expectedOrganizationId="#{oldOrganizationId}" expectedMarketplaceName="#{oldMarketplaceName}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_UpdateAndSwitchMarketplace">
+      <testInfo type="DESCRIPTION">testManageMP_Update_UpdateAndSwitchMarketplace:
+        Updates a marketplace and switch to other marketplace in marketplace combobox. Marketplace should be saved and be shown if marketplace detail are displayed
+        Expected Outcome:
+        (1) Save marketplace1 with new organizationId and marketplaceName
+        (2) Save marketplace2 with new organizationId and marketplaceName
+        (3) Change to marketplace1 and verify data
+        (4) Change to marketplace2 and verify data
+      </testInfo>
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <storeProperty name="newMP2Name" value="updateForm:marketplaceName" />
+      <storeProperty name="newMP3Name" value="Control analysis" />
+
+      <!-- (1) Save marketplace1 with new organizationId and marketplaceName -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <setInputField htmlId="updateForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+      <common.ignorePageScriptError />
+      <clickButton htmlId="updateForm:saveButton" />
+      <setInputField htmlId="updateForm:marketplaceName" value="#{newMP2Name}" />
+      <setCheckbox htmlId="updateForm:closed" checked="true" />
+      <setCheckbox htmlId="updateForm:categoriesEnabled" checked="false" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <this.checkMPSuccessfullySaved marketplaceId="${MPID_MP2}" />
+
+      <!-- (2) Save marketplace2 with new organizationId and marketplaceName -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP3}" />
+      <setInputField htmlId="updateForm:marketplaceName" value="#{newMP3Name}" />
+      <setCheckbox htmlId="updateForm:closed" checked="false" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <this.checkMPSuccessfullySaved marketplaceId="${MPID_MP3}" />
+
+      <!-- (3) Change to marketplace1 -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP2}" />
+      <verifyXPath xpath="//input[@id='updateForm:marketplaceName']/@value" text="#{newMP2Name}" regEx="false" />
+      <verifyCheckbox name="updateForm:closed" checked="true" />
+
+      <!-- (4) Change to marketplace2 -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP3}" />
+      <verifyXPath xpath="//input[@id='updateForm:marketplaceName']/@value" text="#{newMP3Name}" regEx="false" />
+      <verifyCheckbox name="updateForm:closed" checked="false" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_SaveWithWrongOrganizationId">
+      <testInfo type="DESCRIPTION">testManageMP_Update_SaveWithWrongOrganizationId:
+        Save marketplace with a non existing organization id.
+        Expected Outcome:
+        (1) Save is not successfull
+			</testInfo>
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke description="invoke shop/updateMarketplace.jsf" url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP3}" />
+      <storeProperty name="notExistingOrganizationId" value="snom360" />
+
+      <!-- (1)  -->
+      <setInputField htmlId="updateForm:organizationIdInput" value="#{notExistingOrganizationId}" />
+      <setInputField htmlId="updateForm:marketplaceName" value="#{MPID_MP3}" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.ORGANIZATION}" att0="#{notExistingOrganizationId}" />
+      <common.verifyError label="#{errorMsg}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Update_tearDown">
+      <testInfo type="DESCRIPTION">testManageMP_Update_tearDown: Delete all created marketplaces.</testInfo>
+      <operator.deleteMarketplaces marketplaceIds="${MPID_MP2},${MPID_MP3}" />
+    </webtest>
+  </target>
+
+  <macrodef name="this.checkUIEnablement">
+    <attribute name="operator" default="true" />
+    <attribute name="owner" default="true" />
+    <attribute name="select-one" default="false" />
+    <sequential>
+
+      <storeXPath xpath="matches('@{operator}', 'true') and matches('@{select-one}', 'false')" property="expectedOrgChooserExists" />
+      <storeXPath xpath="matches('@{owner}', 'true') and matches('@{select-one}', 'false')" property="expectedControlsEnabled" />
+
+      <ifStep test="#{expectedOrgChooserExists}">
+        <then>
+          <verifyXPath description="Check organization chooser exists and is enabled" xpath="//input[@id='updateForm:organizationIdInput']" />
+          <not>
+            <verifyXPath description="Check organization chooser exists and is enabled" xpath="//input[@id='updateForm:organizationIdInput']/@disabled" />
+          </not>
+          <not>
+  	        <verifyXPath description="Check marketpace revenue share enabled" xpath="//input[@id='updateForm:marketplaceRevenueShare']/@disabled" />
+  	      </not>
+          <not>
+	        <verifyXPath description="Check broker revenue share enabled" xpath="//input[@id='updateForm:brokerRevenueShare']/@disabled" />
+	      </not>
+          <not>
+  	        <verifyXPath description="Check reseller revenue share enabled" xpath="//input[@id='updateForm:resellerRevenueShare']/@disabled" />
+  	      </not>
+        </then>
+        <else>
+          <not>
+            <verifyXPath description="Check organization chooser NOT present!" xpath="//input[@id='updateForm:organizationIdInput']" />
+          </not>
+          <ifStep test="@{operator}">
+            <then>
+              <not>
+                 <verifyXPath description="Check marketpace revenue share text NOT present!" xpath="//span[@id='updateForm:marketplaceRevenueShareReadOnly']" />
+   		      </not>
+              <verifyXPath description="Check marketpace revenue share input present!" xpath="//input[@id='updateForm:marketplaceRevenueShare']" />
+   	          <not>
+   	          	<verifyXPath description="Check broker revenue share text NOT present!" xpath="//span[@id='updateForm:brokerRevenueShareReadOnly']" />
+   	  	      </not>
+              <verifyXPath description="Check broker revenue share input present!" xpath="//input[@id='updateForm:brokerRevenueShare']" />
+   	          <not>
+     	        <verifyXPath description="Check reseller revenue share text NOT present!" xpath="//span[@id='updateForm:resellerRevenueShareReadOnly']" />
+   	  	      </not>
+              <verifyXPath description="Check reseller revenue share input present!" xpath="//input[@id='updateForm:resellerRevenueShare']" />
+            </then>
+            <else>
+              <not>
+  		        <verifyXPath description="Check marketpace revenue share input NOT present!" xpath="//input[@id='updateForm:marketplaceRevenueShare']" />
+  		      </not>
+  	          <verifyXPath description="Check marketpace revenue share text present!" xpath="//span[@id='updateForm:marketplaceRevenueShareReadOnly']" />
+  	          <not>
+  	  	        <verifyXPath description="Check broker revenue share input NOT present!" xpath="//input[@id='updateForm:brokerRevenueShare']" />
+  	  	      </not>
+  	          <verifyXPath description="Check broker revenue share text present!" xpath="//span[@id='updateForm:brokerRevenueShareReadOnly']" />
+  	          <not>
+  	  	        <verifyXPath description="Check reseller revenue share input NOT present!" xpath="//input[@id='updateForm:resellerRevenueShare']" />
+  	  	      </not>
+  	          <verifyXPath description="Check reseller revenue share text present!" xpath="//span[@id='updateForm:resellerRevenueShareReadOnly']" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+
+      <ifStep test="#{expectedControlsEnabled}">
+        <then>
+          <not>
+            <verifyXPath description="Check marketpace name enabled" xpath="//input[@id='updateForm:marketplaceName']/@disabled" />
+          </not>
+          <not>
+            <verifyXPath description="Check tagging checkbox enabled" xpath="//input[@id='updateForm:taggingEnabled']/@disabled" />
+          </not>
+          <not>
+            <verifyXPath description="Check review checkbox enabled" xpath="//input[@id='updateForm:reviewEnabled']/@disabled" />
+          </not>
+          <not>
+            <verifyXPath description="Check social bookmark checkbox enabled" xpath="//input[@id='updateForm:socialBookmarkEnabled']/@disabled" />
+          </not>
+          <not>
+            <verifyXPath description="Check 'Authorized suppliers only' checkbox enabled" xpath="//input[@id='updateForm:closed']/@disabled" />
+          </not>
+          <not>
+            <verifyXPath description="Check 'Categories enabled' checkbox enabled" xpath="//input[@id='updateForm:categoriesEnabled']/@disabled" />
+          </not>
+        </then>
+        <else>
+          <verifyXPath description="Check marketpace name disabled" xpath="//input[@id='updateForm:marketplaceName']/@disabled" />
+          <verifyXPath description="Check tagging checkbox disabled" xpath="//input[@id='updateForm:taggingEnabled']/@disabled" />
+          <verifyXPath description="Check review checkbox disabled" xpath="//input[@id='updateForm:reviewEnabled']/@disabled" />
+          <verifyXPath description="Check socialBookmark checkbox disabled" xpath="//input[@id='updateForm:socialBookmarkEnabled']/@disabled" />
+          <verifyXPath description="Check categories checkbox disabled" xpath="//input[@id='updateForm:categoriesEnabled']/@disabled" />
+          <verifyXPath description="Check 'Authorized suppliers only' checkbox disabled" xpath="//input[@id='updateForm:closed']/@disabled" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.verifyMPContent">
+    <attribute name="marketplaceId" />
+    <attribute name="expectedOrganizationId" />
+    <attribute name="expectedMarketplaceName" />
+    <sequential>
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+
+      <storeXPath description="Check organization id" xpath="//input[@id='updateForm:organizationIdInput']/@value" property="organizationId" />
+      <verifyProperty name="organizationId" value="@{expectedOrganizationId}" />
+
+      <storeXPath description="Check organization id" xpath="//input[@id='updateForm:marketplaceName']/@value" property="marketplaceName" />
+      <verifyProperty name="marketplaceName" value="@{expectedMarketplaceName}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.checkMPSuccessfullySaved">
+    <attribute name="marketplaceId" />
+    <sequential>
+      <common.handleMessageParameters property="infoMsg" value="${info.marketplace.saved}" att0="@{marketplaceId}" />
+      <common.verifySuccess label="#{infoMsg}" />
+    </sequential>
+  </macrodef>
+
+  <target name="InitForCreateAndDelete">
+    <!-- Common initialization. Used for all targets in the test. -->
+    <webtest name="testManageMP_setupSuppliers">
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_1" value="#{orgId}" propertyType="ant" />
+
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_2" value="#{orgId}" propertyType="ant" />
+
+    </webtest>
+  </target>
+
+  <!-- Target which tests the creation of marketplaces -->
+  <target name="testCreateMP" depends="InitForCreateAndDelete">
+
+    <webtest name="testManageMP_Create_multipleMPperOrg">
+      <testInfo type="DESCRIPTION">testManageMP_Create_multipleMPperOrg:
+        this test verifies that multiple marketplaces per organization can be created.
+        for supplier_1 MP_A and MP_B are created
+        Expected Outcome:
+        (1) sucess messages
+        (2) marketplace-selector shows MP_A and MP_B
+	  </testInfo>
+
+      <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+
+      <this.fillInFormAndSubmit mpName="MP_A" mpOwner="${supplier_1}" />
+      <!-- store marketplace id -->
+      <storeXPath description="store generated mpId" xpath="//*[@id='infoMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="successMessage" />
+      <storeXPath xpath="substring('#{successMessage}',25,8)" property="generatedId_1" propertyType="ant" />
+      <clickLink href="/oscm-portal/operator/manageUsers.jsf" />
+      <!--for bug 10918, manage user cannot refresh marketplace list-->
+      <verifyXPath xpath="//select[@id='userImportForm:selectMarketplaceId']" text=".*MP_A.*" regex="true" />
+
+      <this.fillInFormAndSubmit mpName="MP_B" mpOwner="${supplier_1}" />
+      <storeXPath description="store generated mpId" xpath="//*[@id='infoMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="successMessage" />
+      <storeXPath xpath="substring('#{successMessage}',25,8)" property="generatedId_2" propertyType="ant" />
+      <clickLink href="/oscm-portal/operator/manageUsers.jsf" />
+      <!--for bug 10918, manage user cannot refresh marketplace list-->
+      <verifyXPath xpath="//select[@id='userImportForm:selectMarketplaceId']" text=".*MP_B.*" regex="true" />
+
+    </webtest>
+
+  </target>
+
+
+  <!-- Target which tests the deletion of marketplaces -->
+  <target name="testDeleteMP">
+    <webtest name="testManageMP_Delete">
+      <testInfo type="DESCRIPTION">testManageMP_Delete:
+        this test verifies the enablement/disablement of the delete button
+        depending on status of marketplace select item and after successful deletion.
+        Expected Outcome:
+        (1) initial: button disabled, no marketplace selected
+        (2) when marketplace selected: button enabled
+        (3) after Deletion: reset to initial status
+        (4) after Deletion: show success message
+        (5) after Deletion: the deleted marketplaceID must NOT be contained in marketplace selectItem
+	                                    
+	        </testInfo>
+      <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+      <!-- verify that no mp is pre-selected -->
+      <invoke url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+      <!-- (1) if no mp is selected the delete button is disabled -->
+      <this.verifyInitialEnablementAndSetting />
+
+      <!-- select one marketplace -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${generatedId_1}" />
+
+      <!-- (2) verify button is now enabled -->
+      <verifyXPath xpath="//a[@id='deleteMarketplaceForm:deleteButton']" />
+      <!-- press delete -->
+      <clickLink htmlId="deleteMarketplaceForm:deleteButton" />
+
+      <!-- Bug 9205 re-testing: Check header title of confirmation dialog -->
+      <verifyXPath description="Bug 9205 re-testing. Check header title of confirmation dialog." xpath="matches(//*[@id='confirmPanelHeader']/text(), ${confirm.title})" />
+
+      <clickElement htmlId="confirmForm:okButton" />
+
+
+      <!-- (4) verify success message, chooser is cleared. button is disabled -->
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.marketplace.deleted}" att0="${generatedId_1}" />
+      <common.verifySuccess label="#{successMessageRegEx}" />
+      <!-- (3) return to initial setting after deletion -->
+      <this.verifyInitialEnablementAndSetting />
+      <!-- (5) after deletion marketplace selector musst not contain id of deleted mp -->
+      <not>
+        <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@value='${generatedId_1}']" />
+      </not>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Create_verifyMPChooserContent">
+      <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+      <invoke url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+
+      <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@value='${MPID_MP1}']" />
+      <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@value='${generatedId_2}']" />
+
+    </webtest>
+  </target>
+  
+  <!-- Target which tests the concurrent operations of marketplaces -->
+  <target name="testConcurrentMP">
+    <webtest name="initMarketplaces">
+      <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp1" mIdProperty="MP1" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP1}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp2" mIdProperty="MP2" open="true" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP2}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp3" mIdProperty="MP3" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP3}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp4" mIdProperty="MP4" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP4}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp5" mIdProperty="MP5" open="true" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP5}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp6" mIdProperty="MP6" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP6}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp7" mIdProperty="MP7" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP7}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp8" mIdProperty="MP8" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP8}" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="mp9" mIdProperty="MP9" open="false" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpage mId="${MP9}" />   
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageCategories_ConcurrentDelete">
+      <selectWebClient name="manageCategories">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/manageCategories.jsf" />
+      </selectWebClient>      
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP1}" />
+      </selectWebClient>
+
+      <selectWebClient name="manageCategories">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP1}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP1}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testManageSellers_ConcurrentDelete">
+      <selectWebClient name="manageSellers">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+      </selectWebClient>      
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP2}" />
+      </selectWebClient>
+
+      <selectWebClient name="manageSellers">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP2}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP2}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testUpdateMarketplace_ConcurrentDelete">
+      <selectWebClient name="updateMarketplace">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+      </selectWebClient>      
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP3}" />
+      </selectWebClient>
+
+      <selectWebClient name="updateMarketplace">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP3}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP3}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testDeleteMarketplace_ConcurrentDelete">
+      <selectWebClient name="deleteMarketplace">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/deleteMarketplace.jsf" />
+      </selectWebClient>      
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP4}" />
+      </selectWebClient>
+
+      <selectWebClient name="deleteMarketplace">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP4}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP4}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testTrackingCode_ConcurrentDelete">
+      <selectWebClient name="trackingCode">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/trackingCode.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP5}" />
+      </selectWebClient>
+
+      <selectWebClient name="trackingCode">
+        <setSelectField htmlId="trackingCodeForm:marketplace" value="${MP5}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP5}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+        
+    <webtest name="testCustomizeLandingpage_ConcurrentDelete">
+      <selectWebClient name="customizeLandingpage">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/customizeLandingpage.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP6}" />
+      </selectWebClient>
+
+      <selectWebClient name="customizeLandingpage">
+        <setSelectField htmlId="customizeLandingpageForm:marketplace" value="${MP6}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP6}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+      
+    <webtest name="testEditStage_ConcurrentDelete">
+      <selectWebClient name="editStage">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <invoke url="${bes.http.url}/oscm-portal/shop/editStage.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP7}" />
+      </selectWebClient>
+
+      <selectWebClient name="editStage">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP7}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP7}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testTranslations_ConcurrentDelete">
+      <selectWebClient name="translations">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <common.ignorePageScriptError />
+        <invoke url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP8}" />
+      </selectWebClient>
+
+      <selectWebClient name="translations">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP8}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP8}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+
+    <webtest name="testCustomizeBrand_ConcurrentDelete">
+      <selectWebClient name="customizeBrand">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <!-- verify that no mp is pre-selected -->
+        <common.ignorePageScriptError />
+        <invoke url="${bes.http.url}/oscm-portal/shop/customizeBrand.jsf" />
+      </selectWebClient>
+
+      <selectWebClient name="delete">
+        <operator.deleteMarketplaces marketplaceIds="${MP9}" />
+      </selectWebClient>
+
+      <selectWebClient name="customizeBrand">
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP9}" />
+        <common.initializeDataDrivenErrorMessage errormsg="${ex.ObjectNotFoundException.MARKETPLACE}" att0="${MP9}" />
+        <common.verifyError label="${expectedMessage}" regex="false" />
+      </selectWebClient>    
+    </webtest>
+  </target>
+
+  <target name="tearDown">
+    <webtest name="testManageMP_tearDown">
+      <!-- generatedId_1 must have been deleted by test -->
+      <operator.deleteMarketplaces marketplaceIds="${generatedId_2}" />
+    </webtest>
+  </target>
+
+
+  <!-- **************************** -->
+  <!-- test specific macros -->
+
+  <!-- goes to create marketplace page and tries to create a mp -->
+  <macrodef name="this.fillInFormAndSubmit">
+    <attribute name="mpName" />
+    <attribute name="mpOwner" />
+    <attribute name="tagging" default="true" />
+    <attribute name="review" default="true" />
+    <attribute name="socialbookmark" default="true" />
+    <attribute name="categories" default="true" />
+    <attribute name="closed" default="false" />
+    <sequential>
+      <clickLink href="/oscm-portal/shop/createMarketplace.jsf" />
+      <setInputField xpath="//*[@id='createMarketplaceForm:marketplaceName']" value="@{mpName}" />
+
+      <setCheckbox htmlId="createMarketplaceForm:taggingEnabled" checked="@{tagging}" />
+      <setCheckbox htmlId="createMarketplaceForm:reviewEnabled" checked="@{review}" />
+      <setCheckbox htmlId="createMarketplaceForm:socialBookmarkEnabled" checked="@{socialbookmark}" />
+      <setCheckbox htmlId="createMarketplaceForm:closed" checked="@{closed}" />
+      <setCheckbox htmlId="createMarketplaceForm:categoriesEnabled" checked="@{categories}" />
+
+      <setInputField htmlId="createMarketplaceForm:organizationIdInput" value="@{mpOwner}" />
+      <clickElement htmlId="createMarketplaceForm:organizationSuggestionImage" />
+      <clickElement xpath="//*[@id='createMarketplaceForm:organizationIdItems']//*[contains(.//text(), '@{mpOwner}')]" />
+      <clickLink htmlId="createMarketplaceForm:saveButtonLink" />
+      <common.verifySuccess label="has been successfully created" />
+    </sequential>
+  </macrodef>
+
+  <!-- verifies that no marketplace is selected and that delete-button is disabled -->
+  <macrodef name="this.verifyInitialEnablementAndSetting">
+    <sequential>
+      <not>
+        <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@selected]" />
+      </not>
+      <!-- disabled button -->
+      <verifyXPath xpath="//span[@id='deleteMarketplaceForm:deleteButtonDisabled']" />
+      <not>
+        <verifyXPath xpath="//a[@id='deleteMarketplaceForm:deleteButtonLink']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+</project>

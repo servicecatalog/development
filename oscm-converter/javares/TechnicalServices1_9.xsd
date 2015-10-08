@@ -1,0 +1,197 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="oscm.serviceprovisioning/1.9/TechnicalService.xsd"
+	xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd">
+
+	<xsd:element name="TechnicalServices">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="tns:TechnicalService" maxOccurs="unbounded"
+					minOccurs="1" />
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="TechnicalService">
+		<xsd:complexType>
+
+			<xsd:sequence>
+				<xsd:element name="AccessInfo" type="tns:LocalizedDescriptionType"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
+					maxOccurs="unbounded" minOccurs="1" />
+				<xsd:element name="LocalizedLicense" type="tns:LocalizedDescriptionType"
+					maxOccurs="unbounded" minOccurs="1" />
+				<xsd:element name="LocalizedTag" type="tns:LocalizedDescriptionType"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="ParameterDefinition" type="tns:ParameterDefinitionType"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="Event" type="tns:EventType"
+					maxOccurs="unbounded" minOccurs="0" />
+				<xsd:element name="Role" type="tns:RoleType" maxOccurs="unbounded"
+					minOccurs="0" />
+				<xsd:element name="Operation" type="tns:OperationType"
+					minOccurs="0" maxOccurs="unbounded" />
+			</xsd:sequence>
+
+			<xsd:attribute name="id" type="tns:StrId" use="required" />
+			<xsd:attribute name="build" type="tns:Str255" />
+			<xsd:attribute name="accessType" use="required">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="DIRECT" />
+						<xsd:enumeration value="LOGIN" />
+						<xsd:enumeration value="USER" />
+						<xsd:enumeration value="EXTERNAL" />
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+
+			<xsd:attribute name="provisioningType">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="ASYNCHRONOUS" />
+						<xsd:enumeration value="SYNCHRONOUS" />
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:attribute>
+
+			<xsd:attribute name="provisioningUrl" type="tns:Str255" />
+			<xsd:attribute name="provisioningVersion" type="tns:Str255" />
+			<xsd:attribute name="provisioningTimeout" type="xsd:long" />
+			<xsd:attribute name="provisioningUsername" type="tns:Str255" />
+			<xsd:attribute name="provisioningPassword" type="tns:Str255" />
+			<xsd:attribute name="baseUrl" type="tns:Str255" />
+			<xsd:attribute name="loginPath" type="tns:Str255" />
+			<xsd:attribute name="onlyOneSubscriptionPerUser" type="xsd:boolean"
+				default="false" />
+			<xsd:attribute name="allowingOnBehalfActing" type="xsd:boolean"
+				default="false" />
+			<xsd:attribute name="billingIdentifier" type="tns:Str255" />
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:simpleType name="StrId">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="40" />
+			<xsd:pattern
+				value="[()\-.0-9@A-Z\[\]_a-&#xD7FF;&#xE000;-&#xFFFD;&#x10000;-&#x10FFFF;]+([&#x20;]*[()\-.0-9@A-Z\[\]_a-&#xD7FF;&#xE000;-&#xFFFD;&#x10000;-&#x10FFFF;])*" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="Str255">
+		<xsd:restriction base="xsd:string">
+			<xsd:maxLength value="255" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:complexType name="LocalizedDescriptionType">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="locale" type="xsd:string" />
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+	<xsd:complexType name="EventType">
+		<xsd:sequence>
+			<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="RoleType">
+		<xsd:sequence>
+			<xsd:element name="LocalizedName" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+			<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="ParameterDefinitionType">
+		<xsd:sequence>
+			<xsd:element name="Options" type="tns:OptionsType"
+				maxOccurs="1" minOccurs="0" />
+			<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+		<xsd:attribute name="mandatory" type="xsd:boolean" use="optional" />
+		<xsd:attribute name="configurable" type="xsd:boolean"
+			use="optional" />
+		<xsd:attribute name="default" type="xsd:string" use="optional" />
+		<xsd:attribute name="minValue" type="xsd:long" use="optional" />
+		<xsd:attribute name="maxValue" type="xsd:long" use="optional" />
+		<xsd:attribute name="valueType" use="required">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="BOOLEAN" />
+					<xsd:enumeration value="INTEGER" />
+					<xsd:enumeration value="LONG" />
+					<xsd:enumeration value="STRING" />
+					<xsd:enumeration value="ENUMERATION" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="modificationType" use="optional"
+			default="STANDARD">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="STANDARD" />
+					<xsd:enumeration value="ONE_TIME" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+
+	<xsd:complexType name="OptionsType">
+		<xsd:sequence>
+			<xsd:element name="Option" type="tns:OptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+		</xsd:sequence>
+	</xsd:complexType>
+
+	<xsd:complexType name="OptionType">
+		<xsd:sequence>
+			<xsd:element name="LocalizedOption" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="OperationType">
+		<xsd:sequence>
+			<xsd:element name="LocalizedName" type="tns:LocalizedDescriptionType"
+				minOccurs="1" maxOccurs="unbounded" />
+			<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
+				maxOccurs="unbounded" minOccurs="1" />
+			<xsd:element name="OperationParameter" type="tns:OperationParameterType"
+				minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+		<xsd:attribute name="actionURL" type="tns:Str255" use="required" />
+	</xsd:complexType>
+
+	<xsd:complexType name="OperationParameterType">
+		<xsd:sequence>
+			<xsd:element name="LocalizedName" type="tns:LocalizedDescriptionType"
+				minOccurs="1" maxOccurs="unbounded" />
+		</xsd:sequence>
+		<xsd:attribute name="id" type="tns:StrId" use="required" />
+		<xsd:attribute name="type" type="tns:OperationParameterTypeType"
+			use="required" />
+		<xsd:attribute name="mandatory" type="xsd:boolean"
+			default="false" />
+	</xsd:complexType>
+
+	<xsd:simpleType name="OperationParameterTypeType">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="INPUT_STRING" />
+			<xsd:enumeration value="REQUEST_SELECT" />
+		</xsd:restriction>
+	</xsd:simpleType>
+
+</xsd:schema>

@@ -1,0 +1,58 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testSamlSPMode" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <!--
+    To execute this test, the following steps are necessary:
+
+    1. Create SP meta data to register your environment to test IDP.
+      1-1. Open '{BES portal URL}/metadata.jsp' after you deploy BES.
+      1-2. Enter Entity ID and Location
+           - Entity ID: Any string is OK, but it should be unique in test IDP
+             (In 3rd step, this value will be set to SSO_ISSUER)
+             e.g. esttokoda
+           - Location: {BES portal URL} 
+             e.g. http://esttokoda:8180/oscm-portal/
+      1-3. Click 'Generate SP metadata'.
+      1-4. Copy the created xml text, and paste it to any local file. 
+
+    2. Register own environment to our test IDP environment.
+      2-1. Access to 'http://estbesdev2.lan.est.fujitsu.de:9080/openam/'.
+      2-2. Log in openam (User name: amadmin   Password: adminadmin).
+      2-3. Open 'Common tasks' tab, and open 'Register Remote Service Provider' from 'Create SAMLv2 Providers' menu.
+      2-4. Choose 'File' for 'Where does the metadata file reside?:'.
+      2-5. Click 'Upload' button, and upload the meta data file created in 1st step.
+      2-6. Choose 'cot1' for 'Existing Circle of Trust:'
+      2-7. Click 'Configure' button
+      2-8. Open 'Federation' tab in top page of openam,
+           and confirm that your BES portal address has been registered in the Entity Providers list as 'SP' type .
+
+    3. Configuration setting of BES needs to have the following setting values.
+       - SSO_ISSUER_ID={value of Entity ID in 1st step}
+       - SSO_IDP_TRUSTSTORE={local Development derectory}/oscm-integrationtests-saml2-sp/javares/truststore.jks
+       - SSO_IDP_TRUSTSTORE_PASSWORD=changeit
+       - SSO_IDP_URL=http://estbesdev2.lan.est.fujitsu.de:9080/openam/SSORedirect/metaAlias/idp
+  -->
+
+  <target name="testSamlSPMode">
+ <!--    <webtest name="testSamlSPModeSetup">
+      <setup:store.settings userkey="1000" password="" />
+      <setup:configuration.setValue informationId="AUTH_MODE" value="SAML_SP" />
+    </webtest> -->
+
+    <webtest name="testForwardedToIDPLogin">
+      <invoke url="${bes.http.url}/oscm-portal/" />
+      <followFrame htmlId="saml2PostFrame"/>
+      <setInputField value="${sso.user.id}" xpath="//*[@id='IDToken1']" />
+      <setInputField value="${sso.user.password}" xpath="//*[@id='IDToken2']" />
+      <clickButton name="Login.Submit" />
+      <verifyXPath xpath="//*[@id='headerUserId']" text=".*${sso.user.id}.*" regex="true" />
+    </webtest>
+
+    <!-- <webtest name="testSamlSPModeCleanup">
+      <setup:store.settings userkey="1000" password="" />
+      <setup:configuration.setValue informationId="AUTH_MODE" value="INTERNAL" />
+    </webtest> -->
+  </target>
+</project>

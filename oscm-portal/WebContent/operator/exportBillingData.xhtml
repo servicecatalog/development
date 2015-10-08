@@ -1,0 +1,70 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.exportBillingData" />
+    <c:set var="focusElement" value="organizationId" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="showBillingData" target="#{sessionBean.ie?'_blank':''}">
+      <h:commandButton style="display:none;" id="hiddenShowButton" value="hiddenShowButton"
+        action="#{billingBean.showBillingData}" />
+      <script type="text/javascript">
+        function windowOnLoad() {
+          #{rich:element('hiddenShowButton')}.click();
+        }
+        if (#{billingBean.billingDataAvailable}) {
+          window.onload=windowOnLoad;
+        }
+      </script>
+    </h:form>
+
+    <h:form id="getBillingData">
+
+      <adm:outputStep value="#{msg['operator.exportBillingData']}" />
+      <adm:panelGrid minColWidth="false" nowrap="true">
+
+        <adm:selectOrganization inline="true" />
+
+        <adm:outputLabel value="#{msg['organization.billingData.from']}" required="true" />
+        <rich:calendar id="fromDate" value="#{billingBean.fromDate}" popup="true" locale="#{userBean.myLocale}"
+          showWeeksBar="false" datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png"
+          showApplyButton="false" cellWidth="24px" cellHeight="22px" styleClass="fieldS"
+          required="true" enableManualInput="false"
+          converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+          direction="auto" validator="#{billingBean.validateFromAndToDate}">
+          <a4j:ajax event="change"
+          render="billingDataButton" />
+        </rich:calendar>
+        <adm:message for="fromDate" />
+
+        <adm:outputLabel value="#{msg['organization.billingData.to']}" required="true" />
+        <rich:calendar id="toDate" value="#{billingBean.toDate}" popup="true" locale="#{userBean.myLocale}"
+          datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png"
+          showWeeksBar="false" showApplyButton="false" cellWidth="24px" cellHeight="22px" styleClass="fieldS"
+          required="true" enableManualInput="false"
+          converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+          direction="auto" validator="#{billingBean.validateFromAndToDate}">
+          <a4j:ajax event="change"
+          render="billingDataButton" />
+        </rich:calendar>
+        <adm:message for="toDate" />
+      </adm:panelGrid>
+
+      <h:commandButton style="display:none;" id="hiddenBillingDataButton" value="hiddenBillingDataButton"
+        action="#{billingBean.getBillingData}" />
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="billingDataButton" value="#{msg['button.export']}" buttonType="export"
+          onclick="setDirty(false);AdmUtils.showProgress(true);#{rich:element('hiddenBillingDataButton')}.click();return true;" disabled="#{billingBean.billingDataButtonDisabled}"/>
+      </adm:buttonPanel>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

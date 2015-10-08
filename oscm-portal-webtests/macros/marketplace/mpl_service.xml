@@ -1,0 +1,117 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <!-- subscribe to a service (default way) -->
+  <macrodef name="mpl_service.subscribe">
+    <attribute name="index" />
+    <attribute name="chargeable" default="false" />
+    <attribute name="paymentType" default="INVOICE" />
+    <attribute name="mid" />
+    <attribute name="suspended" default="false" />
+    <attribute name="reExecution" default="false" />
+    <attribute name="addToUnit" default="false"/>
+    <attribute name="unit" default="0" />
+    <attribute name="setCustomName" default="false" />
+    <attribute name="customName" default="customName" />
+    <sequential>
+      <!-- Switch to main page -->
+      <mpl_goto.marketplace mid="@{mid}" />
+      <!-- Subscribe to service -->
+      <storeProperty name="indexus" value="@{index}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="indexus" text="[0-9]" regex="true" />
+        </condition>
+        <else>
+          <clickLink htmlId="linkBrowseAll" />
+        </else>
+      </ifStep>
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="serviceButton@{index}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.waitForJavaScript />
+      <!-- Click "Buy me" -->
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <!-- And go through... -->
+
+      <!-- Add unit -->
+      <ifStep test="@{addToUnit}">
+        <then>
+          <clickLink htmlId="configurationForm:selectOrgUnitBtn" />
+          <common.waitForJavaScript />
+          <setRadioButton htmlId="organizationUnitPanelForm:groupListTable:@{unit}:selectOneRadio:0" />
+          <clickLink htmlId="organizationUnitPanelForm:organizationUnitPanelokButtonLink" />
+          <common.waitForJavaScript />
+        </then>
+      </ifStep>
+
+      <!-- Set custom name -->
+      <ifStep test="@{setCustomName}">
+        <then>
+          <setInputField htmlId="configurationForm:subscriptionIdText" value="@{customName}" />
+        </then>
+      </ifStep>
+
+
+      <clickLink htmlId="configurationForm:nextLink" />
+      <ifStep test="@{chargeable}">
+        <then>
+          <mpl_user.selectBillingContact />
+          <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+          <common.ignorePageScriptError/>
+          <clickLink htmlId="payment:nextLink" />
+        </then>
+      </ifStep>
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.SUBSCRIBE_TO_SERVICE}" att0=".*" />
+          <mpl_verify.error label="#{errMsg}" />
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <mpl_verify.progress label="${progress.default}" />
+            </then>
+            <else>
+              <mpl_verify.success label="" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+  
+  <!-- checks whether the given user is assigned/deassigned to a service -->
+  <macrodef name="mpl_service.validateUser">
+    <attribute name="index" />
+    <attribute name="userId" />
+    <attribute name="assigned" />
+    <sequential>
+      <ifStep test="@{assigned}">
+        <then>
+          <verifyXPath xpath="//td//span[@id='userListForm:userTable:@{index}:userId' and .='@{userId}']" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//td//span[@id='userListForm:userTable:@{index}:userId' and .='@{userId}']" />
+          </not>
+        </else>
+      </ifStep>
+      <!--    <verifyCheckbox checked="@{assigned}" htmlId="userListForm:userTable:@{index}:assignCheckbox" /> -->
+    </sequential>
+  </macrodef>
+
+  <!-- handle confirmation panel -->
+  <macrodef name="mpl_service.confirmPanel">
+    <attribute name="panelId" default="confirmPanel" />
+    <attribute name="title" />
+    <attribute name="buttonId" />
+    <sequential>
+      <verifyXPath xpath="//*[@id='@{panelId}_content']//*[normalize-space()='@{title}']" />
+      <clickLink htmlId="@{panelId}@{buttonId}" />
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+
+  <!-- Organizations -->
+  <Organization tkey="111" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en"
+    cutoffday="1" />
+  <Organization tkey="112" version="0" organizationid="CUSTOMER" name="CUST1" registrationdate="1" locale="en"
+    cutoffday="1" />
+
+  <!-- User Groups -->
+  <UserGroup tkey="1" version="0" name="default" description="Default Unit" isdefault="TRUE"
+    organization_tkey="111" />
+  <UserGroup tkey="1000" version="0" name="Unit0" description="Description Unit0" isdefault="FALSE"
+    organization_tkey="111" />
+  <UserGroup tkey="1001" version="1" name="Unit1" description="Description Unit1" isdefault="FALSE"
+    organization_tkey="111" />
+  <UserGroup tkey="1002" version="2" name="Unit2" description="Description Unit2" isdefault="FALSE"
+    organization_tkey="112" />
+
+  <!-- Products -->
+  <Technicalproduct tkey="1" version="0" technicalproductid="tpid_1" organizationkey="111"
+    provisioningurl="url" billingidentifier="NATIVE_BILLING" />
+  <Product tkey="1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_1" vendorkey="111"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="1" type="TEMPLATE" />
+  <Product tkey="2" template_tkey="1" targetcustomer_tkey="[NULL]" version="0" productid="pid_1#4711" vendorkey="111"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="1" type="SUBSCRIPTION" />
+
+  <!-- Subscriptions -->
+  <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="1" creationdate="30" status="ACTIVE"
+    timeoutmailsent="1" organizationkey="112" cutoffday="1" usergroup_tkey="1000" />
+  <Subscription tkey="1002" version="0" subscriptionid="1301983200000" product_tkey="1" creationdate="30" status="DEACTIVATED" 
+    deactivationdate="1301983200000" timeoutmailsent="1" organizationkey="112" cutoffday="1" usergroup_tkey="[NULL]" />
+    
+  <SubscriptionHistory tkey="10001" invocationdate="2011-04-04 10:00:00" modtype="ADD" moduser="1"
+    objkey="1001" objversion="0" organizationobjkey="112" productobjkey="1" creationdate="30" status="ACTIVE"
+    subscriptionid="sid_1" timeoutmailsent="1" cutoffday="1" usergroupobjkey="1000" />
+  <SubscriptionHistory tkey="10002" invocationdate="2011-04-04 10:30:00" modtype="ADD" moduser="1"
+    objkey="1002" objversion="0" organizationobjkey="112" productobjkey="1" creationdate="30" status="ACTIVE"
+    subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" usergroupobjkey="1001" />
+  <SubscriptionHistory tkey="10003" invocationdate="2011-04-04 10:40:00" modtype="MODIFY" moduser="1"
+    objkey="1002" objversion="1" organizationobjkey="112" productobjkey="1" creationdate="30" status="ACTIVE"
+    subscriptionid="sid_2" timeoutmailsent="1" cutoffday="1" usergroupobjkey="1001" />
+  <SubscriptionHistory tkey="10004" invocationdate="2011-04-04 11:00:00" modtype="MODIFY" moduser="1"
+    objkey="1001" objversion="1" organizationobjkey="112" productobjkey="1" creationdate="30" status="ACTIVE"
+    subscriptionid="sid_1" timeoutmailsent="1" cutoffday="1" usergroupobjkey="1000" />
+  <SubscriptionHistory tkey="10005" invocationdate="2011-04-05 08:00:00" modtype="MODIFY" moduser="1"
+    objkey="1002" objversion="1" organizationobjkey="112" productobjkey="1" creationdate="30" status="DEACTIVATED"
+    deactivationdate="1301983200000" subscriptionid="1301983200000" timeoutmailsent="1" cutoffday="1" usergroupobjkey="[NULL]" />
+
+</dataset>

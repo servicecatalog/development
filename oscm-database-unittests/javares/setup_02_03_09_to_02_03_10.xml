@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="5" />
+  <TechnicalProduct tkey="10" version="0" provisioningurl="someurl" technicalproductid="tpid" organizationkey="1" />
+  
+  <Product type="TEMPLATE"              tkey="101" productid="pid_1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="TEMPLATE"              tkey="111" productid="pid_11" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="PARTNER_TEMPLATE"      tkey="102" productid="pid_2" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="CUSTOMER_TEMPLATE"     tkey="103" productid="pid_3" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="SUBSCRIPTION"          tkey="104" productid="pid_4" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="PARTNER_SUBSCRIPTION"  tkey="105" productid="pid_5" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="CUSTOMER_SUBSCRIPTION" tkey="106" productid="pid_6" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />  
+    
+  <ProductHistory type="TEMPLATE"               tkey="1001" objkey="101" productid="pid_1" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="TEMPLATE"               tkey="1011" objkey="111" productid="pid_11" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="PARTNER_TEMPLATE"       tkey="1002" objkey="102" productid="pid_2" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="CUSTOMER_TEMPLATE"      tkey="1003" objkey="103" productid="pid_3" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="SUBSCRIPTION"           tkey="1004" objkey="104" productid="pid_4" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="PARTNER_SUBSCRIPTION"   tkey="1005" objkey="105" productid="pid_5" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <ProductHistory type="CUSTOMER_SUBSCRIPTION"  tkey="1006" objkey="106" productid="pid_6" invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" />
+  <!-- Product physically deleted on technical product deletion -->
+  <ProductHistory type="TEMPLATE"               tkey="1007" objkey="107" productid="deleted_technical_service" 
+    invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="DELETE" moduser="u1"
+    objversion="3" provisioningdate="0" status="DELETED" technicalproductobjkey="09" vendorobjkey="1" />
+  
+  <Catalogentry tkey="10001" product_tkey="101" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10011" product_tkey="111" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10002" product_tkey="102" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10003" product_tkey="103" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10004" product_tkey="104" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10005" product_tkey="105" version="0" anonymousvisible="true" visibleincatalog="true" />
+  <Catalogentry tkey="10006" product_tkey="106" version="0" anonymousvisible="true" visibleincatalog="true" />
+  
+  <CatalogentryHistory tkey="100001" objkey="10001" productobjkey="101" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+  <CatalogentryHistory tkey="100011" objkey="10001" productobjkey="101" moddate="2011-04-03 14:31:00" modtype="MODIFY" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+  <CatalogentryHistory tkey="100111" objkey="10011" productobjkey="111" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+  <CatalogentryHistory tkey="100121" objkey="10011" productobjkey="111" moddate="2011-04-03 14:31:00" modtype="MODIFY" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true" />
+  <CatalogentryHistory tkey="100002" objkey="10002" productobjkey="102" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+  <CatalogentryHistory tkey="100003" objkey="10003" productobjkey="103" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+  <CatalogentryHistory tkey="100004" objkey="10004" productobjkey="104" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+  <CatalogentryHistory tkey="100005" objkey="10005" productobjkey="105" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+  <CatalogentryHistory tkey="100006" objkey="10006" productobjkey="106" moddate="2011-04-03 14:31:00" modtype="ADD" moduser="u1" objversion="0" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+  <!-- Catalogentry physically deleted on technical product deletion -->
+  <CatalogentryHistory tkey="100007" objkey="10007" productobjkey="107" moddate="2011-04-03 14:31:00" modtype="DELETE" moduser="u1" objversion="3" 
+    anonymousvisible="true" invocationdate="2011-04-03 14:32:00" visibleincatalog="true"/>
+
+</dataset>

@@ -1,0 +1,51 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testEnterOrganizationData">
+  <import file="../macros/all.xml" />
+
+  <target name="testEnterOrganizationData">
+    <webtest name="testEnterOrganizationData">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+
+      <!-- positive test -->
+      <organization.edit name="JQ Consulting GmbH" email="info@jq-consulting.de" phone="001 90 343829" url="http://jq-consulting.de" image="data/images/icon1.png" country="CO" description="I feel god" address="Schillerstr. 23\nMünchen" />
+      <verifyInputField htmlId="editForm:organizationName" value="JQ Consulting GmbH" />
+      <verifyInputField htmlId="editForm:organizationEmail" value="info@jq-consulting.de" />
+      <verifyInputField htmlId="editForm:organizationPhone" value="001 90 343829" />
+      <verifyInputField htmlId="editForm:organizationUrl" value="http://jq-consulting.de" />
+      <verifySelectField htmlId="editForm:country" value="CO" />
+      <verifyTextarea htmlId="editForm:organizationDescription" text="I feel god" />
+      <verifyTextarea htmlId="editForm:organizationAddress" text="Schillerstr. 23\nMünchen" />
+      <verifyXPath xpath="//img[substring(@src, 1, 42)='/oscm-portal/image?type=ORGANIZATION_IMAGE']" />
+
+      <!-- negative test: no email -->
+      <organization.edit email="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationEmailErrorMsg" />
+
+      <!-- negative test: wrong email format -->
+      <organization.edit email="oleole" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:organizationEmailErrorMsg" />
+
+      <!-- negative test: no country -->
+      <organization.edit country="" verifyCheck="false" />
+      <common.verifyError label="." errorFieldId="editForm:countryErrorMsg" />
+
+      <!-- negative test: image too big -->
+      <organization.edit image="data/images/invalidImageSize.jpg" verifyCheck="false" />
+      <common.verifyError label="${ex.ValidationException.IMAGE_SIZE_TOO_BIG}" />
+
+      <!-- negative test: wrong image format -->
+      <organization.edit image="data/images/fight.bmp" verifyCheck="false" />
+      <common.verifyError label="${ex.ValidationException.IMAGE_TYPE}" />
+      <expectDialogs>
+        <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+      </expectDialogs>
+
+    </webtest>
+  </target>
+
+</project>

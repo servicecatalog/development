@@ -1,0 +1,124 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="${'organization.manageTriggers'}" />
+  </ui:define>
+  <ui:define name="body">
+	
+	<div id="allTriggers">
+	    <adm:outputStep value="#{msg['organization.manageTriggers.step1']}" />
+	 
+	      <h:form id="listForm">
+	        <adm:dataTable tableId="triggerDefinitionTable" value="#{triggerDefinitionBean.triggerDefinitionList}"
+	          onRowClick="AdmUtils.selectRow(this);selectTriggerDefinition(#{rowItem.key});"
+	          onRowMouseOver="AdmUtils.mouseOverRow(this)" onRowMouseOut="AdmUtils.mouseOutRow(this)"
+	          label="#{msg['organization.manageTriggers.table.header']}"
+	          rendered="#{triggerDefinitionBean.triggerDefinitionList ne null}">
+	          <rich:column>
+	            <f:facet name="header">
+	              <h:outputText value="#{msg['triggerDefinition.triggerName']}" />
+	            </f:facet>
+	            <h:outputText id="displayName" value="#{rowItem.name}" />
+	          </rich:column>
+	           <rich:column>
+	            <f:facet name="header">
+	              <h:outputText value="#{msg['triggerDefinition.type']}" />
+	            </f:facet>
+	            <c:set var="key" value="TriggerType.#{rowItem.type}.enum" />
+	            <h:outputText id="type" value="#{msg[key]}" />
+	          </rich:column>
+	        </adm:dataTable>
+	   
+	        <h:commandButton style="display:none;" id="hiddenAddButton" value="hiddenAddButton"
+	          action="#{triggerDefinitionBean.newTriggerDefinition}"/>
+	
+	        <adm:buttonPanel>
+	          <adm:buttonCustomizedOnClick id="addButton" value="#{msg['button.add']}"
+	            onclick="setDirty(false);#{rich:element('hiddenAddButton')}.click();"  buttonType="add"/>
+	        </adm:buttonPanel>
+	
+	    </h:form>
+	
+	    <h:form id="executeForm" style="display:none;">
+	      <h:inputHidden id="selectedTriggerDefinitionId" converterId="trimConverter"
+	        value="#{triggerDefinitionBean.selectedTriggerDefinitionId}" />
+	      <adm:button id="editButton" value="#{msg['button.edit']}" bean="#{triggerDefinitionBean}"
+	        action="editTriggerDefinition">
+	        </adm:button>
+	    </h:form>
+	</div>
+    <script type="text/javascript">
+        selectTriggerDefinition = function(triggerDefId) {
+      	    #{rich:element('selectedTriggerDefinitionId')}.value= triggerDefId;
+      	    #{rich:element('editButton')}.click();
+        }
+        $(document).ready(function(){
+        	if (#{rich:element('selectedTriggerDefinitionId')}.value == -1) {
+        		$("#triggerDetails").hide();
+        		$("#allTriggers").show();
+        	} else {
+        		$("#triggerDetails").show();
+        		$("#allTriggers").hide();
+        	}
+        })
+    </script>
+    
+    <div id="triggerDetails" style="display: none;">
+		<adm:outputStep value="#{msg['organization.manageTriggerDetails.step1']}" />
+	    <h:form id="editForm">
+	
+	      <adm:panelGrid>
+	
+	        <adm:labelAndInputText id="triggerName" value="#{triggerDefinitionBean.selectedTriggerDefinition.name}" styleClass="field"
+	          label="#{msg['triggerDefinition.displayName']}" required="true" maxlength="#{appBean.idLen}" converterId="trimConverter"/>
+	
+	        <adm:labelAndSelect id="type" value="#{triggerDefinitionBean.selectedTriggerDefinition.type}" render="suspendProcess, saveButton"
+	          label="#{msg['triggerDefinition.type']}" listenerBean="#{triggerDefinitionBean}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+	          <adm:selectItemPleaseSelect itemValue="#{null}" />
+	          <f:selectItems value="#{triggerDefinitionBean.triggerTypeValues}" />
+	          <f:converter converterId="enumConverter" />
+	        </adm:labelAndSelect>
+	
+	        <adm:labelAndSelect id="targetType" value="#{triggerDefinitionBean.selectedTriggerDefinition.targetType}"
+	          label="#{msg['triggerDefinition.targetType']}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+	          <f:selectItems value="#{triggerDefinitionBean.triggerTargetTypeValues}" />
+	        </adm:labelAndSelect>
+	
+	        <adm:labelAndInputText id="target" value="#{triggerDefinitionBean.selectedTriggerDefinition.target}"
+	          label="#{msg['triggerDefinition.target']}" validatorId="url" required="true" styleClass="field"
+	          maxlength="#{appBean.descriptionLen}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+	        </adm:labelAndInputText>
+	
+	        <h:selectBooleanCheckbox id="suspendProcess" disabled="#{!triggerDefinitionBean.suspendTrigger or triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}"
+	          value="#{triggerDefinitionBean.selectedTriggerDefinition.suspendProcess}"
+	          style="margin-left:0px; vertical-align:middle;" />
+	        <h:outputText value="#{msg['triggerDefinition.suspendProcess']}" />
+	        <h:outputText value="" />
+	
+	      </adm:panelGrid>
+	
+	      <adm:buttonPanelSub>
+	              <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" bean="#{triggerDefinitionBean}" action="delete"
+	                onclick="#{rich:component('confirmPanel')}.show()" progress="false" buttonType="delete"
+	                disabled="#{triggerDefinitionBean.selectedTriggerDefinition.key==0 or triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}" />
+	      </adm:buttonPanelSub>
+	      <adm:buttonPanel>
+	        <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+	          value="#{msg['button.delete']}" action="#{triggerDefinitionBean.delete}" />
+	        <adm:button id="cancelButton" value="#{msg['button.cancel']}" bean="#{triggerDefinitionBean}" action="cancel"
+	          immediate="true" buttonType="cancel" />
+	        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{triggerDefinitionBean}" action="save" buttonType="save" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.type == null}"/>
+	      </adm:buttonPanel>
+	    </h:form>
+	
+	    <adm:confirmPanel text="#{msg['confirm.trigger.definition.delete']}" />
+	</div>
+  </ui:define>
+
+</ui:composition>

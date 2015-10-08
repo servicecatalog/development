@@ -1,0 +1,35 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="initServices">
+  <import file="../macros/all.xml" />
+  <target name="initServices">
+    <webtest name="Import the technical services define marketabel produds and price models">
+
+      <operator.addCurrency/>
+
+      <login.login url="${url}" userId="admin" password="secret" />
+      
+      <techservice.import file="${techService.import.file}" />
+
+      <service.define serviceId="ExampleTrial" name="Trial" description="Trial description" concurrentUser="3" namedUser="2" />
+      <service.define serviceId="ExampleStarter" name="Starter" description="Starter description" />
+      <service.define serviceId="ExampleProfessional" name="Professional" description="Professional description" concurrentUser="10" configurableChecked="true" />
+
+      <pricemodel.define serviceId="ExampleTrial" isFree="true" />
+      <pricemodel.define serviceId="ExampleStarter" isFree="true" />
+      <pricemodel.define serviceId="ExampleProfessional" isFree="false" />
+
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="0" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleTrial" trgServiceIndex="1" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="0" checked="true" />
+      <service.defineMigrationOption srcServiceId="ExampleStarter" trgServiceIndex="1" checked="true" />
+
+      <service.deActivate rowNr="0" active="true" />
+      <service.deActivate rowNr="1" active="true" />
+      <service.deActivate rowNr="2" active="true" />
+
+      <login.logout />
+
+    </webtest>
+  </target>
+
+</project>

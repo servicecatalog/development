@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="supplier" registrationdate="1234" />
+  
+  <SupportedCountry tkey="1" version="0"/>
+  <SupportedCountry tkey="2" version="0"/>
+  
+  <OrganizationToCountry tkey="1" version="0" organization_tkey="1" supportedcountry_tkey="2"/>
+  
+  <Vatrate tkey="1" version="0" rate="1.9" owningorganization_tkey="1" targetcountry_tkey="1" targetorganization_tkey="1"/>
+  
+  <OrganizationToCountryHistory tkey="10" moddate="2011-04-03 14:30:10" modtype="t1" moduser="u1" objkey="1" objversion="0"
+      supportedcountryobjkey="1" />
+  <OrganizationToCountryHistory tkey="11" moddate="2011-04-03 14:29:10" modtype="t1" moduser="u1" objkey="1" objversion="0" 
+      supportedcountryobjkey="2" />
+  <OrganizationToCountryHistory tkey="12" moddate="2011-04-03 14:28:10" modtype="t1" moduser="u1" objkey="1" objversion="0" 
+      supportedcountryobjkey="2" />
+  
+  <VatrateHistory tkey="20" moddate="2011-04-03 14:30:00" modtype="t1" 
+      moduser="u1" objkey="1" objversion="0" rate="1.9" owningorganizationobjkey="1"
+      targetcountryobjkey="1"/>
+
+  <VatrateHistory tkey="21" moddate="2011-04-03 14:31:00" modtype="t1" 
+      moduser="u1" objkey="1" objversion="0" rate="1.9" owningorganizationobjkey="1"
+      targetcountryobjkey="1"/>
+
+
+</dataset>

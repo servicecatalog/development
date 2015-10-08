@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1100" version="0" organizationid="SUPP0" name="SUPP0" registrationdate="1234" locale="de" />
+  <Organization tkey="1101" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" locale="de" />
+  <Marketplace tkey="1200" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101"
+    creationdate="121312312" />
+  <Marketplace tkey="1201" version="0" marketplaceid="marketplaceid_2" organization_tkey="1101"
+    creationdate="121312312" />
+</dataset>

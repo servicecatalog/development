@@ -1,0 +1,26 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <import file="../macros/category.xml" />
+  <import file="../macros/common.xml" />
+  <import file="../macros/commonFB.xml" />
+  <import file="../macros/customize.xml" />
+  <import file="../macros/login.xml" />
+  <import file="../macros/mail.xml" />
+  <import file="../macros/mock.xml" />
+  <import file="../macros/operator.xml" />
+  <import file="../macros/organization.xml" />
+  <import file="../macros/pricemodel.xml" />
+  <import file="../macros/service.xml" />
+  <import file="../macros/subscription.xml" />
+  <import file="../macros/techservice.xml" />
+  <import file="../macros/user.xml" />
+  <import file="../macros/report.xml" />
+  <import file="../macros/udas.xml" />
+  <import file="../macros/vat.xml" />
+  <import file="../macros/operatorPortal.xml" />
+  <import file="../macros/scenario.xml" />
+  <import file="../macros/psp.xml" />
+  <import file="../macros/trigger.xml" />
+  <import file="../macros/landingpage.xml" />
+  <!--import file="../macros/wsSetup.xml" /-->
+</project>

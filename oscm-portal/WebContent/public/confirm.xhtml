@@ -1,0 +1,49 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+ xmlns:ui="http://java.sun.com/jsf/facelets"
+ xmlns:h="http://java.sun.com/jsf/html"
+ xmlns:f="http://java.sun.com/jsf/core"
+ xmlns:c="http://java.sun.com/jsp/jstl/core"
+ xmlns:a4j="http://richfaces.org/a4j"
+ xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+ xmlns:rich="http://richfaces.org/rich"
+ xmlns:t="http://myfaces.apache.org/tomahawk"
+ template="../templates/small.xhtml">
+
+ <ui:define name="pageId">
+  <c:set var="pageId" value="public.confirm" />
+ </ui:define>
+ <ui:define name="body">
+  
+  <h:form id="confirmForm" binding="#{confirmationBean.init}">   
+
+   <t:div styleClass="description" rendered="#{not confirmationBean.showError}">
+    <h:outputText value="#{msg['public.registration.confirm']}"  />
+   </t:div>
+   
+   <h:outputFormat value="#{msg[errorKey]}" rendered="#{confirmationBean.showError}">
+    <f:param value="#{errorParam0}" />
+   </h:outputFormat>
+   
+   <br />
+
+   <t:div rendered="#{confirmationBean.showButton}">
+    <adm:buttonPanel columns="1">
+     <h:outputLink id="continueLink" styleClass="button" value="#{facesContext.externalContext.requestContextPath}/">
+      <f:param name="serviceKey" value="#{sessionBean.subscribeToServiceKey}" />
+      <span>
+       <h:outputText value="#{msg['button.continue']}" />
+      </span>
+     </h:outputLink>
+    </adm:buttonPanel>
+   </t:div>
+
+  </h:form>
+  
+ </ui:define>
+</ui:composition>
+
+
+

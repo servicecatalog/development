@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="oscm.serviceprovisioning/1.9/MarketableServices.xsd"
+  xmlns:mns="oscm.serviceprovisioning/1.9/MarketableServices.xsd">
+
+  <xsd:element name="MarketableServices">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element ref="mns:MarketableService" maxOccurs="unbounded" minOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="version" type="mns:Str255" use="optional"/>
+      <xsd:attribute name="build" type="mns:Str255" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="MarketableService">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="LocalizedResource" type="mns:LocalizedResourceType" maxOccurs="unbounded"
+          minOccurs="0"/>
+        <xsd:element name="Parameter" type="mns:ParameterType" maxOccurs="unbounded" minOccurs="0"/>
+        <xsd:element name="PriceModel" type="mns:PriceModelType" maxOccurs="1" minOccurs="1"/>
+      </xsd:sequence>
+      <xsd:attribute name="technicalServiceId" type="mns:StrId" use="required"/>
+      <xsd:attribute name="marketplaceName" type="mns:Str255" use="optional"/>
+      <xsd:attribute name="marketplaceId" type="mns:Str255" use="optional"/>
+      <xsd:attribute name="public" type="xsd:boolean" use="optional" default="false"/>
+      <xsd:attribute name="id" type="mns:StrId" use="required"/>
+      <xsd:attribute name="imageName" type="mns:Str255" use="optional"/>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:simpleType name="StrId">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="40"/>
+      <xsd:pattern value="([()\-.0-9@A-Z\[\]_a-&#xD7FF;&#xE000;-&#xFFFD;&#x10000;-&#x10FFFF;])*"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:simpleType name="Str255">
+    <xsd:restriction base="xsd:string">
+      <xsd:maxLength value="255"/>
+    </xsd:restriction>
+  </xsd:simpleType>
+
+  <xsd:complexType name="LocalizedResourceType">
+    <xsd:sequence>
+      <xsd:element name="ServiceNameForCustomers" type="mns:Str255" maxOccurs="1" minOccurs="0"/>
+      <xsd:element name="ServiceShortDescription" type="mns:Str255" maxOccurs="1" minOccurs="0"/>
+      <xsd:element name="ServiceDescription" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+      <xsd:element name="PriceModelShortDescription" type="mns:Str255" maxOccurs="1" minOccurs="0"/>
+      <xsd:element name="PriceModelDescription" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+      <xsd:element name="License" type="xsd:string" maxOccurs="1" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="locale" type="mns:Str255" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="ParameterType">
+    <xsd:sequence>
+      <xsd:element name="Option" type="mns:OptionType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="type" type="xsd:string" use="required"/>
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+    <xsd:attribute name="value" type="xsd:string"/>
+  </xsd:complexType>
+
+
+  <xsd:complexType name="OptionType">
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="PriceModelType">
+    <xsd:sequence>
+      <xsd:element name="SteppedPrice" type="mns:SteppedPricesType" maxOccurs="unbounded" minOccurs="0"/>
+      <xsd:element name="PricedEvent" type="mns:PricedEventType" maxOccurs="unbounded" minOccurs="0"/>
+      <xsd:element name="PricedRole" type="mns:PricedRoleType" maxOccurs="unbounded" minOccurs="0"/>
+      <xsd:element name="PricedParameter" type="mns:PricedParameterType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="chargeable" type="xsd:boolean" use="optional" default="false"/>
+    <xsd:attribute name="currencyISOCode" type="xsd:string" use="required"/>
+    <xsd:attribute name="period">
+      <xsd:simpleType>
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="MONTH"/>
+          <xsd:enumeration value="WEEK"/>
+          <xsd:enumeration value="DAY"/>
+          <xsd:enumeration value="HOUR"/>
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:attribute>
+    <xsd:attribute name="pricePerPeriod" type="xsd:decimal"/>
+    <xsd:attribute name="pricePerUser" type="xsd:decimal"/>
+    <xsd:attribute name="oneTimeFee" type="xsd:decimal"/>
+    <xsd:attribute name="freePeriod" type="xsd:decimal"/>
+  </xsd:complexType>
+  <xsd:complexType name="PricedParameterType">
+    <xsd:sequence>
+      <xsd:element name="SteppedPrice" type="mns:SteppedPricesType" maxOccurs="unbounded" minOccurs="0"/>
+      <xsd:element name="PricedOption" type="mns:PricedOptionType" maxOccurs="unbounded" minOccurs="0"/>
+      <xsd:element name="PricedRole" type="mns:PricedRoleType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+    <xsd:attribute name="pricePerUser" type="xsd:decimal"/>
+    <xsd:attribute name="pricePerSubscription" type="xsd:decimal"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="PricedEventType">
+    <xsd:sequence>
+      <xsd:element name="SteppedPrice" type="mns:SteppedPricesType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+    <xsd:attribute name="eventPrice" type="xsd:decimal"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="SteppedPricesType">
+    <xsd:attribute name="limit" type="xsd:string"/>
+    <xsd:attribute name="price" type="xsd:decimal"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="PricedRoleType">
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+    <xsd:attribute name="pricePerUser" type="xsd:decimal"/>
+  </xsd:complexType>
+
+  <xsd:complexType name="PricedOptionType">
+    <xsd:sequence>
+      <xsd:element name="PricedRole" type="mns:PricedRoleType" maxOccurs="unbounded" minOccurs="0"/>
+    </xsd:sequence>
+    <xsd:attribute name="id" type="xsd:string" use="required"/>
+    <xsd:attribute name="pricePerUser" type="xsd:decimal"/>
+    <xsd:attribute name="pricePerSubscription" type="xsd:decimal"/>
+  </xsd:complexType>
+</xsd:schema>

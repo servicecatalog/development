@@ -1,0 +1,36 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+>
+
+  <c:set var="ratingRendered" value="#{marketplaceConfigurationBean.currentConfiguration.reviewEnabled}" />
+  <a4j:outputPanel layout="block" styleClass="#{styleClass}" rendered="#{ratingRendered}">
+    <c:if test="#{empty rating}">
+      <c:set var="rating" value="0" />
+    </c:if>
+    <a4j:outputPanel layout="block" styleClass="serviceStarBox">
+      <a4j:outputPanel layout="block" styleClass="ratingStars rating#{rating}" />
+    </a4j:outputPanel>
+    <c:if test="#{not empty reviewCount}">
+      <c:set var="text" value="#{msg['ratingText.reviews']}" />
+      <c:if test="#{not empty ratingText}">
+        <c:set var="text" value="#{ratingText}" />
+      </c:if>
+      <c:choose>
+        <c:when test="#{reviewCount eq 0}">
+          <h:outputText value="#{msg['ratingText.noReviews']}" styleClass="serviceRating" />
+        </c:when>
+        <c:otherwise>
+          <h:outputText value="#{reviewCount} #{text}" styleClass="serviceRating" />
+        </c:otherwise>
+      </c:choose>
+    </c:if>
+  </a4j:outputPanel>
+  <a4j:outputPanel layout="block" styleClass="serviceRatingDisabled" rendered="#{not ratingRendered}" />
+</ui:composition>

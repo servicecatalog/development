@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- new tables should exist -->
+  <RevenueShareModel tkey="10000" version="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10001" version="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10002" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10003" version="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10004" version="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+
+  <RevenueShareModelHistory tkey="10000" modtype="ADD" moduser="1000" objkey="10000" objversion="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="10001" modtype="ADD" moduser="1000" objkey="10001" objversion="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="10002" modtype="ADD" moduser="1000" objkey="10002" objversion="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="10003" modtype="ADD" moduser="ANONYMOUS" objkey="10003" objversion="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />  
+  <RevenueShareModelHistory tkey="10004" modtype="ADD" moduser="ANONYMOUS" objkey="10004" objversion="0" revenueshare="0" revenuesharemodeltype="OPERATOR_REVENUE_SHARE" />
+
+  <!-- suppliers now have an operator revenue share -->
+  <Organization tkey="1" version="0" organizationid="PLATFORM_OPERATOR" name="PO" registrationdate="1234" cutoffday="1" operatorpricemodel_tkey="[NULL]"/>
+  <Organization tkey="10000" version="0" organizationid="SUPP" name="SUPP" registrationdate="1235" cutoffday="1" operatorpricemodel_tkey="10003"/>
+  <Organization tkey="11000" version="0" organizationid="TECHPROV" name="TECHPROV" registrationdate="1236" cutoffday="1" operatorpricemodel_tkey="[NULL]"/>
+  <Organization tkey="12000" version="0" organizationid="SUPPT" name="SUPPT" registrationdate="1237" cutoffday="1" operatorpricemodel_tkey="10004"/>
+  <Organization tkey="13000" version="0" organizationid="BROKER" name="BROKER" registrationdate="1238" cutoffday="1" operatorpricemodel_tkey="[NULL]"/>
+
+  <!-- entries in the organization history, which were created at the same time or after the supplier role -->
+  <!-- was added to the corresponding organization, now also have an operator revenue share -->
+  <OrganizationHistory tkey="1" moduser="ANONYMOUS" modtype="ADD" objkey="1" objversion="0" organizationid="PLATFORM_OPERATOR" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="2" moduser="1000" modtype="MODIFY" objkey="1" objversion="1" organizationid="PLATFORM_OPERATOR" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="3" moduser="1000" modtype="ADD" objkey="10000" objversion="0" organizationid="SUPP" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="10003" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="4" moduser="1000" modtype="MODIFY" objkey="10000" objversion="1" organizationid="SUPP" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="10003" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="5" moduser="1000" modtype="MODIFY" objkey="10000" objversion="2" organizationid="SUPP" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="10003" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="6" moduser="1000" modtype="ADD" objkey="11000" objversion="0" organizationid="TECHPROV" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="7" moduser="1000" modtype="ADD" objkey="12000" objversion="0" organizationid="SUPPT" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="8" moduser="1000" modtype="MODIFY" objkey="12000" objversion="1" organizationid="SUPPT" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="9" moduser="1000" modtype="MODIFY" objkey="12000" objversion="2" organizationid="SUPPT" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="10004" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="10" moduser="1000" modtype="MODIFY" objkey="12000" objversion="3" organizationid="SUPPT" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="10004" invocationdate="1970-01-01 00:00:00"/>
+  <OrganizationHistory tkey="11" moduser="1000" modtype="ADD" objkey="13000" objversion="0" organizationid="BROKER" 
+    registrationdate="1234" cutoffday="1" remoteldapactive="false" operatorpricemodelobjkey="[NULL]" invocationdate="1970-01-01 00:00:00"/>
+  
+</dataset>

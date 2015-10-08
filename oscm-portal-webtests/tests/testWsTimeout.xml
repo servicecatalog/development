@@ -1,0 +1,89 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testWsTimeout" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testWsTimeout" depends="testTimeout,cleanup" />
+
+  <target name="init">
+    <webtest name="init for ws timout">
+      <!-- Initial setup for supplier-->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="baseUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="ant" />
+
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />      
+
+      <!-- Import the services -->
+      <techservice.import file="data/TechnicalServices.xml" />
+      <user.registerCustomer userId="${common.userId}" marketplaceId="${mId}" />
+      <login.logout />
+
+      <!-- Define a service which uses the timeout parameter defined in the techniocal service-->
+      <setup:service.define svcKeyProperty="svcTimeoutKey" marketplaceId="${mId}" serviceId="ExampleTrialTimeout" name="Trial" description="Trial description" configurableChecked="true" runAs="${supplierUserKey}" />
+      <setup:pricemodel.define serviceId="ExampleTrialTimeout" isFree="true" runAs="${supplierUserKey}" />
+      <setup:service.activate serviceIds="ExampleTrialTimeout" runAs="${supplierUserKey}" />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="customerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="customerUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="customerPwd" value="#{userPwd}" propertyType="ant" />
+
+      <setup:store.settings userkey="${customerUserKey}" password="${customerPwd}" />
+      <setup:subscription.create subId="${subscriptionName}" marketplaceId="${mId}" serviceKey="${svcTimeoutKey}" />
+      <setup:subscription.modifyParameter subId="${subscriptionName}" param="WS_SLEEP" paramValue="6000" />
+
+      <!-- Change the timeout configuration setting to speed up the tests (default = 30s) -->
+      <operatorPortal.login />
+      <operatorPortal.manageConfigurationSettings key="WS_TIMEOUT" value="5000" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testTimeout" depends="init">
+    <webtest name="testWsTimeout">
+      <!-- login as customer -->
+      <mpl_login.loginWithChangePassword mid="${mId}" oldPassword="${customerPwd}" userId="${customerUserId}" />
+      <mpl_goto.account.users />
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="editUserImage${customerUserId}" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <!-- The call is not successfull. A timeout error appears. This is OK so we know the timeout setting works. -->
+      <common.handleMessageParameters property="expectedErrorMsg" value="${ex.TechnicalServiceNotAliveException.TIMEOUT}" att0="${subscriptionName}" />
+      <groovy description="check error msg using groovy">
+        def document = step.context.currentResponse.documentElement
+        T: document.getElementsByAttribute('div', 'id', 'hiddenErrorPanel').each{
+          // div/dl/dt/span/text()
+          def txt = it.getFirstChild().getFirstChild().getFirstChild().getTextContent()
+          step.setWebtestProperty('errorMessages', txt, step.PROPERTY_TYPE_DYNAMIC);
+        }
+      </groovy>
+      <verifyProperty name="errorMessages" text="#{expectedErrorMsg}" />
+      <common.reSetPageScriptError/>
+    </webtest>
+  </target>
+
+  <target name="cleanup">
+    <webtest name="cleanup ws timeout">
+      <operatorPortal.login />
+      <operatorPortal.manageConfigurationSettings key="WS_TIMEOUT" value="30000" />
+      <login.logout />
+
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.delete serviceIds="ExampleTrialTimeout" deactivate="true" />
+    </webtest>
+  </target>
+
+</project>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- paymenttype -->
+  <Paymenttype tkey="1" version="0" collectiontype="PAYMENT_SERVICE_PROVIDER" paymenttypeid="CREDIT_CARD" />
+  <Paymenttype tkey="2" version="0" collectiontype="PAYMENT_SERVICE_PROVIDER" paymenttypeid="DIRECT_DEBIT" />
+  <Paymenttype tkey="3" version="0" collectiontype="ORGANIZATION" paymenttypeid="INVOICE" />
+
+  <!-- organization roles -->
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <OrganizationRole tkey="2" version="0" rolename="TECHNOLOGY_PROVIDER" />
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER" />
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR" />
+  <OrganizationRole tkey="5" version="0" rolename="MARKETPLACE_OWNER" />
+
+  <!-- organizations -->
+  <Organization tkey="10" version="0" organizationid="PLATFORM_OPERATOR" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="21" version="0" organizationid="SUPPLIER1" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="22" version="0" organizationid="SUPPLIER2" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="23" version="0" organizationid="SUPPLIER3" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="24" version="0" organizationid="SUPPLIER4" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="31" version="0" organizationid="CUSTOMER1" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="32" version="0" organizationid="CUSTOMER2" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="33" version="0" organizationid="CUSTOMER3" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="34" version="0" organizationid="CUSTOMER4" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+  <Organization tkey="41" version="0" organizationid="TECHNOLOGY_PROVIDER1" registrationdate="1234"
+    localmarketplace_tkey="[NULL]" />
+
+  <!-- organization to roles -->
+  <OrganizationToRole tkey="1" version="0" organization_tkey="10" organizationrole_tkey="4" />
+  <OrganizationToRole tkey="2" version="0" organization_tkey="21" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="3" version="0" organization_tkey="22" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="4" version="0" organization_tkey="23" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="5" version="0" organization_tkey="23" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="6" version="0" organization_tkey="24" organizationrole_tkey="1" />
+  <OrganizationToRole tkey="7" version="0" organization_tkey="31" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="8" version="0" organization_tkey="32" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="9" version="0" organization_tkey="33" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="10" version="0" organization_tkey="34" organizationrole_tkey="3" />
+  <OrganizationToRole tkey="11" version="0" organization_tkey="41" organizationrole_tkey="2" />
+
+  <!-- organization references -->
+  <!-- platform operator -> supplier1, supplier2, supplier3 -->
+  <OrganizationReference tkey="1" version="1" targetkey="21" sourcekey="10"
+    referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+  <OrganizationReference tkey="2" version="1" targetkey="22" sourcekey="10"
+    referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+  <OrganizationReference tkey="3" version="1" targetkey="23" sourcekey="10"
+    referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+  <OrganizationReference tkey="10" version="1" targetkey="24" sourcekey="10"
+    referencetype="PLATFORM_OPERATOR_TO_SUPPLIER" />
+
+  <!-- supplier1 -> customer1, customer2, custoremer3 -->
+  <OrganizationReference tkey="4" version="1" targetkey="31" sourcekey="21" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationReference tkey="5" version="1" targetkey="32" sourcekey="21" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationReference tkey="6" version="1" targetkey="33" sourcekey="21" referencetype="SUPPLIER_TO_CUSTOMER" />
+
+  <!-- supplier2 -> no customers -->
+
+  <!-- supplier3 -> customer2, customer3, supplier3 -->
+  <OrganizationReference tkey="7" version="1" targetkey="32" sourcekey="23" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationReference tkey="8" version="1" targetkey="33" sourcekey="23" referencetype="SUPPLIER_TO_CUSTOMER" />
+  <OrganizationReference tkey="9" version="1" targetkey="23" sourcekey="23" referencetype="SUPPLIER_TO_CUSTOMER" />
+
+
+  <!-- payment types for organization references -->
+  <!-- platform operator -> supplier1 : payment types 1,2,3 -->
+  <OrganizationRefToPaymentType tkey="1" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="1" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="2" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="1" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="3" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="1" paymenttype_tkey="3" />
+
+  <!-- platform operator -> supplier2 : payment types 1,2,3 -->
+  <OrganizationRefToPaymentType tkey="4" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="2" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="5" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="2" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="6" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="2" paymenttype_tkey="3" />
+
+  <!-- platform operator -> supplier3 : payment types 2,3 -->
+  <OrganizationRefToPaymentType tkey="7" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="3" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="8" version="0" usedasdefault="false"
+    organizationrole_tkey="4" organizationreference_tkey="3" paymenttype_tkey="3" />
+
+  <!-- supplier1 -> customer1 : payment types 1,2,3 -->
+  <OrganizationRefToPaymentType tkey="9" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="4" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="10" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="4" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="11" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="4" paymenttype_tkey="3" />
+
+  <!-- supplier1 -> customer2 : payment types 1,3 -->
+  <OrganizationRefToPaymentType tkey="12" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="5" paymenttype_tkey="1" />
+  <OrganizationRefToPaymentType tkey="13" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="5" paymenttype_tkey="3" />
+
+  <!-- supplier1 -> customer3 : payment types 3 -->
+  <OrganizationRefToPaymentType tkey="14" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="6" paymenttype_tkey="3" />
+
+  <!-- supplier3 -> customer2 : payment types 3 -->
+  <OrganizationRefToPaymentType tkey="15" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="7" paymenttype_tkey="3" />
+
+  <!-- supplier3 -> customer3 : payment types 2,3 -->
+  <OrganizationRefToPaymentType tkey="16" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="8" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="17" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="8" paymenttype_tkey="3" />
+
+  <!-- supplier3 -> supplier3 : payment types 2,3 -->
+  <OrganizationRefToPaymentType tkey="18" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="9" paymenttype_tkey="2" />
+  <OrganizationRefToPaymentType tkey="19" version="0" usedasdefault="false"
+    organizationrole_tkey="1" organizationreference_tkey="9" paymenttype_tkey="3" />
+
+
+  <!-- technical products -->
+  <TechnicalProduct tkey="1" version="0" provisioningurl="someurl1" technicalproductid="tpid1"
+    organizationkey="41" />
+  <TechnicalProduct tkey="2" version="0" provisioningurl="someurl2" technicalproductid="tpid2"
+    organizationkey="41" />
+  <TechnicalProduct tkey="3" version="0" provisioningurl="someurl3" technicalproductid="tpid3"
+    organizationkey="41" />
+
+  <!-- products -->
+  <!-- supplier1 : product 1,2 -->
+  <Product tkey="1" version="0" productid="pid1" provisioningdate="1234" status="ACTIVE" supplierkey="21"
+    technicalproduct_tkey="1" />
+  <Product tkey="2" version="0" productid="pid2" provisioningdate="1234" status="ACTIVE" supplierkey="21"
+    technicalproduct_tkey="1" />
+
+  <!-- supplier2 : no products  -->
+  
+  <!-- supplier3 : product 3,4 -->
+  <Product tkey="3" version="0" productid="pid3" provisioningdate="1234" status="ACTIVE" supplierkey="23"
+    technicalproduct_tkey="2" />
+  <Product tkey="4" version="0" productid="pid4" provisioningdate="1234" status="ACTIVE" supplierkey="23"
+    technicalproduct_tkey="2" />
+    
+  <!-- supplier4 : product 5,6 -->
+  <Product tkey="5" version="0" productid="pid5" provisioningdate="1234" status="ACTIVE" supplierkey="24"
+    technicalproduct_tkey="3" />
+  <Product tkey="6" version="0" productid="pid6" provisioningdate="1234" status="ACTIVE" supplierkey="24"
+    technicalproduct_tkey="3" />
+</dataset>

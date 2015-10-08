@@ -1,0 +1,222 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="all" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="all" depends="testAsyncSubscription,testProgress,completeSubscription,testAsyncSubscriptionModification,completeModifySubscription,abortModifySubscription,abortUpgradeSubscription,completeUpgradeSubscription" />
+
+  <target name="setup">
+    <webtest name="setup - setup environment for async provisioning progress test">
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="initialAsyncName" value="Async" propertyType="ant" />
+      <storeProperty name="initialAsyncName2" value="Async2" propertyType="ant" />
+      <storeProperty name="changedSubId" value="changedAsync" propertyType="ant" />
+      <storeProperty name="changedSubId2" value="changedAsync2" propertyType="ant" />
+      <storeProperty name="changedParamValue" value="250" propertyType="ant" />
+      <storeProperty name="changedParamValue2" value="300" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="mId" />
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <login.logout />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" userId="${supplierUserId}" password="secret" />
+
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="data/TechnicalServiceASYNC.xml" />
+      <setup:service.define marketplaceId="${mId}" techServiceId="ExampleAsync" serviceId="${initialAsyncName}" name="${initialAsyncName}" description="${initialAsyncName}" useParameters="true"  configurableChecked="true" svcKeyProperty="svcKey"/>
+      <setup:service.define marketplaceId="${mId}" techServiceId="ExampleAsync" serviceId="${initialAsyncName2}" name="${initialAsyncName2}" description="${initialAsyncName2}" useParameters="true" configurableChecked="true"/>
+
+      <setup:pricemodel.define serviceId="${initialAsyncName}" isFree="true" />
+      <setup:pricemodel.define serviceId="${initialAsyncName2}" isFree="true" />
+      <setup:service.defineMigrationOptions serviceId="${initialAsyncName}" migrationTargetIds="${initialAsyncName2}" />
+      <setup:service.activate serviceIds="${initialAsyncName}" />
+      <setup:service.activate serviceIds="${initialAsyncName2}" />
+    </webtest>
+  </target>
+
+  <target name="testAsyncSubscription" depends="setup">
+    <webtest name="testAsyncSubscription - create subscription with async provisioning and assign user">
+      <setup:subscription.create subId="${initialAsyncName}" marketplaceId="${mId}" serviceKey="${svcKey}" userIds="${supplierUserId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <clickLink label="${marketplace.account.title}" />
+      <clickLink htmlId="showSubscriptionsButton" />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <!--test for bug#10944 -->
+      <verifyXPath xpath="//*[@id='usersForm']//*[@class='bottomButtonPanel assignUserButton']" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <storeElementAttribute htmlId="configurationForm:subscriptionIdText" attributeName="disabled" propertyName="disabled2"/>
+      <verifyProperty name="disabled2" text="disabled" regex="true"/>
+      <storeElementAttribute htmlId="configurationForm:purchaseOrderNumberText" attributeName="disabled" propertyName="disabled3"/>
+      <verifyProperty name="disabled3" text="disabled" regex="true"/>
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <verifyXPath xpath="//*[@id='tabUpgrade']//*[@class='buttonDisabled']" />
+      <storeElementAttribute  xpath="//*[@class='buttonDisabled']" attributeName="class" propertyName="disabled3"/>
+      <verifyProperty name="disabled3" text="buttonDisabled" regex="true"/>
+      <mpl_login.logout />
+
+    </webtest>
+  </target>
+
+  <target name="testProgress" depends="testAsyncSubscription">
+    <webtest name="testProgress - add progress message and check it on accout->subscriptions and my subscriptions">
+      <storeProperty name="progressMsg" value="The provisioning still takes a while" propertyType="ant" />
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.progress text="${progressMsg}" />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />  
+      <verifyXPath xpath="//*[@id='subscriptionUsagePanelForm:subscriptionBlockProgress']" text="${progressMsg}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="completeSubscription" depends="testProgress">
+    <webtest name="completeSubscription - complete async subscription and check that no progress message is displayed">
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.completeAsyncSub back="1" />
+
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <not>
+        <verifyXPath xpath="//*[@id='subscription0Progress']" />
+      </not>
+      <mpl_goto.subscriptions />
+      <not>
+        <verifyXPath xpath="//*[@id='subscription0Progress']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="testAsyncSubscriptionModification" depends="completeSubscription">
+    <webtest name="testAsyncSubscriptionModification">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyXPath xpath="//*[@style='margin-right:0px;word-wrap: break-word;']" regex="\\s*>\\s*${initialAsyncName}\\s*"/>
+      <verifyElementText description="subscription id in title position" htmlId="serviceDetailName" text="${initialAsyncName}" />
+      <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${initialAsyncName}" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="${changedSubId}" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <clickElement htmlId="configurationForm:saveConfigurationButton" />
+      <verifyXPath xpath="//*[@id='tabConfiguration']//*[@class='box suspendedNotMessage suspended']"/>
+      <verifyXPath xpath="//*[@style='margin-right:0px;word-wrap: break-word;']" regex="\\s*>\\s*${initialAsyncName}\\s*"/>
+      <verifyElementText htmlId="serviceDetailName" text="${initialAsyncName}" />
+      <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${initialAsyncName}" />
+      <mpl_goto.tab label="${subscription.users}" />
+      <verifyXPath xpath="//*[@id='tabUser']//*[@class='box suspendedNotMessage suspended']"/>
+      <verifyXPath xpath="//*[@id='tabUser']//*[@class='buttonDisabled']" />
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <verifyXPath xpath="//*[@id='tabUpgrade']//*[@class='box suspendedNotMessage suspended']"/>
+      <verifyXPath xpath="//*[@id='tabUpgrade']//*[@class='buttonDisabled']" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.PENDING_UPD}']" />
+      <mpl_goto.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.PENDING_UPD}']" />
+      <mpl_goto.subscriptions />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />	
+      <verifyXPath xpath="//*[@id='subscriptionUsagePanelForm:subscriptionBlockServiceUrl']"/>
+      <verifyXPath xpath="//*[text()='${subscription.users}']" />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.PENDING_UPD}']" />
+      <verifyXPath xpath="//*[contains(@class, 'subscriptionPendingUpd')]" />
+      <verifyXPath xpath="//*[text()='${button.useService}']" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="completeModifySubscription" depends="testAsyncSubscriptionModification">
+    <webtest name="completeModifySubscription">
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.completeAsyncModifySub back="0" organizationId="${supplierId}"/>
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.ACTIVE}']" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${changedSubId}" />
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="abortModifySubscription" >
+    <webtest name="abortModifySubscription">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="${changedSubId2}" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue2}" />
+      <clickElement htmlId="configurationForm:saveConfigurationButton" />
+      <verifyXPath xpath="//*[@id='tabConfiguration']//*[@class='box suspendedNotMessage suspended']"/>
+      <verifyElementText htmlId="serviceDetailName" text="${changedSubId}" />
+      <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${changedSubId}" />
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.PENDING_UPD}']" />
+      <mpl_login.logout />
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.abortAsyncModifySub back="0" text="abort" organizationId="${supplierId}"/>
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.ACTIVE}']" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${changedSubId}" />
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="abortUpgradeSubscription">
+    <webtest name="abortUpgradeSubscription">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_subscription.upgrade subscriptionIndex="0" chargeable="false" mid="${mId}" />
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.abortAsyncUpgradeSub back="0" text="abort" organizationId="${supplierId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.ACTIVE}']" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+
+  <target name="completeUpgradeSubscription">
+    <webtest name="completeUpgradeSubscription">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_subscription.upgrade subscriptionIndex="0" chargeable="false" mid="${mId}" />
+      <mock.settings userKey="${supplierUserKey}" />
+      <mock.completeAsyncUpgradeSub back="0" organizationId="${supplierId}"/>
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[text()='${SubscriptionStatus.ACTIVE}']" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="${changedParamValue}" />
+      <mpl_login.logout />
+    </webtest>
+  </target>
+</project>

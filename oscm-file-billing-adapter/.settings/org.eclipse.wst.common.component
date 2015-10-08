@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="oscm-file-billing-adapter">
+        <wb-resource deploy-path="/" source-path="/javasrc" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/" source-path="/javares"/>
+        <property name="java-output-path" value="/oscm-file-billing-adapter/build/classes"/>
+    </wb-module>
+</project-modules>

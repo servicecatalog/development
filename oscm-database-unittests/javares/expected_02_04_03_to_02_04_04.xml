@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="5" />
+  <TechnicalProduct tkey="10" version="0" provisioningurl="someurl" technicalproductid="tpid" organizationkey="1" />
+
+  <Product type="TEMPLATE"              tkey="101" productid="pid_1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="TEMPLATE"              tkey="111" productid="pid_11" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="PARTNER_TEMPLATE"      tkey="102" productid="pid_2" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  <Product type="CUSTOMER_TEMPLATE"     tkey="103" productid="pid_3" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" vendorkey="1"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="10" />
+  
+  <ProductHistory type="TEMPLATE"               tkey="1001" objkey="101" productid="pid_1" invocationdate="2011-04-04 10:00:00"  modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" autoassignuserenabled="FALSE"/>
+  <ProductHistory type="TEMPLATE"               tkey="1011" objkey="111" productid="pid_11" invocationdate="2011-04-04 10:00:00"  modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" autoassignuserenabled="FALSE"/>
+  <ProductHistory type="PARTNER_TEMPLATE"       tkey="1002" objkey="102" productid="pid_2" invocationdate="2011-04-04 10:00:00"  modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" autoassignuserenabled="FALSE"/>
+  <ProductHistory type="CUSTOMER_TEMPLATE"      tkey="1003" objkey="103" productid="pid_3" invocationdate="2011-04-04 10:00:00"  modtype="ADD" moduser="u1"
+    objversion="0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="10" vendorobjkey="1" autoassignuserenabled="FALSE"/>
+
+</dataset>

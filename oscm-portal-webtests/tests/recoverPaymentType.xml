@@ -1,0 +1,10 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="recoverPaymentType" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <target name="recoverPaymentType">
+    <webtest name="recoverPaymentType">
+      <setup:store.settings userkey="1000" password="admin123" />
+      <setup:paymenttype.define />
+    </webtest>
+  </target>
+</project>

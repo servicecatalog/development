@@ -1,0 +1,16 @@
+# Ignore files
+*.bak
+*.class
+*.obj
+*.tmp
+*~
+
+# Ignore folders
+Debug/
+Release/
+bin/
+build/
+debug/
+release/
+temp/
+logs/

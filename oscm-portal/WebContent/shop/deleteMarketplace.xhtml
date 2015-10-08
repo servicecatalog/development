@@ -1,0 +1,35 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="marketplace.delete" />
+    <c:set var="focusElement" value="marketplaceSelectForm:selectMarketplaceId" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:outputStep value="#{msg['marketplace.select']}" />
+
+    <adm:selectMarketplace 
+        id="selectMarketplace" 
+        items="#{marketplaceBean.marketplacesForOperator}" 
+        listenerBean="#{marketplaceBean}"
+        required="true" />
+
+    <h:form id="deleteMarketplaceForm">
+
+      <h:commandButton style="display:none;" id="confirmedButton" value="" action="#{marketplaceBean.deleteMarketplace}" />
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" onclick="#{rich:component('confirmPanel')}.show(); return false;"
+          disabled="#{marketplaceBean.disabledForEdit}" buttonType="delete" />
+      </adm:buttonPanel>
+      <h:inputHidden value="#{marketplaceBean.token}" />
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.marketplace.delete']}" />
+
+  </ui:define>
+</ui:composition>

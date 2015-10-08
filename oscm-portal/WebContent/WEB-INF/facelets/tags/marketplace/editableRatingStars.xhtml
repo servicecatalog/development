@@ -1,0 +1,43 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <!-- hidden rating texts, used to display appropriate text besides the stars -->
+  <h:outputText id="star0" value="#{msg['service.reviews.star.0']}" style="display: none;" />
+  <h:outputText id="star1" value="#{msg['service.reviews.star.1']}" style="display: none;" />
+  <h:outputText id="star2" value="#{msg['service.reviews.star.2']}" style="display: none;" />
+  <h:outputText id="star3" value="#{msg['service.reviews.star.3']}" style="display: none;" />
+  <h:outputText id="star4" value="#{msg['service.reviews.star.4']}" style="display: none;" />
+  <h:outputText id="star5" value="#{msg['service.reviews.star.5']}" style="display: none;" />
+
+  <h:inputHidden id="tmpRating" value="#{manageReviewCtrl.serviceReview.rating}" />
+
+  <div class="clearfix left serviceStarBox">
+    <div id="starParent" class="ratingStars rating#{manageReviewCtrl.serviceReview.rating}_0">
+    <div id="star1" class="rating rating1" onmouseover="AdmUtils.showRating(1)"
+      onmouseout="AdmUtils.showRating(currentRating);" onclick="setRating(1);return false;"><img src="#{imgUrl}/transparentPixel.png"/></div>
+    <div id="star2" class="rating rating2" onmouseover="AdmUtils.showRating(2)"
+      onmouseout="AdmUtils.showRating(currentRating);" onclick="setRating(2);return false;"><img src="#{imgUrl}/transparentPixel.png"/></div>
+    <div id="star3" class="rating rating3" onmouseover="AdmUtils.showRating(3)"
+      onmouseout="AdmUtils.showRating(currentRating);" onclick="setRating(3);return false;"><img src="#{imgUrl}/transparentPixel.png"/></div>
+    <div id="star4" class="rating rating4" onmouseover="AdmUtils.showRating(4)"
+      onmouseout="AdmUtils.showRating(currentRating);" onclick="setRating(4);return false;"><img src="#{imgUrl}/transparentPixel.png"/></div>
+    <div id="star5" class="rating rating5" onmouseover="AdmUtils.showRating(5)"
+      onmouseout="AdmUtils.showRating(currentRating);" onclick="setRating(5);return false;"><img src="#{imgUrl}/transparentPixel.png"/></div>
+    </div>
+  </div>
+
+
+  <div id="ratingText" />
+  <!-- will initialize the rating text on page load --> 
+  <script language="JavaScript1.2" type="text/javascript">
+    var currentRating = document.getElementById('commentForm:tmpRating').value;
+    AdmUtils.showRating(currentRating);
+    function setRating(newRating) {
+      document.getElementById('commentForm:tmpRating').value = ''+newRating;
+      currentRating = newRating; AdmUtils.showRating(currentRating); setDirty(true);
+    }
+  </script>
+</ui:composition>

@@ -1,0 +1,8 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<root>
+  <facet id="jpt.jpa">
+    <node name="libprov">
+      <attribute name="provider-id" value="jpa-no-op-library-provider"/>
+    </node>
+  </facet>
+</root>

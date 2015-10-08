@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+<!-- 9 entries in RevenueShareModelHistory table, as the 3 default redundant entries were deleted-->
+<RevenueShareModelHistory tkey="1" modtype="ADD" moduser="ANONYMOUS" objkey="1" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="2" modtype="ADD" moduser="ANONYMOUS" objkey="2" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00" />
+  <RevenueShareModelHistory tkey="3" modtype="ADD" moduser="ANONYMOUS" objkey="3" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00"/>
+  <RevenueShareModelHistory tkey="4" modtype="ADD" moduser="ANONYMOUS" objkey="4" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00"/>
+  <RevenueShareModelHistory tkey="5" modtype="ADD" moduser="ANONYMOUS" objkey="5" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00"/>
+  <RevenueShareModelHistory tkey="6" modtype="ADD" moduser="ANONYMOUS" objkey="6" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" invocationdate="2011-04-03 14:31:00"/>
+  <RevenueShareModelHistory tkey="7" modtype="ADD" moduser="ANONYMOUS" objkey="7" objversion="0"
+    revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00"/>
+    <RevenueShareModelHistory tkey="8" modtype="ADD" moduser="ANONYMOUS" objkey="8" objversion="0"
+    revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00"/>
+    <RevenueShareModelHistory tkey="9" modtype="ADD" moduser="ANONYMOUS" objkey="9" objversion="0"
+    revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" invocationdate="1970-01-01 00:00:00"/>
+</dataset>

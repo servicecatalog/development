@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PROCESS model-entity="JSFProcess">
+ <PROCESS-ITEM NAME="rules:" SHAPE="32,129,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules::0" NAME="item" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="registration::#registration.xhtml"
+    NAME="output" PATH="/registration.xhtml"
+    TARGET="rules:#registration.xhtml" TITLE="registration" model-entity="JSFProcessItemOutput"/>
+   <PROCESS-ITEM-OUTPUT ID="login::#login.xhtml" NAME="output1"
+    PATH="/login.xhtml" TARGET="rules:#login.xhtml" TITLE="login" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#registrationOk.xhtml"
+  PATH="/registrationOk.xhtml" SHAPE="240,145,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#registration.xhtml"
+  PATH="/registration.xhtml" SHAPE="448,129,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#registration.xhtml:0" NAME="item"
+   PATH="/registration.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="success::#registrationOk.xhtml"
+    NAME="output" PATH="/registrationOk.xhtml"
+    TARGET="rules:#registrationOk.xhtml" TITLE="success" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+ <PROCESS-ITEM NAME="rules:#subscription#mylist.xhtml"
+  PATH="/subscription/mylist.xhtml" SHAPE="32,241,0,0" model-entity="JSFProcessGroup"/>
+ <PROCESS-ITEM NAME="rules:#login.xhtml" PATH="/login.xhtml"
+  SHAPE="32,385,0,0" model-entity="JSFProcessGroup">
+  <PROCESS-ITEM ID="rules:#login.xhtml:0" NAME="item"
+   PATH="/login.xhtml" model-entity="JSFProcessItem">
+   <PROCESS-ITEM-OUTPUT ID="success::#subscription#mylist.xhtml"
+    NAME="output" PATH="/subscription/mylist.xhtml"
+    TARGET="rules:#subscription#mylist.xhtml" TITLE="success" model-entity="JSFProcessItemOutput"/>
+  </PROCESS-ITEM>
+ </PROCESS-ITEM>
+</PROCESS>

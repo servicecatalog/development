@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- The new user roles must be added to the DB -->
+  <UserRole tkey="8" rolename="SUBSCRIPTION_MANAGER" version="0" />
+  
+   <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="1" creationdate="30" status="status"
+    timeoutmailsent="1" organizationkey="1" owner_tkey="[NULL]" cutoffday="1"/>
+    
+    <SubscriptionHistory tkey="10001" invocationdate="2011-04-04 10:00:00"
+    modtype="ADD" moduser="1" objkey="1001" objversion="0" organizationobjkey="1" productobjkey="1" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_1" timeoutmailsent="1"  cutoffday="1" ownerobjkey="[NULL]"/>
+</dataset>

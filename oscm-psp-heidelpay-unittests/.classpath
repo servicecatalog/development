@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-activation/javalib/activation.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-provisioning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-psp-heidelpay"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-psp-extsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-portal-unittests"/>
+	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing-unittests"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

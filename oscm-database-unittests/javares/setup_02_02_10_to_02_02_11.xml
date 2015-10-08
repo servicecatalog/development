@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <RevenueShareModel tkey="1" version="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="2" version="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="3" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+
+  <Organization tkey="1101" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" locale="de" />
+  <Landingpage tkey="1200" version="0" numberservices="6" fillincriterion="ACTIVATION_DESCENDING" />
+  <Marketplace tkey="1100" version="0" marketplaceid="marketplaceid_1" organization_tkey="1101"
+    creationdate="121312312" landingpage_tkey="1200" pricemodel_tkey="3" brokerpricemodel_tkey="1"
+    resellerpricemodel_tkey="2" />
+  <MarketplaceHistory tkey="1100" marketplaceid="marketplaceid_1" organizationobjkey="1101"
+    creationdate="121312312" moddate="2012-08-29 14:31:00" modtype="type" moduser="user" objkey="1000" objversion="1"
+    pricemodelobjkey="3" brokerpricemodelobjkey="1" resellerpricemodelobjkey="2" />
+</dataset>

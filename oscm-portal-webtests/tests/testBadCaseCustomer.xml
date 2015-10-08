@@ -1,0 +1,102 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testBadCaseCustomer">
+  <import file="../macros/all.xml" />
+  <target name="testBadCaseCustomer">
+
+    <!-- Setup -->
+    <webtest name="testBadCaseCustomerSetup">
+      <mail.cleanInbox />
+
+      <operator.addCurrency/>
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant"/>
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant"/>
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant"/>
+
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <operator.addAvailablePaymentTypes orgId="#{orgId}" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <login.logout />
+    </webtest>
+    
+    <webtest name="Test for bad cases in menu group Customer. Register customer.">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <dataDriven tableContainer="data/pageFields/customerRegisterFields.xls">
+        <common.clickAndVerfyLink label="${organization.addCustomer.title}" />
+
+        <setInputField htmlId="editForm:email" value="${common.email}" />
+        <setInputField htmlId="editForm:userId" value="${common.userId}" />
+        <setSelectField name="editForm:country" value="DE" />
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}"/>
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${customerRegisterFields.att0}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}"/>
+        </dataDriven>
+
+      </dataDriven>
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="Test for bad cases in menu group Customer. Edit customer.">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <mail.readPasswordAndUrlFromMail />
+
+      <invoke url="${supplierUrl}" />
+
+      <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+
+      <storeProperty name="customerInCombobox" value="${common.orgName} (#{orgId})" />
+
+      <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}"/>
+
+      <dataDriven tableContainer="data/pageFields/customerEditFields.xls">
+        <common.clickAndVerfyLink label="${organization.editCustomer.title}" />
+        <setSelectField name="selectForm:organizationId" text="#{customerInCombobox}"/>
+
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}"/>
+        </ifStep>
+
+        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}"/>
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}"/>
+        </dataDriven>
+
+      </dataDriven>
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="Test for bad cases in menu group Customer. Manage VAT rates.">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <vat.enable />
+
+      <dataDriven tableContainer="data/invalidInput/VAT.xls">
+        <common.initializeDataDrivenErrorMessage errormsg="${errormsg}"/>
+        <common.testFieldValidation fieldId="vatForm:defaultVat" fieldValue="${value}" error="${expectedMessage}"/>
+      </dataDriven>
+      
+      <login.logout />
+    </webtest>
+  </target>
+</project>

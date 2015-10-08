@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Localizedresource tkey="1" version="0" locale="en" objecttype="REPORT_DESC" objectkey="0" value="value" />
+  <Localizedresource tkey="2" version="0" locale="de" objecttype="REPORT_DESC" objectkey="1" value="value" />
+  <Localizedresource tkey="3" version="0" locale="ja" objecttype="REPORT_DESC" objectkey="2" value="value" />
+  <Localizedresource tkey="4" version="0" locale="zh" objecttype="REPORT_DESC" objectkey="22" value="value" />
+  <Localizedresource tkey="5" version="0" locale="en" objecttype="REPORT_DESC" objectkey="23" value="value" />
+  <Localizedresource tkey="6" version="0" locale="en" objecttype="REPORT_DESC" objectkey="24" value="value" />
+
+  <Localizedresource tkey="11" version="0" locale="en" objecttype="PAYMENT_TYPE_NAME" objectkey="0"
+    value="value" />
+  <Localizedresource tkey="12" version="0" locale="de" objecttype="PAYMENT_TYPE_NAME" objectkey="1"
+    value="value" />
+  <Localizedresource tkey="13" version="0" locale="zh" objecttype="PAYMENT_TYPE_NAME" objectkey="2"
+    value="value" />
+  <Localizedresource tkey="14" version="0" locale="ja" objecttype="PAYMENT_TYPE_NAME" objectkey="3"
+    value="value" />
+  <Localizedresource tkey="15" version="0" locale="en" objecttype="PAYMENT_TYPE_NAME" objectkey="4"
+    value="value" />
+
+  <Localizedresource tkey="21" version="0" locale="en" objecttype="PARAMETER_DEF_DESC" objectkey="0"
+    value="value" />
+  <Localizedresource tkey="22" version="0" locale="de" objecttype="PARAMETER_DEF_DESC" objectkey="1"
+    value="value" />
+  <Localizedresource tkey="23" version="0" locale="ja" objecttype="PARAMETER_DEF_DESC" objectkey="2"
+    value="value" />
+  <Localizedresource tkey="24" version="0" locale="zh" objecttype="PARAMETER_DEF_DESC" objectkey="1001"
+    value="value" />
+  <Localizedresource tkey="25" version="0" locale="en" objecttype="PARAMETER_DEF_DESC" objectkey="1002"
+    value="value" />
+  <Localizedresource tkey="26" version="0" locale="en" objecttype="PARAMETER_DEF_DESC" objectkey="1003"
+    value="value" />
+
+  <Localizedresource tkey="31" version="0" locale="en" objecttype="EVENT_DESC" objectkey="0" value="value" />
+  <Localizedresource tkey="32" version="0" locale="de" objecttype="EVENT_DESC" objectkey="1" value="value" />
+  <Localizedresource tkey="33" version="0" locale="ja" objecttype="EVENT_DESC" objectkey="2" value="value" />
+  <Localizedresource tkey="34" version="0" locale="zh" objecttype="EVENT_DESC" objectkey="1000" value="value" />
+  <Localizedresource tkey="35" version="0" locale="en" objecttype="EVENT_DESC" objectkey="1001" value="value" />
+  <Localizedresource tkey="36" version="0" locale="en" objecttype="EVENT_DESC" objectkey="1002" value="value" />
+
+</dataset>

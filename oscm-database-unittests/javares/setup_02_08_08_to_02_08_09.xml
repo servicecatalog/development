@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+	<!-- Needed for the technical products -->
+	<Organization tkey="11001" version="0" organizationid="SUPP1"
+		name="SUPP1" registrationdate="1234" cutoffday="1" />
+		
+	<!-- TECHNICAL PRODUCTS -->
+	<Technicalproduct tkey="1001" version="0"
+		technicalproductid="tpid_1" organizationkey="11001" provisioningurl="url" />
+
+	<Technicalproducthistory tkey="1"
+		provisioningurl="url" technicalproductid="tpid_1" moddate="2014-05-5 14:30:00"
+		modtype="modtype" moduser="moduser" objkey="1001" objversion="0"
+		organizationobjkey="11001" invocationdate="2014-05-5 14:30:00" />
+</dataset> 

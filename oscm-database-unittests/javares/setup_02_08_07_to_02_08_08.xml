@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" cutoffday="1"/>
+  <UserGroup tkey="1" version="0" name="default" description="[NULL]" isdefault="TRUE" organization_tkey="11001" />
+</dataset>

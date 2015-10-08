@@ -1,0 +1,106 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="operator.exportAuditLogData" />
+    <c:set var="focusElement" value="getAuditLogData:entityType" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{exportAuditLogDataCtrl.initialize}" />
+    <h:form id="showAuditLogData" target="#{sessionBean.ie?'_blank':''}">
+      <h:commandButton style="display:none;" id="hiddenShowButton" value="hiddenShowButton"
+        action="#{exportAuditLogDataCtrl.showAuditLogData}" />
+      <script type="text/javascript">
+        function windowOnLoad() {
+          #{rich:element('hiddenShowButton')}.click();
+        }
+        if (#{exportAuditLogDataCtrl.auditLogDataAvailable}) {
+          window.onload=windowOnLoad;
+        }
+      </script>
+    </h:form>
+
+    <h:form id="getAuditLogData">
+      <adm:outputStep value="#{msg['operator.exportAuditLogData']}" />
+      <adm:panelGrid minColWidth="false" nowrap="true">
+        <adm:outputLabel value="#{msg['operator.exportAuditLogData.roles']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu styleClass="select" id="entityType" value="#{exportAuditLogDataCtrl.model.selectedGroup}"
+            valueChangeListener="#{exportAuditLogDataCtrl.processValueChange}" onclick="AdmUtils.storeValue(this);">
+            <a4j:ajax event="change"
+              render="operationsTableArea, auditLogDataButton, mainTmplMessagesPanel"
+              oncomplete="AdmUtils.setUIElements();" />
+            <adm:selectItemPleaseSelect itemValue="#{null}" />
+            <t:selectItems value="#{exportAuditLogDataCtrl.model.availableSelectGroups}" var="item"
+              itemLabel="#{item.label}" itemValue="#{item.value}" />
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="entityType" />
+      </adm:panelGrid>
+      <adm:outputStep value="#{msg['operator.exportAuditLogData.operationtable']}" />
+      <a4j:outputPanel id="operationsTableArea">
+        <adm:dataTable tableId="operationTable" value="#{exportAuditLogDataCtrl.model.availableOperations}"
+          columnsWidth="0*,100%" height="#{sessionBean.tableHeightMap[190]/2+8}px" columnClasses="labelAndValuePanelCol1,*">
+          <rich:column styleClass="tableColumnCheckBox">
+            <f:facet name="header">
+              <h:selectBooleanCheckbox id="allCheckBoxes" styleClass="tableColumnCheckBox"
+                value="#{exportAuditLogDataCtrl.allServicesSelected}">
+                <a4j:ajax event="click" render="operationTable, auditLogDataButton" />
+              </h:selectBooleanCheckbox>
+            </f:facet>
+            <h:selectBooleanCheckbox value="#{rowItem.selected}" id="checkboxId">
+              <a4j:ajax event="click" render="auditLogDataButton, operationTable" />
+            </h:selectBooleanCheckbox>
+            <h:outputText id="operationId" value="#{rowItem.operationId}" style="display: none;" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['operator.exportAuditLogData.operationTable.header.operation']}" />
+            </f:facet>
+            <h:outputText id="operationName" value="#{rowItem.operationName}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+      <a4j:outputPanel>
+        <adm:panelGrid minColWidth="false" nowrap="true">
+          <adm:outputLabel value="#{msg['operator.exportAuditLogData.from']}" required="true" />
+          <rich:calendar id="fromDate" value="#{exportAuditLogDataCtrl.model.fromDate}" popup="true"
+            locale="#{userBean.myLocale}" datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png"
+            showApplyButton="false" cellWidth="24px" cellHeight="22px" styleClass="fieldS"
+            required="true" showWeeksBar="false"
+          	converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+          	direction="auto" validator="#{exportAuditLogDataCtrl.validateFromAndToDate}">
+          	<a4j:ajax event="change"
+          	render="auditLogDataButton,fromDateErrorMsg,mainTmplMessagesPanel" />
+		  </rich:calendar>
+          <adm:message for="fromDate" />
+          <adm:outputLabel value="#{msg['operator.exportAuditLogData.to']}" required="true" />
+          <rich:calendar id="toDate" value="#{exportAuditLogDataCtrl.model.toDate}" popup="true"
+            locale="#{userBean.myLocale}" datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png"
+            showWeeksBar="false" showApplyButton="false" cellWidth="24px" cellHeight="22px" styleClass="fieldS"
+            required="true"
+            converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+            direction="auto" validator="#{exportAuditLogDataCtrl.validateFromAndToDate}">
+            <a4j:ajax event="change"
+            render="auditLogDataButton,toDateErrorMsg,mainTmplMessagesPanel" />
+          </rich:calendar>
+          <adm:message for="toDate" />
+        </adm:panelGrid>
+        <h:commandButton style="display:none;" id="hiddenAuditLogDataButton" value="hiddenAuditLogDataButton"
+          action="#{exportAuditLogDataCtrl.getAuditLogData}" />
+        <adm:buttonPanel>
+          <adm:button id="auditLogDataButton" value="#{msg['button.export']}" buttonType="export" bean="#{exportAuditLogDataCtrl}"
+            action="getAuditLogData" disabled="#{not exportAuditLogDataCtrl.buttonEnabled}" />
+        </adm:buttonPanel>
+      </a4j:outputPanel>
+    </h:form>
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,175 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testManageSellerSubscription" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="testMPL_ManageSellerSubscription_setup">
+      <!-- Create a marketplace -->
+      <mail.cleanInbox />
+      <operator.createMarketplace mIdProperty="mId" name="MyNewMarketplace" open="true" />
+
+      <!-- Add default currency, create supplier + create 2 default services -->
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <scenario.createSimpleServices namedUser="5" mid="${mId}" />
+
+      <mail.cleanInbox />
+      <!-- Create a broker -->
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="brokerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="brokerId" value="#{orgId}" propertyType="ant" />
+      <login.initialLoginAndChangePassword url="${brokerUrl}" userId="${brokerUserId}" password="#{userPwd}" />
+      <login.logout />
+
+      <mail.cleanInbox />
+      <!-- Create a reseller -->
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="resellerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+      <login.initialLoginAndChangePassword url="${resellerUrl}" userId="${resellerUserId}" password="#{userPwd}" />
+      <login.logout />
+
+      <!-- Publish the service of the supplier and assign a broker and a reseller. -->
+      <this.grantResalePermission serviceKey="MegaOffice1" marketplaceId="${mId}" isGranted="true" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+
+      <!-- Enable payment types. -->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/organization/managePaymentEnablement.jsf" />
+      <setCheckbox htmlId="managePayment:default2" checked="true" />
+      <clickLink description="click save Button" htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testManageSellerSubscription" depends="setup">
+    <webtest name="testMPL_ManageBrokerSubscription">
+      <!--Login as broker and publish the service-->
+      <login.login url="${brokerUrl}" userId="${brokerUserId}" />
+      <invoke url="${brokerUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="MegaOffice1 (${supplierId})" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="MegaOffice1" />
+
+      <invoke url="${brokerUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:visibleInCatalog" checked="true" />
+      <clickButton label="${button.save}" />
+
+      <!--Register a broker customer. -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <property name="brokerCustomerId" value="Testorg (#{orgId})" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUserId" value="#{userId}" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+
+      <!-- Login as the broker customer and subscribe to the service offered by the broker. Broker copy is the most recently created service and so the first in the list -->
+      <mpl_login.user userId="#{customerUserId}" mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+      <mpl_login.logout />
+
+      <!-- Login as broker and check the created subscription in the sub details page. -->
+      <login.login url="${brokerUrl}" userId="${brokerUserId}" />
+      <clickLink href="/subscription/view.jsf" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Mega Office Starter')]" />
+      <verifyXPath xpath="//*[@id='viewForm:subscriptionText']" text="Mega Office Starter" />	
+      <login.logout />
+
+      <!-- Login as supplier and check the created subscription in the sub details page. -->
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/subscription/view.jsf" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Mega Office Starter')]" />
+      <verifyXPath xpath="//*[@id='viewForm:subscriptionText']" text="Mega Office Starter" />	
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_CheckRecommendedRetailPriceVisibility">
+      <!-- Make sure recommended retail price is not shown on landing page -->
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${mId}" />
+      <not>
+        <verifyElementText description="Verify inexistence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+      <!-- Make sure recommended retail price is not shown on 'Browse all services' page -->
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <not>
+        <verifyElementText description="Verify inexistence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      </not>
+
+      <!-- Now login as the reseller and publish the service to the marketplace -->
+      <login.login url="${resellerUrl}" userId="${resellerUserId}" />
+      <invoke url="${resellerUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="MegaOffice1 (${supplierId})" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <clickLink htmlId="editForm:saveButton" />
+
+      <invoke url="${resellerUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:visibleInCatalog" checked="true" />
+      <clickButton label="${button.save}" />
+
+      <!-- Make sure recommended retail price is shown on landing page after publishing the reseller service -->
+      <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${mId}" />
+      <verifyElementText description="Verify existence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+      <!-- Make sure recommended retail price is shown on 'Browse all services' page after publishing the reseller service -->
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <verifyElementText description="Verify existence of footer: (1) recommended retail price" htmlId="recommendedRetailPrice" text="${service.recommendedRetailPrice}" />
+
+      <!-- Bug 9813: check that on reseller service - supplier tab the supplier name and url is shown 
+      name and url are from organization.properties and not available as properties -->
+      <clickElement xpath="//span[@class='recommendedPriceHint']" />
+
+      <mpl_goto.tab label="${service.supplier}" />
+      <verifyElementText htmlId="supplierContactInfo" text="TechProvAndSupplier,.*" regex="true" />
+      <verifyElementText htmlId="supplierContactUrl" text="http://www.example.com" />
+      <verifyXPath xpath="//*[@id='supplierContactUrl']/@href" text="http://www.example.com" />
+      <verifyXPath xpath="//*[@id='supplierContactUrl']/@target" text="_blank" />
+    </webtest>
+    
+    <webtest name="testMPL_ManageSellerSubscription_tearDown">
+      <this.grantResalePermission serviceKey="MegaOffice1" marketplaceId="${mId}" isGranted="false" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+
+  </target>
+
+  <macrodef name="this.grantResalePermission">
+    <attribute name="serviceKey" />
+    <attribute name="marketplaceId" />
+    <attribute name="isGranted" />
+    <attribute name="brokerOrgId" />
+    <attribute name="resellerOrgId" />
+    <sequential>
+      <common.ignorePageScriptError/>	
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceKey}" />
+      <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+
+      <storeXPath description="Get row for Broker Organization ID" xpath="//*[@id='editForm:brokerTable']//*[normalize-space()='@{brokerOrgId}']/@id" property="brokerRowID" />
+      <storeXPath property="brokerRowNr" xpath="substring-before(substring-after('#{brokerRowID}', 'editForm&#58;brokerTable&#58;'), ':')" />
+
+      <storeXPath description="Get row for Reseller Organization ID" xpath="//*[@id='editForm:resellerTable']//*[normalize-space()='@{resellerOrgId}']/@id" property="resellerRowID" />
+      <storeXPath property="resellerRowNr" xpath="substring-before(substring-after('#{resellerRowID}', 'editForm&#58;resellerTable&#58;'), ':')" />
+
+      <setCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+      <setCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{serviceKey}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

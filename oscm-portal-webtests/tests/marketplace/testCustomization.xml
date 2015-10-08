@@ -1,0 +1,732 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_customization" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testMPL_customization">
+
+    <webtest name="testMPL_setup">
+      <testInfo type="DESCRIPTION">testMPL_setup:
+        Creates setup data.
+        Expected Outcome:
+        (1) Set global constants
+        (2) Create marketplace for supplier organization
+        (3) Register new supplier admin user
+        (4) Give supplier user and admin the marketplace owner role
+        (5) Initialize the marketplace stages
+      </testInfo>
+
+      <!-- (1) Set global constants -->
+      <storeProperty name="url_de" value="http://www.google.de" propertyType="ant" />
+      <storeProperty name="url_en" value="http://www.google.com" propertyType="ant" />
+      <storeProperty name="administratorId" value="administrator" propertyType="ant" />
+      <storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+      <storeProperty name="supplierAdminPwd" value="secret" propertyType="ant" />
+      <storeProperty name="supplierUserPwd" value="secret" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="defaultMpId" name="Global Marketplace" />
+      <storeProperty name="mpIdForOperator" value="${defaultMpId}" propertyType="ant" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${defaultMpId}" />      
+
+      <!-- (1) Creates a supplier account -->
+      <mpl_setup.createSupplierAccount />
+
+      <!-- (2) Create marketplace for supplier organization -->
+      <operator.createMarketplace mIdProperty="mpIdForSupplier" ownerId="${supplierId}" name="MP_name_global_sup" baseurl="${bes.http.url}/oscm-portal" />
+
+      <!-- (3) Register new supplier admin user -->
+      <login.loginAsSupplier description="login as supplier admin" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" />
+      <landingpage.setSortOrderForLandingpage mId="${mpIdForSupplier}" />
+      
+      <invoke description="invoke user/add.jsf" url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <user.register userId="supplierAdmin" admin="true" isSvcMgr="true" />
+      <login.logout />
+
+      <!-- (4) Give supplier user and admin the marketplace owner role -->
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{uniqueUserId}" password="#{userPwd}" />
+      <login.logout />
+      <storeProperty name="supplierAdminUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierAdminId" value="#{userId}" propertyType="ant" />
+      <setup:store.settings userkey="${supplierUserKey}" password="${supplierUserPwd}" />
+      <setup:user.grantRoles userId="${supplierUserId}" roles="MARKETPLACE_OWNER" />
+      <setup:user.grantRoles userId="${supplierAdminId}" roles="MARKETPLACE_OWNER" />
+
+      <!-- (5) Initialize the marketplace stages -->
+      <mpl_customization.initStages description="mpIdForOperator" marketplaceId="${mpIdForOperator}" login="${administratorId}" pwd="${administratorPwd}" />
+      <mpl_customization.initStages description="mpIdForSupplier" marketplaceId="${mpIdForSupplier}" login="${supplierUserId}" pwd="${supplierUserPwd}" />
+    </webtest>
+
+    <!-- *************************************************** -->
+    <!-- do not change the sequence of the imprint tests!!!! -->
+    <!-- *************************************************** -->
+    <webtest name="testMPL_testImprint_setUrls">
+      <testInfo type="DESCRIPTION">testMPL_setup:
+        Sets the imprints for the operator and the supplier. It should not be possible to set the imprint if the user has not the MarketplaceOwner role.   
+        Expected Outcome:
+        (1) Set admin locale to english
+        (2) Operator sets the imprint url for his own marketplace
+        (3) Supplier sets the imprint url for his own marketplace
+        (4) Operator tries to set the imprint url for a marketplace where the Marketplace role is not set
+        (5) Supplier tries to set the imprint url for a marketplace where the Marketplace role is not set
+        (6) Supplier tries to set an invalid imprint url
+      </testInfo>
+
+      <!-- (1) Set admin locale to english -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administratorId}" password="${administratorPwd}" />
+      <operator.edit.locale description="set operator locale to en" locale="en" successText="${info.user.profileSaved}" />
+      <login.logout description="logout as administrator" />
+
+      <!-- (2) Operator sets the imprint url for his own marketplace -->
+      <this.testImprint_setUrls description="set imprint urls as administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+
+      <!-- (3) Supplier sets the imprint url for his own marketplace -->
+      <this.testImprint_setUrls description="set imprint urls as supplier admin" login="${supplierAdminId}" pwd="${supplierAdminPwd}" marketplaceId="${mpIdForSupplier}" />
+
+      <!-- (4) Operator tries to set the imprint url for a marketplace where the Marketplace role is not set -->
+      <not>
+        <this.testImprint_setUrls description="try to set imprint urls as supplier admin" login="${supplierAdminId}" pwd="${supplierAdminPwd}" marketplaceId="${mpIdForOperator}" />
+      </not>
+      <login.logout description="logout as supplier admin" />
+
+      <!-- (5) Supplier tries to set the imprint url for a marketplace where the Marketplace role is not set -->
+      <not>
+        <this.testImprint_setUrls description="try to set imprint urls as operator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForSupplier}" />
+      </not>
+      <login.logout description="logout as operator" />
+
+      <!-- (6) Supplier tries to set an invalid imprint url -->
+      <login.login url="${bes.http.url}/oscm-portal/organization/edit.jsf?mId=${mpIdForSupplier}" userId="${supplierAdminId}"
+                   password="${supplierAdminPwd}" />
+      <common.ignorePageScriptError/>
+      <invoke url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mpIdForSupplier}" />
+      <not>
+         <customize.texts.setImprintUrl description="logout as operator" locale="${locale.en}" url="any text" />
+      </not>      
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+    </webtest>
+
+    <webtest name="testMPL_testImprint_checkUrls">
+      <testInfo type="DESCRIPTION">testMPL_testImprint_checkUrls:
+        Verifies the imprint url for the operator and supplier. This webtest depends on webtest testMPL_testImprint_setUrls
+        Expected Outcome:
+        (1) Verifies the imprint url set by the operator
+        (2) Verifies the imprint url set by the supplier
+      </testInfo>
+
+      <!-- (1) Verifies the imprint url set by the operator -->
+      <this.testImprint_checkUrls description="check imprint urls as administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+
+      <!-- (2) Verifies the imprint url set by the supplier -->
+      <this.testImprint_checkUrls description="check imprint urls as supplier admin" login="${supplierAdminId}" pwd="${supplierAdminPwd}" marketplaceId="${mpIdForSupplier}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- depends on testMPL_testImprint_setUrls -->
+    <!-- "remove all urls" -->
+    <!-- *************************************************** -->
+    <webtest name="testMPL_testImprint_removeUrls">
+      <this.testImprint_removeUrls description="remove imprint urls as administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+      <this.testImprint_removeUrls description="remove imprint urls as supplier admin" login="${supplierAdminId}" pwd="${supplierAdminPwd}" marketplaceId="${mpIdForSupplier}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- depends on testMPL_testImprint_removeUrls -->
+    <!-- default "url"/text should be set -->
+    <webtest name="testMPL_testImprint_checkUrlsDefault">
+      <this.testImprint_checkDefaultUrls description="check default imprint urls as administrator (MP op)" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+      <this.testImprint_checkDefaultUrls description="check default imprint urls as supplier admin (MP sup)" login="${supplierAdminId}" pwd="${supplierAdminPwd}" marketplaceId="${mpIdForSupplier}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- no dependencies (default settings) -->
+    <!-- no imprint url (for admin language) => no footer -->
+    <webtest name="testMPL_testImprint_noFooter">
+
+      <this.testImprint_checkNoFooters description="check imprint footer en administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <common.ignorePageScriptError/>
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mpIdForOperator}" />
+
+      <!-- set de url, but not the en url -->
+      <customize.texts.setImprintUrl description="set imprint url de" locale="${locale.de}" url="${url_de}" />
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+      <this.testImprint_checkNoFooters description="check imprint footer en administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+
+      <!-- re-set de url -->
+      <this.testImprint_removeUrls description="remove imprint urls as administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+
+      <!-- login page -->
+      <invoke description="invoke login.jsf" url="${bes.http.url}/oscm-portal/login.jsf" />
+      <not>
+        <customize.texts.existImprintFooter description="exist footer" />
+      </not>
+
+      <mpl_goto.marketplace mid="${defaultMpId}" />
+      <customize.texts.checkImprintFooter_mpl description="check mpl imprint footer" url="/oscm-portal/marketplace/terms/imprint.jsf" imprintText="${marketplace.imprint.title}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- no dependencies (default settings) -->
+    <!-- set (english) imprint url (for admin language), but not de => footer must exist -->
+    <webtest name="testMPL_testImprint_footer_en_en">
+
+      <!-- set en url for MP -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <common.ignorePageScriptError/>
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mpIdForOperator}" />
+      <customize.texts.setImprintUrl description="set imprint url en" locale="${locale.en}" url="${url_en}" />
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+
+      <this.testImprint_checkFooters description="check imprint footer en administrator" login="${administratorId}" pwd="${administratorPwd}" url="${url_en}" checkMPL="true" marketplaceId="${mpIdForOperator}" />
+
+      <mpl_goto.marketplace mid="${defaultMpId}" />
+      <customize.texts.checkImprintFooter_mpl description="check mpl imprint footer" url="${url_en}" imprintText="${marketplace.imprint.title}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- depends on testMPL_testImprint_footer_en_en (set imprint url en) -->
+    <!-- no german imprint url => the default imprint url (en) should be used -->
+    <webtest name="testMPL_testImprint_footer_en_de">
+
+      <!-- set operator locale to german -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administratorId}" password="${administratorPwd}" />
+
+      <operator.edit.locale description="set operator locale to de" locale="de" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <login.logout />
+
+      <!-- set supplier locale to german -->
+      <login.loginAsSupplier description="login as supplier" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" password="${supplierUserPwd}" />
+      <operator.edit.locale description="set supplier locale to de" locale="de" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <login.logout />
+
+      <!-- set supplier admin locale to german -->
+      <login.loginAsSupplier description="login as supplier admin" url="${bes.http.url}/oscm-portal" userId="${supplierAdminId}" password="${supplierAdminPwd}" />
+      <user.edit.locale description="set supplier admin locale to de" locale="${locale.de}" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <login.logout />
+
+      <this.testImprint_checkFooters description="check imprint footer en administrator" login="${administratorId}" pwd="${administratorPwd}" url="${url_en}" imprintText="Impressum" checkMPL="true" marketplaceId="${mpIdForOperator}" />
+
+      <mpl_goto.marketplace mid="${defaultMpId}" />
+      <customize.texts.checkImprintFooter_mpl description="check mpl imprint footer" url="${url_en}" imprintText="${marketplace.imprint.title}" />
+    </webtest>
+
+
+    <!-- *************************************************** -->
+    <!-- depends on testMPL_testImprint_footer_en_de (set imprint url de) -->
+    <!-- german imprint url => the german imprint url should be used -->
+    <webtest name="testMPL_testImprint_footer_de_de">
+
+      <!-- set de url for MP -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administratorId}" password="${administratorPwd}" />
+      <common.ignorePageScriptError/>
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${mpIdForOperator}" />
+      <customize.texts.setImprintUrl description="set imprint url de" locale="Deutsch" url="${url_de}" />
+      <login.logout />
+      <common.reSetPageScriptError/>
+
+      <this.testImprint_checkFooters description="check imprint footer de administrator" login="${administratorId}" pwd="${administratorPwd}" url="${url_de}" imprintText="Impressum" checkMPL="true" marketplaceId="${mpIdForOperator}" />
+
+      <mpl_goto.marketplace mid="${defaultMpId}" />
+      <customize.texts.checkImprintFooter_mpl description="check mpl imprint footer" url="${url_en}" imprintText="${marketplace.imprint.title}" />
+    </webtest>
+
+    <webtest name="testMPL_testImprint_cleanup">
+      <testInfo type="DESCRIPTION">testMPL_testImprint_cleanup:
+        Clean up imprint settings
+        Expected Outcome:
+        (1) Set operator locale to english
+        (2) Set supplier locale to english
+        (3) Set supplier admin locale to english
+        (4) 
+      </testInfo>
+
+      <!-- (1) Set operator locale to english -->
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administratorId}" password="${administratorPwd}" />
+      <operator.edit.locale description="set operator locale to en" locale="en" />
+      <login.logout description="logout" />
+
+      <!-- (2) Set supplier locale to english -->
+      <login.loginAsSupplier description="login as supplier" url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" password="${supplierUserPwd}" />
+      <operator.edit.locale description="set supplier locale to en" locale="en" />
+      <login.logout description="logout" />
+
+      <!-- (3) Set supplier admin locale to english -->
+      <login.loginAsSupplier description="login as supplier admin" url="${bes.http.url}/oscm-portal" userId="${supplierAdminId}" password="${supplierAdminPwd}" />
+      <user.edit.locale description="set supplier admin locale to en" locale="Englisch" />
+      <login.logout description="logout" />
+
+      <this.testImprint_removeUrls description="remove imprint urls as administrator" login="${administratorId}" pwd="${administratorPwd}" marketplaceId="${mpIdForOperator}" />
+    </webtest>
+
+    <webtest name="testMPL_VerifyMenuItems_ForSupplier">
+      <testInfo type="DESCRIPTION">testMPL_VerifyMenuItems_ForSupplier:
+        Verifies the visibility of menu items if supplier is logged in
+        Expected Outcome:
+        (1) Login as supplier
+        (2) Verify if update marketplace and customize menuitems are visible 
+        (3) Verify if create marketplace and delete marketplace menuitems are visible 
+      </testInfo>
+
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+      <storeProperty name="userId" value="${supplierUserId}" />
+
+      <!-- (1) Login as supplier -->
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <!-- (2) Verify if update marketplace and customize menuitems are visible -->
+      <invoke url="#{orgUrl}" />
+      <verifyXPath xpath="//tr[@id='navigation.marketplace']" />
+      <verifyText text=".*${marketplace.update.title}.*" regex="true" />
+      <verifyText text=".*${marketplace.editStage.title}.*" regex="true" />
+      <verifyText text=".*${shop.translations.title}.*" regex="true" />
+      <verifyText text=".*${shop.editSkin.title}.*" regex="true" />
+
+      <!-- (3) Verify if create/delete marketplace menuitems are not visible -->
+      <not>
+        <verifyText text=".*${marketplace.create.title}.*" regex="true" />
+        <verifyText text=".*${marketplace.delete.title}.*" regex="true" />
+      </not>
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_VerifyMenuItems_ForOperator">
+      <testInfo type="DESCRIPTION">testMPL_VerifyMenuItems_ForSupplier:
+        Verifies the visibility of menu items if supplier is logged in
+      	Expected Outcome:
+      	(1) Login as platform operator
+      	(2) Verify if create/update/delete marketplace and customize menuitems are visible   
+	  </testInfo>
+
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+
+      <!-- (1) Login as platform operator -->
+      <login.login url="#{orgUrl}" userId="${administratorId}" password="${administratorPwd}" />
+
+      <!-- (2) Verify if create/update/delete marketplace and customize menuitems are visible -->
+      <invoke url="#{orgUrl}/techservice/import.jsf" />
+      <verifyXPath xpath="//tr[@id='navigation.marketplace']" />
+      <verifyText text=".*${marketplace.create.title}.*" regex="true" />
+      <verifyText text=".*${marketplace.update.title}.*" regex="true" />
+      <verifyText text=".*${marketplace.delete.title}.*" regex="true" />
+      <verifyText text=".*${marketplace.editStage.title}.*" regex="true" />
+      <verifyText text=".*${shop.translations.title}.*" regex="true" />
+      <verifyText text=".*${shop.editSkin.title}.*" regex="true" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_testStages_ForOperator">
+      <testInfo type="DESCRIPTION">testMPL_testStages_ForOperator:
+        Operator set stages and verifies the content a) when logged id and b) as anonymous user on the marketplace.
+      	Expected Outcome:
+        (1) Set profile language to de
+        (2) Login as operator
+        (3) Set stages and verify content in blue portal
+        (4) Verify stage content on marketplace. Operator is logged in
+        (5) Operator logs out
+        (6) Verify stage content on marketplace. Operator is not logged in
+        (7) Reset profile language
+        (8) Reset all stages
+	  </testInfo>
+
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+
+      <!-- (1) Set profile language to de -->
+      <mpl_customization.setProfileLanguage orgUrl="#{orgUrl}" locale="${locale.de}" successMsg="Ihr Profil wurde erfolgreich gespeichert." marketplaceId="${mpIdForOperator}" />
+
+      <!-- (2) Login as operator  -->
+      <login.login url="#{orgUrl}?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+
+      <!-- (3) Set stages and verify content in blue portal -->
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="Deutsch" stage="german" action="save" />
+       <verifyXPath xpath="//*[@id='stageForm:srcLocale' and @class='select']" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="Englisch" stage="english" action="save" />
+
+      <!-- (4) Verify stage content on marketplace. Operator is logged in -->
+      <mpl_customization.checkStageContent_LocaleValue locale="en" expectedStage="german" marketplaceId="${mpIdForOperator}" />
+      <mpl_customization.checkStageContent_LocaleValue locale="de" expectedStage="german" marketplaceId="${mpIdForOperator}" />
+
+      <!-- (5) Operator logs out -->
+      <mpl_login.logout />
+
+      <!-- (6) Verify stage content on marketplace. Operator is not logged in -->
+      <mpl_customization.checkStageContent_LocaleValue locale="ja" expectedStage="english" marketplaceId="${mpIdForOperator}" />
+      <mpl_customization.checkStageContent_LocaleValue locale="de" expectedStage="german" marketplaceId="${mpIdForOperator}" />
+      <mpl_customization.checkStageContent_LocaleValue locale="en" expectedStage="english" marketplaceId="${mpIdForOperator}" />
+
+      <!-- (7) Reset profile language -->
+      <mpl_customization.setProfileLanguage orgUrl="#{orgUrl}" locale="Englisch" successMsg="${info.user.profileSaved}" marketplaceId="${mpIdForOperator}" />
+
+      <!-- (8) Reset all stages -->
+      <login.login url="#{orgUrl}?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="English" stage="" action="save" expectedPreviewImage="true" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="German" stage="" action="save" expectedPreviewImage="true" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="Japanese" stage="" action="save" expectedPreviewImage="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_testStages_ForSupplier">
+      <testInfo type="DESCRIPTION">testMPL_testStages_ForSupplier:
+        Supplier set stages and verifies the content as logged in user on the marketplace.
+      	Expected Outcome:
+        (1) Set stage for all marketplaces of the supplier admin
+        (2) After relogin, check stages of all marketplaces as supplier admin
+        (3) Reset all stages
+	  </testInfo>
+
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+
+      <!-- (1) Set stage for all marketplaces of the supplier admin -->
+      <login.loginAsSupplier url="#{orgUrl}?mId=${mpIdForSupplier}" userId="${supplierAdminId}" password="${supplierAdminPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+      <mpl_customization.setStageAndVerify locale="${locale.en}" stage="mpOwner: supplier admin; en; mpId: mpIdForSupplier" marketplaceId="${mpIdForSupplier}" />
+      <mpl_customization.setStageAndVerify locale="${locale.de}" stage="mpOwner: supplier admin; de; mpId: mpIdForSupplier" marketplaceId="${mpIdForSupplier}" />
+      <login.logout />
+
+      <!-- (2) After relogin, check stages of all marketplaces as supplier admin -->
+      <login.loginAsSupplier url="#{orgUrl}?mId=${mpIdForSupplier}" userId="${supplierAdminId}" password="${supplierAdminPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+      <mpl_customization.checkStage locale="${locale.en}" expectedStage="mpOwner: supplier admin; en; mpId: mpIdForSupplier" marketplaceId="${mpIdForSupplier}" />
+      <mpl_customization.checkStage locale="${locale.de}" expectedStage="mpOwner: supplier admin; de; mpId: mpIdForSupplier" marketplaceId="${mpIdForSupplier}" />
+      <login.logout />
+
+      <!-- (3) Reset all stages -->
+      <login.loginAsSupplier url="#{orgUrl}?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="English" stage="" action="save" expectedPreviewImage="true" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="German" stage="" action="save" expectedPreviewImage="true" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="Japanese" stage="" action="save" expectedPreviewImage="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_testStages_ChangeStage">
+      <testInfo type="DESCRIPTION">testMPL_testStages_ChangeStage:
+      	Expected Outcome:
+        (1) Login as operator
+        (2) Define an english stage that will be the default preview for the next empty german stage
+        (3) Save new stages for language 'de' and 'ja'. Overwrite stage for language 'en'
+	  </testInfo>
+
+      <storeProperty name="orgUrl" value="${supplierUrl}" />
+
+      <!-- (1) Login as operator -->
+      <login.login url="#{orgUrl}/organization/edit.jsf?mId=${mpIdForOperator}" userId="${administratorId}" password="${administratorPwd}" />
+      <invoke url="#{orgUrl}/shop/editStage.jsf" />
+
+      <!-- (2) Define an english stage that will be the default preview for the next empty german stage -->
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="${locale.en}" stage="Erfrischend" action="save" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="${locale.de}" expectedPreview="Erfrischend" action="cancel" />
+
+      <!-- (3) Save new stages for language 'de' and 'ja'. Overwrite stage for language 'en'-->
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="${locale.de}" stage="Mehrweg" action="save" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="${locale.ja}" stage="Ohne Kohlensaeure" action="save" />
+      <mpl_customization.setStageAndVerify marketplaceId="${defaultMpId}" locale="${locale.en}" stage="Erfrischend2" oldStage="Erfrischend" action="save" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_cleanUp">
+      <testInfo type="DESCRIPTION">testMPL_cleanUp:
+      	Expected Outcome:
+        (1) Reset stages for all marketplaces
+	  </testInfo>
+
+      <!-- (1) Reset stages for all marketplaces -->
+      <mpl_customization.initStages description="mpIdForOperator" marketplaceId="${mpIdForOperator}" login="${administratorId}" pwd="${administratorPwd}" />
+      <mpl_customization.initStages description="mpIdForSupplier" marketplaceId="${mpIdForSupplier}" login="${supplierAdminId}" pwd="${supplierAdminPwd}" />
+    </webtest>
+
+  </target>
+
+  <macrodef name="mpl_customization.setProfileLanguage">
+    <attribute name="orgUrl" />
+    <attribute name="locale" />
+    <attribute name="successMsg" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <login.login url="@{orgUrl}?mId=@{marketplaceId}" userId="${administratorId}" password="${administratorPwd}" />
+
+      <invoke url="@{orgUrl}/organization/edit.jsf" />
+
+      <setInputField name="editForm:email" value="bla.bla@est.fujitsu.com" />
+      <setSelectField name="editForm:locale" text="@{locale}" />
+      <setSelectField name="editForm:country" value="AM" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+
+      <common.verifySuccess label="@{successMsg}" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_customization.initStages">
+    <attribute name="login" default="${administrator}" />
+    <attribute name="pwd" default="${administratorPwd}" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <login.login description="login" url="${bes.http.url}/oscm-portal/organization/edit.jsf?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/editStage.jsf" />
+
+      <mpl_customization.setStageAndVerify locale="${locale.en}" expectedPreviewImage="true" marketplaceId="@{marketplaceId}" />
+      <mpl_customization.setStageAndVerify locale="${locale.de}" expectedPreviewImage="true" marketplaceId="@{marketplaceId}" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_customization.setStageAndVerify">
+    <attribute name="locale" />
+    <attribute name="stage" default="" />
+    <attribute name="oldStage" default="" />
+    <attribute name="action" default="save" />
+    <attribute name="expectedPreview" default="@{stage}" />
+    <attribute name="expectedPreviewImage" default="false" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <setSelectField xpath="//*[@id='stageForm:srcLocale']" text="@{locale}" />
+
+      <setInputField htmlId="stageForm:stage" value="@{stage}" />
+      <verifyTextarea htmlId="stageForm:stage" text="@{stage}" />
+
+      <clickLink htmlId="stageForm:previewLink" />
+
+      <ifStep test="@{expectedPreviewImage}">
+        <then>
+          <!-- we expect the default image as preview -->
+          <verifyXPath xpath="//span[@id='previewForm:stagePreview']//img[@id='marketplaceStageDefault']" />
+        </then>
+        <else>
+          <!-- we expect either the provided content as preview or by default the stage to be saved -->
+          <verifyXPath xpath="//span[@id='previewForm:stagePreview'][.='@{expectedPreview}']" />
+        </else>
+      </ifStep>
+
+      <storeProperty name="stageContent" value="@{oldStage}" />
+      <storeProperty name="action" value="@{action}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="action" value="cancel" />
+        </condition>
+        <then>
+          <clickLink htmlId="previewForm:cancelButton" />
+        </then>
+        <else>
+          <clickLink htmlId="previewForm:okButton" />
+          <storeProperty name="stageContent" value="@{stage}" />
+        </else>
+      </ifStep>
+
+      <verifyTextarea htmlId="stageForm:stage" text="@{stage}" />
+
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <setSelectField xpath="//*[@id='stageForm:srcLocale']" text="@{locale}" />
+      <verifyTextarea htmlId="stageForm:stage" text="#{stageContent}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_customization.checkStage">
+    <attribute name="locale" />
+    <attribute name="expectedStage" />
+    <attribute name="expectedPreviewImage" default="false" />
+    <attribute name="marketplaceId" />
+    <sequential>
+
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <setSelectField xpath="//*[@id='stageForm:srcLocale']" text="@{locale}" />
+
+      <verifyTextarea htmlId="stageForm:stage" text="@{expectedStage}" />
+
+      <clickLink htmlId="stageForm:previewLink" />
+
+      <ifStep test="@{expectedPreviewImage}">
+        <then>
+          <!-- we expect the default image as preview -->
+          <verifyXPath xpath="//span[@id='previewForm:stagePreview']//img[@id='marketplaceStageDefault']" />
+        </then>
+        <else>
+          <!-- we expect either the provided content as preview or by default the stage to be saved -->
+          <verifyXPath xpath="//span[@id='previewForm:stagePreview'][.='@{expectedStage}']" />
+        </else>
+      </ifStep>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_customization.checkStageContent_LocaleValue">
+    <attribute name="locale" default="en" />
+    <attribute name="expectedStage" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <invoke url="#{orgUrl}/marketplace/index.jsf?locale=@{locale}&amp;mId=@{marketplaceId}" />
+      <verifyXPath xpath="//span[@id='stageContent'][.='@{expectedStage}']" />
+    </sequential>
+  </macrodef>
+
+
+  <!-- ********************************************** -->
+  <!-- ****************** MACROS ******************** -->
+  <!-- ********************************************** -->
+  <!-- set the imprint urls for all supported languages -->
+  <macrodef name="this.testImprint_setUrls">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+
+      <customize.texts.setImprintUrl description="set imprint url de (globalMP)" locale="${locale.de}" url="${url_de}" />
+      <customize.texts.setImprintUrl description="set imprint url en (globalMP)" locale="${locale.en}" url="${url_en}" />
+
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+    </sequential>
+  </macrodef>
+
+
+  <!-- *************************************************** -->
+  <!-- check the imprint urls for all supported languages -->
+  <macrodef name="this.testImprint_checkUrls">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+
+      <customize.texts.checkImprintUrl description="check imprint url de (globalMP)" locale="${locale.de}" url="${url_de}" />
+      <customize.texts.checkImprintUrl description="check imprint url en (globalMP)" locale="${locale.en}" url="${url_en}" />
+
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>	
+    </sequential>
+  </macrodef>
+
+
+  <!-- *************************************************** -->
+  <!-- check the default imprint urls for all supported languages -->
+  <macrodef name="this.testImprint_checkDefaultUrls">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <customize.texts.checkImprintUrl description="check imprint url en default" locale="${locale.en}" url="${public.imprint.url.description}" />
+
+      <!-- set admin locale to german -->
+      <operator.edit.locale description="set operator locale to de" locale="de" successText="Ihr Profil wurde erfolgreich gespeichert." />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+      <customize.texts.checkImprintUrl description="check imprint url de default" locale="Deutsch" url="Geben Sie die URL für Ihr Impressum ein." />
+
+      <!-- set admin locale to english -->
+      <operator.edit.locale description="set operator locale to en" locale="en" successText="${info.user.profileSaved}" />
+
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+    </sequential>
+  </macrodef>
+
+
+  <!-- *************************************************** -->
+  <!-- remove the imprint urls for all supported languages -->
+  <macrodef name="this.testImprint_removeUrls">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke shop/translations.jsf" url="${bes.http.url}/oscm-portal/shop/translations.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
+
+      <customize.texts.setImprintUrl description="remove imprint url de" locale="${locale.de}" url="" />
+      <customize.texts.setImprintUrl description="remove imprint url en" locale="${locale.en}" url="" />
+
+      <login.logout description="logout" />
+      <common.reSetPageScriptError/>
+    </sequential>
+  </macrodef>
+
+
+  <!-- *************************************************** -->
+  <!-- check imprint footers on pages which exist for all roles -->
+  <macrodef name="this.testImprint_checkFooters">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="url" />
+    <attribute name="imprintText" default="${public.imprint.title}" />
+    <attribute name="checkMPL" default="false" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+
+      <not>
+        <customize.texts.existImprintFooter description="exist footer" />
+      </not>
+      <login.logout />
+
+      <invoke description="invoke login.jsf" url="${bes.http.url}/oscm-portal/login.jsf" />
+      <not>
+        <customize.texts.existImprintFooter description="exist footer" />
+      </not>
+
+      <!-- Check the imprint on the marketplace -->
+      <ifStep test="@{checkMPL}">
+        <then>
+          <mpl_login.user mid="@{marketplaceId}" userId="@{login}" password="@{pwd}" verifyWelcomeText="false" />
+          <customize.texts.checkImprintFooter_mpl description="check mpl imprint footer" url="@{url}" imprintText="@{imprintText}" />
+          <clickElement description="click on the logout link in the header" xpath="//div[@id='headnavi']//a" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+
+  <!-- *************************************************** -->
+  <!-- check imprint footers (must not exist) on pages which exist for all roles -->
+  <macrodef name="this.testImprint_checkNoFooters">
+    <attribute name="login" />
+    <attribute name="pwd" />
+    <attribute name="marketplaceId" />
+    <sequential>
+      <login.login description="login" url="${bes.http.url}/oscm-portal?mId=@{marketplaceId}" userId="@{login}" password="@{pwd}" />
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <not>
+        <customize.texts.existImprintFooter description="exist footer" />
+      </not>
+      <login.logout />
+
+      <invoke description="invoke login.jsf" url="${bes.http.url}/oscm-portal/login.jsf" />
+      <not>
+        <customize.texts.existImprintFooter description="exist footer" />
+      </not>
+    </sequential>
+  </macrodef>
+
+</project>

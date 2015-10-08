@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="101" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en"
+    cutoffday="1" />
+  <Organization tkey="102" version="0" organizationid="CUSTOMER" name="CUST1" registrationdate="1" locale="en"
+    cutoffday="1" />
+  <Technicalproduct tkey="1" version="0" technicalproductid="tpid_1" organizationkey="101"
+    provisioningurl="url" />
+  <Product tkey="2" version="0" productid="service_1" provisioningdate="30" status="ACTIVE"  vendorkey="101" 
+    type="SUBSCRIPTION" technicalproduct_tkey="1" autoassignuserenabled="FALSE" /> 
+  <Subscription tkey="1" version="0" subscriptionid="sid_1" creationdate="30" status="ACTIVE"
+    timeoutmailsent="FALSE" organizationkey="102" product_tkey="2" cutoffday="1" />
+  <SubscriptionHistory tkey="10001" invocationdate="2013-12-24 10:00:00" moddate="2013-12-24 10:00:00"
+    modtype="ADD" moduser="1" objkey="1" objversion="0" organizationobjkey="102" productobjkey="2" creationdate="30"
+    status="ACTIVE" subscriptionid="sid_1" timeoutmailsent="FALSE" cutoffday="1" />
+</dataset>

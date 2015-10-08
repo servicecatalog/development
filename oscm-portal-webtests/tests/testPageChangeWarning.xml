@@ -1,0 +1,391 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testPageChangeWarning" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="testPageChangeWarning" depends="testPageChangeWarningSetup,testPageChangeWarningAccount,testPageChangeWarningCustomer,testPageChangeWarningTechnicalService,testPageChangeWarningMarketableService,testPageChangeWarningPriceModel,testPageChangeWarning_Bug10662" />
+  <!-- Setup -->
+  <target name="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningSetup">
+      <mail.cleanInbox />
+
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <operator.addAvailablePaymentTypes orgId="#{orgId}" />
+
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- define technical and marketable service -->
+      <techservice.import file="${techService.import.file}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,INVOICE" />
+
+      <setup:service.define svcKeyProperty="svcKey1" marketplaceId="${mId}" configurablechecked="true" serviceId="ExampleProfessional" />
+      <setup:service.define svcKeyProperty="svcKey2" marketplaceId="${mId}" configurablechecked="true" serviceId="ExampleWithRoles" techServiceId="Example_with_roles 1.00" />
+      <setup:service.define svcKeyProperty="svcKey3" marketplaceId="${mId}" configurablechecked="true" serviceId="ExampleWithRolesActive" techServiceId="Example_with_roles 1.00" />
+
+      <setup:pricemodel.define serviceId="ExampleWithRoles" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleWithRolesActive" isFree="true" />
+
+      <setup:service.activate serviceIds="ExampleWithRolesActive" />
+
+      <!-- Create one uda for customer and subscription-->
+      <setup:udaDef.create forCustomer="true" />
+      <setup:udaDef.create forCustomer="false" />
+      <!-- register customer -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <organization.managePayment rowNr="0" paymentType="cust0" />
+      <organization.managePayment rowNr="0" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="sub1" marketplaceId="${mId}" serviceKey="${svcKey3}" />
+      <setup:subscription.create subId="sub2" marketplaceId="${mId}" serviceKey="${svcKey3}" />
+    </webtest>
+  </target>
+
+  <!-- Account -->
+  <target name="testPageChangeWarningAccount" depends="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningAccount">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <verifyPageChangedWarningDataDriven label="${organization.edit.title}" tableContainer="data/pageFields/accountEditProfileFields.xls" />
+      <!-- verifyPageChangedWarningDataDriven label="${user.pwd.title}" tableContainer="data/pageFields/accountChangePasswordFields.xls"/ -->
+      <verifyPageChangedWarningDataDriven label="${user.add.title}" tableContainer="data/pageFields/accountRegisterNewUserFields.xls" localeOptionIndex="1"/>
+
+      <!-- test page changed warning with new udas (just add) -->
+      <clickLink href="/organization/manageUdas.jsf" />
+      <clickElement htmlId="udaDefinitionsCustomerForm:createDefinition" />
+      <setInputField htmlId="createForm:createUdaIdInput" value="x" />
+      <common.verifyPageChangedWarning />
+
+      <clickLink href="/organization/manageUdas.jsf" />
+      <clickElement htmlId="udaDefinitionsSubscriptionForm:createDefinition" />
+      <setInputField htmlId="createForm:createUdaIdInput" value="x" />
+      <common.verifyPageChangedWarning />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <!-- Customer -->
+  <target name="testPageChangeWarningCustomer" depends="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningCustomer">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <verifyPageChangedWarningDataDriven label="${organization.addCustomer.title}" tableContainer="data/pageFields/customerRegisterFields.xls" />
+      <verifyPageChangedWarningDataDriven label="${organization.editCustomer.title}" selectFieldId="selectForm:organizationId" tableContainer="data/pageFields/customerEditFields.xls" />
+      <organization.managePayment rowNr="0" paymentType="cust0" enabled="false" />
+      <organization.managePayment rowNr="0" enabled="false" />
+      <verifyPageChangedWarningDataDriven label="${organization.managePaymentEnablement.title}" tableContainer="data/pageFields/customerManagePaymentFields.xls" />
+      <organization.managePayment rowNr="0" paymentType="cust0" enabled="true" />
+      <organization.managePayment rowNr="0" />
+
+      <clickLink label="${subscription.view.title}" />
+      <clickElement xpath="//*[@id='subscriptionListForm:subscriptionsTable:subscriptionId']" />
+      <common.clickAndVerfyLink label="${organization.edit.title}" />
+
+      <verifyVatPageChangedWarning page="/organization/manageVats.jsf" />
+    </webtest>
+  </target>
+
+  <!-- TechnicalService -->
+  <target name="testPageChangeWarningTechnicalService" depends="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningTechnicalService">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <verifyPageChangedWarningDataDriven label="${techService.add.title}" selectFieldId="editForm:accessType" optionIndex="1" tableContainer="data/pageFields/techServiceRegisterDirectFields.xls" />
+      <verifyPageChangedWarningDataDriven label="${techService.add.title}" selectFieldId="editForm:accessType" optionIndex="2" tableContainer="data/pageFields/techServiceRegisterExternalFields.xls" />
+      <verifyPageChangedWarningDataDriven label="${techService.add.title}" selectFieldId="editForm:accessType" optionIndex="3" tableContainer="data/pageFields/techServiceRegisterFields.xls" />
+
+      <verifyPageChangedWarningDataDriven label="${techService.edit.title}" selectFieldId="techServiceForm:techServiceId" optionIndex="4" tableContainer="data/pageFields/techServiceEditFields.xls" />
+
+      <!-- no page change warning -->
+      <clickLink label="${techService.export.title}" />
+      <setCheckbox htmlId="exportForm:techServiceTable:0:checkboxId" />
+
+      <!-- no page change warning -->
+      <clickLink label="${techService.delete.title}" />
+      <setSelectField htmlId="selectForm:techServiceKey" text="Example 1.00" />
+
+    </webtest>
+  </target>
+
+  <!-- MarketableService -->
+  <target name="testPageChangeWarningMarketableService" depends="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningMarketableService">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <verifyPageChangedWarningDataDriven label="${service.add.title}" href="/service/add.jsf" selectFieldId="editForm:techServiceId" optionIndex="4" tableContainer="data/pageFields/serviceFields.xls" />
+      <verifyPageChangedWarningDataDriven label="${service.edit.title}" href="/service/edit.jsf" selectFieldId="editForm:selectedServiceId" tableContainer="data/pageFields/serviceFields.xls" />
+
+      <verifyPageChangedWarningWithLocalize page="/service/edit.jsf" editFormSelectId="editForm:selectedServiceId" localizeFormFieldId="localizeForm:trgServiceName" editFormFieldId="editForm:serviceName" />
+    </webtest>
+  </target>
+
+  <!-- PriceModel -->
+  <target name="testPageChangeWarningPriceModel" depends="testPageChangeWarningSetup">
+    <webtest name="testPageChangeWarningPriceModel">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- set non-freeOfCharge to the target service for verifying the change warnings -->
+      <clickLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" optionIndex="1" />
+      <pricemodel.storeValueOfFree name="lastFreeOfChargeValue" />
+      <pricemodel.setFree isFree="false" />
+      <clickButton label="${button.save}" />
+
+      <verifyPageChangedWarningDataDriven label="${priceModel.service.title}" selectFieldId="serviceSelectForm:serviceSelection" tableContainer="data/pageFields/priceModelServiceFields.xls" />
+
+      <verifyPageChangedWarningWithLocalize page="/priceModel/servicePriceModel.jsf" editFormSelectId="serviceSelectForm:serviceSelection" localizeFormFieldId="localizeForm:trgLicense:inp" editFormFieldId="editForm:oneTimeFee" />
+      <verifyPageChangedWarningWithLocalize page="/priceModel/customerPriceModel.jsf" editFormSelectId="serviceSelectForm:serviceSelection" localizeFormFieldId="localizeForm:trgLicense:inp" editFormFieldId="editForm:oneTimeFee" />
+
+      <verifyRolesPageChangedWarning page="/priceModel/servicePriceModel.jsf" />
+      <verifyRolesPageChangedWarning page="/priceModel/customerPriceModel.jsf" />
+
+      <!-- verify page change warning for "per time unit" price model -->
+      <clickLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" optionIndex="1" />
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <clickButton label="${button.save}" />
+
+      <verifyPageChangedWarningDataDriven label="${priceModel.service.title}" selectFieldId="serviceSelectForm:serviceSelection" tableContainer="data/pageFields/priceModelServiceFields.xls" />
+
+      <verifyPageChangedWarningWithLocalize page="/priceModel/servicePriceModel.jsf" editFormSelectId="serviceSelectForm:serviceSelection" localizeFormFieldId="localizeForm:trgLicense:inp" editFormFieldId="editForm:oneTimeFee" />
+      <verifyPageChangedWarningWithLocalize page="/priceModel/customerPriceModel.jsf" editFormSelectId="serviceSelectForm:serviceSelection" localizeFormFieldId="localizeForm:trgLicense:inp" editFormFieldId="editForm:oneTimeFee" />
+
+      <verifyRolesPageChangedWarning page="/priceModel/servicePriceModel.jsf" />
+      <verifyRolesPageChangedWarning page="/priceModel/customerPriceModel.jsf" />
+
+      <!-- reset the value freeOfCharge for the target service  -->
+      <clickLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" optionIndex="1" />
+      <pricemodel.setFree isFree="#{lastFreeOfChargeValue}" />
+      <clickButton label="${button.save}" />
+    </webtest>
+  </target>
+
+  <target name="testPageChangeWarning_Bug10662" depends="testPageChangeWarningSetup">
+     <webtest name="testPageChangeWarning_Bug10662">
+       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+       <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
+       <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'sub1')]" />
+       <clickLink label="${button.localize}" />
+       <verifyXPath xpath="//*[@id='localizeForm:srcLocale' and @class='select']" />
+       <verifyXPath xpath="//*[@id='localizeForm:trgLocale' and @class='select']" />
+       <setSelectField htmlId="localizeForm:trgLocale" value="de" />
+       <setInputField htmlId="localizeForm:srcLicense:inp" value="de text" />
+       <clickLink htmlId="localizeForm:saveLocalizedValuesButton" />
+       <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'sub1')]" />
+       <expectDialogs>
+         <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="true" />
+       </expectDialogs>
+       <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'sub2')]" />
+       <verifyNoDialogs />
+       <login.logout />
+     </webtest>
+   </target>
+
+  <macrodef name="verifyPageChangedWarningDataDriven">
+    <attribute name="label" />
+    <attribute name="href" default="" />
+    <attribute name="tableContainer" />
+    <attribute name="selectFieldId" default="" />
+    <attribute name="optionIndex" default="1" />
+    <attribute name="localeOptionIndex" default="0"/>
+    <sequential>
+      <storeProperty name="selectFieldId" value="@{selectFieldId}" />
+      <dataDriven tableContainer="@{tableContainer}">
+        <clickLink label="@{label}" href="@{href}" />
+        <ifStep>
+          <condition>
+            <verifyProperty name="selectFieldId" text="" regex="false" />
+          </condition>
+          <else>
+            <setSelectField htmlId="@{selectFieldId}" optionIndex="@{optionIndex}" />
+          </else>
+        </ifStep>
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <ifStep>
+          <condition>
+            <verifyProperty name="fieldType" text="SELECT" regex="false" />
+          </condition>
+          <then>
+            <ifStep>
+              <condition>
+                <verifyProperty name="fieldId" text=".*:locale" regex="true" />
+              </condition>
+              <then>
+                <setSelectField htmlId="${fieldId}" optionIndex="@{localeOptionIndex}" />
+              </then>
+              <else>
+                <setSelectField htmlId="${fieldId}" optionIndex="@{optionIndex}" />
+              </else>
+            </ifStep>
+          </then>
+          <else>
+            <ifStep>
+              <condition>
+                <verifyProperty name="fieldType" text="CHECKBOX" regex="false" />
+              </condition>
+              <then>
+                <setCheckbox htmlId="${fieldId}" />
+              </then>
+              <else>
+                <setInputField htmlId="${fieldId}" value="x" />
+              </else>
+            </ifStep>
+          </else>
+        </ifStep>
+        <common.verifyPageChangedWarning />
+      </dataDriven>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="verifyPageChangedWarningWithLocalize">
+    <attribute name="page" />
+    <attribute name="editFormSelectId" />
+    <attribute name="editFormFieldId" />
+    <attribute name="localizeFormSelectId" default="localizeForm:trgLocale" />
+    <attribute name="localizeFormFieldId" />
+    <sequential>
+      <group description="page changed warning after modification of localized value">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="@{editFormSelectId}" text="ExampleProfessional" />
+        <clickLink label="${button.localize}" />
+        <setSelectField htmlId="@{localizeFormSelectId}" value="de" />
+        <setInputField htmlId="@{localizeFormFieldId}" value="de text" />
+        <clickLink htmlId="localizeForm:saveLocalizedValuesButton" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="page changed warning on localize page after modification of service attribute">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="@{editFormSelectId}" text="ExampleProfessional" />
+        <setInputField htmlId="@{editFormFieldId}" value="7" />
+        <clickLink label="${button.localize}" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="page changed warning after modification of service attributes and cancel on localize page">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="@{editFormSelectId}" text="ExampleProfessional" />
+        <setInputField htmlId="@{editFormFieldId}" value="7" />
+        <clickLink label="${button.localize}" />
+        <clickLink htmlId="localizeForm:cancelButton" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="no page changed warning if modification of localized value is canceled">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="@{editFormSelectId}" text="ExampleProfessional" />
+        <clickLink label="${button.localize}" />
+        <setSelectField htmlId="@{localizeFormSelectId}" value="de" />
+        <setInputField htmlId="@{localizeFormFieldId}" value="Name de" />
+        <!-- cancel must not set the dirty flag for the parent page -->
+        <clickLink htmlId="localizeForm:cancelButton" />
+        <common.clickAndVerfyLink label="${organization.edit.title}" />
+      </group>
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="verifyRolesPageChangedWarning">
+    <attribute name="page" />
+    <sequential>
+      <group description="page changed warning after modification of role specific price and ok">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleWithRoles" />
+        <clickLink label="${button.roles}" />
+        <setSelectField htmlId="roleForm:roleId" value="USER" />
+        <setInputField htmlId="roleForm:recChargePerUser" value="1" />
+        <clickElement htmlId="roleForm:saveButtonHidden" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="page changed warning after modification of role specific price and apply">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleWithRoles" />
+        <clickLink label="${button.roles}" />
+        <setSelectField htmlId="roleForm:roleId" value="USER" />
+        <setInputField htmlId="roleForm:parameterTable:10:pricePerUser" value="1" />
+        <clickElement htmlId="roleForm:applyButtonHidden" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="page changed warning after modification of service attributes and cancel of priced role">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleWithRoles" />
+        <clickLink label="${button.roles}" />
+        <setSelectField htmlId="roleForm:roleId" value="USER" />
+        <setInputField htmlId="roleForm:recChargePerUser" value="1" />
+        <clickElement htmlId="rolesClose" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+      <group description="page changed warning after modification of role specific price and role changing">
+        <clickLink href="@{page}" />
+        <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ExampleWithRoles" />
+        <clickLink label="${button.roles}" />
+        <setSelectField htmlId="roleForm:roleId" value="USER" />
+        <setInputField htmlId="roleForm:recChargePerUser" value="1" />
+
+        <expectDialogs>
+          <confirm text="${confirm.unsavedChanges.lost}" regex="true" response="false" />
+        </expectDialogs>
+        <setSelectField htmlId="roleForm:roleId" value="ADMIN" />
+        <verifyNoDialogs />
+        <clickElement htmlId="roleForm:saveButtonHidden" />
+        <common.verifyPageChangedWarning />
+      </group>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="verifyVatPageChangedWarning">
+    <attribute name="page" />
+    <sequential>
+      <group description="page changed warning after modification of VAT rates">
+        <clickLink href="@{page}" />
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+        <common.verifyPageChangedWarning />
+        <clickLink href="@{page}" />
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="false" />
+        <!-- no page changed warning must pop up -->
+        <clickLink label="${organization.edit.title}" />
+      </group>
+      <group description="no page changed warning after save">
+        <clickLink href="@{page}" />
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+        <setInputField htmlId="vatForm:defaultVat" value="19" />
+        <clickButton label="${button.save}" />
+        <!-- no page changed warning must pop up -->
+        <clickLink href="@{page}" />
+      </group>
+      <group description="no page changed warning after disable/enable">
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="false" />
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+        <!-- no page changed warning must pop up -->
+        <clickLink href="@{page}" />
+      </group>
+      <group description="disable VAT support">
+        <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="false" />
+        <clickButton label="${button.save}" />
+        <!-- no page changed warning must pop up -->
+        <clickLink href="@{page}" />
+      </group>
+    </sequential>
+  </macrodef>
+
+</project>
+

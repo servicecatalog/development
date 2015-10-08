@@ -1,0 +1,65 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="organization.manageTriggerDetails" />
+    <c:set var="focusElement" value="triggerName" />
+  </ui:define>
+  <ui:define name="body">
+
+    <adm:outputStep value="#{msg['organization.manageTriggerDetails.step1']}" />
+    <h:form id="editForm">
+
+      <adm:panelGrid>
+
+        <adm:labelAndInputText id="triggerName" value="#{triggerDefinitionBean.selectedTriggerDefinition.name}"
+          label="#{msg['triggerDefinition.displayName']}" required="true" maxlength="#{appBean.idLen}" converterId="trimConverter"/>
+
+        <adm:labelAndSelect id="type" required="true" value="#{triggerDefinitionBean.selectedTriggerDefinition.type}" render="suspendProcess"
+          label="#{msg['triggerDefinition.type']}" listenerBean="#{triggerDefinitionBean}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+          <adm:selectItemPleaseSelect itemValue="#{null}" />
+          <f:selectItems value="#{triggerDefinitionBean.triggerTypeValues}" />
+          <f:converter converterId="enumConverter" />
+        </adm:labelAndSelect>
+
+        <adm:labelAndSelect id="targetType" value="#{triggerDefinitionBean.selectedTriggerDefinition.targetType}"
+          label="#{msg['triggerDefinition.targetType']}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+          <f:selectItems value="#{triggerDefinitionBean.triggerTargetTypeValues}" />
+        </adm:labelAndSelect>
+
+        <adm:labelAndInputText id="target" value="#{triggerDefinitionBean.selectedTriggerDefinition.target}"
+          label="#{msg['triggerDefinition.target']}" validatorId="url" required="true"
+          maxlength="#{appBean.descriptionLen}" disabled="#{triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}">
+        </adm:labelAndInputText>
+
+        <h:selectBooleanCheckbox id="suspendProcess" disabled="#{!triggerDefinitionBean.suspendTrigger or triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}"
+          value="#{triggerDefinitionBean.selectedTriggerDefinition.suspendProcess}"
+          style="margin-left:0px; vertical-align:middle;" />
+        <h:outputText value="#{msg['triggerDefinition.suspendProcess']}" />
+        <h:outputText value="" />
+
+      </adm:panelGrid>
+
+      <adm:buttonPanelSub>
+              <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" bean="#{triggerDefinitionBean}" action="delete"
+                onclick="#{rich:component('confirmPanel')}.show()" progress="false" buttonType="delete"
+                disabled="#{triggerDefinitionBean.selectedTriggerDefinition.key==0 or triggerDefinitionBean.selectedTriggerDefinition.hasTriggerProcess}" />
+      </adm:buttonPanelSub>
+      <adm:buttonPanel>
+        <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+          value="#{msg['button.delete']}" action="#{triggerDefinitionBean.delete}" />
+        <adm:button id="cancelButton" value="#{msg['button.cancel']}" bean="#{triggerDefinitionBean}" action="cancel"
+          immediate="true" buttonType="cancel" />
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{triggerDefinitionBean}" action="save" buttonType="save"/>
+      </adm:buttonPanel>
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.trigger.definition.delete']}" />
+
+  </ui:define>
+</ui:composition>

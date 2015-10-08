@@ -1,0 +1,564 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_subscriptionProcess" xmlns:setup="antlib:org.oscm.webtest.setup">
+  
+  <import file="../../macros/marketplace/all.xml" />
+	
+  <target name="testMPL_subscriptionProcess">
+    <webtest name="testMPL_SubscriptionProcess_ExternalConfigurator">
+      <testInfo type="DESCRIPTION">
+        An external configurator tool is specified, the parameter configuration button must be shown.
+      </testInfo>
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExtIntSrv0" name="ExtIntSrv0" description="Ext Int Test" configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="1" image="data/images/icon6.png" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.activate serviceIds="ExtIntSrv" start="0" count="1" />
+      <common.ignorePageScriptError />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="ExtIntSrv0" />
+      <mpl_verify.breadCrumb actualPage="ExtIntSrv0" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+      <verifyXPath xpath="//a[@id='configurationForm:btnConfigure']" />
+      <mpl_login.logout />
+      <scenario.deleteServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_checkLogin">
+      <setupSupplier />
+      <storeProperty name="customerUserA" value="userA" propertyType="dynamic" />
+      <registerCustomer userId="#{customerUserA}" marketplaceId="${marketplaceId}" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <mpl_verify.loginDialog />
+      <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+      <mpl_login.logout />
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_subscriptionNameAlreadyExists">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <setupSupplier />
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" setupPayment="true" />
+      <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <storeProperty name="serviceName" value="Mega Office Trial" />
+      <mpl_verify.breadCrumb actualPage="#{serviceName}" />
+      <common.ignorePageScriptError />
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.configuration}" />
+      <storeProperty name="givenSubscriptionId" value="SubscriptionA" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="#{givenSubscriptionId}" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <verifyElementText htmlId="confirmForm:subscriptionIdValue" text="#{givenSubscriptionId}" />
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton htmlId="confirmForm:confirm" />
+      <verifyXPath xpath="normalize-space(//h2[matches(@id, 'serviceDetailName')]/text())" text="#{givenSubscriptionId}" />
+      <storeProperty property="subscriptionId" value="#{givenSubscriptionId}" />
+      <verifyElementText htmlId="subscriptionService" text="#{serviceName}" />
+      <mpl_goto.account.subscriptions />
+    	
+      <verifyXPath xpath="normalize-space(//tr[@id='subListForm:subscriptionsList:0']/td[2])" text="#{subscriptionId}" />
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <common.ignorePageScriptError />
+      <clickLink htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.configuration}" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="#{givenSubscriptionId}" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <common.handleMessageParameters property="fieldError" value="${ex.NonUniqueBusinessKeyException.SUBSCRIPTION}" att0="#{givenSubscriptionId}" />
+      <mpl_verify.fieldError fieldId="configurationForm:subscriptionIdText" label="#{fieldError}" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="NEW_NAME" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <not>
+        <mpl_verify.fieldError fieldId="configurationForm:subscriptionIdText" label="#{fieldError}" />
+      </not>
+      <mpl_login.logout />
+      <scenario.deleteSimpleServices />
+      <common.reSetPageScriptError />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_chargeableNoCustomerPaymentDefined">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <setupSupplier />
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <mpl_verify.loginDialog />
+      <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+      <clickButton name="configurationForm:next" />
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.paymentoptions}" />
+      <verifyXPath xpath="//*[@id='payment:noPaymenttypesAvailableForAdmin']" />
+      <mpl_login.logout />
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+  	<webtest name="testMPL_SubscriptionProcess_chargeableGoodCase">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <!-- add default currency, create supplier + 2 services -->
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <!-- register a customer (using old portal) -->
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" setupPayment="true" discountValue="99.99" discountFrom="01/1970" discountTo="12/9999" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <!-- Check that login is required first -->
+      <mpl_verify.loginDialog />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+
+      <!-- Check that you are directed to 1st page of subscription process -->
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.configuration}" />
+      <mpl_verify.button id="configurationForm:previousSubscribeLink" />
+      <mpl_verify.button id="configurationForm:nextLink" />
+
+      <storeProperty name="givenSubscriptionId" value="WebTestAuto" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="#{givenSubscriptionId}" />
+      <setInputField htmlId="configurationForm:purchaseOrderNumberText" value="anyponanyponanyponanyponanyponanyponanyponanypon" />
+      <setRadioButton htmlId="configurationForm:parameterConfigTable:3:radioOption" />
+      <setRadioButton htmlId="configurationForm:parameterConfigTable:7:radioOption" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="19" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:9:stringValue" value="20" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:10:integerValue" value="21" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:11:integerValue" value="500" />
+      <setCheckbox htmlId="configurationForm:parameterConfigTable:12:booleanValue" checked="false" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:13:integerValue" value="1" />
+
+      <mpl_goto.tab label="${service.priceModel}" />
+      <common.waitForJavaScript />
+
+      <verifyXPath xpath="//*[@id='configurationForm2:discount']" regex="true" text=".*${priceModel.text.discountLabel}.*99.99.*01/1970.*12/9999.*" />
+
+      <verifyRadioButton htmlId="configurationForm2:parameterTable:3:radioOption" checked="true" />
+      <verifyRadioButton htmlId="configurationForm2:parameterTable:7:radioOption" checked="true" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:8:integerValue" value="19" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:9:stringValue" value="20" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:10:integerValue" value="21" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:11:integerValue" value="500" />
+      <verifyCheckbox htmlId="configurationForm2:parameterTable:12:booleanValue" checked="false" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:13:integerValue" value="1" />
+
+      <!-- Click on the Next button, check that you are directed to 2nd page of subscription process -->
+      <clickButton name="configurationForm:next" />
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.paymentoptions}" />
+
+      <storeXPath xpath="count(//select[@id='payment:selectPaymentInfo']/option)" property="ptCount" />
+      <not>
+        <verifyProperty description="There should be more entries beside the default 'SELECT' " name="ptCount" value="1" />
+      </not>
+
+      <!-- Verify that the Next link exists -->
+      <verifyXPath xpath="//a[@id='payment:nextLink']" />
+
+      <clickLink htmlId="payment:nextLink" />
+      <mpl_verify.fieldError fieldId="payment:selectPaymentInfo" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <mpl_user.selectBillingContact />
+
+      <!-- Retest for bug 8766 start-->
+      <!-- make sure the new BC was selected -->
+      <not>
+        <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      </not>
+
+      <!-- select "select one" = invalid value -->
+      <setSelectField htmlId="payment:selectPaymentInfo" value="" />
+
+      <!-- provoke a validation error -->
+      <clickLink htmlId="payment:nextLink" />
+      <common.verifyFieldError fieldId="payment:selectPaymentInfo" label="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+
+      <not>
+        <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      </not>
+
+      <!-- now change the selection and make sure it stays -->
+      <setSelectField htmlId="payment:selectBillingContact" optionIndex="0" />
+      <common.waitForJavaScript />
+      <verifyxpath xpath="//*[@id='payment:selectBillingContact']/option[@value='']"/>
+      <!-- reset -->
+      <setSelectField htmlId="payment:selectBillingContact" optionIndex="1" />
+      <!-- Retest for bug 8766 end-->
+
+      <!-- Select Invoice option and verify that the Next button is enabled -->
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+
+      <!-- Click on the Next button, check that you are directed to 3rd page of subscription process -->
+      <clickLink htmlId="payment:nextLink" />
+
+      <storeProperty name="serviceName" value="Mega Office Starter" />
+      <mpl_verify.breadCrumb actualPage="#{serviceName}" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.confirmation}" />
+      <verifyText text="${subscription.confirm.configuration.title}" />
+
+      <verifyText text="${subscription.confirm.details.title}" />
+      <verifyText text="${subscription.confirm.paymentOptions.title}" />
+
+      <mpl_verify.button id="confirmForm:previousLink" />
+      <mpl_verify.button id="confirmForm:confirmLink" styleClass="bigbutton" />
+
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:subscriptionIdLabel'][.='${subscription.subscriptionId}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:purchaseOrderNumberLabel'][.='${subscription.purchaseOrderNumber}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:subscriptionIdValue'][.='#{givenSubscriptionId}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//span[@id='confirmForm:purchaseOrderNumberValue'][.='anyponanyponanyponanyponanyponanyponanyponanypon']" />
+      <!-- Bug 10050 : set dirty -->
+      <clickElement xpath="//form[@id='confirmForm']//a[@id='confirmForm:editConfigurationLink']" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+      <clickButton name="configurationForm:next" />
+      <clickLink htmlId="payment:nextLink" />
+      <clickElement xpath="//form[@id='confirmForm']//a[@id='confirmForm:editPaymentTypeLink']" />
+      <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.paymentoptions}" />
+      <clickLink htmlId="payment:nextLink" />
+
+      <!-- Check the license agreement -->
+      <verifyXPath xpath="//span[@id='confirmForm:licenseAcceptStart'][.='${subscription.add.license.acceptStart}']" />
+      <verifyXPath xpath="//form[@id='confirmForm']//a[@id='confirmForm:openLicenseLink'][.='${subscription.add.license}']" />
+      <verifyXPath xpath="//span[@id='confirmForm:licenseAcceptEnd'][.='${subscription.add.license.acceptEnd}']" />
+
+      <!-- Click on the BuyNow button, verify that you stay on that page since the terms of use are not checked -->
+      <clickButton name="confirmForm:confirm" />
+      <mpl_verify.fieldError fieldId="confirmForm:agreeCheckbox" label="${error.subscription.license}" />
+      <!-- Check the terms of use -->
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <!-- Again, click on the BuyNow button (this time the subscription should succeed) -->
+      <clickButton name="confirmForm:confirm" />
+
+      <!-- Verify that the correct success confirmation is displayed and we have been directed to the correct page (which 
+            is "Account->Subscriptions") -->
+
+      <verifyElementText htmlId="subscriptionService" text="#{serviceName}" />
+      <verifyXPath xpath="normalize-space(//h2[matches(@id, 'serviceDetailName')]/text())" text="#{givenSubscriptionId}" />
+      <storeProperty property="subscriptionId" value="#{givenSubscriptionId}" />
+      <common.handleMessageParameters property="testExp" value="${service.by}" />
+      <verifyXPath xpath="normalize-space(//h3[@id='subscriptionSupplier'])" regex="true" text="#{testExp}" />
+      <storeXPath xpath="normalize-space(//h3[@id='subscriptionSupplier'])" property="supplierName" />
+      <verifyXPath xpath="//*[contains(@class, 'infoMsg')]//span[contains(@class, 'rf-msgs-sum') and contains(text(),'has been successfully created. Users who are to work with the subscribed service must be registered and assigned to the subscription.')]" />
+      <verifyXPath xpath="//*[contains(@class, 'infoMsg')]//span[contains(@class, 'rf-msgs-sum') and contains(text(),'#{subscriptionId}')]" />
+      <mpl_verify.breadCrumb actualPage="#{subscriptionId}" />
+      <!-- Check that the user which subscribed is displayed and is unchecked -->
+      <mpl_verify.selectedTab label="${subscription.users}" description="initial state after subscription: no user assigned" />
+      <verifyText text="${info.subscriptions.noUsers}" />
+
+      <!-- assign the user to the subscription -->
+      <setup:store.settings userkey="#{customerUserAKey}" password="secret" />
+      <setup:subscription.addRevokeUser subscriptionId="#{givenSubscriptionId}" usersToAdd="#{customerUserAKey}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_service.validateUser index="0" userId="#{customerUserA}" assigned="true" />
+
+      <mpl_goto.account.subscriptions />
+      <!-- check correct name and supplier info -->
+      <verifyXPath xpath="normalize-space(//*[@id='subListForm:subscriptionsList:0']/td[2])" text="#{subscriptionId}" />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />  
+      <verifyXPath xpath="normalize-space(//*[@id='subscriptionSupplier'])" text="#{supplierName}" />
+      <mpl_goto.account.subscriptions />
+        
+      <!-- verify discount -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      
+      <mpl_goto.tab label="${service.priceModel}" />
+      <verifyXPath xpath="//*[@id='discount']" regex="true" text=".*${priceModel.text.discountLabel}.*99.99.*01/1970.*12/9999.*" />
+
+      <mpl_goto.subscriptions />
+      <!-- check correct name and supplier info -->
+      <verifyXPath xpath="normalize-space(//tr[@id='subListForm:subscriptionsList:0']/td[2])" text="#{subscriptionId}" />
+      <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" /> 
+      <verifyXPath xpath="normalize-space(//*[@id='subscriptionBlockSupplier'])" text="#{supplierName}" />
+      <mpl_goto.subscriptions />
+      
+      <mpl_login.logout />
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_finalCleanup">
+      <mail.cleanInbox />
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_sessionTimeout">
+      <!-- retest for b7569 -->
+
+      <!-- add default currency, create supplier + 2 services -->
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <!-- register a customer (using old portal) -->
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <!-- Check that login is required first -->
+      <mpl_verify.loginDialog />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <!-- Check that you are directed to 1st page of subscription process -->
+      <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+      <mpl_verify.subscriptionProgress currentStep="Configuration" />
+
+      <sequential>
+        <!-- check if there the service key was stored as cookie -->
+        <verifyCookie name="serviceKey" regex="\d+" />
+        <!-- invalidate the session by logging out -->
+        <mpl_login.logout />
+
+        <!-- invoke the direct url as well and login -->
+        <storeProperty name="pageurl" value="${bes.http.url}/oscm-portal/marketplace/subscriptions/creation/add.jsf?mId=${marketplaceId}" />
+        <invoke url="#{pageurl}" />
+        <verifyCookie name="serviceKey" regex="\d+" />
+
+        <mpl_verify.loginDialog />
+
+        <!-- Do not use the login macro since it redirects to the mpl index page -->
+        <setInputField name="loginForm:loginUserId" value="#{customerUserA}" />
+        <setInputField name="loginForm:loginPassword" value="secret" />
+        <clickButton htmlId="loginForm:loginButton" />
+
+        <!-- Check that we land on the add page -->
+        <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
+        <verifyDocumentURL description="Verify we are on correct page" text="http.*/oscm-portal/marketplace/subscriptions/creation/add.jsf" regex="true" />
+        <verifyXPath description="Verify correct service is displayed" xpath="//li['@{svcName}']" />
+
+        <!-- test that there is no redirect to the serviceDetailsPage in case we access a page outside of the subscription 
+              process -->
+        <verifyCookie name="serviceKey" regex="\d+" />
+
+        <mpl_login.logout />
+
+        <!-- invoke the direct url as well and login -->
+        <storeProperty name="pageurl" value="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${marketplaceId}" />
+        <invoke url="#{pageurl}" />
+        <verifyCookie name="serviceKey" regex="\d+" />
+
+        <mpl_verify.loginDialog />
+
+        <!-- Do not use the login macro since it redirects to the mpl index page -->
+        <setInputField name="loginForm:loginUserId" value="#{customerUserA}" />
+        <setInputField name="loginForm:loginPassword" value="secret" />
+        <clickButton htmlId="loginForm:loginButton" />
+
+        <verifyCookie name="serviceKey" regex="\d+" />
+
+        <mpl_login.logout />
+      </sequential>
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_paymentTypeBillingContactAvailableAsAdmin">
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <setup:payment.configureDefault customerTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <storeProperty name="customerUserID" value="customer_${marketplaceId}" propertyType="ant" />
+      <registerCustomer marketplaceId="${marketplaceId}" userId="${customerUserID}" discountValue="99.99" discountFrom="01/1970" discountTo="12/9999" />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.user mid="${marketplaceId}" userId="${customerUserID}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <!-- Check if BillingContact  and PaymentType is Available-->
+      <not>
+        <verifyElementText type="SPAN" htmlId="payment:noPaymenttypesAvailableForAdmin" text="${organization.payment.noEnabledPayment}" />
+      </not>
+      <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      <verifySelectField htmlId="payment:selectPaymentInfo" value="" />
+      <verifyElementText type="A" htmlId="payment:newBillingContact" name="payment:newBillingContact" text="${payment.new.BillingContact.title}" />
+
+      <mpl_login.logout />
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_paymentTypeNotAvailableAsAdmin">
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="customerUserID" value="customer_${marketplaceId}" propertyType="ant" />
+      <registerCustomer marketplaceId="${marketplaceId}" userId="${customerUserID}" discountValue="99.99" discountFrom="01/1970" discountTo="12/9999" />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.user mid="${marketplaceId}" userId="${customerUserID}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <!-- Check if BillingContact  and PaymentType is NOT Available-->
+      <not>
+        <verifyElementText type="DIV" htmlId="payment:noBillingContact" text="${organization.payment.noBillingContact}" />
+      </not>
+      <verifyElementText type="SPAN" htmlId="payment:noPaymenttypesAvailableForAdmin" text="${organization.payment.noEnabledPayment}" />
+      <verifySelectField htmlId="payment:selectBillingContact" value="" />
+      <verifyElementText type="A" htmlId="payment:newBillingContact" name="payment:newBillingContact" text="${payment.new.BillingContact.title}" />
+      <mpl_login.logout />
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_paymentTypeAndBillingContactNotAvailableAsSubMgr">
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="customerUserID" value="customer_${marketplaceId}" propertyType="ant" />
+      <registerCustomer marketplaceId="${marketplaceId}" userId="${customerUserID}" discountValue="99.99" discountFrom="01/1970" discountTo="12/9999" />
+      <storeProperty name="orgIdCustomerOrgA" value="${createdCustomerOrgId}" propertyType="ant" />
+      <setup:user.register userId="userSM" organizationId="${createdCustomerOrgId}" marketplaceId="${marketplaceId}" roles="SUBSCRIPTION_MANAGER" />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.loginWithChangePassword mid="${marketplaceId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <!-- Check if BillingContact and PaymentType is NOT available-->
+      <verifyElementText type="DIV" htmlId="payment:noBillingContact" text="${organization.payment.noBillingContact}" />
+      <verifyElementText type="SPAN" htmlId="payment:noPaymenttypesAvailableForAdmin" text="${organization.payment.noAvailablePaymentForNonAdmin}" />
+      <not>
+        <verifyElementText type="A" htmlId="payment:newBillingContact" name="payment:newBillingContact" text="${payment.new.BillingContact.title}" />
+      </not>
+
+      <mpl_login.logout />
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+
+    <webtest name="testMPL_SubscriptionProcess_paymentTypeAvailableAsSubMgr">
+      <setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <setup:payment.configureDefault customerTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <storeProperty name="customerUserID" value="customer_${marketplaceId}" propertyType="ant" />
+      <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
+      <storeProperty name="orgIdCustomerOrgA" value="#{orgIdCustomerUserA}" propertyType="ant" />
+      <setup:store.settings userkey="#{customerUserAKey}" password="secret" />
+      <setup:user.register userId="userSM" organizationId="${orgIdCustomerOrgA}" marketplaceId="${marketplaceId}" roles="SUBSCRIPTION_MANAGER" />
+      <mail.readPasswordAndUrlFromMail />
+      <!-- Now login to marketplace and subscribe user A to service -->
+      <mpl_login.loginWithChangePassword mid="${marketplaceId}" userId="#{userId}" oldPassword="#{userPwd}" />
+      <!-- Click on the details button of the non-free service Mega Office Professional -->
+      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <!-- Check if BillingContact is NOT available and PaymentType is available-->
+      <verifyElementText type="DIV" htmlId="payment:noBillingContact" text="${organization.payment.noBillingContact}" />
+      <verifySelectField htmlId="payment:selectPaymentInfo" value="" />
+      <not>
+        <verifyElementText type="SPAN" htmlId="payment:noPaymenttypesAvailable" text="${organization.payment.noAvailablePaymentForNonAdmin}" />
+      </not>
+      <not>
+        <verifyElementText type="A" htmlId="payment:newBillingContact" name="payment:newBillingContact" text="${payment.new.BillingContact.title}" />
+      </not>
+
+      <mpl_login.logout />
+
+      <!-- Cleanup: Delete the 2 services -->
+      <scenario.deleteSimpleServices />
+    </webtest>
+  </target>
+
+  <!-- add default currency, create supplier + 2 services (one free, one chargeable) -->
+  <macrodef name="setupSupplier">
+    <sequential>
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}" userId="${supplierUserId}" password="secret" />
+      <scenario.createSimpleServices mid="${marketplaceId}" />
+      <scenario.verifySimpleServicesHomePage mid="${marketplaceId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- register a customer (using old portal) -->
+  <macrodef name="registerCustomerBySupplier">
+    <attribute name="marketplaceId" default="" />
+    <attribute name="setupPayment" default="false" />
+    <attribute name="discountValue" default="" />
+    <attribute name="discountFrom" default="" />
+    <attribute name="discountTo" default="" />
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.registerCustomer marketplaceId="@{marketplaceId}" userId="userA" />
+      <ifStep test="@{setupPayment}">
+        <then>
+          <organization.managePayment rowNr="0" />
+          <organization.managePayment rowNr="1" />
+        </then>
+      </ifStep>
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUserA" value="#{userId}" propertyType="dynamic" />
+      <storeProperty name="customerUserAKey" value="#{userKey}" propertyType="dynamic" />
+      <storeProperty name="orgIdCustomerUserA" value="#{orgId}" propertyType="dynamic" />
+
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="@{marketplaceId}" />
+      <login.logout />
+
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgIdCustomerUserA}" value="@{discountValue}" from="@{discountFrom}" thru="@{discountTo}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- register a customer (using webservice) -->
+  <macrodef name="registerCustomer">
+    <attribute name="marketplaceId" default="" />
+    <attribute name="userId" default="" />
+    <attribute name="discountValue" default="" />
+    <attribute name="discountFrom" default="" />
+    <attribute name="discountTo" default="" />
+    <sequential>
+      <setup:accountservice.registerCustomer supplierId="${supplierId}" userId="@{userId}" createUID="false" marketplaceId="@{marketplaceId}" />
+      <mail.readConfirmUrlFromMail />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+
+      <storeProperty name="orgIdCustomerUserA" value="${createdCustomerOrgId}" propertyType="dynamic" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <user.updateCustomerDiscount orgName="${common.orgName}" orgId="#{orgIdCustomerUserA}" value="@{discountValue}" from="@{discountFrom}" thru="@{discountTo}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- choose a service from the list -->
+  <macrodef name="chooseService">
+    <attribute name="marketplaceId" />
+    <attribute name="buttonId" />
+    <attribute name="svcName" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{marketplaceId}" />
+      <clickLink htmlId="@{buttonId}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />  
+      <common.waitForJavaScript />
+      <mpl_verify.service_details svcName="@{svcName}" />
+      <clickLink htmlId="getItForLoggedUser" />
+    </sequential>
+  </macrodef>
+
+</project>

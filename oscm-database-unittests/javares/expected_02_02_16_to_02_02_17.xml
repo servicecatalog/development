@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <LocalizedResource tkey="1" version="0" locale="ja" objectkey="0" objecttype="REPORT_DESC" value="利用者情報" />
+  <LocalizedResource tkey="2" version="0" locale="ja" objectkey="1" objecttype="REPORT_DESC" value="支払い請求可能イベント情報" />
+  <LocalizedResource tkey="3" version="0" locale="ja" objectkey="2" objecttype="REPORT_DESC" value="サービス情報" />
+  <LocalizedResource tkey="4" version="0" locale="ja" objectkey="3" objecttype="REPORT_DESC" value="利用部門情報" />
+  <LocalizedResource tkey="5" version="0" locale="ja" objectkey="4" objecttype="REPORT_DESC" value="技術サービス使用情報" />
+  <LocalizedResource tkey="6" version="0" locale="ja" objectkey="5" objecttype="REPORT_DESC" value="サービス提供部門情報" />
+  <LocalizedResource tkey="7" version="0" locale="ja" objectkey="6" objecttype="REPORT_DESC" value="購入済サービス情報" />
+  <LocalizedResource tkey="8" version="0" locale="ja" objectkey="7" objecttype="REPORT_DESC" value="インスタンス情報" />
+  <LocalizedResource tkey="9" version="0" locale="ja" objectkey="8" objecttype="REPORT_DESC" value="請求書情報" />
+  <LocalizedResource tkey="10" version="0" locale="ja" objectkey="9" objecttype="REPORT_DESC" value="支払処理ステータス" />
+  <LocalizedResource tkey="11" version="0" locale="ja" objectkey="10" objecttype="REPORT_DESC" value="利用部門の請求書明細" />
+  <LocalizedResource tkey="12" version="0" locale="ja" objectkey="11" objecttype="REPORT_DESC" value="請求書明細" />
+  <LocalizedResource tkey="13" version="0" locale="ja" objectkey="12" objecttype="REPORT_DESC" value="現在の支払プレビュー" />  
+  <LocalizedResource tkey="14" version="0" locale="ja" objectkey="13" objecttype="REPORT_DESC" value="サービス提供部門収入情報" />
+  <LocalizedResource tkey="15" version="0" locale="ja" objectkey="14" objecttype="REPORT_DESC" value="外部サービス情報" />
+  
+  <LocalizedResource tkey="16" version="0" locale="ja" objectkey="15" objecttype="REPORT_DESC" value="サービス仲介部門の料金配分明細" />
+  <LocalizedResource tkey="17" version="0" locale="ja" objectkey="16" objecttype="REPORT_DESC" value="サービス再提供部門の料金配分明細" />
+  <LocalizedResource tkey="18" version="0" locale="ja" objectkey="17" objecttype="REPORT_DESC" value="サービス仲介部門/サービス再提供部門の料金配分明細" />  
+  <LocalizedResource tkey="19" version="0" locale="ja" objectkey="18" objecttype="REPORT_DESC" value="料金配分明細" />
+  <LocalizedResource tkey="20" version="0" locale="ja" objectkey="19" objecttype="REPORT_DESC" value="サービス提供部門の料金配分明細" />
+</dataset>

@@ -1,0 +1,201 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_registration">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <webtest name="setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_registration" depends="setup">
+
+    <!-- Validate registration fields and hints-->
+    <webtest name="testMPL_validateRegistrationFields">
+      <mail.cleanInbox />
+
+      <storeProperty name="marketplaceUrl" value="${mail.anyurl}/marketplace" />
+      <storeProperty name="registrationUrl" value="#{marketplaceUrl}/registration.jsf?mId=${mId}" />
+
+      <dataDriven tableContainer="data/pageFields/marketplace/registrationFields.xls">
+        <invoke url="#{registrationUrl}" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <clickElement htmlId="registrationForm:registerButton" />
+        <ifStep description="Test if required?">
+          <condition>
+            <verifyProperty name="required" value="true" />
+          </condition>
+          <then>
+            <mpl_verify.checkHintAndFieldValues hintMsgKey="${hintMsgKey}" fieldId="${fieldId}" fieldType="${fieldType}" buttonLinkId="registrationForm:registerButton" required="${required}" />
+          </then>
+        </ifStep>
+      </dataDriven>
+    </webtest>
+
+    <webtest name="testMPL_register_startFromHomepage">
+      <mail.cleanInbox />
+
+      <storeProperty name="marketplaceUrl" value="${mail.anyurl}/marketplace" />
+      <storeProperty name="registrationUrl" value="#{marketplaceUrl}/registration.jsf?mId=${mId}" />
+      <storeProperty name="confirmUrl" value="#{marketplaceUrl}/confirm.jsf" />
+      <storeProperty name="marketplaceUri" value="marketplace" />
+
+      <invoke url="${mail.anyurl}/image?webtest=1" />
+
+      <invoke url="#{registrationUrl}" />
+      <this.registration />
+
+      <this.confirmation />
+    </webtest>
+
+    <webtest name="testMPL_register_checkTermsLinks">
+      <mail.cleanInbox />
+
+      <storeProperty name="marketplaceUrl" value="${mail.anyurl}/marketplace" />
+      <storeProperty name="registrationUrl" value="#{marketplaceUrl}/registration.jsf?mId=${mId}" />
+
+      <invoke url="#{registrationUrl}" />
+      <clickLink htmlId="registrationForm:terms" save='resultPage' />
+      <mpl_verify.breadCrumb actualPage="${marketplace.terms.title}" />
+
+      <invoke url="#{registrationUrl}" />
+      <clickLink htmlId="registrationForm:policy" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.privacypolicy.title}" />
+
+    </webtest>
+
+    <webtest name="testMPL_register_startFromService">
+      <mail.cleanInbox />
+
+      <storeProperty name="marketplaceUrl" value="${mail.anyurl}/marketplace?mId=${mId}" />
+
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <scenario.createSimpleServices mid="${mId}" />
+
+      <invoke url="${mail.anyurl}/image?webtest=1" />
+      <invoke url="#{marketplaceUrl}" />
+
+      <clickLink htmlId="serviceButton1" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="buyme" />
+      <clickLink htmlId="register" />
+
+      <this.registration />
+      <this.readConfirmMail uri="marketplace/confirm.jsf\?mId=${mId}&amp;enc=" />
+      <invoke url="#{confirmUrl}" />
+
+      <clickLink htmlId="confirmForm:continueLink" />
+      <verifyText description="LoginPage must be shown" text="${login.loginHeaderText}" />
+
+      <setInputField htmlId="loginForm:loginUserId" value="#{uniqueUserId}" />
+      <setInputField htmlId="loginForm:loginPassword" value="${common.password}" />
+
+      <clickLink htmlId="loginForm:loginButtonLink" />
+
+      <verifyText description="detail site must be shown" text="Mega Office Trial" />
+      <login.logout />
+      <scenario.deleteSimpleServices />
+    </webtest>
+    
+  	<!-- 
+    <webtest name="testMPL_register_Bug10089">
+      <mail.cleanInbox />
+
+      <storeProperty name="marketplaceUrl" value="${mail.anyurl}/marketplace" />
+      <storeProperty name="registrationUrl" value="#{marketplaceUrl}/registration.jsf?mId=${mId}" />
+      <storeProperty name="confirmUrl" value="#{marketplaceUrl}/confirm.jsf" />
+      <storeProperty name="marketplaceUri" value="marketplace" />
+
+      <invoke url="${mail.anyurl}/image?webtest=1" />
+
+      <invoke url="#{registrationUrl}" />
+       Input mandatory items
+      <user.createUniqueName userId="${common.userId}" />
+      <setInputField htmlId="registrationForm:userEmail" value="${common.email}" />
+      <setInputField htmlId="registrationForm:userId" value="#{uniqueUserId}" />
+      <setInputField htmlId="registrationForm:regPassword" value="${common.password}" />
+      <setInputField htmlId="registrationForm:regPassword2" value="${common.password}" />
+      <setSelectField htmlId="registrationForm:country" optionIndex="1" />
+      <setInputField htmlId="registrationForm:verificationCode" value="pp09" />
+      <setCheckbox htmlId="registrationForm:acceptTerms" checked="true" />
+      Open both of the links of "terms and conditions" and "privacy policy" 
+      <clickElement htmlId="registrationForm:terms" />
+      <previousResponse />
+      <clickElement htmlId="registrationForm:policy" />
+      <previousResponse />
+      Push "Register" button
+      <clickElement htmlId="registrationForm:registerButtonLink" />
+
+      <this.confirmation />
+    </webtest>
+    -->
+  	
+    <webtest name="testMPL_register_finalCleanup">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+
+  </target>
+
+  <macrodef name="this.registration">
+    <sequential>
+      <user.createUniqueName userId="${common.userId}" />
+      <setInputField htmlId="registrationForm:userEmail" value="${common.email}" />
+      <setInputField htmlId="registrationForm:userId" value="#{uniqueUserId}" />
+      <setInputField htmlId="registrationForm:regPassword" value="${common.password}" />
+      <setInputField htmlId="registrationForm:regPassword2" value="${common.password}" />
+      <setSelectField htmlId="registrationForm:country" optionIndex="1" />
+      <setInputField htmlId="registrationForm:verificationCode" value="pp09" />
+      <setCheckbox htmlId="registrationForm:acceptTerms" checked="true" />
+      <clickElement htmlId="registrationForm:registerButton" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.readConfirmMail">
+    <attribute name="uri" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="2">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${USER_CONFIRM.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract confirm url from mail content" text="URL to confirm this account:\s(.*@{uri}\S*)" property="confirmUrl" group="1" />
+
+        <echo level="info" message="URL: #{confirmUrl}" />
+
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.readConfirmedMail">
+    <attribute name="uri" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="2">
+        <sleep seconds="1" />
+
+        <emailStoreMessageId subject="${USER_CONFIRM_ACKNOWLEDGE.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract confirmed url from mail content1" text="following URL to access your account:\s(.*@{uri}\S*)" property="confirmUrl" group="1" />
+        <echo level="info" message="URL: #{confirmUrl}" />
+
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.confirmation">
+    <sequential>
+      <this.readConfirmMail uri="marketplace/confirm.jsf\?mId=${mId}&amp;enc=" />
+      <invoke url="#{confirmUrl}" />
+      <this.readConfirmedMail uri="marketplace" />
+    </sequential>
+  </macrodef>
+</project>

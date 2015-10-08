@@ -1,0 +1,107 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="vat.enable">
+    <attribute name="defaultVat" default="19.00" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+      <setInputField htmlId="vatForm:defaultVat" value="@{defaultVat}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <verifyCheckbox htmlId="vatEnabledForm:vatEnabled" checked="true" />
+      <verifyInputField htmlId="vatForm:defaultVat" value="@{defaultVat}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="vat.disable">
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <setCheckbox htmlId="vatEnabledForm:vatEnabled" checked="false" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <verifyCheckbox htmlId="vatEnabledForm:vatEnabled" checked="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="vat.addCountryVat">
+    <attribute name="countryIdx" default="1" />
+    <attribute name="countryVat" default="7.00" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of country td elements." xpath="count(//td[contains(@id,&quot;vatForm:countryTable&quot;)])" property="num" propertyType="dynamic" />
+      <storeProperty name="idx" value="(#{num} / 2 )- 1" eval="true" />
+      <setSelectField htmlId="vatForm:countryTable:#{idx}:countrySelect" optionIndex="@{countryIdx}" />
+      <setInputField htmlId="vatForm:countryTable:#{idx}:countryVat" value="@{countryVat}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <verifyInputField htmlId="vatForm:countryTable:#{idx}:countryVat" value="@{countryVat}" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="vat.addCustomerVat">
+    <attribute name="customerIdx" default="1" />
+    <attribute name="customerVat" default="9.00" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of customer td elements." xpath="count(//td[contains(@id,&quot;vatForm:customerTable&quot;)])" property="num" propertyType="dynamic" />
+      <storeProperty name="idx" value="(#{num} / 2 )- 1" eval="true" />
+      <setSelectField htmlId="vatForm:customerTable:#{idx}:customerSelect" optionIndex="@{customerIdx}" />
+      <setInputField htmlId="vatForm:customerTable:#{idx}:customerVat" value="@{customerVat}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <verifyInputField htmlId="vatForm:customerTable:#{idx}:customerVat" value="@{customerVat}" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="vat.removeCountryVat">
+    <attribute name="rowIdx" default="0" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of country vat input elements." xpath="count(//input[contains(@id,&quot;vatForm:countryTable&quot;)])" property="before" propertyType="dynamic" />
+      <setInputField htmlId="vatForm:countryTable:@{rowIdx}:countryVat" value="" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of country vat input elements." xpath="count(//input[contains(@id,&quot;vatForm:countryTable&quot;)])" property="after" propertyType="dynamic" />
+      <storeProperty name="tmp" value="#{before} - 1" eval="true" />
+      <verifyProperty name="after" value="#{tmp}" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="vat.removeCustomerVat">
+    <attribute name="rowIdx" default="0" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of customer vat input elements." xpath="count(//input[contains(@id,&quot;vatForm:customerTable&quot;)])" property="before" propertyType="dynamic" />
+      <setInputField htmlId="vatForm:customerTable:@{rowIdx}:customerVat" value="" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <clickLink label="${organization.manageVats.title}" />
+      <storeXPath description="Get the number of customer vat inout elements." xpath="count(//input[contains(@id,&quot;vatForm:customerTable&quot;)])" property="after" propertyType="dynamic" />
+      <storeProperty name="tmp" value="#{before} - 1" eval="true" />
+      <verifyProperty name="after" value="#{tmp}" />
+    </sequential>
+  </macrodef>
+  
+  <macrodef name="vat.updateCountryVat">
+    <attribute name="rowIdx" default="0" />
+    <attribute name="countryVat" default="5.00" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${organization.manageVats.title}" />
+      <setInputField htmlId="vatForm:countryTable:@{rowIdx}:countryVat" value="@{countryVat}" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.vat.saved}" />
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <common.verifySuccess label="${info.vat.saved}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+  
+</project>

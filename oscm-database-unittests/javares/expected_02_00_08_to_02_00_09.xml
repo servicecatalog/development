@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <MarketPlace tkey="10" organization_tkey="3" marketplaceid="supplierWithShop" global="false"/>
+  <MarketPlace tkey="11" organization_tkey="4" marketplaceid="supplierWithoutShop" global="false"/>
+  
+  <MarketPlaceHistory tkey="10" marketplaceid="supplierWithShop"/>
+  <MarketPlaceHistory tkey="11" marketplaceid="supplierWithoutShop"/>
+
+</dataset>

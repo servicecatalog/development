@@ -1,0 +1,52 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="test_UpgradePathCurrencyCheck" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+  <target name="test_UpgradePathCurrencyCheck">
+
+    <webtest name="test_UpgradePathCurrency">
+
+      <mail.cleanInbox />
+
+      <!-- Supplier -->
+      <operator.addCurrency currency="USD" />
+      <operator.addCurrency />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER,SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{supplierUrl}" userId="#{supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <techservice.import file="data/TechnicalServicesPlayground.xml" />
+
+      <!-- services for local marketplace -->
+      <setup:service.define marketplaceId="${mId}" serviceId="ExampleTrial" name="Trial" description="Trial description" shortDescription="Trial short description" configurableChecked="true" />
+      <setup:service.define marketplaceId="${mId}" serviceId="ExampleStarter" name="Starter" description="Starter description" shortDescription="Starter short description" />
+
+      <setup:pricemodel.define serviceId="ExampleTrial" isFree="false" />
+      <setup:pricemodel.define serviceId="ExampleStarter" isFree="false" />
+
+      <setup:service.defineMigrationOptions serviceId="ExampleTrial" migrationTargetIds="ExampleStarter" />
+      <setup:service.defineMigrationOptions serviceId="ExampleStarter" migrationTargetIds="ExampleTrial" />
+
+      <setup:service.activate serviceIds="ExampleTrial,ExampleStarter" />
+
+      <!-- change settings for service ExampleTrial 1) set free of charge 2) change currency to USD -->
+      <service.deActivate rowNr="0" active="false" />
+      <common.ignorePageScriptError />
+      <setup:pricemodel.modify.define serviceId="ExampleTrial" isFree="true" currencyISOCode="USD"/>
+      <setup:service.activate serviceIds="ExampleTrial" />
+    </webtest>
+
+    <webtest name="test_UpgradePathCurrency_finalCleanUp">
+      <scenario.deleteServices />
+    </webtest>
+  </target>
+
+</project>

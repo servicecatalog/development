@@ -1,0 +1,43 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:rich="http://richfaces.org/rich"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <a4j:outputPanel id="navContent" layout="block">
+    <table id="navTable" cellspacing="0" cellpadding="0" border="0" width="100%">
+      <c:forEach items="#{menuBean.mainMenu.items}" var="item">
+        <adm:navItem link="#{item.link}"
+          labelKey="#{item.labelKey}"
+          style="font-weight:bold; padding-left:12px;"
+          rendered="#{item.visible}"
+          selected="#{item.selected}"
+          expanded="#{true}"/>
+      </c:forEach>
+      <c:forEach items="#{menuBean.mainMenu.groups}" var="group">
+        <ui:fragment rendered="#{group.visible}">
+          <adm:navGroup group="#{group}" />
+          <c:forEach items="#{group.items}" var="item">
+             <adm:navItem link="#{item.link}"
+               labelKey="#{item.labelKey}"
+               rendered="#{item.visible}"
+               selected="#{item.selected}"
+               expanded="#{group.expanded}" />
+           </c:forEach>
+        </ui:fragment>
+       </c:forEach>
+    </table>
+  </a4j:outputPanel>
+  
+  <h:form style="display:none;">
+    <a4j:jsFunction name="navGroupClicked" render="navContent">
+      <a4j:param name="param1" assignTo="#{menuBean.toggleGroupExpanded}" />
+    </a4j:jsFunction>
+  </h:form>
+  #{menuBean.resetCurrentPageLink}
+
+</ui:composition>

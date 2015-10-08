@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+ <SupportedCurrency tkey="15" currencyisocode = "EUR" version="0" />
+ <Organization tkey="1" version="0" organizationid="supplier" registrationdate="1234" />
+ <Organization tkey="2" version="0" organizationid="customer" registrationdate="1234" />
+  
+ <BillingResult tkey="1" creationtime="1234" organizationtkey="2" periodendtime="1234" periodstarttime="1234"
+  resultxml='&lt;BillingDetails&gt;&lt;OverallCosts currency=&quot;EUR&quot; grossAmount=&quot;14691&quot; netAmount=&quot;14681&quot;/&gt;&lt;/BillingDetails&gt;'
+  version="0" chargingorgkey="1" grossamount="14691" currency_tkey="15" />
+</dataset>

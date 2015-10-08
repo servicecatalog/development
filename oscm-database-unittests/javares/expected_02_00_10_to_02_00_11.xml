@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Discount tkey="1" version="0" value="10" organizationreference_tkey="1" />
+  <Discount tkey="2" version="0" value="10" organizationreference_tkey="2" />
+
+  <DiscountHistory tkey="1" value="10" modtype="modtype" moduser="user"
+    objkey="1" objversion="0" organizationreferenceobjkey="1" invocationdate="2011-04-04 14:30:10" />
+
+</dataset>

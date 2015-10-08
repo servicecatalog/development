@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <organizationhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" organizationId="orgId" registrationdate="0" invocationDate="2011-01-01 01:02:34" />
+
+  <paymentinfohistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    organizationobjkey="0" creationtime="0" paymenttypeobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <platformuserhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" organizationobjkey="0" creationdate="0" failedlogincounter="0" locale="0"
+    organizationadmin="0" status="0" userid="0" invocationDate="2011-01-01 01:02:34" />
+
+  <subscriptionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" organizationobjkey="0" productobjkey="0" creationdate="0" subscriptionid="0"
+    timeoutmailsent="0" status="0" invocationDate="2011-01-01 01:02:34" />
+
+  <usagelicensehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" assignmentdate="0" subscriptionobjkey="0" userobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <producthistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    provisioningdate="0" technicalproductobjkey="0" supplierobjkey="0" productid="0" status="0" invocationDate="2011-01-01 01:02:34" />
+
+  <pricemodelhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    ischargeable="0" onetimefee="0" priceperuserassignment="0" priceperperiod="0" productobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <pricedeventhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    eventprice="0" eventobjkey="0" pricemodelobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <eventhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    eventtype="0" eventidentifier="0" invocationDate="2011-01-01 01:02:34" />
+
+  <technicalproducthistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" provisioningurl="" technicalproductid="0" technicalproductversion="0"
+    organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <productreferencehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" sourceproducttkey="0" targetproducttkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <parametersethistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" invocationDate="2011-01-01 01:02:34" />
+
+  <parameterhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    configurable="0" parameterdefinitionobjkey="0" parametersetobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <organizationreferencehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" suppliertkey="0" technologyprovidertkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <shophistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    creationdate="0" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <parameterdefinitionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" valuetype="0" parametertype="0" parameterid="0" mandatory="0" configurable="0"
+    invocationDate="2011-01-01 01:02:34" />
+
+  <parameteroptionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" optionid="0" parameterdefobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <pricedparameterhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" pricepersubscription="0" priceperuser="0" parameterobjkey="0" pricemodelobjkey="0"
+    invocationDate="2011-01-01 01:02:34" />
+
+  <pricedoptionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" pricepersubscription="0" priceperuser="0" parameteroptionobjkey="0"
+    pricedparameterobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <organizationtorolehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" organizationroletkey="0" organizationtkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <paymentresulthistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" processingstatus="0" processingtime="0" billingresultobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <billingcontacthistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" email="0" orgaddressused="0" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <discounthistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    value="0" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <triggerdefinitionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" suspendprocess="0" targettype="0" type="0" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <triggerprocesshistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" activationdate="0" status="0" triggerdefinitionobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <roledefinitionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" roleid="0" technicalproductobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <pricedproductrolehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" priceperuser="0" roledefinitionobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <steppedpricehistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" price="0" additionalprice="0" freeamount="0" invocationDate="2011-01-01 01:02:34" />
+
+  <technicalproductoperationhistory tkey="1" objkey="1" objversion="0" modType="ADD"
+    modUser="user" modDate="2011-01-01 01:02:34" actionurl="0" operationid="0" operationtype="0" technicalproductobjkey="0"
+    invocationDate="2011-01-01 01:02:34" />
+
+  <udadefinitionhistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user"
+    modDate="2011-01-01 01:02:34" targettype="0" udaid="0" organizationobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+  <udahistory tkey="1" objkey="1" objversion="0" modType="ADD" modUser="user" modDate="2011-01-01 01:02:34"
+    targetobjectkey="0" udadefinitionobjkey="0" invocationDate="2011-01-01 01:02:34" />
+
+</dataset>

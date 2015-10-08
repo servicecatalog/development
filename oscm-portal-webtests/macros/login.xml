@@ -1,0 +1,106 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <!-- login without the need for changing the password -->
+  <macrodef name="login.login">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" default="secret" />
+    <attribute name="verifyPortalUserId" default="true" />
+    <sequential>
+      <invoke url="@{url}" />
+      <common.verifyPasswordFields />
+      <setInputField name="userId" value="@{userId}" />
+      <setInputField name="password" value="@{password}" />
+      <clickButton label="${button.login}" />
+      <ifStep test="@{verifyPortalUserId}">
+        <verifyElementText htmlId="headerUserId" text="@{userId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="login.loginAsSupplier">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" default="secret" />
+    <attribute name="verifyPortalUserId" default="true" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <login.login url="@{url}" userId="@{userId}" password="@{password}" verifyPortalUserId="@{verifyPortalUserId}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="login.initialLoginAndChangePassword">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" />
+    <attribute name="verifyPortalUserId" default="true" />
+    <sequential>
+      <invoke url="@{url}" />
+      <setInputField name="userId" value="@{userId}" />
+      <setInputField name="password" value="@{password}" />
+      <clickButton label="${button.login}" />
+      <verifyElementText htmlId="pagelabel" text="${public.pwd.title}" description="we should see the panel title :${public.pwd.title}" />
+      <common.verifyPasswordFields />
+      <setInputField htmlId="passwordform:currentPassword" value="@{password}" />
+      <setInputField htmlId="passwordform:password" value="secret" />
+      <setInputField htmlId="passwordform:password2" value="secret" />
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="passwordform:changeButtonLink" />
+
+      <ifStep test="@{verifyPortalUserId}">
+        <!-- TODO: For whatever reason at this point in time a error page is shown
+             even if the login was successful. Might be an redirect issue. -->
+        <invoke url="@{url}" />
+
+        <verifyElementText htmlId="headerUserId" text="@{userId}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="login.initialLoginAndChangePasswordAsSupplier">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" />
+    <attribute name="verifyPortalUserId" default="true" />
+    <sequential>
+      <login.initialLoginAndChangePassword url="@{url}/organization/edit.jsf" userId="@{userId}" password="@{password}" verifyPortalUserId="@{verifyPortalUserId}" />
+    </sequential>
+  </macrodef>
+  
+  <!-- a failing login resulting in the "try again" dialog -->
+  <macrodef name="login.loginFail">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" />
+    <sequential>
+      <invoke url="@{url}" description="goto url @{url}" />
+      <setInputField name="userId" value="@{userId}" />
+      <setInputField name="password" value="@{password}" />
+      <clickButton label="${button.login}" />
+      <verifyInputField name="userId" value="@{userId}" />
+      <verifyText text="${error.login}" />
+    </sequential>
+  </macrodef>
+
+  <!-- login either with a wrong password resulting in a locked account or for an already locked account -->
+  <macrodef name="login.loginLocked">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" />
+    <sequential>
+      <invoke url="@{url}" description="goto url @{url}" />
+      <setInputField name="userId" value="@{userId}" />
+      <setInputField name="password" value="@{password}" />
+      <clickButton label="${button.login}" />
+      <verifyText text="${error.user.locked}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="login.logout">
+    <sequential>
+      <clickLink htmlId="formLogout:logout" />
+    </sequential>
+  </macrodef>
+
+</project>

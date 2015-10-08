@@ -1,0 +1,109 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/modalDialog.xhtml">
+
+  <ui:define name="dialogScripts">
+    <c:set var="cancelHandler" value="#{rich:component(dialogId)}.hide();" />
+    <c:set var="modalFocusElement" value="#{dialogId}" />
+  </ui:define>
+
+  <ui:define name="dialogTitle">
+    <h:outputText id="#{dialogId}DialogTitle" value="#{msg['organization.manageUdas.update.title']}" />
+  </ui:define>
+
+  <ui:define name="dialogDescription">
+    <br />
+  </ui:define>
+
+  <ui:define name="dialogContent">
+    <a4j:outputPanel id="updateContentPanel">
+      <h:form id="updateForm">
+        <adm:spacer height="20" />
+        <adm:panelGrid>
+          <adm:labelAndInputText id="updateUdaIdInput" label="#{msg['udaDefinition.udaId']}" required="true"
+            value="#{manageUdaDefinitionBean.currentUda.udaId}" maxlength="#{appBean.idLen}" styleClass="fieldXS"
+            rendered="#{not empty manageUdaDefinitionBean.currentUda}" validatorId="idChar" converterId="trimConverter" />
+          <adm:labelAndInputText id="updateUdaDefaultValueInput" label="#{msg['udaDefinition.defaultValue']}"
+            value="#{manageUdaDefinitionBean.currentUda.defaultValue}" maxlength="#{appBean.descriptionLen}"
+            converterId="trimConverter" styleClass="fieldXS" rendered="#{not empty manageUdaDefinitionBean.currentUda}" />
+          <adm:outputLabel value="#{msg['udaDefinition.userOption']}" required="false" />
+          <a4j:outputPanel layout="block">
+            <h:selectBooleanCheckbox id="updateUdaUserOptionCheckBox"
+              value="#{manageUdaDefinitionBean.currentUda.userOption}" disabled="false">
+              <a4j:ajax event="click" render="updateUdaMandatoryCheckBoxDiv" />
+            </h:selectBooleanCheckbox>
+          </a4j:outputPanel>
+          <adm:message for="updateUdaUserOptionCheckBox" />
+          <adm:outputLabel value="#{msg['udaDefinition.mandatory']}" required="false" />
+          <a4j:outputPanel id="updateUdaMandatoryCheckBoxDiv" layout="block">
+            <h:selectBooleanCheckbox id="updateUdaMandatoryCheckBox"
+              value="#{manageUdaDefinitionBean.currentUda.mandatory}"
+              disabled="#{not manageUdaDefinitionBean.currentUda.userOption}" />
+          </a4j:outputPanel>
+          <adm:message for="updateUdaMandatoryCheckBox" />
+        </adm:panelGrid>
+
+        <adm:spacer height="20" />
+        <adm:buttonPanel>
+                
+          <a4j:commandButton type="submit" style="display:none;" id="updateUdaHiddenButton"
+            value="#{msg['button.save']}" action="#{manageUdaDefinitionBean.update}" render="#{dialogId}RenderErrorPanel"
+            oncomplete="
+                AdmUtils.showProgress(false);
+                if(!#{facesContext.maximumSeverity.ordinal > 0}) {
+                    RichFaces.$('#{dialogId}').hide();
+                    #{rich:element('refreshSubmitButton')}.click();
+                }
+                return true;" />
+        
+        
+          <a4j:commandButton style="display:none;" id="deleteUdaHiddenButton" action="#{manageUdaDefinitionBean.delete}"
+            render="#{dialogId}RerenderPanel" immediate="true" oncomplete="confirmDeleteComplete();return true;" />
+
+          <h:outputLink styleClass="button" id="updatePanelSaveButton"
+            onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);#{rich:element('updateForm:updateUdaHiddenButton')}.click();setOnSubmit(false);return false;">
+            <h:outputText style="white-space: nowrap;" value="#{msg['button.save']}" />
+          </h:outputLink>
+
+          <h:outputLink styleClass="button" id="updatePanelDeleteButton"
+            onclick="#{rich:component('confirmPanel')}.show();return false;">
+            <h:outputText style="white-space: nowrap;" value="#{msg['button.delete']}" />
+          </h:outputLink>
+
+          <h:outputLink styleClass="button" id="updatePanelCancelButton"
+            onclick="setDirty(false);#{rich:component(dialogId)}.hide();return false;">
+            <h:outputText style="white-space: nowrap;" value="#{msg['button.cancel']}" />
+          </h:outputLink>
+
+          <h:commandButton style="display:none;" id="saveSubmitButton" onclick="setDirty(false);"
+            value="#{msg['button.save']}" action="#{manageUdaDefinitionBean.refreshSaveSuccessMessage}" />
+        </adm:buttonPanel>
+      </h:form>
+
+      <h:form>
+        <h:commandButton style="display:none;" id="saveSubmitButton" onclick="setDirty(false);"
+          action="#{manageUdaDefinitionBean.refreshSaveSuccessMessage}" />
+        <h:commandButton style="display:none;" id="deleteSubmitButton" onclick="setDirty(false);" immediate="true"
+          action="#{manageUdaDefinitionBean.refreshDeleteSuccessMessage}" />
+      </h:form>
+
+      <adm:confirmPanel text="#{msg['confirm.udas.delete']}" submitId="deleteUdaHiddenButton"/>
+
+      <script type="text/javascript">
+         function confirmDeleteComplete(){
+           AdmUtils.showProgress(false);
+           if(!#{facesContext.maximumSeverity.ordinal > 0})
+           {
+        	 RichFaces.$('#{dialogId}').hide();
+             #{rich:element('deleteSubmitButton')}.click();
+           }
+         }
+      </script>
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

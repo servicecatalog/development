@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <UserGroup tkey="1" version="0" name="default" description="[NULL]" isdefault="TRUE" organization_tkey="11001" referenceid="[NULL]" />
+</dataset>

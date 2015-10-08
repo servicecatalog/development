@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <LocalizedResource tkey="1" version="0" locale="ja" objectkey="0" objecttype="REPORT_DESC" value="ユーザ・レポート" />
+  <LocalizedResource tkey="2" version="0" locale="ja" objectkey="1" objecttype="REPORT_DESC" value="支払い請求可能なイベントのレポート" />
+  <LocalizedResource tkey="3" version="0" locale="ja" objectkey="2" objecttype="REPORT_DESC" value="サービスレポート" />
+  <LocalizedResource tkey="4" version="0" locale="ja" objectkey="3" objecttype="REPORT_DESC" value="カスタマーレポート" />
+  <LocalizedResource tkey="5" version="0" locale="ja" objectkey="4" objecttype="REPORT_DESC" value="テクニカルサービスの使用レポート" />
+  <LocalizedResource tkey="6" version="0" locale="ja" objectkey="5" objecttype="REPORT_DESC" value="サプライヤーレポート" />
+  <LocalizedResource tkey="7" version="0" locale="ja" objectkey="6" objecttype="REPORT_DESC" value="サブスクリプションレポート" />
+  <LocalizedResource tkey="8" version="0" locale="ja" objectkey="7" objecttype="REPORT_DESC" value="インスタンスレポート" />
+  <LocalizedResource tkey="9" version="0" locale="ja" objectkey="8" objecttype="REPORT_DESC" value="請求レポート" />
+  <LocalizedResource tkey="10" version="0" locale="ja" objectkey="9" objecttype="REPORT_DESC" value="支払処理状態レポート" />
+  <LocalizedResource tkey="11" version="0" locale="ja" objectkey="10" objecttype="REPORT_DESC" value="カスタマーの既存の請求書の明細レポート" />
+  <LocalizedResource tkey="12" version="0" locale="ja" objectkey="11" objecttype="REPORT_DESC" value="既存の請求書の明細レポート" />
+  <LocalizedResource tkey="13" version="0" locale="ja" objectkey="12" objecttype="REPORT_DESC" value="月初から現在までの支払いのプレビュー" />
+  <LocalizedResource tkey="14" version="0" locale="ja" objectkey="1000" objecttype="PARAMETER_DEF_DESC" value="サブスクリプションの最大同時利用ユーザー数" />
+  <LocalizedResource tkey="15" version="0" locale="ja" objectkey="1001" objecttype="PARAMETER_DEF_DESC" value="サブスクリプションの最大登録ユーザー数" />
+  <LocalizedResource tkey="16" version="0" locale="ja" objectkey="1002" objecttype="PARAMETER_DEF_DESC" value="サブスクリプションが無効化されるまでの日数." />
+  <LocalizedResource tkey="17" version="0" locale="ja" objectkey="1000" objecttype="EVENT_DESC" value="サービスへのユーザーのログイン" />
+  <LocalizedResource tkey="18" version="0" locale="ja" objectkey="1001" objecttype="EVENT_DESC" value="サービスからのユーザーのログアウト" />
+</dataset>

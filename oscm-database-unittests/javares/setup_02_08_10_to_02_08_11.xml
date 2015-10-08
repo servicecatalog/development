@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+	<SupportedCurrency tkey="15" currencyisocode = "EUR" version="0" />
+	<Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1"
+		registrationdate="1234" cutoffday="1"/>
+	<BillingResult tkey="1" creationtime="1234" organizationtkey="11001"
+		periodendtime="1234" periodstarttime="1234" resultxml="empty" version="0"
+		chargingorgkey="11001" currency_tkey="15" grossamount="14691" vendorkey="1"
+		netamount="14681"/>
+</dataset>

@@ -1,0 +1,88 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails>
+  <Period endDate="1264978800000" endDateIsoFormat="2010-01-31T23:00:00.000Z" startDate="1262300400000" startDateIsoFormat="2009-12-31T23:00:00.000Z"/>
+  <OrganizationDetails>
+    <Name>TestOrg</Name>
+    <Address>Address of TestOrg</Address>
+  </OrganizationDetails>
+  <Subscriptions>
+    <Subscription id="sub1" purchaseOrderNumber="1234AF2312X">
+      <PriceModels>
+        <PriceModel id="5">
+          <UsagePeriod endDate="1264978800000" endDateIsoFormat="2010-01-31T23:00:00" startDate="1262300400000" startDateIsoFormat="2009-12-31T23:00:00.000Z"/>
+          <GatheredEvents>
+            <Event id="eventId1">
+              <SingleCost amount="0.05"/>
+              <NumberOfOccurrence amount="20"/>
+              <CostForEventType amount="1.00"/>
+            </Event>
+            <Event id="eventId2">
+              <SingleCost amount="0.25"/>
+              <NumberOfOccurrence amount="1"/>
+              <CostForEventType amount="0.25"/>
+            </Event>
+          </GatheredEvents>
+          <PeriodFee basePeriod="MONTH" basePrice="10.00" factor="1.0" price="10.00"/>
+          <UserAssignmentCosts basePeriod="MONTH" basePrice="1.00" factor="0.0" numberOfUsersTotal="0" price="0.00">
+            <RoleCosts total="1.00">
+              <RoleCost basePrice="0.01" factor="10.0" id="role1" price="0.10"/>
+              <RoleCost basePrice="0.02" factor="10.0" id="role2" price="0.20"/>
+              <RoleCost basePrice="0.03" factor="10.0" id="role3" price="0.30"/>
+            </RoleCosts>
+          </UserAssignmentCosts>
+          <OneTimeFee amount="4.44" baseAmount="4.44" factor="1"/>
+          <Parameters>
+            <Parameter id="CONCURRENT_USER">
+              <ParameterValue amount="1" type="LONG"/>
+              <PeriodFee basePeriod="MONTH" basePrice="11.00" factor="1.0" price="11.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="1.00" factor="0.0" price="0.00" valueFactor="1"/>
+              <RoleCosts total="1.00">
+                <RoleCost basePrice="0.01" factor="10.0" id="role1" price="0.10"/>
+                <RoleCost basePrice="0.02" factor="10.0" id="role2" price="0.20"/>
+                <RoleCost basePrice="0.03" factor="10.0" id="role3" price="0.30"/>
+              </RoleCosts>
+              <ParameterCosts amount="22.00"/>
+            </Parameter>
+            <Parameter id="HAS_OPTIONS">
+              <ParameterValue amount="1" type="ENUMERATION"/>
+              <Options>
+                <Option id="1">
+                  <PeriodFee basePeriod="MONTH" basePrice="14.00" factor="1.0" price="14.00"/>
+                  <UserAssignmentCosts basePeriod="MONTH" basePrice="4.00" factor="0.0" price="0.00"/>
+                  <RoleCosts total="1.00">
+                    <RoleCost basePrice="0.01" factor="10.0" id="role1" price="0.10"/>
+                    <RoleCost basePrice="0.02" factor="10.0" id="role2" price="0.20"/>
+                    <RoleCost basePrice="0.03" factor="10.0" id="role3" price="0.30"/>
+                  </RoleCosts>
+                  <OptionCosts amount="14.00"/>
+                </Option>
+              </Options>
+              <PeriodFee basePeriod="MONTH" basePrice="0.00" factor="1.0" price="0.00" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.00" factor="1.0" price="0.00" valueFactor="1.0"/>
+              <ParameterCosts amount="28.00"/>
+            </Parameter>
+            <ParametersCosts amount="50.00"/>
+          </Parameters>
+          <PriceModelCosts amount="10.00"/>
+        </PriceModel>
+      </PriceModels>
+      <SubscriptionCosts amount="10.00"/>
+    </Subscription>
+    <Subscription id="sub2" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="6">
+          <UsagePeriod endDate="1264978800000" endDateIsoFormat="2010-01-31T23:00:00.000Z" startDate="1263106834375" startDateIsoFormat="2010-01-10T07:00:34.000Z"/>
+          <GatheredEvents/>
+          <PeriodFee basePeriod="WEEK" basePrice="5.00" factor="3.095181258267196" price="15.48"/>
+          <UserAssignmentCosts basePeriod="WEEK" basePrice="0.04" factor="0.0" numberOfUsersTotal="0" price="0.00"/>
+          <PriceModelCosts amount="15.48"/>
+        </PriceModel>
+      </PriceModels>
+      <SubscriptionCosts amount="15.48"/>
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts currency="EUR" grossAmount="146.91" netAmount="146.81">
+    <Discount discountNetAmount="0.10" netAmountAfterDiscount="1.90" netAmountBeforeDiscount="2.00" percent="5.00"/>
+    <VAT amount="0.10" percent="5.00"/>
+  </OverallCosts>
+</BillingDetails>

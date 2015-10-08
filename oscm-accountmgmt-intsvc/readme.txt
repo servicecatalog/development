@@ -1,0 +1,1 @@
+The internal interface of the account management component.

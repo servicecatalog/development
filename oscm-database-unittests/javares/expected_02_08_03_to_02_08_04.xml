@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <billingsubscriptionstatus subscriptionkey="1001" endoflastbilledperiod="1030" tkey="1" version="0"/>
+  <billingsubscriptionstatus subscriptionkey="1002" endoflastbilledperiod="1100" tkey="2" version="0"/>
+</dataset>
+  

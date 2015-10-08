@@ -1,0 +1,75 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="mpl_trigger.deleteAllProcesses">
+    <attribute name="allUser" default="false" />
+    <sequential>
+      <mpl_goto.account.processes />
+      <ifStep test="@{allUser}">
+        <then>
+          <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="false" />
+        </then>
+        <else>
+          <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="true" />
+        </else>
+      </ifStep>
+      <setCheckbox htmlId="processListForm:triggerProcessTable:allCheckboxes" checked="true" />
+      <clickLink htmlId="processListForm:deleteProcessLink" />
+      <mpl_verify.success label="${info.triggerProcess.deleted}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_trigger.abortAllProcesses">
+    <attribute name="allUser" default="false" />
+    <sequential>
+      <mpl_goto.account.processes />
+      <ifStep test="@{allUser}">
+        <then>
+          <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="false" />
+        </then>
+        <else>
+          <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="true" />
+        </else>
+      </ifStep>
+      <setCheckbox htmlId="processListForm:triggerProcessTable:allCheckboxes" checked="true" />
+      <clickLink htmlId="processListForm:abortProcessLink" />
+      <mpl_verify.success label="${info.triggerProcess.canceled}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_trigger.deleteDefinition">
+    <attribute name="type" />
+    <sequential>
+      <mpl_goto.account.processes />
+      <storeProperty name="typeDisplay" value="${TriggerType.@{type}.enum}" />
+      <clickElement xpath="//*[@id='editProcessTriggerImage']" />
+      <clickElement htmlId="triggerDefinitionPanelForm:confirmPanelOkButton" />
+      <mpl_verify.success label="${info.triggerDefinition.deleted}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_trigger.createTriggerDefinition">
+    <attribute name="userId" />
+    <attribute name="mid" />
+    <attribute name="type" />
+    <attribute name="target" default="${mock.url}/NotificationService?wsdl" />
+    <attribute name="suspendprocess" default="true" />
+    <sequential>
+      <mpl_login.user userId="@{userId}" mid="@{mid}" />
+      <mpl_goto.account.processes />
+      <common.clickAjaxLink htmlId="triggerDefinitionListForm:addTriggerDefinition" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <setInputField name="triggerDefinitionPanelForm:triggerName" value="Triggername" />
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="@{type}" />
+      <setInputField name="triggerDefinitionPanelForm:targetURL" value="@{target}" />
+      <setCheckbox name="triggerDefinitionPanelForm:suspend" checked="@{suspendprocess}" />
+
+      <clickButton label="Save" />
+      <mpl_verify.success label="${info.triggerDefinition.created}" matchWithWildCard="false" />
+      <mpl_login.logout />
+    </sequential>
+  </macrodef>
+
+
+</project>

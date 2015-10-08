@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Vatrate tkey="1" version="0" rate="1.9" owningorganization_tkey="1" targetcountry_tkey="2"
+    targetorganization_tkey="1" />
+
+  <VatrateHistory tkey="20" modtype="t1" moduser="u1" objkey="1" objversion="0" rate="1.9"
+    owningorganizationobjkey="1" targetcountryobjkey="2" />
+
+  <VatrateHistory tkey="21" modtype="t1" moduser="u1" objkey="1" objversion="0" rate="1.9"
+    owningorganizationobjkey="1" targetcountryobjkey="1" />
+
+</dataset>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+    <Organization tkey="1" version="0" organizationid="supplier" registrationdate="1234" />
+    <Organization tkey="2" version="0" organizationid="customer" registrationdate="1234" />
+    
+    <OrganizationReference tkey="1" version="1" sourcekey="1" targetkey="2" referencetype="SUPPLIER_TO_CUSTOMER" />
+    
+    <BillingResult tkey="1" creationtime="1234" organizationtkey="2" periodendtime="1234" periodstarttime="1234" 
+        resultxml="empty" version="0"/>
+    
+</dataset>

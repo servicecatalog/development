@@ -1,0 +1,16 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+  <mp:labelAndInputText id="#{firstNameId}" label="#{msg['user.firstName']}" value="#{firstNameValue}"
+    maxlength="#{appBean.nameLen}" disabled="#{firstNameDisabled}" converterId="trimConverter"
+    styleClass="#{styleClass}" rendered="#{not sessionBean.nameSequenceReversed}" />
+  <mp:labelAndInputText id="#{lastNameId}" label="#{msg['user.lastName']}" value="#{lastNameValue}"
+    maxlength="#{appBean.nameLen}" disabled="#{lastNameDisabled}" converterId="trimConverter" styleClass="#{styleClass}" />
+  <mp:labelAndInputText id="#{firstNameId}2" label="#{msg['user.firstName']}" value="#{firstNameValue}"
+    maxlength="#{appBean.nameLen}" disabled="#{firstNameDisabled}" converterId="trimConverter"
+    styleClass="#{styleClass}" rendered="#{sessionBean.nameSequenceReversed}" />
+
+</ui:composition>

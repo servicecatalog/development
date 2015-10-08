@@ -1,0 +1,191 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <!-- navigate to home of marketplace -->
+  <macrodef name="mpl_goto.marketplace">
+    <attribute name="mid" />
+    <sequential>
+      <mpl_goto.page relpath="index.jsf" mid="@{mid}" />
+    </sequential>
+  </macrodef>
+
+  <!-- navigate to all services page -->
+  <macrodef name="mpl_goto.services">
+    <attribute name="mid" />
+    <sequential>
+      <mpl_goto.page relpath="services.jsf" mid="@{mid}" />
+    </sequential>
+  </macrodef>
+
+  <!-- navigate to some marketplace page:
+  	   Due to problems resolving properties, we check the property value, try it again or produce a concrete error message.  
+   -->
+  <macrodef name="mpl_goto.page">
+    <attribute name="relpath" />
+    <attribute name="mid" />
+    <sequential>
+      <storeProperty name="pageurl" value="${bes.http.url}/oscm-portal/marketplace/@{relpath}?mId=@{mid}" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="pageurl" text=".*oscm-portal.*" regex="true" />
+        </condition>
+        <else>
+          <echo message="Variable 'pageurl' is NOT stored! Try to store once again." />
+          <storeProperty name="pageurl" value="${bes.http.url}/oscm-portal/marketplace/@{relpath}?mId=@{mid}" />
+        </else>
+      </ifStep>      
+      <sleep milliseconds="400" />
+      <ifStep>
+        <condition>
+          <verifyProperty name="pageurl" text=".*oscm-portal.*" regex="true" />
+        </condition>
+        <else>
+          <fail message="ERROR: Variable 'pageurl' is not resolved! Maybe storeProperty mechanism sucks... or variable resolving by ANT." />
+        </else>
+      </ifStep>
+      <invoke url="#{pageurl}" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to global page -->
+  <macrodef name="mpl_goto.globalnav">
+    <attribute name="label" />
+    <sequential>
+      <clickLink xpath="//ul[@id='globalnav']/li/a[normalize-space()='@{label}']" />
+      <verifyXPath xpath="//*[@id='menu0' and normalize-space()='@{label}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to certain menu -->
+  <macrodef name="mpl_goto.navmenu">
+    <attribute name="label" />
+    <attribute name="verifyTitle" default="true" />
+    <sequential>
+      <clickLink xpath="//div[@class='bodyarea']//a[normalize-space()='@{label}']" />
+      <ifStep test="@{verifyTitle}">
+        <then>
+          <mpl_verify.contentTitle title="@{label}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account -->
+  <macrodef name="mpl_goto.account">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / users -->
+  <macrodef name="mpl_goto.account.users">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.users.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_goto.account.units">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.units.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / payments -->
+  <macrodef name="mpl_goto.account.payments">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.payments.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / subscriptions -->
+  <macrodef name="mpl_goto.account.subscriptions">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.subscriptions.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / profile -->
+  <macrodef name="mpl_goto.account.profile">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.profile.title}" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / reports -->
+  <macrodef name="mpl_goto.account.reports">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.reports.title}" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to subscriptions -->
+  <macrodef name="mpl_goto.subscriptions">
+    <sequential>
+      <clickLink xpath="//ul[@id='globalnav']/li/a[normalize-space()='${navigation.subscriptions}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / processes -->
+  <macrodef name="mpl_goto.account.processes">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.processes.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to account / operations -->
+  <macrodef name="mpl_goto.account.operations">
+    <sequential>
+      <mpl_goto.globalnav label="${navigation.myAccount}" />
+      <mpl_goto.navmenu label="${marketplace.account.operations.title}" verifyTitle="false" />
+    </sequential>
+  </macrodef>
+
+  <!-- switch to given tab -->
+  <macrodef name="mpl_goto.tab">
+    <attribute name="label" />
+    <attribute name="verify" default="true" />
+    <sequential>
+      <clickElement xpath="//td[contains(@class, 'rf-tab-hdr') and .='@{label}']" />
+      <ifStep test="@{verify}">
+        <then>
+          <mpl_verify.selectedTab label="@{label}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- chooses a service -->
+  <macrodef name="mpl_goto.service">
+    <attribute name="svcButtonId" />
+    <attribute name="svcName" />
+    <attribute name="isFree" default="false" />
+    <attribute name="admin" default="true" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <clickLink htmlId="@{svcButtonId}" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <mpl_verify.service_details svcName="@{svcName}" isFree="@{isFree}" admin="@{admin}" />
+    </sequential>
+  </macrodef>
+
+  <!-- choose service tag -->
+  <macrodef name="mpl_goto.cloudTag">
+    <attribute name="tag" />
+    <attribute name="verifyTag" default="true" />
+    <sequential>
+      <clickLink xpath="//div[@class='tagCloud']//a[normalize-space()='@{tag}']" />
+      <ifStep test="@{verifyTag}">
+        <then>
+          <mpl_verify.serviceTags tag="@{tag}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+</project>

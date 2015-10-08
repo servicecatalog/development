@@ -1,0 +1,241 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <macrodef name="operator.executeClient">
+    <attribute name="commandline" />
+    <sequential>
+      <property name="javaOutFile" location="../results/javaout.txt" />
+
+      <!-- Verify environment -->
+      <condition property="glassfishHomeSet" value="true">
+        <isset property="glassfish.home" />
+      </condition>
+      <fail message="Ensure the correct glassfish is installed and referenced in property files [property=glassfish.home]" unless="glassfishHomeSet" />
+      <condition property="glassfishRuntimeExists" value="true">
+        <available file="${glassfish.home}/glassfish/lib/gf-client.jar" type="file" />
+      </condition>
+      <fail message="Glasfish path is not correct. No libaries found in: ${glassfish.home}" unless="glassfishRuntimeExists" />
+      <condition property="operatorClientClassesDirExists" value="true">
+        <available file="../../oscm-build/result/work/oscm-operatorsvc-client/classes" type="dir" />
+      </condition>
+      <fail message="Please execute BUILD.All in order to build command line for UI tests" unless="operatorClientClassesDirExists" />
+
+      <!-- Execute -->
+      <java classname="org.oscm.operatorsvc.client.OperatorClient" fork="true" failonerror="true" output="${javaOutFile}">
+        <jvmarg value="-Djava.naming.factory.initial=com.sun.enterprise.naming.SerialInitContextFactory" />
+        <jvmarg value="-Dorg.omg.CORBA.ORBInitialHost=${org.omg.CORBA.ORBInitialHost}" />
+        <jvmarg value="-Dorg.omg.CORBA.ORBInitialPort=${org.omg.CORBA.ORBInitialPort}" />
+        <arg line="1000 admin123 @{commandline}" />
+        <classpath>
+          <pathelement location="${glassfish.home}/glassfish/lib/gf-client.jar" />
+          <pathelement location="${operator.classpath.devruntime.path}" />
+          <pathelement location="${operator.classpath.common.path}" />
+          <pathelement location="${operator.classpath.extsvc.path}" />
+          <pathelement location="${operator.classpath.extsvc-internal.path}" />
+          <pathelement location="${operator.classpath.log4j.path}" />
+          <pathelement path="${operator.classpath.operatorsvc-client.path}" />
+        </classpath>
+      </java>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.regexClientOutput">
+    <attribute name="regex" />
+    <attribute name="property" />
+    <sequential>
+      <invoke description="Evaluate result" url="file://${javaOutFile}" />
+      <storeRegEx description="Extract result" text="@{regex}" property="@{property}" group="1" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.createorganization">
+    <attribute name="email" default="${common.email}" />
+    <attribute name="userId" default="${common.userId}" />
+    <attribute name="roles" default="TECHNOLOGY_PROVIDER,SUPPLIER" />
+    <attribute name="domicile" default="DE" />
+    <attribute name="createUniqueId" default="true" />
+    <attribute name="oprevshare" default="0" />
+    <sequential>
+      <ifStep test="@{createUniqueId}">
+        <then>
+          <user.createUniqueName userId="@{userId}" />
+        </then>
+        <else>
+          <storeProperty name="uniqueUserId" value="@{userId}" />
+        </else>
+      </ifStep>
+
+      <storeProperty name="rolesAttribute" value="@{roles}" eval="false" />
+      <ifStep>
+        <condition>
+          <verifyProperty description="Check if the new organization is a supplier" name="rolesAttribute" text=".*SUPPLIER.*" regex="true" />
+        </condition>
+        <then>
+          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile} organization.operatorrevshare=@{oprevshare}" />
+        </then>
+        <else>
+          <operator.executeClient commandline="createorganization -f ../properties/organization.properties organization.email=@{email} user.identifier=#{uniqueUserId} user.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile}" />
+        </else>
+      </ifStep>
+
+      <operator.regexClientOutput regex="organization\s'(\S*)'" property="orgId" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.updateorganization">
+    <attribute name="orgId" />
+    <attribute name="email" default="${common.email}" />
+    <attribute name="roles" default="TECHNOLOGY_PROVIDER,SUPPLIER" />
+    <attribute name="domicile" default="DE" />
+    <attribute name="oprevshare" default="" />
+    <sequential>
+      <storeProperty name="revenueShareAttribute" value="@{oprevshare}" eval="false" />
+      <ifStep description="Check if the operator revenue share is set">
+        <condition>
+          <verifyProperty description="Check if the operator revenue share is set" name="revenueShareAttribute" text=".+" regex="true" />
+        </condition>
+        <then>
+          <operator.executeClient commandline="updateorganization -f ../properties/update_organization.properties organization.id=@{orgId} organization.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile} organization.operatorrevshare=@{oprevshare}" />
+        </then>
+        <else>
+          <operator.executeClient commandline="updateorganization -f ../properties/update_organization.properties organization.id=@{orgId} organization.email=@{email} organization.roles=@{roles} organization.domicile=@{domicile}" />
+        </else>
+      </ifStep>
+
+      <operator.regexClientOutput regex="organization\s'(\S*)'" property="orgId" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.addAvailablePaymentTypes">
+    <attribute name="orgId" />
+    <attribute name="paymentTypes" default="DIRECT_DEBIT,CREDIT_CARD,INVOICE" />
+    <sequential>
+      <operator.executeClient commandline="setpspaccountfororganization orgid=@{orgId} pspid=heidelpay pspidentifier=Test" />
+      <operator.executeClient commandline="addavailablepaymenttypes orgid=@{orgId} paymenttypes=@{paymentTypes}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.addOrganizationToRole">
+    <attribute name="orgId" />
+    <attribute name="role" default="SUPPLIER" />
+    <sequential>
+      <operator.executeClient commandline="addorganizationtorole -f organization.email=@{email} orgid=@{orgId} role=@{role}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="administrator.createTriggerDefinition">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="type" />
+    <attribute name="target" default="${mock.url}/NotificationService?wsdl" />
+    <attribute name="suspendprocess" default="true" />
+    <sequential>
+      <login.loginAsSupplier url="@{url}" userId="@{userId}" />
+
+      <clickLink label="${organization.manageTriggers.title}" />
+
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <clickElement htmlId="listForm:hiddenAddButton" />
+      <setInputField htmlId="editForm:target" value="@{target}" />
+      <setSelectField description="select type" xpath="//select[@id='editForm:type']" value="@{type}" />
+      <setInputField htmlId="editForm:triggerName" value="Triggername" />
+      <storeProperty name="triggerType" value="@{type}" eval="false" />  
+      <ifStep>
+        <condition>
+          <verifyProperty name="triggerType" value="START_BILLING_RUN" regex="true"/>
+        </condition>
+        <then>
+        	<storeElementAttribute htmlId="editForm:suspendProcess"  propertyName="disabled" attributeName="disabled"/>
+        	<verifyProperty name="disabled" text="disabled" regex="true"/>
+        </then>
+        <else>
+        	<setCheckbox htmlId="editForm:suspendProcess" checked="@{suspendprocess}" />
+        </else>
+      </ifStep>
+      <clickElement htmlId="editForm:saveButton" />
+
+      <common.verifySuccess label="${info.triggerDefinition.created}" />
+      <verifyElementText htmlId="pagelabel" text="${organization.manageTriggers.title}" />
+      <verifyXPath description="Trigger list should have a new entry" xpath="//table[@id=&quot;listForm:triggerDefinitionTable&quot;]" />
+      
+      <clickLink href="/oscm-portal/triggerprocess/list.jsf" />
+      <verifyXPath xpath="//*[@href='/oscm-portal/triggerprocess/list.jsf']" />
+      
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.startBillingRun">
+    <sequential>
+      <operator.executeClient commandline="startbillingrun" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.addCurrency">
+    <attribute name="currency" default="EUR" />
+    <sequential>
+      <operator.executeClient commandline="addcurrency currencyISOCode=@{currency}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.saveConfigurationSetting">
+    <attribute name="key" />
+    <attribute name="value" />
+    <sequential>
+
+      <operator.executeClient commandline="saveconfigurationsetting settingKey=@{key} settingValue=@{value}" />
+    </sequential>
+  </macrodef>
+
+  <!-- set operator locale with mandatory fields -->
+  <macrodef name="operator.edit.locale">
+    <attribute name="locale" />
+    <attribute name="successText" default="${info.user.profileSaved}" />
+    <sequential>
+      <invoke description="invoke organization/edit.jsf" url="${bes.http.url}/oscm-portal/organization/edit.jsf" />
+      <setSelectField description="select locale" xpath="//select[@id='editForm:locale']" value="@{locale}" />
+      <setInputField description="set email" htmlId="editForm:email" value="${common.email}" />
+      <setSelectField description="select country" htmlId="editForm:country" value="DE" />
+      <clickLink description="save" htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="@{successText}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="operator.createMarketplace">
+    <attribute name="ownerId" default="" />
+    <attribute name="open" default="false" />
+    <attribute name="name" default="" />
+    <attribute name="reviewEnabled" default="true" />
+    <attribute name="taggingEnabled" default="true" />
+    <attribute name="socialBookmarksEnabled" default="false" />
+    <attribute name="mIdProperty" default="" />
+    <attribute name="baseUrl" default="${bes.http.url}" />
+    <attribute name="failonerror" default="false" />
+    <sequential>
+      <setup:marketplace.create ownerId="@{ownerId}" open="@{open}" name="@{name}" mIdProperty="@{mIdProperty}" failonerror="@{failonerror}" runAs="1000" reviewEnabled="@{reviewEnabled}" taggingEnabled="@{taggingEnabled}" socialBookmarksEnabled="@{socialBookmarksEnabled}" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="operator.deleteMarketplaces">
+    <!-- id[,id]* -->
+    <attribute name="marketplaceIds" />
+    <attribute name="baseUrl" default="${bes.http.url}" />
+    <attribute name="failonerror" default="false" />
+    <sequential>
+      <setup:marketplace.delete Ids="@{marketplaceIds}" failonerror="@{failonerror}" runAs="1000" />
+    </sequential>
+  </macrodef>
+
+
+  <macrodef name="operator.addSupplierToGlobalMarketplace">
+    <attribute name="supplierId" />
+    <attribute name="marketplaceId" />
+    <attribute name="baseUrl" default="${bes.http.url}" />
+    <attribute name="runAs" default="1000" />
+    <sequential>
+      <setup:marketplace.addSupplier supplierId="@{supplierId}" marketplaceId="@{marketplaceId}" runAs="@{runAs}" />
+    </sequential>
+  </macrodef>
+
+</project>

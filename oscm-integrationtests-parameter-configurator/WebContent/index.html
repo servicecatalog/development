@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<title>External configurator tool</title>
+
+<script src="scripts/configurationApi.js" type="text/javascript"></script>
+<script src="scripts/configurationUi.js" type="text/javascript"></script>
+<script src="scripts/json2.js" type="text/javascript"></script>
+
+<script>
+    var parameterConfigurator = null;
+
+    function init() {
+        parameterConfigurator = new BssParameterConfigurator(document.getElementById('displayUI'));
+        sendInitMessage();
+    }
+    
+	function send(message) {
+		parent.postMessage(message, document.referrer);
+	}
+	
+	function sendInitMessage() {
+	    var initMessage = new InitMessage(800, 600);
+	    send(initMessage.toJSON());
+	}
+
+	function evaluateMessage(jsonString) {
+		var parsedMessage = Message.parse(jsonString);
+
+	    if (parsedMessage != null && parsedMessage.getMessageType() == Message.Type.CONFIG_REQUEST) {
+			renderUI(parsedMessage);
+		}
+	}
+
+	function renderUI(configRequest) {
+	    parameterConfigurator.render(configRequest);
+	}
+
+	if (document.addEventListener) {
+		window.addEventListener("message", function(e) {
+			evaluateMessage(e.data);
+		}, false);
+	} else {
+		window.attachEvent('onmessage', function(e) {
+			evaluateMessage(e.data);
+		});
+	}
+</script>
+
+</head>
+<body onload="init();">
+  <div id="displayUI"></div>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+	<rich:popupPanel id="detailPanel" height="480" width="640"
+		trimOverlayedElements="false" resizeable="false" autosized="true"
+		moveable="true">
+		<f:facet name="header" style="cursor: default;">
+			<h:outputText value="#{msg['techService.detail.title']}" />
+		</f:facet>
+		<f:facet name="controls" style="cursor: default;">
+			<h:panelGroup>
+				<span class="headerIcon" id="detailsClose"
+					onclick="#{rich:component('detailPanel')}.hide();"> <h:graphicImage
+						value="/img/transparentPixel.png" styleClass="close" />
+				</span>
+				<span class="headerIcon" id="detailsHelp"
+					onclick="AdmUtils.showHelp('#{facesContext.externalContext.requestContextPath}', '#{facesContext.viewRoot.locale}', 'techService.detail');">
+					<h:graphicImage value="/img/transparentPixel.png" styleClass="help" />
+				</span>
+			</h:panelGroup>
+		</f:facet>
+
+		<a4j:outputPanel id="detailContentPanel" layout="block"
+			styleClass="scrollAuto contentPanel">
+			<h:panelGrid columns="2"
+				columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2">
+				<adm:outputLabel value="#{msg['techService.techServiceId']}" />
+				<h:panelGroup>
+					<h:outputText
+						value="#{techServiceBean.selectedTechnicalService.technicalServiceId}" />
+					<adm:nbsp />
+					<h:outputText value="/"
+						rendered="#{not empty techServiceBean.selectedTechnicalService.technicalServiceBuildId}" />
+					<h:outputText
+						value="#{techServiceBean.selectedTechnicalService.technicalServiceBuildId}" />
+					<adm:nbsp />
+					<h:outputText value="#{msg['info.techService.isAlive']}"
+						styleClass="infoMsg"
+						rendered="#{techServiceBean.selectedTechnicalServiceActive}" />
+					<h:outputText value="#{msg['warning.techService.isNotAlive']}"
+						styleClass="warnMsg"
+						rendered="#{not techServiceBean.selectedTechnicalServiceActive}" />
+				</h:panelGroup>
+
+				<h:outputText value=""
+					rendered="#{not techServiceBean.selectedTechnicalServiceActive}" />
+				<h:outputText
+					value="#{msg[techServiceBean.applicationException.messageKey]}"
+					styleClass="warnMsg"
+					rendered="#{not techServiceBean.selectedTechnicalServiceActive}" />
+
+				<adm:outputLabel value="#{msg['techService.billingIdentifier']}" />
+				<h:outputText
+					value="#{techServiceBean.selectedTechnicalService.billingIdentifier}"
+					styleClass="outputtext-break-word" style="max-width:420px;" />
+
+				<adm:outputLabel value="#{msg['techService.accessType']}" />
+				<c:set var="key"
+					value="ServiceAccessType.#{techServiceBean.selectedTechnicalService.accessType}" />
+				<h:outputText value="#{msg[key]}" />
+				<adm:outputLabel value="#{msg['techService.baseUrl']}"
+					rendered="#{not techServiceBean.selectedTechnicalService.accessTypeDirect and not techServiceBean.selectedTechnicalService.accessTypeSaml}" />
+				<h:outputText
+					value="#{techServiceBean.selectedTechnicalService.baseUrl}"
+					styleClass="outputtext-break-word" style="max-width:420px;"
+					rendered="#{not techServiceBean.selectedTechnicalService.accessTypeDirect and not techServiceBean.selectedTechnicalService.accessTypeSaml}" />
+
+				<adm:outputLabel value="#{msg['techService.provisioningUrl']}" />
+				<h:outputText
+					value="#{techServiceBean.selectedTechnicalService.provisioningUrl}"
+					styleClass="outputtext-break-word" style="max-width:420px;" />
+
+				<adm:outputLabel value="#{msg['techService.description']}" />
+				<adm:outputLarge
+					value="#{techServiceBean.selectedTechnicalService.technicalServiceDescription}" />
+			</h:panelGrid>
+
+			<adm:outputStep value="#{msg['techService.parameterDefinitions']}" />
+
+			<a4j:outputPanel layout="block" styleClass="tablePanel">
+				<adm:dataTable width="555px" tableId="parameterDefinitionTable"
+					value="#{techServiceBean.selectedTechnicalService.parameterDefinitions}"
+					label="#{msg['techService.parameterDefinitions.table.header']}">
+					<rich:column style="min-width:20px; max-width:270px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['service.parameter.parameterId']}" />
+						</f:facet>
+						<h:outputText id="parameterId" value="#{rowItem.parameterId}"
+							styleClass="column-break-word"
+							style="width:270px; display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; max-width:270px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['service.parameter.description']}" />
+						</f:facet>
+						<h:outputText id="description" value="#{rowItem.description}"
+							styleClass="column-break-word"
+							style="width:270px; display:block;" />
+					</rich:column>
+				</adm:dataTable>
+			</a4j:outputPanel>
+
+			<adm:outputStep value="#{msg['techService.eventDefinitions']}" />
+
+			<a4j:outputPanel layout="block" styleClass="tablePanel">
+				<adm:dataTable width="555px" tableId="eventDefinitionTable"
+					value="#{techServiceBean.selectedTechnicalService.eventDefinitions}"
+					label="#{msg['techService.eventDefinitions.table.header']}">
+					<rich:column style="min-width:20px; max-width:270px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['eventTable.eventID']}" />
+						</f:facet>
+						<h:outputText id="eventId" value="#{rowItem.eventId}"
+							styleClass="column-break-word"
+							style="width:270px; display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; max-width:270px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['eventTable.description']}" />
+						</f:facet>
+						<h:outputText id="description" value="#{rowItem.eventDescription}"
+							styleClass="column-break-word"
+							style="width:270px; display:block;" />
+					</rich:column>
+				</adm:dataTable>
+			</a4j:outputPanel>
+
+			<adm:outputStep value="#{msg['techService.roleDefinitions']}" />
+
+			<a4j:outputPanel layout="block" styleClass="tablePanel">
+				<adm:dataTable width="555px" tableId="roleDefinitionTable"
+					value="#{techServiceBean.selectedTechnicalService.roleDefinitions}"
+					label="#{msg['techService.roleDefinitions.table.header']}">
+					<rich:column style="min-width:20px; max-width:175px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['roleTable.roleID']}" />
+						</f:facet>
+						<h:outputText id="roleId" value="#{rowItem.roleId}"
+							styleClass="column-break-word"
+							style="width:175px; display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; max-width:175px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['roleTable.name']}" />
+						</f:facet>
+						<h:outputText id="name" value="#{rowItem.name}"
+							styleClass="column-break-word"
+							style="width:175px; display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; width:175px; max-width:175px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['roleTable.description']}" />
+						</f:facet>
+						<h:outputText id="description" value="#{rowItem.description}"
+							styleClass="column-break-word"
+							style="width:175px; display:block;" />
+					</rich:column>
+				</adm:dataTable>
+			</a4j:outputPanel>
+
+			<adm:outputStep value="#{msg['techService.operationDefinitions']}" />
+
+			<a4j:outputPanel layout="block" styleClass="tablePanel">
+				<adm:dataTable width="555px" tableId="operationDefinitionTable"
+					value="#{techServiceBean.operations}"
+					label="#{msg['techService.operationDefinitions.table.header']}">
+					<rich:column style="min-width:20px; width:100px; max-width:100px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['operation.operationId']}" />
+						</f:facet>
+						<h:outputText id="operationId" value="#{rowItem.operationId}"
+							styleClass="column-break-word" style="display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; width:100px; max-width:100px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['operation.parameter.Id']}"
+								styleClass="column-break-word" style="width:90px;display:block;" />
+						</f:facet>
+						<h:outputText id="parameterId" value="#{rowItem.parameterId}"
+							styleClass="column-break-word" style="display:block;" />
+					</rich:column>
+
+					<rich:column style="min-width:20px; width:175px; max-width:175px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['operation.name']}" />
+						</f:facet>
+						<h:outputText id="name" value="#{rowItem.displayName}"
+							styleClass="column-break-word"
+							style="width:175px; display:block;" />
+					</rich:column>
+					<rich:column style="min-width:20px; width:175px; max-width:175px;">
+						<f:facet name="header">
+							<h:outputText value="#{msg['operation.description']}" />
+						</f:facet>
+						<h:outputText id="description"
+							value="#{rowItem.operationDescription}"
+							styleClass="column-break-word"
+							style="width:175px; display:block;" />
+					</rich:column>
+				</adm:dataTable>
+			</a4j:outputPanel>
+
+		</a4j:outputPanel>
+
+		<adm:buttonPanel>
+			<adm:buttonCustomizedOnClick id="buttonOK"
+				value="#{msg['button.ok']}"
+				onclick="#{rich:component('detailPanel')}.hide();"
+				buttonType="confirm" />
+		</adm:buttonPanel>
+
+	</rich:popupPanel>
+
+</ui:composition>

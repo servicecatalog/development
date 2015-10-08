@@ -1,0 +1,11 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="wt.full">
+
+  <!--
+    Dummy file to avoid eclipse validation error
+  -->
+
+  <target name="wt.full">
+  </target>
+	
+</project>

@@ -1,0 +1,84 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testServiceNameDisplay" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <!-- This test check if the service name is displayed correctly. -->
+  <!-- If the service name is not set, the alternate message must be displayed. -->
+  <!-- This covers bug #8653, 8719 -->
+  <target name="init">
+    <webtest name="initServiceNameDisplay">
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierBaseUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="supplierOrgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierOrgId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="MP_ID_LOCAL" ownerId="${supplierOrgId}" baseurl="${supplierUrl}" name="LocalMP" />
+      <login.initialLoginAndChangePassword url="${supplierOrgUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${MP_ID_LOCAL}" />
+        
+      <organization.managePayment paymentType="cust0"/>
+      <login.logout />
+      <setup:store.settings userkey="${supplierUserKey}" password="${common.password}" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <setup:techservice.import file="${techService.import.file}" />
+
+      <!-- create service which doesn't have service name -->
+      <storeProperty name="SVC_ID_LOCALMP_NO_SERVICE_NAME" value="serviceForLocalNoServiceName" propertyType="ant" />
+      <storeProperty name="SUB_ID_LOCALMP_NO_SERVICE_NAME" value="subscriptionForLocalNoServiceName" propertyType="ant" />
+      <setup:service.define svcKeyProperty="svcKey1" marketplaceId="${MP_ID_LOCAL}" techServiceId="Example_with_roles 1.00" serviceId="${SVC_ID_LOCALMP_NO_SERVICE_NAME}" name="" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="${SVC_ID_LOCALMP_NO_SERVICE_NAME}" isFree="false" />
+
+      <!-- create service which has service name -->
+      <storeProperty name="SVC_ID_LOCALMP" value="serviceForLocal" propertyType="ant" />
+      <storeProperty name="SVC_NAME_LOCALMP" value="serviceNameForLocal" propertyType="ant" />
+      <storeProperty name="SUB_ID_LOCALMP" value="subscriptionForLocal" propertyType="ant" />
+      <setup:service.define svcKeyProperty="svcKey2" marketplaceId="${MP_ID_LOCAL}" techServiceId="Example_with_roles 1.00" serviceId="${SVC_ID_LOCALMP}" name="${SVC_NAME_LOCALMP}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="${SVC_ID_LOCALMP}" isFree="false" />
+
+      <setup:service.activate serviceIds="${SVC_ID_LOCALMP_NO_SERVICE_NAME},${SVC_ID_LOCALMP}" />
+
+      <setup:billingContact.create bcId="bc1" />
+      <setup:subscription.create subId="${SUB_ID_LOCALMP}" marketplaceId="${MP_ID_LOCAL}" serviceKey="${svcKey2}" bcId="bc1" piId="Invoice" />
+      <setup:subscription.create subId="${SUB_ID_LOCALMP_NO_SERVICE_NAME}" marketplaceId="${MP_ID_LOCAL}" serviceKey="${svcKey1}" bcId="bc1" piId="Invoice" />
+    </webtest>
+  </target>
+
+  <target name="testServiceNameDisplay" depends="init">
+    <webtest name="testServiceNameDisplay: Display 'Service name is undefined' if no name is not set to the service">
+
+      <login.loginAsSupplier url="${supplierBaseUrl}" userId="${supplierUserId}" />
+      <!-- verify "Price model - Define for service" page-->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID_LOCALMP_NO_SERVICE_NAME}" />
+      <verifyElementText htmlId="editForm:serviceName" text="${service.name.undefined}" />
+
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID_LOCALMP}" />
+      <verifyElementText htmlId="editForm:serviceName" text="${SVC_NAME_LOCALMP}" />
+
+      <!-- verify "Price model - Define for customer" page-->
+      <common.clickAndVerfyLink label="${priceModel.customer.title}" />
+      <setSelectField htmlId="serviceSelectForm:customerSelection" value="${supplierOrgId}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID_LOCALMP_NO_SERVICE_NAME}" />
+      <verifyElementText htmlId="editForm:serviceName" text="${service.name.undefined}" />
+
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID_LOCALMP}" />
+      <verifyElementText htmlId="editForm:serviceName" text="${SVC_NAME_LOCALMP}" />
+
+      <!-- verify "Price model - Define for subscription" page-->
+      <common.clickAndVerfyLink label="${priceModel.subscription.title}" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${SUB_ID_LOCALMP_NO_SERVICE_NAME}')]" />
+      <verifyElementText htmlId="editForm:serviceName" text="${service.name.undefined}" />
+
+      <clickElement xpath="(//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'${SUB_ID_LOCALMP}')])[2]" />
+      <common.waitForJavaScript />	
+      <verifyElementText htmlId="editForm:serviceName" text="${SVC_NAME_LOCALMP}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+</project>

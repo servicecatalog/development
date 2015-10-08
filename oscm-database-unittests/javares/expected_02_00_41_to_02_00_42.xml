@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- The new user role must be added to the DB -->
+  <UserRole tkey="5" rolename="MARKETPLACE_OWNER" version="0" />
+
+  <!-- Assign the new mpl owner role to the platform admin by default -->
+  <RoleAssignment tkey="1" version="0" user_tkey="1000" userrole_tkey="5" />
+  <RoleAssignmentHistory tkey="1" modtype="ADD" moduser="ANONYMOUS" objkey="1" objversion="0"
+    userobjkey="1000" userroleobjkey="3" />
+</dataset>

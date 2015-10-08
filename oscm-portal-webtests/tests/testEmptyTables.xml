@@ -1,0 +1,92 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testEmptyTables">
+  <import file="../macros/all.xml" />
+
+
+  <target name="testEmptyTables">
+    <webtest name="testEmptyProviderTables">
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <clickLink href="/techservice/import.jsf" />
+      <common.tableEmpty tableId="importForm:techServiceTable" />
+
+      <common.ignorePageScriptError />
+      <clickLink href="/techservice/edit.jsf" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+      <common.tableEmpty tableId="editForm:eventTable" />
+      <common.tableEmpty tableId="editForm:roleTable" />
+      <common.tableEmpty tableId="editForm:operationTable" />
+
+      <clickLink href="/techservice/export.jsf" />
+      <common.tableEmpty tableId="exportForm:techServiceTable" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testEmptySupplierTables">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <clickLink href="/organization/manageUdas.jsf" />
+      <common.tableEmpty tableId="udaDefinitionsCustomerForm:customerUdaTable" emptyText="${organization.manageUdas.noData}" />
+      <common.tableEmpty tableId="udaDefinitionsSubscriptionForm:subscriptionUdaTable" emptyText="${organization.manageUdas.noData}" />
+
+      <clickLink href="/subscription/editUdas.jsf" />
+      <common.tableEmpty tableId="editForm:udaTable" emptyText="${organization.manageUdas.noData}" />
+
+      <common.ignorePageScriptError />
+      <clickLink href="/service/add.jsf" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+
+      <clickLink href="/service/edit.jsf" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+      <common.reSetPageScriptError />
+
+      <clickLink href="/service/upgradeoptions.jsf" />
+      <common.tableEmpty tableId="editForm:serviceTable" />
+
+      <clickLink href="/service/activation.jsf" />
+      <common.tableEmpty tableId="serviceDeActivationForm:activationTable" />
+
+      <!-- create chargeable pricemodel for empty table tests of pricemodel -->
+      <techservice.import file="data/TechnicalServices-USER.xml" />
+      <storeProperty name="serviceIdForEmptyTable" value="ServiceIdForPriceModelEmptyTable" />
+      <common.ignorePageScriptError />
+      <service.defineWithoutParameter serviceId="#{serviceIdForEmptyTable}" techServiceId="ExampleSAML 1.00" />
+      <clickLink href="/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{serviceIdForEmptyTable}" />
+      <pricemodel.setFree isFree="false" />
+      <common.tableEmpty tableId="editForm:eventTable" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+      
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <common.tableEmpty tableId="editForm:eventTable" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+
+      <clickLink href="/priceModel/customerPriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{serviceIdForEmptyTable}" />
+      <pricemodel.setFree isFree="false" />
+      <common.tableEmpty tableId="editForm:eventTable" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+      
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <common.tableEmpty tableId="editForm:eventTable" />
+      <common.tableEmpty tableId="editForm:parameterTable" />
+
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <clickLink href="/priceModel/customerPriceModelDelete.jsf" />
+      <common.tableEmpty tableId="customerPriceModelDeleteForm:deleteCustPM" />
+
+      <login.logout />
+    </webtest>
+  </target>
+</project>

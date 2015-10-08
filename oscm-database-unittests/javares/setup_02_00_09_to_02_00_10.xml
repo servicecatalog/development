@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER" />
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR" />
+  
+  <Organization tkey="1" version="0" organizationid="platformOperator1" registrationdate="1234" supplierkey="1"/>
+  <Organization tkey="2" version="0" organizationid="supplier1" registrationdate="1234" />
+  <Organization tkey="3" version="0" organizationid="customer1" registrationdate="1234" supplierkey="2"/>
+  <Organization tkey="4" version="0" organizationid="customerAndSupplier1" registrationdate="1234" supplierkey="2"/>
+  
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="4"/>
+  <OrganizationToRole tkey="2" version="0" organization_tkey="2" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="3" version="0" organization_tkey="3" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="4" version="0" organization_tkey="4" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="5" version="0" organization_tkey="4" organizationrole_tkey="3"/>
+  
+  <OrganizationReference tkey="10" version="0" supplierkey="1" technologyproviderkey="1" />
+
+</dataset>

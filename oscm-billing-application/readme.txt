@@ -1,0 +1,1 @@
+The local service for the communication with the billing adapters

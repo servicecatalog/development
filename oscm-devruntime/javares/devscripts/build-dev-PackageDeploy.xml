@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="ADM Developer tasks - PACKAGE, DEPLOY" default="" basedir=".">
+
+  <description>This buildfile is used to BUILD, PACKAGE and DEPLOY productive CT-MG applications like the portal, birt or the server ear.
+  </description>
+
+  <import file="macrodefs-dev.xml" />
+  <property environment="env" />
+  <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+  <property name="dev.dir" value="${basedir}/../../.." />
+  <property name="adm.ue.buildscript.dir" location="${dev.dir}/oscm-build" />
+  <property name="adm.ue.buildscript.file" location="${adm.ue.buildscript.dir}/build.xml" />
+  <property name="build.result.package.dir" location="${adm.ue.buildscript.dir}/result/package" />
+  <property name="integration.resources.dir" location="${dev.dir}/oscm-integrationtests-setup/resources" />
+  <property name="local.dir" value="${basedir}/../local/${env.HOSTNAME}" />
+  <verifyFileExists filePath="${local.dir}/integration.properties" />
+  <echo message="Loading integration.properties from ${local.dir}/integration.properties" />
+  <property file="${local.dir}/integration.properties" />
+  <property file="${local.dir}/test.properties" />
+  <property name="bes.domain.apps" value="${glassfish.home}/glassfish/domains/${glassfish.bes.domain.name}/applications" />
+  <property name="master.domain.apps" value="${glassfish.home}/glassfish/domains/${glassfish.master.domain.name}/applications" />
+  <property name="example.domain.apps" value="${glassfish.home}/glassfish/domains/${glassfish.example.domain.name}/applications" />
+  <property name="app.domain.apps" value="${glassfish.home}/glassfish/domains/${glassfish.app.domain.name}/applications" />
+  <property name="working.dir" value="${local.dir}" />
+  <available file="${build.result.package.dir}/oscm-devruntime" type="dir" property="DatabaseUpgradeHandler.present" />
+  <available file="${build.result.package.dir}/oscm-extsvc-internal" type="dir" property="WebtestEnvironment.present" />
+  <import file="${basedir}/../macrodefs.xml" />
+  <import file="${integration.resources.dir}/macrodefs_integration.xml" />
+  <besDomainProperties />
+  <clusterProperties />
+  <property name="db.url.testdb" value="jdbc:postgresql://${db.host}:${db.port}/bssunittests" />
+
+  <target name="MasterIndexer.BUILD" description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-search" />
+    </ant>
+  </target>
+
+  <target name="IntegrationHelper.BUILD" description="Builds the IntegrationHelper, the build result can be found in oscm-build/result/package/oscm-integrationhelper">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-integrationhelper,oscm-webservices-proxy" />
+    </ant>
+  </target>
+
+  <target name="MasterIndexer.DEPLOY" description="Deploys the master indexer application into the indexer domain">
+    <delete file="${master.domain.apps}/oscm-search/.glassfishStaleFiles" failonerror="false" />
+    <deployOnIndexerDomain appl="${build.result.package.dir}/oscm-search/oscm-search.ear" />
+  </target>
+
+  <target name="MasterIndexer.UNDEPLOY" description="Undeploys the master indexer application from the indexer domain">
+    <undeployFromIndexerDomain appl="oscm-search" failonerror="false" />
+  </target>
+
+  <target name="BesEar.BUILD" description="Builds the BES server ear file, the result can be found in oscm-build/result/package/oscm-ear">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-ear,oscm-security" />
+    </ant>
+  </target>
+
+  <target name="BesEarWithoutWebServices.BUILD" description="Builds the BES server ear without web services, the result can be found in oscm-build/result/package/oscm-ear">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="ear-content.dir" value="EarContent_withoutWebServices" />
+      <property name="projects" value="oscm-ear,oscm-security" />
+    </ant>
+  </target>
+
+  <target name="BesEar.DEPLOY" description="Deploys the BES server ear file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm/.glassfishStaleFiles" failonerror="false" />
+    <copy file="${build.result.package.dir}/oscm-security/oscm-security.jar" todir="${glassfish.domain.dir}/lib" />
+    <deployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-ear/oscm.ear" />
+  </target>
+
+  <target name="BesEar.REDEPLOY" description="Redeploys the BES server ear file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm/.glassfishStaleFiles" failonerror="false" />
+    <copy file="${build.result.package.dir}/oscm-security/oscm-security.jar" todir="${glassfish.domain.dir}/lib" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-ear/oscm.ear" appname="oscm" />
+  </target>
+
+  <target name="BesEar.UNDEPLOY" description="Undeploys the BES server ear file from the BES domain">
+    <undeployFromBesDomain target="server" appl="oscm" failonerror="false" />
+  </target>
+
+  <target name="WebContent.DEPLOY">
+    <copy todir="${bes.domain.apps}/oscm-portal">
+      <fileset dir="${dev.dir}/oscm-portal/WebContent" />
+    </copy>
+  </target>
+
+  <target name="Birt.BUILD" description="Builds the BIRT report engine war file, the result can be found in in oscm-build/result/package/eclipse-birt-runtime">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="eclipse-birt-runtime" />
+    </ant>
+  </target>
+
+  <target name="Birt.DEPLOY" description="Deploys the BIRT report engine into the BES domain">
+    <delete file="${bes.domain.apps}/eclipse-birt-runtime/.glassfishStaleFiles" failonerror="false" />
+    <deployOnBesDomain target="server" appl="${build.result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.war" />
+  </target>
+
+  <target name="Birt.REDEPLOY" description="Redeploys the BIRT report engine into the BES domain">
+    <delete file="${bes.domain.apps}/eclipse-birt-runtime/.glassfishStaleFiles" failonerror="false" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.war" appname="eclipse-birt-runtime" />
+  </target>
+
+  <target name="Birt.UNDEPLOY" description="Undeploys the BIRT report engine from the BES domain">
+    <undeployFromBesDomain target="server" appl="eclipse-birt-runtime" failonerror="false" />
+  </target>
+
+  <target name="Portal.BUILD" description="Builds the BES UI portal war file, the result can be found in oscm-build/result/package/oscm-portal">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-portal" />
+    </ant>
+    <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-portal/oscm-portal.war" />
+  </target>
+
+  <target name="Portal.DEPLOY" description="Deploys the BES portal war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-portal/.glassfishStaleFiles" failonerror="false" />
+    <deployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-portal/oscm-portal.war" />
+  </target>
+
+  <target name="Portal.REDEPLOY" description="Redeploys the BES portal war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-portal/.glassfishStaleFiles" failonerror="false" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-portal/oscm-portal.war" appname="oscm-portal" />
+  </target>
+
+  <target name="Portal.UNDEPLOY" description="Undeploys the BES portal war file into the BES domain">
+    <undeployFromBesDomain target="server" appl="oscm-portal" failonerror="false" />
+  </target>
+
+  <target name="PortalHelp.BUILD" description="Builds the portal help war file into the BES domain,the result can be found in oscm-build/result/package/oscm-portal-help">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-portal-help" />
+    </ant>
+  </target>
+
+  <target name="PortalHelp.DEPLOY" description="Deploys the portal help war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-portal-help/.glassfishStaleFiles" failonerror="false" />
+    <deployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-portal-help/oscm-portal-help.war" />
+  </target>
+
+  <target name="PortalHelp.REDEPLOY" description="Redeploys the portal help war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-portal/.glassfishStaleFiles" failonerror="false" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-portal-help/oscm-portal-help.war" appname="oscm-portal-help" />
+  </target>
+
+  <target name="PortalHelp.UNDEPLOY" description="Undeploys the portal help war file into the BES domain">
+    <undeployFromBesDomain target="server" appl="oscm-portal-help" failonerror="false" />
+  </target>
+
+  <target name="All.BUILD" description="Full delivery build. Everything with unit tests, java doc, deliverables zips and so on">
+    <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}"/>
+    <ant antfile="ivy-build.xml"/>
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package" />
+  </target>
+
+  <target name="AllComponents.BUILD" description="Build everything needed for development">
+    <setproxy proxyhost="${http.proxyHost}" proxyport="${http.proxyPort}"/>
+    <ant antfile="ivy-build.xml"/>
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-ear,oscm-security,oscm-portal,oscm-search,eclipse-birt-runtime,example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml-sp,oscm-integrationtests-saml2-sp,oscm-psp-heidelpay,oscm-devruntime,oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client,oscm-jmx-internal" />
+    </ant>
+  </target>
+
+  <target name="All.DEPLOY" description="Deploys all components">
+    <antcall target="BesEar.DEPLOY" />
+    <antcall target="Portal.DEPLOY" />
+    <antcall target="MasterIndexer.DEPLOY" />
+    <antcall target="Birt.DEPLOY" />
+  </target>
+
+  <target name="All.UNDEPLOY" description="Undeploys the various components">
+    <antcall target="Portal.UNDEPLOY" />
+    <antcall target="BesEar.UNDEPLOY" />
+    <antcall target="MasterIndexer.UNDEPLOY" />
+    <antcall target="Birt.UNDEPLOY" />
+  </target>
+
+  <target name="All.CLEAN" description="Cleans the build result, i.e. deletes the content of result directory">
+    <delete dir="${build.result.package.dir}/../" />
+  </target>
+
+  <target name="BUILD.Sources">
+    <zip destfile="${dev.dir}/oscm-build/result/src.zip" basedir="../../.." includes="fujitsu*/**/*" excludes="**/bin/**/*,oscm-build/result/**/*,*test*/**/*" />
+  </target>
+
+  <target name="BUILD.TestSources">
+    <zip destfile="${dev.dir}/oscm-build/result/testSrc.zip" basedir="../../.." includes="fujitsu*test*/**/*" excludes="**/bin/**/*,oscm-build/result/**/*" />
+  </target>
+
+  <target name="BUILD.DatabaseUpgradeHandler" unless="${DatabaseUpgradeHandler.present}">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-devruntime" />
+    </ant>
+  </target>
+
+  <target name="BUILD.WebtestEnvironment" unless="${WebtestEnvironment.present}">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-portal-webtests,oscm-extsvc,oscm-extsvc-internal,oscm-common,oscm-devruntime,oscm-psp-extsvc,oscm-operatorsvc-client" />
+    </ant>
+  </target>
+  
+    <target name="AWS install pack.BUILD" description="Builds the portal help war file into the BES domain,the result can be found in oscm-build/result/package/oscm-portal-help">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-aws-install-pack" />
+    </ant>
+  </target>
+
+</project>

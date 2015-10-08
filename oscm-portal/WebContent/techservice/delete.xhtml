@@ -1,0 +1,54 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="techService.delete" />
+    <c:set var="focusElement" value="techServiceKey" />
+  </ui:define>
+  <ui:define name="body">
+
+      <adm:outputStep value="#{msg['techService.delete.step1']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+        <h:form id="selectForm">
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+                <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu id="techServiceKey" styleClass="select" value="#{techServiceBean.selectedTechnicalServiceKey}"
+              onchange="this.form.submit();">
+              <adm:selectItemPleaseSelect itemValue="0" />
+              <c:forEach items="#{techServiceBean.technicalServices}" var="techService">
+                <f:selectItem itemLabel="#{techService.technicalServiceId} "
+                  itemValue="#{techService.key}" />
+              </c:forEach>
+            </h:selectOneMenu>
+         </a4j:outputPanel>
+        </h:form>
+        <adm:message for="techServiceKey" />
+        
+      <adm:labelAndOutputLarge label="#{msg['techService.description']}"
+          value="#{techServiceBean.selectedTechnicalService.technicalServiceDescription}" />
+      </adm:panelGrid>
+
+    <h:form id="deleteForm">
+      <h:commandButton id="confirmedButton" value="#{msg['button.delete']}" action="#{techServiceBean.delete}"
+        style="display:none;" />
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" onclick="#{rich:component('confirmPanel')}.show()"
+          disabled="#{techServiceBean.selectedTechnicalServiceKey eq 0}" buttonType="delete" />
+      </adm:buttonPanel>
+      <h:inputHidden id="token" value="#{techServiceBean.token}" />
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.techService.delete']}" />
+
+  </ui:define>
+</ui:composition>

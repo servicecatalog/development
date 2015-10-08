@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<project name="List Migration Conflicts" default="listUserIdConflicts" basedir=".">
+
+  <description>
+  </description>
+
+  <property name="dbproperties.file" location="${basedir}/db.properties" />
+  <property file="${dbproperties.file}" />
+
+  <path id="postgresql-jdbc.path">
+    <pathelement location="${basedir}/lib/postgresql-9.1-901-1.jdbc4.jar" />
+  </path>
+
+  <target name="listUserIdConflicts">
+    <sql driver="${db.driver.class}" url="${db.url}" userid="${db.user}" password="${db.pwd}" 
+         src="${basedir}/sql/listUseridConflicts.sql" print="yes" output="${basedir}/useridConflicts.csv">
+      <classpath>
+        <path refid="postgresql-jdbc.path" />
+      </classpath>
+    </sql>
+  </target>
+
+</project>

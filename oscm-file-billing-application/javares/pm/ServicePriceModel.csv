@@ -1,0 +1,41 @@
+UUID;External Customer ID;INSTANCE_TYPE;REGION;OS;Locale;FileType;FileName;Tag
+02e410ea-7ca2-11e4-b116-123b93f75cba;;t2.micro;eu-west-1;linux;en;application/pdf;en/t2_micro_eu_frankfurt_linux.pdf;Starting at 4.97 $/Month
+02e410ea-7ca2-11e4-b116-123b93f75cba;;t2.micro;eu-west-1;linux;de;application/pdf;de/t2_micro_eu_frankfurt_linux.pdf;Ab 4,97 $/Monat
+02e413ec-7ca2-11e4-b116-123b93f75cba;;t2.small;eu-west-1;linux;en;application/pdf;en/t2_small_eu_frankfurt_linux.pdf;Starting at 9.95 $/Month
+02e413ec-7ca2-11e4-b116-123b93f75cba;;t2.small;eu-west-1;linux;de;application/pdf;de/t2_small_eu_frankfurt_linux.pdf;Ab 9,95 $/Monat
+02e4159a-7ca2-11e4-b116-123b93f75cba;;t2.medium;eu-west-1;linux;en;application/pdf;en/t2_medium_eu_frankfurt_linux.pdf;Starting at 19.92 $/Month
+02e4159a-7ca2-11e4-b116-123b93f75cba;;t2.medium;eu-west-1;linux;de;application/pdf;de/t2_medium_eu_frankfurt_linux.pdf;Ab 19,92 $/Monat
+02e416e4-7ca2-11e4-b116-123b93f75cba;;t2.large;eu-west-1;linux;en;application/pdf;en/t2_large_eu_frankfurt_linux.pdf;Starting at 39.83 $/Month
+02e416e4-7ca2-11e4-b116-123b93f75cba;;t2.large;eu-west-1;linux;de;application/pdf;de/t2_large_eu_frankfurt_linux.pdf;Ab 39,83 $/Monat
+02e4181a-7ca2-11e4-b116-123b93f75cba;;t2.micro;eu-west-1;windows;en;application/pdf;en/t2_micro_eu_frankfurt_windows.pdf;Starting at 6.95 $/Month
+02e4181a-7ca2-11e4-b116-123b93f75cba;;t2.micro;eu-west-1;windows;de;application/pdf;de/t2_micro_eu_frankfurt_windows.pdf;Ab 6,95 $/Monat
+02e41a5a-7ca2-11e4-b116-123b93f75cba;;t2.small;eu-west-1;windows;en;application/pdf;en/t2_small_eu_frankfurt_windows.pdf;Starting at 13.56 $/Month
+02e41a5a-7ca2-11e4-b116-123b93f75cba;;t2.small;eu-west-1;windows;de;application/pdf;de/t2_small_eu_frankfurt_windows.pdf;Ab 13,56 $/Monat
+c5009d7b-774f-4b48-be46-2da81f692d8e;;t2.medium;eu-west-1;windows;en;application/pdf;en/t2_medium_eu_frankfurt_windows.pdf;Starting at 27.06 $/Month
+c5009d7b-774f-4b48-be46-2da81f692d8e;;t2.medium;eu-west-1;windows;de;application/pdf;de/t2_medium_eu_frankfurt_windows.pdf;Ab 27,06 $/Monat
+f042c6ca-6f6e-49eb-90d2-fb381f9c2a82;;t2.large;eu-west-1;windows;en;application/pdf;en/t2_large_eu_frankfurt_windows.pdf;Starting at 54.06 $/Month
+f042c6ca-6f6e-49eb-90d2-fb381f9c2a82;;t2.large;eu-west-1;windows;de;application/pdf;de/t2_large_eu_frankfurt_windows.pdf;Ab 54,06 $/Monat
+d44c0f19-1ca2-4a06-aa47-dc2a41a72cc5;;t2.micro;us-west-1;linux;en;application/pdf;en/t2_micro_us_west_northern_california_linux.pdf;Starting at 5.81 $/Month
+d44c0f19-1ca2-4a06-aa47-dc2a41a72cc5;;t2.micro;us-west-1;linux;de;application/pdf;de/t2_micro_us_west_northern_california_linux.pdf;Ab 5,81 $/Monat
+11111111-1ca2-4a06-aa47-dc2a41a72cc5;;t2.small;us-west-1;linux;en;application/pdf;en/t2_small_us_west_northern_california_linux.pdf;Starting at 11.64 $/Month
+11111111-1ca2-4a06-aa47-dc2a41a72cc5;;t2.small;us-west-1;linux;de;application/pdf;de/t2_small_us_west_northern_california_linux.pdf;Ab 11,64 $/Monat
+22222222-1ca2-4a06-aa47-dc2a41a72cc5;;t2.medium;us-west-1;linux;en;application/pdf;en/t2_medium_us_west_northern_california_linux.pdf;Starting at 23.28 $/Month
+22222222-1ca2-4a06-aa47-dc2a41a72cc5;;t2.medium;us-west-1;linux;de;application/pdf;de/t2_medium_us_west_northern_california_linux.pdf;Ab 23,28 $/Monat
+33333333-1ca2-4a06-aa47-dc2a41a72cc5;;t2.large;us-west-1;linux;en;application/pdf;en/t2_large_us_west_northern_california_linux.pdf;Starting at 46.56 $/Month
+33333333-1ca2-4a06-aa47-dc2a41a72cc5;;t2.large;us-west-1;linux;de;application/pdf;de/t2_large_us_west_northern_california_linux.pdf;Ab 46,56 $/Monat
+44444444-1ca2-4a06-aa47-dc2a41a72cc5;;t2.micro;us-west-1;windows;en;application/pdf;en/t2_micro_us_west_northern_california_windows.pdf;Starting at 8.17 $/Month
+44444444-1ca2-4a06-aa47-dc2a41a72cc5;;t2.micro;us-west-1;windows;de;application/pdf;de/t2_micro_us_west_northern_california_windows.pdf;Ab 8,17 $/Monat
+55555555-1ca2-4a06-aa47-dc2a41a72cc5;;t2.small;us-west-1;windows;en;application/pdf;en/t2_small_us_west_northern_california_windows.pdf;Starting at 15.25 $/Month
+55555555-1ca2-4a06-aa47-dc2a41a72cc5;;t2.small;us-west-1;windows;de;application/pdf;de/t2_small_us_west_northern_california_windows.pdf;Ab 15,25 $/Monat
+66666666-1ca2-4a06-aa47-dc2a41a72cc5;;t2.medium;us-west-1;windows;en;application/pdf;en/t2_medium_us_west_northern_california_windows.pdf;Starting at 30.45 $/Month
+66666666-1ca2-4a06-aa47-dc2a41a72cc5;;t2.medium;us-west-1;windows;de;application/pdf;de/t2_medium_us_west_northern_california_windows.pdf;Ab 30,45 $/Monat
+77777777-1ca2-4a06-aa47-dc2a41a72cc5;;t2.large;us-west-1;windows;en;application/pdf;en/t2_large_us_west_northern_california_windows.pdf;Starting at 60.95 $/Month
+77777777-1ca2-4a06-aa47-dc2a41a72cc5;;t2.large;us-west-1;windows;de;application/pdf;de/t2_large_us_west_northern_california_windows.pdf;Ab 60,95 $/Monat
+d3fad567-1000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.micro;eu-west-1;windows;en;application/pdf;en/t2_micro_eu_frankfurt_windows_d3fad567.pdf;Starting at 6.50 $/Month
+d3fad567-1000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.micro;eu-west-1;windows;de;application/pdf;de/t2_micro_eu_frankfurt_windows_d3fad567.pdf;Ab 6,50 $/Monat
+d3fad567-2000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.small;eu-west-1;windows;en;application/pdf;en/t2_small_eu_frankfurt_windows_d3fad567.pdf;Starting at 11.95 $/Month
+d3fad567-2000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.small;eu-west-1;windows;de;application/pdf;de/t2_small_eu_frankfurt_windows_d3fad567.pdf;Ab 11,95 $/Monat
+d3fad567-3000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.medium;eu-west-1;windows;en;application/pdf;en/t2_medium_eu_frankfurt_windows_d3fad567.pdf;Starting at 23.86 $/Month
+d3fad567-3000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.medium;eu-west-1;windows;de;application/pdf;de/t2_medium_eu_frankfurt_windows_d3fad567.pdf;Ab 23,86 $/Monat
+d3fad567-4000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.large;eu-west-1;windows;en;application/pdf;en/t2_large_eu_frankfurt_windows_d3fad567.pdf;Starting at 47.72 $/Month
+d3fad567-4000-4a06-aa47-dc2a41a72cc5;d3fad567;t2.large;eu-west-1;windows;de;application/pdf;de/t2_large_eu_frankfurt_windows_d3fad567.pdf;Ab 47,72 $/Monat

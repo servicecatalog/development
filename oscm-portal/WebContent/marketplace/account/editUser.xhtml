@@ -1,0 +1,203 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+                template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.account.editUser" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+    <c:set var="dirty" value="false" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <mp:breadcrumbs>
+      <mp:crumb label="#{msg['marketplace.account.title']}" link="/marketplace/account/index.jsf" />
+      <mp:crumb label="#{msg['marketplace.account.users.title']}" link="/marketplace/account/users.jsf" />
+      <mp:crumb label="#{updateUserModel.userName}" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="aside">
+    <mp:navigationMenu bean="#{accountNavigationBean}" selected="marketplace.account.users.title" />
+  </ui:define>
+
+  <ui:define name="contents">
+
+    <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
+    <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+    <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
+
+    <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
+      <a4j:outputPanel layout="block" styleClass="box">
+
+        <h:form id="validateCurrentUserRolesForm">
+          <a4j:jsFunction name="validateCurrentUserRoles"
+            data="#{updateUserCtrl.currentUserRolesChanged}"
+            oncomplete="if(event.data==true){#{rich:component('reLogining')}.show();}
+                        else{setOnSubmit(true);setDirty(false);
+                        #{rich:element('saveButton')}.click();setOnSubmit(false);} return false;">
+          </a4j:jsFunction>
+        </h:form>
+
+        <h:form id="editUserForm">
+          <h2 style="word-wrap: break-word;">
+            <h:outputFormat value="#{msg['marketplace.account.edituser.title']}">
+              <f:param value="#{updateUserModel.userName}" />
+            </h:outputFormat>
+          </h2>
+
+          <mp:pixelline />
+
+          <adm:panelGrid minColWidth="false">
+
+            <mp:labelAndSelect id="salutation" label="#{msg['user.salutation']}"
+              value="#{updateUserModel.salutation.value}" styleClass="selectXS"
+              disabled="#{updateUserModel.salutation.readOnly}">
+              <adm:salutationItems />
+            </mp:labelAndSelect>
+
+            <mp:userName firstNameId="firstName" firstNameValue="#{updateUserModel.firstName.value}"
+              lastNameId="lastName" lastNameValue="#{updateUserModel.lastName.value}"
+              firstNameDisabled="#{updateUserModel.firstName.readOnly}"
+              lastNameDisabled="#{updateUserModel.lastName.readOnly}" />
+
+            <mp:labelAndInputText id="email" label="#{msg['user.email']}" required="#{updateUserModel.email.required}"
+              value="#{updateUserModel.email.value}" maxlength="#{appBean.nameLen}"
+              disabled="#{updateUserModel.email.readOnly}" validatorId="email" converterId="trimConverter" />
+
+            <mp:labelAndInputText id="userId" label="#{msg['user.userId']}"
+              required="#{updateUserModel.userId.required}" value="#{updateUserModel.userId.value}"
+              maxlength="#{appBean.userIdLen}" disabled="#{updateUserModel.userId.readOnly}" validatorId="userId"
+              converterId="trimConverter" />
+
+            <mp:labelAndSelect id="locale" label="#{msg['user.locale']}" value="#{updateUserModel.locale.value}"
+              styleClass="selectXS" disabled="#{updateUserModel.locale.readOnly}" showHint="true">
+              <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+            </mp:labelAndSelect>
+
+            <adm:outputLabel value="#{msg['user.role']}" />
+            <rich:dataTable rowClasses="rowEven" value="#{updateUserModel.roles}" var="userRole" id="userRolesTable"
+              style="width:97%;">
+              <rich:column style="width:10%;">
+                <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}"
+                  disabled="#{updateUserCtrl.rolesDisabled}" onchange="setDirty(true)" style="width:20px;" />
+              </rich:column>
+              <rich:column>
+                <h:outputText value="#{userRole.name}" />
+              </rich:column>
+            </rich:dataTable>
+            <mp:message for="asAdmin" />
+          </adm:panelGrid>
+
+          <ui:fragment rendered="#{not empty updateUserModel.userGroups}">
+            <mp:outputStep value="#{msg['user.groups']}" />
+            <a4j:outputPanel layout="block" styleClass="tablePanel">
+              <a4j:region>
+                <a4j:queue requestDelay="500" ignoreDupResponses="true" />
+                <rich:dataTable value="#{updateUserModel.userGroups}" id="userGroupsTable" var="rowItem" width="100%"
+                  headerClass="rowTitle groupTableTitle" rowClasses="rowOdd,rowEven" columnsWidth="4%,50%,46%"
+                  style="width: 100%" sortMode="single">
+                  <rich:column sortBy="#{rowItem.selected}" sortIcon="#{sortIcon}"
+                    sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+                    styleClass="tableColumnCheckBox">
+                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true)" 
+                       disabled="#{rowItem.default}"/>
+                  </rich:column>
+                  <rich:column sortBy="#{rowItem.name}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
+                    sortIconDescending="#{sortIconDescending}" filterevent="keyup" filterBy="#{rowItem.name}">
+                    <f:facet name="header">
+                      <h:outputText value="#{msg['group.groupName']}" />
+                    </f:facet>
+                    <a4j:outputPanel layout="block" styleClass="stringInMultiLine">
+                      <h:outputText value="#{rowItem.name}" title="#{rowItem.name}" />
+                    </a4j:outputPanel>
+                  </rich:column>
+
+                  <rich:column>
+                    <f:facet name="header">
+                      <h:outputText value="#{msg['marketplace.account.adduser.units.role']}" />
+                    </f:facet>
+                     <h:selectOneMenu id="unitRole" onchange="setDirty(true)" styleClass="roles-list"
+                      value="#{rowItem.selectedRole}">
+                      <f:selectItems value="#{rowItem.roles}" />
+                    </h:selectOneMenu>
+                  </rich:column>
+                </rich:dataTable>
+              </a4j:region>
+            </a4j:outputPanel>
+          </ui:fragment>
+
+          <ui:fragment rendered="#{updateUserCtrl.subTableRendered and not triggerProcessBean.suspendAddRevokeUsers}">
+            <mp:outputStep id="assignUserTitle" value="#{msg['marketplace.account.edituser.assignUser.title']}" />
+
+            <rich:dataTable width="100%" headerClass="rowTitle" rowClasses="rowOdd,rowEven"
+              value="#{updateUserModel.subscriptions}" var="subscription" id="subscriptionTable"
+              style="width: 100%;" columnsWidth="4%,50%,46%">
+
+              <rich:column width="#{checkboxWidth}" styleClass="tableColumnCheckBox">
+                <h:selectBooleanCheckbox id="assignCheckbox" value="#{subscription.selected}" onchange="setDirty(true)" >
+                  <f:ajax event="change" />
+                </h:selectBooleanCheckbox>
+              </rich:column>
+              <!-- subscription column first -->
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="#{msg['subscription.subscriptionId']}" />
+                </f:facet>
+                <h:outputText value="#{subscription.id}" />
+              </rich:column>
+              <rich:column rendered="#{updateUserCtrl.roleColumnRendered}" width="#{roleWidth}">
+                <f:facet name="header">
+                  <h:outputText value="#{msg['user.subscriptionRole']}" />
+                </f:facet>
+                <h:selectOneMenu id="role" onchange="setDirty(true)" styleClass="roles-list"
+                  value="#{subscription.selectedRole}" rendered="#{subscription.rolesRendered}">
+                  <f:selectItems value="#{subscription.roles}" />
+                </h:selectOneMenu>
+              </rich:column>
+
+            </rich:dataTable>
+          </ui:fragment>
+          <mp:pixelline marginTop="10" />
+          <h:commandButton style="display:none;" id="confirmedDeleteButton" onclick="setDirty(false);"
+            value="#{msg['button.delete']}" action="#{updateUserCtrl.delete}" />
+          <a4j:commandButton style="display:none;" id="confirmedBackBt"
+            onclick="setDirty(false);location.href='users.jsf';return false;" />
+
+          <a4j:outputPanel layout="block" styleClass="clearfix">
+            <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{updateUserCtrl.save}"
+              style="display:none;" />
+            <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}"
+              onclick="validateCurrentUserRoles();return false;" disabled="#{updateUserCtrl.saveDisabled}"
+              style="margin-right: 10px;" />
+            <mp:button id="resetButton" value="#{msg['button.resetPwd']}" bean="#{updateUserCtrl}" action="resetPwd"
+              disabled="#{updateUserCtrl.resetPwdDisabled}" rendered="#{updateUserCtrl.resetPwdRendered}"
+              style="margin-right: 10px;" />
+            <mp:button id="deleteButton" value="#{msg['button.delete']}"
+              onclick="#{rich:component('confirmPanel')}.show();return false;"
+              disabled="#{updateUserCtrl.deleteDisabled}" style="margin-right: 10px;" />
+            <mp:button id="cancelButton" onclick="#{rich:component('leaveConfirmPl')}.show();return false;"
+              value="#{msg['button.cancel']}" style="margin-right: 10px;" />
+          </a4j:outputPanel>
+          <h:inputHidden value="#{updateUserModel.token}" />
+
+          <mp:confirmPanel header="#{msg['marketplace.account.delete.title']}"
+            text1="#{updateUserCtrl.deleteMsgForUser}" text2="#{msg['marketplace.areyousure']}"
+            submitId="confirmedDeleteButton" />
+          <mp:confirmPanel panelId="leaveConfirmPl" header="#{msg['marketplace.account.leavePage.title']}" text1="#{msg['marketplace.account.leavePage.content']}"
+            submitId="confirmedBackBt" />
+          
+        </h:form>
+      </a4j:outputPanel>
+      <mp:reloginConfirmPanel />
+    </a4j:outputPanel>
+  </ui:define>
+
+</ui:composition>

@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Technicalproduct tkey="1000" provisioningurl="testurl" technicalproductid="tpid1 1.0 9 9" version="1"
+    organizationkey="10" />
+
+  <Technicalproduct tkey="1001" provisioningurl="testurl" technicalproductid="tpid1 1.0 9 92" version="1"
+    organizationkey="10" />
+
+  <Technicalproduct tkey="1002" provisioningurl="testurl" technicalproductid="tpid1 1.0 9 93" version="1"
+    organizationkey="10" />
+
+  <Technicalproducthistory tkey="100" provisioningurl="testurl" technicalproductid="tpid1 1.0 9 9"
+    modtype="modtype" moduser="moduser" objkey="1001" objversion="1" organizationobjkey="10" invocationdate="2011-05-5 14:30:00" />
+
+  <Technicalproducthistory tkey="101" provisioningurl="testurl" technicalproductid="tpid1 1.0 9 92"
+    modtype="modtype" moduser="moduser" objkey="1002" objversion="1" organizationobjkey="10" invocationdate="2011-05-5 14:30:00" />
+
+</dataset>

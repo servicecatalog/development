@@ -1,0 +1,222 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="service.publish" />
+    <c:set var="focusElement" value="serviceId" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:initialize initializingMethod="#{marketableServicePublishCtrl.initializePublish}"/>
+
+    <h:form id="editForm">
+      <adm:outputStep value="#{msg['service.edit.step1']}" />
+      <adm:panelGrid>
+
+        <adm:outputLabel value="#{msg['service.serviceId']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu styleClass="select" id="selectedServiceId"
+            value="#{marketableServicePublishModel.selectedServiceKey}"
+            valueChangeListener="#{marketableServicePublishCtrl.serviceChanged}" onclick="AdmUtils.storeValue(this);">
+            <a4j:ajax event="change" render="mainTmplMessagesPanel, editForm"
+              onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
+              oncomplete="AdmUtils.setUIElements();" />
+            <f:selectItems value="#{marketableServicePublishModel.serviceTemplates}" />
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message for="selectedServiceId" />
+
+        <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+        <h:panelGroup>
+          <h:outputText value="#{marketableServicePublishModel.serviceDetails.service.nameToDisplay}" />
+        </h:panelGroup>
+        <h:outputText value="" />
+
+        <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+        <h:panelGroup>
+          <h:outputText value="#{marketableServicePublishModel.serviceDetails.service.technicalId}" />
+        </h:panelGroup>
+        <h:outputText value="" />
+
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['service.publish.step2']}" />
+      <a4j:outputPanel>
+
+        <adm:panelGrid columnClasses="labelAndValuePanelCol1,labelAndValuePanelCol2,labelAndValuePanelCol3">
+          <adm:outputLabel value="#{msg['service.checkbox.public']}" />
+          <h:selectBooleanCheckbox id="publicServiceCheckBox"
+            value="#{marketableServicePublishModel.serviceDetails.catalogEntry.anonymousVisible}"
+            onchange="setDirty(true);" disabled="#{marketableServicePublishModel.disabled}" />
+          <adm:message for="publicServiceCheckBox" />
+
+          <adm:outputLabel value="#{msg['service.marketplace']}" />
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu id="marketplace" value="#{marketableServicePublishModel.serviceDetails.marketplaceId}"
+              styleClass="select" valueChangeListener="#{marketableServicePublishCtrl.marketplaceChanged}"
+              disabled="#{marketableServicePublishModel.disabled}">
+              <adm:selectItemPleaseSelect itemValue="" />
+              <a4j:ajax event="change"
+                render="categoriesPanel,categoriesLabelPanel,revenueShare,revenueShareReseller,revenueShareBroker,resalePermissions"
+                oncomplete="setDirty(true);" />
+              <c:forEach items="#{marketplaceBean.marketplacesForSupplier}" var="mp">
+                <f:selectItem itemLabel="#{mp.name}(#{mp.marketplaceId})" itemValue="#{mp.marketplaceId}" />
+              </c:forEach>
+              <f:event listener="#{marketplaceBean.reloadMarketplacesListener}" type="preValidate"></f:event>
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+          <adm:message id="marketplaceErrorMsg" for="marketplace" />
+
+          <adm:outputLabel value="#{msg['marketplace.view.operatorRevenueShare']}"
+            rendered="#{marketableServicePublishModel.operatorShareVisible}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.operatorShareVisible}">
+            <h:outputText id="revenueShareOperator" displayAs="percent"
+              value="#{marketableServicePublishModel.operatorPriceModel.revenueShare.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </h:panelGroup>
+          <h:outputText value="" rendered="#{marketableServicePublishModel.operatorShareVisible}" />
+
+          <adm:outputLabel value="#{msg['marketplace.revenueShare']}"
+            rendered="#{marketableServicePublishModel.supplier}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.supplier}">
+            <h:outputText id="revenueShare" displayAs="percent" 
+              value="#{marketableServicePublishModel.marketplacePriceModel.revenueShare.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </h:panelGroup>
+          <h:outputText value="" rendered="#{marketableServicePublishModel.supplier}" />
+
+          <adm:outputLabel value="#{msg['marketplace.view.resellerRevenueShare']}"
+            rendered="#{marketableServicePublishModel.resellerShareVisible}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.resellerShareVisible}">
+            <h:outputText id="revenueShareReseller" displayAs="percent"
+              value="#{marketableServicePublishModel.serviceSpecificResellerRevenueShare.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </h:panelGroup>
+          <h:outputText value="" rendered="#{marketableServicePublishModel.resellerShareVisible}" />
+
+          <adm:outputLabel value="#{msg['marketplace.view.brokerRevenueShare']}"
+            rendered="#{marketableServicePublishModel.brokerShareVisible}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.brokerShareVisible}">
+            <h:outputText id="revenueShareBroker" displayAs="percent"
+              value="#{marketableServicePublishModel.serviceSpecificBrokerRevenueShare.revenueShare}">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </h:panelGroup>
+          <h:outputText value="" rendered="#{marketableServicePublishModel.brokerShareVisible}" />
+
+          <h:panelGroup id="categoriesLabelPanel" layout="block">
+            <adm:outputLabel value="#{msg['service.categories']}"
+              rendered="#{not empty marketableServicePublishModel.categorySelection}" />
+          </h:panelGroup>
+
+          <h:panelGroup id="categoriesPanel" layout="block">
+            <h:dataTable value="#{marketableServicePublishModel.categorySelection}" var="entry" id="catTable"
+              rendered="#{not empty marketableServicePublishModel.categorySelection}">
+              <h:column id="checkboxCol">
+                <h:selectBooleanCheckbox id="catCheckbox" value="#{entry.selected}" style="margin-left:0px;"
+                  onclick="setDirty(true);" />
+              </h:column>
+              <h:column>
+                <h:outputText value="#{entry.displayName}" />
+              </h:column>
+            </h:dataTable>
+          </h:panelGroup>
+          <h:panelGroup></h:panelGroup>
+        </adm:panelGrid>
+      </a4j:outputPanel>
+
+      <h:panelGroup id="resalePermissions" rendered="#{marketableServicePublishModel.supplier}">
+        <adm:outputStep value="#{msg['service.publish.step3']}" />
+        <adm:dataTable tableId="resellerTable" value="#{marketableServicePublishModel.resellers}"
+          columnsWidth="5%,35%,30%,30%" collapsible="true" columnClasses="wrapColumns"
+          label="#{msg['publish.listOfAvailableResellers.table.header']}" width="100%">
+          <rich:column styleClass="tableColumnCheckBox">
+            <h:selectBooleanCheckbox value="#{rowItem.selected}" id="checkboxId" onchange="setDirty(true)" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['billingContact.organizationName']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.name}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.organizationId']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.organizationId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.revenueShareReseller']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.revenueShare.revenueShare}" displayAs="percent">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </rich:column>
+        </adm:dataTable>
+
+        <adm:spacer height="30" />
+
+        <adm:dataTable tableId="brokerTable" value="#{marketableServicePublishModel.brokers}"
+          columnsWidth="5%,35%,30%,30%" collapsible="true" label="#{msg['publish.listOfAvailableBrokers.table.header']}"
+          width="100%" columnClasses="wrapColumns">
+          <rich:column styleClass="tableColumnCheckBox">
+            <h:selectBooleanCheckbox value="#{rowItem.selected}" id="checkboxId" onchange="setDirty(true)" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['billingContact.organizationName']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.name}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.organizationId']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.organizationId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.revenueShareBroker']}" />
+            </f:facet>
+            <h:outputText value="#{rowItem.revenueShare.revenueShare}" displayAs="percent">
+              <f:converter converterId="bigDecimal.converter" />
+            </h:outputText>
+          </rich:column>
+        </adm:dataTable>
+      </h:panelGroup>
+
+      <adm:spacer height="18" />
+
+      <h:commandButton style="display:none;" id="confirmedButton" value="#{msg['button.save']}"
+        action="#{marketableServicePublishCtrl.save}" />
+      <adm:buttonPanel id="buttonPanel">
+        <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}" buttonType="save"
+          disabled="#{marketableServicePublishModel.saveBtnDisabled}"
+          onclick="if (#{marketableServicePublishModel.confirmationRequired}) {#{rich:component('confirmPanel')}.show()} else {setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);#{rich:element('confirmedButton')}.click();setOnSubmit(false);return false;}" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['confirm.service.changeMarketplace']}" />
+
+  </ui:define>
+
+</ui:composition>

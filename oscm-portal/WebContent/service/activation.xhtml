@@ -1,0 +1,78 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="service.activation" />
+    <c:set var="dirty" value="false" />  <!-- re-initialize after returning from action (necessary after SaasApplicationException-->
+  </ui:define>
+  <ui:define name="body">
+    <h:form id="serviceDeActivationForm">
+
+      <h:outputText styleClass="step" value="#{msg['service.activation.table.title']}" />
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="activationTable" value="#{serviceBean.servicesForDeActivation}"
+          label="#{msg['service.activation.table.header']}">
+          <c:set var="priceModelText" value="#{rowItem.priceModelTextKey}" />
+          <c:set var="activationChangeAction" value="#{rich:element('visibleInCatalog')}.disabled=!this.checked;" />
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.active']}" />
+            </f:facet>
+            <h:selectBooleanCheckbox id="active" value="#{rowItem.selected}" onchange="setDirty(true);"
+              onclick="#{rowItem.visibleInCatalogSupported? activationChangeAction : ''}"
+              rendered="#{not rowItem.serviceSuspended}"
+              disabled="#{(empty rowItem.priceModel) or (rowItem.priceModel.key eq 0) or (rowItem.noMarketplaceAssigned)}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.serviceId']}" />
+            </f:facet>
+            <h:outputText id="serviceId" value="#{rowItem.serviceIdToDisplay}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.techServiceId']}" />
+            </f:facet>
+            <h:outputText id="technicalId" value="#{rowItem.technicalId}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.marketplace']}" />
+            </f:facet>
+            <h:outputText id="marketplace" value="#{rowItem.marketplace}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['service.visibleInCatalog']}" />
+            </f:facet>
+            <h:inputHidden id="viInCatInternal" value="#{rowItem.visibleInCatalog}"
+              rendered="#{rowItem.visibleInCatalogSupported}" />
+            <!-- the checkbox cannot be used for data exchange because it might be in a disabled state -->
+            <!-- instead we use a hidden field -->
+            <h:selectBooleanCheckbox id="visibleInCatalog" value="#{rowItem.visibleInCatalogChecked}"
+              onchange="setDirty(true);" onclick="#{rich:element('viInCatInternal')}.value = this.checked;"
+              disabled="#{not rowItem.selected}" rendered="#{rowItem.visibleInCatalogSupported}" />
+          </rich:column>
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['organization.name']}" />
+            </f:facet>
+            <h:outputText id="organizationName" value="#{rowItem.organizationDisplayName}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel columns="1"> 
+        <adm:button id="deActivateButton" value="#{msg['button.save']}" bean="#{serviceBean}" action="doDeActivate"
+          disabled="#{empty serviceBean.servicesForDeActivation}" buttonType="save"  />
+      </adm:buttonPanel>
+
+    </h:form>
+  </ui:define>
+</ui:composition>

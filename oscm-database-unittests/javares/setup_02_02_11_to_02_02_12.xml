@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="101" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en" />
+  <Organization tkey="102" version="0" organizationid="CUSTOMER" name="CUST1" registrationdate="1" locale="en" />
+
+  <Technicalproduct tkey="1" version="0" technicalproductid="tpid_1" organizationkey="101"
+    provisioningurl="url" />
+
+  <!-- template product -->
+  <Product tkey="1" template_tkey="[NULL]" targetcustomer_tkey="[NULL]" version="0" productid="pid_1" vendorkey="101"
+    provisioningdate="0" status="ACTIVE" technicalproduct_tkey="1" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="1" objversion="0" productid="pid_1" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10001"
+    vendorobjkey="101" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:30:10" modtype="1" moduser="1"
+    objkey="1" objversion="1" productid="pid_1" provisioningdate="0" status="DELETED" technicalproductobjkey="1" tkey="10002"
+    vendorobjkey="101" />
+    
+
+  <!-- subscription copy -->
+  <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="2" creationdate="30" status="status"
+    timeoutmailsent="1" organizationkey="102" />
+  <Product tkey="2" template_tkey="1" targetcustomer_tkey="[NULL]" version="0" productid="pid_1#0" vendorkey="101"
+    provisioningdate="10" status="ACTIVE" technicalproduct_tkey="1" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="2" objversion="0" productid="pid_1#0" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10003"
+    vendorobjkey="101" />
+
+  <!-- customer specific copy -->
+  <Product tkey="3" template_tkey="1" targetcustomer_tkey="102" version="0" productid="pid_1#10" vendorkey="101"
+    provisioningdate="20" status="ACTIVE" technicalproduct_tkey="1" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="3" objversion="0" productid="pid_1#10" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10004"
+    vendorobjkey="101" />
+
+  <!-- customer specific copy for subscription -->
+  <Subscription tkey="1002" version="0" subscriptionid="sid_2" product_tkey="4" creationdate="40" status="status"
+    timeoutmailsent="1" organizationkey="102" />
+  <Product tkey="4" template_tkey="1" targetcustomer_tkey="102" version="0" productid="pid_1#100" vendorkey="101"
+    provisioningdate="30" status="ACTIVE" technicalproduct_tkey="1" />
+  <ProductHistory invocationdate="2011-04-04 10:00:00" moddate="2011-04-03 14:28:10" modtype="1" moduser="1"
+    objkey="4" objversion="0" productid="pid_1#100" provisioningdate="0" status="ACTIVE" technicalproductobjkey="1" tkey="10005"
+    vendorobjkey="101" />
+
+</dataset>

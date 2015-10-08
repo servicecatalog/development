@@ -1,0 +1,128 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testMenuVisibility" xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <description>
+    Data driven test to verify the existence of menu entries for different roles,
+    the corresponding pages and help links.
+  </description>
+
+  <import file="../macros/all.xml" />
+
+  <macrodef name="checkMenuForRole">
+    <attribute name="role" />
+    <attribute name="checkHelpExists" default="true" />
+    <sequential>
+      <common.ignorePageScriptError />
+      <dataDriven tableContainer="data/testMenuVisibility.xls">
+        <storeProperty name="isVisible" value="${@{Role}}" propertyType="dynamic" />
+
+        <ifStep>
+          <condition>
+            <not>
+              <verifyProperty name="isVisible" text="ignore" />
+            </not>
+          </condition>
+          <then>
+            <ifStep description="@{Role} should view menu entry ${ID}" test="#{isVisible}">
+              <common.clickAndVerfyLink label="${${ID}}" />
+
+              <!-- Does the Help link work? -->
+              <ifStep test="@checkHelpExists">
+                <clickElement htmlId="showHelp" />
+                <verifyXPath xpath="/html/body/h1[@class='topictitle1']" />
+                <closeWindow />
+              </ifStep>
+            </ifStep>
+            <ifStep description="@{Role} should not view menu entry ${ID}" unless="#{isVisible}">
+              <not>
+                <verifyXPath xpath="//a/span[normalize-space(text())='${${ID}}']" />
+              </not>
+            </ifStep>
+          </then>
+        </ifStep>
+      </dataDriven>
+    </sequential>
+  </macrodef>
+
+  <target name="testMenuVisibility">
+
+    <webtest name="testMenuVisibility_TECHNOLOGY_PROVIDER">      
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <checkMenuForRole role="TECHNOLOGY_PROVIDER" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMenuVisibility_SUPPLIER">
+      <common.ignorePageScriptError />   
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <checkMenuForRole role="SUPPLIER" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMenuVisibility_MARKETPLACE_OWNER"> 
+      <operator.createMarketplace mIdProperty="mId" name="Local Marketplace" />
+      <operator.addCurrency />
+      <mail.cleanInbox />
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="administrator" password="admin123" />
+        <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <login.logout />
+      <setup:store.settings userkey="1000" password="admin123" />
+      <setup:user.register userId="marketplaceOwner" organizationId="PLATFORM_OPERATOR" roles="MARKETPLACE_OWNER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="mpoUrl" value="#{orgUrl}" />
+      <storeProperty name="mpoUserId" value="#{userId}" />
+
+      <login.initialLoginAndChangePassword url="#{mpoUrl}" userId="#{mpoUserId}" password="#{userPwd}" />
+      <checkMenuForRole role="MARKETPLACE_OWNER" checkHelpExists="false" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMenuVisibility_PLATFORM_OPERATOR">
+      <mail.cleanInbox />
+      <setup:store.settings userkey="1000" password="admin123" />
+      <setup:user.register userId="otherPlatformOperateur" organizationId="PLATFORM_OPERATOR" roles="PLATFORM_OPERATOR" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="poUrl" value="#{orgUrl}" />
+      <storeProperty name="poUserId" value="#{userId}" />
+
+      <login.initialLoginAndChangePassword url="#{poUrl}" userId="#{poUserId}" password="#{userPwd}" />
+      <checkMenuForRole role="PLATFORM_OPERATOR" checkHelpExists="false" />
+	  <!-- Bug10237 "Create organization" menu and  "Manage LDAP settings" menu could be accessed successfully-->
+	  <clickLink href="/operator/manageLdapSettings.jsf" />
+	  <verifyElementText htmlId="pagelabel" text="${operator.manageLdapSettings.title}" regex="true" />
+	  <clickLink href="/operator/createOrganization.jsf" />
+	  <verifyElementText htmlId="pagelabel" text="${operator.createOrganization.title}" regex="true" />
+      <!--<clickLink href="/operator/manageBillingAdapters.jsf" />-->
+      <!--<verifyElementText htmlId="pagelabel" text="${operator.manageBillingAdapters.title}" regex="true" />	-->
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMenuVisibility_RESELLER">
+      <common.ignorePageScriptError />   
+      <mail.cleanInbox />
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <checkMenuForRole role="RESELLER" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMenuVisibility_BROKER">
+      <common.ignorePageScriptError />   
+      <mail.cleanInbox />
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <checkMenuForRole role="BROKER" />
+      <login.logout />
+    </webtest>
+
+  </target>
+</project>

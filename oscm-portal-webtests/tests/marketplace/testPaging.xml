@@ -1,0 +1,169 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_servicesPaging" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="setup">
+    <!-- Create supplier account -->
+    <webtest name="testMPL_createAccount">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <mpl_setup.createSupplierAccount />
+      <operator.addSupplierToGlobalMarketplace marketplaceId="${mId}" supplierId="${supplierId}" baseurl="#{baseUrl}" />
+
+      <storeProperty name="antUrl" propertyType="ant" value="#{orgUrl}" />
+      <storeProperty name="antUserId" propertyType="ant" value="#{userId}" />
+      <!-- store settings for web service access -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+    </webtest>
+
+    <!-- Setup environment with services -->
+    <webtest name="testMPL_createServices">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+      <mpl_setup.createServices mId1="${mId}" />
+      <mpl_paging.createServices mid="${mId}" number="12" offset="10" activate="false" />
+      <!-- activating at once is way faster -->
+      <setup:service.activate serviceIds="S" start="10" count="12" />
+    </webtest>
+  </target>
+
+  <target name="testMPL_servicesPaging" depends="setup">
+
+    <!-- Test of basic paging functionality -->
+    <webtest name="testMPL_basicPaging">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+
+      <!-- Check we have 21 services -->
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="21" />
+
+      <!-- Page navigation -->
+      <mpl_paging.expectedPage page="1" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="10" totalServices="21" />
+      <mpl_paging.verifyNext enabled="true" />
+      <mpl_paging.verifyPrevious enabled="false" />
+
+      <mpl_paging.selectPage page="2" UpOrDown="Up" />
+      <mpl_paging.selectPage page="1" UpOrDown="Up" />
+      <mpl_paging.verifyNext enabled="true" />
+      <mpl_paging.verifyPrevious enabled="false" />
+      <mpl_paging.selectPage page="3" UpOrDown="Down" />
+      <mpl_paging.verifyInfoMessage firstService="21" lastService="21" totalServices="21" />
+      <mpl_paging.verifyPrevious enabled="true" />
+      <mpl_paging.verifyNext enabled="false" />
+
+      <!-- Page Size -->
+      <mpl_paging.selectPageSize pageSize="20" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="20" totalservices="21" />
+      <mpl_paging.selectPageSize pageSize="10" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="10" totalservices="21" />
+      <mpl_paging.selectPageSize pageSize="5" UpOrDown="Down" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="5" totalservices="21" />
+    </webtest>
+
+    <!-- Test with delete and insert of services -->
+    <webtest name="testMPL_deleteAndInsertScenario">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.selectPageSize pageSize="5" UpOrDown="Down" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="5" totalservices="21" />
+
+      <mpl_paging.selectPageSize pageSize="10" UpOrDown="Down" />
+      <mpl_paging.verifyInfoMessage firstService="1" lastService="10" totalservices="21" />
+
+      <!-- Delete service scenario -->
+      <mpl_paging.selectPage page="3" UpOrDown="Up" />
+      <mpl_paging.verifyNext enabled="false" />
+      <mpl_paging.selectPage page="1" />
+      <mpl_paging.deleteService index="21" withTechnicalService="false" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.selectPage page="2" UpOrDown="Down" />
+      <mpl_paging.verifyNext enabled="false" />
+
+      <!-- Insert service scenario -->
+      <mpl_paging.selectPage page="1" />
+      <mpl_paging.verifyPrevious enabled="false" />
+      <mpl_paging.verifyNext enabled="true" />
+      <mpl_paging.createService mid="${mId}" index="21" login="true" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.selectPage page="2" />
+      <mpl_paging.verifyNext enabled="true" />
+      <mpl_paging.selectPage page="3" />
+    </webtest>
+
+    <!-- Test with tagged services -->
+    <webtest name="testMPL_tagFilteredServices">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.cloudTag tag="t1" />
+      <storeProperty name="i18nAscending" value="${catalog.sortorder.NAME_ASCENDING}" />
+      <mpl_paging.changeSortOrder sortOrder="#{i18nAscending}" />
+      <mpl_paging.verifyServices fromIndex="0" count="5" total="5" up="true" tag="t1" />
+      <mpl_goto.cloudTag tag="t1a" />
+      <mpl_paging.verifyServices fromIndex="0" count="4" total="4" up="true" tag="t1a" />
+    </webtest>
+
+    <!-- Test sorting -->
+    <webtest name="testMPL_pagingSorting">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+
+      <storeProperty name="ascending" value="NAME_ASCENDING" />
+      <storeProperty name="descending" value="NAME_DESCENDING" />
+
+      <storeProperty name="i18nAscending" value="${catalog.sortorder.NAME_ASCENDING}" />
+      <storeProperty name="i18nDescending" value="${catalog.sortorder.NAME_DESCENDING}" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+
+      <mpl_paging.checkSortOrder expectedSortOrder="ACTIVATION_DESCENDING" />
+      <mpl_paging.changeSortOrder sortOrder="#{i18nAscending}" />
+      <mpl_paging.expectAscendingOrder />
+      <mpl_paging.verifyServices fromIndex="0" count="5" total="21" up="true" />
+
+      <clickLink description="Set paging size 5" htmlId="pagingSizeUp5" />
+      <mpl_paging.expectAscendingOrder />
+
+      <mpl_paging.expectedPage page="1" />
+      <mpl_paging.verifyServices fromIndex="0" count="5" total="21" up="true" />
+      <mpl_paging.nextPage expectedPage="2" />
+
+      <mpl_paging.verifyServices fromIndex="0" count="1" total="21" up="true" />
+
+      <mpl_paging.changeSortOrder sortOrder="#{i18nDescending}" />
+      <mpl_paging.expectDescendingOrder />
+      <mpl_paging.verifyServices fromIndex="5" count="5" total="21" up="false" />
+      <mpl_paging.nextPage expectedPage="2" />
+      <mpl_paging.verifyServices fromIndex="1" count="1" total="21" up="false" />
+    </webtest>
+
+    <!--Clean up -->
+    <webtest name="testMPL_paging_deleteServices">
+      <storeProperty name="orgUrl" value="${antUrl}" />
+      <storeProperty name="userId" value="${antUserId}" />
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+      <setup:service.delete serviceIds="S" start="1" count="21" deactivate="true" />
+      <setup:techservice.delete serviceIds="S" start="1" count="21" />
+      <login.logout />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <mpl_paging.verifyNoServices />
+    </webtest>
+    <webtest name="testMPL_paging_finalCleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${antUrl}" uId="${antUserId}" />
+    </webtest>
+
+  </target>
+
+</project>

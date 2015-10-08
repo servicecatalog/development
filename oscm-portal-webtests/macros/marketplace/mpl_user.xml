@@ -1,0 +1,367 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <!-- create new user (new user will be returned as #{userId} ) -->
+  <macrodef name="mpl_user.create">
+    <attribute name="userId" default="${common.userId}" />
+    <attribute name="salutation" default="${user.salutation.MR}" />
+    <attribute name="firstName" default="First name" />
+    <attribute name="lastName" default="Last name" />
+    <attribute name="isAdmin" default="false" />
+    <attribute name="isSubMgr" default="false" />
+    <attribute name="isSvcMgr" default="false" />
+    <attribute name="isTechMgr" default="false" />
+    <attribute name="isOperator" default="false" />
+    <attribute name="submit" default="true" />
+    <attribute name="createUniqueUserId" default="true" />
+    <sequential>
+      <ifStep test="@{createUniqueUserId}">
+        <then>
+          <mpl_user.createUniqueName userIdPrefix="@{userId}" />
+          <storeProperty name="userId" value="#{uniqueUserId}" />
+        </then>
+        <else>
+          <storeProperty name="userId" value="@{userId}" />
+        </else>
+      </ifStep>
+      
+      <common.ignorePageScriptError/>
+      <clickLink xpath="//a[matches(@id, 'userListForm:addUserButtonLink')]"/>
+      <mpl_verify.contentTitle title="Add user" />
+
+      <setSelectField name="userForm:salutation" text="@{salutation}" />
+      <setInputField htmlId="userForm:firstName" value="@{firstName}" />
+      <setInputField htmlId="userForm:lastName" value="@{lastName}" />
+      <setInputField htmlId="userForm:email" value="${common.email}" />
+      <setInputField htmlId="userForm:userId" value="#{userId}" />
+      <not description="Locale must contain any default value">
+        <verifySelectField htmlId="userForm:locale" value="" />
+      </not>
+      <setSelectField htmlId="userForm:locale" value="en" />
+      <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="@{isAdmin}" />
+      <setCheckbox xpath="//td[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" checked="@{isSubMgr}" />
+      <ifStep test="@{isSvcMgr}">
+        <setCheckbox xpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" checked="true" />
+      </ifStep>
+      <ifStep test="@{isTechMgr}">
+        <setCheckbox xpath="//td[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" checked="true" />
+      </ifStep>
+      <ifStep test="@{isOperator}">
+        <setCheckbox xpath="//td[text()='${UserRoleType.PLATFORM_OPERATOR}']/..//input" checked="true" />
+      </ifStep>
+
+      <ifStep test="@{submit}">
+        <then>
+          <clickButton label="${button.save}" />
+          <mpl_verify.success label="#{userId}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- edit given user -->
+  <macrodef name="mpl_user.display">
+    <attribute name="userId" default="${common.userId}" />
+    <sequential>
+      <common.ignorePageScriptError/>
+      <clickElement htmlId="editUserImage@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- select user group -->
+  <macrodef name="mpl_user.selectUserGroup">
+    <attribute name="groupIndex" default="1" />
+    <attribute name="groupRole" default="Administrator" />
+    <attribute name="checked" default="true"/>
+    <sequential>
+      <common.ignorePageScriptError/>
+      <setCheckbox xpath="//*[contains (@id, 'userGroupsTable:@{groupIndex}:groupsCheckbox')]" checked="@{checked}" />
+      <setSelectField xpath="//*[contains (@id, 'userGroupsTable:@{groupIndex}:unitRole')]" text="@{groupRole}" />
+    </sequential>
+  </macrodef>
+
+  <!-- create unique user id -->
+  <macrodef name="mpl_user.createUniqueName">
+    <attribute name="userIdPrefix" />
+    <sequential>
+      <timestamp name="usersuffix_timestamp" />
+      <storeProperty name="uniqueUserId" value="@{userIdPrefix}_${usersuffix_timestamp}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.selectBillingContact">
+    <attribute name="billingCompanyName" default="billingCompanyName" />
+    <attribute name="billingAddress" default="billingAddress" />
+    <attribute name="billingDisplayName" default="billingDisplayName" />
+    <sequential>
+      <storeXPath xpath="count(//select[@id='payment:selectBillingContact']/option)" property="bcCount" />
+      <!-- select/create the billing contact -->
+      <ifStep description="Use existing billing contact or create a new one">
+        <condition>
+          <verifyProperty name="bcCount" text="1" />
+        </condition>
+        <then>
+          <!-- create a new billing contact -->
+          <clickLink htmlId="payment:newBillingContact" />
+          <setInputField htmlId="billingContactPanelForm:displayName" value="@{billingCompanyName}" />
+          <setInputField htmlId="billingContactPanelForm:email" value="${common.email}" />
+          <setInputField htmlId="billingContactPanelForm:companyName" value="@{billingCompanyName}" />
+          <setInputField htmlId="billingContactPanelForm:address" value="@{billingAddress}" />
+          <clickElement htmlId="billingContactPanelForm:saveBillingContactButton" />
+          <setSelectField htmlId="payment:selectBillingContact" optionIndex="1" />
+        </then>
+        <else>
+          <setSelectField htmlId="payment:selectBillingContact" optionIndex="1" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- modifies a field value, validate save and reset it afterwards -->
+  <macrodef name="mpl_user.editInputValue">
+    <attribute name="userId" />
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <attribute name="isUserIdField" default="false" />
+    <attribute name="currentUser" default="false" />
+    <sequential>
+      <!-- edit and save changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//input[@id='@{fieldId}']/@value" />
+        </condition>
+        <then>
+          <storeXPath xpath="//input[@id='@{fieldId}']/@value" property="oldFieldValue" />
+        </then>
+        <else>
+          <storeProperty value="" name="oldFieldValue" />
+        </else>
+      </ifStep>
+      <setInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <ifStep test="@{currentUser}">
+        <then>
+          <mpl_verify.success label="${info.user.saved.itself}" />
+        </then>
+        <else>
+          <mpl_verify.success label="@{userId}" />
+        </else>
+      </ifStep>
+
+      <!-- invoke a 2nd time and valiate changed field value -->
+      <ifStep test="@{isUserIdField}">
+        <then>
+          <mpl_user.display userId="@{fieldValue}" />
+        </then>
+        <else>
+          <mpl_user.display userId="@{userId}" />
+        </else>
+      </ifStep>
+      <verifyInputField htmlId="@{fieldId}" value="@{fieldValue}" />
+
+      <!-- revert change -->
+      <setInputField htmlId="@{fieldId}" value="#{oldFieldValue}" />
+      <clickButton label="${button.save}" />
+      <ifStep test="@{currentUser}">
+        <then>
+          <mpl_verify.success label="${info.user.saved.itself}" />
+        </then>
+        <else>
+          <mpl_verify.success label="@{userId}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- modifies a selection field value, validate save and reset it afterwards -->
+  <macrodef name="mpl_user.editSelectionValue">
+    <attribute name="userId" />
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <sequential>
+      <!-- edit and save changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <storeXPath xpath="//select[@id='@{fieldId}']/option[@selected]/text()" property="oldFieldValue" />
+      <setSelectField htmlId="@{fieldId}" text="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+
+      <!-- invoke a 2nd time and valiate changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <verifySelectField htmlId="@{fieldId}" text="@{fieldValue}" />
+
+      <!-- revert change -->
+      <setSelectField htmlId="@{fieldId}" text="#{oldFieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- modifies a selection field value, validate save and reset it afterwards -->
+  <macrodef name="mpl_user.editCheckboxValue">
+    <attribute name="userId" />
+    <attribute name="fieldId" />
+    <attribute name="fieldValue" />
+    <sequential>
+      <!-- edit and save changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <storeXPath xpath="//input[@id='@{fieldId}']/@value" property="oldFieldValue" />
+      <setCheckbox htmlId="@{fieldId}" checked="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+
+      <!-- invoke a 2nd time and valiate changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <verifyCheckbox htmlId="@{fieldId}" checked="@{fieldValue}" />
+
+      <!-- revert change -->
+      <setCheckbox htmlId="@{fieldId}" checked="#{oldFieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- modifies a selection field value by xpath, validate save and reset it afterwards -->
+  <macrodef name="mpl_user.editCheckboxValueByXPath">
+    <attribute name="userId" />
+    <attribute name="fieldXPath" />
+    <attribute name="fieldValue" />
+    <sequential>
+      <!-- edit and save changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <storeXPath xpath="@{fieldXPath}/@value" property="oldFieldValue" />
+      <setCheckbox xpath="@{fieldXPath}" checked="@{fieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+
+      <!-- invoke a 2nd time and valiate changed field value -->
+      <mpl_user.display userId="@{userId}" />
+      <verifyCheckbox xpath="@{fieldXPath}" checked="@{fieldValue}" />
+
+      <!-- revert change -->
+      <setCheckbox xpath="@{fieldXPath}" checked="#{oldFieldValue}" />
+      <clickButton label="${button.save}" />
+      <mpl_verify.success label="@{userId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- handle confirmation panel -->
+  <macrodef name="mpl_user.confirmPanel">
+    <attribute name="title" />
+    <attribute name="confirm" />
+    <sequential>
+      <verifyXPath xpath="//*[@id='editUserForm:confirmPanel_content']//*[normalize-space()='@{title}']" />
+      <ifStep test="@{confirm}">
+        <then>
+          <clickLink label="${button.yes}" />
+        </then>
+        <else>
+          <clickLink label="${button.no}" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- verify user roles -->
+  <macrodef name="mpl_user.verifyUserRoleCheckBox">
+    <attribute name="roleDisplayName" />
+    <attribute name="visible" default="true" />
+    <attribute name="isChecked" default="false" />
+    <sequential>
+      <ifStep test="@{visible}">
+        <then>
+          <verifyCheckbox xpath="//td[text()='@{roleDisplayName}']/..//input" checked="@{isChecked}" />
+        </then>
+        <else>
+          <verifyXPath xpath="count(//td[text()='@{roleDisplayName}']/..//input) = 0" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.delete">
+    <attribute name="userId" default="" />
+    <sequential>
+      <mpl_user.display userId="@{userId}" />
+      <clickLink label="${button.delete}" />
+      <mpl_user.confirmPanel title="${marketplace.account.delete.title}" confirm="true" />
+      <mpl_verify.success label="@{userId}" />
+    </sequential>
+  </macrodef> 
+
+  <!-- Create Groups -->
+  <macrodef name="mpl_user.createGroups">
+    <attribute name="number" default="21" />
+    <attribute name="offset" default="10" />
+    <attribute name="mid" />
+    <sequential>
+      <repeat count="@{number}" countername="count">
+        <storeProperty name="index" value="(#{count} + @{offset})" eval="true" />
+        <mpl_user.createGroup groupId="#{index}" hasService="false"/>
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.createGroup">
+    <attribute name="groupId" default="" />
+    <attribute name="groupDescription" default="" />
+    <attribute name="groupReferenceId" default="" />
+    <attribute name="serviceNumber" default="0" />
+    <attribute name="hasService" default="true" />
+    <sequential>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header"/>
+      <clickElement htmlId="groupsListForm:addGroupButton" />
+      <!-- No user assinged ... no table but a warning is shown -->
+      <verifyXPath xpath="//*[@id='groupForm:assignedUsersPanel']/dl[@class='rich-messages box warning']/dt/text()" text="${info.group.noUsers}" regex="true" />
+      <not>
+        <verifyXPath xpath="//*[@id='userListForm:userTable']" />
+      </not>
+      <setInputField htmlId="groupForm:groupId" value="@{groupId}" />
+      <setInputField htmlId="groupForm:groupDescription" value="@{groupDescription}" />
+      <setInputField htmlId="groupForm:groupReferenceId" value="@{groupReferenceId}" />
+      <ifStep>
+        <condition>
+          <verifyXPath xpath="//*[@id='groupForm:servicesTable:@{serviceNumber}:serviceCheckbox']" />
+        </condition>
+        <then>
+          <ifStep test="@{hasService}">
+            <then>
+              <setCheckbox name="groupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="true" />
+            </then>
+            <else>
+              <setCheckbox name="groupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="false" />
+            </else>
+          </ifStep>
+        </then>
+      </ifStep>
+      <clickLink htmlId="groupForm:createButtonLink" />
+      <common.verifySuccess label="@{groupId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Delete Groups -->
+  <macrodef name="mpl_user.deleteGroups">
+    <attribute name="number" default="11" />
+    <attribute name="offset" default="1" />
+    <sequential>
+      <repeat count="@{number}" countername="count">
+        <storeProperty name="index" value="(#{count} + @{offset})" eval="true" />
+        <mpl_user.deleteGroup groupName="#{index}" />
+      </repeat>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_user.deleteGroup">
+    <attribute name="rowId" default="0" />
+    <attribute name="groupName" default="" />
+    <sequential>
+      <mpl_goto.account.users />
+      <clickElement htmlId="tabGroups:header"/>     
+      <clickElement htmlId="groupsListForm:groupListTable:@{rowId}:deleteBt" />
+      <clickLink htmlId="deleteGroupForm:deleteConfirmPlOkButton" />
+      <common.verifySuccess label="@{groupName}" />
+    </sequential>
+  </macrodef>
+
+</project>

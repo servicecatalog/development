@@ -1,0 +1,151 @@
+Open Service Catalog Manager
+Copyright 2015 FUJITSU LIMITED
+
+
+-------------------------------------------------------------------------
+
+This software includes the following software developed by The Apache Software Foundation (http://www.apache.org/), licensed under Apache 1.1 license:
+
+   - Apache Ant Contrib 1.0b3
+   - Apache Discovery 0.2
+   - Apache EL 1.0
+
+-------------------------------------------------------------------------
+
+This software includes the following software developed by The Apache Software Foundation (http://www.apache.org/), licensed under Apache 2.0 license:
+
+   - Apache HttpCore 3.1
+   - Apache Lucene 3.6.2
+   - Jackson 2.2.3
+   - Apache Beanutils 1.8.3
+   - Apache Codec 1.4
+   - Apache Collections 3.2.1
+   - Apache Commons-lang 3.1
+   - Apache Configurations 1.8
+   - Apache CSV 1.0
+   - Apache Digester 1.8.1
+   - Apache Fileupload 1.2.1
+   - Apache Httpclient 3.1
+   - Apache-io 1.4
+   - Apache-Json 2.0.6
+   - Apache-Lang 2.6
+   - Apache-Log4j 1.2.16
+   - Apache-Logging 1.1.1
+   - Apache-Poi 3.5
+   - Apache-Tomahawk 1.1.9
+   - Apache-Validator 1.4.0
+   - AWS 1.5.2
+   - J2ep 1.0
+   - Apache Jakarta Oro 2.08
+   - Omnifaces 1.10
+
+-------------------------------------------------------------------------
+
+This software includes "JavaBeans Activation Framework", licensed under
+"Sun Microsystems, Inc. ("Sun") ENTITLEMENT FOR SOFTWARE".
+
+-------------------------------------------------------------------------
+
+This software includes "Mail Framework", licensed under
+"Oracle Corporation ("ORACLE") ENTITLEMENT FOR SOFTWARE".
+
+-------------------------------------------------------------------------
+
+This software includes "WSDL4J", licensed under the Common Public License 1.0.
+
+-------------------------------------------------------------------------
+
+This software includes the following software, licensed under "GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999:
+
+   - JBoss Hibernate Search 3.3.1 GA
+   - JBoss RichFaces 4.5.0 Final
+   - Red Hat Hibernate 4.1.8
+   - JBoss Transaction API
+
+-------------------------------------------------------------------------
+
+This software includes the following software subject to COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0:
+
+   - JavaServer Faces 2.1.29
+
+-------------------------------------------------------------------------
+
+This software includes the following software subject to Individual License:
+
+   - SLF4J 1.5.11
+   - SL4J log4j 1.5.11
+
+License text:
+
+
+Copyright (c) 2004-2008 QOS.ch
+All rights reserved.
+
+Permission is hereby granted, free  of charge, to any person obtaining
+a  copy  of this  software  and  associated  documentation files  (the
+"Software"), to  deal in  the Software without  restriction, including
+without limitation  the rights to  use, copy, modify,  merge, publish,
+distribute,  sublicense, and/or sell  copies of  the Software,  and to
+permit persons to whom the Software  is furnished to do so, subject to
+the following conditions:
+
+The  above  copyright  notice  and  this permission  notice  shall  be
+included in all copies or substantial portions of the Software.
+
+THE  SOFTWARE IS  PROVIDED  "AS  IS", WITHOUT  WARRANTY  OF ANY  KIND,
+EXPRESS OR  IMPLIED, INCLUDING  BUT NOT LIMITED  TO THE  WARRANTIES OF
+MERCHANTABILITY,    FITNESS    FOR    A   PARTICULAR    PURPOSE    AND
+NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE,  ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+-------------------------------------------------------------------------
+
+This software includes the following software subject to BSD License:
+
+   - Antlr 4.1
+
+-------------------------------------------------------------------------
+
+
+This software includes the following software subject to Individual License:
+
+   - PostgreSQL JDBC 9.1-903
+
+License text:
+
+Copyright (c) 1997-2010, PostgreSQL Global Development Group
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+3. Neither the name of the PostgreSQL Global Development Group nor the names
+   of its contributors may be used to endorse or promote products derived
+   from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGE.
+
+-------------------------------------------------------------------------
+
+This software includes the following software subject to ECLIPSE PUBLIC LICENSE (EPL) Version 1.0:
+
+   - BIRT Runtime 4.3.1
+
+-------------------------------------------------------------------------

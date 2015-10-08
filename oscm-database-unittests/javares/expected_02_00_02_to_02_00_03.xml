@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="5" version="0" organizationid="TestOrgA" registrationdate="1234" />
+
+
+  <TechnicalProduct tkey="5" version="0" provisioningurl="someurl" technicalproductid="tpid"
+    technicalproductversion="1.0" organizationkey="5" />
+  <LocalizedResource locale="en" objectkey="5" objecttype="PRODUCT_LICENSE_DESC" value="license_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="5" objecttype="PRODUCT_LICENSE_DESC" value="lizenz_de"
+    version="0" />
+
+
+  <TechnicalProduct tkey="6" version="0" provisioningurl="someurl" technicalproductid="tpid2"
+    technicalproductversion="1.0" organizationkey="5" />
+  <LocalizedResource locale="fr" objectkey="6" objecttype="PRODUCT_LICENSE_DESC" value="other stuff"
+    version="0" />
+
+
+  <PriceModel tkey="6" ischargeable="false" onetimefee="0" priceperperiod="0" priceperuserassignment="0"
+    version="0" />
+  <Product tkey="6" version="0" productid="pid2" provisioningdate="1234" status="ACTIVE" supplierkey="5"
+    technicalproduct_tkey="5" pricemodel_tkey="6" />
+
+
+  <PriceModel tkey="7" ischargeable="false" onetimefee="0" priceperperiod="0" priceperuserassignment="0"
+    version="0" />
+  <Product tkey="7" version="0" productid="pid3" provisioningdate="1234" status="ACTIVE" supplierkey="5"
+    technicalproduct_tkey="5" pricemodel_tkey="7" />
+
+
+  <PriceModel tkey="8" ischargeable="false" onetimefee="0" priceperperiod="0" priceperuserassignment="0"
+    version="0" />
+  <Product tkey="8" version="0" productid="pid4" provisioningdate="1234" status="ACTIVE" supplierkey="5"
+    technicalproduct_tkey="6" pricemodel_tkey="8" />
+
+
+  <Product tkey="5" version="0" productid="pid" provisioningdate="1234" status="ACTIVE" supplierkey="5"
+    technicalproduct_tkey="5" />
+
+
+  <LocalizedResource locale="en" objectkey="6" objecttype="PRICEMODEL_LICENSE" value="license_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="6" objecttype="PRICEMODEL_LICENSE" value="lizenz_de"
+    version="0" />
+  <LocalizedResource locale="en" objectkey="7" objecttype="PRICEMODEL_LICENSE" value="license_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="7" objecttype="PRICEMODEL_LICENSE" value="lizenz_de"
+    version="0" />
+  <LocalizedResource locale="fr" objectkey="8" objecttype="PRICEMODEL_LICENSE" value="other stuff"
+    version="0" />
+
+</dataset>

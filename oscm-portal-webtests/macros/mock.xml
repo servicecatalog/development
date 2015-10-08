@@ -1,0 +1,178 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="mock.settings">
+    <attribute name="url" default="${mock.url}" />
+    <attribute name="userKey" />
+    <attribute name="password" default="secret" />
+    <sequential>
+      <invoke url="@{url}/settings.jsp" />
+      <ifStep description="If a BES WS URL is set">
+        <condition>
+          <verifyProperty property="bes.https.url" propertyType="ant" />
+        </condition>
+        <then>
+          <setInputField name="baseUrl" value="${bes.https.url}" />
+        </then>
+      </ifStep>
+      <setInputField name="username" value="@{userKey}" />
+      <setInputField name="password" value="@{password}" />
+      <setSelectField name="authentication" value="BASICAUTH" />
+      <clickButton label="Save" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.clear">
+    <attribute name="url" default="${mock.url}" />
+    <sequential>
+      <invoke url="@{url}/clear.jsp" />
+      <clickButton label="Clear" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.requestlog">
+    <attribute name="url" default="${mock.url}" />
+    <sequential>
+      <invoke url="@{url}/requestlog.jsp" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.getOrganizationData">
+    <attribute name="url" default="${mock.url}" />
+    <sequential>
+      <invoke url="@{url}/execute?operation=AccountService.getOrganizationData" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.clickQuickLink">
+    <attribute name="url" default="${mock.url}" />
+    <attribute name="back" default="0" />
+    <attribute name="name" />
+    <sequential>
+      <invoke url="@{url}" />
+      <followFrame name="requests" />
+      <storeXPath description="Get the number of request entries." xpath="count(//body/div[position()=1]/div)" property="requestCount" propertyType="dynamic" />
+      <storeProperty name="position" value="#{requestCount} - @{back}" eval="true" />
+      <clickLink htmlId="logentry:#{position}:@{name}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.approve">
+    <sequential>
+      <mock.clickQuickLink name="approve" />
+      <followFrame name="operation" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.reject">
+    <attribute name="reason" default="I don't need any reason to reject this." />
+    <sequential>
+      <mock.clickQuickLink name="reject" />
+      <followFrame name="operation" />
+      <setInputField name="param_reason" value="@{reason}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.progress">
+    <attribute name="back" default="0" />
+    <attribute name="locale" default="en" />
+    <attribute name="text" />
+    <sequential>
+      <mock.clickQuickLink name="progress" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_locale" value="@{locale}" />
+      <setInputField name="param_text" value="@{text}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.completeAsyncSub">
+    <attribute name="back" default="0" />
+    <attribute name="instanceId" default="1234567890" />
+    <attribute name="baseUrl" default="${mock.url}" />
+    <attribute name="loginPath" default="/login" />
+    <sequential>
+      <mock.clickQuickLink name="complete" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_instanceId" value="@{instanceId}" />
+      <setInputField name="param_baseUrl" value="@{baseUrl}" />
+      <setInputField name="param_loginPath" value="@{loginPath}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.completeAsyncModifySub">
+    <attribute name="back" default="0" />
+    <attribute name="organizationId" />
+    <attribute name="baseUrl" default="${mock.url}" />
+    <attribute name="loginPath" default="/login" />
+    <sequential>
+      <mock.clickQuickLink name="complete" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_organizationId" value="@{organizationId}" />
+      <setInputField name="param_baseUrl" value="@{baseUrl}" />
+      <setInputField name="param_loginPath" value="@{loginPath}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.completeAsyncUpgradeSub">
+    <attribute name="back" default="0" />
+    <attribute name="organizationId" />
+    <attribute name="baseUrl" default="${mock.url}" />
+    <attribute name="loginPath" default="/login" />
+    <sequential>
+      <mock.clickQuickLink name="complete" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_organizationId" value="@{organizationId}" />
+      <setInputField name="param_baseUrl" value="@{baseUrl}" />
+      <setInputField name="param_loginPath" value="@{loginPath}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.abortAsyncSub">
+    <attribute name="back" default="0" />
+    <attribute name="locale" default="en" />
+    <attribute name="text" />
+    <sequential>
+      <mock.clickQuickLink name="abort" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_locale" value="@{locale}" />
+      <setInputField name="param_text" value="@{text}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.abortAsyncModifySub">
+    <attribute name="back" default="0" />
+    <attribute name="organizationId" />
+    <attribute name="locale" default="en" />
+    <attribute name="text" />
+    <sequential>
+      <mock.clickQuickLink name="abort" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_organizationId" value="@{organizationId}" />
+      <setInputField name="param_locale" value="@{locale}" />
+      <setInputField name="param_text" value="@{text}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mock.abortAsyncUpgradeSub">
+    <attribute name="back" default="0" />
+    <attribute name="organizationId" />
+    <attribute name="locale" default="en" />
+    <attribute name="text" />
+    <sequential>
+      <mock.clickQuickLink name="abort" back="@{back}" />
+      <followFrame name="operation" />
+      <setInputField name="param_organizationId" value="@{organizationId}" />
+      <setInputField name="param_locale" value="@{locale}" />
+      <setInputField name="param_text" value="@{text}" />
+      <clickButton label="Execute" />
+    </sequential>
+  </macrodef>
+</project>

@@ -1,0 +1,370 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMarketServiceFB" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/all.xml" />
+  <target name="testMarketServiceFB" depends="testMarketServiceAdd, testMarketServiceEdit, testMarketServiceCopy" />
+  <target name="testMarketServiceAdd">
+    <webtest name="testMarketServiceAdd">
+      <!-- setup for test -->
+      <!-- Create new organization WEB UI role technology provider + supplier User A -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" mIdProperty="mId" baseurl="#{baseUrl}"
+        name="Local Marketplace" />
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <!-- import technical service with name "Example 1.00" -->
+      <techservice.import file="data/TechnicalServices-LOGIN.xml" />
+      <!-- Define constants -->
+      <storeProperty name="techServiceId" value="Example 1.00" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/marketServiceDefineFieldsFB.xls">
+        <common.clickAndVerfyLink label="${service.add.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- select technical service just created -->
+        <!--setSelectField htmlId="editForm:techServiceId" text="#{techServiceId}" / -->
+        <!-- set default values for all fields -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceDefineFieldsFB.xls" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue=""
+            error="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <common.clickAndVerfyLink label="${service.add.title}" />
+          <!-- set defaults for all fields -->
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceDefineFieldsFB.xls" />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <echo message="CHECK common.replaceSpecialInput !#{value}! " />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- default value for field being tested is overwritten; the rest are still 'valid' default values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <echo message="CHECK setting input field  #{fieldId}: !#{value}! " />
+              <!-- save marketable service id -->
+              <storeXPath xpath="//*[@id='editForm:serviceId']/@value" property="currServId" />
+              <clickButton label="${button.save}" />
+              <!-- verify that we are on the edit marketable service page -->
+              <verifyElementText htmlId="pagelabel" text="${service.edit.title}" />
+              <echo message="CHECK current marketable service id: #{currServId} " />
+              <echo message="CHECK fieldId: #{fieldId} " />
+              <echo message="CHECK fieldType: #{fieldType} " />
+              <echo message="CHECK current value of fieldType: #{value}" />
+              <common.handleMessageParameters value="${info.service.created}" property="okMessage"
+                att0="#{currServId}" />
+              <common.verifyModalMessagePanel label="#{okMessage}" panelId="infoPanel"
+                regex="false" />
+              <!-- Remove marketable service, only if cleanup is true -->
+              <ifStep description="Cleanup?" test="#{cleanup}">
+                <then>
+                  <setup:service.delete serviceIds="#{currServId}" />
+                </then>
+              </ifStep>
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <!-- macro below sets field and presses button! -->
+              <ifStep description="Check string with/without regex" test="#{regex}">
+                <then>
+                  <common.handleMessageParameters value="${errormsg}" property="errormsg1"
+                    att0="(.+)" />
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="#{errormsg1}" regex="${regex}" />
+                </then>
+                <else>
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="${errormsg}" regex="${regex}" />
+                </else>
+              </ifStep>
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <!-- Remove registered technical service, only if cleanup is true -->
+      <ifStep description="Cleanup?" test="#{cleanup}">
+        <then>
+          <setup:techservice.delete serviceIds="#{techServiceId}" />
+        </then>
+      </ifStep>
+      <login.logout />
+    </webtest>
+  </target>
+  <target name="testMarketServiceEdit">
+    <webtest name="testMarketServiceEdit">
+      <!-- setup for test -->
+      <!-- Create new organization WEB UI role technology provider + supplier User A -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" mIdProperty="mId" baseurl="#{baseUrl}"
+        name="Local Marketplace" />
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <!-- Define constants -->
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <!-- define service constants, import technical service with name "Example 1.00" -->
+      <storeProperty name="techServiceId" value="Example 1.00" propertyType="dynamic" />
+      <storeProperty name="marketServiceId" value="Market Service 1.00" propertyType="dynamic" />
+      <storeProperty name="currServId" value="#{marketServiceId}" propertyType="dynamic" />
+      <techservice.import file="data/TechnicalServices-LOGIN.xml" />
+      <!--ws:service.define techServiceId="#{techServiceId}" serviceId="#{marketServiceId}" name="Service 1.0 for customer" 
+        description="Limited evaluation version." namedUser="1" image="data/images/icon1.png" marketplaceId="FUJITSU" / -->
+      <setup:service.define configurableChecked="true" serviceId="#{marketServiceId}" name="Service 1.0 for customer"
+        publicService="true" techServiceId="#{techServiceId}" />
+      <setup:pricemodel.define serviceId="#{marketServiceId}" isFree="true" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <echo message="techServiceId !#{techServiceId}! !${techServiceId}" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/marketServiceUpdateFieldsFB.xls">
+        <common.clickAndVerfyLink label="${service.edit.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- select marketable service just created -->
+        <setSelectField htmlId="editForm:selectedServiceId" text="#{currServId}" />
+        <!-- set default values for all fields -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceUpdateFieldsFB.xls" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue=""
+            error="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <!-- set defaults for all fields -->
+          <common.clickAndVerfyLink label="${service.edit.title}" />
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceUpdateFieldsFB.xls" />
+          <!-- select marketable service (could be name of the last one saved) -->
+          <setSelectField htmlId="editForm:selectedServiceId" text="#{currServId}" />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <echo message="CHECK common.replaceSpecialInput !#{value}! " />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- default value for field being tested is overwritten; the rest are still 'valid' default values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <echo message="CHECK setting input field  #{fieldId}: !#{value}! " />
+              <!-- save marketable service id -->
+              <storeXPath xpath="//*[@id='editForm:serviceId']/@value" property="currServId" />
+              <clickButton label="${button.save}" />
+              <!-- verify that we are on the edit marketable service page -->
+              <verifyElementText htmlId="pagelabel" text="${service.edit.title}" />
+              <echo message="CHECK current marketable service id: #{currServId} " />
+              <echo message="CHECK fieldId: #{fieldId} " />
+              <echo message="CHECK fieldType: #{fieldType} " />
+              <echo message="CHECK current value of fieldType: #{value}" />
+              <common.handleMessageParameters value="${info.service.saved}" property="okMessage"
+                att0="#{currServId}" />
+              <common.verifyModalMessagePanel label="#{okMessage}" panelId="infoPanel"
+                regex="false" />
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <!-- macro below sets field and presses button! -->
+              <ifStep description="Check string with/without regex" test="#{regex}">
+                <then>
+                  <common.handleMessageParameters value="${errormsg}" property="errormsg1"
+                    att0="(.+)" />
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="#{errormsg1}" regex="${regex}" />
+                </then>
+                <else>
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    error="${errormsg}" regex="${regex}" />
+                </else>
+              </ifStep>
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <!-- Remove registered technical service and marketable service, only if cleanup is true -->
+      <ifStep description="Cleanup?" test="#{cleanup}">
+        <then>
+          <setup:service.delete serviceIds="#{currServId}" />
+          <setup:techservice.delete serviceIds="#{techServiceId}" />
+        </then>
+      </ifStep>
+      <login.logout />
+    </webtest>
+  </target>
+  <target name="testMarketServiceCopy">
+    <webtest name="testMarketServiceCopy">
+      <!-- setup for test -->
+      <!-- Create new organization WEB UI role technology provider + supplier User A -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace ownerId="#{supplierId}" mIdProperty="mId" baseurl="#{baseUrl}"
+        name="Local Marketplace" />
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <setup:store.settings userkey="#{supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+      <!-- Define constants -->
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <storeProperty name="cleanup" value="true" />
+      <!-- define service constants, import technical service with name "Example 1.00" -->
+      <storeProperty name="techServiceId" value="Example 1.00" propertyType="dynamic" />
+      <storeProperty name="marketServiceId" value="Market Service 1.00" propertyType="dynamic" />
+      <storeProperty name="currServId" value="#{marketServiceId}" propertyType="dynamic" />
+      <techservice.import file="data/TechnicalServices-LOGIN.xml" />
+      <setup:service.define configurableChecked="true" serviceId="#{marketServiceId}" name="Service 1.0 for customer"
+        publicService="true" techServiceId="#{techServiceId}" />
+      <setup:pricemodel.define serviceId="#{marketServiceId}" isFree="true" />
+      <!-- store settings for WS calls -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <echo message="techServiceId !#{techServiceId}! !${techServiceId}" />
+      <!-- start the actual test -->
+      <!-- loop over fields / -->
+      <dataDriven tableContainer="data/pageFields/FB/marketServiceCopyFieldsFB.xls">
+        <common.clickAndVerfyLink label="${service.copy.title}" />
+        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+        <storeProperty name="required" value="${required}" propertyType="dynamic" />
+        <storeProperty name="default" value="${default}" propertyType="dynamic" />
+        <!-- select marketable service just created -->
+        <setSelectField htmlId="copyForm:selectedServiceId" text="#{currServId}" />
+        <!-- set default values for all fields -->
+        <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceCopyFieldsFB.xls" />
+        <ifStep description="Test if required" test="#{required}">
+          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" buttonLabel="${button.copy}"
+            error="${javax.faces.component.UIInput.REQUIRED}" regex="false" />
+        </ifStep>
+        <!-- loop field values -->
+        <dataDriven tableContainer="data/FB/#{fieldType}.xls">
+          <!-- store fieldType columns in properties -->
+          <storeProperty name="value" value="${value}" propertyType="dynamic" />
+          <storeProperty name="valid" value="${valid}" propertyType="dynamic" />
+          <storeProperty name="regex" value="${regex}" propertyType="dynamic" />
+          <!-- set defaults for all fields -->
+          <common.clickAndVerfyLink label="${service.copy.title}" />
+          <common.setAllDefaults fieldXLS="data/pageFields/FB/marketServiceCopyFieldsFB.xls" />
+          <!-- select marketable service (could be name of the last one saved) -->
+          <setSelectField htmlId="copyForm:selectedServiceId" text="#{currServId}" />
+          <!-- save old marketable service id for cleanup later -->
+          <storeProperty name="srcServId" value="#{currServId}" propertyType="dynamic" />
+          <echo message="CHECK set source service id to  !#{srcServId}! " />
+          <!-- Replace %blank% as input value with a real blank (xml datadriven file cannot work with blank input) -->
+          <common.replaceSpecialInput value="#{value}" />
+          <echo message="CHECK common.replaceSpecialInput !#{value}! " />
+          <!-- valid input -->
+          <ifStep description="check valid/invalid input" test="#{valid}">
+            <then>
+              <echo message="CHECK valid=true #{fieldId}: ${value} " />
+              <!-- default value for field being tested is overwritten; the rest are still 'valid' default values -->
+              <setInputField htmlId="#{fieldId}" value="#{value}" />
+              <echo message="CHECK setting input field  #{fieldId}: !#{value}! " />
+              <!-- save new marketable service id -->
+              <storeXPath xpath="//*[@id='copyForm:newServiceId']/@value" property="currServId" />
+              <clickButton label="${button.copy}" />
+              <!-- verify that we are on the edit marketable service page -->
+              <verifyElementText htmlId="pagelabel" text="${service.edit.title}" />
+              <echo message="CHECK current marketable service id: #{currServId} " />
+              <echo message="CHECK fieldId: #{fieldId} " />
+              <echo message="CHECK fieldType: #{fieldType} " />
+              <echo message="CHECK current value of fieldType: #{value}" />
+              <common.handleMessageParameters value="${info.service.created}" property="okMessage"
+                att0="#{currServId}" />
+              <common.verifyModalMessagePanel label="#{okMessage}" panelId="infoPanel"
+                regex="false" />
+              <echo message="CHECK copied to marketable service: #{currServId}" />
+              <ifStep description="Cleanup?" test="#{cleanup}">
+                <then>
+                  <!-- delete source marketable service -->
+                  <echo message="delete marketable service: #{srcServId}" />
+                  <setup:service.delete serviceIds="#{srcServId}" />
+                </then>
+              </ifStep>
+            </then>
+            <!-- invalid input -->
+            <else>
+              <echo message="CHECK valid= false, check errormsg: #{fieldId}: value: ${value} errmsg: ${errormsg}" />
+              <!-- macro below sets field and presses button! -->
+              <ifStep description="Check string with/without regex" test="#{regex}">
+                <then>
+                  <common.handleMessageParameters value="${errormsg}" property="errormsg1"
+                    att0="(.+)" />
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    buttonLabel="${button.copy}" error="#{errormsg1}" regex="${regex}" />
+                </then>
+                <else>
+                  <common.testFieldValidation fieldId="#{fieldId}" fieldValue="#{value}"
+                    buttonLabel="${button.copy}" error="${errormsg}" regex="${regex}" />
+                </else>
+              </ifStep>
+            </else>
+          </ifStep>
+        </dataDriven>
+      </dataDriven>
+      <!-- Remove registered technical service and marketable service, only if cleanup is true -->
+      <ifStep description="Cleanup?" test="#{cleanup}">
+        <then>
+          <setup:service.delete serviceIds="#{currServId}" />
+          <setup:techservice.delete serviceIds="#{techServiceId}" />
+        </then>
+      </ifStep>
+      <login.logout />
+    </webtest>
+  </target>
+</project>

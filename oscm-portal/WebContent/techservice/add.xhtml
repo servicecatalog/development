@@ -1,0 +1,107 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+	xmlns:t="http://myfaces.apache.org/tomahawk"
+	template="../templates/main.xhtml">
+
+	<ui:define name="pageId">
+		<c:set var="pageId" value="techService.add" />
+		<c:set var="focusElement" value="technicalServiceId" />
+	</ui:define>
+	<ui:define name="body">
+
+		<h:form id="editForm" enctype="multipart/form-data">
+
+			<adm:outputStep value="#{msg['techService.add.step1']}" />
+			<a4j:outputPanel id="fields" ajaxRendered="true">
+				<adm:panelGrid id="techServiceFields">
+					<adm:labelAndInputText id="technicalServiceId"
+						label="#{msg['techService.techServiceId']}" required="true"
+						value="#{techServiceBean.newTechnicalService.technicalServiceId}"
+						maxlength="#{appBean.idLen}" validatorId="idChar"
+						converterId="trimConverter" />
+				</adm:panelGrid>
+
+			</a4j:outputPanel>
+			<adm:outputStep value="#{msg['techService.add.step2']}" />
+			<a4j:outputPanel id="detailsPanel" ajaxRendered="true">
+				<adm:panelGrid panelId="techServiceDetails">
+					<adm:outputLabel value="#{msg['techService.accessType']}"
+						required="true" />
+					<a4j:outputPanel styleClass="jqSelect" layout="block">
+						<a4j:outputPanel styleClass="select">
+							<a4j:outputPanel styleClass="option" />
+						</a4j:outputPanel>
+						<h:selectOneMenu id="accessType" styleClass="select"
+							required="#{empty techServiceBean.newTechnicalService.accessType}"
+							valueChangeListener="#{techServiceBean.accessTypeChanged}"
+							value="#{techServiceBean.newTechnicalService.accessType}"
+							onclick="setDirty(true);">
+							<a4j:ajax
+								render="detailsPanel,baseUrl,provisioningUrl,loginPath,errorPanel"
+								event="change"
+								oncomplete="AdmUtils.initFocus();AdmUtils.setUIElements();AdmUtils.restoreFormState();"
+								onbegin="AdmUtils.storeFormState('#editForm');" />
+							<adm:selectItemPleaseSelect itemValue="" />
+							<f:selectItem itemLabel="#{msg['ServiceAccessType.DIRECT']}"
+								itemValue="DIRECT" />
+							<f:selectItem itemLabel="#{msg['ServiceAccessType.EXTERNAL']}"
+								itemValue="EXTERNAL" />
+							<f:selectItem itemLabel="#{msg['ServiceAccessType.LOGIN']}"
+								itemValue="LOGIN" />
+							<f:selectItem itemLabel="#{msg['ServiceAccessType.USER']}"
+								itemValue="USER" />
+						</h:selectOneMenu>
+					</a4j:outputPanel>
+					<adm:message for="accessType" />
+
+					<adm:labelAndInputText id="baseUrl"
+						label="#{msg['techService.baseUrl']}" required="true"
+						value="#{techServiceBean.newTechnicalService.baseUrl}"
+						maxlength="#{appBean.descriptionLen}"
+						rendered="#{techServiceBean.baseUrlVisible}" validatorId="url"
+						converterId="trimConverter" />
+
+					<adm:labelAndInputText id="provisioningUrl"
+						label="#{msg['techService.provisioningUrl']}" required="true"
+						value="#{techServiceBean.newTechnicalService.provisioningUrl}"
+						maxlength="#{appBean.descriptionLen}" validatorId="url"
+						rendered="#{techServiceBean.provisioningUrlVisible}"
+						converterId="trimConverter" />
+
+					<adm:labelAndInputText id="loginPath"
+						label="#{msg['techService.loginPath']}"
+						value="#{techServiceBean.newTechnicalService.loginPath}"
+						maxlength="#{appBean.descriptionLen}" validatorId="relUrl"
+						rendered="#{techServiceBean.loginPathVisible}"
+						converterId="trimConverter" />
+
+					<adm:labelAndInputText id="accessInfo"
+						label="#{msg['techService.accessInfo.english']}" required="true"
+						value="#{techServiceBean.newTechnicalService.accessInfo}"
+						maxlength="#{appBean.descriptionLen}"
+						rendered="#{techServiceBean.accessInfoVisible}"
+						converterId="trimConverter" />
+				</adm:panelGrid>
+				<h:outputText id="accessInfoHint"
+					styleClass="block outputText_hover"
+					rendered="#{techServiceBean.accessInfoVisible}"
+					value="#{msg['techService.accessInfoHint']}" />
+			</a4j:outputPanel>
+			<adm:buttonPanel>
+				<adm:button id="saveButton" value="#{msg['button.save']}"
+					bean="#{techServiceBean}" action="create" buttonType="save" />
+			</adm:buttonPanel>
+
+		</h:form>
+
+	</ui:define>
+</ui:composition>

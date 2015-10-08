@@ -1,0 +1,82 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.create" />
+    <c:set var="focusElement" value="createMarketplaceForm:marketplaceName" />
+  </ui:define>
+  <ui:define name="body">
+    <adm:outputStep value="#{msg['marketplace.create.insert']}" />
+    <h:form id="createMarketplaceForm">
+
+      <adm:panelGrid>
+        <adm:labelAndInputText id="marketplaceName" label="#{msg['marketplace.name']}" required="true"
+          value="#{newMarketplaceBean.model.name}" maxlength="#{appBean.idLen}" validatorId="idChar"
+          converterId="trimConverter" />
+
+        <adm:outputLabel value="#{msg['marketplace.create.settings']}" />
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="taggingEnabled" value="#{newMarketplaceBean.model.taggingEnabled}"
+            onchange="setDirty(true)">
+          </h:selectBooleanCheckbox>
+          <h:outputLabel value="#{msg['marketplace.taggingEnabled']}" />
+        </h:panelGroup>
+        <h:panelGroup />
+
+        <h:panelGroup />
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="reviewEnabled" value="#{newMarketplaceBean.model.reviewEnabled}"
+            onchange="setDirty(true)">
+          </h:selectBooleanCheckbox>
+          <h:outputLabel value="#{msg['marketplace.reviewEnabled']}" />
+        </h:panelGroup>
+        <h:panelGroup />
+
+        <h:panelGroup />
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="socialBookmarkEnabled" value="#{newMarketplaceBean.model.socialBookmarkEnabled}"
+            onchange="setDirty(true)">
+          </h:selectBooleanCheckbox>
+          <h:outputLabel value="#{msg['marketplace.socialBookmarkEnabled']}" />
+        </h:panelGroup>
+        <h:panelGroup />
+
+        <h:panelGroup />
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="closed" value="#{newMarketplaceBean.model.closed}" onchange="setDirty(true)">
+          </h:selectBooleanCheckbox>
+          <h:outputLabel value="#{msg['marketplace.publishingRules.closed']}" />
+        </h:panelGroup>
+        <h:panelGroup />
+        
+         <h:panelGroup />
+        <h:panelGroup>
+          <h:selectBooleanCheckbox id="categoriesEnabled" value="#{newMarketplaceBean.model.categoriesEnabled}" onchange="setDirty(true)">
+          </h:selectBooleanCheckbox>
+          <h:outputLabel value="#{msg['marketplace.categoriesEnabled']}" />
+        </h:panelGroup>
+        <h:panelGroup />
+
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['marketplace.create.select']}" />
+      <adm:panelGrid>
+        <adm:selectOrganization inline="true" rendered="true" 
+          context="#{newMarketplaceBean.model.owningOrganizationId}"
+          defaultContext="false"/>
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="saveButton" value="#{msg['button.save']}" bean="#{newMarketplaceBean}" buttonType="save"
+          action="createMarketplace" />
+      </adm:buttonPanel>
+      <h:inputHidden value="#{newMarketplaceBean.token}" />
+
+    </h:form>
+  </ui:define>
+</ui:composition>

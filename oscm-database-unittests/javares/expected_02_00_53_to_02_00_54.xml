@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <OrganizationRefToPaymentType tkey="1" version="0" usedasdefault="false" organizationreference_tkey="1" organizationrole_tkey="1" paymenttype_tkey="3" usedasservicedefault="false"/>
+  <OrganizationRefToPaymentType tkey="2" version="0" usedasdefault="false" organizationreference_tkey="3" organizationrole_tkey="3" paymenttype_tkey="3" usedasservicedefault="false"/>
+  <OrganizationRefToPaymentType tkey="3" version="0" usedasdefault="false" organizationreference_tkey="2" organizationrole_tkey="1" paymenttype_tkey="3" usedasservicedefault="false"/>
+</dataset>

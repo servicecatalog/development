@@ -1,0 +1,18 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:rich="http://richfaces.org/rich"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <!-- Input parameter: service (VOService for which the license should be displayed),
+   linkText (the text of the link which opens the license overlay) -->
+  <c:if test="#{empty linkText}">
+    <c:set var="linkText" value="#{msg['priceModel.service.license']}" />
+  </c:if>
+  <h:outputLink id="openLicenseLink" value="#" onclick="#{rich:component('licensePanel')}.show(); setDirty(false); return false;"
+    style="text-decoration: none;">
+    <h:outputText value="#{linkText}" />
+  </h:outputLink>
+  <ui:include src="license.xhtml" />
+</ui:composition>

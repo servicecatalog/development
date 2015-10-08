@@ -1,0 +1,45 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testResizeManageUsersPage">
+  <import file="../macros/all.xml" />
+
+  <target name="testResizeManageUsersPage">
+    <webtest name="testResizeManageUsersPage_ResizePage">
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+    
+      <!--check the controls and view parts exist-->
+      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" /> 
+      <verifyXPath xpath="//div[@id='contentPanel']" /> 
+      <verifyXPath xpath="//div[@id='contentPanelSub']" /> 
+      
+      <!--check the "content_sub" part displaying the details of above selection-->
+      <clickElement xpath="//*[@id='userListForm:userListTable:0:userId']" /> 
+        
+      <verifyElementText htmlId="editForm:userId" text="${supplierUserId}" /> 
+      <verifyXPath xpath="//*[@id='editForm:locale' and @class='select']" />
+      <login.logout/>
+    </webtest>
+  	
+    <webtest name="testResizeManageUsersPage_Hide_Unhide">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" password="${common.password}" />
+      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+
+      <storeElementAttribute htmlId="navPanel" attributeName="style" propertyName="style2"/>
+      <verifyProperty name="style2" text="width:240px;.*" regex="true"/>
+      
+      <!-- hide of the menu and verify -->
+      <clickElement xpath="//div[@id='menu_header']" /> 
+      <storeElementAttribute htmlId="navPanel" attributeName="style" propertyName="style1"/>
+      <verifyProperty name="style1" text=".*display: none;" regex="true"/>
+      
+      <!-- unhide of the menu and verify -->
+      <clickElement xpath="//div[@id='navPanel2']" /> 
+      <storeElementAttribute htmlId="navPanel" attributeName="style" propertyName="style2"/>
+      <verifyProperty name="style2" text=".*display: block;" regex="true"/>
+    </webtest>
+  </target>
+
+</project>

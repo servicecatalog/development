@@ -1,0 +1,280 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testPaymentAvailability" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  <import file="../../macros/all.xml" />
+  <import file="../../macros/paymentTypeSetup.xml" />
+
+  <target name="testPaymentAvailability" depends="testSubscribeAvailability,
+    testModifyAvailability,
+    testUpgradeAvailability,
+    testSuspendAndActivateSubscription" />
+
+  <target name="init">
+    <webtest name="testPaymentAvailability_setup">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
+      <property name="baseUrl" value="#{baseUrl}" />
+      <property name="supplierUrl" value="#{orgUrl}" />
+      <property name="supplierId" value="#{orgId}" />
+      <property name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="${baseUrl}" name="Local Marketplace" />
+
+      <paymentTypeSetup.setPSPSettings />
+
+      <login.initialLoginAndChangePassword url="${supplierUrl}" userId="${supplierUserId}" password="#{userPwd}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <setup:service.define marketplaceId="${mId}" serviceId="Ex_CC" name="Ex_CC" />
+      <setup:service.define marketplaceId="${mId}" serviceId="Ex_DD" name="Ex_DD" />
+      <setup:service.define marketplaceId="${mId}" serviceId="Ex_I" name="Ex_I" />
+      <setup:service.define marketplaceId="${mId}" serviceId="Ex_All" name="Ex_All" />
+      <setup:service.define marketplaceId="${mId}" serviceId="Ex_None" name="Ex_None" />
+
+      <setup:pricemodel.define serviceId="Ex_CC" isFree="false" />
+      <setup:pricemodel.define serviceId="Ex_DD" isFree="false" />
+      <setup:pricemodel.define serviceId="Ex_I" isFree="false" />
+      <setup:pricemodel.define serviceId="Ex_All" isFree="false" />
+      <setup:pricemodel.define serviceId="Ex_None" isFree="false" />
+
+      <setup:service.defineMigrationOptions serviceId="Ex_CC" migrationTargetIds="Ex_All,Ex_None" />
+      <setup:service.defineMigrationOptions serviceId="Ex_DD" migrationTargetIds="Ex_All,Ex_None" />
+      <setup:service.defineMigrationOptions serviceId="Ex_I" migrationTargetIds="Ex_All,Ex_None" />
+
+      <setup:service.activate serviceIds="Ex_CC,Ex_DD,Ex_I,Ex_All,Ex_None" />
+
+      <setup:paymentinfo.define id="CC" paymentType="CREDIT_CARD" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+      <setup:paymentinfo.define id="DD" paymentType="DIRECT_DEBIT" trustStorePath="${glassfish.bes.domain}/config/cacerts.jks" keyStorePath="${glassfish.bes.domain}/config/keystore.jks" />
+
+      <!-- enable service specific payment types -->
+      <organization.managePayment rowNr="0" paymentType="service0" enabled="true" forCustomer="false" />
+      <organization.managePayment rowNr="1" paymentType="service1" enabled="true" forCustomer="false" />
+      <organization.managePayment rowNr="2" paymentType="service2" enabled="true" forCustomer="false" />
+      <organization.managePayment rowNr="3" paymentType="service0" enabled="true" forCustomer="false" />
+      <organization.managePayment rowNr="3" paymentType="service1" enabled="true" forCustomer="false" />
+      <organization.managePayment rowNr="3" paymentType="service2" enabled="true" forCustomer="false" />
+
+      <!-- enable 'my' payment types -->
+      <organization.managePayment rowNr="0" paymentType="cust0" enabled="true" />
+      <organization.managePayment rowNr="0" enabled="true" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testSubscribeAvailability" depends="init">
+    <webtest name="testPaymentAvailability_subscriptionProcess">
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <common.ignorePageScriptError />
+      <clickElement htmlId="servicePanel0" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <clickLink href="/oscm-portal/marketplace" />
+      <clickElement htmlId="servicePanel1" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+
+      <clickLink href="/oscm-portal/marketplace" />
+      <clickElement htmlId="servicePanel2" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+
+      <clickLink href="/oscm-portal/marketplace" />
+      <clickElement htmlId="servicePanel3" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <clickLink href="/oscm-portal/marketplace" />
+      <clickElement htmlId="servicePanel4" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testModifyAvailability" depends="init">
+    <webtest name="testPaymentAvailability_modifySubscriptionPayment">
+      <login.loginAsSupplier url="${bes.http.url}/oscm-portal" userId="${supplierUserId}" />
+      <organization.managePaymentforsupplier />
+      <login.logout/>
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <!-- Ex_I: invoice -->
+      <mpl_service.subscribe mid="${mId}" index="3" chargeable="true" />
+      <!-- Ex_All: all but direct debit not allowed for customer -->
+      <mpl_service.subscribe mid="${mId}" index="0" paymentType="DD" chargeable="true" />
+
+      <clickLink href="/oscm-portal/marketplace/account/subscriptions.jsf" />
+      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${marketplace.payment.title}" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <clickLink href="/oscm-portal/marketplace/account/subscriptions.jsf" />
+      <clickLink xpath="//td[contains(text(), 'Ex_All')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${marketplace.payment.title}" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <mpl_goto.tab label="${service.priceModel}" />
+      <verifyText text="${priceModel.combobox.chargePerSubscription.label}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testUpgradeAvailability" depends="init">
+    <webtest name="testPaymentAvailability_upgradeSubscription">
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <clickLink label="${marketplace.account.title}" />
+      <clickLink htmlId="showSubscriptionsButton" />
+      <!-- can be upgraded to Ex_All and Ex_None -->
+      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <clickLink label="${marketplace.account.title}" />
+      <clickLink htmlId="showSubscriptionsButton" />
+      <!-- can be upgraded to Ex_All and Ex_None -->
+      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <!-- we need to do it so complicated with an xpath expression because the frontend developer did
+           not give unique constant ids to the element. So find service1Name, the second service in the list.
+           Navigate 3 steps back and find the corresponding select button. This is a <span>, so navigate
+           one step back again, which is the actual link we want to click. -->
+      <clickLink xpath="//*[@id='service1Name']/../../..//*[normalize-space(text())='${button.select}']/.." />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testSuspendAndActivateSubscription" depends="init">
+    <!-- test that subscription will be suspended when payment type is disabled for service and acivated if enabled again -->
+    <webtest name="testPaymentAvailability_suspendAndActivate  ">
+      <login.loginAsSupplier url="${baseUrl}" userId="${supplierUserId}" password="secret" />
+      <!-- disable invoice for Ex_I -> subscription Ex_I should be suspended -->
+      <organization.managePayment paymentType="service2" rowNr="2" enabled="false" forCustomer="false" />
+      <login.logout />
+
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <clickLink label="${marketplace.account.title}" />
+      <clickLink htmlId="showSubscriptionsButton" />
+      <verifyText description="Check that status is suspended" text="${SubscriptionStatus.SUSPENDED}" />
+      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${marketplace.payment.title}" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+      </not>
+      <mpl_login.logout />
+
+      <!-- enable again -> subscription should be active again -->
+      <login.login url="${baseUrl}" userId="${supplierUserId}" password="secret" />
+      <organization.managePayment paymentType="service2" rowNr="2" enabled="true" forCustomer="false" />
+      <login.logout />
+
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <clickLink label="${marketplace.account.title}" />
+      <clickLink htmlId="showSubscriptionsButton" />
+      <verifyText description="Check that status is active" text="${SubscriptionStatus.ACTIVE}" />
+      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+
+      <mpl_goto.tab label="${marketplace.payment.title}" />
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='DD']" />
+      </not>
+      <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
+
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testPaymentAvailabilityFinalCleanUp">
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+</project>

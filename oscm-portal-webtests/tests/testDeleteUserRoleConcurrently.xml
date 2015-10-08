@@ -1,0 +1,67 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testDeleteUserRoleConcurrently">
+  <import file="../macros/all.xml" />
+  <target name="testDeleteUserRoleConcurrently">
+    <webtest name="testDeleteUserRoleConcurrently">
+
+      <!-- Tests the fix for Bug #7223 -->
+
+      <!-- Create new organization WEB UI role technology provider + supplier, having administrator user: admin1 -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization userId="admin1" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+
+      <!-- define the client corresponding to admin1 -->
+      <selectWebClient name="admin1">
+        <!-- login as admin1 -->
+        <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+        <!-- register the second administrator (admin2) -->
+        <user.register userId="admin2" admin="true" isSvcMgr="true" />
+      </selectWebClient>
+
+      <mail.readPasswordAndUrlFromMail />
+
+      <!-- define the client corresponding to admin2 -->
+      <selectWebClient name="admin2">
+        <!-- login as admin2 -->
+        <login.initialLoginAndChangePasswordAsSupplier url="#{supplierUrl}" userId="#{userId}" password="#{userPwd}" />
+      </selectWebClient>
+
+      <!-- activate the client corresponding to admin1 -->
+      <selectWebClient name="admin1">
+        <!-- Click 'Manage users' -->
+        <common.clickAndVerfyLink label="${user.list.title}" />
+        <!-- select the secondly created user (admin2, index = 1) -->
+        <clickElement htmlId="userListForm:userListTable:1:userId" />
+        <!-- un-select the administrator role -->
+        <setCheckbox xpath="//*[contains(text(),'${UserRoleType.ORGANIZATION_ADMIN}')]/../*[1]" checked="false" />
+        <!-- save admin2 -->
+        <clickButton label="${button.save}" />
+        <!-- Verify if the exception is shown, saying that the role deletion does not function because admin2 is currently logged-in  -->
+        <verifyXPath xpath="//*[@class='rf-msgs-sum' and contains(.//text(),'admin2')]" />
+      </selectWebClient>
+
+      <!-- activate the client corresponding to admin2 -->
+      <selectWebClient name="admin2">
+        <!-- logout admin2 -->
+        <login.logout />
+      </selectWebClient>
+
+      <!-- activate the client corresponding to admin1 -->
+      <selectWebClient name="admin1">
+        <!-- delete the administrator role of admin2 and verify that the deletion was successful -->
+        <user.manage rowNr="1" admin="false" />
+
+        <!-- logout admin1 -->
+        <login.logout />
+      </selectWebClient>
+
+    </webtest>
+  </target>
+</project>

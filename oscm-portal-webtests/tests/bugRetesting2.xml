@@ -1,0 +1,910 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="bugTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="bugTests" depends="testBug10160,testBug10079,Bug9993,Bug10058,testBug10055,testBug10271,Bug10300,testBug10314,Bug10329,Bug10447,Bug10439,Bug10651,Bug11014,testBug11036" />
+
+  <target name="Bug9993">
+    <webtest name="Bug 9993: Up/downgrade service: Confirmation panel should be displayed in case of none free of charge services">
+      <tstamp>
+        <format property="current.time" pattern="yyyyMMdd_HHmmss" />
+      </tstamp>
+      <mail.cleanInbox />
+      <!-- create new marketplace -->
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="newSupplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="newSupplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="newSupplierUserId" value="#{userId}" propertyType="ant" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <storeProperty name="MP_NAME" value="MP_Bug9993" propertyType="ant" />
+      <operator.createMarketplace ownerId="${newSupplierId}" baseurl="${bes.http.url}/oscm-portal" name="${MP_NAME}" mIdProperty="Bug9993mId" />
+
+      <!-- create marketable services -->
+      <login.initialLoginAndChangePasswordAsSupplier url="${newSupplierUrl}" userId="${newSupplierUserId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${Bug9993mId}" />
+      <techservice.import file="${techService.import.file}" />
+
+      <storeProperty name="SVC_ID" value="Bug9993_Service1_${current.time}" propertyType="ant" />
+      <common.ignorePageScriptError />
+      <service.define serviceId="${SVC_ID}" name="${SVC_ID}" marketplaceId="${Bug9993mId}" />
+      <clickLink href="/oscm-portal/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID}" />
+      <!-- set time unit price model -->
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${SVC_ID}" />
+      <storeProperty name="SVC_ID2" value="Bug9993_Service2_${current.time}" propertyType="ant" />
+      <service.define serviceId="${SVC_ID2}" name="${SVC_ID2}" marketplaceId="${Bug9993mId}" publicService="true" />
+      <clickLink href="/oscm-portal/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="${SVC_ID2}" />
+      <!-- set time unit price model -->
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${SVC_ID2}" />
+      <clickLink href="/oscm-portal/service/upgradeoptions.jsf" />
+
+      <!-- select service -->
+      <setSelectField htmlId="editForm:srcServiceId" text="${SVC_ID}" />
+
+      <!-- select service to up/downgrade -->
+      <setCheckbox name="editForm:serviceTable:0:selected" checked="true" />
+
+      <clickButton label="${button.save}" />
+
+      <!-- check modalpanel is displayed -->
+      <common.verifyModalPanelVisible htmlId="confirmPanel_container" />
+
+      <clickLink htmlId="confirmForm:okButton" />
+
+      <common.verifySuccess label="${SVC_ID}" />
+
+      <!-- crean up after test -->
+      <service.delete serviceId="${SVC_ID}" />
+      <service.delete serviceId="${SVC_ID2}" />
+      <login.logout />
+      <operator.deleteMarketplaces marketplaceIds="${Bug9993mId}" />
+    </webtest>
+  </target>
+
+  <target name="Bug10058">
+    <webtest name="Bug 10058: User with log in can be deleted by the other user">
+      <mail.cleanInbox />
+
+      <selectWebClient name="browser1">
+        <!-- create new user "user1" -->
+        <operator.createorganization />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="orgUrl" value="#{orgUrl}" propertyType="ant" />
+        <storeProperty name="orgId" value="#{orgId}" propertyType="ant" />
+        <storeProperty name="userId1" value="#{userId}" propertyType="ant" />
+
+        <!-- user1 login to browser1 -->
+        <login.initialLoginAndChangePasswordAsSupplier url="${orgUrl}" userId="${userId1}" password="#{userPwd}" />
+
+        <!-- create new user "user2" -->
+        <user.register userId="user2" admin="true" isSvcMgr="true" />
+        <mail.readPasswordAndUrlFromMail />
+        <storeProperty name="userId2" value="#{userId}" propertyType="ant" />
+        <storeProperty name="userPassword2" value="#{userPwd}" propertyType="ant" />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- user2 login to browser2 -->
+        <login.initialLoginAndChangePasswordAsSupplier url="${orgUrl}" userId="${userId2}" password="${userPassword2}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser1">
+        <!-- try to delete user2 from browser1 -->
+        <invoke url="${orgUrl}/user/list.jsf" />
+        <common.clickAndVerfyLink label="${user.list.title}" />
+        <clickElement xpath="//*[contains(@id, 'userId') and contains(.//text(),'${userId2}')]" />
+        <clickElement htmlId="editForm:deleteButton" />
+        <clickLink htmlId="deleteConfirmForm:okButton" />
+
+        <!-- verify the error message -->
+        <verifyXPath xpath="//*[@id='errorMessages:']//*[@class='rf-msgs-sum']" text="${ex.UserDeletionConstraintException.IS_USER_LOGGED_IN}" />
+      </selectWebClient>
+
+      <selectWebClient name="browser2">
+        <!-- user2 logout from browser2 -->
+        <login.logout />
+      </selectWebClient>
+
+      <selectWebClient name="browser1">
+        <!-- delete user2 and successed -->
+        <user.delete userId="${userId2}" />
+        <login.logout />
+      </selectWebClient>
+
+    </webtest>
+  </target>
+
+  <target name="testBug10079">
+
+    <webtest name="setup">
+
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <!--create supplier1 with service id of "service1" -->
+      <operator.createMarketplace mIdProperty="mId" name="New Marketplace" ownerId="${supplierId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service1" name="Service1" description="Service1 description" />
+      <setup:pricemodel.define serviceId="Service1" isFree="true" />
+
+      <!--create reseller -->
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="resellerUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="resellerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="resellerPassword" value="#{userPwd}" propertyType="ant" />
+
+      <!--create broker -->
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="brokerUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="brokerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="brokerPassword" value="#{userPwd}" propertyType="ant" />
+
+      <!-- supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service1" />
+      <verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+      <verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+      <verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+      <verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+      <login.logout />
+
+      <!-- supplier1 grant resale permission to reseller and broker -->
+      <this.verifyGrantResalePermission serviceId="Service1" marketplaceId="${mId}" isGranted="true" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+
+      <!--create supplier2 with service id of "service1" -->
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="New Marketplace" ownerId="${supplierId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey2" techServiceId="Example 1.00" serviceId="Service1" name="Service1" description="Service1 description" />
+      <setup:pricemodel.define serviceId="Service1" isFree="true" />
+
+      <!-- supplier2 grant resale permission to reseller and broker -->
+      <this.verifyGrantResalePermission serviceId="Service1" marketplaceId="${mId}" isGranted="true" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+
+    </webtest>
+
+    <webtest name="definePublishingOptionsTest_Bug10079">
+
+      <!-- reseller -->
+      <login.initialLoginAndChangePassword url="${resellerUrl}" userId="${resellerUserId}" password="${resellerPassword}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+      <verifySelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+      </not>
+      <verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+      </not>
+      <login.logout />
+
+      <!-- broker -->
+      <login.initialLoginAndChangePassword url="${brokerUrl}" userId="${brokerUserId}" password="${brokerPassword}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+      <verifySelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShareOperator']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShare']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
+      </not>
+      <verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testManagePaymentEnablement_Bug10079">
+
+      <!-- reseller -->
+      <login.login url="${resellerUrl}" userId="${resellerUserId}" />
+      <invoke url="${supplierUrl}/organization/managePaymentEnablement.jsf" />
+      <verifyElementText htmlId="managePayment:serviceTable:1:serviceId" text="Service1 (${supplierId})" />
+      <login.logout />
+
+    </webtest>
+
+    <webtest name="testActivationPage_Bug10079">
+
+      <!-- reseller -->
+      <login.login url="${resellerUrl}" userId="${resellerUserId}" />
+      <invoke url="${supplierUrl}/service/activation.jsf" />
+      <verifyElementText htmlId="serviceDeActivationForm:activationTable:1:serviceId" text="Service1 (${supplierId})" />
+      <login.logout />
+
+      <!-- broker -->
+      <login.login url="${brokerUrl}" userId="${brokerUserId}" />
+      <invoke url="${supplierUrl}/service/activation.jsf" />
+      <verifyElementText htmlId="serviceDeActivationForm:activationTable:1:serviceId" text="Service1 (${supplierId})" />
+      <login.logout />
+
+    </webtest>
+
+
+    <webtest name="testManageServicePage_Bug10079">
+      <!-- reseller -->
+      <common.ignorePageScriptError />
+      <login.login url="${resellerUrl}" userId="${resellerUserId}" />
+      <invoke url="${supplierUrl}/service/manage.jsf" />
+      <setSelectField htmlId="editForm:selectedKeyDisplay" text="Service1 (${supplierId})" />
+      <verifySelectField htmlId="editForm:selectedKeyDisplay" text="Service1 (${supplierId})" />
+      <login.logout />
+
+      <!-- broker -->
+      <login.login url="${brokerUrl}" userId="${brokerUserId}" />
+      <invoke url="${supplierUrl}/service/view.jsf" />
+      <setSelectField htmlId="editForm:selectedKeyDisplay" text="Service1 (${supplierId})" />
+      <verifySelectField htmlId="editForm:selectedKeyDisplay" text="Service1 (${supplierId})" />
+      <login.logout />
+
+    </webtest>
+    <webtest name="cleanup">
+      <!-- revoke resele permission -->
+      <this.verifyGrantResalePermission serviceId="Service1" marketplaceId="${mId}" isGranted="false" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+
+      <!-- cleanup -->
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <mail.cleanInbox />
+
+    </webtest>
+
+  </target>
+  <target name="testBug10055">
+
+    <webtest name="setup_10055">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="${supplierId}" ownerId="${supplierId}" open="true" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" techServiceId="Example 1.00" serviceId="Service" name="Service" description="Service description" />
+      <setup:pricemodel.define serviceId="Service" isFree="true" />
+
+      <!-- create one categorie for the given marketplace -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <category.defineCategories marketplaceId="${mId}" count="3" />
+      <login.logout />
+
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="resellerUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="resellerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="resellerPassword" value="#{userPwd}" propertyType="ant" />
+
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="brokerUrl" value="#{baseUrl}" propertyType="ant" />
+      <storeProperty name="brokerUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="brokerPassword" value="#{userPwd}" propertyType="ant" />
+
+
+      <!-- Add category category_0 to service by supplier -->
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:service.deactivate serviceIds="Service" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service" />
+      <setSelectField htmlId="editForm:marketplace" value="${mId}" />
+      <setCheckbox htmlId="editForm:catTable:0:catCheckbox" checked="true" />
+
+      <storeXPath description="Get row for Broker Organization ID" property="brokerRowID" xpath="//*[@id='editForm:brokerTable']//*[normalize-space()='${brokerId}']/@id" />
+      <storeXPath property="brokerRowNr" xpath="substring-before(substring-after('#{brokerRowID}', 'editForm&#58;brokerTable&#58;'), ':')" />
+      <setCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="true" />
+
+      <storeXPath description="Get row for Reseller Organization ID" property="resellerRowID" xpath="//*[@id='editForm:resellerTable']//*[normalize-space()='${resellerId}']/@id" />
+      <storeXPath property="resellerRowNr" xpath="substring-before(substring-after('#{resellerRowID}', 'editForm&#58;resellerTable&#58;'), ':')" />
+      <setCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="true" />
+
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="Service" />
+      <verifyCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="true" />
+      <verifyCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="true" />
+      <setup:service.activate serviceIds="Service" />
+      <login.logout />
+
+      <!-- Add category category_1 to service by broker -->
+      <login.initialLoginAndChangePassword url="${brokerUrl}" userId="${brokerUserId}" password="${brokerPassword}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service (${supplierId})" />
+      <setSelectField htmlId="editForm:marketplace" value="${supplierId}" />
+      <setCheckbox htmlId="editForm:catTable:1:catCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="Service" />
+      <invoke url="${supplierUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <clickButton label="${button.save}" />
+      <login.logout />
+
+      <!-- Add category category_2 to service by reseller -->
+      <login.initialLoginAndChangePassword url="${resellerUrl}" userId="${resellerUserId}" password="${resellerPassword}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service (${supplierId})" />
+      <setSelectField htmlId="editForm:marketplace" value="${supplierId}" />
+      <setCheckbox htmlId="editForm:catTable:2:catCheckbox" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="Service" />
+      <invoke url="${supplierUrl}/service/activation.jsf" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+      <clickButton label="${button.save}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBug10055">
+      <!-- Go to marketplace,click on the category_0  -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'cat0')]" />
+      <verifyElementText description="Verify title of services" htmlId="serviceTitle" text="cat0 en :" />
+      <!-- Verifies number of found services-->
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="1" />
+
+      <!-- Go to marketplace,click on the category_1  -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'cat1')]" />
+      <verifyElementText description="Verify title of services" htmlId="serviceTitle" text="cat1 en :" />
+      <!-- Verifies number of found services-->
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="1" />
+
+      <!-- Go to marketplace,click on the category_2  -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink xpath="//div[@id='categorySelectionForm:CategorySelection']//a[contains(text(),'cat2')]" />
+      <verifyElementText description="Verify title of services" htmlId="serviceTitle" text="cat2 en :" />
+      <!-- Verifies number of found services-->
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="1" />
+    </webtest>
+
+    <webtest name="cleanup_Bug10055">
+      <!-- revoke resele permission -->
+      <this.verifyGrantResalePermission serviceId="Service" marketplaceId="${mId}" isGranted="false" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
+      <!-- cleanup -->
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="testBug10160">
+
+    <webtest name="setup_10160">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="${supplierId}" ownerId="${supplierId}" open="true" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" techServiceId="Example 1.00" serviceId="Service" name="Service" description="Service description" />
+      <setup:pricemodel.define serviceId="Service" isFree="false" />
+      <setup:service.activate serviceIds="Service" />
+
+      <!-- Register a customer (using web service) -->
+      <setup:accountservice.registerCustomer supplierId="${supplierId}" userId="customer" marketplaceId="${mId}" locale="de" />
+      <this.mail.readConfirmUrlFromMail.de />
+      <invoke url="#{confirmUrl}" />
+      <clickLink htmlId="confirmForm:continueLink" />
+      <property name="customerUserId" value="${createdUserId}" />
+
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/organization/managePaymentEnablement.jsf" />
+      <clickElement htmlId="managePayment:customerTable:1:cust2" />
+      <clickLink htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testBug10160">
+      <!-- Login as customer -->
+      <mpl_login.user mid="${mId}" userId="${customerUserId}" verifyWelcomeText="false" />
+      <!-- Switch to account / profile page -->
+      <this.mpl_goto.account.profile.de />
+      <!-- change the language to  "English ", then click on  "save".-->
+      <setSelectField name="editForm:locale" text="Englisch" />
+      <clickLink htmlId="editForm:saveButtonLink" />
+      <common.verifySuccess label="Your profile has been successfully saved" />
+      <!-- Go back to Home page-->
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- click on "show details",  and  then  "get it now "-->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setSelectField htmlId="payment:selectPaymentInfo" text="Invoice" />
+      <verifySelectField htmlId="payment:selectPaymentInfo" text="Invoice" />
+    </webtest>
+
+    <webtest name="cleanup_Bug10160">
+      <!-- cleanup -->
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="Bug10251">
+    <webtest name="setup_10251">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="${supplierId}" ownerId="${supplierId}" open="true" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" techServiceId="Example 1.00" serviceId="Service" name="Service" description="Service description" />
+    </webtest>
+
+    <webtest name="Bug10251">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickAndVerfyLink label="${service.edit.title}" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="Service" />
+      <setCheckbox htmlId="editForm:parameterTable:11:configurable" checked="true" />
+      <setCheckbox htmlId="editForm:parameterTable:13:configurable" checked="true" />
+      <clickButton label="${button.save}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="Service" />
+      <pricemodel.setFree isFree="false" />
+      <setInputField htmlId="editForm:parameterTable:0:pricePerUser" value="1" />
+      <setInputField htmlId="editForm:parameterTable:0:pricePerSubscription" value="1" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <clickLink htmlId="editForm:parameterTable:0:addButton" />
+      <setInputField htmlId="editForm:parameterTable:0:parameterSteppedPriceLimit" value="1" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <verifyElementText description="" htmlId="editForm:parameterTable:0:parameterSteppedPriceLimitErrorMsg" regex="true" text=".*${error.parameter.value.outOfRange}.*" />
+      <clickLink htmlId="editForm:parameterTable:0:removeButton" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:parameterTable:0:parameterSteppedPriceLimitErrorMsg']" />
+        <verifyXPath xpath="//*[@id='editForm:parameterTable:0:parameterSteppedPriceLimit']" />
+      </not>
+      <clickLink htmlId="editForm:parameterTable:0:addButton" />
+      <setInputField htmlId="editForm:parameterTable:0:parameterSteppedPriceLimit" value="100" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <verifyInputField htmlId="editForm:parameterTable:0:parameterSteppedPriceLimit" value="100" />
+      <not>
+        <verifyElementText description="" htmlId="editForm:parameterTable:0:parameterSteppedPriceLimitErrorMsg" regex="true" text=".*${error.parameter.value.outOfRange}.*" />
+      </not>
+      <login.logout />
+    </webtest>
+
+    <webtest name="cleanup_Bug10251">
+      <!-- cleanup -->
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="testBug10252">
+    <webtest name="testBug10252">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="${supplierId}" ownerId="${supplierId}" open="true" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" techServiceId="Example_with_roles 1.00" serviceId="Service" name="Service" description="Service description" />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="Service" />
+      <pricemodel.setFree isFree="false" />
+      <setCheckbox htmlId="editForm:freePeriodAvailable" checked="false" />
+      <setSelectField htmlId="editForm:currency" text="EUR" />
+      <setSelectField htmlId="editForm:sPricingPeriods" text="Month" />
+      <setInputField htmlId="editForm:oneTimeFee" value="50" />
+      <setInputField name="editForm:eventTable:0:price" value="10" />
+      <setInputField name="editForm:eventTable:1:price" value="20" />
+      <clickButton label="${button.save}" />
+      <clickElement htmlId="editForm:confirmedButton" />
+      <clickLink htmlId="editForm:eventTable:0:addButton" />
+      <setInputField name="editForm:eventTable:0:eventSteppedPriceLimit" value="10" />
+      <clickButton label="${button.save}" />
+      <verifyXPath xpath="//*[@id='editForm:eventTable:0:eventSteppedPriceLimit']" />
+    </webtest>
+
+    <webtest name="cleanup_Bug10252">
+      <!-- cleanup -->
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="testBug10271">
+
+    <webtest name="Bug 10271 - 'Export billing data' menu is removed from blue portal">
+      <mail.cleanInbox />
+      <storeProperty name="administrator" value="administrator" propertyType="ant" />
+      <storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="upd_mp" mIdProperty="MPID_MP" open="true" baseurl="${bes.http.url}/oscm-portal" />
+
+      <login.login url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP}" />
+      <setInputField htmlId="updateForm:organizationIdInput" value="${supplierId}" />
+      <clickElement xpath="//*[@id='updateForm:organizationIdItems']//*[contains(.//text(), '${supplierId}')]" />
+      <clickButton htmlId="updateForm:saveButton" />
+      <login.logout />
+
+      <login.login url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <verifyText text="Export billing data" regex="true" />
+    </webtest>
+
+    <webtest name="cleanup_Bug10271">
+      <operator.deleteMarketplaces marketplaceIds="${MPID_MP}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="Bug10300">
+    <webtest name="Bug10300 -  The check box was checked automatically after select the user role.">
+      <operatorPortal.login />
+      <clickLink href="/operator/exportAuditLogData.jsf" />
+      <setSelectField htmlId="getAuditLogData:entityType" value="OPERATIONS_ALL" />
+      <setCheckbox htmlId="getAuditLogData:operationTable:allCheckBoxes" checked="true" />
+      <setInputField htmlId="getAuditLogData:fromDateInputDate" value="2013-05-01" />
+      <setInputField htmlId="getAuditLogData:toDateInputDate" value="2013-04-30" />
+      <common.waitForJavaScript description="Wait for button style update" />
+      <not>
+        <verifyXPath xpath="//*[@id='getAuditLogData:auditLogDataButtonLink']" />
+      </not>
+
+      <clickElement htmlId="getAuditLogData:hiddenAuditLogDataButton" />
+      <verifyText text="${error.date.toBeforeFrom}"/>
+
+      <setSelectField htmlId="getAuditLogData:entityType" value="OPERATIONS_ORGANIZATION_USER" />
+      <not>
+        <verifyXPath xpath="//*[@id='getAuditLogData:operationTable:allCheckBoxes']/@checked='checked'" />
+      </not>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testBug10314">
+
+    <webtest name="Bug10314 - testTimePeriod">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <!--create supplier1 with service id of "service1" -->
+      <operator.createMarketplace mIdProperty="mId" name="New Marketplace" ownerId="${supplierId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service1" name="Service1" description="Service1 description" />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <setSelectField htmlId="editForm:techServiceId" text="Example_with_roles 1.00" />
+      <setInputField htmlId="editForm:serviceId" value="ser1" />
+      <clickElement htmlId="editForm:saveButton" />
+      <clickLink href="/oscm-portal/priceModel/servicePriceModel.jsf" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="ser1" />
+      <setRadioButton htmlId="editForm:isfree:1" />
+      <setInputField htmlId="editForm:priceModelTypeInitial" value="PRO_RATA"/>
+      <clickButton label="${button.save}" />
+      <setSelectField htmlId="editForm:sPricingPeriods" text="Hour" />
+      <verifySelectField htmlId="editForm:sPricingPeriods" text="Hour" />
+      <setRadioButton htmlId="editForm:isfree:2" />
+      <setInputField htmlId="editForm:priceModelTypeInitial" value="PER_UNIT"/>
+      <clickButton label="${button.save}" />
+      <setSelectField htmlId="editForm:sPricingPeriods" text="Hour" />
+      <verifySelectField htmlId="editForm:sPricingPeriods" text="Hour" />
+      <login.logout />
+    </webtest>
+
+  </target>
+
+  <target name="Bug10329">
+    <webtest name="Bug 10329 - Test Connection button always fails for different server's URL">
+      <mail.cleanInbox />
+      <storeProperty name="administrator" value="administrator" propertyType="ant" />
+      <storeProperty name="administratorPwd" value="admin123" propertyType="ant" />
+      <operator.createMarketplace ownerId="PLATFORM_OPERATOR" name="upd_mp" mIdProperty="MPID_MP" open="true" baseurl="${bes.http.url}/oscm-portal" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${MPID_MP}" />
+      <login.login description="login as administrator" url="${bes.http.url}/oscm-portal" userId="${administrator}" password="${administratorPwd}" />
+      <common.ignorePageScriptError />
+      <clickLink href="/shop/customizeBrand.jsf" />
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MPID_MP}" />
+      <setInputField htmlId="defineBrandForm:brandUrl" value="http://localhost:8180/oscm-portal/" />
+      <clickButton htmlId="defineBrandForm:saveButton" />
+      <common.verifySuccess label="${info.brandingUrl.set}" />
+      <clickButton htmlId="defineBrandForm:validateUrlButton" />
+      <common.verifySuccess label="${info.cssConnection.success}" />
+
+      <setInputField htmlId="defineBrandForm:brandUrl" value="" />
+      <clickButton htmlId="defineBrandForm:saveButton" />
+      <common.verifySuccess label="${info.whiteLabelBrandingUrl.set}" />
+      <clickButton htmlId="defineBrandForm:validateUrlButton" />
+      <common.verifyError label="${error.cssConnection}" />
+    </webtest>
+
+    <webtest name="cleanup_Bug10329">
+      <!-- cleanup -->
+      <operator.deleteMarketplaces marketplaceIds="${MPID_MP}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="Bug10447">
+    <webtest name="Bug10447 -  Some information in view subscription page shows incorrectly.">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <operator.createMarketplace mIdProperty="mId" name="New Marketplace" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ServiceB" name="ServiceB" description="DescriptionServiceB" concurrentUser="3" namedUser="2" marketplaceId="${mId}" configurableChecked="true" />
+      <setup:pricemodel.define serviceId="ServiceB" isFree="false" type="PER_UNIT" description="Only 19,- per Month" basePrice="19" steppedPriceForUser="true" steppedPriceForEvent="0" steppedPriceForParameter="0"/>
+
+      <setup:service.activate serviceIds="ServiceB" />
+      <organization.managePayment rowNr="0" />
+      <login.logout />
+
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" chargeable="true" />
+      <login.logout />
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/subscription/view.jsf" />
+      <clickElement xpath="//*[@id='subscriptionListForm:subscriptionsTable:0']/td[3]" />
+      <verifyXPath xpath="//td[@class='labelAndValuePanelCol1']/div/text()[contains(.,'${priceModel.pricingPeriod}')]/following::td[@class='labelAndValuePanelCol2 minColWidth']/span/text()" text="${PricingPeriod.MONTH}" />
+      <clickLink href="/subscription/view.jsf" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="cleanup_Bug10447">
+      <!-- cleanup -->
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
+      <operator.deleteMarketplaces marketplaceIds="${mId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <target name="Bug10439">
+    <webtest name="Bug10439 - Sometimes there is no error message when login blue portal with wrong password.">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <login.logout />
+      <login.loginFail url="${supplierUrl}" userId="${supplierUserId}" password="wrongpwd" />
+      <login.loginFail url="${supplierUrl}" userId="${supplierUserId}" password="wrongpwd1" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug10651">
+    <webtest name="init for manage subscription list test">
+      <mail.cleanInbox />
+      <!-- create org; login as admin; import technical services -->
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="providerOrgUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="providerUserId" value="#{userId}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- define service and price model; activate service -->
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <setup:service.define svcKeyProperty="svcKey" marketplaceId="${mId}" configurableChecked="true" serviceId="testService" />
+      <setup:pricemodel.define serviceId="testService" isFree="true" />
+      <setup:service.activate serviceIds="testService" />
+      <common.ignorePageScriptError />
+      <mail.cleanInbox />
+
+      <invoke url="${providerOrgUrl}" />
+      <!-- register customer and enable payment on invoice -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+
+      <!-- define a price model for the just created customer and activate it-->
+      <pricemodel.defineForCustomer serviceId="testService" isFree="true" />
+      <service.deActivate rowNr="1" checkCat="false"/>
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <setup:store.settings userkey="#{userKey}" password="#{userPwd}" />
+      <setup:subscription.create subId="Lima" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="May" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Apple" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Bruno" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Charlie" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Dog" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Ella" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Father" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Galaxy" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Home" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="India" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="June" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="Kath" marketplaceId="${mId}" serviceKey="${svcKey}" />
+      <setup:subscription.create subId="November" marketplaceId="${mId}" serviceKey="${svcKey}" />
+    </webtest>
+
+    <webtest name="Test for manage subscription list test">
+      <login.loginAsSupplier url="${providerOrgUrl}" userId="${providerUserId}" />
+      <common.clickAndVerfyLink label="${subscription.terminate.title}" />
+      <clickElement xpath="//*[contains(@class, 'arrow_next')]" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Lima')]" />
+      <clickLink href="/subscription/view.jsf" />
+      <verifyXPath xpath="//*[contains(@class, 'rf-ds-nmb-btn rf-ds-act') and contains(.//text(),'2')]" />
+      <verifyXPath xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Lima')]" />
+      <clickElement xpath="//*[contains(@class, 'arrow_back')]" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Galaxy')]" />
+      <clickLink href="priceModel/subscriptionPriceModel.jsf" />
+      <verifyXPath xpath="//*[contains(@class, 'rf-ds-nmb-btn rf-ds-act') and contains(.//text(),'1')]" />
+      <verifyXPath xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'Galaxy')]" />
+      <clickElement xpath="//*[contains(@class, 'arrow_next')]" />
+      <clickElement xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'May')]" />
+      <clickLink href="subscription/editUdas.jsf" />
+      <verifyXPath xpath="//*[contains(@class, 'rf-ds-nmb-btn rf-ds-act') and contains(.//text(),'2')]" />
+      <verifyXPath xpath="//*[contains(@id, 'subscriptionListForm:subscriptionsTable') and contains(.//text(),'May')]" />
+    </webtest>
+  </target>
+
+  <target name="Bug10895">
+    <webtest name="Test the transparentPixel resource">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <invoke url="#{baseUrl}" />
+      <verifyXPath xpath="//*[@src='/oscm-portal/img/transparentPixel.png']" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="Bug11014">
+    <webtest name="Test the online help of blue portal">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <login.logout />
+      <invoke url="#{baseUrl}/public/recoverPassword.jsf" />
+      <clickElement htmlId="showHelp" />
+      <verifyXPath xpath="//*[@class='topictitle1' and contains(text(),'Recovering your password')]" />
+
+      <login.loginFail url="#{baseUrl}" userId="#{userId}" password="wrongPassword" />
+      <login.loginFail url="#{baseUrl}" userId="#{userId}" password="wrongPassword" />
+      <login.loginLocked url="#{baseUrl}" userId="#{userId}" password="wrongPassword" />
+      <clickElement htmlId="showHelp" />
+      <verifyXPath xpath="//*[@class='topictitle1' and contains(text(),'Reactivating a locked account')]" />
+    </webtest>
+  </target>
+
+  <target name="testBug11036">
+    <webtest name="testProfile">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="mId" ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+
+      <user.register userId="newUser" isSvcMgr="true" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="user" value="#{userId}" propertyType="ant" />
+      <login.initialLoginAndChangePasswordAsSupplier url="${supplierUrl}" userId="${user}" password="#{userPwd}" />
+      <login.logout />
+
+      <selectWebClient name="A">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      </selectWebClient>
+
+      <selectWebClient name="B">
+        <login.loginAsSupplier url="${supplierUrl}" userId="${user}" />
+        <common.clickLink label="${organization.edit.title}" />
+        <setInputField htmlId="editForm:firstName" value="Alexander" />
+      </selectWebClient>
+
+      <selectWebClient name="A">
+        <common.clickLink label="${operator.manageUsers.title}" />
+        <clickElement htmlId="userListForm:userListTable:1:userId" />
+        <setCheckbox name="editForm:userRolesTable:1:rolesCheckbox" checked="true" />
+        <setCheckbox name="editForm:userRolesTable:2:rolesCheckbox" checked="true" />
+        <clickLink htmlId="editForm:saveButtonLink" />
+      </selectWebClient>
+
+      <selectWebClient name="B">
+        <clickLink htmlId="editForm:saveButtonLink" />
+        <clickLink htmlId="showReloginForm:okButtonLink" />
+        <verifyElementText htmlId="loginButton" text="${button.login}" />
+      </selectWebClient>
+
+      <selectWebClient name="A">
+        <clickLink htmlId="formLogout:logout" />
+      </selectWebClient>
+    </webtest>
+  </target>
+
+  <macrodef name="this.mail.readConfirmUrlFromMail.de">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="Bestätigen Sie Ihr neues Benutzerkonto" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract confirm url from mail content" text="bestätigen Sie bitte das Benutzerkonto über folgende URL:\s(\S*)" property="confirmUrl" group="1" />
+        <echo level="info" message="URL: #{confirmUrl}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+  <macrodef name="this.mpl_goto.account.profile.de">
+    <sequential>
+      <mpl_goto.globalnav label="Benutzerkonto" />
+      <mpl_goto.navmenu label="Profil" />
+    </sequential>
+  </macrodef>
+  <macrodef name="this.verifyGrantResalePermission">
+    <attribute name="serviceId" />
+    <attribute name="marketplaceId" />
+    <attribute name="isGranted" />
+    <attribute name="brokerOrgId" />
+    <attribute name="resellerOrgId" />
+    <sequential>
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${supplierUrl}/service/publish.jsf" />
+      <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+      <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+
+      <storeXPath description="Get row for Broker Organization ID" property="brokerRowID" xpath="//*[@id='editForm:brokerTable']//*[normalize-space()='@{brokerOrgId}']/@id" />
+      <storeXPath property="brokerRowNr" xpath="substring-before(substring-after('#{brokerRowID}', 'editForm&#58;brokerTable&#58;'), ':')" />
+      <setCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+
+      <storeXPath description="Get row for Reseller Organization ID" property="resellerRowID" xpath="//*[@id='editForm:resellerTable']//*[normalize-space()='@{resellerOrgId}']/@id" />
+      <storeXPath property="resellerRowNr" xpath="substring-before(substring-after('#{resellerRowID}', 'editForm&#58;resellerTable&#58;'), ':')" />
+      <setCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+
+      <clickLink htmlId="editForm:saveButton" />
+      <common.verifySuccess label="@{serviceId}" />
+      <verifyCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+      <verifyCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+</project>

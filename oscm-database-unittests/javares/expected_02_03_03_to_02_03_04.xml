@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="SUP" registrationdate="1234" cutoffday="1" />
+
+  <PsP tkey="2" wsdlurl="wsdlurl" identifier="id" version="1" distinguishedname="OU=Fujitsu" />
+
+  <PspAccount tkey="1" organization_tkey="1" version="0" pspidentifier="12345" psp_tkey="2" />
+  <PspAccountHistory tkey="1" objkey="1" objversion="0" pspidentifier="12345" organizationobjkey="1" pspobjkey="2" />
+
+  <PspSetting tkey="1" version="0" settingkey="PSP_POST_URL" settingvalue="posturl" psp_tkey="2" />
+  <PspSetting tkey="2" version="0" settingkey="PSP_XML_URL" settingvalue="xmlurl" psp_tkey="2" />
+  <PspSetting tkey="3" version="0" settingkey="PSP_FRONTEND_JS_PATH" settingvalue="" psp_tkey="2" />
+
+  <PspSettingHistory tkey="1" objkey="1" objversion="0" settingkey="PSP_POST_URL" settingvalue="posturl"
+    pspobjkey="2" />
+  <PspSettingHistory tkey="2" objkey="2" objversion="0" settingkey="PSP_XML_URL" settingvalue="xmlurl"
+    pspobjkey="2" />
+  <PspSettingHistory tkey="3" objkey="3" objversion="0" settingkey="PSP_FRONTEND_JS_PATH" settingvalue=""
+    pspobjkey="2" />
+</dataset>

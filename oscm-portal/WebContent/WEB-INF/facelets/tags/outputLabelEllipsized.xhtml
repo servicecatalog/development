@@ -1,0 +1,44 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition 
+  xmlns="http://www.w3.org/1999/xhtml" 
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" 
+  xmlns:f="http://java.sun.com/jsf/core" 
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:t="http://myfaces.apache.org/tomahawk"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:if test="#{empty labelStyleClass}">
+    <c:set var="labelStyleClass" value="label" />
+  </c:if>
+
+  <c:if test="#{empty labelContentClass}">
+    <c:set var="labelContentClass" value="ellipsizedOutputLabel shortenedText" />
+  </c:if>
+
+  <a4j:outputPanel layout="block" rendered="#{empty rendered or rendered}" styleClass="#{labelStyleClass}">
+    <t:panelGrid columns="2">
+       <a4j:outputPanel layout="block" styleClass="#{labelContentClass}">
+          <c:choose>
+            <c:when test="#{empty textId}">
+              <h:outputText value="#{value}" title="#{value}"/>
+            </c:when>
+            <c:otherwise>
+              <h:outputText id="#{textId}" value="#{value}" title="#{value}"/>
+            </c:otherwise>
+          </c:choose>
+       </a4j:outputPanel>
+
+       <a4j:outputPanel layout="block">
+         <c:if test="#{empty hideLabelSeparator || not hideLabelSeparator}">
+           <h:outputText value=":" rendered="#{empty rendered or rendered}"/>
+         </c:if>
+         <h:outputText value=" *" styleClass="mandatory" title="#{msg['public.registration.mandatory']}"
+           rendered="#{((not empty renderRequired and renderRequired) or (not empty required and required)) and (empty displayRequired or displayRequired)}" />
+       </a4j:outputPanel>
+    </t:panelGrid>  
+  </a4j:outputPanel>
+
+</ui:composition>

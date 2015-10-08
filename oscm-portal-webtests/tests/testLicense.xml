@@ -1,0 +1,141 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testLicense" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+  <target name="testLicense">
+    <webtest name="testLicense">
+      <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
+
+      <!-- Create new organization WEB UI role technology provider + supplier User A  -->
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- Platform login (local authentication) User A -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <setup:store.settings userkey="#{userKey}" password="secret" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,INVOICE" />
+
+      <!-- Register new technical services  -->
+      <techservice.import file="${techService.import.file}" />
+
+      <!-- Define Market Service  -->
+      <common.ignorePageScriptError />
+      <service.define marketplaceId="${mId}" configurableChecked="true" serviceId="#{marketServiceName}" name="#{marketServiceName}" />
+
+      <!-- Define Market Service price model  -->
+      <setup:pricemodel.define serviceId="#{marketServiceName}" isFree="false"/>
+      <!-- Update license of technical service. License for marketable service stays the old one.  -->
+      <!-- This updated license of technical service will not have any influence for subscription license. -->
+      <techservice.import file="${techService.import.file.updatedLicense}" />
+      <common.clickAndVerfyLink label="${techService.edit.title}" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="Example 1.00" />
+      <verifyText description="Verify that text is contained in the page. This updated license of technical service will not have any influence for subscription license." text="123UpdatedLicense" />
+
+      <!-- Check license of marketable product. -->
+      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+      <setSelectField htmlId="serviceSelectForm:serviceSelection" text="#{marketServiceName}" />
+      <not>
+        <verifyText description="Verify that text is not contained in the page. This updated license of technical service will not have any influence for subscription license." text="123UpdatedLicense" />
+      </not>
+      <clickLink description="Click link: Localize for checking localized license" htmlId="editForm:localizeButton" />
+      <setSelectField name="localizeForm:trgLocale" text="German" />
+      <verifyText description="Verify German License text." text="German License Text" />
+
+      <!-- Activate Market Service  -->
+      <service.deActivate rowNr="0" active="true" concurrencyCheck="true" />
+      <!-- Customer registration by supplier (local authentication) User B  -->
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <!-- Activate one paymentType for the customer to allow entering a payment info -->
+      <organization.managePayment rowNr="1" paymentType="cust0" concurrencyCheck="true" />
+      <organization.managePayment rowNr="1" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword mid="${mId}" oldPassword="#{userPwd}" userId="#{userId}" />
+      <!-- start subscription process to check license on confirm page -->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <!-- Click "Buy me" -->
+      <clickElement htmlId="getItForLoggedUser" />
+      <!-- And go through... -->
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectBillingContact" optionIndex="1" />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <this.checkLicense linkId="confirmForm:openLicenseLink" closeId="confirmForm:closeLicenseButton" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <!-- finally subscribe... -->
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <!-- now we are on subscription administration page for that subscription-->
+      <this.checkLicense />
+      <mpl_login.logout />
+
+      <!--  Login as supplier and check subscription license from supplier view -->
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" password="${common.password}" />
+      <this.checkLicenseOnViewSubscription />
+      <!-- Deativate the service to update the price model -->
+      <service.deActivate rowNr="0" active="false" />
+      <pricemodel.changeLicense serviceId="#{marketServiceName}" licensetext="Modified license CODE7896" />
+      <service.deActivate rowNr="0" active="true" />
+      <login.logout />
+
+      <mpl_login.user userId="#{userId}" mid="${mId}" />
+      <!-- check new license on confirmation page -->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <!-- Click "Buy me" -->
+      <clickElement htmlId="getItForLoggedUser" />
+      <!-- And go through... -->
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <this.checkLicense linkId="confirmForm:openLicenseLink" closeId="confirmForm:closeLicenseButton" license="Modified license CODE7896"/>
+      <!-- check new license on subscription administration -->
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <this.checkLicense />
+      <mpl_login.logout />
+
+      <login.login url="#{supplierUrl}" userId="#{supplierUserId}" password="${common.password}" />
+      <this.checkLicenseOnViewSubscription />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <!-- Check user customer license  -->
+  <macrodef name="this.checkLicense">
+    <attribute name="license" default="" />
+    <attribute name="linkId" default="openLicenseLink" />
+    <attribute name="closeId" default="closeLicenseButton" />
+    <sequential>
+      <clickElement description="Open license dialog..." htmlId="@{linkId}" />
+      <verifyText description="Verify that text is contained in the page" text="@{license}" />
+      <clickElement description="Close license dialog..." htmlId="@{closeId}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Check user customer license  -->
+  <macrodef name="this.checkLicenseOnViewSubscription">
+    <attribute name="license" default="" />
+    <sequential>
+      <common.clickAndVerfyLink label="${subscription.view.title}" />
+      <clickElement xpath="//*[@id='subscriptionListForm:subscriptionsTable:subscriptionId']" />
+      <verifyElementText htmlId="viewForm:licensePanel" text=".*@{license}.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+</project>

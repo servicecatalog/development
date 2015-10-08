@@ -1,0 +1,129 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails>
+  <Period endDate="1271773531240" endDateIsoFormat="2010-04-20T14:25:31.000Z" startDate="1270072800000" startDateIsoFormat="2010-03-31T22:00:00.000Z"/>
+  <OrganizationDetails>
+    <Name>Fujitsu Enabling Software Technology GmbH</Name>
+    <Address>sc</Address>
+  </OrganizationDetails>
+  <Subscriptions>
+    <Subscription id="Example" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="10001">
+          <UsagePeriod endDate="1271773531240" endDateIsoFormat="2010-04-20T14:25:31.000Z" startDate="1271772851702" startDateIsoFormat="2010-04-20T14:14:11.000Z"/>
+          <GatheredEvents/>
+          <PeriodFee basePeriod="DAY" basePrice="0.000" factor="0.007865023148148149" price="0.000"/>
+          <UserAssignmentCosts/>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER2">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="0.007865023148148149" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="STRING_DATA_TYPE">
+              <ParameterValue amount="" type="STRING"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="0.007865023148148149" price="0.000" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="0.0"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="0.007865023148148149" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="40.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="0.007865023148148149" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <ParametersCosts amount="0.000"/>
+          </Parameters>
+          <PriceModelCosts amount="0.000"/>
+        </PriceModel>
+      </PriceModels>
+      <SubscriptionCosts amount="0.000"/>
+    </Subscription>
+    <Subscription id="Example(2)" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="10003">
+          <UsagePeriod endDate="1271773531240" endDateIsoFormat="2010-04-20T14:25:31.000Z" startDate="1271773369789" startDateIsoFormat="2010-04-20T14:22:49.000Z"/>
+          <GatheredEvents/>
+          <PeriodFee basePeriod="MONTH" basePrice="0.000" factor="6.03600269179004E-5" price="0.000"/>
+          <UserAssignmentCosts/>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER2">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.000" factor="6.03600269179004E-5" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="STRING_DATA_TYPE">
+              <ParameterValue amount="" type="STRING"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.000" factor="6.03600269179004E-5" price="0.000" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.000" factor="0.0" price="0.000" valueFactor="0.0"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="40.000" factor="6.03600269179004E-5" price="0.400" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.400"/>
+            </Parameter>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="MONTH" basePrice="0.000" factor="6.03600269179004E-5" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="MONTH" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <ParametersCosts amount="0.400"/>
+          </Parameters>
+          <PriceModelCosts amount="0.400"/>
+        </PriceModel>
+      </PriceModels>
+      <SubscriptionCosts amount="0.400"/>
+    </Subscription>
+    <Subscription id="Test" purchaseOrderNumber="">
+      <PriceModels>
+        <PriceModel id="10004">
+          <UsagePeriod endDate="1271773531240" endDateIsoFormat="2010-04-20T14:25:31.000Z" startDate="1271773479037" startDateIsoFormat="2010-04-20T14:24:39.000Z"/>
+          <GatheredEvents/>
+          <PeriodFee basePeriod="DAY" basePrice="0.000" factor="6.042013888888889E-4" price="0.000"/>
+          <UserAssignmentCosts/>
+          <Parameters>
+            <Parameter id="MAX_FOLDER_NUMBER2">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="6.042013888888889E-4" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="STRING_DATA_TYPE">
+              <ParameterValue amount="" type="STRING"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="6.042013888888889E-4" price="0.000" valueFactor="1.0"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="0.0"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <Parameter id="MAX_FILE_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="40.000" factor="6.042013888888889E-4" price="4.800" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="4.800"/>
+            </Parameter>
+            <Parameter id="MAX_FOLDER_NUMBER">
+              <ParameterValue amount="200" type="INTEGER"/>
+              <PeriodFee basePeriod="DAY" basePrice="0.000" factor="6.042013888888889E-4" price="0.000" valueFactor="200"/>
+              <UserAssignmentCosts basePeriod="DAY" basePrice="0.000" factor="0.0" price="0.000" valueFactor="200"/>
+              <ParameterCosts amount="0.000"/>
+            </Parameter>
+            <ParametersCosts amount="4.800"/>
+          </Parameters>
+          <PriceModelCosts amount="4.800"/>
+        </PriceModel>
+      </PriceModels>
+      <SubscriptionCosts amount="4.800"/>
+    </Subscription>
+  </Subscriptions>
+  <OverallCosts currency="EUR" grossAmount="6.188" netAmount="6.188">
+  </OverallCosts>
+</BillingDetails>

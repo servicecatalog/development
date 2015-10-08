@@ -1,0 +1,133 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:t="http://myfaces.apache.org/tomahawk"
+  template="../templates/modalDialog.xhtml">
+
+  <ui:define name="dialogScripts">
+    <c:set var="modalFocusElement" value="#{dialogId}Form:displayName" />
+  </ui:define>
+
+  <ui:define name="dialogTitle">
+    <h:outputText
+      value="#{!billingContactBean.savedBillingContact ? 
+               msg['payment.new.BillingContact.title'] : msg['payment.edit.BillingContact.title']}" />
+  </ui:define>
+
+  <ui:define name="dialogDescription">
+    <c:set var="dialogDescription"
+      value="#{!billingContactBean.savedBillingContact ? 
+               msg['payment.new.BillingContact.description'] : msg['payment.edit.BillingContact.description']}" />
+    <h:outputText value="#{dialogDescription}" />
+  </ui:define>
+
+  <ui:define name="dialogContent">
+
+    <a4j:outputPanel id="#{dialogId}Grid" layout="block"
+      style="padding-top:0px;padding-bottom:10px;padding-right:10px;padding-left:10px; overflow-y:auto;">
+
+      <ui:fragment>
+        <h:form id="#{dialogId}Form">
+
+          <t:panelGrid columns="3" border="0" cellspacing="0" cellpadding="0" styleClass="smallPanel"
+            columnClasses="smallPanelCol1,smallPanelCol2,smallPanelCol3modalDialog">
+
+            <c:set var="reqBtnName" value="billingContactPanelForm:bcConfirmedButton" />
+
+            <!-- Note: the "adm:labelAndInputText is not used on this site on purpose. See bug 7843 for details" -->
+
+            <!-- Displayname label and field -->
+            <adm:outputLabel value="#{msg['billingContact.displayName']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="displayName" label="#{msg['billingContact.displayName']}"
+              value="#{billingContactBean.billingContact.id}" maxlength="#{appBean.idLen}" onchange="setDirty(true)"
+              styleClass="field" required="#{empty param[reqBtnName]}" binding="#{billingContactBean.genericInput}">
+              <f:validator validatorId="idChar" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <adm:message id="displayNameErrorMsg" for="displayName" />
+
+            <!-- Company name label and field -->
+            <adm:outputLabel value="#{msg['billingContact.organizationName']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="companyName" label="#{msg['billingContact.organizationName']}"
+              value="#{billingContactBean.billingContact.companyName}" maxlength="#{appBean.nameLen}"
+              onchange="setDirty(true)" styleClass="field" required="#{empty param[reqBtnName]}"
+              binding="#{billingContactBean.genericInput}">
+              <f:validateLength maximum="#{appBean.nameLen}" />
+              <f:converter converterId="trimConverter" />
+            </h:inputText>
+            <adm:message id="companyNameErrorMsg" for="companyName" />
+
+            <!-- Email label and field -->
+            <adm:outputLabel value="#{msg['billingContact.email']}" required="#{empty param[reqBtnName]}" />
+            <h:inputText id="email" label="#{msg['billingContact.email']}"
+              value="#{billingContactBean.billingContact.email}" maxlength="#{appBean.nameLen}"
+              onchange="setDirty(true)" styleClass="field" required="#{empty param[reqBtnName]}"
+              binding="#{billingContactBean.genericInput}">
+              <f:converter converterId="trimConverter" />
+              <f:validator validatorId="email" />
+            </h:inputText>
+            <adm:message id="emailErrorMsg" for="email" />
+
+            <!-- Address label and input text area -->
+            <adm:outputLabel value="#{msg['billingContact.address']}" required="#{empty param[reqBtnName]}" />
+            <h:inputTextarea id="address" label="#{msg['billingContact.address']}"
+              value="#{billingContactBean.billingContact.address}" maxlength="#{appBean.descriptionLen}"
+              onchange="setDirty(true)" rows="5" styleClass="field" required="#{empty param[reqBtnName]}"
+              binding="#{billingContactBean.genericInput}">
+              <f:converter converterId="trimConverter" />
+              <f:validateLength maximum="#{appBean.descriptionLen}" />
+            </h:inputTextarea>
+            <adm:message id="addressErrorMsg" for="address" />
+
+          </t:panelGrid>
+
+          <h:commandButton style="display:none;" id="saveSummitButton" onclick="setDirty(false);"
+            value="#{msg['button.save']}" action="#{billingContactBean.refreshSaveSuccessMessage}" />
+
+          <adm:buttonPanel columns="4">
+            <a4j:commandButton style="display:none;" id="hiddenSaveBtn" value="#{msg['button.save']}"
+              action="#{billingContactBean.saveBillingContact}" render="#{dialogId}RerenderPanel"
+              oncomplete="
+                AdmUtils.showProgress(false);
+                if(!#{facesContext.maximumSeverity.ordinal > 0})
+                {
+                  #{rich:component(dialogId)}.hide();
+                  #{rich:element('saveSummitButton')}.click();
+                }
+                else
+                {
+                  AdmUtils.showModalErrorPanel('#{dialogId}', #{dialogWidth});
+                }" />
+
+            <h:outputLink styleClass="button" id="#{dialogId}"
+              onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);#{rich:element('hiddenSaveBtn')}.click();setOnSubmit(false);return false;">
+              <h:outputText style="white-space: nowrap;" value="#{msg['button.save']}" />
+            </h:outputLink>
+
+            <c:if test="#{billingContactBean.savedBillingContact}">
+              <h:outputLink styleClass="button" id="#{dialogId}billingDeleteButton" value="#"
+                onclick="#{rich:component('billingDeleteConfirm')}.show();return false;">
+                <h:outputText style="white-space: nowrap;" value="#{msg['button.delete']}" />
+              </h:outputLink>
+            </c:if>
+            <adm:buttonCustomizedOnClick id="cancelButton" value="#{msg['button.cancel']}"
+              onclick="#{rich:component(dialogId)}.hide();setDirty(false);" />
+          </adm:buttonPanel>
+
+        </h:form>
+        <h:form id="submitDelete">
+          <h:commandButton style="display:none;" id="bcConfirmedButton" onclick="setDirty(false);"
+            action="#{billingContactBean.deleteBillingContact}" value="#{msg['button.delete']}" />
+        </h:form>
+      </ui:fragment>
+    </a4j:outputPanel>
+
+    <adm:confirmPanel panelId="billingDeleteConfirm" submitId="bcConfirmedButton"
+      text="#{msg['marketplace.payment.billingContact.deleteMsg']}" />
+
+  </ui:define>
+
+</ui:composition>

@@ -1,0 +1,202 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project name="ADM UI Test" default="wt.full">
+  <!--The environment varibale WEBTEST_HOME must point to the WebTest installation directory -->
+
+  <property environment="env" />
+  <property name="env.HOSTNAME" value="${env.COMPUTERNAME}" />
+
+  <property file="../oscm-devruntime/javares/local/${env.HOSTNAME}/test.properties" />
+  <property file="../oscm-portal-webtests/wt.testInWork.properties" />
+  <property file="properties/webtest.properties" />
+  <property file="properties/testdata.properties" />
+  <property file="properties/operatorclient.properties" />
+  <property file="../oscm-common/javares/ExceptionMessages_en.properties" />
+  <property file="../oscm-portal/javares/org/oscm/ui/resources/Messages_en.properties" />
+  <property file="../oscm-i18n/javares/Mail_en.properties" />
+  <property name="testPart1" value="false" />
+  <property name="testPart2" value="false" />
+  <property name="workspace.dir" location="../"/>
+	
+  <property name="testPartSAML" value="false" />
+  <property name="testPartCustomBuildMachines" value="false" />
+  <property name="testPartCustom" value="true" />
+  <property name="testAccountPart" value="false" />
+  <property name="testMarketplace" value="false" />
+  <property name="artifacts" value="artifacts" />
+  <import file="${webtest.home}/webtest.xml" />
+
+  <!-- property name="wt.parallel.nbWorkers" value="12" / -->
+  <condition property="runAll">
+    <not>
+      <or>
+        <isset property="url" />
+        <isset property="run.playground" />
+        <isset property="run.fbtests" />
+      </or>
+    </not>
+  </condition>
+	
+  <condition property="run.accountTests">
+    <istrue value="${testAccountPart}" />
+  </condition>
+	
+  <condition property="run.marketplaceTests">
+    <istrue value="${testMarketplace}" />
+  </condition>	
+	
+  <taskdef file="${workspace.dir}/oscm-build-antextensions/javares/org/oscm/build/ant/tasks.xml">
+    <classpath>
+      <fileset dir="../oscm-build/javalib" includes="*.jar" />
+      <fileset dir="../libraries/bouncycastle/javalib" includes="*.jar" />
+    </classpath>
+  </taskdef>
+  <taskdef uri="antlib:org.oscm.webtest.setup" resource="org/oscm/webtest/ant/tasks.xml">
+    <classpath>
+      <!-- local workspace files first -->
+      <pathelement path="./bin" />
+      <fileset dir="./..">
+        <include name="oscm-build/result/package/oscm-portal-webtests/*.jar" />
+        <include name="oscm-build/result/package/oscm-extsvc/*.jar" />
+        <include name="oscm-build/result/package/oscm-extsvc-internal/*.jar" />
+        <include name="oscm-build/result/package/oscm-common/*.jar" />
+        <include name="oscm-build/result/package/oscm-devruntime/*.jar" />
+        <include name="oscm-build/result/package/oscm-psp-extsvc/*.jar" />
+        <include name="libraries/sun-glassfish-rt31/javalib/*.jar" />
+      </fileset>
+    </classpath>
+  </taskdef>
+
+  <target name="wt.testInWork">
+    <antcall target="recoverPaymentType"/>
+    <antcall target="allTests" />
+    <antcall target="namedTest" />
+    <antcall target="playground" />
+    <antcall target="allFBTests" />
+  	<antcall target="accountTests" />
+  	<antcall target="marketplaceTests" />
+  </target>
+
+  <target name="testParts">
+    <condition property="runPart1">
+      <istrue value="${testPart1}" />
+    </condition>
+    <condition property="runPart2">
+      <istrue value="${testPart2}" />
+    </condition>
+    <condition property="runPartSAML">
+      <istrue value="${testPartSAML}" />
+    </condition>
+    <condition property="runPartCustomBuildMachines">
+      <istrue value="${testPartCustomBuildMachines}" />
+    </condition>
+    <condition property="runPartCustom">
+      <istrue value="${testPartCustom}" />
+    </condition>
+  </target>
+
+  <target name="recoverPaymentType">
+     <echo message="Recover payment type" />
+     <ant  dir="tests" antfile="recoverPaymentType.xml" target="recoverPaymentType" />
+   </target>
+  
+  <target name="part1Tests" depends="testParts" if="runPart1">
+    <ant dir="tests" antfile="allTests.xml" target="part1" />
+  </target>
+
+  <target name="part2Tests" depends="testParts" if="runPart2">
+    <ant dir="tests" antfile="allTests.xml" target="part2" />
+  </target>
+
+  <target name="partSAMLTests" depends="testParts" if="runPartSAML">
+    <ant dir="tests" antfile="allTests.xml" target="partSAML" />
+  </target>
+
+  <target name="partCustomBuildMachines" depends="testParts" if="runPartCustomBuildMachines">
+    <ant dir="tests" antfile="allTests.xml" target="partCustomBuildMachines" />
+  </target>
+
+  <target name="partCustomTests" depends="testParts" if="runPartCustom">
+    <ant dir="tests" antfile="allTests.xml" target="partCustom" />
+  </target>
+
+  <target name="allTests" if="runAll">
+    <antcall target="part1Tests" />
+    <antcall target="part2Tests" />
+    <antcall target="partSAMLTests" />
+    <antcall target="partCustomBuildMachines" />
+    <antcall target="partCustomTests" />  
+    <!-- to run all reports in parallel also activate the wt.parallel.nbWorkers property -->
+    <!-- ant dir="tests" antfile="allReports.xml" / -->
+  </target>
+
+  <target name="namedTest" if="url">
+    <ant dir="../oscm-portal-webtests/tests" antfile="initServices.xml" />
+  </target>
+
+  <target name="playground" if="run.playground">
+    <ant dir="tests" antfile="playground.xml" />
+  </target>
+
+  <target name="allFBTests" if="run.fbtests">
+    <ant dir="tests" antfile="FB/allFBTests.xml" />
+  </target>
+
+  <target name="accountTests" if="run.accountTests">
+  	<echo message="Account related tests" />
+    <ant dir="tests" antfile="FB/testAccountFB.xml" />
+  </target>
+	
+  <target name="marketplaceTests" if="run.marketplaceTests">
+    <echo message="Marketplace related tests" />
+    <ant dir="tests" antfile="marketplace/allTests.xml" />
+  </target>	
+	
+  <target name="copyResultFiles" description="">
+    <delete dir="${artifacts}" failonerror="false" />
+    <copy failonerror="false" todir="${artifacts}/results">
+      <fileset dir="results" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts}/coverage">
+      <fileset dir="coverage" />
+    </copy>
+    <copy failonerror="false" todir="${artifacts}/coverage-combined">
+      <fileset dir="coverage-combined" />
+    </copy>
+  </target>
+
+  <target name="createWebtestPropertyFile">
+    <property name="propertyFilename" value="wt.testInWork.properties" />
+    <tstamp>
+      <format property="time" pattern="MM/dd/yyyy hh:mm aa" unit="hour" />
+    </tstamp>
+
+    <echo message="#${project.name}     Timestamp: ${time}${line.separator}" file="${propertyFilename}" />
+    <echo message="testPart1 =${testPart1}${line.separator}" file="${propertyFilename}" append="true" />
+    <echo message="testPart2 =${testPart2}${line.separator}" file="${propertyFilename}" append="true" />
+    <echo message="testPartSAML =${testPartSAML}${line.separator}" file="${propertyFilename}" append="true" />
+    <echo message="testPartCustom =${testPartCustom}${line.separator}" file="${propertyFilename}" append="true" />
+    <echo message="testPartCustomBuildMachines =${testPartCustomBuildMachines}${line.separator}" file="${propertyFilename}" append="true" />
+    <echo message="testAccountPart =${testAccountPart}${line.separator}" file="${propertyFilename}" append="true" />
+  	<echo message="testMarketplace =${testMarketplace}${line.separator}" file="${propertyFilename}" append="true" />
+  	<echo message="wt.headless =${wt.headless}${line.separator}" file="${propertyFilename}" append="true" />
+  </target>
+
+  <target name="deleteWebtestPropertyFile">
+    <delete file="wt.testInWork.properties" failonerror="false" />
+  </target>
+
+  <target name="runWebtestViaCommandline" description="starts canoo via commandline">
+    <condition property="webtest.fileExtension" value="sh">
+      <os family="unix" />
+    </condition>
+    <condition property="webtest.fileExtension" value="bat">
+      <os family="windows" />
+    </condition>
+    <exec executable="${webtest.home}/bin/webtest.${webtest.fileExtension}" failonerror="true">
+      <env key="JAVA_HOME" value="${java.home}" />
+    </exec>
+  </target>
+
+
+
+</project>

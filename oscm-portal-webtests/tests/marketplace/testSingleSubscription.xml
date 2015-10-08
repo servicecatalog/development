@@ -1,0 +1,138 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="testSingleSubscription" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testSingleSubscription">
+    <webtest name="testMPL_SingleSubscription">
+      <storeProperty name="marketServiceName" value="SingeSubService1" propertyType="dynamic" />
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <!-- Initial setup for supplier-->
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+
+      <!-- Import the services -->
+      <techservice.import file="data/TechnicalServicesPlayground.xml" />
+      <techservice.import file="${techService.import.file}" />
+
+
+      <!-- Define a service which uses the timeout parameter defined in the techniocal service-->
+      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="Highlander" isFree="true" />
+      <setup:service.activate serviceIds="Highlander" />
+
+      <user.registerCustomer marketplaceId="${mId}" userId="${common.userId}" />
+      <login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="customerUrl" value="#{orgUrl}" />
+      <storeProperty name="customerUserId" value="#{userId}" />
+
+      <mpl_login.loginWithChangePassword userId="#{customerUserId}" oldPassword="#{userPwd}" mid="${mId}" />
+
+      <mpl_service.subscribe mid="${mId}" index="0" />
+      <setup:user.registerMultiple number="5" userId="user" organizationId="${supplierId}" marketplaceId="${mId}" numUserKeysReturned="2" userKeyProp="userKeys" runAs="#{userKey}" roles="ORGANIZATION_ADMIN" />
+
+
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <!-- Check user assignment handling -->
+      <mpl_verify.selectedTab label="${subscription.users}" />
+
+      <!-- At this point there are no users assigned and there should be a "warning" message -->
+      <verifyXPath xpath=".//*[@id='userListForm']/dl[@class='rich-messages box warning']/dt/text()" text="${info.subscriptions.noUsers}" regex="true" />
+      <storeXPath xpath="//*[@id='serviceDetailName']/text()" property="subId" />
+
+      <!-- assign 2 users to the subscription - only 2 are allowed -->
+      <setup:subscription.addRevokeUser subscriptionId="#{subId}" usersToAdd="${userKeys}" runAs="#{userKey}" />
+
+      <mpl_goto.account.subscriptions />
+      <!-- Invoke "administer" of first displayed service -->
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+
+      <verifyElementText htmlId="subscriptionUsers" text="2" />
+
+      <!-- try to assign another user, this should trigger an error -->
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <mpl_verify.error label="${info.subscriptions.maximumNumberOfUsersReached}" />
+
+      <!-- bug 10332, verify content is visible when clicking on the 'Configuration' tab again -->
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <verifyXPath xpath="//*[@id='tabConfiguration']" />
+      <verifyXPath xpath="//*[@id='configurationForm:labelsubscriptionIdText']" text="Subscription name" />
+
+      <!-- bug 10156, verify there is no confirm window pop up -->
+      <mpl_goto.tab label="${subscription.configuration}" />
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <not>
+        <common.verifyPageChangedWarning />
+      </not>
+
+      <!-- check if there are no upgrade optins defined -->
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <verifyElementText htmlId="noCompatibleServicesLabel" text="${subscription.upgrade.noCompatibleServices}" />
+
+      <!-- check if the supplier info is there -->
+      <mpl_goto.tab label="${service.supplier}" />
+      <verifyElementText description="Supplier Name (as heading h1) missing." htmlId="supplierName" text="TechProvAndSupplier" type="h1" />
+      <verifyElementText description="Supplier Address missing." htmlId="supplierAddress" text="5th Block, Broadway" type="span" />
+      <verifyElementText description="Supplier Phone missing." htmlId="supplierPhone" text="0049 89 123456789" type="span" />
+      <verifyElementText description="Supplier Email missing." htmlId="supplierEmail" text="${common.email}" type="a" />
+      <verifyElementText description="Supplier WebSite missing." htmlId="supplierURL" text="http://www.example.com" type="a" />
+      <verifyElementText description="Supplier Description missing." htmlId="supplierDescription" text="This is a technical provider and supplier" type="span" />
+      <verifyXPath xpath="//img[substring(@src, 1, 42)='/oscm-portal/image?type=ORGANIZATION_IMAGE']" />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- try to subscribe a seonce time -->
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+
+      <!--the warning message not show in canoo -->
+      <!--verifyXPath xpath="//*[@id='warningMessages1']/dt" text="${warning.subscription.onlyOne}" regex="true" /-->
+
+      <!-- check if the get me button is disabled -->
+      <verifyXPath xpath="//*[@id='buyme' and contains(@class, 'bigbuttonDisabled')]" />
+      
+      <!-- Bug-11708 - Define a service which uses the external parameter tool-->
+      <setup:service.define serviceId="ExtIntSrv0" svcKeyProperty="serviceKey" name="ExtIntSrv0" description="Ext Int Test" configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="2" marketplaceId="${mId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="true" />
+      <setup:service.activate serviceIds="ExtIntSrv0" />
+      <login.logout />
+      <mpl_login.user userId="#{customerUserId}" mid="${mId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <clickLink htmlId="serviceButton0" />
+      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.waitForJavaScript />
+      <!-- Click "Buy me" -->
+      <common.ignorePageScriptError />
+      <clickElement htmlId="buyme" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <!-- Click "Edit configuration... -->
+      <clickLink htmlId="confirmForm:editConfigurationLink" />
+      <common.waitForJavaScript />
+      <!-- Verify if the configuration form popup was displayed automatically -->
+      <verifyXPath xpath="//*[@id='configurationForm:configurator_content']" />
+      <setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />
+    </webtest>
+
+    <webtest name="testMPL_singleSubscription_finalCleanUp">
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <mail.cleanInbox />
+    </webtest>
+
+  </target>
+</project>

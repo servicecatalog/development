@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="src" path="javasrc-it"/>
+	<classpathentry kind="src" path="javares"/>
+	<classpathentry kind="src" path="doc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-sessionmgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing-intsvc"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-credentialservice"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt"/>
+	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal-impl"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-unittests"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-unittests"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-provisioning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantprovisioning"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-operatorsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-taskhandling-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-eventmgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxb-xjc.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-vat"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

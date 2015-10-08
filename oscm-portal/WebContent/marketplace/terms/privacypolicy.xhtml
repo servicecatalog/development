@@ -1,0 +1,33 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace" template="../templates/main.xhtml">
+
+  <c:set var="singlecontents" value="true" />
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.privacypolicy" />
+    <c:set var="isSingleContentPage" value="true" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <mp:breadcrumbs>
+      <mp:crumb label="#{msg['marketplace.privacypolicy.title']}" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="singlecontent">
+    <c:set var="privacypolicyDescription" value="#{msg['public.privacypolicy.description']}" />
+    <c:choose>
+      <c:when test="#{not empty privacypolicyDescription}">
+        <h:outputText id="privacypolicyDescription" value="${privacypolicyDescription}" escape="false" />
+      </c:when>
+      <c:otherwise>
+        <f:loadBundle var="msgDef" basename="org.oscm.ui.resources.DbMessages_en" />
+        <h:outputText id="privacypolicyDescription" value="#{msgDef['public.privacypolicy.description']}" escape="false" />
+      </c:otherwise>
+    </c:choose>
+  </ui:define>
+</ui:composition>

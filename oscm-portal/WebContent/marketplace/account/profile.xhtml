@@ -1,0 +1,139 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.account.profile" />
+    <c:set var="focusElement" value="salutation" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <adm:initialize initializingMethod="#{organizationBean.initialize}" />
+    <mp:breadcrumbs>
+      <mp:crumb labelPageId="marketplace.account" link="/marketplace/account/index.jsf" />
+      <mp:crumb labelPageId="marketplace.account.profile" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="contentstitle">
+    <a4j:outputPanel layout="block" styleClass="contentstitle indent1col clearfix">
+      <br />
+    </a4j:outputPanel>
+  </ui:define>
+
+  <ui:define name="aside">
+    <mp:navigationMenu bean="#{accountNavigationBean}" selected="marketplace.account.profile.title" />
+  </ui:define>
+
+  <ui:define name="contents">
+    <h:form id="validateCurrentUserRolesForm">
+      <a4j:jsFunction name="validateCurrentUserRoles"
+        data="#{organizationBean.currentUserRolesChanged}"
+        oncomplete="if(event.data==true){#{rich:component('reLogining')}.show();}
+                     else{setOnSubmit(true);setDirty(false);
+                     #{rich:element('saveButton')}.click();setOnSubmit(false);} return false;">
+      </a4j:jsFunction>
+    </h:form>
+    <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
+      <a4j:outputPanel layout="block" styleClass="box">
+        <h:form id="editForm">
+
+          <ui:fragment rendered="#{empty appBean.hiddenUIElements['organization.edit.userProfile']}">
+            <mp:outputStep value="#{msg['marketplace.account.profile.title']}" />
+
+            <a4j:outputPanel layout="block" styleClass="clearfix" style="margin-bottom:10px;"
+              rendered="#{not organizationBean.currentUser.remoteLdapActive and userBean.internalAuthMode}">
+              <adm:buttonCustomizedOnClick id="changePwdButton" value="#{msg['button.changePassword']}"
+                onclick="showLoginPanel('');return false;" />
+            </a4j:outputPanel>
+            <mp:pixelline rendered="#{not organizationBean.currentUser.remoteLdapActive and userBean.internalAuthMode}"/>
+
+            <h2 style="margin-bottom: 3px;">
+              <adm:outputStep value="#{msg['organization.edit.userProfile']}" />
+            </h2>
+
+            <adm:panelGrid style="cellpadding:10px">
+              <adm:outputLabel value="#{msg['user.userId']}" />
+              <h:outputText id="userId" value="#{organizationBean.currentUser.userId}"
+               styleClass="stringInMultiLine userGroupsLabel" />
+              <h:outputText value="" />
+
+              <adm:outputLabel value="#{msg['user.userGroup']}" />
+              <h:outputText id="userGroups" value="#{organizationBean.currentUser.groupsToDisplay}"
+              styleClass="stringInMultiLine userGroupsLabel" />
+              <h:outputText value="" />
+
+              <mp:labelAndSelect id="salutation" label="#{msg['user.salutation']}"
+                value="#{organizationBean.currentUser.salutation}" styleClass="selectXS">
+                <adm:salutationItems />
+              </mp:labelAndSelect>
+
+              <mp:userName firstNameId="firstName" firstNameValue="#{organizationBean.currentUser.firstName}"
+                lastNameId="lastName" lastNameValue="#{organizationBean.currentUser.lastName}"
+                firstNameDisabled="#{organizationBean.currentUser.firstNameDisabled}"
+                lastNameDisabled="#{organizationBean.currentUser.lastNameDisabled}" />
+
+              <adm:labelAndInputText id="email" label="#{msg['user.email']}" required="true"
+                value="#{organizationBean.currentUser.email}" maxlength="#{appBean.nameLen}"
+                disabled="#{organizationBean.currentUser.emailDisabled}" validatorId="email" converterId="trimConverter" />
+
+              <mp:labelAndSelect id="locale" label="#{msg['user.locale']}"
+                value="#{organizationBean.currentUser.locale}" styleClass="selectXS" showHint="true">
+                <adm:localeItems />
+                <f:validator validatorId="SupportedLanguageValidator" />
+              </mp:labelAndSelect>
+            </adm:panelGrid>
+          </ui:fragment>
+
+          <ui:fragment
+            rendered="#{userBean.isOrganizationAdmin and empty appBean.hiddenUIElements['organization.edit.organizationData']}">
+            <h2 style="margin-bottom: 3px;">
+              <adm:outputStep value="#{msg['organization.edit.organizationData']}" />
+            </h2>
+            <adm:panelGrid style="cellpadding:10px">
+              <adm:outputLabel value="#{msg['organization.organizationId']}" />
+              <h:outputText value="#{organizationBean.organization.organizationId}" />
+              <h:outputText value="" />
+
+              <adm:labelAndInputText id="organizationName" label="#{msg['organization.name']}"
+                required="#{organizationBean.currentUser.supplier or organizationBean.currentUser.technologyProvider}"
+                value="#{organizationBean.organization.name}" styleClass="field" converterId="trimConverter"
+                maxlength="#{appBean.nameLen}" />
+
+              <adm:labelAndInputText id="organizationEmail" label="#{msg['organization.email']}"
+                required="#{organizationBean.currentUser.supplier or organizationBean.currentUser.technologyProvider}"
+                onchange="setDirty(true)" value="#{organizationBean.organization.email}" styleClass="field"
+                maxlength="#{appBean.nameLen}" validatorId="email" converterId="trimConverter" />
+
+              <adm:labelAndInputTextarea id="organizationAddress" label="#{msg['organization.address']}"
+                required="#{organizationBean.currentUser.supplier or organizationBean.currentUser.technologyProvider}"
+                value="#{organizationBean.organization.address}" styleClass="field" converterId="trimConverter"
+                maxlength="#{appBean.descriptionLen}" />
+
+              <mp:labelAndSelect id="country" label="#{msg['common.country']}"
+                value="#{organizationBean.organization.domicileCountry}" styleClass="select" required="true">
+                <adm:countryItems supportedCountries="#{countryBean.supportedCountryCodesForEditProfilePage}" />
+              </mp:labelAndSelect>
+
+            </adm:panelGrid>
+          </ui:fragment>
+
+          <mp:pixelline />
+          <a4j:outputPanel layout="block" styleClass="clearfix">
+            <h:commandButton id="saveButton" action="#{organizationBean.save}" value="#{msg['button.save']}"
+              style="display:none;" />
+            <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}"
+              onclick="validateCurrentUserRoles();return false;" />
+          </a4j:outputPanel>
+        </h:form>
+
+      </a4j:outputPanel>
+      <mp:reloginConfirmPanel />
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

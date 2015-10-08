@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234"
+    cutoffday="1" />
+  <UserGroup tkey="1" version="0" name="default" description="[NULL]" isdefault="TRUE" organization_tkey="11001" />
+  <PlatformUser tkey="10000" additionalname="" address="" creationdate="1301302701269" email="usera@orga.com"
+    failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" phone="" salutation="MR" status="ACTIVE"
+    passwordsalt="-230094394054264273" passwordhash="xyz" userid="usera" version="0" organizationkey="11001"
+    realmuserid="usera" />
+  <UserGroupToUser tkey="1" version="0" usergroup_tkey="1" platformuser_tkey="10000" />
+</dataset>

@@ -1,0 +1,389 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testManageProcesses">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testManageProcesses" depends="testManageTriggers, testManageActionStatus, cleanUp" />
+
+  <target name="setup">
+    <webtest name="testMPL_ManageProcesses_setup">
+      <operator.createMarketplace mIdProperty="mId" name="Global Marketplace" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${mId}" />      
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <storeProperty name="supplierUrl" value="${supplierUrl}" propertyType="ant" />
+      <storeProperty name="supplierAdminUserId" value="${supplierUserId}" propertyType="ant" />
+      <operator.addSupplierToGlobalMarketplace supplierId="${supplierId}" marketplaceId="${mId}" />
+      <scenario.createSimpleServices mid="${mId}" />
+      <mail.cleanInbox />
+      <!-- create nonAdmin for supplier organization -->
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="supplier_nonadmin" isSvcMgr="true" />
+      <storeProperty name="supplier_nonadmin" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="supplier_nonadmin" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <!-- create customerAdmin and customerNonAdmin -->
+      <login.login url="${supplierUrl}" userId="${supplierAdminUserId}" />
+      <user.registerCustomer marketplaceId="${mId}" userId="customerAdmin" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="customerAdminUserId" value="#{userId}" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="customerAdminUserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <mail.cleanInbox />
+      <!-- create nonAdmin for customer organization -->
+      <mpl_login.user mid="${mId}" userId="${customerAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="customer_nonadmin" />
+      <storeProperty name="customer_nonadmin" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="customer_nonadmin" value="#{userId}" propertyType="ant" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testManageTriggers" depends="setup">
+    <webtest name="testMPL_ManageProcesses_VerifyMenuEntriesAdmin">
+      <testInfo type="DESCRIPTION">
+                  Check that index page shows processes entry.
+                  1.) processes panel 
+                  2.) processes menu entry for admin
+                </testInfo>
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account />
+
+      <verifyXPath xpath="//*[@id='menu7' and contains(.,'${marketplace.account.processes.title}')]" />
+      <verifyXPath xpath="//*[@id='processes']" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageProcesses_VerifyMenuEntriesNONAdmin">
+      <testInfo type="DESCRIPTION">
+                    Check that index page shows menu.
+                    1.) processes panel 
+                    2.) processes menu entries account profile processes for non-admin
+                  </testInfo>
+      <mpl_login.user mid="${mId}" userId="${supplier_nonadmin}" />
+      <mpl_goto.account />
+
+      <verifyXPath xpath="//*[@id='menu0' and contains(.,'${marketplace.account.title}')]" />
+      <verifyXPath xpath="//*[@id='menu1' and contains(.,'${marketplace.account.profile.title}')]" />
+      <verifyXPath xpath="//*[@id='menu7' and contains(.,'${marketplace.account.processes.title}')]" />
+      <not>
+        <verifyXPath xpath="//*[@id='menu3'" />
+        <verifyXPath xpath="//*[@id='menu4'" />
+        <verifyXPath xpath="//*[@id='menu6'" />
+      </not>
+      <verifyXPath xpath="//*[@id='processes']" />
+      <mpl_login.logout />
+    </webtest>
+
+
+
+    <webtest name="testMPL_ManageProcesses_CreateTrigger">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account.processes />
+      <common.clickAjaxLink htmlId="triggerDefinitionListForm:addTriggerDefinition" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+      <!-- delete button must not be displayed -->
+      <not>
+        <verifyXPath xpath="triggerDefinitionPanelForm:deleteButton" />
+      </not>
+
+      <setInputField name="triggerDefinitionPanelForm:triggerName" value="subscribeTrigger" />
+
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="SUBSCRIBE_TO_SERVICE" />
+      <setInputField name="triggerDefinitionPanelForm:targetURL" value="${mock.url}" />
+      <setCheckbox name="triggerDefinitionPanelForm:suspend" />
+      <common.ignorePageScriptError />
+      <clickElement htmlId="triggerDefinitionPanelForm:triggerDefinitionPanelSave" />
+      <mpl_verify.success label="${info.triggerDefinition.created}" matchWithWildCard="false" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/tr" />
+      <verifyXPath xpath="count(//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/tr)" text="2" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageProcesses_UpdateTrigger">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_goto.account.processes />
+      <clickElement xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/*[1]/*[1]//*[@id='editProcessTriggerImage']" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <verifyInputField name="triggerDefinitionPanelForm:triggerName" value="subscribeTrigger" />
+      <setInputField name="triggerDefinitionPanelForm:triggerName" value="subscribeTriggerUpdated" />
+
+      <verifySelectField name="triggerDefinitionPanelForm:triggerType" value="SUBSCRIBE_TO_SERVICE" />
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="UNSUBSCRIBE_FROM_SERVICE" />
+
+      <verifyInputField name="triggerDefinitionPanelForm:targetURL" value="${mock.url}" />
+      <setInputField name="triggerDefinitionPanelForm:targetURL" value="http://localhost" />
+
+      <verifyCheckbox name="triggerDefinitionPanelForm:suspend" checked="true" />
+      <setCheckbox name="triggerDefinitionPanelForm:suspend" checked="false" />
+      <common.ignorePageScriptError />
+      <clickButton label="Save" />
+
+      <mpl_verify.success label="${info.triggerDefinition.saved}" matchWithWildCard="false" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:name']/text()" text="subscribeTriggerUpdated" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:type']/text()" text="${TriggerType.UNSUBSCRIBE_FROM_SERVICE.enum}" />
+
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageProcesses_DeleteTrigger">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_goto.account.processes />
+      <clickElement xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/*[1]/*[1]//*[@id='editProcessTriggerImage']" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <clickElement xpath="//*[@id='triggerDefinitionPanelForm:confirmPanelOkButton']" />
+      <mpl_verify.success label="${info.triggerDefinition.deleted}" matchWithWildCard="false" />
+      <not>
+        <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:name']" />
+      </not>
+
+      <mpl_login.logout />
+    </webtest>
+      	
+    <webtest name="testMPL_ManageProcesses_CreateTrigger_bug10101">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_goto.account.processes />
+      <common.clickAjaxLink htmlId="triggerDefinitionListForm:addTriggerDefinition" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+      <!-- delete button must not be displayed -->
+      <not>
+        <verifyXPath xpath="triggerDefinitionPanelForm:deleteButton" />
+      </not>
+
+      <setInputField name="triggerDefinitionPanelForm:triggerName" value="BillingRunTrigger" />
+
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="START_BILLING_RUN" />
+      <setInputField name="triggerDefinitionPanelForm:targetURL" value="${mock.url}" />
+
+	  <storeElementAttribute htmlId="triggerDefinitionPanelForm:suspend" attributeName="disabled" propertyName="disabled"/>
+      <verifyProperty name="disabled" text="disabled" regex="true"/>
+	  
+      <clickButton label="Save" />
+
+      <mpl_verify.success label="${info.triggerDefinition.created}" matchWithWildCard="false" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/tr" />
+      <verifyXPath xpath="count(//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/tr)" text="2" />
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageProcesses_UpdateTrigger_bug10101">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_goto.account.processes />
+      <clickElement xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/*[1]/*[1]//*[@id='editProcessTriggerImage']" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <verifySelectField name="triggerDefinitionPanelForm:triggerType" value="START_BILLING_RUN" />
+
+      <storeElementAttribute htmlId="triggerDefinitionPanelForm:suspend" attributeName="disabled" propertyName="disabled"/>
+      <verifyProperty name="disabled" text="disabled" regex="true"/>
+      
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="SUBSCRIBE_TO_SERVICE" />
+
+      <verifyCheckbox name="triggerDefinitionPanelForm:suspend" checked="false" />
+      <setCheckbox name="triggerDefinitionPanelForm:suspend" checked="true" />
+
+      <clickButton label="Save" />
+
+      <mpl_verify.success label="${info.triggerDefinition.saved}" matchWithWildCard="false" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:name']/text()" text="BillingRunTrigger" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable:0:type']/text()" text="${TriggerType.SUBSCRIBE_TO_SERVICE.enum}" />
+		
+	  <mpl_goto.account.processes />
+	  <clickElement xpath="//*[@id='triggerDefinitionListForm:triggerDefinitionListTable']/tbody/*[1]/*[1]//*[@id='editProcessTriggerImage']" />
+
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <clickElement xpath="//*[@id='triggerDefinitionPanelForm:confirmPanelOkButton']" />
+	  
+      <mpl_login.logout />
+    </webtest>
+
+  </target>
+
+  <target name="testManageActionStatus" depends="setup">
+    <webtest name="testManageActionStatus_setup">
+
+      <mail.cleanInbox />
+      <!-- create a second admin -->
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="supplier_admin2" isAdmin="true" isSvcMgr="true" />
+      <storeProperty name="supplier_admin2" value="#{userId}" propertyType="ant" />
+      <mpl_login.logout />
+
+      <mail.readPasswordAndUrlFromMail />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+      <storeProperty name="supplier_admin2" value="#{userId}" propertyType="ant" />
+      <login.logout />
+
+      <!-- as admin create a suspending trigger -->
+      <mpl_login.user mid="${mId}" userId="${supplier_admin2}" />
+      <this.createSuspendingTrigger triggerType="REGISTER_CUSTOMER_FOR_SUPPLIER" />
+      <this.createSuspendingTrigger triggerType="DEACTIVATE_SERVICE" />
+      <this.createSuspendingTrigger triggerType="ACTIVATE_SERVICE" />
+      <mpl_login.logout />
+
+      <!-- execute action that will be suspended by trigger -->
+      <this.registerUserSuspended userId="${supplierAdminUserId}" email="a.b@xy.de" customerId="customer_A" />
+
+      <!-- as other admin execute action that will be suspended by trigger -->
+      <this.registerUserSuspended userId="${supplier_admin2}" email="a.c@xy.de" customerId="customer_B" />
+
+      <!-- as non-admin execute action that will be suspended by trigger -->
+      <this.registerUserSuspended userId="${supplier_nonadmin}" email="a.d@xy.de" customerId="customer_C" />
+
+      <!-- deactivate a service that will be suspended by trigger -->
+      <login.login url="${bes.http.url}/oscm-portal" userId="${supplier_admin2}" />
+      <invoke description="invoke user/add.jsf" url="${bes.http.url}/oscm-portal/service/activation.jsf" />
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="false" />
+      <clickButton label="${button.save}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_ManageProcesses_nonAdmin">
+      <mpl_login.user mid="${mId}" userId="${supplier_nonadmin}" />
+      <mpl_goto.account />
+      <clickLink htmlId="showProcessesButton" />
+
+      <mpl_verify.breadCrumbLink actualPage="${marketplace.account.title}" />
+      <mpl_verify.breadCrumb actualPage="${marketplace.account.processes.title}" />
+
+      <!-- dont show triggersArea -->
+      <not>
+        <verifyXPath xpath="//*[@id='triggersArea']" />
+      </not>
+
+      <mpl_goto.account.processes />
+      <not>
+        <verifyXPath xpath="processListForm:filterProcessesChooser" />
+      </not>
+      <verifyXPath xpath="count(//*[@id='processListForm:triggerProcessTable']/tbody/tr)" text="2" />
+
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:0:userId']/text()" text="${supplier_nonadmin}" />
+      <mpl_login.logout />
+    </webtest>
+
+
+    <webtest name="testMPL_actionStatus_VerifyTableContent">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_goto.account.processes />
+      <!-- checkbox own actions only is checked per default -->
+      <verifyCheckbox htmlId="processListForm:filterProcessesChooser" checked="true" />
+      <verifyXPath xpath="count(//*[@id='processListForm:triggerProcessTable']/tbody/tr)" text="2" />
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:0:userId']/text()" text="${supplierAdminUserId}" />
+
+      <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="false" />
+      <common.waitForJavaScript timeout="3000" />
+
+      <!-- verify that processes of other users are displayed as well /> -->
+      <verifyXPath xpath="//*[contains(.,'${supplier_nonadmin}')]" />
+      <verifyXPath xpath="//*[contains(.,'${supplier_admin2}')]" />
+
+      <!-- abort 2nd process -->
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:3:key']" />
+      <not>
+        <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:4:key']" />
+      </not>
+      <setCheckbox htmlId="processListForm:triggerProcessTable:1:selected" checked="true" />
+      <clickElement htmlId="processListForm:abortProcess" />
+      <common.waitForJavaScript timeout="3000" />
+      <!-- verify that status is now 'Aborted' -->
+      <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="false" />
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:1:status' and contains(text(),'${TriggerProcessStatus.CANCELLED}')]" />
+      <common.verifySuccess label="${info.triggerProcess.canceled}" />
+
+      <!-- delete 2nd process -->
+      <setCheckbox htmlId="processListForm:triggerProcessTable:1:selected" checked="true" />
+      <clickElement htmlId="processListForm:deleteProcess" />
+      <common.waitForJavaScript timeout="3000" />
+      <setCheckbox htmlId="processListForm:filterProcessesChooser" checked="false" />
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:0:key']" />
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:1:key']" />
+      <verifyXPath xpath="//*[@id='processListForm:triggerProcessTable:2:key']" />
+      <common.verifySuccess label="${info.triggerProcess.deleted}" />
+      <mpl_login.logout />
+
+    </webtest>
+
+    <webtest name="testMPL_actionStatus_cleanUpTriggers">
+      <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
+      <common.ignorePageScriptError />
+      <mpl_trigger.abortAllProcesses allUser="true"/>
+      <mpl_trigger.deleteAllProcesses allUser="true" />
+      <mpl_trigger.deleteDefinition type="REGISTER_CUSTOMER_FOR_SUPPLIER" />
+      <mpl_trigger.deleteDefinition type="DEACTIVATE_SERVICE" />
+      <mpl_trigger.deleteDefinition type="ACTIVATE_SERVICE" />
+      <mpl_login.logout />
+    </webtest>
+
+  </target>
+
+  <target name="cleanUp">
+    <webtest name="testMPL_ManageProcesses_cleanUp">
+      <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierAdminUserId}" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+
+  <macrodef name="this.createSuspendingTrigger">
+    <attribute name="triggerType" />
+    <sequential>
+      <mpl_goto.account.processes />
+      <common.clickAjaxLink htmlId="triggerDefinitionListForm:addTriggerDefinition" />
+      <verifyXPath xpath="//*[@id='triggerDefinitionPanelGrid']" description="modalDialog is shown" />
+
+      <setInputField name="triggerDefinitionPanelForm:triggerName" value="@{triggerType}" />
+
+      <setSelectField name="triggerDefinitionPanelForm:triggerType" value="@{triggerType}" />
+      <setInputField name="triggerDefinitionPanelForm:targetURL" value="${mock.url}/NotificationService?wsdl" />
+      <setCheckbox name="triggerDefinitionPanelForm:suspend" checked="true" />
+      <common.ignorePageScriptError />
+      <clickButton label="Save" />
+
+      <mpl_verify.success label="${info.triggerDefinition.created}" matchWithWildCard="false" />
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.registerUserSuspended">
+    <attribute name="userId" />
+    <attribute name="customerId" />
+    <attribute name="email" default="${common.email}" />
+    <sequential>
+      <login.login url="${bes.http.url}/oscm-portal" userId="@{userId}" />
+      <invoke description="invoke user/add.jsf" url="${bes.http.url}/oscm-portal/user/add.jsf" />
+      <user.registerCustomer marketplaceId="${mId}" userId="@{customerId}" email="@{email}" suspended="true" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

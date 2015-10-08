@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://oscm.org/xsd/billingservice/partnermodel"
+ targetNamespace="http://oscm.org/xsd/billingservice/partnermodel">
+
+ <xsd:complexType name="Period">
+  <xsd:annotation>
+   <xsd:documentation>Time range for which the calculation of billing data is performed.</xsd:documentation>
+  </xsd:annotation>
+  <xsd:attribute name="startDate" type="xsd:long">
+   <xsd:annotation>
+    <xsd:documentation>
+     First day of the month for which a billing run is to be executed (0:00). The day is specified
+     in milliseconds and takes 01-01-1970 as starting point.
+    </xsd:documentation>
+   </xsd:annotation>
+  </xsd:attribute>
+  <xsd:attribute name="startDateIsoFormat" type="xsd:dateTime" use="optional">
+   <xsd:annotation>
+    <xsd:documentation>Same as the startDate attribute, but the day is specified in ISO
+     8601(YYYY-MM-DDThh:mm:ss.fffZ)
+     format.</xsd:documentation>
+   </xsd:annotation>
+  </xsd:attribute>
+  <xsd:attribute name="endDate" type="xsd:long">
+   <xsd:annotation>
+    <xsd:documentation>
+     First day of the next month following the start date (0:00). The day is specified in
+     milliseconds and takes 01-01-1970 as starting point.
+    </xsd:documentation>
+   </xsd:annotation>
+  </xsd:attribute>
+  <xsd:attribute name="endDateIsoFormat" type="xsd:dateTime" use="optional">
+   <xsd:annotation>
+    <xsd:documentation>
+     Same as the endDate attribute, but the day is specified in ISO 8601(YYYY-MM-DDThh:mm:ss.fffZ)
+     format.
+    </xsd:documentation>
+   </xsd:annotation>
+  </xsd:attribute>
+ </xsd:complexType>
+
+ <xsd:complexType name="OrganizationData">
+  <xsd:sequence>
+   <xsd:element name="Email" type="xsd:string" minOccurs="1" maxOccurs="1">
+    <xsd:annotation>
+     <xsd:documentation>Email of the organization.</xsd:documentation>
+    </xsd:annotation>
+   </xsd:element>
+
+   <xsd:element name="Name" type="xsd:string" minOccurs="1" maxOccurs="1">
+    <xsd:annotation>
+     <xsd:documentation>Name of the organization.</xsd:documentation>
+    </xsd:annotation>
+   </xsd:element>
+
+   <xsd:element name="Address" type="xsd:string">
+    <xsd:annotation>
+     <xsd:documentation>Address of the organization.</xsd:documentation>
+    </xsd:annotation>
+   </xsd:element>
+   
+   <xsd:element minOccurs="0" name="CountryIsoCode" type="xsd:string">
+     <xsd:annotation>
+      <xsd:documentation>CountryIsoCode of the organization.</xsd:documentation>
+     </xsd:annotation>
+   </xsd:element>
+  </xsd:sequence>
+
+  <xsd:attribute name="id" use="required" type="xsd:string" />
+  <xsd:attribute name="key" use="required" type="xsd:positiveInteger" />
+ </xsd:complexType>
+
+ <xsd:simpleType name="ISOCodeCurrency">
+  <xsd:annotation>
+   <xsd:documentation>ISO code of the currency in which costs are calculated.</xsd:documentation>
+  </xsd:annotation>
+  <xsd:restriction base="xsd:string" />
+ </xsd:simpleType>
+
+ <xsd:simpleType name="OfferingType">
+  <xsd:restriction base="xsd:string">
+   <xsd:enumeration value="DIRECT" />
+   <xsd:enumeration value="BROKER" />
+   <xsd:enumeration value="RESELLER" />
+  </xsd:restriction>
+ </xsd:simpleType>
+
+ <xsd:simpleType name="BesId">
+  <xsd:restriction base="xsd:string">
+   <xsd:maxLength value="40" />
+   <xsd:pattern value="([()\-.0-9@A-Z\[\]_a-&#xD7FF;&#xE000;-&#xFFFD;&amp;#x10000;-&#x10FFFF;])*" />
+  </xsd:restriction>
+ </xsd:simpleType>
+
+ <xsd:simpleType name="Email">
+  <xsd:restriction base="xsd:string">
+  </xsd:restriction>
+ </xsd:simpleType>
+
+ <xsd:simpleType name="PositiveDecimal2">
+  <xsd:annotation>
+   <xsd:documentation>Positive decimal number, 2 fractional digits allowed</xsd:documentation>
+  </xsd:annotation>
+  <xsd:restriction base="xsd:decimal">
+   <xsd:minExclusive value="0" fixed="true" />
+   <xsd:fractionDigits value="2" fixed="true" />
+  </xsd:restriction>
+ </xsd:simpleType>
+
+ <xsd:simpleType name="Decimal2">
+  <xsd:annotation>
+   <xsd:documentation>Positive and negative decimal number, 2 fractional digits allowed</xsd:documentation>
+  </xsd:annotation>
+  <xsd:restriction base="xsd:decimal">
+   <xsd:fractionDigits value="2" fixed="true" />
+  </xsd:restriction>
+ </xsd:simpleType>
+
+</xsd:schema>

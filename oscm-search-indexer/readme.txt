@@ -1,0 +1,1 @@
+The service implementation of the hibernate search indexer.

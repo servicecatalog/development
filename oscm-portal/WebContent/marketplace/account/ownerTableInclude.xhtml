@@ -1,0 +1,142 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <c:set var="mpImgUrl" value="/marketplace/img" />
+  <c:set var="sortIcon" value="#{mpImgUrl}/transparentPixel.png?id=sort" />
+  <c:set var="sortIconAscending" value="#{mpImgUrl}/transparentPixel.png?id=sortAscending" />
+  <c:set var="sortIconDescending" value="#{mpImgUrl}/transparentPixel.png?id=sortDescending" />
+
+  <c:set var="colSelect" value="#{statePrefix}ColSelect" scope="view" />
+  <c:set var="colUserId" value="#{statePrefix}ColUserId" scope="view" />
+  <c:set var="colFirstName" value="#{statePrefix}ColFirstName" scope="view" />
+  <c:set var="colLastName" value="#{statePrefix}ColLastName" scope="view" />
+  <c:set var="colFirstName1" value="#{statePrefix}ColFirstName1" scope="view" />
+
+  <!-- Radio Button -->
+  <h:panelGroup styleClass="radio-outside-table">
+    <h:selectOneRadio id="selectOneRadio" onclick="AdmUtils.dataTableSelectOneRadio(this);"
+      value="#{manageSubscriptionCtrl.model.assignNoOwner}"
+      valueChangeListener="#{manageSubscriptionCtrl.selectedOwnerChanged}">
+      <f:selectItem itemValue="true" itemLabel="#{msg['marketplace.subscription.owners.select.no.owner']}" />
+      <h:inputHidden value=" " />
+    </h:selectOneRadio>
+  </h:panelGroup>
+
+  <a4j:outputPanel id="userTablePanel" layout="block" styleClass="tablePanel table_padding"
+    rendered="#{empty rendered or rendered}">
+
+    <rich:dataTable id="userTable" value="#{data}" var="user" selectionMode="now" enableContextMenu="false"
+      noDataLabel=" " rowKeyVar="rowKey" headerClass="rowTitle" rowClasses="rowOdd,rowEven" columnClasses="wrapColumns"
+      width="100%" style="min-width:680px;position:relative;" rows="10" render="pagerPanel"
+      sortMode="single">
+
+      <f:facet name="header">
+        <adm:pager pagerId="#{statePrefix}UserListPager" />
+      </f:facet>
+
+      <rich:column 
+        id="#{colSelect}"
+        width="#{iconWidth}"
+        styleClass="tableColumnCheckBox"
+        style="padding-left: 0;"
+        rendered="#{(showRadio eq 'true') }"
+        sortBy="#{user.selected}"
+        sortOrder="#{tableState.sortOrders[colSelect]}">
+        <h:selectOneRadio id="selectOneRadio" value="#{user.ownerChecked}" onchange="setDirty(true);
+           AdmUtils.dataTableSelectOneRadio(this);"
+          valueChangeListener="#{manageSubscriptionCtrl.selectedOwnerChanged}">
+          <f:selectItem itemValue="true" />
+          <h:inputHidden value="#{user.userId}" />
+          <!-- 
+          <a4j:ajax render="userTablePanel,#{dialogId}Form:saveButton"
+            onbeforesubmit="setDirty(true);AdmUtils.dataTableSelectOneRadio(this);" 
+            bypassUpdates="true" event="click" />
+             -->
+        </h:selectOneRadio>
+      </rich:column>
+
+      <rich:column
+        id="#{colUserId}"
+        sortBy="#{user.userId}"
+        sortOrder="#{tableState.sortOrders[colUserId]}"
+        width="#{userIdWidth}"
+        styleClass="content-column"
+        filterType="custom"
+        filterValue="#{tableState.filterValues[colUserId]}"
+        filterExpression="#{adm:matchBegin(user.userId, tableState.filterValues[colUserId], false)}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['user.userId']}" />
+          <adm:filterInput inputId="filterUserId" inputValue="#{tableState.filterValues[colUserId]}" 
+              render="userTable@body, pagerPanel"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
+        </f:facet>
+        <h:outputText id="userId" value="#{user.userId}" styleClass="preserveWhitespaces" />
+      </rich:column>
+
+      <rich:column
+        id="#{colFirstName}"
+        sortBy="#{user.firstName}"
+        sortOrder="#{tableState.sortOrders[colFirstName]}"
+        width="#{nameWidth}"
+        styleClass="content-column"
+        rendered="#{not sessionBean.nameSequenceReversed}"
+        filterType="custom"
+        filterValue="#{tableState.filterValues[colFirstName]}"
+        filterExpression="#{adm:matchBegin(user.firstName, tableState.filterValues[colFirstName], false)}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['user.firstName']}" />
+          <adm:filterInput inputId="filterFirstName" inputValue="#{tableState.filterValues[colFirstName]}" 
+              render="userTable@body, pagerPanel"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
+        </f:facet>
+        <h:outputText id="firstName" value="#{user.firstName}" styleClass="preserveWhitespaces"/>
+      </rich:column>
+
+      <rich:column
+        id="#{colLastName}"
+        sortBy="#{user.lastName}"
+        sortOrder="#{tableState.sortOrders[colLastName]}"
+        width="#{nameWidth}"
+        styleClass="content-column"
+        filterType="custom"
+        filterValue="#{tableState.filterValues[colLastName]}"
+        filterExpression="#{adm:matchBegin(user.lastName, tableState.filterValues[colLastName], false)}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['user.lastName']}" />
+          <adm:filterInput inputId="filterLastName" inputValue="#{tableState.filterValues[colLastName]}" 
+              render="userTable@body, pagerPanel"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
+        </f:facet>
+        <h:outputText id="lastName" value="#{user.lastName}" styleClass="preserveWhitespaces"/>
+      </rich:column>
+
+      <rich:column 
+        id="#{colFirstName1}"
+        sortBy="#{user.firstName}"
+        sortOrder="#{tableState.sortOrders[colFirstName1]}"
+        width="#{nameWidth}"
+        styleClass="content-column"
+        rendered="#{sessionBean.nameSequenceReversed}"
+        filterType="custom"
+        filterValue="#{tableState.filterValues[colFirstName1]}"
+        filterExpression="#{adm:matchBegin(user.firstName, tableState.filterValues[colFirstName1], false)}">
+        <f:facet name="header">
+          <h:outputText value="#{msg['user.firstName']}" />
+          <adm:filterInput inputId="filterFirstName1" inputValue="#{tableState.filterValues[colFirstName1]}" 
+              render="userTable@body, pagerPanel"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
+        </f:facet>
+        <h:outputText id="firstName1" value="#{user.firstName}" styleClass="preserveWhitespaces"/>
+      </rich:column>
+    </rich:dataTable>
+  </a4j:outputPanel>
+</ui:composition>

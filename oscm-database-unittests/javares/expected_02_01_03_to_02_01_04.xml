@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <!-- Organization -->
+  <Organization tkey="1100" version="0" organizationid="TP1" name="TP1" registrationdate="1234" locale="en" />
+  <Triggerdefinition tkey="1100" version="0" type="type" target="target" targettype="ttype"
+    suspendprocess="true" organization_tkey="1100" name="type" />
+
+  <triggerdefinitionhistory tkey="1100" objkey="1100" objversion="0" modType="ADD" modUser="user"
+    modDate="2012-02-14 01:02:34" suspendprocess="0" targettype="0" type="type" organizationobjkey="1100" name="type" />
+</dataset>

@@ -1,0 +1,15 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+	<import file="../../macros/marketplace/mpl_goto.xml" />
+	<import file="../../macros/marketplace/mpl_login.xml" />
+	<import file="../../macros/marketplace/mpl_user.xml" />
+	<import file="../../macros/marketplace/mpl_verify.xml" />
+	<import file="../../macros/marketplace/mpl_service.xml" />
+	<import file="../../macros/marketplace/mpl_setup.xml" />
+	<import file="../../macros/marketplace/mpl_paging.xml" />
+	<import file="../../macros/marketplace/mpl_search.xml" />
+	<import file="../../macros/marketplace/mpl_subscription.xml" />
+    <import file="../../macros/marketplace/mpl_rating.xml" />
+    <import file="../../macros/marketplace/mpl_trigger.xml" />
+	<import file="../../macros/all.xml" />
+</project>

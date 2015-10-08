@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://oscm.org/xsd/billingservice/partnermodel" elementFormDefault="qualified"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://oscm.org/xsd/billingservice/partnermodel">
+
+  <xsd:include schemaLocation="BillingBase.xsd" />
+
+  <xsd:element name="RevenueSharesResults">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element minOccurs="1" maxOccurs="unbounded" name="MarketplaceOwnerRevenueShareResult" type="MarketplaceOwnerRevenueShareResult" />
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:complexType name="MarketplaceOwnerRevenueShareResult">
+    <xsd:sequence>
+      <xsd:element minOccurs="0" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Period" type="Period" />
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="Currency" type="Currency" />
+    </xsd:sequence>
+    <xsd:attribute name="organizationKey" use="required" type="xsd:positiveInteger" />
+    <xsd:attribute name="organizationId" use="required" type="xsd:string" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Currency">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Marketplace" type="Marketplace" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="RevenuesOverAllMarketplaces" type="RevenuesOverAllMarketplaces" />
+    </xsd:sequence>
+    <xsd:attribute name="id" use="required" type="xsd:string" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Marketplace">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Service" type="Service" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="RevenuesPerMarketplace" type="RevenuesPerMarketplace" />
+    </xsd:sequence>
+    <xsd:attribute name="id" use="required" type="xsd:string" />
+    <xsd:attribute name="key" use="required" type="xsd:positiveInteger" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Service">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="unbounded" name="Supplier" type="Supplier" />
+      <xsd:choice minOccurs="0" maxOccurs="unbounded">
+        <xsd:element name="Broker" type="Broker" />
+        <xsd:element name="Reseller" type="Reseller" />
+      </xsd:choice>
+      <xsd:element minOccurs="1" maxOccurs="1" name="RevenueShareDetails" type="RevenueShareDetails" />
+    </xsd:sequence>
+    <xsd:attribute name="id" use="required" type="BesId" />
+    <xsd:attribute name="key" use="required" type="xsd:positiveInteger" />
+    <xsd:attribute name="model" use="required" type="OfferingType" />
+    <xsd:attribute name="templateKey" use="optional" type="xsd:positiveInteger" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Supplier">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Reseller">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Broker">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="OrganizationData" type="OrganizationData" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="RevenueShareDetails">
+    <xsd:attribute name="serviceRevenue" use="required" type="Decimal2" />
+    <xsd:attribute name="marketplaceRevenueSharePercentage" use="required" type="Decimal2" />
+    <xsd:attribute name="operatorRevenueSharePercentage" use="optional" type="Decimal2" />
+    <xsd:attribute name="resellerRevenueSharePercentage" use="optional" type="Decimal2" />
+    <xsd:attribute name="brokerRevenueSharePercentage" use="optional" type="Decimal2" />
+    <xsd:attribute name="marketplaceRevenue" use="required" type="Decimal2" />
+    <xsd:attribute name="operatorRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="brokerRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="resellerRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="amountForSupplier" use="required" type="Decimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="RevenuesOverAllMarketplaces">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="Brokers" type="Brokers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Resellers" type="Resellers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Suppliers" type="Suppliers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="MarketplaceOwner" type="MarketplaceOwner" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="RevenuesPerMarketplace">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="Brokers" type="Brokers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Resellers" type="Resellers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="Suppliers" type="Suppliers" />
+      <xsd:element minOccurs="1" maxOccurs="1" name="MarketplaceOwner" type="MarketplaceOwner" />
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Brokers">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="Organization" type="Organization" />
+    </xsd:sequence>
+    <xsd:attribute name="amount" use="optional" type="Decimal2" />
+    <xsd:attribute name="marketplaceRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="totalAmount" use="optional" type="Decimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Resellers">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="Organization" type="Organization" />
+    </xsd:sequence>
+    <xsd:attribute name="amount" use="optional" type="Decimal2" />
+    <xsd:attribute name="marketplaceRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="totalAmount" use="optional" type="Decimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Suppliers">
+    <xsd:sequence>
+      <xsd:element minOccurs="1" maxOccurs="1" name="Organization" type="Organization" />
+    </xsd:sequence>
+    <xsd:attribute name="amount" use="optional" type="Decimal2" />
+    <xsd:attribute name="marketplaceRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="totalAmount" use="optional" type="Decimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="MarketplaceOwner">
+    <xsd:attribute name="amount" use="required" type="Decimal2" />
+  </xsd:complexType>
+
+  <xsd:complexType name="Organization">
+    <xsd:attribute name="identifier" use="required" type="BesId" />
+    <xsd:attribute name="amount" use="required" type="Decimal2" />
+    <xsd:attribute name="name" use="optional" type="xsd:string" />
+    <xsd:attribute name="marketplaceRevenue" use="optional" type="Decimal2" />
+    <xsd:attribute name="totalAmount" use="optional" type="Decimal2" />
+  </xsd:complexType>
+
+</xsd:schema>

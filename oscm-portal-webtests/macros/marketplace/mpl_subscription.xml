@@ -1,0 +1,155 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <macrodef name="mpl_subscription.assignUserModal">
+    <attribute name="userIndex" />
+    <attribute name="suspended" default="false" />
+    <attribute name="reExecution" default="false" />
+    <sequential>
+      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
+      <setCheckbox htmlId="assignUsersPanelForm:userTable:@{userIndex}:assignCheckbox" checked="true" />
+      <clickLink htmlId="assignUsersPanelForm:saveButton" />
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.ADD_REVOKE_USER}" att0=".*" att1=".*" />
+          <verifyXPath xpath="//*[@id='popupInclude:assignUsersPanelmodalErrorPanel']" text="#{errMsg}" regex="true" />
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <mpl_verify.progress label="${progress.default}" />
+            </then>
+            <else>
+              <mpl_verify.success label="${info.subscriptions.userAssigned.success}" matchWithWildCard="false" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_subscription.setUserRoleInAllUserGroups">
+    <attribute name="userId" />
+    <sequential>
+      <mpl_goto.account.users />
+      <mpl_user.display userId="@{userId}" />
+      <setSelectField xpath="//*[contains(@id, ':unitRole')]" text="User" />
+      <clickButton label="${button.save}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_subscription.assignUserToSubscription">
+    <attribute name="subscriptionId" />
+    <attribute name="userId" />
+    <sequential>
+      <mpl_goto.account.users />
+      <mpl_user.display userId="@{userId}" />
+      <setCheckbox xpath="//*[@id='editUserForm:subscriptionTable']//td[text()='@{subscriptionId}']/..//input" checked="true" />
+      <clickButton label="${button.save}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_subscription.revokeUser">
+    <attribute name="subscriptionIndex" />
+    <attribute name="userIndex" />
+    <attribute name="suspended" default="false" />
+    <attribute name="reExecution" default="false" />
+    <sequential>
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:@{subscriptionIndex}']/td[1]/a" />
+      <clickElement htmlId="userListForm:userTable:@{userIndex}:deassignBt" />
+      <mpl_service.confirmPanel panelId="userListForm:deassignConfirmPl" title="${subscription.users.deassign.title}" buttonId="OkButton" />
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.ADD_REVOKE_USER}" att0=".*" att1=".*" />
+          <mpl_verify.error label="#{errMsg}" />
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <mpl_verify.progress label="${progress.default}" />
+            </then>
+            <else>
+              <mpl_verify.success label="${info.subscriptions.userDeassigned.success}" matchWithWildCard="false" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_subscription.upgrade">
+    <attribute name="subscriptionIndex" default="0" />
+    <attribute name="chargeable" default="false" />
+    <attribute name="mid" />
+    <attribute name="suspended" default="false" />
+    <attribute name="reExecution" default="false" />
+    <sequential>
+      <mpl_goto.marketplace mid="@{mid}" />
+
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:@{subscriptionIndex}']/td[1]/a" />
+      <mpl_goto.tab label="${subscription.upgrade}" />
+      <clickLink label="${button.select}" />
+      <clickButton label="${button.next}" />
+      <ifStep test="@{chargeable}">
+        <then>
+          <mpl_user.selectBillingContact />
+          <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+          <clickLink htmlId="payment:nextLink" />
+        </then>
+      </ifStep>
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.UPGRADE_SUBSCRIPTION}" att0=".*" />
+          <mpl_verify.error label="#{errMsg}" />
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <mpl_verify.progress label="${progress.default}" />
+            </then>
+            <else>
+              <mpl_verify.success label="" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_subscription.unsubscribe">
+    <attribute name="subscriptionIndex" default="0" />
+    <attribute name="suspended" default="false" />
+    <attribute name="reExecution" default="false" />
+    <sequential>
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:@{subscriptionIndex}']/td[1]/a" />
+      <clickLink htmlId="deleteForm:unsubscribeButton" />
+      <mpl_service.confirmPanel panelId="unsubscribeConfirmPl" title="${confirm.title}" buttonId="OkButton" />
+      <ifStep test="@{reExecution}">
+        <then>
+          <common.handleMessageParameters property="errMsg" value="${ex.OperationPendingException.UNSUBSCRIBE_FROM_SERVICE}" att0=".*" />
+          <mpl_verify.error label="#{errMsg}" />
+        </then>
+        <else>
+          <ifStep test="@{suspended}">
+            <then>
+              <mpl_verify.progress label="${progress.default}" />
+            </then>
+            <else>
+              <common.handleMessageParameters property="sucMsg" value="${info.subscription.deleted}" att0=".*" />
+              <mpl_verify.success label="#{sucMsg}" matchWithWildCard="true" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+</project>
+

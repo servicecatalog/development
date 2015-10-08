@@ -1,0 +1,206 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:rich="http://richfaces.org/rich"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
+				xmlns:a4j="http://richfaces.org/a4j"
+				xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+				xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+				template="../templates/main.xhtml">
+
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.account.users" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+    <c:set var="dirty" value="false" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <mp:breadcrumbs>
+      <mp:crumb labelPageId="marketplace.account" link="/marketplace/account/index.jsf" />
+      <mp:crumb labelPageId="marketplace.account.users" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="contentstitle">
+    <a4j:outputPanel layout="block" styleClass="contentstitle indent1col clearfix">
+      <br />
+    </a4j:outputPanel>
+  </ui:define>
+
+  <ui:define name="aside">
+    <mp:navigationMenu bean="#{accountNavigationBean}" selected="marketplace.account.users.title" />
+  </ui:define>
+
+  <ui:define name="contents">
+    <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
+    <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+    <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
+
+    <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
+      <a4j:outputPanel layout="block" styleClass="box">
+        <ui:fragment rendered="#{empty appBean.hiddenUIElements['organization.edit.userProfile']}">
+          <mp:outputStep value="#{msg['marketplace.account.users.title.management']}" />
+
+	          <rich:tabPanel id="userAndGroupTablePanel" switchType="client" activeItem="#{sessionBean.selectedTab}">
+	            <rich:tab id="tabUser" header="#{msg['subscription.users']}" onheaderclick="setSelectedTab('tabUser');">
+	              <h:form id="userListForm" enctype="multipart/form-data">
+	                <a4j:outputPanel layout="block" styleClass="clearfix">
+	                  <mp:button id="addUserButton" bean="#{userBean}" action="addUser"
+	                    value="#{msg[userBean.addUserLabelKey]}" style="margin-right: 10px;" />
+	                  <adm:button id="editLdapSettingsButton" value="#{msg['button.editLdapSettings']}" bean="#{userBean}"
+	                    action="editLdapSettings" rendered="#{userBean.loggedInUser.remoteLdapActive}" />
+	                  <a4j:outputPanel style="position:absolute;right:12px;"
+	                    rendered="#{not userBean.loggedInUser.remoteLdapActive}">
+	                    <adm:fileUpload value="#{userBean.userImport}" labels="false" style="float:left;margin-left:50px;margin-right:10px;"
+	                      marketplace="true" required="false" />
+	                    <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{userBean}"
+	                      action="importUsersOnMarketplace" />
+	                  </a4j:outputPanel>
+	                </a4j:outputPanel>
+	
+	                <c:set var="iconWidth" value="4%" />
+	                <c:set var="normalWidth" value="24%" />
+	                <c:set var="moreWidth" value="48%" />
+	
+	                <a4j:outputPanel layout="block" styleClass="tablePanel table_padding" style="margin-top: 10px;">
+	                  <a4j:queue requestDelay="500" ignoreDupResponse="true"
+	                    oncomplete="jQuery('body').removeClass('hourglass');"
+	                    onsubmit="jQuery('body').addClass('hourglass');" />
+	                  <rich:dataTable width="100%" style="min-width:680px;position:relative; width: 100%;" rows="10"
+	                    headerClass="rowTitle" rowClasses="rowOdd,rowEven" id="userListTable" value="#{userBean.users}"
+	                    var="user" columnClasses="wrapColumns" selectionMode="single"
+	                    onRowMouseOver="AdmUtils.mouseOverRowCell(this);" onRowMouseOut="AdmUtils.mouseOutRowCell(this)"
+	                    enableContextMenu="false" noDataLabel=" " render="pagerPanel" sortMode="single">
+	
+	                    <rich:column width="#{iconWidth}" styleClass="tableColumnCheckBox">
+                        <h:commandLink action="#{userBean.showDetails(user.userId)}">
+							<img src="#{imgUrl}/transparentPixel.png" id="editUserImage#{user.userId}" class="editPen" alt=""/>
+                          <f:param name="userId" value="#{user.userId}"/>
+                        </h:commandLink>
+	                    </rich:column>
+
+	                    <rich:column id="colUserId" width="#{moreWidth}"
+	                      sortBy="#{user.userId}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
+	                      sortIconDescending="#{sortIconDescending}" sortOrder="#{tableState.sortOrders['mpColUserId']}"
+                        filterType="custom"
+	                      filterValue="#{tableState.filterValues['colUserId']}"
+	                      filterExpression="#{adm:matchBegin(user.userId, tableState.filterValues['colUserId'], false)}">
+                        <f:facet name="header">
+	                        <h:outputText value="#{msg['user.userId']}" />
+                            <adm:filterInput inputId="filterUserId" inputValue="#{tableState.filterValues['colUserId']}" 
+                              render="userListTable@body, pagerPanel"
+                              onkeyup="AdmUtils.setFirstPage(#{rich:element('userListPager')});" />
+	                      </f:facet>
+	                      <a4j:outputPanel layout="block" id="userIdText" styleClass="stringInMultiLine preserveWhitespaces">
+	                        <h:outputText id="userId" value="#{user.userId}" />
+	                      </a4j:outputPanel>
+	                    </rich:column>
+
+	                    <rich:column id="colFirstName"
+	                      width="#{normalWidth}" sortBy="#{user.firstName}" sortIcon="#{sortIcon}"
+	                      sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+	                      rendered="#{not sessionBean.nameSequenceReversed}"
+	                      sortOrder="#{tableState.sortOrders['mpColFirstName']}"
+                        filterType="custom"
+                        filterValue="#{tableState.filterValues['colFirstName']}"
+                        filterExpression="#{adm:matchBegin(user.firstName, tableState.filterValues['colFirstName'], false)}">
+	                      <f:facet name="header">
+	                        <h:outputText value="#{msg['user.firstName']}" />
+                            <adm:filterInput inputId="filterFirstName" inputValue="#{tableState.filterValues['colFirstName']}" 
+                              render="userListTable@body, pagerPanel"
+                              onkeyup="AdmUtils.setFirstPage(#{rich:element('userListPager')});" />
+	                      </f:facet>
+	                      <a4j:outputPanel layout="block" id="firstNameText" styleClass="stringInMultiLine preserveWhitespaces">
+	                        <h:outputText id="firstName" value="#{user.firstName}" />
+	                      </a4j:outputPanel>
+	                    </rich:column>
+
+	                    <rich:column id="colLastName" filterevent="keyup" filterBy="#{user.lastName}"
+	                      width="#{normalWidth}" sortBy="#{user.lastName}" sortIcon="#{sortIcon}"
+	                      sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+	                      sortOrder="#{tableState.sortOrders['mpColLastName']}"
+                        filterType="custom"
+	                      filterValue="#{tableState.filterValues['colLastName']}"
+	                      filterExpression="#{adm:matchBegin(user.lastName,  tableState.filterValues['colLastName'], false)}">
+	                      <f:facet name="header">
+	                        <h:outputText value="#{msg['user.lastName']}" />
+                            <adm:filterInput inputId="filterLastName" inputValue="#{tableState.filterValues['colLastName']}" 
+                              render="userListTable@body, pagerPanel"
+                              onkeyup="AdmUtils.setFirstPage(#{rich:element('userListPager')});" />
+	                      </f:facet>
+	                      <a4j:outputPanel layout="block" id="lastNameText" styleClass="stringInMultiLine preserveWhitespaces">
+	                        <h:outputText id="lastName" value="#{user.lastName}" />
+	                      </a4j:outputPanel>
+	                    </rich:column>
+
+	                    <rich:column id="colFirstName1" filterevent="keyup" filterBy="#{user.firstName}"
+	                      width="#{normalWidth}" sortBy="#{user.firstName}" sortIcon="#{sortIcon}"
+	                      sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+	                      rendered="#{sessionBean.nameSequenceReversed}"
+	                      sortOrder="#{tableState.sortOrders['mpColFirstName1']}"
+                        filterType="custom"
+	                      filterValue="#{tableState.filterValues['mpColFirstName1']}"
+                        filterExpression="#{adm:matchBegin(user.lastName,  tableState.filterValues['mpColFirstName1'], false)}">
+	                      <f:facet name="header">
+	                        <h:outputText value="#{msg['user.firstName']}" />
+                            <adm:filterInput inputId="filterFirstName1" inputValue="#{tableState.filterValues['mpColFirstName1']}" 
+                              render="userListTable@body, pagerPanel"
+                              onkeyup="AdmUtils.setFirstPage(#{rich:element('userListPager')});" />
+	                      </f:facet>
+	                      <a4j:outputPanel layout="block" id="firstName1Text" styleClass="stringInMultiLine preserveWhitespaces">
+	                        <h:outputText id="firstName1" value="#{user.firstName}" />
+	                      </a4j:outputPanel>
+	                    </rich:column>
+
+	                    <f:facet name="header">
+	                      <adm:pager pagerId="userListPager" />
+	                    </f:facet>
+	                  </rich:dataTable>
+	                </a4j:outputPanel>
+	              </h:form>
+	            </rich:tab>
+	            <rich:tab id="tabGroups" header="#{msg['subscription.users.Groups']}" onheaderclick="setSelectedTab('tabGroups');">
+	              <h:form id="groupsListForm">
+	                <a4j:outputPanel layout="block" styleClass="clearfix">
+                    <h:link styleClass="button" id="addGroupButton" outcome="addNewGroup">
+                      <span style="white-space: nowrap;">#{msg['button.addGroup']}</span>
+                    </h:link>
+	                </a4j:outputPanel>
+
+	                <c:set var="iconWidth" value="4%" />
+	                <c:set var="normalWidth" value="24%" />
+	                <c:set var="moreWidth" value="48%" />
+
+                    <div class="userTablePanel">
+                      <ui:include src="unitsTable.xhtml">
+                        <ui:param name="showDeleteButtons" value="true"/>
+                      </ui:include>
+                    </div>
+	                        <h:outputText id="groupName" value="#{group.groupName}" title="#{group.groupName}" />
+
+	              </h:form>
+	            </rich:tab>
+	          </rich:tabPanel>
+        </ui:fragment>
+        <h:form id="deleteGroupForm">
+          <mp:confirmPanel panelId="deleteConfirmPl" header="#{msg['group.delete.title']}" bean="#{userGroupListCtrl}"
+            text1="#{userGroupListCtrl.model.deleteMessage}" text2="#{msg['marketplace.areyousure']}"
+            submitId="confirmedDeleteBt" />
+          <a4j:commandButton style="display:none;" id="confirmedDeleteBt" action="#{userGroupListCtrl.deleteUserGroup}"
+            onclick="setDirty(false);AdmUtils.showProgress(true);"
+            oncomplete="#{rich:component('deleteConfirmPl')}.hide(); AdmUtils.showProgress(false);">
+          </a4j:commandButton>
+        </h:form>
+        <h:form>
+          <a4j:jsFunction name="setSelectedTab">
+            <a4j:param name="param1" assignTo="#{sessionBean.selectedTab}" />
+          </a4j:jsFunction>
+        </h:form>
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

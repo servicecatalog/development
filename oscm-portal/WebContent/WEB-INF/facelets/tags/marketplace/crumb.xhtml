@@ -1,0 +1,42 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core"
+  >
+  <li style="margin-right:0px;word-wrap: break-word;">
+  	<c:if test="#{not empty labelPageId}">
+      <c:set var="pageMsgKey" value="#{labelPageId}.title" />
+      <c:set var="label" value="#{msg[pageMsgKey]}" />
+    </c:if> 
+    
+  <script>
+  	jQuery().ready(function(){
+    <c:choose>
+      <c:when test="#{labelPageId == 'marketplace.account'}">
+          AdmUtils.highlightNavigation("navigation3");
+      </c:when>
+      <c:when test="#{labelPageId == 'marketplace.subscriptions'}">
+          AdmUtils.highlightNavigation("navigation2");
+      </c:when>
+
+    </c:choose>
+  	});
+    </script>
+
+    <!--  do not remove style attribute, rich faces requires it to render the span -->
+    <h:outputText value="&gt;" style="" /> 
+    <c:if test="#{not empty onclick}">
+      <h:outputLink value="#{facesContext.externalContext.requestContextPath}#{link}" onclick="#{onclick}">#{label}</h:outputLink>
+
+    </c:if> 
+    <c:if test="#{empty onclick}">
+      <h:outputLink value="#{facesContext.externalContext.requestContextPath}#{link}" rendered="#{not empty link }">#{label}</h:outputLink>
+    </c:if>
+    <h:outputText value="#{label}" rendered="#{empty link}" /> 
+  </li>
+</ui:composition>

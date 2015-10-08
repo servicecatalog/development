@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" cutoffday="1"/>
+  <Organization tkey="2" version="0" organizationid="TestOrgB" registrationdate="1234" cutoffday="1"/>
+  <OrganizationHistory tkey="1" moduser="10000" modtype="ADD" objkey="1" objversion="0"
+    organizationid="TestOrgA" registrationdate="1234" cutoffday="1"/>
+  <OrganizationHistory tkey="2" moduser="10000" modtype="ADD" objkey="2" objversion="0"
+    organizationid="TestOrgA" registrationdate="1234" cutoffday="1"/>
+  
+  <Subscription tkey="1001" version="0" subscriptionid="sid_1" product_tkey="1" creationdate="30" status="status"
+    timeoutmailsent="1" organizationkey="1" cutoffday="1"/>
+  <SubscriptionHistory tkey="10001" invocationdate="2011-04-04 10:00:00" modtype="ADD" moduser="1"
+    objkey="1001" objversion="0" organizationobjkey="1" productobjkey="1" creationdate="30" status="ACTIVE" subscriptionid="sid_1"
+    timeoutmailsent="1" cutoffday="1"/>
+  <Subscription tkey="1002" version="0" subscriptionid="sid_2" product_tkey="2" creationdate="30" status="status"
+    timeoutmailsent="1" organizationkey="1" cutoffday="1"/>
+  <SubscriptionHistory tkey="10002" invocationdate="2011-04-04 10:00:00" modtype="ADD" moduser="1"
+    objkey="1002" objversion="0" organizationobjkey="1" productobjkey="2" creationdate="30" status="ACTIVE" subscriptionid="sid_2"
+    timeoutmailsent="1" cutoffday="1"/>
+</dataset>

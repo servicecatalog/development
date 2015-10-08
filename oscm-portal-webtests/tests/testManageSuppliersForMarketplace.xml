@@ -1,0 +1,427 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project default="manageSuppliersForMarketplaceTests" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/all.xml" />
+
+  <target name="manageSuppliersForMarketplaceTests" depends="testSelectionAndSettings, testSupplierAssignments, 
+    testDeassign, verifyMarketplaceChooser, testOwnershipConcurrentlyChanged, tearDown " />
+  <!-- The focus of this test suite is the "Manage marketplaces" dialog and menue visibility. -->
+
+  <!-- Common initialization. Used for all targets in the test. -->
+  <target name="init">
+    <webtest name="testManageMP_Suppliers_setup">
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_1" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_1_UserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <storeProperty name="supplier_2" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_2_UserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplier_2_UserKey" value="#{userKey}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_3" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_3_UserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+      <operator.createorganization roles="SUPPLIER" />
+      <storeProperty name="supplier_4" value="#{orgId}" propertyType="ant" />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePasswordAsSupplier url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplier_4_UserId" value="#{userId}" propertyType="ant" />
+      <login.logout />
+      <mail.cleanInbox />
+      <operator.createorganization roles="TECHNOLOGY_PROVIDER" />
+      <storeProperty name="technology_provider" value="#{orgId}" propertyType="ant" />
+
+      <operator.createMarketplace mIdProperty="MP_ID_OF_SUPP1" name="MP_OF_SUPP1" ownerId="${supplier_1}" baseurl="${bes.http.url}/oscm-portal" />
+      <operator.createMarketplace mIdProperty="MP_OPEN_ID_OF_SUPP1" name="MP_OPEN_OF_SUPP1" ownerId="${supplier_1}" open="true" baseurl="${bes.http.url}/oscm-portal" />
+      </webtest>
+  </target>
+
+  <target name="testSelectionAndSettings" depends="init">
+
+    <webtest name="testManageMP_Suppliers_Enablements">
+      <testInfo type="DESCRIPTION">testEnablements : 
+                          this test verifies the enablement/disablement of buttons depending on selection and status.
+                          expected outcome: 
+                          (1) initial setting: no marketplace selected, no buttons visible
+                          (2) when a marketplace is selected: organization field + add-button enabled
+                          (3) when marketplace is deselected: initial setting
+                </testInfo>
+
+      <login.loginAsSupplier userId="${supplier_1_UserId}" url="${bes.http.url}/oscm-portal" />
+      <!-- verify that no mp is pre-selected -->
+      <invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+      <!-- (1) if no mp is selected the delete button/add button are disabled -->
+      <this.verifyInitialEnablementAndSetting />
+      <setSelectField xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'${MP_ID_OF_SUPP1}')]" />
+      <!-- (2) when a marketplace is selected: organization field + add-button enabled -->
+      <this.addButtonEnabled />
+
+      <!-- enabled input for supplier id -->
+      <verifyXPath xpath="//input[@id='addSupplierForm:supplierId']" />
+      <!-- (3) marketplace -deselection returns to initial state -->
+      <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" optionIndex="0" />
+      <this.verifyInitialEnablementAndSetting selectOperation="true"/>
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testSupplierAssignments" depends="init">
+    <webtest name="testManageMP_Suppliers_Assignments">
+      <testInfo type="DESCRIPTION">testValidSuppliers : 
+                            this test verifies that organization field is required and that system accepts a valid org-id
+                            expected outcome:
+                            (1) nothing is performed and no error message is shown when empty supplier is submitted
+                            (2) success message when correct supplier id is submitted
+                            (3) supplier is displayed in table
+                  </testInfo>
+      <!-- goto manage supplier page and select a marketplace -->
+      <this.gotoPageAndSelectMP />
+
+      <!-- (1) field validation: organization ID is not required anymore (bug 9146). No error message is shown.-->
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click Authorize button" />
+
+      <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <!-- (2) success message when correct supplier id is submitted -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click exclude button" />
+
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.supplier.added}" att0="${supplier_2}" />
+      <common.verifySuccess label="#{successMessageRegEx}" />
+
+      <!--  (3)  supplier is displayed in table of assigned suppliers -->
+      <!-- caution: due to implicit assignment of marketplace owner itself the mpowner is shown in the 0th row -->
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable:1:organizationId']='${supplier_2}'" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Suppliers_Text">
+      <testInfo type="DESCRIPTION">Test the page texts depending on the marketplace type: open or closed. 
+      </testInfo>
+
+      <!-- goto manage supplier page, no marketplace selected -->
+      <this.gotoPageAndSelectMP mpId="${common.pleaseSelect}" />
+      <this.verifyInitialEnablementAndSetting />
+
+      <!-- goto manage supplier page and select a non-open marketplace -->
+      <setSelectField xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'${MP_ID_OF_SUPP1}')]" />
+
+      <verifyText text="${marketplace.manageSuppliers.title}" />
+      <storeXPath xpath="//*[@id='removeSuppliersForm']//div[@class='step']//span[contains(@class, 'preWrapping')]/text()" property="infoMsg" />
+      <verifyProperty name="infoMsg" value="${marketplace.manageSuppliers.table.title}" regex="true" />
+      <storeXPath xpath="//*[@id='addSupplierForm']//div[@class='step']//span[contains(@class, 'preWrapping')]/text()" property="infoMsg" />
+      <verifyProperty name="infoMsg" value="${marketplace.manageSuppliers.addNewSupplier}" regex="true" />
+
+      <!-- select an open marketplace -->
+      <setSelectField xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'${MP_OPEN_ID_OF_SUPP1}')]" />
+
+      <verifyText text="${marketplace.manageSuppliers.open.title}" />
+      <storeXPath xpath="//*[@id='removeSuppliersForm']//div[@class='step']//span[contains(@class, 'preWrapping')]/text()" property="infoMsg" />
+      <verifyProperty name="infoMsg" value="${marketplace.manageSuppliers.open.table.title}" regex="true" />
+      <storeXPath xpath="//*[@id='addSupplierForm']//div[@class='step']//span[contains(@class, 'preWrapping')]/text()" property="infoMsg" />
+      <verifyProperty name="infoMsg" value="${marketplace.manageSuppliers.open.addNewSupplier}" regex="true" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Ban_Suppliers">
+      <testInfo type="DESCRIPTION">test ban suppliers from open marketplace: 
+                            this test verifies that the system accepts a valid org-id
+                            expected outcome:
+                            (1) nothing is performed (no field required message) when empty supplier is submitted
+                            (2) success message when correct supplier id is submitted
+                            (3) supplier is displayed in table
+                  </testInfo>
+      <!-- goto manage supplier page and select a marketplace -->
+      <this.gotoPageAndSelectMP mpId="${MP_OPEN_ID_OF_SUPP1}" />
+
+      <!-- (1) field validation: organization ID is not required anymore (bug 9146). -->
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click exclude button" />
+
+      <common.verifyFieldError fieldId="addSupplierForm:supplierId" label="${javax.faces.component.UIInput.REQUIRED}" />
+
+      <!-- (2) success message when correct supplier id is submitted -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click exclude button" />
+      <clickElement description="Click 'yes' in confirm dialog" htmlId="addForm:okButton" />
+
+      <!--  (3)  supplier is displayed in table of banned suppliers -->
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable:0:organizationId']='${supplier_2}'" />
+
+      <common.handleMessageParameters property="successMessageRegEx" value="${info.supplier.banned}" att0="${supplier_2}" />
+      <common.verifySuccess label="#{successMessageRegEx}" />
+
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Suppliers_InvalidSuppliers">
+      <testInfo type="DESCRIPTION">testInvalidSuppliers : 
+                               this test verifies invalid suppliers are rejected
+                               (1) in case supplier does not exist
+                               (2) in case organization doesnt have supplier role
+                               (3) supplier is already assigned
+                               expected outcome:
+                               (1) error message
+                               (2) supplier is NOT displayed in table
+                     </testInfo>
+      <!-- goto manage supplier page and select a marketplace -->
+      <this.gotoPageAndSelectMP />
+
+      <!-- (1) supplier id does not exist -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="BOGUS" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <common.handleMessageParameters property="errorMessageRegEx" value="${ex.ObjectNotFoundException.ORGANIZATION}" att0="BOGUS" />
+      <common.verifyError label="#{errorMessageRegEx}" />
+
+      <!-- (2) supplier id does not have role supplier (is only technology provider) -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${technology_provider}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <common.handleMessageParameters property="errorMessageRegEx" value="${ex.OrganizationAuthorityException}" att0="SUPPLIER, BROKER, RESELLER" />
+      <common.verifyError label="#{errorMessageRegEx}" />
+
+      <!-- (3) supplier already assigned -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <common.verifyError label="${ex.OrganizationAlreadyExistsException}" />
+
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testDeassign" depends="init">
+    <webtest name="testManageMP_Suppliers_DeleteAssignedSupplier">
+      <testInfo type="DESCRIPTION">testDeleteAssignedSupplier : 
+                                 this test verifies deletion of supplier assignments
+                                 (1) in case of deletion show success message and remove entry from table
+                                 (2) remove whole table if all assigments are removed
+                       </testInfo>
+      <!-- goto manage supplier page and select a marketplace -->
+      <this.gotoPageAndSelectMP />
+      <!-- setup: add 2 more suppliers -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_3}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_4}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+
+      <!-- delete button must be disabled without any checkbox checked -->
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButtonDisabled']" description="check delete button disabled" />
+      <!-- caution: due to implicit assignment of the mp-owner itself: there must be 4 entries: 3 assignees plus the mp-owner -->
+      <verifyXPath xpath="count(//*[@id='removeSuppliersForm:supplierTable:tb']/tr)" text="4" />
+
+      <!-- 1 checkbox checked, button pressed -->
+      <!-- save organizationId of supplier to de-assign -->
+      <storeXPath xpath="//*[@id='removeSuppliersForm:supplierTable:1:organizationId']/text()" property="supplierIdToDelete" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:1:checkboxId" checked="true" />
+      <clickElement htmlId="removeSuppliersForm:deleteButton" description="click deleteButton" />
+      <clickElement htmlId="removeForm:okButton" />
+
+      <!-- verify that only 2 suppliers (plus the mp-owner itself=> = 3) remain in table -->
+      <verifyXPath xpath="count(//*[@id='removeSuppliersForm:supplierTable:tb']/tr)" text="3" />
+      <!-- verify that table does NOT contain the organizationId of the deleted supplier assignment -->
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable']/tbody/tr/td/*[contains(text(),'#{supplierIdToDelete}')]" />
+      </not>
+
+      <!-- add supplier 2 again -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+
+      <!-- supplier_2 creates an active service on MP_OF_SUPP1 -->
+      <setup:store.settings userkey="${supplier_2_UserKey}" password="secret" />
+      <setup:techservice.createProxy id="BASIC_TECH_SERVICE" serviceUrl="http://techService1.de" provisioningUrl="${example.https.url}/example-service/services/ProvisioningService?wsdl" />
+      <setup:service.define serviceId="SERVICE_A" techServiceId="BASIC_TECH_SERVICE" marketplaceId="${MP_ID_OF_SUPP1}" />
+      <setup:pricemodel.define serviceId="SERVICE_A" isFree="true" />
+      <setup:service.activate serviceIds="SERVICE_A" />
+
+      <!-- all suppliers are checked and deleted : no table should be rendered, delete button deactivated -->
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:1:checkboxId" checked="true" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:2:checkboxId" checked="true" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:3:checkboxId" checked="true" />
+      <clickElement htmlId="removeSuppliersForm:deleteButton" description="click deleteButton" />
+      <clickElement htmlId="removeForm:okButton" />
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable']" />
+      </not>
+      <this.deleteButtonDisabled />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManageMP_Suppliers_LiftBan">
+      <testInfo type="DESCRIPTION">Test lift ban for suppliers of open marketplace: 
+                                   this test verifies deletion of supplier assignments
+                                   (1) in case of deletion show success message and remove entry from table
+                                   (2) remove whole table if all assigments are removed
+                         </testInfo>
+      <!-- goto manage supplier page and select a marketplace -->
+      <this.gotoPageAndSelectMP mpId="${MP_OPEN_ID_OF_SUPP1}" />
+      <!-- setup: add 2 more suppliers -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_3}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <clickElement htmlId="addForm:okButton" />
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_4}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <clickElement htmlId="addForm:okButton" />
+
+      <!-- delete button must be disabled without any checkbox checked -->
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButtonDisabled']" description="check delete button disabled" />
+      <verifyXPath xpath="count(//*[@id='removeSuppliersForm:supplierTable:tb']/tr)" text="3" />
+
+      <!-- 1 checkbox checked, button pressed -->
+      <!-- save organizationId of supplier to de-assign -->
+      <storeXPath xpath="//*[@id='removeSuppliersForm:supplierTable:0:organizationId']/text()" property="supplierIdToDelete" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <clickElement htmlId="removeSuppliersForm:deleteButton" description="click deleteButton" />
+
+      <!-- verify that only 2 suppliers remain in table -->
+      <verifyXPath xpath="count(//*[@id='removeSuppliersForm:supplierTable:tb']/tr)" text="2" />
+      <!-- verify that table does NOT contain the organizationId of the deleted supplier assignment -->
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable']/tbody/tr/td/*[contains(text(),'#{supplierIdToDelete}')]" />
+      </not>
+
+      <!-- add supplier 2 again -->
+      <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+      <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+      <clickElement htmlId="addForm:okButton" />
+
+      <!-- all suppliers are checked and deleted : no table should be rendered, delete button deactivated -->
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:0:checkboxId" checked="true" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:1:checkboxId" checked="true" />
+      <setCheckbox htmlId="removeSuppliersForm:supplierTable:2:checkboxId" checked="true" />
+      <clickElement htmlId="removeSuppliersForm:deleteButton" description="click deleteButton" />
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable']" />
+      </not>
+      <this.deleteButtonDisabled />
+      <login.logout />
+    </webtest>
+
+
+  </target>
+
+  <target name="verifyMarketplaceChooser" depends="init">
+    <webtest name="testManageMP_Suppliers_verifyMpChooser">
+      <this.gotoPageAndSelectMP />
+
+      <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'MP_OF_SUPP1')]" />
+
+      <verifyXPath xpath="count(//*[@id='marketplaceSelectForm:selectMarketplaceId']/option)" text="3" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testOwnershipConcurrentlyChanged" depends="init">
+    <webtest name="testManageMP_Suppliers_OwnershipRemoved">
+      <testInfo type="DESCRIPTION">testOwnershipRemoved : 
+                                         the supplier cannot be deleted because the ownership of the selected marketplace
+                                         has meanwhile been moved to another organization
+                                         Expected outcome:
+                                         (1) error message
+                                         (2) marketplace is removed from marketplace selector
+                               </testInfo>
+
+      <!-- marketplace ownership has been shifted to other supplier after naviation to manageSupplierPage -->
+      <!-- as supplier_1 navigate to manageSupplier page and selects his MP_OF_SUPP1 -->
+      <!-- meanwhile platform operator removes supplier_1' ownership of MP_OF_SUPP1 -->
+      <!-- now supplier_1 tries to select his former mp  -->
+      <selectWebClient name="AS_SUPPLIER_1">
+        <this.gotoPageAndSelectMP />
+        <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_2}" />
+        <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:supplierTable:0:organizationId']='${supplier_2}'" />
+      </selectWebClient>
+
+      <selectWebClient name="AS_PLATFORM_OPERATOR">
+        <login.login userId="administrator" password="admin123" url="${bes.http.url}/oscm-portal" />
+        <invoke url="${bes.http.url}/oscm-portal/shop/updateMarketplace.jsf" />
+        <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="${MP_ID_OF_SUPP1}" />
+        <setInputField htmlId="updateForm:organizationIdInput" value="PLATFORM_OPERATOR" />
+        <clickLink htmlId="updateForm:saveButtonLink" />
+      </selectWebClient>
+
+      <selectWebClient name="AS_SUPPLIER_1">
+        <setInputField htmlId="addSupplierForm:supplierId" value="${supplier_1}" />
+        <clickElement htmlId="addSupplierForm:addSupplierButton" description="click saveButton" />
+        <verifyText text="${ex.OperationNotPermittedException}" />
+      </selectWebClient>
+
+    </webtest>
+  </target>
+
+  <target name="tearDown">
+    <webtest name="testManageMP_Suppliers_tearDown">
+      <setup:store.settings userkey="${supplier_2_UserKey}" password="secret" />
+      <setup:service.delete serviceIds="SERVICE_A" deactivate="false" />
+      <setup:techservice.delete serviceIds="BASIC_TECH_SERVICE" />
+      <operator.deleteMarketplaces marketplaceIds="${MP_ID_OF_SUPP1},${MP_OPEN_ID_OF_SUPP1}" />
+    </webtest>
+  </target>
+
+  <!-- **************************** -->
+  <!-- test specific macros -->
+  <!-- verifies that no marketplace is selected and that the buttons are not visible -->
+  <macrodef name="this.verifyInitialEnablementAndSetting">
+    <attribute name="selectOperation" default="false" />
+    <sequential>
+      <ifStep test="@{selectOperation}">
+        <then>
+          <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@selected]" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[@selected]" />
+          </not>
+        </else>
+      </ifStep>
+      <!-- buttons must not be visible if nothing is selected -->
+      <not>
+        <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton']" />
+      </not>
+      <not>
+        <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButton']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.addButtonEnabled">
+    <sequential>
+      <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton' and @class='button']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.deleteButtonDisabled">
+    <sequential>
+      <!-- disabled delete button -->
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButtonDisabled' and @class='buttonDisabled']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.deleteButtonEnabled">
+    <sequential>
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButton' and @class='button']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="this.gotoPageAndSelectMP">
+    <attribute name="mpId" default="${MP_ID_OF_SUPP1}" />
+    <sequential>
+      <login.loginAsSupplier userId="${supplier_1_UserId}" url="${bes.http.url}/oscm-portal" />
+      <invoke url="${bes.http.url}/oscm-portal/shop/manageSuppliers.jsf" />
+      <setSelectField xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'@{mpId}')]" />
+    </sequential>
+  </macrodef>
+
+</project>

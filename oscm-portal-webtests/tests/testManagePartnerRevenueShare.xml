@@ -1,0 +1,157 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="managePartnerRevenueShareTest" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <!--<import file="../macros/all.xml" />-->
+  <import file="../macros/marketplace/all.xml" />
+
+  <!--<target name="managePartnerRevenueShareTest" depends="setup, testManageBrokerRevenueShare, testManageResellerRevenueShare" />-->
+  <target name="managePartnerRevenueShareTest" depends="testManageOperatorRevenueShare, testManageBrokerRevenueShare, testManageResellerRevenueShare, cleanup" />
+
+  <target name="setup">
+    <webtest name="setup">
+      <mail.cleanInbox />
+      <scenario.setupSupplier />
+      <operator.createMarketplace mIdProperty="mId" name="New Marketplace" ownerId="${supplierId}" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:techservice.import file="${techService.import.file}" />
+      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service1" name="Service1" description="Service1 description" />
+      <setup:service.define svcKeyProperty="svcKey2" marketplaceId="${mId}" techServiceId="Example 1.00" serviceId="Service2" name="Service2" description="Service2" />
+      <setup:pricemodel.define serviceId="Service2" isFree="true" />
+      <setup:service.define svcKeyProperty="svcKey3" marketplaceId="${mId}" techServiceId="Example 1.00" serviceId="Service3" name="Service3" description="Service3" />
+      <setup:pricemodel.define serviceId="Service3" isFree="true" />
+
+      <operator.createorganization roles="BROKER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="brokerId" value="#{orgId}" propertyType="ant" />
+      
+      <operator.createorganization roles="RESELLER" />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="resellerId" value="#{orgId}" propertyType="ant" />
+
+      <this.grantResalePermission serviceId="Service2" marketplaceId="${mId}" isGranted="true" 
+        brokerOrgId="${brokerId}" resellerOrgId="${resellerId}"/>
+      <!-- bug 10233 if a template service is deleted, it must still be listed and it must still be possible to adjust the related broker/reseller revenue share-->
+      <this.grantResalePermission serviceId="Service3" marketplaceId="${mId}" isGranted="true" 
+    	brokerOrgId="${brokerId}" resellerOrgId="${resellerId}"/>
+      <this.grantResalePermission serviceId="Service3" marketplaceId="${mId}" isGranted="false" 
+    	brokerOrgId="${brokerId}" resellerOrgId="${resellerId}"/>
+       <setup:service.delete serviceIds="ServiceId3" />
+    </webtest>
+  </target>
+
+  <target name="testManageBrokerRevenueShare" depends="setup">
+    <webtest name="testManageBrokerRevenueShare">
+      <operatorPortal.login />
+      <clickLink href="/shop/manageBrokerRevenueShare.jsf" />
+
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey1}" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:serviceRevenueShare']" />
+      </not>
+      <verifyXPath xpath="//*[@id='editForm:saveButtonDisabled']" />
+
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey2}" />
+      <setInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <setInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <clickButton htmlId="editForm:saveButton" />
+      <verifyInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <verifyInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <!--verify the revenue share of deleted service could still be adjusted-->
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey3}" />
+      <setInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <setInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <clickButton htmlId="editForm:saveButton" />
+      <verifyInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <verifyInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testManageResellerRevenueShare" depends="setup">
+    <webtest name="testManageResellerRevenueShare">
+      <operatorPortal.login />
+      <clickLink href="/shop/manageResellerRevenueShare.jsf" />
+
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey1}" />
+      <not>
+        <verifyXPath xpath="//*[@id='editForm:serviceRevenueShare']" />
+      </not>
+      <verifyXPath xpath="//*[@id='editForm:saveButtonDisabled']" />
+
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey2}" />
+      <setInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="100.00" />
+      <setInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="100.00" />
+      <clickButton htmlId="editForm:saveButton" />
+      <verifyInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="100.00" />
+      <verifyInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="100.00" />
+
+      <!--verify the revenue share of deleted service could still be adjusted-->
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey3}" />
+      <setInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <setInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <clickButton htmlId="editForm:saveButton" />
+      <verifyInputField htmlId="editForm:defaultRevenueShareTable:0:serviceRevenueShare" value="50.00" />
+      <verifyInputField htmlId="editForm:partnerRevenueShareTable:0:partnerRevenueShare" value="50.00" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="testManageOperatorRevenueShare" depends="setup">
+    <webtest name="testManageOperatorRevenueShare">
+      <operatorPortal.login />
+      <clickLink href="/operator/manageOperatorRevenueShare.jsf" />
+
+      <not description="Both default revenue share and service-specific revenue share fields are hidden">
+        <verifyElement text="editForm:operatorRevenueShareTable" type="table" />
+        <verifyElement text="editForm:operatorRevenueShareTable:0:operatorRevenueShare" type="input" />
+      </not>
+      
+      <setSelectField htmlId="selectForm:templateKey" value="${svcKey1}" />
+      <verifyElement text="editForm:operatorRevenueShareTable" type="table" />
+      
+      <setInputField htmlId="editForm:operatorRevenueShareTable:0:operatorRevenueShare" value="12.34" />
+      <clickButton htmlId="editForm:saveButton" />
+
+      <verifyInputField htmlId="editForm:operatorRevenueShareTable:0:operatorRevenueShare" value="12.34" />
+      <login.logout />
+    </webtest>
+  </target>
+
+  <target name="cleanup" depends="setup">
+    <webtest name="cleanup">
+      <this.grantResalePermission serviceId="Service2" marketplaceId="${mId}" isGranted="false" 
+      	brokerOrgId="${brokerId}" resellerOrgId="${resellerId}"/>
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+  
+  <macrodef name="this.grantResalePermission">
+  	<attribute name="serviceId" />
+  	<attribute name="marketplaceId" />
+  	<attribute name="isGranted" />
+  	<attribute name="brokerOrgId" />
+  	<attribute name="resellerOrgId" />
+  	<sequential>
+	  <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+	  <invoke url="${supplierUrl}/service/publish.jsf" />
+	  <setSelectField htmlId="editForm:selectedServiceId" text="@{serviceId}" />
+	  <setSelectField htmlId="editForm:marketplace" value="@{marketplaceId}" />
+
+	  <storeXPath description="Get row for Broker Organization ID" property="brokerRowID"
+	    xpath="//*[@id='editForm:brokerTable']//*[normalize-space()='@{brokerOrgId}']/@id" />
+	  <storeXPath property="brokerRowNr" xpath="substring-before(substring-after('#{brokerRowID}', 'editForm&#58;brokerTable&#58;'), ':')" />
+  	  <setCheckbox htmlId="editForm:brokerTable:#{brokerRowNr}:checkboxId" checked="@{isGranted}" />
+
+	  <storeXPath description="Get row for Reseller Organization ID" property="resellerRowID"
+	    xpath="//*[@id='editForm:resellerTable']//*[normalize-space()='@{resellerOrgId}']/@id" />
+	  <storeXPath property="resellerRowNr" xpath="substring-before(substring-after('#{resellerRowID}', 'editForm&#58;resellerTable&#58;'), ':')" />
+	  <setCheckbox htmlId="editForm:resellerTable:#{resellerRowNr}:checkboxId" checked="@{isGranted}" />
+  	  
+	  <clickLink htmlId="editForm:saveButton" />
+	  <common.verifySuccess label="@{serviceId}" />
+	  <login.logout />
+  	</sequential>
+</macrodef>
+  
+</project>

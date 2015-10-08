@@ -1,0 +1,37 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../dtd/Project.dtd">
+<project default="testManagePaymentEnablement">
+  <import file="../macros/all.xml" />
+  <target name="testManagePaymentEnablement">
+
+    <!-- Setup -->
+    <webtest name="testManagePaymentEnablementSetup">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <operator.addAvailablePaymentTypes orgId="#{orgId}" />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testManagePaymentEnablement_Bug9579">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <invoke url="${bes.http.url}/oscm-portal/organization/managePaymentEnablement.jsf" />
+      <clickElement htmlId="managePayment:customerTable:0:cust0" />
+      <clickLink htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust0" checked="true" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust1" checked="false" />
+      <clickElement htmlId="managePayment:customerTable:0:cust0" />
+      <clickElement htmlId="managePayment:customerTable:0:cust1" />
+      <clickLink htmlId="managePayment:modifyPaymentEnablementButtonLink" />
+      <common.verifySuccess label="${info.paymentEnablment.saved}" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust0" checked="false" />
+      <verifyCheckbox htmlId="managePayment:customerTable:0:cust1" checked="true" />
+      <login.logout />
+    </webtest>
+  </target>
+</project>

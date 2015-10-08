@@ -1,0 +1,80 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="dirty" value="false" />
+    <c:set var="pageId" value="techService.export" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="showServices" target="#{sessionBean.ie?'_blank':''}">
+      <h:commandButton style="display:none;" id="hiddenShowButton" value="hiddenShowButton"
+        action="#{techServiceBean.showData}" />
+      <script type="text/javascript">
+        function windowOnLoad() {
+          #{rich:element('hiddenShowButton')}.click();
+        }
+        if (#{techServiceBean.dataAvailable}) {
+          window.onload=windowOnLoad;
+        }
+      </script>
+    </h:form>
+
+
+    <h:form id="exportForm">
+
+      <adm:outputStep value="#{msg['techService.export.step1']}" />
+
+      <a4j:outputPanel layout="block" styleClass="tablePanel">
+        <adm:dataTable tableId="techServiceTable" 
+          value="#{techServiceBean.selectableTechnicalServices}" label="#{msg['techService.export.table.header']}"
+          columnClasses="labelAndValuePanelCol1,*,*,*">
+
+          <rich:column styleClass="tableColumnCheckBox">
+            <f:facet name="header">
+              <h:selectBooleanCheckbox id="allCheckBoxes" styleClass="tableColumnCheckBox"
+                value="#{techServiceBean.allServicesSelected}">
+                <a4j:ajax event="click" render="techServiceTable,exportButton" />
+              </h:selectBooleanCheckbox>
+            </f:facet>
+            <h:selectBooleanCheckbox value="#{rowItem.selected}" id="checkboxId">
+              <a4j:ajax event="click" render="exportButton" />
+            </h:selectBooleanCheckbox>
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.techServiceId']}" />
+            </f:facet>
+            <h:outputText id="techProdId" value="#{rowItem.technicalServiceId}" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.build']}" />
+            </f:facet>
+            <h:outputText id="techProdBuildId" value="#{rowItem.technicalServiceBuildId}" />
+          </rich:column>
+
+          <rich:column>
+            <f:facet name="header">
+              <h:outputText value="#{msg['techService.description']}" />
+            </f:facet>
+            <adm:outputLarge style="border-style: none;" value="#{rowItem.technicalServiceDescription}" />
+          </rich:column>
+        </adm:dataTable>
+      </a4j:outputPanel>
+
+      <adm:buttonPanel>
+        <adm:button id="exportButton" value="#{msg['button.export']}" bean="#{techServiceBean}"
+          disabled="#{not techServiceBean.exportEnabled}" action="exportTechnicalServices" progress="false"
+          buttonType="confirm" />
+      </adm:buttonPanel>
+    </h:form>
+  </ui:define>
+</ui:composition>

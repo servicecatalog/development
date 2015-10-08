@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xml:lang="en-us" lang="en-us">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta name="copyright" content="(C) Copyright 2005"/>
+<meta name="DC.rights.owner" content="(C) Copyright 2005"/>
+<meta name="DC.Type" content="task"/>
+<meta name="DC.Title" content="Abrechnungssysteme verwalten"/>
+<meta name="DC.Format" content="XHTML"/>
+<meta name="DC.Identifier" content="task634"/>
+<meta name="DC.Language" content="en-us"/>
+<link rel="stylesheet" type="text/css" href="../../commonltr.css"/>
+<link rel="stylesheet" type="text/css" href="../../book.css"/>
+<title>Abrechnungssysteme verwalten</title>
+</head>
+<body id="task634">
+
+
+  <h1 class="topictitle1">Abrechnungssysteme verwalten</h1>
+
+  <div>
+    <div class="section">
+      <p>Es ist möglich proprietäre und Fremdabrechnungssysteme im <span>CT-MG</span> zu benutzten. Während Hersteller die Anwendungen mit <span>CT-MG</span> integrieren, können sie auswählen ob sie den eigenen Abrechnungssystem der Plattform oder einen externen Abrechnungssystem benutzten möchten.</p>
+
+      <p>Auf der Seite <strong>Abrechnungssysteme verwalten</strong>, können Sie ein externes System an <span>CT-MG</span> anknöpfen. Um ein System erfolgreich anzuknöpfen, die folgenden Voraussetzungen müssen erfüllt werden: </p>
+
+      <ul>
+        <li class="liexpand">
+          <p>Die durch den Betreiber bestimmten Verbindungseigenschaften müssen auf das externe Abrechnungssystem weisen. </p>
+
+        </li>
+
+      </ul>
+
+      <p>Eins von den unterstützten Systemen muss als Standardsystem eingestellt werden. Der Standardabrechnungssystem ist für die Hersteller, die die Anwendung als einen technischen Service registrieren um sie in <span>CT-MG</span> verfügbar zu machen, vordefiniert.</p>
+
+      <p>Wenn man die Seite <strong>Abrechnungssysteme verwalten</strong> besucht, werden die Details von den Abrechnungssystem, der im Moment als Standardsystem konfiguriert ist, angezeigt. Auf dieser Seite können Sie: </p>
+
+      <div class="p">
+        <ul>
+          <li class="liexpand">Sich die Liste der unterstützen Abrechnungssysteme ansehen.</li>
+
+          <li class="liexpand">Einen neuen Abrechnungssystem hinzufügen.</li>
+
+          <li class="liexpand">Den Namen und die Verbindungseigenschaften eines Abrechnungssystems aktualisieren.</li>
+
+          <li class="liexpand">Den Standardabrechnungssystem auswählen.</li>
+
+          <li class="liexpand">Einen Abrechnungssystem entfernen.</li>
+
+        </ul>
+
+      </div>
+
+      <p><strong>Um ein neues Abrechnungssystem zu definieren</strong>:</p>
+
+    </div>
+
+    <ol><li class="stepexpand">
+        <span>Klicken Sie <span class="uicontrol">Hinzufügen</span>.</span>
+         Das fügt einen leeren Bereich ein, wo man die Abrechnungssystemdetails definieren kann.
+      </li>
+<li class="stepexpand">
+        <span>Geben Sie das <span class="uicontrol">Abrechnungssystem ID</span> von den Abrechnungssystem ein. </span>
+         Dieses ID identifiziert eindeutig das Abrechnungssystem im <span>CT-MG</span>. Wenn das neue Abrechnungssystem definiert ist, kann das ID nicht geändert werden. <p>Die IDs sind auf 40 Zeichen beschränkt und darf keinen von den folgenden Zeichen beinhalten:</p>
+<p><samp class="codeph">! " # $ % &amp; ' * + , / : ; &lt; = &gt; ? \ ^ `</samp>
+          </p>
+
+      </li>
+<li class="stepexpand">
+        <span>Fügen Sie den <span class="uicontrol">Namen</span> des Abrechnungssystems ein.</span>
+         
+          <p>Namen sind auf 40 Zeichen beschränkt. Alle Zeichen sind erlaubt.</p>
+
+        
+      </li>
+<li class="stepexpand">
+        <span>Fügen Sie die <span class="uicontrol">Verbindungseigenschaften</span> ein. </span>
+         Je nach dem Abrechnungsadapter, der implementiert wurde um CT-MG mit dem externen Abrechnungssystem zu verbinden, kann die Zahl der Verbindungseigenschaften und ihre Semantik verschieden sein. Sie müssen aber auf ein spezifisches externes Abrechnungssystem deuten und solche Daten wie der Port den der Abrechnungssystem verbindet oder ein Provider-URL festlegen. Der Abrechnungssystem und der Adapter werden durch JNDI-lookup verbunden. <p>Fügen Sie den Namen der Eigenschaft in das erste Feld und den entsprechenden Wert in das zweite Feld ein.</p>
+<p>Benutzen Sie den Pluszeichen um eine zusätzliche Eigenschaft hinzuzufügen und den Minuszeichen um eine Eigenschaft zu entfernen.</p>
+
+      </li>
+<li class="stepexpand">
+        <span>Klicken Sie <span class="uicontrol">Verbindung testen</span> um sicherzustellen, dass die Verbindung zu dem Abrechnungssystem erstellt werden kann.</span>
+         Eine entsprechende Nachricht wird gezeigt, die Sie informiert ob die Verbindung erfolgreich erstellt wurde.
+      </li>
+<li class="stepexpand">
+        <span>Klicken Sie <span class="uicontrol">Als Standard auswählen</span> um das neue Abrechnungssystem als Standardabrechnungssystem zu definieren, wenn erforderlich.</span>
+         Das neue Abrechnungssystem wird sofort als Standard markiert. Der Marker wird von dem vorherigen Standardsystem entfernt.
+      </li>
+<li class="stepexpand">
+        <span>Um den Abrechnungssystem zu definieren, klicken Sie <span class="uicontrol">Speichern</span>. </span>
+      </li>
+</ol>
+
+    <div class="section">
+      <p>Hersteller können jetzt dieses Abrechnungssystem auswählen, wenn sie eine Anwendung als technischen Service in <span>CT-MG</span> registrieren.</p>
+
+      <p><strong>Um einen existierenden Abrechnungssystem zu aktualisieren</strong>: </p>
+
+      <div class="p">
+        <ol>
+          <li class="liexpand">Erweitern Sie die Details des Abrechnungssystem, der aktualisiert werden muss.</li>
+
+          <li class="liexpand">Ändern Sie den <span class="uicontrol">Namen</span> des Abrechnungssystems, solte es erforderlich sein. </li>
+
+          <li class="liexpand">Ändern Sie die Werte der Verbindungseigenschaften. Benutzten Sie den Pluszeichen um eine zusätzliche Eigenschaft hinzuzufügen oder den Minuszeichen um eine Eigenschaft zu entfernen, wenn erforderlich. </li>
+
+          <li class="liexpand">Klicken Sie <span class="uicontrol">Verbindung testen</span> um sicherzustellen, dass die Verbindung zum Abrechnungssystem erstellt werden kann.</li>
+
+          <li class="liexpand">Klicken Sie <span class="uicontrol">Als Standard auswählen</span> um das Abrechnungssystem als Standard zu definieren.</li>
+
+          <li class="liexpand">Klicken Sie <span class="uicontrol">Speichern</span> um Änderungen wirksam zu machen. </li>
+
+        </ol>
+
+      </div>
+
+      <p><strong>Um ein Abrechnungssystem zu entfernen</strong>: </p>
+
+      <div class="p">
+        <ol>
+          <li class="liexpand">Erweitern Sie die Details des Abrechnungssystems, der entfernt werden muss.<p>Die folgenden Voraussetzungen müssen erfüllt werden damit ein Abrechnungssystem entfernt sein kann:</p>
+<div class="p">
+              <ul>
+                <li>Das Abrechnungssystem muss als Standard markiert sein.</li>
+
+                <li>Keine technischen Services, vermarktbaren Services und keine aktiven Abonnements benutzten das Abrechnungssystem.</li>
+
+              </ul>
+
+            </div>
+</li>
+
+          <li class="liexpand">Klicken Sie <span class="uicontrol">Entfernen</span> und bestätigen Sie die Entfernung. <p>Das Abrechnungssystem wird sofort entfernt. </p>
+</li>
+
+        </ol>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+</body>
+</html>

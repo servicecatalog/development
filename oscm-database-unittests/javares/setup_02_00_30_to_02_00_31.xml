@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="1" version="0" organizationid="TestOrgA" registrationdate="1234" />
+
+  <TechnicalProduct tkey="1" version="0" provisioningurl="someurl" technicalproductid="tpid"
+    organizationkey="1" />
+  <LocalizedResource locale="en" objectkey="1" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="1" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService_de"
+    version="0" />
+
+  <TechnicalProduct tkey="10" version="0" provisioningurl="someurl2" technicalproductid="tpid2"
+    organizationkey="1" />
+  <LocalizedResource locale="en" objectkey="10" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService2_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="10" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService2_en"
+    version="0" />
+
+  <TechnicalProduct tkey="20" version="0" provisioningurl="someurl3" technicalproductid="tpid3"
+    organizationkey="1" />
+  <LocalizedResource locale="en" objectkey="20" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService3_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="20" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="descriptionForTechnicalService3_de"
+    version="0" />
+
+  <TechnicalProduct tkey="30" version="0" provisioningurl="someurl3" technicalproductid="tpid3"
+    organizationkey="1" />
+
+  <TechnicalProduct tkey="40" version="0" provisioningurl="someurl3" technicalproductid="tpid3"
+    organizationkey="1" />
+
+
+
+  <Product tkey="12" version="0" productid="pid12" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="1" />
+  <LocalizedResource locale="en" objectkey="12" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="12" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService_de"
+    version="0" />
+
+  <Product tkey="7" version="0" productid="pid7" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="10" />
+  <LocalizedResource locale="en" objectkey="7" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService2_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="7" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService2_en"
+    version="0" />
+
+  <!-- References a technical product without description -->
+  <Product tkey="8" version="0" productid="pid8" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="30" />
+  <LocalizedResource locale="en" objectkey="8" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService3_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="8" objecttype="PRODUCT_MARKETING_DESC" value="descriptionForMarketableService3_de"
+    version="0" />
+
+  <!-- References a technical product without description. Product has no description -->
+  <Product tkey="32" version="0" productid="pid17" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="40" />
+
+  <!-- References a technical product with descriptions. Product has no description -->
+  <Product tkey="42" version="0" productid="pid18" provisioningdate="1234" status="ACTIVE" supplierkey="1"
+    technicalproduct_tkey="1" />
+
+  <Organization tkey="5" version="0" organizationid="TestOrgB" registrationdate="1234" />
+
+  <TechnicalProduct tkey="5" version="0" provisioningurl="http://someurl.de" technicalproductid="tpid"
+    organizationkey="5" descriptionurl="http://www.fujitsu.com" />
+  <LocalizedResource locale="en" objectkey="5" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="tec_license_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="5" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="tec_lizenz_de"
+    version="0" />
+  <LocalizedResource locale="ja" objectkey="5" objecttype="TEC_PRODUCT_TECHNICAL_DESC" value="tec_ujiwuji_ja"
+    version="0" />
+
+  <Product tkey="5" version="0" technicalproduct_tkey="5" productid="xyz" provisioningdate="1234" status="INACTIVE"
+    descriptionurl="http://fujitsu.com" supplierkey="5" />
+  <LocalizedResource locale="en" objectkey="5" objecttype="PRODUCT_MARKETING_DESC" value="license_en"
+    version="0" />
+  <LocalizedResource locale="de" objectkey="5" objecttype="PRODUCT_MARKETING_DESC" value="lizenz_de"
+    version="0" />
+  <LocalizedResource locale="ja" objectkey="5" objecttype="PRODUCT_MARKETING_DESC" value="ujiwuji_ja"
+    version="0" />
+
+</dataset>

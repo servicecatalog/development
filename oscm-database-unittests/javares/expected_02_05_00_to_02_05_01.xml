@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+<supportedlanguage tkey="1" version="0" languageisocode="en" activestatus="true" defaultstatus="true" />
+<supportedlanguage tkey="2" version="0" languageisocode="de" activestatus="true" defaultstatus="false" />
+<supportedlanguage tkey="3" version="0" languageisocode="ja" activestatus="true" defaultstatus="false" />
+</dataset>

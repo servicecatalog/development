@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="11000" version="0" organizationid="CUSTOMER1" name="OrgA" registrationdate="1234"/>
+  <Organization tkey="12000" version="0" organizationid="CUSTOMER2" name="OrgB" registrationdate="1234"/>
+  <Organization tkey="13000" version="0" organizationid="CUSTOMER3" name="OrgC" registrationdate="1234"/> 
+   
+   <Platformuser tkey="20000" additionalname="" address="" creationdate="1301302701269" email="admin@orga.de" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="admin@orga" version="0" organizationkey="11000" useridcnt="1" olduserid="admin"/>
+  <Platformuser tkey="21000" additionalname="" address="" creationdate="1301302701269" email="admin@orgb.de" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="admin@orgb" version="0" organizationkey="12000" useridcnt="2" olduserid="admin"/>
+  <Platformuser tkey="22000" additionalname="" address="" creationdate="1301302701269" email="user1@airga.de" failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="de" organizationadmin="true" phone="" salutation="MR" status="ACTIVE" passwordsalt="-230094394054264273" passwordhash="xyz" userid="user1" version="0" organizationkey="13000" useridcnt="3" olduserid="user1olde"/>
+</dataset>

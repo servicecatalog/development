@@ -1,0 +1,169 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <!-- login as platform operator -->
+  <macrodef name="mpl_login.operator">
+    <attribute name="mid" />
+    <sequential>
+      <mpl_login.user userId="administrator" password="admin123" mid="@{mid}" />
+    </sequential>
+  </macrodef>
+
+  <!-- login with given user and password -->
+  <macrodef name="mpl_login.user">
+    <attribute name="userId" />
+    <attribute name="password" default="secret" />
+    <attribute name="verifyWelcomeText" default="true" />
+    <attribute name="mid" />
+    <sequential>
+      <!-- switch to marketplace -->
+      <mpl_goto.marketplace mid="@{mid}" />
+
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+
+      <!-- login -->
+      <clickLink label="${login}" />
+
+      <!-- Check label (bug #7507) -->
+      <verifyXPath xpath="//*[@id='loginPanel_container']//*[normalize-space()='${login.loginHeaderText}']" />
+      <common.verifyPasswordFields />
+
+      <setInputField name="loginForm:loginUserId" value="@{userId}" />
+      <setInputField name="loginForm:loginPassword" value="@{password}" />
+      <clickButton htmlId="loginForm:loginButton" />
+
+      <!-- refresh page -->
+      <mpl_goto.marketplace mid="@{mid}" />
+
+      <!-- validate displayed user name -->
+      <ifStep test="@{verifyWelcomeText}">
+        <then>
+          <storeXPath xpath="//span[matches(@id, '.*:welcome')]/text()" property="loggedin_name" />
+          <verifyProperty name="loggedin_name" text="Welcome\s@{userId}" regex="true" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Initially login given user and change given password -->
+  <macrodef name="mpl_login.loginWithChangePassword">
+    <attribute name="userId" />
+    <attribute name="oldPassword" />
+    <attribute name="newPassword" default="secret" />
+    <attribute name="checkHint" default="false" />
+    <attribute name="mid" />
+    <sequential>
+      <!-- switch to marketplace -->
+      <mpl_goto.marketplace mid="@{mid}" />
+
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+
+      <!-- login -->
+      <clickLink label="${login}" />
+
+      <!-- Check label (bug #7507) -->
+      <verifyXPath xpath="//*[@id='loginPanel_container']//*[normalize-space()='${login.loginHeaderText}']" />
+      <common.verifyPasswordFields />
+
+      <setInputField name="loginForm:loginUserId" value="@{userId}" />
+      <setInputField name="loginForm:loginPassword" value="@{oldPassword}" />
+      <clickButton htmlId="loginForm:loginButton" />
+
+      <!-- Change password -->
+      <common.verifyPasswordFields />
+      <setInputField name="passwordForm:currentPassword" value="@{oldPassword}" />
+      <setInputField name="passwordForm:password" value="@{newPassword}" />
+      <setInputField name="passwordForm:password2" value="@{newPassword}" />
+      <ifStep description="Test the hint button?" test="@{checkHint}">
+        <mpl_verify.hintButton fieldId="passwordForm:password" msgKey="login.changePassword.hint.password" />
+      </ifStep>
+      <clickLink description="Submit changed password" htmlId="passwordForm:changeButtonLink" />
+
+      <!-- refresh page -->
+      <mpl_goto.marketplace mid="@{mid}" />
+
+      <!-- validate displayed user name -->
+      <storeXPath xpath="//span[matches(@id, '.*:welcome')]/text()" property="loggedin_name" />
+      <verifyProperty name="loggedin_name" text="Welcome\s@{userId}" regex="true" />
+    </sequential>
+  </macrodef>
+
+
+  <!-- logout current user -->
+  <macrodef name="mpl_login.logout">
+    <sequential>
+      <!-- logged in right now? -->
+      <verifyXPath xpath="//span[matches(@id, '.*:welcome')]" />
+
+      <!-- logout -->
+      <clickLink htmlId="formLogout:logout" />
+
+      <!-- not longer logged in -->
+      <not>
+        <verifyXPath xpath="//span[matches(@id, '.*:welcome')]" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- login to marketplace service with given user and password -->
+  <macrodef name="mpl_login.loginService">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="password" default="secret" />
+    <sequential>
+      <!-- login to marketplace service -->
+      <invoke url="@{url}" />
+
+      <!-- Check label -->
+      <verifyXPath xpath="//*[@id='rerenderPanel']//*[normalize-space()='${login.loginServiceHeaderText}']" />
+      <common.verifyPasswordFields />
+      <setInputField name="loginForm:loginUserId" value="@{userId}" />
+      <setInputField name="loginForm:loginPassword" value="@{password}" />
+      <clickButton htmlId="loginForm:loginButton" />
+
+    </sequential>
+  </macrodef>
+
+  <!-- Initially login to marketplace service with given user and change password -->
+  <macrodef name="mpl_login.loginServiceWithChangePassword">
+    <attribute name="url" />
+    <attribute name="userId" />
+    <attribute name="oldPassword" />
+    <attribute name="newPassword" default="secret" />
+    <sequential>
+      <!-- login to marketplace service -->
+      <invoke url="@{url}" />
+
+      <!-- Check label -->
+      <verifyXPath xpath="//*[@id='rerenderPanel']//*[normalize-space()='${login.loginServiceHeaderText}']" />
+      <common.verifyPasswordFields />
+
+      <setInputField name="loginForm:loginUserId" value="@{userId}" />
+      <setInputField name="loginForm:loginPassword" value="@{oldPassword}" />
+      <clickButton htmlId="loginForm:loginButton" />
+
+      <!-- Change password-->
+      <common.verifyPasswordFields />
+      <setInputField name="passwordForm:currentPassword" value="@{oldPassword}" />
+      <setInputField name="passwordForm:password" value="@{newPassword}" />
+      <setInputField name="passwordForm:password2" value="@{newPassword}" />
+      <clickLink description="Submit changed password" htmlId="passwordForm:changeButtonLink" />
+    </sequential>
+  </macrodef>
+
+</project>

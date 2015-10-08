@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <Organization tkey="11000" version="0" organizationid="TP1" name="TP1" registrationdate="1234" locale="en" />
+  <Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234"
+    locale="de" />
+
+  <PlatformUser tkey="10000" creationdate="98765432" failedlogincounter="0" locale="ja" status="ACTIVE"
+    passwordsalt="324" userid="admin" version="0" organizationkey="11000" />
+  <PlatformUser tkey="10001" creationdate="98765432" failedlogincounter="0" locale="en" status="ACTIVE"
+    passwordsalt="324" userid="admin1" version="0" organizationkey="11001" />
+
+</dataset>

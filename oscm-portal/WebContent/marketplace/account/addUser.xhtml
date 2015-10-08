@@ -1,0 +1,165 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:rich="http://richfaces.org/rich"
+                xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+                template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="marketplace.account.addUser" />
+    <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+  </ui:define>
+
+  <ui:define name="breadcrumbs">
+    <mp:breadcrumbs>
+      <mp:crumb label="#{msg['marketplace.account.title']}" link="/marketplace/account/index.jsf" />
+      <mp:crumb labelPageId="marketplace.account.users" link="/marketplace/account/users.jsf" />
+      <mp:crumb labelPageId="marketplace.account.users.addUser" />
+    </mp:breadcrumbs>
+  </ui:define>
+
+  <ui:define name="contentstitle">
+    <a4j:outputPanel layout="block" styleClass="contentstitle indent1col clearfix">
+      <br />
+    </a4j:outputPanel>
+  </ui:define>
+
+  <ui:define name="aside">
+    <mp:navigationMenu bean="#{accountNavigationBean}" selected="marketplace.account.users.title" />
+  </ui:define>
+
+  <ui:define name="contents">
+
+    <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
+    <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+    <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
+
+    <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
+      <a4j:outputPanel layout="block" styleClass="box">
+
+        <h:form id="userForm">
+          <mp:outputStep value="#{msg['marketplace.account.adduser.title']}" />
+          <adm:panelGrid>
+
+            <mp:labelAndSelect id="salutation" label="#{msg['user.salutation']}" value="#{createUserCtrl.model.salutation.value}"
+              styleClass="selectXS">
+              <adm:salutationItems />
+            </mp:labelAndSelect>
+
+            <mp:userName firstNameId="firstName" firstNameValue="#{createUserCtrl.model.firstName.value}"
+              lastNameId="lastName" lastNameValue="#{createUserCtrl.model.lastName.value}" />
+
+            <mp:labelAndInputText id="email" label="#{msg['user.email']}" required="#{createUserCtrl.model.email.required}"
+              value="#{createUserCtrl.model.email.value}" maxlength="#{appBean.nameLen}" validatorId="email"
+              converterId="trimConverter" />
+
+            <mp:labelAndInputText id="userId" label="#{msg['user.userId']}" required="#{createUserCtrl.model.userId.required}"
+              value="#{createUserCtrl.model.userId.value}" maxlength="#{appBean.userIdLen}" validatorId="userId"
+              converterId="trimConverter" />
+
+            <mp:labelAndSelect id="locale" label="#{msg['user.locale']}" value="#{createUserCtrl.model.locale.value}"
+              styleClass="selectXS" showHint="true">
+              <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+            </mp:labelAndSelect>
+
+            <adm:outputLabel value="#{msg['user.role']}" />
+            <rich:dataTable rowClasses="rowEven" value="#{createUserCtrl.model.roles}" var="userRole"
+              id="userRolesTable" style="width:97%;">
+              <rich:column style="width:10%;">
+                <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}" onchange="setDirty(true)"
+                  style="width:20px;" />
+              </rich:column>
+              <rich:column>
+                <h:outputText value="#{userRole.name}" />
+              </rich:column>
+            </rich:dataTable>
+            <mp:message for="asAdmin" />
+          </adm:panelGrid>
+
+          <ui:fragment rendered="#{not empty createUserModel.userGroups}">
+            <mp:outputStep value="#{msg['user.groups']}" />
+            <a4j:outputPanel layout="block" styleClass="tablePanel">
+              <a4j:region>
+                <a4j:queue requestDelay="500" ignoreDupResponses="true" />
+                <rich:dataTable value="#{createUserModel.userGroups}" id="userGroupsTable" var="rowItem" width="100%"
+                  headerClass="rowTitle groupTableTitle" rowClasses="rowOdd,rowEven" columnsWidth="4%,50%,46%"
+                  style="width: 100%" sortMode="single" >
+                  <rich:column sortBy="#{rowItem.selected}" sortIcon="#{sortIcon}"
+                    sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
+                    styleClass="tableColumnCheckBox">
+                    <f:facet name="header">
+                    </f:facet>
+                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true)"
+                      disabled="#{rowItem.default}" />
+                  </rich:column>
+
+                  <rich:column sortBy="#{rowItem.name}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
+                    sortIconDescending="#{sortIconDescending}" filterevent="keyup" filterBy="#{rowItem.name}">
+                    <f:facet name="header">
+                      <h:outputText value="#{msg['group.groupName']}" />
+                    </f:facet>
+                    <a4j:outputPanel layout="block" styleClass="stringInMultiLine">
+                      <h:outputText value="#{rowItem.name}" />
+                    </a4j:outputPanel>
+                  </rich:column>
+
+                  <rich:column>
+                    <f:facet name="header">
+                      <h:outputText value="#{msg['marketplace.account.adduser.units.role']}" />
+                    </f:facet>
+                    <h:selectOneMenu id="unitRole" onchange="setDirty(true)" styleClass="roles-list"
+                      value="#{rowItem.selectedRole}">
+                      <f:selectItems value="#{rowItem.roles}" />
+                    </h:selectOneMenu>
+                  </rich:column>
+                </rich:dataTable>
+              </a4j:region>
+            </a4j:outputPanel>
+          </ui:fragment>
+
+          <ui:fragment rendered="#{createUserCtrl.subTableRendered}">
+            <mp:outputStep id="assignUserTitle" value="#{msg['marketplace.account.adduser.assignUser.title']}" />
+            <rich:dataTable value="#{createUserModel.subscriptions}" var="orgSubscription"
+              id="orgSubscriptionsTable" selectionMode="none" enableContextMenu="false" noDataLabel=" "
+              rowKeyVar="rowKey" headerClass="rowTitle" rowClasses="rowOdd,rowEven" columnClasses="wrapColumns"
+              style="width:100%;" columnsWidth="4%,50%,46%">
+              <rich:column styleClass="tableColumnCheckBox">
+                <h:selectBooleanCheckbox id="subscriptionCheckbox" value="#{orgSubscription.selected}"
+                  onchange="setDirty(true)" />
+              </rich:column>
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="#{msg['marketplace.account.adduser.subscription.name']}" />
+                </f:facet>
+                <h:outputText value="#{orgSubscription.id}" />
+              </rich:column>
+              <rich:column rendered="#{createUserCtrl.roleColumnRendered}">
+                <f:facet name="header">
+                  <h:outputText value="#{msg['marketplace.account.adduser.subscription.role']}" />
+                </f:facet>
+                <h:selectOneMenu id="role" onchange="setDirty(true)" styleClass="roles-list"
+                  value="#{orgSubscription.selectedRole}" rendered="#{orgSubscription.rolesRendered}">
+                  <f:selectItems value="#{orgSubscription.roles}" />
+                </h:selectOneMenu>
+              </rich:column>
+            </rich:dataTable>
+
+          </ui:fragment>
+          <mp:pixelline marginTop="10" />
+
+          <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
+            <adm:button id="createButton" value="#{msg['button.save']}" bean="#{createUserCtrl}" action="create"
+              big="true"/>
+            <mp:button id="cancelButton" onclick="setDirty(false);location.href='users.jsf';return false;"
+              value="#{msg['button.cancel']}" />
+          </a4j:outputPanel>
+        </h:form>
+
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+  </ui:define>
+</ui:composition>

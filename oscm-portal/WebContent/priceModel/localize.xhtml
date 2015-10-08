@@ -1,0 +1,151 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk">
+
+
+    <h:form id="localizeForm">
+      <c:set var="chargeable" value="#{not priceModelBean.priceModelFree}" />
+      <c:forEach items="#{priceModelBean.localization.descriptions}" var="it">
+        <h:inputHidden id="desc_#{it.locale}" value="#{it.text}" rendered="#{chargeable}" />
+      </c:forEach>
+      <c:forEach items="#{priceModelBean.localization.licenses}" var="it">
+        <h:inputHidden id="license_#{it.locale}" value="#{it.text}" />
+      </c:forEach>
+
+      <adm:outputStep value="#{msg['priceModel.localize.step1']}" />
+
+      <adm:panelGrid>
+
+        <adm:outputLabel value="#{msg['common.locale']}" />
+         <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="srcLocale" styleClass="select" onchange="localizeLocaleChanged('src')">
+	          <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+	        </h:selectOneMenu>
+	        </a4j:outputPanel>
+        <adm:message for="srcLocale" />
+
+      </adm:panelGrid>
+
+      <adm:collapsibleSection sectionId="srcDescriptionSection" label="#{msg['priceModel.textarea.description']}" rendered="#{chargeable}" >
+        <adm:richEditor id="srcDescription"
+          oninit="Localize.translation2Editor('srcLocale', 'desc_', Localize.getEditor('srcDescription'));"
+          readonly="true" rendered="#{chargeable}" >
+        </adm:richEditor>
+        <adm:message for="srcDescription" rendered="#{chargeable}" />
+      </adm:collapsibleSection>
+
+      <adm:collapsibleSection sectionId="srcLicenseSection" label="#{msg['priceModel.service.license']}">
+        <adm:richEditor id="srcLicense"
+          oninit="Localize.translation2Editor('srcLocale', 'license_', Localize.getEditor('srcLicense'));"
+          readonly="true">
+        </adm:richEditor>
+        <adm:message for="srcLicense" />
+      </adm:collapsibleSection>
+
+      <adm:outputStep value="#{msg['priceModel.localize.step2']}" />
+
+      <adm:panelGrid>
+        <!-- combo box for displaying the target locale  -->
+        <adm:outputLabel value="#{msg['common.locale']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+	    	<a4j:outputPanel styleClass="select">
+	      		<a4j:outputPanel styleClass="option" />
+	      	</a4j:outputPanel>  
+	        <h:selectOneMenu id="trgLocale" styleClass="select" onchange="localizeLocaleChanged('trg')">
+	          <adm:localeItems />
+              <f:validator validatorId="SupportedLanguageValidator" />
+	        </h:selectOneMenu>
+     	</a4j:outputPanel>
+        <adm:message for="trgLocale" />
+      </adm:panelGrid>
+
+      <adm:outputStep value="#{msg['priceModel.localize.step3']}" />
+
+      <adm:collapsibleSection sectionId="trgDescriptionSection" label="#{msg['priceModel.textarea.description']}" rendered="#{chargeable}" >
+        <table width="100%">
+          <tr>
+            <td><adm:richEditor id="trgDescription"
+              oninit="Localize.translation2Editor('trgLocale', 'desc_', Localize.getEditor('trgDescription'));"
+              ondirty="Localize.editor2Translation('trgLocale', 'desc_', Localize.getEditor('trgDescription'));"
+              readonly="false" rendered="#{chargeable}" >
+            </adm:richEditor> <adm:message for="trgDescription" rendered="#{chargeable}" /></td>
+          </tr>
+        </table>
+      </adm:collapsibleSection>
+
+      <adm:collapsibleSection sectionId="trgLicenseSection" label="#{msg['priceModel.service.license']}">
+        <table width="100%">
+          <tr>
+            <td><adm:richEditor id="trgLicense"
+              oninit="Localize.translation2Editor('trgLocale', 'license_', Localize.getEditor('trgLicense'));"
+              ondirty="Localize.editor2Translation('trgLocale', 'license_', Localize.getEditor('trgLicense'));"
+              readonly="false">
+            </adm:richEditor> <adm:message for="trgLicense" /></td>
+          </tr>
+        </table>
+      </adm:collapsibleSection>
+
+      <h:inputHidden id="dirtyLocalize" value="#{priceModelBean.dirty}" />
+      <h:commandButton style="display:none;" id="saveLocalizedValuesButtonHidden" value="#{msg['button.ok']}"
+        action="#{priceModelBean.saveLocalizedValues}" />
+      <adm:buttonPanel>
+        <adm:buttonCustomizedOnClick id="saveLocalizedValuesButton" value="#{msg['button.ok']}" onclick="localizeSave()" buttonType="confirm" />
+        <adm:buttonCustomizedOnClick id="cancelButton" value="#{msg['button.cancel']}" onclick="localizeCancel()"  buttonType="cancel" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+    <h:form id="resetForm">
+      <h:commandButton style="display:none;" id="resetLocalizedValuesButtonHidden" value="#{msg['button.cancel']}"
+        action="#{priceModelBean.cancelLocalize}" />
+    </h:form>
+
+    <script src="#{facesContext.externalContext.requestContextPath}/scripts/localize.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+		localizeStart = function() {
+		  Localize.init('#{userBean.myLocale}');
+		  localizeLocaleChanged('src');
+		  localizeLocaleChanged('trg');
+		  setDirty(eval(#{rich:element('dirtyLocalize')}.value));
+		}
+		
+		localizeSave = function() {
+		  if (getDirty()) {
+		    #{rich:element('dirtyLocalize')}.value = "true";
+		  }
+		  setOnSubmit(true);
+		  setDirty(false);
+		  #{rich:element('saveLocalizedValuesButtonHidden')}.click();
+		  setOnSubmit(false);
+		  return false;
+		}
+		
+		localizeCancel = function() {
+		  setDirty(false);
+		  #{rich:element('resetLocalizedValuesButtonHidden')}.click();
+		  return false;
+		}
+		
+		localizeLocaleChanged = function(prefix) {
+		  if (#{chargeable}){
+		    Localize.translation2Editor(prefix+'Locale', 'desc_', Localize.getEditor(prefix+'Description'));
+		  }
+		  Localize.translation2Editor(prefix+'Locale', 'license_', Localize.getEditor(prefix+'License'));
+		}
+		
+		jQuery().ready(function(){
+			  localizeStart();
+		})
+    </script>
+
+</ui:composition>

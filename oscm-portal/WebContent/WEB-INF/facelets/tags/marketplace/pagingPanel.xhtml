@@ -1,0 +1,109 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j" xmlns:f="http://java.sun.com/jsf/core"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+  <c:set var="hasPrev" value="#{servicePagingBean.previousAvailable}" />
+  <c:set var="hasNext" value="#{servicePagingBean.nextAvailable}" />
+  <c:set var="firstPage" value="#{servicePagingBean.firstVisiblePage}" />
+  <c:set var="lastPage" value="#{servicePagingBean.lastVisiblePage}" />
+
+  <a4j:outputPanel layout="block" style="margin-bottom:0px;" styleClass="pagenate textsmall clearfix">
+    <a4j:outputPanel layout="block" styleClass="innerblock clearfix">
+      <a4j:outputPanel id="pagingBar#{prefix}" layout="block" styleClass="pagingBar">
+
+        <!--  add a div container and float right before floating left. solves IE7 bug -->
+        <a4j:outputPanel styleClass="pagingOptions" layout="block">
+          <p>#{msg['paging.show']}</p>
+
+
+          <!-- Services per page -->
+          <ul>
+            <c:forEach items="#{servicePagingBean.availablePagesSizes}" var="size" varStatus="status">
+              <li><c:if test="#{size eq servicePagingBean.pageSize}">
+                  <strong class="current">#{size}</strong>
+                </c:if> <c:if test="#{size ne servicePagingBean.pageSize}">
+                  <h:outputLink styleClass="linkNormal" id="pagingSize#{prefix}#{size}" value=""
+                    onclick="#{rich:element('pageSize')}.value='#{size}';#{rich:element('listButton')}.click();return false;">#{size}
+		                </h:outputLink>
+                </c:if>
+              </li>
+            </c:forEach>
+          </ul>
+          <!-- Message for 'show' -->
+          <!-- Sorting direction combobox -->
+          <h:selectOneMenu styleClass="sortingCombo" value="#{servicePagingBean.sorting}"
+            onchange="AdmUtils.selectDropDownOption(this, 'showListForm', 'sortingOrder', 'listButton');">
+            <c:forEach items="#{servicePagingBean.sortingCriteria}" var="key" varStatus="status">
+              <c:set var="sortKey" value="catalog.sortorder.#{key}" />
+              <f:selectItem id="sort#{prefix}#{key}" itemLabel="#{msg[sortKey]}" itemValue="#{key}" />
+            </c:forEach>
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+
+        <!--  Number of services and filter tag info -->
+        <p id="listInfo#{prefix}">
+          <h:outputFormat value="#{msg['catalog.selectedTag.pageInfo']}" escape="true">
+            <f:param value="#{servicePagingBean.firstOnPage}" />
+            <f:param value="#{servicePagingBean.lastOnPage}" />
+            <f:param value="#{servicePagingBean.resultSize}" />
+          </h:outputFormat>
+        </p>
+
+        <!--  Previous button -->
+        <c:if test="#{servicePagingBean.previousAvailable}">
+          <h:outputLink id="pagePrevious#{prefix}" styleClass="previous "
+            onclick="#{rich:element('selectPage')}.value='#{servicePagingBean.selectedPage - 1}';#{rich:element('selectPagingButton')}.click();return false;">
+              #{msg['paging.previous']}</h:outputLink>
+        </c:if>
+        <c:if test="#{not servicePagingBean.previousAvailable}">
+          <p id="previous#{prefix}" class="previous disabled">#{msg['paging.previous']}</p>
+        </c:if>
+
+        <!-- Page selection -->
+        <ul class="pagingElement">
+          <c:forEach items="#{servicePagingBean.visiblePages}" var="selpage" varStatus="status">
+            <li><c:if test="#{selpage eq servicePagingBean.selectedPage}">
+                <strong class="current ">#{selpage}</strong>
+              </c:if> <c:if test="#{selpage ne servicePagingBean.selectedPage}">
+                <h:outputLink id="link#{prefix}Page#{selpage}" value=""
+                  onclick="#{rich:element('selectPage')}.value='#{selpage}';#{rich:element('selectPagingButton')}.click();return false;">#{selpage}
+                </h:outputLink>
+              </c:if></li>
+          </c:forEach>
+        </ul>
+
+        <!-- Next selection -->
+        <c:if test="#{servicePagingBean.nextAvailable}">
+          <h:outputLink styleClass="#{next} next "
+            onclick="#{rich:element('selectPage')}.value='#{servicePagingBean.selectedPage + 1}';#{rich:element('selectPagingButton')}.click();return false;"
+            id="pageNext#{prefix}">
+              #{msg['paging.next']}</h:outputLink>
+        </c:if>
+        <c:if test="#{not servicePagingBean.nextAvailable}">
+          <p id="next#{prefix}" class="next disabled">#{msg['paging.next']}</p>
+        </c:if>
+
+      </a4j:outputPanel>
+    </a4j:outputPanel>
+  </a4j:outputPanel>
+
+
+
+  <c:if test="#{generateForm}">
+    <h:form id="selectPagingForm">
+      <h:inputHidden value="#{servicePagingBean.selectedPage}" id="selectPage" />
+      <h:commandButton style="display:none;" id="selectPagingButton" value=""
+        action="#{serviceListingBean.showServiceList}" />
+    </h:form>
+
+    <h:form id="showListForm">
+      <h:inputHidden value="#{servicePagingBean.filterTag}" id="filterTag" />
+      <h:inputHidden value="#{servicePagingBean.pageSize}" id="pageSize" />
+      <h:inputHidden value="#{servicePagingBean.sorting}" id="sortingOrder" />
+      <h:commandButton style="display:none;" id="listButton" value="" action="#{serviceListingBean.showServiceList}" />
+    </h:form>
+  </c:if>
+</ui:composition>

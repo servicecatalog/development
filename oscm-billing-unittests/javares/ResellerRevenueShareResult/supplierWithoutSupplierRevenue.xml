@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<RevenueSharesResults xmlns="http://oscm.org/xsd/billingservice/partnermodel" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://oscm.org/xsd/billingservice/partnermodel BrokerRevenueShareResult.xsd">
+  <ResellerRevenueShareResult organizationKey="7897" organizationId="abcdefgh">
+
+    <Period startDate="1338508800000" startDateIsoFormat="2012-06-01T00:00:00.000Z" endDate="1341100800000"
+      endDateIsoFormat="2012-07-01T00:00:00.000Z" />
+
+    <Currency id="EUR">
+      <Supplier>
+        <OrganizationData key="27534" id="supp1">
+          <Email>supplier1@supplier.com</Email>
+          <Name>first supplier for reseller model</Name>
+          <Address>Address of supplier no. 1</Address>
+        </OrganizationData>
+
+        <Service key="11001" id="reseller_mode_service" templateKey="10500">
+          <Subscription key="12001" id="mySub1" billingKey="18256" revenue="168.60" >
+             <Period endDate="1338508800000" startDate="1341100800000" />
+          </Subscription>
+          <ServiceRevenue totalAmount="168.60" resellerRevenueSharePercentage="25.00" resellerRevenue="42.15" />
+        </Service>
+
+        <!-- <ResellerRevenuePerSupplier/> -->
+      </Supplier>
+      <ResellerRevenue amount="53.99" />
+    </Currency>
+
+  </ResellerRevenueShareResult>
+</RevenueSharesResults>

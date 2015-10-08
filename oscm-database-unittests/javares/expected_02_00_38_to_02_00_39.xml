@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <!-- The setup-org should not change -->
+  <Organization tkey="1" version="0" organizationid="PLATFORM_OPERATOR" registrationdate="1234" />
+
+  <!-- The new role was added to the DB -->
+  <OrganizationRole tkey="5" rolename="MARKETPLACE_OWNER" version="0" />
+
+  <!-- The new role should have been assigned to the platform operator org + history -->
+  <OrganizationToRole tkey="3" version="0" organizationrole_tkey="5" organization_tkey="1" />
+  <OrganizationToRoleHistory tkey="3" modtype="ADD" moduser="ANONYMOUS" objkey="3" objversion="0"
+    organizationroletkey="5" organizationtkey="1" />
+
+</dataset>

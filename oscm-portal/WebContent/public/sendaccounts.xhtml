@@ -1,0 +1,29 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/small.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="public.sendaccounts" />
+    <c:set var="focusElement" value="email" />
+  </ui:define>
+  <ui:define name="body">
+
+    <h:form id="sendAccountsForm">
+      <t:panelGrid columns="3" border="0" cellspacing="0" cellpadding="0" styleClass="smallPanel"
+        columnClasses="smallPanelCol1,smallPanelCol2,smallPanelCol3">
+        <adm:labelAndInputText id="email" label="#{msg['user.email']}" required="true" value="#{userBean.email}"
+          styleClass="field" maxlength="#{appBean.nameLen}" validatorId="email" converterId="trimConverter" />
+      </t:panelGrid>
+
+      <adm:buttonPanel>
+        <adm:button id="okButton" value="#{msg['button.ok']}" bean="#{userBean}" action="sendAccounts" />
+      </adm:buttonPanel>
+
+    </h:form>
+
+  </ui:define>
+</ui:composition>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="PLATFORM_OPERATOR" name="PO" registrationdate="1234" cutoffday="1"/>
+  <Organization tkey="10000" version="0" organizationid="SUPP" name="SUPP" registrationdate="1235" cutoffday="1"/>
+  <Organization tkey="11000" version="0" organizationid="TECHPROV" name="TECHPROV" registrationdate="1236" cutoffday="1"/>
+  <Organization tkey="12000" version="0" organizationid="SUPPT" name="SUPPT" registrationdate="1237" cutoffday="1"/>
+  <Organization tkey="13000" version="0" organizationid="BROKER" name="BROKER" registrationdate="1238" cutoffday="1"/>
+
+  <OrganizationRole tkey="1" version="0" rolename="SUPPLIER" />
+  <OrganizationRole tkey="2" version="0" rolename="TECHNOLOGY_PROVIDER" />
+  <OrganizationRole tkey="3" version="0" rolename="CUSTOMER" />
+  <OrganizationRole tkey="4" version="0" rolename="PLATFORM_OPERATOR" />
+  <OrganizationRole tkey="6" version="0" rolename="BROKER" />
+
+  <OrganizationToRole tkey="1" version="0" organization_tkey="1" organizationrole_tkey="4"/>
+  <OrganizationToRole tkey="2" version="0" organization_tkey="1" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="3" version="0" organization_tkey="10000" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="4" version="0" organization_tkey="10000" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="5" version="0" organization_tkey="11000" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="6" version="0" organization_tkey="11000" organizationrole_tkey="2"/>
+  <OrganizationToRole tkey="7" version="0" organization_tkey="12000" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="8" version="0" organization_tkey="12000" organizationrole_tkey="1"/>
+  <OrganizationToRole tkey="9" version="0" organization_tkey="12000" organizationrole_tkey="2"/>
+  <OrganizationToRole tkey="10" version="0" organization_tkey="13000" organizationrole_tkey="3"/>
+  <OrganizationToRole tkey="11" version="0" organization_tkey="13000" organizationrole_tkey="6"/>
+
+  <OrganizationHistory tkey="1" moduser="ANONYMOUS" modtype="ADD" moddate="2013-02-01 01:02:03" objkey="1"
+    objversion="0" organizationid="PLATFORM_OPERATOR" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="2" moduser="1000" modtype="MODIFY" moddate="2013-02-03 01:02:40" objkey="1"
+    objversion="1" organizationid="PLATFORM_OPERATOR" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="3" moduser="1000" modtype="ADD" moddate="2013-02-04 13:26:39" objkey="10000"
+    objversion="0" organizationid="SUPP" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="4" moduser="1000" modtype="MODIFY" moddate="2013-02-04 13:26:39" objkey="10000"
+    objversion="1" organizationid="SUPP" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="5" moduser="1000" modtype="MODIFY" moddate="2013-02-04 13:26:39" objkey="10000"
+    objversion="2" organizationid="SUPP" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="6" moduser="1000" modtype="ADD" moddate="2013-02-04 13:26:39" objkey="11000"
+    objversion="0" organizationid="TECHPROV" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="7" moduser="1000" modtype="ADD" moddate="2013-02-04 13:38:03" objkey="12000"
+    objversion="0" organizationid="SUPPT" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="8" moduser="1000" modtype="MODIFY" moddate="2013-02-04 13:38:03" objkey="12000"
+    objversion="1" organizationid="SUPPT" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="9" moduser="1000" modtype="MODIFY" moddate="2013-02-04 13:40:00" objkey="12000"
+    objversion="2" organizationid="SUPPT" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="10" moduser="1000" modtype="MODIFY" moddate="2013-02-04 13:40:00" objkey="12000"
+    objversion="3" organizationid="SUPPT" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+  <OrganizationHistory tkey="11" moduser="1000" modtype="ADD" moddate="2013-02-04 13:42:18" objkey="13000"
+    objversion="0" organizationid="BROKER" registrationdate="1234" cutoffday="1" remoteldapactive="false"/>
+
+  <OrganizationToRoleHistory tkey="1" moddate="2013-02-01 01:02:03" modtype="ADD" moduser="ANONYMOUS" 
+    objkey="1" objversion="0" organizationtkey="1" organizationroletkey="4" />
+  <OrganizationToRoleHistory tkey="2" moddate="2013-02-01 01:02:33" modtype="ADD" moduser="ANONYMOUS" 
+    objkey="2" objversion="0" organizationtkey="1" organizationroletkey="3" />
+  <OrganizationToRoleHistory tkey="3" moddate="2013-02-04 13:26:39" modtype="ADD" moduser="1000" 
+    objkey="10000" objversion="0" organizationtkey="10000" organizationroletkey="1" />
+  <OrganizationToRoleHistory tkey="4" moddate="2013-02-04 13:26:39" modtype="ADD" moduser="1000" 
+    objkey="10001" objversion="0" organizationtkey="10000" organizationroletkey="3" />
+  <OrganizationToRoleHistory tkey="5" moddate="2013-02-04 13:26:39" modtype="ADD" moduser="1000" 
+    objkey="10002" objversion="0" organizationtkey="11000" organizationroletkey="2" />
+  <OrganizationToRoleHistory tkey="6" moddate="2013-02-04 13:38:03" modtype="ADD" moduser="1000" 
+    objkey="10003" objversion="0" organizationtkey="12000" organizationroletkey="2" />
+  <OrganizationToRoleHistory tkey="7" moddate="2013-02-04 13:38:03" modtype="ADD" moduser="1000" 
+    objkey="10004" objversion="0" organizationtkey="12000" organizationroletkey="3" />
+  <OrganizationToRoleHistory tkey="8" moddate="2013-02-04 13:40:00" modtype="ADD" moduser="1000" 
+    objkey="10005" objversion="0" organizationtkey="12000" organizationroletkey="1" />
+  <OrganizationToRoleHistory tkey="9" moddate="2013-02-04 13:42:18" modtype="ADD" moduser="1000" 
+    objkey="10005" objversion="0" organizationtkey="13000" organizationroletkey="6" />
+
+  <RevenueShareModel tkey="10000" version="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10001" version="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModel tkey="10002" version="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+
+  <RevenueShareModelHistory tkey="10000" modtype="ADD" moddate="2013-02-04 13:45:13" moduser="1000" objkey="10000" objversion="0" revenueshare="0" revenuesharemodeltype="BROKER_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="10001" modtype="ADD" moddate="2013-02-04 13:45:13" moduser="1000" objkey="10001" objversion="0" revenueshare="0" revenuesharemodeltype="RESELLER_REVENUE_SHARE" />
+  <RevenueShareModelHistory tkey="10002" modtype="ADD" moddate="2013-02-04 13:45:13" moduser="1000" objkey="10002" objversion="0" revenueshare="0" revenuesharemodeltype="MARKETPLACE_REVENUE_SHARE" />
+
+</dataset>

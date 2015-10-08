@@ -1,0 +1,1 @@
+Contains the PSP related servlet to handle registration related responses.

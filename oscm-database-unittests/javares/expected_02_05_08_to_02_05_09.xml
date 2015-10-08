@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Organization tkey="1" version="0" organizationid="CUSTOMER1" name="OrgA" registrationdate="1234" cutoffday="22"/>
+  <Organization tkey="2" version="0" organizationid="CUSTOMER2" name="OrgB" registrationdate="1234" cutoffday="23"/>
+  <psphistory tkey="1" objversion="0" objkey="1" invocationdate="2014-03-21 10:28:59.996" 
+              modtype="ADD" moduser="1000" identifier="Invoice" wsdlurl=""/>
+  
+  <PSP tkey="1" version="1" identifier="invoice" wsdlurl=""/>
+  
+  <PspSetting tkey="1" version="0" settingkey="PSP_POST_URL" settingvalue="posturl" psp_tkey="1" />
+
+  <PspSettingHistory tkey="1" objkey="1" objversion="0" settingkey="PSP_POST_URL" settingvalue="posturl"
+    pspobjkey="1" moduser="1000" modtype="ADD"  invocationdate="2011-04-04 10:00:00" />
+    
+  <Paymenttype tkey="1" version="0" collectiontype="PAYMENT_SERVICE_PROVIDER" paymenttypeid="INVOICE" psp_tkey="1"/>
+  
+  <PspAccount tkey="1" organization_tkey="1" version="0" pspidentifier="12345" psp_tkey="1"/>
+  
+  <PspAccountHistory tkey="1" objversion="0" objkey="1" invocationdate="2011-04-04 10:00:00" 
+                     modtype="ww" moduser="1000" pspidentifier="ppp" organizationobjkey="1" pspobjkey="1"/>
+</dataset>

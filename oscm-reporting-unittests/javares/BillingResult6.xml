@@ -1,0 +1,32 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<BillingDetails key="10000">
+  <Period endDate="1267657200000" endDateIsoFormat="2010-03-03T23:00:00.000Z" startDate="1262300400000"
+    startDateIsoFormat="2009-12-31T23:00:00.000Z"/>
+
+  <OrganizationDetails>
+    <Email>test@test.de</Email>
+    <Name>TestOrg</Name>
+    <Address>Address of TestOrg</Address>
+    <Paymenttype>INVOICE</Paymenttype>
+  </OrganizationDetails>
+
+  <Subscriptions>
+    <Subscription id="subX" purchaseOrderNumber="888FFFFFYYY">
+      <PriceModels>
+        <PriceModel id="88" calculationMode="PRO_RATA">
+          <UsagePeriod endDate="1264978800000" endDateIsoFormat="2010-01-31T23:00:00" startDate="1262300400000"
+            startDateIsoFormat="2009-12-31T23:00:00.000Z"/>
+          <OneTimeFee amount="888" baseAmount="888" factor="1"/>
+
+          <PriceModelCosts amount="888"/>
+        </PriceModel>
+      </PriceModels>
+
+    </Subscription>
+  </Subscriptions>
+
+  <OverallCosts netAmount="1888" currency="EUR" grossAmount="1888">
+    <Discount percent="8.00" discountNetAmount="180" netAmountAfterDiscount="1708" netAmountBeforeDiscount="1888"/>
+    <VAT percent="7.00" amount="7"/>
+  </OverallCosts>
+</BillingDetails>

@@ -1,0 +1,238 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+
+  <macrodef name="mail.cleanInbox">
+    <sequential>
+    	<!-- Verify environment 
+      <condition property="mail.anyurlSet" value="true">
+    	<isset property="mail.anyurl" />
+      </condition>
+      <fail message="Ensure the correct mail server is configured in property files" unless="mail.anyurlSet" />
+      -->
+    	
+      <!-- Required due to Webtest bug -->
+      <invoke url="${mail.anyurl}" />
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <emailStoreMessageCount property="mailcount" />
+      <ifStep description="Check if there are mails">
+        <condition>
+          <verifyProperty name="mailcount" text="0" regex="false" />
+        </condition>
+        <else>
+          <repeat count="#{mailcount}">
+            <emailStoreMessageId property="mId" />
+            <emailDeleteMessage messageId="#{mId}" />
+          </repeat>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readPasswordAndUrlFromMail">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${USER_CREATED.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract url from mail content" text="URL:\s(\S*)" property="orgUrl" group="1" />
+        <storeRegEx description="Extract base url from mail content" text="URL:\s([^\?\s]*)" property="baseUrl" group="1" />
+        <storeRegEx description="Extract user id from mail content" text="user ID is:\s(\S*)" property="userId" group="1" />
+        <storeRegEx description="Extract password from mail content" text="password is:\s(\S*)" property="userPwd" group="1" />
+        <storeRegEx description="Extract web service from mail content" text="Web service access:\s(\S*)" property="userKey" group="1" />
+        <echo level="info" message="URL: #{orgUrl}" />
+        <echo level="info" message="UID: #{userId}" />
+        <echo level="info" message="PWD: #{userPwd}" />
+        <echo level="info" message="KEY: #{userKey}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readResetPasswordFromMail">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${USER_PASSWORD_RESET.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract password from mail content" text="password is:\s(\S*)" property="userPwd" group="1" />
+        <echo level="info" message="PWD: #{userPwd}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <!-- Get service url from mail after user to subscription assignment. -->
+  <macrodef name="mail.readServiceUrlFromMail">
+    <attribute name="subId" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="/.* @{subId} .*/" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract url from mail content" text="subscription:\s(\S*)" property="serviceUrl" group="1" />
+        <echo level="info" message="URL: #{serviceUrl}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <!-- Get access info from mail after user to subscription assignment for DIRECT or USER access services. -->
+  <macrodef name="mail.readAccessInfoFromMail">
+    <attribute name="subId" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="/.* @{subId} .*/" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract url from mail content" text=".*@{subId}\.\s*(\S*).*" property="accessInfo" group="1" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+  
+  <!-- Get marketplace URLs from mail after creating a marketplace. -->
+  <macrodef name="mail.readMarketplaceUrlsFromMail">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${MARKETPLACE_OWNER_ASSIGNED.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx property="mpPublicUrl" description="Extract marketplace public URL from mail content" text="\s*(\S*/marketplace\S*)\s*" group="1" />
+        <storeRegEx property="mpAdminUrl" description="Extract marketplace administration URL from mail content" text="\s*(\S*shop/updateMarketplace.jsf\S*)\s*" group="1" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <!-- mails without passwords will be sent for accounts created on existing ldaps -->
+  <macrodef name="mail.readAddedUserMail">
+    <attribute name="emailSubject" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="@{emailSubject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract mail content" text="Dear user,\s*(.*)With" property="mailContent" group="1" />
+        <echo level="info" message="Content: #{mailContent}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <!-- mails without passwords will be sent for accounts created on existing ldaps -->
+  <macrodef name="mail.readCreatedUrlFromMail">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${USER_CREATED.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract url from mail content" text="URL:\s(\S*)" property="orgUrl" group="1" />
+        <echo level="info" message="URL: #{orgUrl}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readConfirmUrlFromMail">
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${USER_CONFIRM.subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract confirm url from mail content" text="URL to confirm this account:\s(\S*)" property="confirmUrl" group="1" />
+        <echo level="info" message="URL: #{confirmUrl}" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readCreateSalutationFromMail">
+    <attribute name="subject" default="${USER_CREATED.subject}" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="@{subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract salutation" text="Dear\s(\S*)" property="salutationText" group="1" />
+        <emailDeleteMessage messageId="#{mId}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readReviewRemoved">
+    <attribute name="subject" default="${REVIEW_REMOVED_BY_MARKETPLACE_ADMIN.subject}" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="@{subject}" property="mId" />
+        <emailMessageContentFilter save="plain" messageId="#{mId}" />
+        <storeRegEx description="Extract mail content" text="Dear \s*(.*)With" property="mailContent" group="1" />
+        <echo level="info" message="Content: #{mailContent}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readReportIssue">
+    <attribute name="emailSubject" />
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="@{emailSubject}" property="messageId" />
+        <emailMessageContentFilter save="plain" messageId="#{messageId}" />
+        <storeRegEx description="Extract mail content" text=".*" property="mailContent"  />
+        <echo level="info" message="Content: #{mailContent}" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.readUserImportOperator">
+    <attribute name="content" default=".*(1 out of 3).*"/>
+    <sequential>
+      <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+      <retry maxcount="20">
+        <sleep seconds="1" />
+        <emailStoreMessageId subject="${BULK_USER_IMPORT_SUCCESS.subject}" property="messageId" />
+        <emailMessageContentFilter save="plain" messageId="#{messageId}" />
+        <storeRegEx description="Extract mail content" text=".*" property="mailContent"  />
+        <echo level="info" message="Content: #{mailContent}" />
+        <verifyProperty name="mailContent" text="@{content}" regex="true" />
+      </retry>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mail.recoverPassword.verifyMailCount">
+	<attribute name="expectedMailCount" />
+	<sequential>
+	  <invoke url="${mail.anyurl}" />
+	  <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+	  <emailStoreMessageCount property="mailcount" />
+	  <echo level="info" message="MAIL COUNT: #{mailcount}" />
+	  <verifyProperty name="mailcount" text="@{expectedMailCount}" regex="false" />
+	</sequential>
+  </macrodef>
+
+  <macrodef name="mail.recoverPassword.readConfirmedMail">
+	<sequential>
+	  <emailSetConfig server="${mail.server}" type="${mail.servertype}" password="${mail.password}" username="${mail.username}" delay="${mail.delay}" />
+	  <retry maxcount="1">
+	    <sleep seconds="1" />
+	    <emailStoreMessageId subject="${RECOVERPASSWORD_CONFIRM.subject}" property="mId" />
+	    <emailMessageContentFilter save="plain" messageId="#{mId}" />
+	    <storeRegEx description="Extract confirmed message from mail content" text="\s(\S*)" property="changePwdConfirm" group="1" />
+	    <echo level="info" message="Content: #{changePwdConfirm}" />
+	    <emailDeleteMessage messageId="#{mId}" />
+	  </retry>
+	</sequential>
+  </macrodef>
+</project>

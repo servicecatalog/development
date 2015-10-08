@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+
+  <!-- Parameters of this type should be updated -->
+  <Parameterdefinition tkey="1002" configurable="true" mandatory="false" minimumvalue="0"
+    parameterid="PERIOD" parametertype="PLATFORM_PARAMETER" valuetype="DURATION" version="0" />
+
+  <Parameterdefinition tkey="1003" configurable="false" mandatory="false" minimumvalue="0"
+    parameterid="MAX_FILE_NUMBER" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" version="0" />
+
+  <Parameterset tkey="10000" version="0" />
+
+  <!-- 1 day + 1ms = 86400001ms -->
+  <Parameter tkey="12203" configurable="true" value="172800000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1 day - 1ms = 86399999ms -->
+  <Parameter tkey="12204" configurable="true" value="86400000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1 day = 86400000ms -->
+  <Parameter tkey="12205" configurable="true" value="86400000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1 week = 604800000ms -->
+  <Parameter tkey="12206" configurable="true" value="604800000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1 year = 365,25D = 31557600000ms -->
+  <Parameter tkey="12207" configurable="true" value="31622400000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1,5 days -->
+  <Parameter tkey="12208" configurable="true" value="172800000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1,1 days -->
+  <Parameter tkey="12209" configurable="true" value="172800000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- 1,9 days -->
+  <Parameter tkey="12210" configurable="true" value="172800000" version="0" parameterdefinitionkey="1002"
+    parametersetkey="10000" />
+
+  <!-- Null value valid definition -->
+  <Parameter tkey="12221" configurable="true" version="0" parameterdefinitionkey="1002" parametersetkey="10000" />
+
+  <!-- Null value not valid definition -->
+  <Parameter tkey="12222" configurable="true" version="0" parameterdefinitionkey="1003" parametersetkey="10000" />
+
+  <!-- Add a parameter which shouldn't get updated -->
+  <Parameter tkey="24454" configurable="false" value="500" version="0" parameterdefinitionkey="1003"
+    parametersetkey="10000" />
+
+  <!-- Set up for the parameter history -->
+
+  <Parameterdefinitionhistory tkey="1000" configurable="false" mandatory="false"
+    minimumvalue="0" parameterid="CONCURRENT_USER" parametertype="PLATFORM_PARAMETER" valuetype="DURATION" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1002" objversion="0" technicalproductobjkey="123" />
+
+  <Parameterdefinitionhistory tkey="1001" configurable="false" mandatory="false"
+    minimumvalue="0" parameterid="CONCURRENT_USER" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" modtype="ADD"
+    moduser="ANONYMOUS" objkey="1003" objversion="0" technicalproductobjkey="123" />
+
+  <Parameterdefinitionhistory tkey="1002" configurable="false" mandatory="false"
+    minimumvalue="0" parameterid="CONCURRENT_USER" parametertype="SERVICE_PARAMETER" valuetype="INTEGER" modtype="MODIFY"
+    moduser="ANONYMOUS" objkey="1003" objversion="1" technicalproductobjkey="123" />
+
+  <!-- 1 day + 1ms = 86400001ms -->
+  <parameterhistory tkey="10000" configurable="false" value="172800000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1 day - 1ms = 86399999ms -->
+  <parameterhistory tkey="10001" configurable="false" value="86400000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1 day = 86400000ms -->
+  <parameterhistory tkey="10002" configurable="false" value="86400000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1 week = 604800000ms -->
+  <parameterhistory tkey="10003" configurable="false" value="604800000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1 year = 365,25 days = 31557600000ms -->
+  <parameterhistory tkey="10004" configurable="false" value="31622400000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1,5 days -->
+  <parameterhistory tkey="10005" configurable="false" value="172800000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1,1 days -->
+  <parameterhistory tkey="10006" configurable="false" value="172800000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- 1,9 days -->
+  <parameterhistory tkey="10007" configurable="false" value="172800000" modtype="ADD" moduser="24052"
+    objkey="12309" objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- Null value valid definition -->
+  <parameterhistory tkey="10008" configurable="false" modtype="ADD" moduser="24052" objkey="12309"
+    objversion="0" parameterdefinitionobjkey="1002" parametersetobjkey="10000" />
+
+  <!-- Null value not valid definition -->
+  <parameterhistory tkey="10009" configurable="false" modtype="ADD" moduser="24052" objkey="12309"
+    objversion="0" parameterdefinitionobjkey="1003" parametersetobjkey="10000" />
+
+  <!-- Add a parameter which shouldn't get updated -->
+  <parameterhistory tkey="20008" configurable="false" value="500" modtype="ADD" moduser="24052" objkey="12309"
+    objversion="0" parameterdefinitionobjkey="1003" parametersetobjkey="10000" />
+
+</dataset>

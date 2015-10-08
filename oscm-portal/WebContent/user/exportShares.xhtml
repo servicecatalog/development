@@ -1,0 +1,62 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <a4j:outputPanel id="sharesPanel" rendered="#{exportBillingDataCtrl.showSharesExport}">
+    <h:panelGroup id="step2" rendered="#{exportBillingDataCtrl.showSharesExport}">
+      <adm:outputStep value="#{msg['user.exportBillingData.step2']}" />
+      <adm:panelGrid>
+        <adm:outputLabel value="#{msg['user.exportBillingData.organizationRole']}" />
+        <a4j:outputPanel styleClass="jqSelect" layout="block">
+          <a4j:outputPanel styleClass="select">
+            <a4j:outputPanel styleClass="option" />
+          </a4j:outputPanel>
+          <h:selectOneMenu id="organizationRoleSelector" value="#{exportBillingDataModel.selectedSharesResultType}"
+            styleClass="select" valueChangeListener="#{exportBillingDataCtrl.processOrgRoleChange}">
+            <adm:selectItemPleaseSelect itemValue="#{null}" />
+            <f:selectItems value="#{exportBillingDataModel.sharesResultTypeOptions}" />
+            <!--  Process components that validation has last time failed, if any, -->
+            <!--  in order to preserve the error message  -->
+            <a4j:ajax  event="change"
+              process="#{exportBillingDataModel.failedDateComponentId}"
+              render="sharesDataButton,fromDateErrorMsg,toDateErrorMsg" />
+          </h:selectOneMenu>
+        </a4j:outputPanel>
+        <adm:message id="organizationRoleSelectorErrorMsg" for="organizationRoleSelector" />
+      </adm:panelGrid>
+    </h:panelGroup>
+
+    <adm:panelGrid minColWidth="false">
+      <adm:outputLabel value="#{msg['user.exportBillingData.billingData.from']}" required="true" />
+      <rich:calendar id="sharesfromDate" value="#{exportBillingDataModel.fromDate}" popup="true" locale="#{userBean.myLocale}"
+        showWeeksBar="false" datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png"
+        showApplyButton="false" cellWidth="24px" cellHeight="22px" styleClass="fieldS" required="true"
+        converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+        direction="auto" validator="#{exportBillingDataCtrl.validateFromAndToDate}">
+        <a4j:ajax event="change"
+          render="sharesDataButton,fromDateErrorMsg,mainTmplMessagesPanel" />
+      </rich:calendar>
+      <adm:message for="sharesfromDate" />
+      <adm:outputLabel value="#{msg['user.exportBillingData.billingData.to']}" required="true" />
+      <rich:calendar id="sharestoDate" value="#{exportBillingDataModel.toDate}" popup="true" locale="#{userBean.myLocale}"
+        showWeeksBar="false" datePattern="#{msg[appBean.dateInputPattern]}" buttonIcon="/img/cal.png" showApplyButton="false"
+        cellWidth="24px" cellHeight="22px" styleClass="fieldS" required="true"
+        converterMessage="#{msg['error.date.invalid']} #{msg[appBean.dateInputPattern]}" jointPoint="auto"
+        direction="auto" validator="#{exportBillingDataCtrl.validateFromAndToDate}">
+        <a4j:ajax event="change"
+          render="sharesDataButton,toDateErrorMsg,mainTmplMessagesPanel" />
+      </rich:calendar>
+      <adm:message for="sharestoDate" />
+    </adm:panelGrid>
+
+    <adm:buttonPanel>
+      <adm:button id="sharesDataButton" value="#{msg['button.export']}" buttonType="export" bean="#{exportBillingDataCtrl}"
+        action="getSharesData" disabled="#{exportBillingDataCtrl.sharesExportButtonDisabled}" />
+    </adm:buttonPanel>
+  </a4j:outputPanel>
+
+</ui:composition>

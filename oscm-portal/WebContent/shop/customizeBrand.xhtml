@@ -1,0 +1,65 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+  <ui:define name="pageId">
+    <c:set var="pageId" value="shop.customizeBrand" />
+    <c:set var="focusElement" value="marketplaceSelectForm:selectMarketplaceId" />
+  </ui:define>
+
+  <ui:define name="body">
+    <adm:outputStep value="#{msg['button.downloadBrand']}" />
+
+    <h:form id="downloadBrandForm" styleClass="indent">
+      <h:commandButton style="display:none;" id="hiddenDownloadButton" value="hiddenDownloadButton"
+        action="#{brandBean.downloadBrandingPackage}" />
+      <script type="text/javascript">
+        function windowOnLoad() {
+          #{rich:element('hiddenDownloadButton')}.click();
+        }
+        if (#{brandBean.brandingPackageAvailable}) {
+          window.onload=windowOnLoad;
+        }
+        jQuery().ready(function(){
+        	setDirty(false);
+        })
+      </script>
+
+      <h:commandButton style="display:none;" id="hiddenBrandingPackageButton" value="hiddenBrandingPackageButton"
+        action="#{brandBean.fetchBrandingPackage}" />
+
+      <a4j:outputPanel id="test" layout="block" styleClass="whiteBlock">
+        <adm:buttonCustomizedOnClick id="downloadBrandButton" value="#{msg['button.downloadBrand']}"
+          buttonType="download" onclick="#{rich:element('hiddenBrandingPackageButton')}.click();return true;" />
+      </a4j:outputPanel>
+
+    </h:form>
+    <adm:outputStep value="#{msg['marketplace.select']}" />
+    <adm:selectMarketplace id="selectMarketplace" items="#{marketplaceBean.marketplacesOwned}" required="true"
+      displayRequired="false" listenerBean="#{brandBean}" render=":defineBrandForm"/>
+
+    <h:form id="defineBrandForm">
+      <adm:outputStep value="#{msg['shop.customizeBrand.brand.define']}" />
+      <adm:panelGrid>
+        <!-- Branding URL -->
+        <adm:labelAndInputText id="brandUrl" label="#{msg['marketplace.brandUrl']}" value="#{brandBean.brandingUrl}"
+          maxlength="#{appBean.descriptionLen}" validatorId="absOrRelUrl" styleClass="field" converterId="trimConverter"
+          disabled="#{not brandBean.marketplaceSelected}" />
+      </adm:panelGrid>
+
+      <adm:buttonPanel>
+        <h:commandButton style="display:none;" id="validateUrlButton" action="#{brandBean.validateCurrentUrl}" />
+        <adm:button id="saveButton" disabled="#{not brandBean.marketplaceSelected}" value="#{msg['button.save']}"
+          bean="#{brandBean}" action="saveBrandingUrl" buttonType="save" />
+        <adm:buttonCustomizedOnClick id="testButton" disabled="#{not brandBean.marketplaceSelected}"
+          value="#{msg['button.testConnection']}" buttonType="execute"
+          onclick="setDirty(false);#{rich:element('validateUrlButton')}.click();return false;" />
+      </adm:buttonPanel>
+    </h:form>
+
+  </ui:define>
+</ui:composition>

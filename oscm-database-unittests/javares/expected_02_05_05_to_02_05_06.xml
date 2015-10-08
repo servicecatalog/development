@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ 
+<dataset>
+  <Localizedresource tkey="4" version="0" locale="zh" objecttype="REPORT_DESC" objectkey="22" value="value" />
+  <Localizedresource tkey="6" version="0" locale="en" objecttype="REPORT_DESC" objectkey="24" value="value" />
+
+  <Localizedresource tkey="13" version="0" locale="zh" objecttype="PAYMENT_TYPE_NAME" objectkey="2"
+    value="value" />
+  <Localizedresource tkey="15" version="0" locale="en" objecttype="PAYMENT_TYPE_NAME" objectkey="4"
+    value="value" />
+  <Localizedresource tkey="24" version="0" locale="zh" objecttype="PARAMETER_DEF_DESC" objectkey="1001"
+    value="value" />
+  <Localizedresource tkey="26" version="0" locale="en" objecttype="PARAMETER_DEF_DESC" objectkey="1003"
+    value="value" />
+
+  <Localizedresource tkey="34" version="0" locale="zh" objecttype="EVENT_DESC" objectkey="1000" value="value" />
+  <Localizedresource tkey="36" version="0" locale="en" objecttype="EVENT_DESC" objectkey="1002" value="value" />
+</dataset>

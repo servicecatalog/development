@@ -1,0 +1,120 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project>
+  <macrodef name="techservice.update">
+    <attribute name="serviceId" default="Example 1.00" />
+    <attribute name="concurrencyCheck" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${techService.edit.title}" />
+      <setSelectField htmlId="techServiceForm:techServiceId" text="@{serviceId}" />
+      <setInputField htmlId="editForm:description:inp" value="${newDescriptionValue}" />
+      <setInputField htmlId="editForm:accessInfo:inp" value="${service.accessInfo}" />
+      <clickButton label="${button.save}" />
+      <!-- no error must be shown -->
+      <not>
+        <common.verifyError label="." />
+      </not>
+      <ifStep test="@{concurrencyCheck}">
+        <clickButton label="${button.save}" />
+        <!-- no error must be shown -->
+        <not>
+          <common.verifyError label="." />
+        </not>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="techservice.delete">
+    <attribute name="serviceId" default="Example 1.00" />
+    <sequential>
+      <common.clickAndVerfyLink label="${techService.delete.title}" />
+      <setSelectField htmlId="selectForm:techServiceKey" text="@{serviceId}" />
+      <clickButton htmlId="deleteForm:confirmedButton" />
+      <common.verifySuccess label="." />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="techservice.export">
+    <sequential>
+      <common.clickAndVerfyLink label="${techService.export.title}" />
+      <setCheckbox htmlId="exportForm:techServiceTable:2:checkboxId" checked="true" />
+      <clickButton label="${button.export}" />
+      <verifyXPath xpath="/tns:TechnicalServices" />
+      <previousResponse />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="_preprocessImportFile">
+    <attribute name="file" />
+    <sequential>
+      <property name="techservice.import.tmp.file" location="../results/techservice.tmp" />
+      <delete file="${techservice.import.tmp.file}" />
+      <sleep seconds="1" />
+      <copy tofile="${techservice.import.tmp.file}">
+        <file file="@{file}" />
+        <filterset>
+          <filter token="techService.http.baseurl" value="${example.http.url}" />
+          <filter token="techService.https.baseurl" value="${example.https.url}" />
+        </filterset>
+      </copy>
+      <sleep seconds="1" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="techservice.import">
+    <attribute name="file" />
+    <sequential>
+      <_preprocessImportFile file="@{file}" />
+      <common.clickAndVerfyLink label="${techService.import.title}" />
+      <setFileField htmlId="importForm:file" fileName="${techservice.import.tmp.file}" />
+      <clickButton label="${button.import}" />
+      <common.verifySuccess label="${info.techService.imported}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="techservice.import.fail">
+    <attribute name="file" />
+    <attribute name="errorLabel" default="${ex.ImportException}" />
+    <attribute name="useRegEx" default="true" />
+    <attribute name="verifyFieldError" default="false" />
+    <sequential>
+      <_preprocessImportFile file="@{file}" />
+      <common.clickAndVerfyLink label="${techService.import.title}" />
+      <setFileField htmlId="importForm:file" fileName="${techservice.import.tmp.file}" />
+      <clickButton label="${button.import}" />
+      <storeProperty name="checkUsingRegEx" value="@{useRegEx}" />
+      <ifStep test="@{verifyFieldError}">
+        <then>
+          <verifyXPath xpath="//*[@id='importForm:fileErrorMsg:importForm:file']/span[1]" text="@{errorLabel}" />
+        </then>
+        <else>
+          <ifStep description="Do not use reg ex when calling test says so (default: use reg ex)">
+            <condition>
+              <verifyProperty name="checkUsingRegEx" value="true" />
+            </condition>
+            <then>
+              <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{errorLabel}" regex="true" />
+            </then>
+            <else>
+              <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{errorLabel}" regex="false" />
+            </else>
+          </ifStep>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="techservice.createExternal">
+    <attribute name="id" />
+    <sequential>
+      <common.clickAndVerfyLink label="${techService.add.title}" />
+      <setSelectField htmlId="editForm:accessType" value="EXTERNAL" />
+      <setInputField name="editForm:technicalServiceId" value="@{id}" />
+      <setInputField name="editForm:baseUrl" value="http://dummyhost" />
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="@{id}" />
+    </sequential>
+  </macrodef>
+
+</project>

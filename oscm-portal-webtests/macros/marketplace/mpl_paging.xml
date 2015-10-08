@@ -1,0 +1,378 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <!-- Delete service with given identifier -->
+  <macrodef name="mpl_paging.deleteService">
+    <attribute name="index" default="1" />
+    <attribute name="withTechnicalService" default="true" />
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+      <setup:service.delete serviceIds="S@{index}" deactivate="true" />
+      <ifStep test="@{withTechnicalService}">
+        <then>
+          <setup:techservice.delete serviceIds="S@{index}" />
+        </then>
+      </ifStep>
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Create marketable services with given naming pattern -->
+  <macrodef name="mpl_paging.createServices">
+    <attribute name="number" default="11" />
+    <attribute name="offset" default="10" />
+    <attribute name="activate" default="true" />
+    <attribute name="mid" />
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+      <techservice.import file="data/TechnicalServicesHugeSet.xml" />
+      <repeat count="@{number}" countername="count">
+        <storeProperty name="index" value="(#{count} + @{offset})" eval="true" />
+        <mpl_paging.createService index="#{index}" mid="@{mid}" />
+      </repeat>
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <!-- Create a marketable service with a given naming -->
+  <macrodef name="mpl_paging.createService">
+    <attribute name="index" default="10" />
+    <attribute name="login" default="false" />
+    <attribute name="activate" default="true" />
+    <attribute name="mid" />
+    <sequential>
+      <ifStep test="@{login}">
+        <then>
+          <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+        </then>
+      </ifStep>
+      <setup:service.define serviceId="S@{index}" name="MS S@{index}" techServiceId="S@{index}" description="Limited evaluation version." marketplaceId="@{mid}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S@{index}" isFree="true" />
+      <ifStep test="@{activate}">
+        <then>
+          <setup:service.activate serviceIds="S@{index}" />
+        </then>
+      </ifStep>
+      <ifStep test="@{login}">
+        <then>
+          <login.logout />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Change activation state of service with given id -->
+  <macrodef name="mpl_paging.deActivateService">
+    <attribute name="serviceId" />
+    <attribute name="active" default="true" />
+    <attribute name="suspended" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <storeXPath description="Get row for service" xpath="//tbody[@id='serviceDeActivationForm:activationTable:tb']/tr/td/span[.= '@{serviceId}']/@id" property="rowID" />
+      <storeXPath property="row" xpath="substring-before(substring-after('#{rowID}', 'serviceDeActivationForm&#58;activationTable&#58;'), ':')" />
+      <ifStep>
+        <condition>
+          <not>
+            <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:#{row}:active" checked="@{active}" />
+          </not>
+        </condition>
+        <then>
+          <setCheckbox htmlId="serviceDeActivationForm:activationTable:#{row}:active" checked="@{active}" />
+          <clickButton label="${button.save}" />
+          <common.verifySuccess label="${info.service.statesaved}" suspended="@{suspended}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Activate or in-activate all services -->
+  <macrodef name="mpl_paging.deActivateServices">
+    <attribute name="number" default="0" />
+    <attribute name="active" default="true" />
+    <attribute name="suspended" default="false" />
+    <sequential>
+      <common.clickAndVerfyLink label="${service.activation.title}" />
+      <repeat count="@{number}" countername="count">
+        <storeProperty name="rowNr" value="#{count}" eval="true" />
+        <ifStep>
+          <condition>
+            <not>
+              <verifyCheckbox htmlId="serviceDeActivationForm:activationTable:#{rowNr}:active" checked="@{active}" />
+            </not>
+          </condition>
+          <then>
+            <setCheckbox htmlId="serviceDeActivationForm:activationTable:#{rowNr}:active" checked="@{active}" />
+          </then>
+        </ifStep>
+      </repeat>
+      <clickButton label="${button.save}" />
+      <common.verifySuccess label="${info.service.statesaved}" suspended="@{suspended}" />
+    </sequential>
+  </macrodef>
+
+  <!-- Select a page and verify it is displayed selected afterwards -->
+  <macrodef name="mpl_paging.selectPage">
+    <attribute name="page" default="1" />
+    <attribute name="UpOrDown" default="Up" />
+    <attribute name="verify" default="true" />
+    <sequential>
+      <verifyXPath xpath="//a[@id=&quot;link@{UpOrDown}Page@{page}&quot;]" />
+      <clickLink description="Select page @{page}" xpath="//a[@id=&quot;link@{UpOrDown}Page@{page}&quot;]" />
+      <ifStep test="@{verify}">
+        <then>
+          <mpl_paging.verifySelectedPage page="@{page}" UpOrDown="@{UpOrDown}" />
+        </then>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Verify if given page number is selected and correctly en- or disabled -->
+  <macrodef name="mpl_paging.verifySelectedPage">
+    <attribute name="page" default="1" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <not>
+        <verifyXPath xpath="//a[@id=&quot;link@{UpOrDown}Page@{page}&quot;]" />
+      </not>
+      <verifyXPath xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]" />
+      <verifyXPath xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]/ul[position()=1]/li[position()=@{page}]//strong[normalize-space()='@{page}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify if next link exists and correctly en- or disabled -->
+  <macrodef name="mpl_paging.verifyNext">
+    <attribute name="enabled" default="true" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <ifStep test="@{enabled}">
+        <then>
+          <verifyXPath xpath="//a[@id=&quot;pageNext@{UpOrDown}&quot;]" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//a[@id=&quot;pageNext@{UpOrDown}&quot;]" />
+          </not>
+          <verifyXPath xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]/p[@id=&quot;next@{UpOrDown}&quot; and @class='next disabled']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Verify if previous link exists and correctly en- or disabled -->
+  <macrodef name="mpl_paging.verifyPrevious">
+    <attribute name="enabled" default="true" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <ifStep test="@{enabled}">
+        <then>
+          <verifyXPath xpath="//a[@id=&quot;pagePrevious@{UpOrDown}&quot;]" />
+        </then>
+        <else>
+          <not>
+            <verifyXPath xpath="//a[@id=&quot;pagePrevious@{UpOrDown}&quot;]" />
+          </not>
+          <verifyXPath xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]/p[@id=&quot;previous@{UpOrDown}&quot; and @class='previous disabled']" />
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <!-- Select page size and verify it is displayed selected -->
+  <macrodef name="mpl_paging.selectPageSize">
+    <attribute name="pageSize" default="5" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <verifyXPath xpath="//a[@id=&quot;pagingSize@{UpOrDown}@{pageSize}&quot;]" />
+      <clickLink xpath="//a[@id=&quot;pagingSize@{UpOrDown}@{pageSize}&quot;]" />
+      <not>
+        <verifyXPath xpath="//a[@id=&quot;pagingSize@{UpOrDown}@{pageSize}&quot;]" />
+      </not>
+      <ifStep test="(@{pageSize} = 5)">
+        <mpl_paging.verifySelectedPageSize index="1" UpOrDown="@{UpOrDown}" />
+      </ifStep>
+      <ifStep test="(@{pageSize} = 10)">
+        <mpl_paging.verifySelectedPageSize index="2" UpOrDown="@{UpOrDown}" />
+      </ifStep>
+      <ifStep test="(@{pageSize} = 20)">
+        <mpl_paging.verifySelectedPageSize index="3" UpOrDown="@{UpOrDown}" />
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.verifySelectedPageSize">
+    <attribute name="index" default="1" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <verifyXPath description="Verify if page size is selected." xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]/ul[position()=2]/li[position()=@{index}]/strong[normalize-space()='@{pageSize}']" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify the composed info message on right hand-side of paging the bar -->
+  <macrodef name="mpl_paging.verifyInfoMessage">
+    <attribute name="firstService" />
+    <attribute name="lastService" />
+    <attribute name="totalServices" />
+    <attribute name="UpOrDown" default="Up" />
+    <sequential>
+      <verifyXPath description="Verify if info message exists" xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]//p[@id=&quot;listInfo@{UpOrDown}&quot;]" />
+      <storeXPath xpath="//div[@id=&quot;pagingBar@{UpOrDown}&quot;]//p[@id=&quot;listInfo@{UpOrDown}&quot;]/text()" property="infoMsg" />
+      <verifyProperty description="Verify if info message is correct" name="infoMsg" text=".*@{firstService}\s\-\s@{lastService}\s.*\s@{totalServices}\s.*" regex="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Verify the case of 0 services -->
+  <macrodef name="mpl_paging.verifyNoServices">
+    <sequential>
+      <verifyElementText description="Verify number of services" htmlId="serviceCount" text="0" />
+      <not>
+        <verifyXPath xpath="//div[@id='pagingBarUp']" />
+        <verifyXPath xpath="//div[@id='pagingBarDown']" />
+      </not>
+    </sequential>
+  </macrodef>
+
+  <!-- Verify sorting and tag information of the given list of services -->
+  <macrodef name="mpl_paging.verifyServices">
+    <attribute name="fromIndex" default="0" />
+    <attribute name="count" />
+    <attribute name="total" />
+    <attribute name="up" default="true" />
+    <attribute name="tag" default="" />
+
+    <sequential>
+      <storeProperty name="serviceTag" value="@{tag}" eval="false" />
+      <!-- Check tag info -->
+      <ifStep description="Verify given tag exists">
+        <condition>
+          <verifyProperty name="serviceTag" text="" regex="false" />
+        </condition>
+        <then>
+          <verifyElementText description="Verify number of services" htmlId="serviceCount" text="@{total}" />
+        </then>
+        <else>
+          <verifyElementText description="Verify number of services with tag" htmlId="serviceCount" text="@{total}" />
+        </else>
+      </ifStep>
+      <!-- Check sorting -->
+      <ifStep test="@{up}" description="Verify ascending sorted">
+        <then>
+          <storeXPath property="last" xpath="substring-after(//*[@id=&quot;service@{fromIndex}Name&quot;]/text(), 'MS S')" />
+          <repeat startCount="@{fromIndex}" count="@{count}" countername="i">
+            <storeXPath property="serviceId" xpath="substring-after(//*[@id=&quot;service#{i}Name&quot;]/text(), 'MS S')" />
+            <ifStep>
+              <condition>
+                <verifyXPath description="Length of service number equals to length of previous number?" xpath="string-length(#{serviceId}) = string-length(#{last})" />
+              </condition>
+              <then>
+                <verifyXPath description="Service number must not be smaller than previous number." xpath="not(number(#{serviceId}) &lt; number(#{last}))" />
+              </then>
+              <else>
+                <ifStep>
+                  <condition>
+                    <verifyXPath description="Service number of shorter length than previous?" xpath="string-length(#{serviceId}) &lt; string-length(#{last})" />
+                  </condition>
+                  <then>
+                    <storeXPath property="firstPart" xpath="substring(#{last}, 0, string-length(#{serviceId}))" />
+                    <verifyXPath description="Number of previous must start with service number - 1" xpath="number(#{firstPart}) = number(#{serviceId}) -1" />
+                  </then>
+                  <else>
+                    <verifyXPath description="Service number must start with number of previous" xpath="starts-with(#{serviceId}, #{last})" />
+                  </else>
+                </ifStep>
+              </else>
+            </ifStep>
+            <!-- Remember last service number -->
+            <storeProperty name="last" value="#{serviceId}" eval="true" />
+            <mpl_verify.serviceTags pos="#{i}" tag="@{tag}" checkContains="false" />
+          </repeat>
+        </then>
+        <else>
+          <storeXPath property="last" xpath="substring-after(//*[@id=&quot;service0Name&quot;]/text(), 'MS S')" />
+          <repeat startCount="@{fromIndex}" count="@{count}" countername="i">
+            <storeProperty name="htmlId" value="#{i} - @{count}" eval="true" />
+            <storeXPath property="serviceId" xpath="substring-after(//*[@id=&quot;service#{htmlId}Name&quot;]/text(), 'MS S')" />
+            <ifStep>
+              <condition>
+                <verifyXPath description="Length of service number equals to length of previous?" xpath="string-length(#{serviceId}) = string-length(#{last})" />
+              </condition>
+              <then>
+                <verifyXPath description="Service number must not be greater than previous" xpath="not(number(#{serviceId}) &gt; number(#{last}))" />
+              </then>
+              <else>
+                <ifStep>
+                  <condition>
+                    <verifyXPath description="Service number of shorter length than previous?" xpath="string-length(#{serviceId}) &lt; string-length(#{last})" />
+                  </condition>
+                  <then>
+                    <verifyXPath description="Number of previous must start with service number" xpath="starts-with(#{last}, string(#{serviceId}))" />
+                  </then>
+                  <else>
+                    <storeXPath property="firstPart" xpath="substring(#{serviceId}, 0, string-length(#{last}))" />
+                    <verifyXPath description="Service number must start with number of previous - 1" xpath="number(#{firstPart}) = number(#{last}) - 1" />
+                  </else>
+                </ifStep>
+              </else>
+            </ifStep>
+            <storeProperty name="last" value="#{serviceId}" eval="true" />
+            <mpl_verify.serviceTags pos="#{htmlId}" tag="@{tag}" checkContains="false" />
+          </repeat>
+        </else>
+      </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.checkSortOrder">
+    <attribute name="expectedSortOrder" default="#{ascending}" />
+    <sequential>
+      <verifyXPath xpath="//select[@class='sortingCombo']//option[@selected='selected' and @value='@{expectedSortOrder}']" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.expectAscendingOrder">
+    <sequential>
+      <mpl_paging.checkSortOrder expectedSortOrder="#{ascending}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.expectDescendingOrder">
+    <sequential>
+      <mpl_paging.checkSortOrder expectedSortOrder="#{descending}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.changeSortOrder">
+    <attribute name="sortOrder" />
+    <sequential>
+      <ifStep description="Check current sort order, if change is required">
+        <condition>
+          <not>
+            <verifyXPath xpath="//select[@class='sortingCombo']//option[@selected='selected' and @value='@{sortOrder}']" />
+          </not>
+        </condition>
+        <then>
+          <setSelectField description="Change sort order" xpath="//select[@class='sortingCombo']" text="@{sortOrder}" />
+        </then>
+      </ifStep>
+      <mpl_paging.expectedPage page="1" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.nextPage">
+    <attribute name="expectedPage" />
+    <sequential>
+      <storeProperty name="actualPage" value="@{expectedPage} - 1" eval="true" />
+
+      <mpl_paging.expectedPage page="#{actualPage}" />
+      <clickLink description="Next page" htmlId="pageNextUp" />
+      <mpl_paging.expectedPage page="@{expectedPage}" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_paging.expectedPage">
+    <attribute name="page" />
+    <sequential>
+      <verifyXPath xpath="//div[@id='pagingBarUp']//strong[@class='current'][.='@{page}']" />
+    </sequential>
+  </macrodef>
+
+</project>

@@ -1,0 +1,11 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Entry point for test. Pay attention for order of tests. -->
+<project default="all">
+  <target name="all">
+    <ant antfile="FB/testMarketServiceFB.xml" />
+    <ant antfile="FB/testAccountFB.xml" />
+    <ant antfile="FB/testTechnicalServiceFB.xml" />
+    <!-- testCustomerFB.xml must run at end because organizations (and last admin) cannot be removed -->
+    <ant antfile="FB/testCustomerFB.xml" />
+  </target>
+</project>

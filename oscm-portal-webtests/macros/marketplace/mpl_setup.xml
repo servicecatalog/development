@@ -1,0 +1,171 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<project xmlns:setup="antlib:org.oscm.webtest.setup">
+
+  <macrodef name="mpl_setup.createSupplierAccount">
+    <sequential>
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}/organization/edit.jsf" userId="#{userId}" password="#{userPwd}" />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.createServices">
+    <!--
+      Data Setup : 1. Import services with tags S1,S2,S3,S4,S5 = T1 S6,S7,S8,S9 = T1a S1 = T1b S1,S2,S3,S4,S5 = T2
+    -->
+    <attribute name="mId1" />
+    <attribute name="mId2" default="NOT_SET" />
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <techservice.import file="data/TechnicalServicesWithTags.xml" />
+
+      <setup:service.define serviceId="S1" name="MS S1" techServiceId="S1" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S1" isFree="true" />
+
+      <setup:service.define serviceId="S2" name="MS S2" techServiceId="S2" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S2" isFree="true" />
+
+      <setup:service.define serviceId="S3" name="MS S3" techServiceId="S3" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S3" isFree="true" />
+
+      <setup:service.define serviceId="S4" name="MS S4" techServiceId="S4" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S4" isFree="true" />
+
+      <setup:service.define serviceId="S5" name="MS S5" techServiceId="S5" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S5" isFree="true" />
+
+      <setup:service.define serviceId="S6" name="MS S6" techServiceId="S6" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S6" isFree="true" />
+
+      <setup:service.define serviceId="S7" name="MS S7" techServiceId="S7" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S7" isFree="true" />
+
+      <setup:service.define serviceId="S8" name="MS S8" techServiceId="S8" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S8" isFree="true" />
+
+      <setup:service.define serviceId="S9" name="MS S9" techServiceId="S9" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" />
+      <setup:pricemodel.define serviceId="S9" isFree="true" />
+
+      <setup:service.activate serviceIds="S" start="1" count="9" />
+
+
+      <storeProperty name="mId2" value="@{mId2}" />
+      <ifStep>
+        <condition>
+          <not>
+            <verifyProperty name="mId2" value="NOT_SET" />
+          </not>
+        </condition>
+        <then>
+          <setup:service.define serviceId="MP2 MS S1" name="MP2 MS S1" techServiceId="SN" description="Limited evaluation version." marketplaceId="@{mId2}" useParameters="false" />
+          <setup:pricemodel.define serviceId="MP2 MS S1" isFree="true" />
+
+          <setup:service.define serviceId="MP2 MS S2" name="MP2 MS S2" techServiceId="SN" description="Limited evaluation version." marketplaceId="@{mId2}" useParameters="false" />
+          <setup:pricemodel.define serviceId="MP2 MS S2" isFree="true" />
+
+          <setup:service.activate serviceIds="MP2 MS S" start="1" count="2" />
+        </then>
+      </ifStep>
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.createLoginService">
+    <attribute name="mId1" />
+    <attribute name="serviceId" />
+    <attribute name="serviceKey" default="svcKey"/>
+    <attribute name="autoAssignUserEnabled" default="true"/>
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <techservice.import file="data/TechnicalServices-LOGIN.xml" />
+
+      <setup:service.define serviceId="@{serviceId}" name="MS @{serviceId}" techServiceId="Example 1.00" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" autoAssignUserEnabled="@{autoAssignUserEnabled}" svcKeyProperty="@{serviceKey}"/>
+
+      <setup:pricemodel.define serviceId="@{serviceId}" isFree="true" />
+
+      <setup:service.activate serviceIds="@{serviceId}" start="0" count="0" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.createDirectService">
+    <attribute name="mId1" />
+    <attribute name="serviceId" />
+    <attribute name="serviceKey" default="svcKey"/>
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <techservice.import file="data/TechnicalServices-BaseUrl-DIRECT.xml" />
+
+      <setup:service.define serviceId="@{serviceId}" name="MS @{serviceId}" techServiceId="FCIPDirect1" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" autoAssignUserEnabled="true" svcKeyProperty="@{serviceKey}"/>
+
+      <setup:pricemodel.define serviceId="@{serviceId}" isFree="true" />
+
+      <setup:service.activate serviceIds="@{serviceId}" start="0" count="0" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.deleteDirectService">
+    <attribute name="mId1" />
+    <attribute name="serviceId" />
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <setup:service.deactivate serviceIds="@{serviceId}" start="0" count="0" />
+
+      <setup:service.delete serviceIds="@{serviceId}" start="0" count="0" />
+
+      <setup:techservice.delete serviceIds="FCIPUser1" start="0" count="0" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.createUserService">
+    <attribute name="mId1" />
+    <attribute name="serviceId" />
+    <attribute name="serviceKey" default="svcKey"/>
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <techservice.import file="data/TechnicalServices-BaseUrl-USER.xml" />
+
+      <setup:service.define serviceId="@{serviceId}" name="MS @{serviceId}" techServiceId="FCIPUser1" description="Limited evaluation version." marketplaceId="@{mId1}" useParameters="false" autoAssignUserEnabled="true" svcKeyProperty="@{serviceKey}"/>
+
+      <setup:pricemodel.define serviceId="@{serviceId}" isFree="true" />
+
+      <setup:service.activate serviceIds="@{serviceId}" start="0" count="0" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="mpl_setup.deleteUserService">
+    <attribute name="mId1" />
+    <attribute name="serviceId" />
+    <sequential>
+      <login.loginAsSupplier url="#{orgUrl}" userId="#{userId}" />
+
+      <setup:service.deactivate serviceIds="@{serviceId}" start="0" count="0" />
+
+      <setup:service.delete serviceIds="@{serviceId}" start="0" count="0" />
+
+      <setup:techservice.delete serviceIds="FCIPUser1" start="0" count="0" />
+
+      <login.logout />
+    </sequential>
+  </macrodef>
+
+</project>

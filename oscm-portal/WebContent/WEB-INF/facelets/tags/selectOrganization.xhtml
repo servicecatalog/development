@@ -1,0 +1,35 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <c:if test="#{empty inline}" >
+    <c:set var="submit" value="#{rich:element('hiddenSubmitter')}.onclick();" />
+    <h:form id="selectOrganizationForm">
+      <adm:panelGrid>
+        <ui:include src="selectOrganizationInclude.xhtml" />
+      </adm:panelGrid>
+      <a4j:commandButton id="hiddenSubmitter" render=":manageOrganizationsForm" style="visibility: hidden"
+                         actionListener="#{operatorSelectOrgBean.selectOrganizationAction}"
+                         onclick="AdmUtils.showProgress(true); "
+                         oncomplete="handleOrgSelection();" />
+      <script type="text/javascript">
+        function handleOrgSelection() {
+          AdmUtils.showProgress(false);
+          setDirty(true);
+          AdmUtils.setUIElements();
+        }
+      </script>
+    </h:form>
+  </c:if>
+  <c:if test="#{not empty inline}" >
+    <ui:include src="selectOrganizationInclude.xhtml" />
+  </c:if>
+</ui:composition>
