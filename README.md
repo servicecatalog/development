@@ -1,6 +1,6 @@
 <p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> 
 
-Open Service Catalog Manager is an open source application. More details can be found on its [homepage](http://openservicecatalogmanager.com/).
+Open Service Catalog Manager is an open source application. More details can be found on its [homepage](http://openservicecatalogmanager.org/).
 
 ## Releases
 Newest releases can be found [here](https://github.com/servicecatalog/development/releases).
