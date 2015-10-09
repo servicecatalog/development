@@ -82,3 +82,8 @@ host all all <host-ipv6>/128 trust
 #### Deploying the application
 
 After the environment is set, developers can use the Ant targets to build/redeploy only specific modules. For example, to redeploy the portal `Portal.BUILD` and then `Portal.REDEPLOY` should be run one after another.
+
+
+#### Deploying eclipse-birt-runtime
+
+OSCM uses [eclipse-birt-runtime](http://www.eclipse.org/birt/) for generating reports. After OSCM deployment it is time for you to download and deploy eclipse-birt-runtime. You can find it under the [link](http://www.eclipse.org/downloads/download.php?file=/birt/downloads/drops/R-R1-4_5_0-201506092134/birt-runtime-4.5.0-20150609.zip). Birt.war is the application you should be interested in. We advice you to get the latest version. When you have deployed the application you may now to upload all the reports we have designed for you. The reports are delivered with every our [release](https://github.com/servicecatalog/development/releases) in eclipse-birt-runtime.zip. Just unpack the content to folder on glassfish where the application has been deployed (usually: ${glassfishHome}\glassfish\domains\{domain}\applications\{ecilpse_runtime_folder}).
