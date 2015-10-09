@@ -839,13 +839,13 @@ public class APPTimerServiceBean {
 
         if (currentSI.isDeleted()) {
             logger.info(
-                    "Processing of service instance '{}' failed with return code '{}' and description '{}'. CT-MG subscription is already terminated.",
+                    "Processing of service instance '{}' failed with return code '{}' and description '{}'. OSCM subscription is already terminated.",
                     new Object[] { Long.valueOf(currentSI.getTkey()),
                             Long.valueOf(instanceResult.getRc()),
                             instanceResult.getDesc() });
         } else {
             logger.info(
-                    "Processing of service instance '{}' failed with return code '{}' and description '{}'. CT-MG was informed on the abortion.",
+                    "Processing of service instance '{}' failed with return code '{}' and description '{}'. OSCM was informed on the abortion.",
                     new Object[] { Long.valueOf(currentSI.getTkey()),
                             Long.valueOf(instanceResult.getRc()),
                             instanceResult.getDesc() });
@@ -899,11 +899,11 @@ public class APPTimerServiceBean {
 
         if (currentSI.isDeleted()) {
             logger.info(
-                    "The processing of service instance '{}' was completed, but CT-MG subscription is already terminated.",
+                    "The processing of service instance '{}' was completed, but OSCM subscription is already terminated.",
                     Long.valueOf(currentSI.getTkey()));
         } else {
             logger.info(
-                    "The processing of service instance '{}' was completed and CT-MG has been notified accordingly",
+                    "The processing of service instance '{}' was completed and OSCM has been notified accordingly",
                     Long.valueOf(currentSI.getTkey()));
         }
 

@@ -31,7 +31,7 @@ public class AccountServiceClient {
         try {
             accountServ = factory.getBESWebService(AccountService.class);
         } catch (ParserConfigurationException e) {
-            System.err.println("Connect to CT-MG failed, reason: "
+            System.err.println("Connect to OSCM failed, reason: "
                     + e.getCause());
         }
     }

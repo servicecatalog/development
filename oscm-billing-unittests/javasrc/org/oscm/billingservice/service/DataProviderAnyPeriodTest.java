@@ -8,39 +8,28 @@
 
 package org.oscm.billingservice.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
 import org.oscm.billingservice.service.model.BillingInput;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PriceModelHistory;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.DateTimeHandling;
 import org.oscm.types.exceptions.BillingRunFailed;
-import org.oscm.internal.types.enumtypes.PriceModelType;
 
 /**
  * Tests the functionality of the provider.
@@ -54,25 +43,27 @@ public class DataProviderAnyPeriodTest {
 
     private static final long ORGANIZATION_KEY = 1000l;
 
-    private final long VALID = 10;
-
-    private final long INVALID = 0;
-
     DataProviderAnyPeriod provider;
 
     BillingDataRetrievalServiceLocal bdrMock;
 
+    private DataService dm;
+
     @Before
-    public void setup() {
+    public void setup() throws ObjectNotFoundException {
         bdrMock = mock(BillingDataRetrievalServiceLocal.class);
-        when(bdrMock.loadCurrency(anyLong(), anyLong())).thenReturn(
-                new SupportedCurrency(CURRENCY_CODE));
+        when(bdrMock.loadCurrency(anyLong(), anyLong()))
+                .thenReturn(new SupportedCurrency(CURRENCY_CODE));
+        dm = mock(DataService.class);
+        when(dm.getReference(eq(Subscription.class), anyLong()))
+                .thenReturn(new Subscription());
     }
 
     @Test
     public void loadBillingInputList_invariantsCheck() {
 
         // bdr not set
+        long VALID = 10;
         try {
             provider = new DataProviderAnyPeriod(null, VALID, VALID, VALID,
                     false);
@@ -81,6 +72,7 @@ public class DataProviderAnyPeriodTest {
         }
 
         // period start not set
+        long INVALID = 0;
         try {
             provider = new DataProviderAnyPeriod(bdrMock, INVALID, VALID,
                     VALID, false);
@@ -160,7 +152,7 @@ public class DataProviderAnyPeriodTest {
 
         // when
         provider = new DataProviderAnyPeriod(bdrMock, periodStart, periodEnd,
-                organizationKey, unitKeys, false);
+                organizationKey, unitKeys, false, null);
 
         // then
         verify(bdrMock).loadSubscriptionsForCustomer(eq(organizationKey),
@@ -201,7 +193,7 @@ public class DataProviderAnyPeriodTest {
 
         // when
         provider = new DataProviderAnyPeriod(bdrMock, periodStart, periodEnd,
-                ORGANIZATION_KEY, false);
+                ORGANIZATION_KEY, null, false, dm);
 
         // then
         verify(bdrMock).loadCurrency(eq(subscriptionKey), eq(periodEnd));
@@ -210,11 +202,11 @@ public class DataProviderAnyPeriodTest {
         assertEquals(subscriptionKey, bi.getSubscriptionKey());
         assertEquals(ORGANIZATION_KEY, bi.getOrganizationKey());
         assertEquals(CURRENCY_CODE, bi.getCurrencyIsoCode());
-        String s = ""
-                + bdrMock.loadSubscriptionsForCustomer(0, 0, 0, 0).get(0)
-                        .getModdate().getTime();
+        String s = String
+                .valueOf(bdrMock.loadSubscriptionsForCustomer(0, 0, 0, 0).get(0)
+                        .getModdate().getTime());
         s = s.substring(0, s.length() - 3) + "000";
-        assertEquals(s, "" + bi.getBillingPeriodStart());
+        assertEquals(s, String.valueOf(bi.getBillingPeriodStart()));
         assertEquals(periodEnd, bi.getBillingPeriodEnd());
         assertNotNull(bi.getSubscriptionHistoryEntries());
         assertEquals(historyEntryCount, bi.getSubscriptionHistoryEntries()
@@ -222,7 +214,7 @@ public class DataProviderAnyPeriodTest {
     }
 
     private List<PriceModelHistory> givenPriceModelHistories(PriceModelType type) {
-        List<PriceModelHistory> priceModelHistories = new LinkedList<PriceModelHistory>();
+        List<PriceModelHistory> priceModelHistories = new LinkedList<>();
         PriceModelHistory pmh = new PriceModelHistory();
         pmh.setType(type);
         priceModelHistories.add(pmh);
@@ -243,7 +235,7 @@ public class DataProviderAnyPeriodTest {
                 .calculateMillis("2012-02-15 00:00:00");
         final long periodEnd = DateTimeHandling
                 .calculateMillis("2013-01-31 23:59:59");
-        final List<SubscriptionHistory> subHistoryEntries = new ArrayList<SubscriptionHistory>();
+        final List<SubscriptionHistory> subHistoryEntries = new ArrayList<>();
         subHistoryEntries.add(create(1, "2012-01-05 00:00:00", 6));
         subHistoryEntries.add(create(2, "2012-07-15 03:00:00", 15));
         subHistoryEntries.add(create(3, "2012-01-06 06:00:00", 4));
@@ -259,7 +251,7 @@ public class DataProviderAnyPeriodTest {
 
         // when
         provider = new DataProviderAnyPeriod(bdrMock, periodStart, periodEnd,
-                ORGANIZATION_KEY, false);
+                ORGANIZATION_KEY, null, false, dm);
 
         // then
         assertEquals(56, provider.getBillingInput().size());
@@ -286,7 +278,7 @@ public class DataProviderAnyPeriodTest {
                 .calculateMillis("2012-03-01 00:00:00");
         final long periodEnd = DateTimeHandling
                 .calculateMillis("2012-04-01 00:00:00");
-        final List<SubscriptionHistory> subHistoryEntries = new ArrayList<SubscriptionHistory>();
+        final List<SubscriptionHistory> subHistoryEntries = new ArrayList<>();
         subHistoryEntries.add(create(1, "2012-01-05 00:00:00", 6));
         subHistoryEntries.add(create(2, "2012-07-15 03:00:00", 15));
         subHistoryEntries.add(create(3, "2012-01-06 06:00:00", 4));
@@ -303,7 +295,7 @@ public class DataProviderAnyPeriodTest {
 
         // when
         provider = new DataProviderAnyPeriod(bdrMock, periodStart, periodEnd,
-                ORGANIZATION_KEY, true);
+                ORGANIZATION_KEY, null, true, dm);
 
         // then
         assertEquals(4, provider.getBillingInput().size());
@@ -370,7 +362,7 @@ public class DataProviderAnyPeriodTest {
             long subscriptionKey, int historyEntryCount) {
         Random random = new Random();
         long modTime1 = System.currentTimeMillis() - random.nextInt(1000);
-        List<SubscriptionHistory> subHistoryEntries = new ArrayList<SubscriptionHistory>();
+        List<SubscriptionHistory> subHistoryEntries = new ArrayList<>();
 
         // subscription
         Subscription sub = new Subscription();
@@ -462,7 +454,7 @@ public class DataProviderAnyPeriodTest {
     }
 
     private List<PriceModelHistory> givenChargeableAndFreePriceModels() {
-        List<PriceModelHistory> priceModelHistories = new LinkedList<PriceModelHistory>();
+        List<PriceModelHistory> priceModelHistories = new LinkedList<>();
         PriceModelHistory pmh = new PriceModelHistory();
         pmh.setType(PriceModelType.FREE_OF_CHARGE);
         priceModelHistories.add(pmh);

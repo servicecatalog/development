@@ -57,7 +57,7 @@
       <mpl_goto.marketplace mid="${mid}" />
       <mpl_goto.account.users />
       <mpl_user.editInputValue userId="${customer.ldapuserid}" fieldId="editUserForm:firstName" fieldValue="changed first" currentUser="true" />
-      <mpl_subscription.setUserRoleInAllUserGroups userId="${customer.ldapuserid}" />
+      <!--<mpl_subscription.setUserRoleInAllUserGroups userId="${customer.ldapuserid}" />-->
       <!-- subscription to service -->
       <mpl_service.subscribe mid="${mid}" index="0" chargeable="true" />
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />

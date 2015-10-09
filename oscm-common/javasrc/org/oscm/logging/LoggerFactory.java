@@ -181,7 +181,7 @@ public class LoggerFactory {
     private static void setConsoleAppenderForLogger(Log4jLogger logger) {
         if (consoleAppender == null) {
             consoleAppender = new ConsoleAppender(getLayout());
-            consoleAppender.setName("CT-MG console appender");
+            consoleAppender.setName("OSCM console appender");
         }
         Level level = determineLogLevel(logLevel);
 

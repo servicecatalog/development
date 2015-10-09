@@ -100,7 +100,7 @@ public class CreateUserCtrlTest {
                 Boolean.valueOf(applicationBean
                         .isUIElementHidden(eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
                 .thenReturn(Boolean.FALSE);
-        when(userGroupService.getGroupsForOrganization())
+        when(userGroupService.getGroupsForOrganizationWithoutDefault())
                 .thenReturn(preparePOUserGroups(3));
         ts = mock(TableState.class);
         ctrl.setTableState(ts);
@@ -131,7 +131,7 @@ public class CreateUserCtrlTest {
 
         // then
         verify(userGroupService, times(1))
-                .getGroupsForOrganization();
+                .getGroupsForOrganizationWithoutDefault();
         assertEquals(3, result.size());
     }
 

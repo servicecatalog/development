@@ -56,6 +56,13 @@ public class SubscriptionServiceInternalBean extends SubscriptionServiceBean
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    public List<VOSubscription> getAllSubscriptionsForOrganization(
+            PerformanceHint performanceHint) {
+        return super.getAllSubscriptionsForOrganization(performanceHint);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
     public List<VOSubscription> getSubscriptionsForOrganizationWithFilter(
             Set<SubscriptionStatus> requiredStatus,
             PerformanceHint performanceHint) {

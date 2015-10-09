@@ -58,31 +58,31 @@
 
       <!-- Apply sorting (ascending) on unit column and verify it -->
       <clickLink xpath="//*[@class='maincontents']//th[contains(text(), 'Unit')]/a" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[position() = 4 and contains(text(), 'default')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[position() = 4 and contains(text(), 'Group1')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[position() = 4 and contains(text(), 'Group2')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[4]/td[position() = 4 and contains(text(), 'Group3')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[5]/td[position() = 4 and contains(text(), '')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[4][contains(.,'default')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[4][contains(.,'Group1')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[4][contains(.,'Group2')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[4]/td[4][contains(.,'Group3')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[5]/td[4][contains(.,'')]" />
 
       <!-- Apply sorting (descending) on unit column and verify it -->
       <clickLink xpath="//*[@class='maincontents']//th[contains(text(), 'Unit')]/a" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[position() = 4 and contains(text(), '')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[position() = 4 and contains(text(), 'Group3')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[position() = 4 and contains(text(), 'Group2')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[4]/td[position() = 4 and contains(text(), 'Group1')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[5]/td[position() = 4 and contains(text(), 'default')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[4][contains(.,'')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[4][contains(.,'Group3')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[4][contains(.,'Group2')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[4]/td[4][contains(.,'Group1')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[5]/td[4][contains(.,'default')]" />
 
       <!-- Apply filtering on unit name (must match Group*) and verify it, sorting by unit is still active -->
       <setInputField htmlId="subListForm:subscriptionsList:unit" value="Group" />
       <common.waitForJavaScript />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[position() = 4 and contains(text(), 'Group3')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[position() = 4 and contains(text(), 'Group2')]" />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[position() = 4 and contains(text(), 'Group1')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[4][contains(.,'Group3')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[2]/td[4][contains(.,'Group2')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[3]/td[4][contains(.,'Group1')]" />
 
       <!-- Apply filtering on unit name (must match default*) and verify it, sorting by unit is still active -->
       <setInputField htmlId="subListForm:subscriptionsList:unit" value="default" />
       <common.waitForJavaScript />
-      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[position() = 4 and contains(text(), 'default')]" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:tb']/tr[1]/td[4][contains(.,'default')]" />
 
       <!-- End test -->
       <mpl_login.logout />
@@ -155,7 +155,7 @@
       <mpl_goto.account.users />
       <mpl_user.create userId="UserWithGroup" />
       <mpl_user.display userId="#{userId}" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="Administrator" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="Administrator" />
       <clickButton label="${button.save}" />
       <mpl_login.logout />
       <mail.readPasswordAndUrlFromMail/>
@@ -240,7 +240,7 @@
       <mpl_goto.account.users />
       <mpl_user.create userId="UnitAdmin2" />
       <mpl_user.display userId="#{userId}" />
-      <mpl_user.selectUserGroup groupIndex="4" groupRole="Administrator" />
+      <mpl_user.selectUserGroup groupIndex="3" groupRole="Administrator" />
       <clickButton label="${button.save}" />
       <mpl_login.logout />
       <mail.readPasswordAndUrlFromMail/>
@@ -275,7 +275,7 @@
       <!-- Check if admin is still owner -->
       <mpl_goto.account.subscriptions/>
 
-      <clickElement xpath="//tbody[@id='subListForm:subscriptionsList:tb']//td[contains (text(), 'ServiceX3')]/..//a"/>
+      <clickElement xpath="//a[contains(@id, 'ServiceX3')]"/>
 
       <clickElement htmlId="tabConfiguration:header" />
 
@@ -311,7 +311,7 @@
       <mpl_goto.account.users/>
       <mpl_user.display userId="${unitAdminName3}"/>
       
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="Administrator"/>
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="Administrator"/>
       <setCheckbox xpath="//*[@id='editUserForm:userRolesTable:tb']//*[contains (text(), 'Administrator')]//..//input" checked="false"/>
 
       <clickButton label="${button.save}" />
@@ -321,7 +321,7 @@
       <!-- Login as unit administrator and subscribe to service -->
       <mpl_login.user userId="${unitAdminName3}" mid="${mId}" />
       <mpl_goto.account.subscriptions/>
-      <clickElement xpath="//tbody[@id='subListForm:subscriptionsList:tb']//td[contains (text(), 'ServiceX4')]/..//a"/>
+      <clickElement xpath="//a[contains(@id, 'ServiceX4')]"/>
       <clickElement htmlId="tabConfiguration:header" />
 
       <!-- Check if unit administrator is set as subscription owner -->
@@ -335,6 +335,28 @@
       <mpl_verify.success label="ServiceX4" />
       <verifyXPath xpath="//*[@id='configurationForm:selectedUnitName']/span[contains (text(), 'not assigned')]" />
 
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="testSubscriptionToUnit_testUnitRoleSelectionBehavior">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+
+      <mpl_goto.account.users/>
+      <mpl_user.display userId="${supplierUserId}"/>
+
+      <!-- Uncheck the checkbox -->
+      <setCheckbox xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']" checked="false"/>
+      
+      <!-- Check visibility - should be hidden -->
+      <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole' and contains (@style, 'visibility: hidden')]" />
+      
+      <!-- Check the checkbox -->
+      <setCheckbox xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']" checked="true"/>
+
+      <!-- Check visibility - should be visible -->
+      <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole' and contains (@style, 'visibility: visible')]" />
+      
       <mpl_login.logout />
     </webtest>
 

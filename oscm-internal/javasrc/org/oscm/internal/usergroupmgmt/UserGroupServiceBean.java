@@ -200,6 +200,14 @@ public class UserGroupServiceBean implements UserGroupService {
                 userGroupService.getUserGroupsForUserWithRoles(userId),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
+    
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN" })
+    public List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(String userId) {
+        return POUserGroupAssembler.toPOUserGroups(
+                userGroupService.getUserGroupsForUserWithRolesWithoutDefault(userId),
+                PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
+    }
 
     @Override
     public List<Long> getInvisibleProductKeysForUser(long userKey)

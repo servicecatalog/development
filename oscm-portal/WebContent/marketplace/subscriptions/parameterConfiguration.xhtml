@@ -45,7 +45,8 @@
   </ui:define>
 
   <ui:define name="dialogContent">    
-    <a4j:jsFunction name="rerenderWarningPanel" render="configurationForm:modify_configurationWarning,configurationForm:subcribe_configurationWarning"/>
+    <a4j:jsFunction name="rerenderWarningPanel" render="configurationForm:modify_configurationWarning,configurationForm:subcribe_configurationWarning" 
+                    oncomplete="if(#{bean.model.configurationChanged}){setOnSubmit(false);setDirty(true);}"/>
     <a4j:jsFunction name="setFallback" action="#{bean.actionFallback}" 
       render="configurationForm:externalToolDialog,configurationForm:errorTitle"/>  
       

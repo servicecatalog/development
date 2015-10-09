@@ -532,8 +532,8 @@ public class UserServiceBean implements UserService {
                     groupsWithRoles);
         }
         List<UserGroup> groupsAssigned = userGroupService
-                .getUserGroupsForUser(existing.getUserId());
-        Map<UserGroup, UnitUserRole> groupsToAdd = new HashMap<UserGroup, UnitUserRole>();
+                .getUserGroupsForUserWithoutDefault(existing.getUserId());
+        Map<UserGroup, UnitUserRole> groupsToAdd = new HashMap<>();
         List<UserGroup> groupsToRemove = new ArrayList<>();
         for (UserGroup g : groupsAssigned) {
             Long key = Long.valueOf(g.getKey());
@@ -559,18 +559,17 @@ public class UserServiceBean implements UserService {
     private void handleUnitRoleAssignments(POUserAndSubscriptions user, PlatformUser existing,
             Map<UserGroup, UnitUserRole> userGroupsToBeAssigned)
             throws ObjectNotFoundException, OperationNotPermittedException, UserModificationConstraintException {
-        List<UnitRoleType> allAvailableUnitRoleTypes = new ArrayList<UnitRoleType>(
+        List<UnitRoleType> allAvailableUnitRoleTypes;
+        allAvailableUnitRoleTypes = new ArrayList<UnitRoleType>(
                 Arrays.asList(UnitRoleType.values()));
         for (Entry<UserGroup, UnitUserRole> groupWithRoles : userGroupsToBeAssigned
                 .entrySet()) {
-            if (groupWithRoles.getKey().isDefault()) {
-                userGroupService.modifyUnitRoleTypeForUserGroup(groupWithRoles, existing);
-            } else {
-                userGroupService.revokeUserRoles(existing, allAvailableUnitRoleTypes,
-                        groupWithRoles.getKey());
-                userGroupService.grantUserRoles(existing, Arrays.asList(groupWithRoles.getValue().getRoleName()),
-                        groupWithRoles.getKey());
-            }
+            userGroupService.revokeUserRoles(existing,
+                    allAvailableUnitRoleTypes, groupWithRoles.getKey());
+            userGroupService.grantUserRoles(existing,
+                    Collections.singletonList(
+                            groupWithRoles.getValue().getRoleName()),
+                    groupWithRoles.getKey());
         }
 
         Map<UserGroup, UnitRoleType> allUserAssignments = userGroupService

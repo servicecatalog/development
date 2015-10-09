@@ -133,10 +133,10 @@ public class SubscriptionServlet extends BillingAdapterServlet {
         if (subAgent.pushPriceModel(pm)) {
             successForward(request, response,
                     "Subscription price model for subscription '"
-                            + subscriptionId + "' sent to CT-MG Task Queue!");
+                            + subscriptionId + "' sent to OSCM Task Queue!");
         } else {
             errorForward(request, response,
-                    "Couldn't send message to CT-MG Task Queue");
+                    "Couldn't send message to OSCM Task Queue");
         }
 
     }

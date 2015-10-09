@@ -67,10 +67,9 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
      */
     public boolean isReportingAvailable() {
         return (applicationBean.isReportingAvailable()
-                && isLoggedInAndAdmin()
-                && !applicationBean
-                        .isUIElementHidden(
-                                HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS));
+                && (isLoggedInAndAdmin() || isLoggedInAndUnitAdmin())
+                && !applicationBean.isUIElementHidden(
+                        HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS));
     }
 
     public void setModel(AccountNavigationModel model) {

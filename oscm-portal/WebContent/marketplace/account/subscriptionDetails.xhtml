@@ -283,7 +283,7 @@
                   <ui:param name="dialogHeight" value="115" />
                   <ui:param name="bean" value="#{manageSubscriptionCtrl}" />
                   <ui:param name="cancelHandler"
-                    value="AdmUtils.blurButton('configurationForm:btnConfigureLabel');setDirty(false);#{rich:component(dialogId)}.hide();" />
+                    value="AdmUtils.blurButton('configurationForm:btnConfigureLabel');setDirty(false);#{rich:component(dialogId)}.hide();setSelectedTab('tabConfiguration');" />
                 </ui:include>
 
                 <a4j:outputPanel styleClass="buttonWrapper">
@@ -301,13 +301,6 @@
                 <a4j:outputPanel id="modify_configurationWarning" styleClass="configurationWarning">
                   <mp:notice rendered="#{manageSubscriptionModel.configurationChanged}"
                     noticeText="#{msg['info.subscriptions.configuration.unsaved']}" />
-                  <script type="text/javascript">
-                  if(#{manageSubscriptionModel.configurationChanged})
-                	  {
-                	  setPageDirty();
-                	  setDirty(true);
-                	  }
-      				</script>
                 </a4j:outputPanel>
 
               </ui:fragment>

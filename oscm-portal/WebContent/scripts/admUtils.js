@@ -1804,6 +1804,27 @@ AdmUtils.dataTableSelectCheckboxes = function(prefix, id, value, size) {
 	}
 }
 
+AdmUtils.updateSelectAllCheckbox = function(prefix, id, size, checkbox) {
+	var isEverythingSelected = true;
+	var isListEmpty = true;
+	for (var i = 0; i <= size; i++) {
+		if ((field = document.getElementById(prefix + ":" + i + ":" + id)) != null) {
+			isListEmpty = false;
+			if (field.checked != true) {
+				isEverythingSelected = false;
+				break;
+			}
+		}
+	}
+	var element = document.getElementById(checkbox);
+	if (element != null) {
+		if (isListEmpty == true) {
+			element.checked = false;
+		} else if (isEverythingSelected == true) {
+			element.checked = true;
+		}
+	}
+};
 
 AdmUtils.setAllServiceCheckbox = function(prefix, id, size, allSelectId) {
 	var field;
@@ -1999,3 +2020,45 @@ AdmUtils.emitResizeEvent = function() {
 	}
 	AdmUtils.resizeTrackingCodeForm();
 }
+
+AdmUtils.updateRoleComboBox = function(event, roleId) {
+	var elements = $("[id$='{0}']".f(roleId));
+	var id = event.target.id.match(/\d+/)[0];
+
+	for(var i = 0; i < elements.length; i++) {
+		var elemId = elements[i].id.match(/\d+/)[0];
+		if(elemId === id) {
+			if (!event.target.checked) {
+				elements[i].style.visibility = 'hidden';
+			} else {
+				elements[i].style.visibility = 'visible';
+			}
+		}
+	}
+}
+
+AdmUtils.initRoleFieldSetup = function (roleId, checkboxId) {
+	var unitRoleElems = $("[id$='{0}']".f(roleId));
+	var groupCheckboxElems = $("[id*='{0}']".f(checkboxId));
+
+	for (var i = 0; i < groupCheckboxElems.length; i++) {
+		var groupElemId = groupCheckboxElems[i].id.match(/\d+/)[0];
+		for(var j = 0; j < unitRoleElems.length; j++) {
+			var unitElemId = unitRoleElems[j].id.match(/\d+/)[0];
+			
+			if(groupElemId === unitElemId && !groupCheckboxElems[i].checked) {
+				unitRoleElems[j].style.visibility = 'hidden';
+			}
+		}
+	}
+}
+
+String.prototype.format = String.prototype.f = function() {
+	var s = this,
+		i = arguments.length;
+
+	while (i--) {
+		s = s.replace(new RegExp('\\{' + i + '\\}', 'gm'), arguments[i]);
+	}
+	return s;
+};

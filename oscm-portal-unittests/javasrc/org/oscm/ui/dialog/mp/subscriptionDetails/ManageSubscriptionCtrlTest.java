@@ -494,7 +494,7 @@ public class ManageSubscriptionCtrlTest {
         ctrl.modify();
 
         // then
-        assertEquals(Boolean.FALSE, Boolean.valueOf(model.isConfigurationChanged()));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(model.isConfigurationChanged()));
     }
 
     @Test

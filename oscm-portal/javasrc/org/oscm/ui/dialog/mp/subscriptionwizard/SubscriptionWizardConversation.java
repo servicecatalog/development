@@ -201,9 +201,9 @@ public class SubscriptionWizardConversation implements Serializable {
 
         model.setReadOnlyParams(true);
         VOUserDetails voUserDetails = ui.getUserFromSessionWithoutException();
-        if (voUserDetails.hasUnitAdminRole() && subscriptionUnitCtrl.getModel().getSelectedUnitId() == 0L) {
-            addMessage(FacesMessage.SEVERITY_ERROR,
-                    ERROR_TO_PROCEED_SELECT_UNIT);
+        if (voUserDetails.hasUnitAdminRole() && !voUserDetails.hasAdminRole()
+                && subscriptionUnitCtrl.getModel().getSelectedUnitId() == 0L) {
+            addMessage(FacesMessage.SEVERITY_ERROR, ERROR_TO_PROCEED_SELECT_UNIT);
             return "";
         }
         updateSelectedUnit();

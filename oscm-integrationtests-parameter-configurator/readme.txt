@@ -1,6 +1,6 @@
 The sample implementation of the external subscription parameter configurator tool. 
 
-To use the external configurator tool in CT-MG, perform the following:
+To use the external configurator tool in OSCM, perform the following:
 
 1. Deploy the oscm-parameter-configurator.war on a glassfish domain.
 2. Adapt some technical service definition to your environment.

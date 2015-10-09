@@ -33,7 +33,7 @@ public class MarketplaceData extends DomainDataContainer implements
     private long creationDate;
 
     /**
-     * For purpose of tracking the access to a catalog managed by CT-MG
+     * For purpose of tracking the access to a catalog managed by OSCM
      */
     private String trackingCode;
 

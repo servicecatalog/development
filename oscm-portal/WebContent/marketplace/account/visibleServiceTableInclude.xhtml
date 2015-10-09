@@ -10,7 +10,6 @@
                 xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
 
-
   <c:set var="sortIcon" value="/marketplace/img/transparentPixel.png?id=sort" />
   <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
   <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
@@ -87,6 +86,11 @@
     	  AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');
     	}
 	  </script>
+      <script type="application/javascript">
+        $("[id='groupForm']").on("DOMSubtreeModified propertychange", function() {
+          AdmUtils.updateSelectAllCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', "groupForm:servicesTable:allServiceCheckbox");
+        });
+      </script>
 	</a4j:outputPanel>
   </h:panelGroup>
 </ui:composition>

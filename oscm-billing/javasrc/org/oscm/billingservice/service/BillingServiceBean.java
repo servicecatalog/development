@@ -313,7 +313,7 @@ public class BillingServiceBean implements BillingService, BillingServiceLocal {
     public List<BillingResult> generateBillingForAnyPeriod(long start,
             long end, long organizationKey) throws BillingRunFailed {
         DataProviderAnyPeriod billingAnyPeriodProvider = new DataProviderAnyPeriod(
-                bdr, start, end, organizationKey, false, dm);
+                bdr, start, end, organizationKey, null, false, dm);
         BillingRun billingRun = executeBilling(billingAnyPeriodProvider);
         return billingRun != null ? billingRun.getBillingResultList()
                 : new ArrayList<BillingResult>();
@@ -326,7 +326,7 @@ public class BillingServiceBean implements BillingService, BillingServiceLocal {
         final long periodStart = determinePeriodStartForPaymentPreview(periodEnd);
 
         return executeBilling(new DataProviderAnyPeriod(bdr, periodStart,
-                periodEnd, organizationKey, true, dm));
+                periodEnd, organizationKey, null, true, dm));
     }
 
     @Override
@@ -336,7 +336,7 @@ public class BillingServiceBean implements BillingService, BillingServiceLocal {
         final long periodStart = determinePeriodStartForPaymentPreview(periodEnd);
 
         return executeBilling(new DataProviderAnyPeriod(bdr, periodStart,
-                periodEnd, organizationKey, unitKeys, true));
+                periodEnd, organizationKey, unitKeys, true, dm));
     }
 
     private long determinePeriodStartForPaymentPreview(final long periodEnd) {

@@ -144,10 +144,6 @@
       handle="module:/resource/oscm-timermgmt-intsvc/oscm-timermgmt-intsvc">
       <dependency-type>uses</dependency-type>
     </dependent-module>
-    <dependent-module deploy-path="/" handle="module:/resource/eclipse-birt-runtime/eclipse-birt-runtime">
-      <dependent-object />
-      <dependency-type>uses</dependency-type>
-    </dependent-module>
     <dependent-module archiveName="oscm-extsvc.jar" deploy-path="/"
       handle="module:/resource/oscm-extsvc/oscm-extsvc">
       <dependency-type>uses</dependency-type>

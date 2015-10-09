@@ -159,7 +159,7 @@ public class AccountNavigationCtrlTest {
                 visibleLinks++;
             }
         }
-        assertEquals(5, visibleLinks);
+        assertEquals(6, visibleLinks);
     }
 
 }

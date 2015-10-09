@@ -155,6 +155,34 @@ public class SubscriptionListServiceBeanTest {
     }
 
     @Test
+    public void getAllSubscriptionsForOrganization_SUBSCRIPTION_MANAGER() {
+        // given
+        when(bean.ds.getCurrentUser())
+                .thenReturn(
+                        createCurrentUserWithSubscriptions(UserRoleType.SUBSCRIPTION_MANAGER));
+
+        // when
+        List<Subscription> list = bean.getAllSubscriptionsForOrganization();
+
+        // then
+        assertEquals(6, list.size());
+    }
+
+    @Test
+    public void getAllSubscriptionsForOrganization_UNIT_ADMIN() {
+        // given
+        when(bean.ds.getCurrentUser())
+                .thenReturn(
+                        createCurrentUserWithSubscriptions(UserRoleType.UNIT_ADMINISTRATOR));
+
+        // when
+        List<Subscription> list = bean.getAllSubscriptionsForOrganization();
+
+        // then
+        assertEquals(6, list.size());
+    }
+
+    @Test
     public void getSubscriptionsForOwner() {
         // given
         PlatformUser owner = new PlatformUser();

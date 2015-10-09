@@ -1,1 +1,1 @@
-The demo web service client of CT-MG.
+The demo web service client of OSCM.

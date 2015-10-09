@@ -134,15 +134,17 @@ public class UpdateUserCtrlTest {
 
         when(
                 Boolean.valueOf(applicationBean
-                        .isUIElementHidden(eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
+                        .isUIElementHidden(
+                                eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
                 .thenReturn(Boolean.FALSE);
 
-        when(userGroupService.getGroupsForOrganization())
+        when(userGroupService.getGroupListForOrganizationWithoutDefault())
+                .thenReturn(preparePOUserGroups(3));
+        
+        when(userGroupService.getUserGroupsForUserWithoutDefault("userId"))
                 .thenReturn(preparePOUserGroups(3));
 
-        when(
-                userGroupService
-                        .getUserGroupListForUserWithRoles(anyString()))
+        when(userGroupService.getUserGroupListForUserWithRolesWithoutDefault(anyString()))
                 .thenReturn(preparePOUserGroups(1));
 
         when(ctrl.getUi().getSession(anyBoolean())).thenReturn(session);
@@ -212,7 +214,7 @@ public class UpdateUserCtrlTest {
     @Test
     public void initUserGroups() {
         // given
-        user.setUserId("userId");
+        model.getUser().setUserId("userId");
 
         // when
         List<UserGroup> result = ctrl.initUserGroups();
@@ -220,11 +222,10 @@ public class UpdateUserCtrlTest {
         // then
         assertEquals(3, result.size());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(1).isSelected()));
         verify(userGroupService, times(1))
-                .getGroupsForOrganization();
+                .getGroupListForOrganizationWithoutDefault();
         verify(userGroupService, times(1))
-                .getUserGroupListForUserWithRoles(anyString());
+                .getUserGroupListForUserWithRolesWithoutDefault(anyString());
     }
 
     @Test

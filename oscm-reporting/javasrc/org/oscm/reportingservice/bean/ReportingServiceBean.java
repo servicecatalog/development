@@ -80,7 +80,7 @@ public class ReportingServiceBean implements ReportingService {
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public List<VOReport> getAvailableReportsForOrgAdmin(
             ReportType reportFilterType) {
         return getAvailableReportsInt(reportFilterType);

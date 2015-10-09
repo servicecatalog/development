@@ -8,18 +8,18 @@
 </HEAD>
 
 <BODY>
-  <H1>Systemwalker Service Catalog Manager Integration Package</H1>
+  <H1>Catalog Manager Integration Package</H1>
   <HR>
 
-  <P>Welcome to the integration package of Systemwalker Service Catalog Manager (CT-MG). This package helps you
-    integrate your applications or other external systems with CT-MG. It provides the public Web service interface of
-    CT-MG as well as additional resources, templates, samples, utilities, and documentation.</P>
+  <P>Welcome to the integration package of Catalog Manager. This package helps you
+    integrate your applications or other external systems with Catalog Manager. It provides the public Web service interface of
+    Catalog Manager as well as additional resources, templates, samples, utilities, and documentation.</P>
   <H2>Package Content</H2>
   <P>This package contains the following items:</P>
   <ul>
-    <li><b>Public Web service interface</b>. CT-MG exposes its basic functionality at a public Web service
+    <li><b>Public Web service interface</b>. Catalog Manager exposes its basic functionality at a public Web service
       interface which consists of the so-called platform services. Applications and external systems that are integrated
-      with CT-MG invoke the functionality of the platform services. The services are accessed by SOAP messages over
+      with Catalog Manager invoke the functionality of the platform services. The services are accessed by SOAP messages over
       HTTP/HTTPS.
       <ul>
         <LI><A HREF="apis/platform/lib/oscm-extsvc-platform.jar">oscm-extsvc-platform.jar</A> - a
@@ -30,7 +30,7 @@
           related schema files</LI>
       </ul></li>
     <li>Resources that support you in implementing a <b>provisioning service</b> for integrating an application
-      with the subscription management of CT-MG:
+      with the subscription management of Catalog Manager:
       <ul>
         <LI><A HREF="apis/provisioning/lib/oscm-extsvc-provisioning.jar">oscm-extsvc-provisioning.jar</A>
           - a library with the API for implementing a provisioning service</LI>
@@ -41,17 +41,17 @@
       </ul>
     </li>
     <li>Resources that support you in adapting the <b>login/logout implementation</b> of a Java-based Web
-      application you want to integrate with CT-MG:
+      application you want to integrate with Catalog Manager:
       <ul>
         <LI><A HREF="integrationhelper/oscm-webservices-proxy.jar">oscm-webservices-proxy.jar</A> - a
-          library containing a Web service proxy for BASIC, CLIENTCERT, and STS Web service ports of the CT-MG platform
+          library containing a Web service proxy for BASIC, CLIENTCERT, and STS Web service ports of the Catalog Manager platform
           services. This proxy is implemented in Java and ready to be used. It creates a Web service proxy containing
-          all information required to establish a connection with a CT-MG Web service.</LI>
+          all information required to establish a connection with a Catalog Manager Web service.</LI>
         <LI><A HREF="integrationhelper/Integrationhelper.jar">Integrationhelper.jar</A> - a library containing a
           token handler and logout listener which are implemented in Java and ready to be used.</LI>
         <LI><A HREF="integrationhelper/oscm-api-client-handler.jar">oscm-api-client-handler.jar</A> -
           A library containing a SOAP handler for adding a service version number to the outbound SOAP messages of a
-          CT-MG Web service client. The service version can be found in the <documentation> tag included
+          Catalog Manager Web service client. The service version can be found in the <documentation> tag included
           in the WSDL files.</LI>
         <LI><A HREF="integrationhelper/Integrationhelper.war">Integrationhelper.war</A> - a Web archive including
           the integration helpers and additional resources required by them.</LI>
@@ -65,7 +65,7 @@
       </ul>
     </li>
     <li>Resources that support you in implementing <b>technical service operations</b> for an application which are
-      to be accessible from the CT-MG user interface:
+      to be accessible from the Catalog Manager user interface:
       <ul>
         <LI><A HREF="apis/operation/lib/oscm-extsvc-operation.jar">oscm-extsvc-operation.jar</A> - a
           library with the API for implementing a Web service that provides the technical service operations</LI>
@@ -75,11 +75,11 @@
           service must conform to with its related schema file</LI>
       </ul>
     </li>
-    <li>Resources that support you in integrating CT-MG with a <b>process control system</b>:
+    <li>Resources that support you in integrating Catalog Manager with a <b>process control system</b>:
       <ul>
         <LI><A HREF="apis/notification/lib/oscm-extsvc-notification.jar">oscm-extsvc-notification.jar</A>
           - a library with the API for implementing a Web service that notifies the process control system of actions
-          carried out in CT-MG</LI>
+          carried out in Catalog Manager</LI>
         <LI><A HREF="apis/notification/javadoc/index.html">API javadoc</A> - the javadoc for the notification
           service API</LI>
         <LI><A HREF="apis/notification/schema/NotificationService.wsdl">WSDL file</A> - the WSDL file a
@@ -89,9 +89,9 @@
     <li>Resources that support you in integrating a <b>parameter configuration tool</b>:
       <ul>
         <LI><A HREF="apis/parameterConfigurator/lib/configurationApi.js">configurationApi.js</A> - a Java script
-          library for integrating a parameter configuration tool with CT-MG.</LI>
+          library for integrating a parameter configuration tool with Catalog Manager.</LI>
         <LI><A HREF="samples/parameterConfigurator/oscm-integration-parameter-configurator.zip">oscm-integration-parameter-configurator.zip</A>
-          - a sample JavaScript tool which can be integrated with CT-MG. <a
+          - a sample JavaScript tool which can be integrated with Catalog Manager. <a
           href="samples/parameterConfigurator/doc/ParamConfig/c_ConfigToolSample.htm">Here is the description</a> of
           this sample.</LI>
       </ul>
@@ -100,16 +100,16 @@
   </li>
   <li><b>Documentation</b>:
     <ul>
-      <LI><A HREF="doc/en/Overview.pdf">Overview</A> - a PDF manual introducing CT-MG</li>
+      <LI><A HREF="doc/en/Overview.pdf">Overview</A> - a PDF manual introducing Catalog Manager</li>
       <LI><A HREF="doc/en/Developer.pdf">Developer's Guide</A> - a PDF manual for application developers describing
-        the public Web service interface of CT-MG and how to use it to integrate applications and external systems with
-        CT-MG</LI>
+        the public Web service interface of Catalog Manager and how to use it to integrate applications and external systems with
+        Catalog Manager</LI>
       <LI><A HREF="doc/en/TechProv.pdf">Technology Provider's Guide</A> - a PDF manual for technology providers
-        describing how to prepare applications for usage in a SaaS model and how to integrate them with CT-MG</LI>
+        describing how to prepare applications for usage in a SaaS model and how to integrate them with Catalog Manager</LI>
       <LI><A HREF="doc/en/MPOwner.pdf">Marketplace Owner's Guide</A> - a PDF manual for marketplace owners
-        describing how to manage and customize marketplaces in CT-MG</LI>
+        describing how to manage and customize marketplaces in Catalog Manager</LI>
       <LI><A HREF="doc/en/Supplier.pdf">Supplier's Guide</A> - a PDF manual for suppliers describing how to define
-        and manage service offerings for applications that have been integrated with CT-MG</LI>
+        and manage service offerings for applications that have been integrated with Catalog Manager</LI>
       <LI><A HREF="doc/en/Reseller.pdf">Reseller's Guide</A> - a PDF manual for resellers describing how to
         prepare, offer, and sell services defined by suppliers on a marketplace</LI>
       <LI><A HREF="doc/en/Broker.pdf">Broker's Guide</A> - a PDF manual for brokers describing how to suppurt
@@ -134,17 +134,17 @@
       <LI><A HREF="BillingBase.xsd">BillingBase.xsd</A> - a schema included in the <code>SupplierRevenueShareResult.xsd</code>,
         <code>ResellerRevenueShareResult.xsd</code>, <code>BrokerRevenueShareResult.xsd</code>, and <code>MPOwnerRevenueShareResult.xsd</code></LI>
     </ul></li>
-  <li><b><A HREF="version.txt">CT-MG version information</A></b></li>
+  <li><b><A HREF="version.txt">Catalog Manager version information</A></b></li>
   </ul>
   <H2>Best Practices for Implementing Web Services</H2>
   <P>Consider the following when implementing Web services for integrating applications or external systems with
-    CT-MG:</p>
+    Catalog Manager:</p>
   <ul>
     <li><b>Web services based on Java</b>:
       <p>It is recommended to use the JAX-WS framework for implementing a Web service. The interfaces for all Web
-        services are shipped in .jar files in this package. For calls from CT-MG to your Web service (outbound calls),
-        you can directly write your Java code and include the appropriate CT-MG .jar file. For calls from your Web
-        service to CT-MG (inbound calls), you implement the relevant CT-MG interfaces. No code generation is required.</p></li>
+        services are shipped in .jar files in this package. For calls from Catalog Manager to your Web service (outbound calls),
+        you can directly write your Java code and include the appropriate Catalog Manager .jar file. For calls from your Web
+        service to Catalog Manager (inbound calls), you implement the relevant Catalog Manager interfaces. No code generation is required.</p></li>
     <li><b>Web services NOT based on Java</b>:
       <p>In this case, the Web services MUST conform to the WSDL and XSD files provided in this package. Depending
         on the platform and the Web services framework you are using, code generation is required or dynamic usage is

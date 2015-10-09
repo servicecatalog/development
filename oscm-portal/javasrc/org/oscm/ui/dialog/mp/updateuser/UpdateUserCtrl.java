@@ -120,10 +120,9 @@ public class UpdateUserCtrl {
 
     List<UserGroup> initUserGroups() {
         List<POUserGroup> orgUserGroups = getUserGroupService()
-                .getGroupsForOrganization();
+                .getGroupListForOrganizationWithoutDefault();
         List<POUserGroup> userGroups = getUserGroupService()
-                .getUserGroupListForUserWithRoles(
-                        model.getUser().getUserId());
+                .getUserGroupListForUserWithRolesWithoutDefault(model.getUser().getUserId());
         Map<Long, POUserGroup> userGroupMap = new HashMap<>();
         for (POUserGroup g : userGroups) {
             userGroupMap.put(Long.valueOf(g.getKey()), g);
@@ -140,7 +139,7 @@ public class UpdateUserCtrl {
             userGroup.setName(poUserGroup.getGroupName());
             userGroup.setDescription(poUserGroup.getGroupDescription());
             userGroup.setReferenceId(poUserGroup.getGroupReferenceId());
-            List<SelectItem> roles = new ArrayList<SelectItem>();
+            List<SelectItem> roles = new ArrayList<>();
             for (UnitRoleType unitRoleType : UnitRoleType.values()) {
                 SelectItem unitRole = new SelectItem(unitRoleType.name(),
                         formatRoleName(UNIT_ROLE_NAME_TEMPLATE,
@@ -151,9 +150,7 @@ public class UpdateUserCtrl {
             if (userGroupMap.containsKey(Long.valueOf(poUserGroup.getKey()))) {
                 userGroup.setSelectedRole(userGroupMap.get(Long.valueOf(poUserGroup.getKey())).getSelectedRole());
             } else {
-                if (userGroup.isDefault()) {
-                    userGroup.setSelectedRole(UnitRoleType.USER.name());
-                }
+                userGroup.setSelectedRole(UnitRoleType.USER.name());
             }
             groups.add(userGroup);
         }
@@ -295,7 +292,11 @@ public class UpdateUserCtrl {
             for (POServiceRole r : roles) {
                 SelectItem si = new SelectItem(String.format("%s:%s",
                         Long.valueOf(r.getKey()), r.getId()), r.getName());
-                items.add(si);
+                if(r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
+                    items.add(0, si);
+                } else {
+                    items.add(si);
+                }
             }
             sub.setRoles(items);
             sub.setSelected(s.isAssigned());

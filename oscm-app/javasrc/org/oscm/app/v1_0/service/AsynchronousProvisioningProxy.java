@@ -49,12 +49,12 @@ import org.oscm.provisioning.data.UserResult;
 import org.oscm.provisioning.intf.ProvisioningService;
 
 /**
- * Implements the latest CT-MG provisioning service interface.
+ * Implements the latest OSCM provisioning service interface.
  * <p>
  * Please note that almost all signatures of the provisioning service methods
  * contain a user object which represents the calling user. Not all public
  * members of this object are set when the provisionig call is done. Currently,
- * following members are provided by CT-MG:<br />
+ * following members are provided by OSCM:<br />
  * <code>email, locale, first name, last name, user id</code>
  * 
  * @author kulle

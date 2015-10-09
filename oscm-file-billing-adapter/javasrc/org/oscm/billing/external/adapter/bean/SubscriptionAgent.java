@@ -25,7 +25,7 @@ import javax.naming.NamingException;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 
 /**
- * Pushes subscription price models to CT-MG
+ * Pushes subscription price models to OSCM
  */
 @LocalBean
 @Stateless
@@ -49,7 +49,7 @@ public class SubscriptionAgent {
     }
 
     /**
-     * Get the CT-MG task queue factory
+     * Get the OSCM task queue factory
      * 
      * @param context
      *            a JNDI context
@@ -66,7 +66,7 @@ public class SubscriptionAgent {
     }
 
     /**
-     * Get the CT-MG task queue
+     * Get the OSCM task queue
      * 
      * @param context
      *            a JNDI context

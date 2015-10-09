@@ -103,4 +103,19 @@ public interface SubscriptionServiceInternal {
      */
     public boolean validateSubscriptionIdForOrganization(String subscriptionId);
 
+    /**
+     * Retrieves all subscriptions of the calling user's organization.
+     * <p>
+     * Required role: administrator of the organization, subscription manager or unit administrator
+     * 
+     * @param performanceHint
+     *            a <code>performanceHint</code> constant specifying the data to
+     *            include in the result. This can be used to increase the search
+     *            performance.
+     * 
+     * @return the list of subscriptions
+     */
+    public List<VOSubscription> getAllSubscriptionsForOrganization(
+            PerformanceHint performanceHint);
+
 }

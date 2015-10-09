@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -130,8 +129,7 @@ public class BillingDaoIT extends EJBTestBase {
     public void retrieveSupplierBillingBySupplierId_nonExistingSupplierId()
             throws Exception {
         // when
-        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(
-                NON_EXISTING_SUPPLIER_ID);
+        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(NON_EXISTING_SUPPLIER_ID);
 
         // then
         assertTrue(reportData.isEmpty());
@@ -154,14 +152,13 @@ public class BillingDaoIT extends EJBTestBase {
         final Organization customer = createOrganization(CUSTOMER_ORG_ID);
         createSupportedCountriesAndCurrencies();
         createSubscriptionHistory(2L, customer.getKey(), "2013-01-21 09:00:00",
-                19, ModificationType.ADD, SubscriptionStatus.ACTIVE, 100L,
-                200L);
+                19, ModificationType.ADD, SubscriptionStatus.ACTIVE, 100L, 200L);
         BillingResult br = createBillingResult(0L, 1L, 2L, customer.getKey(),
                 supplierOrg.getKey());
 
         // when
-        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(
-                supplierOrg.getOrganizationId());
+        List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(supplierOrg
+                .getOrganizationId());
 
         // then
         assertEquals(1, reportData.size());
@@ -183,11 +180,12 @@ public class BillingDaoIT extends EJBTestBase {
         Subscription sub = createSubscription(supplierOrg.getOrganizationId(),
                 product.getProductId(), "SubscriptionId", supplierOrg);
         assignSubscriptionToUnit(sub, unit);
-        createSubscriptionHistory(subscriptionKey, supplierOrg.getKey(),
+        createSubscriptionHistory(sub.getKey(), supplierOrg.getKey(),
                 "2013-01-21 09:00:00", 19, ModificationType.ADD,
                 SubscriptionStatus.ACTIVE, 100L, 200L);
         final BillingResult br = createBillingResult(1L, 1L,
-                Long.valueOf(subscriptionKey), 1000L, supplierOrg.getKey());
+                Long.valueOf(sub.getKey()), supplierOrg.getKey(),
+                supplierOrg.getKey());
 
         // when
         List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
@@ -387,8 +385,7 @@ public class BillingDaoIT extends EJBTestBase {
     @Test
     public void retrieveBillingDetailsByKey_nonExistingKey() throws Exception {
         // when
-        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(
-                NON_EXISTING_BILLING_KEY);
+        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(NON_EXISTING_BILLING_KEY);
 
         // then
         assertTrue(billingDetails.isEmpty());
@@ -412,8 +409,8 @@ public class BillingDaoIT extends EJBTestBase {
                 supplier.getKey());
 
         // when
-        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(
-                br.getKey());
+        List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(br
+                .getKey());
 
         // then
         assertEquals(1, billingDetails.size());

@@ -1987,6 +1987,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionsForOrganizationWithFilter(null, performanceHint);
     }
 
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    public List<VOSubscription> getAllSubscriptionsForOrganization(
+            PerformanceHint performanceHint) {
+        ArrayList<VOSubscription> result = new ArrayList<>();
+        List<Subscription> subscriptions = subscriptionListService
+                .getAllSubscriptionsForOrganization();
+        LocalizerFacade facade = new LocalizerFacade(localizer, dataManager
+                .getCurrentUser().getLocale());
+        for (Subscription sub : subscriptions) {
+            VOSubscription voSub = SubscriptionAssembler.toVOSubscription(sub,
+                    facade, performanceHint);
+            result.add(voSub);
+        }
+        return result;
+    }
+
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER" })
     public List<VOSubscription> getSubscriptionsForOrganizationWithFilter(

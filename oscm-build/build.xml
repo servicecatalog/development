@@ -185,9 +185,9 @@
         <exclude name=".project"/>
       </fileset>
     </copy>
-    <copy todir="${workspace.dir}/UserDoc">
-      <fileset dir="../../document/Development/UserDoc" />
-    </copy>
+    <!--<copy todir="${workspace.dir}/UserDoc">-->
+      <!--<fileset dir="../../document/Development/UserDoc" />-->
+    <!--</copy>-->
   </target>
 
   <macrodef name="buildproject">
@@ -469,7 +469,6 @@
     <!-- build results -->
 
     <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-i18n/diff_Mail.properties.log" />
-    <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/eclipse-birt-runtime/diff_reportLabels.properties.log" />
     <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-portal/diff_Messages.properties.log" />
     <copy failonerror="false" todir="${artifacts.properties.dir}" file="${result.dir}/work/oscm-portal/syntax_Messages.properties.log" />
 
@@ -481,6 +480,7 @@
       <fileset file="${result.package.dir}/oscm-ror-install-pack/oscm-ror-install-pack.zip" />
       <fileset file="${result.package.dir}/oscm-openstack-install-pack/oscm-openstack-install-pack.zip" />
       <fileset file="${result.package.dir}/oscm-aws-install-pack/oscm-aws-install-pack.zip" />
+      <fileset file="${result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.zip" />
     </copy>
 
     <!-- testing -->

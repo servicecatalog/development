@@ -1,0 +1,729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.2.1.v201209101448 Build &lt;4.2.1.v20120912-1721></property>
+    <simple-property-list name="includeResource">
+        <value>WEB-INF/reportLabels</value>
+    </simple-property-list>
+    <list-property name="propertyBindings">
+        <structure>
+            <property name="name">soapEndPoint</property>
+            <property name="id">7</property>
+            <expression name="value">params["SOAPEndPoint"].value</expression>
+        </structure>
+        <structure>
+            <property name="name">wsdlURI</property>
+            <property name="id">7</property>
+            <expression name="value">params["WSDLURL"].value</expression>
+        </structure>
+    </list-property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="layoutPreference">auto layout</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <parameters>
+        <scalar-parameter name="SessionId" id="108">
+            <property name="hidden">true</property>
+            <text-property name="promptText">SessionId</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">9319f15558da00bdcdb880078460</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SOAPEndPoint" id="419">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8081/Report/ReportingServiceBean</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="WSDLURL" id="420">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8081/Report/ReportingServiceBean?wsdl</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.datatools.enablement.oda.ws" name="Data Source" id="7">
+            <property name="soapEndPoint">http://localhost:8080/Report/ReportingServiceBean</property>
+            <property name="wsdlURI">http://localhost:8180/Report/ReportingServiceBean?wsdl</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Data Set" id="9">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ORGANIZATIONID</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">ORGANIZATIONID</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">FROM</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">FROM</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">TO</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">TO</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">PROCESSINGSTATUS</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">PROCESSINGSTATUS</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">PROCESSINGTIME</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">PROCESSINGTIME</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">PROCESSINGRESULT</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">PROCESSINGRESULT</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">BILLINGKEY</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">BILLINGKEY</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">TXNID</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">TXNID</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">ORGANIZATIONID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">FROM</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">TO</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">PROCESSINGSTATUS</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">PROCESSINGTIME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">PROCESSINGRESULT</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">BILLINGKEY</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">TXNID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">ORGANIZATIONID</property>
+                    <property name="nativeName">ORGANIZATIONID</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">FROM</property>
+                    <property name="nativeName">FROM</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">TO</property>
+                    <property name="nativeName">TO</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">PROCESSINGSTATUS</property>
+                    <property name="nativeName">PROCESSINGSTATUS</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">PROCESSINGTIME</property>
+                    <property name="nativeName">PROCESSINGTIME</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">PROCESSINGRESULT</property>
+                    <property name="nativeName">PROCESSINGRESULT</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">BILLINGKEY</property>
+                    <property name="nativeName">BILLINGKEY</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">TXNID</property>
+                    <property name="nativeName">TXNID</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+<S:Header/>
+<S:Body>
+<ns2:getReport xmlns:ns2="http://bean.reportingservice.oscm.org/">
+<sessionId>&amp;?SessionId?&amp;</sessionId>
+<reportId>Supplier_PaymentResultStatus</reportId>
+</ns2:getReport>
+</S:Body>
+</S:Envelope>
+]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>getReportResponse</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>getReportResponse</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//data]#:#{ORGANIZATIONID;STRING;//ORGANIZATIONID},{FROM;STRING;//PERIODSTARTTIME},{TO;STRING;//PERIODENDTIME},{PROCESSINGSTATUS;STRING;//PROCESSINGSTATUS},{PROCESSINGTIME;STRING;//PROCESSINGTIME},{PROCESSINGRESULT;STRING;//PROCESSINGRESULT},{BILLINGKEY;STRING;//BILLINGKEY},{TXNID;STRING;//TXNID}</value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Timezone Data Set" id="517">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">serverTimeZone</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">serverTimeZone</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">serverTimeZone</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">serverTimeZone</property>
+                    <property name="nativeName">serverTimeZone</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/">
+<S:Header/>
+<S:Body>
+<ns2:getReport xmlns:ns2="http://bean.reportingservice.oscm.org/">
+<sessionId>&amp;?SessionId?&amp;</sessionId>
+<reportId>Supplier_PaymentResultStatus</reportId>
+</ns2:getReport>
+</S:Body>
+</S:Envelope>
+]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>getReportResponse</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>getReportResponse</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return]#:#{serverTimeZone;STRING;serverTimeZone}</value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">"Verdana"</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="Head" id="243">
+            <property name="backgroundColor">#C0C0C0</property>
+        </style>
+        <style name="AlternatingRowColor" id="327">
+            <list-property name="highlightRules">
+                <structure>
+                    <property name="operator">gt</property>
+                    <property name="backgroundColor">#E5EBF1</property>
+                    <expression name="testExpr">row.__rownum %2</expression>
+                    <simple-property-list name="value1">
+                        <value>0.0</value>
+                    </simple-property-list>
+                </structure>
+            </list-property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="topMargin">0.25in</property>
+            <property name="leftMargin">0.25in</property>
+            <property name="bottomMargin">0.25in</property>
+            <property name="rightMargin">0.25in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <table id="442">
+            <property name="dataSet">Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">ORGANIZATIONID</property>
+                    <expression name="expression">dataSetRow["ORGANIZATIONID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">FROM</property>
+                    <text-property name="displayName">PERIODSTARTTIME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["FROM"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">TO</property>
+                    <text-property name="displayName">PERIODENDTIME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["TO"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PROCESSINGTIME</property>
+                    <text-property name="displayName">PROCESSINGTIME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["PROCESSINGTIME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PROCESSINGSTATUS</property>
+                    <text-property name="displayName">PROCESSINGSTATUS</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["PROCESSINGSTATUS"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PROCESSINGRESULT</property>
+                    <text-property name="displayName">PROCESSINGRESULT</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["PROCESSINGRESULT"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">BILLINGKEY</property>
+                    <text-property name="displayName">BILLINGKEY</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["BILLINGKEY"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="sort">
+                <structure>
+                    <expression name="key" type="javascript">row["BILLINGKEY"]</expression>
+                    <property name="direction">asc</property>
+                    <property name="strength">-1</property>
+                </structure>
+            </list-property>
+            <column id="455">
+                <property name="suppressDuplicates">false</property>
+            </column>
+            <column id="456"/>
+            <column id="457"/>
+            <column id="503">
+                <property name="repeat">1</property>
+            </column>
+            <column id="463"/>
+            <column id="467"/>
+            <column id="494"/>
+            <header>
+                <row id="443">
+                    <property name="backgroundColor">#ADB7C3</property>
+                    <cell id="444">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="458">
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="ORGANIZATIONID"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="445">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="459">
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="FROM"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="446">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="468">
+                            <property name="fontFamily">"Verdana"</property>
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="TO"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="498">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="504">
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="BILLINGKEY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="460">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="469">
+                            <property name="fontFamily">"Verdana"</property>
+                            <property name="fontSize">8pt</property>
+                            <property name="fontStyle">normal</property>
+                            <text-property name="text" key="PROCESSINGTIME"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="464">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>                    
+                        <label id="470">
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="PROCESSINGSTATUS"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="489">
+                        <label id="496">
+                            <property name="fontSize">8pt</property>
+                            <text-property name="text" key="PROCESSINGRESULT"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <group id="471">
+                <property name="groupName">CustomerGroup</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr" type="javascript">row["ORGANIZATIONID"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue" type="javascript">row["ORGANIZATIONID"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <list-property name="sort">
+                    <structure>
+                        <expression name="key" type="javascript">row["ORGANIZATIONID"]</expression>
+                        <property name="direction">asc</property>
+                    </structure>
+                </list-property>
+                <header>
+                    <row id="472">
+                        <property name="backgroundColor">gray</property>
+                        <cell id="473">
+                            <data id="484">
+                                <property name="resultSetColumn">ORGANIZATIONID</property>
+                            </data>
+                        </cell>
+                        <cell id="474"/>
+                        <cell id="475"/>
+                        <cell id="499"/>
+                        <cell id="476"/>
+                        <cell id="477"/>
+                        <cell id="490"/>
+                    </row>
+                </header>
+                <footer>
+                    <row id="478">
+                        <cell id="479"/>
+                        <cell id="480"/>
+                        <cell id="481"/>
+                        <cell id="501"/>
+                        <cell id="482"/>
+                        <cell id="483"/>
+                        <cell id="492"/>
+                    </row>
+                </footer>
+            </group>
+            <detail>
+                <row id="447">
+                    <cell id="448"/>
+                    <cell id="449">
+                        <data id="506">
+                            <property name="resultSetColumn">FROM</property>
+                        </data>
+                    </cell>
+                    <cell id="450">
+                        <data id="507">
+                            <property name="resultSetColumn">TO</property>
+                        </data>
+                    </cell>
+                    <cell id="500">
+                        <data id="505">
+                            <property name="resultSetColumn">BILLINGKEY</property>
+                        </data>
+                    </cell>
+                    <cell id="461">
+                        <data id="487">
+                            <property name="resultSetColumn">PROCESSINGTIME</property>
+                        </data>
+                    </cell>
+                    <cell id="465">
+                        <data id="488">
+                            <property name="resultSetColumn">PROCESSINGSTATUS</property>
+                        </data>
+                    </cell>
+                    <cell id="491">
+                        <data id="497">
+                            <property name="resultSetColumn">PROCESSINGRESULT</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="451">
+                    <cell id="452"/>
+                    <cell id="453"/>
+                    <cell id="454"/>
+                    <cell id="502"/>
+                    <cell id="462"/>
+                    <cell id="466"/>
+                    <cell id="493"/>
+                </row>
+            </footer>
+        </table>
+        <table id="518">
+            <property name="dataSet">Timezone Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">serverTimeZone</property>
+                    <text-property name="displayName">serverTimeZone</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">footnote</property>
+                    <expression name="expression" type="javascript">l10nParams = new Array(1);
+l10nParams[0] = dataSetRow["serverTimeZone"];
+reportContext.getMessage("REPORT_FOOTNOTE", reportContext.getLocale(), l10nParams);</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <column id="525"/>
+            <detail>
+                <row id="521">
+                    <cell id="522">
+                        <data id="526">
+                            <property name="resultSetColumn">footnote</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+        </table>
+    </body>
+</report>

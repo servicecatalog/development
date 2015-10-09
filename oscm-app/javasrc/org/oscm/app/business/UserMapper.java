@@ -12,14 +12,14 @@ import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.provisioning.data.User;
 
 /**
- * Converts between CT-MG provisioning users and APP service instance users
+ * Converts between OSCM provisioning users and APP service instance users
  * 
  * @author kulle
  */
 public class UserMapper {
 
     /**
-     * Transforms a CT-MG provisioning user entity into an APP service user
+     * Transforms a OSCM provisioning user entity into an APP service user
      * entity.
      */
     public static ServiceUser toServiceUser(User fromUser) {
@@ -38,7 +38,7 @@ public class UserMapper {
     }
 
     /**
-     * Transforms a CT-MG provisioning user entity into an APP service user
+     * Transforms a OSCM provisioning user entity into an APP service user
      * entity.
      */
     public static User toProvisioningUser(ServiceUser fromUser) {

@@ -364,6 +364,22 @@ public class UserGroupServiceLocalBean {
         }
         return groupsWithRoles;
     }
+    
+    @RolesAllowed({ "ORGANIZATION_ADMIN" })
+    public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRolesWithoutDefault(String userId) {
+        Map<UserGroup, UnitRoleType> groupsWithRoles = new HashMap<>();
+        List<UserGroup> groups = userGroupDao.getUserGroupsForUserWithoutDefault(userId);
+        for (UserGroup group : groups) {
+            UnitRoleAssignment unitRoleAssignment = userGroupDao
+                    .getRoleAssignmentByUserAndGroup(group.getKey(), userId);
+            if (unitRoleAssignment == null) {
+                groupsWithRoles.put(group, UnitRoleType.USER);
+                continue;
+            }
+            groupsWithRoles.put(group, unitRoleAssignment.getUnitUserRole().getRoleName());
+        }
+        return groupsWithRoles;
+    }
 
     public List<UserGroup> getUserGroupsForUserWithoutDefault(String userId) {
         return userGroupDao.getUserGroupsForUserWithoutDefault(userId);
@@ -626,7 +642,7 @@ public class UserGroupServiceLocalBean {
 
     public List<Long> getInvisibleProductKeysForUser(long userKey)
             throws ObjectNotFoundException {
-        if (userGroupDao.getUserGroupCountForUser(userKey) > 1) {
+        if (userGroupDao.getUserGroupCountForUser(userKey) > 0) {
             return userGroupDao.getInvisibleProductKeysForUser(userKey);
         } else {
             UserGroup userGroup = getDefaultUserGroupForUser(userKey);
@@ -994,13 +1010,7 @@ public class UserGroupServiceLocalBean {
     public void setSessionCtx(SessionContext sessionCtx) {
         this.sessionCtx = sessionCtx;
     }
-
-    @RolesAllowed({ "ORGANIZATION_ADMIN"})
-    public UnitRoleAssignment modifyUnitRoleTypeForUserGroup(Entry<UserGroup, UnitUserRole> groupWithRoles,
-                                                             PlatformUser platformUser) throws ObjectNotFoundException {
-        return userGroupDao.modifyUnitRoleTypeForUserGroup(groupWithRoles, platformUser);
-    }
-
+    
     public UnitUserRole getUnitRoleByName(String roleName) {
         return userGroupDao.getUnitRoleByName(roleName);
     }

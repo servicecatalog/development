@@ -514,53 +514,54 @@
       <mpl_verify.success label="${info.user.profileSaved}" />
     </webtest>
 
-    <webtest name="testMPL_UserCustomer_CreateUserWithGroup">
-      <!-- Login as customer -->
-      <mpl_login.user mid="${mId}" userId="${customerUserId}" />
-      <mpl_user.createUniqueName userIdPrefix="testUser" />
-      <storeProperty name="userId" value="#{uniqueUserId}" />
-      <mpl_user.createGroup groupId="group1" />
+    <!-- Commented out as default group display has been removed and this test mostly relies on it -->
+    <!--<webtest name="testMPL_UserCustomer_CreateUserWithGroup">-->
+      <!--&lt;!&ndash; Login as customer &ndash;&gt;-->
+      <!--<mpl_login.user mid="${mId}" userId="${customerUserId}" />-->
+      <!--<mpl_user.createUniqueName userIdPrefix="testUser" />-->
+      <!--<storeProperty name="userId" value="#{uniqueUserId}" />-->
+      <!--<mpl_user.createGroup groupId="group1" />-->
 
-      <!-- Switch to account / users page -->
-      <mpl_goto.account.users />
+      <!--&lt;!&ndash; Switch to account / users page &ndash;&gt;-->
+      <!--<mpl_goto.account.users />-->
 
-      <!-- Click Add user -->
-      <clickLink xpath="//a[matches(@id, 'userListForm:addUserButtonLink')]" />
+      <!--&lt;!&ndash; Click Add user &ndash;&gt;-->
+      <!--<clickLink xpath="//a[matches(@id, 'userListForm:addUserButtonLink')]" />-->
 
-      <!-- Check if checkbox, in the default group row, is checked and disabled -->
-      <verifyCheckbox htmlId="userForm:userGroupsTable:0:groupsCheckbox" checked="true" />
-      <verifyXPath xpath="//*[@id='userForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />
+      <!--&lt;!&ndash; Check if checkbox, in the default group row, is checked and disabled &ndash;&gt;-->
+      <!--<verifyCheckbox htmlId="userForm:userGroupsTable:0:groupsCheckbox" checked="true" />-->
+      <!--<verifyXPath xpath="//*[@id='userForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />-->
 
-      <!-- Set mandatory fields -->
-      <setInputField htmlId="userForm:email" value="test@gmail.com" />
-      <setInputField htmlId="userForm:userId" value="#{userId}" />
+      <!--&lt;!&ndash; Set mandatory fields &ndash;&gt;-->
+      <!--<setInputField htmlId="userForm:email" value="test@gmail.com" />-->
+      <!--<setInputField htmlId="userForm:userId" value="#{userId}" />-->
 
-      <!-- Set role for user groups -->
-      <setSelectField name="userForm:userGroupsTable:0:unitRole" text="Administrator" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <clickButton label="${button.save}" />
-      <mpl_verify.success label="#{userId}" />
+      <!--&lt;!&ndash; Set role for user groups &ndash;&gt;-->
+      <!--<setSelectField name="userForm:userGroupsTable:0:unitRole" text="Administrator" />-->
+      <!--<mpl_user.selectUserGroup groupIndex="1" groupRole="User" />-->
+      <!--<clickButton label="${button.save}" />-->
+      <!--<mpl_verify.success label="#{userId}" />-->
 
-      <!-- Edit added user data -->
-      <mpl_goto.account.users />
-      <mpl_user.display userId="#{userId}" />
+      <!--&lt;!&ndash; Edit added user data &ndash;&gt;-->
+      <!--<mpl_goto.account.users />-->
+      <!--<mpl_user.display userId="#{userId}" />-->
 
-      <!-- Check if user groups with roles were saved -->
-      <verifyCheckbox htmlId="editUserForm:userGroupsTable:0:groupsCheckbox" checked="true" />
-      <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />
-      <verifyCheckbox htmlId="editUserForm:userGroupsTable:1:groupsCheckbox" checked="true" />
-      <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole']/option[@value='ADMINISTRATOR']/@selected='selected'" />
-      <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:1:unitRole']/option[@value='USER']/@selected='selected'" />
+      <!--&lt;!&ndash; Check if user groups with roles were saved &ndash;&gt;-->
+      <!--<verifyCheckbox htmlId="editUserForm:userGroupsTable:0:groupsCheckbox" checked="true" />-->
+      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />-->
+      <!--<verifyCheckbox htmlId="editUserForm:userGroupsTable:1:groupsCheckbox" checked="true" />-->
+      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole']/option[@value='ADMINISTRATOR']/@selected='selected'" />-->
+      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:1:unitRole']/option[@value='USER']/@selected='selected'" />-->
 
-      <!-- Change roles in groups and save -->
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <clickButton label="${button.save}" />
-      <mpl_verify.success label="#{userId}" />
+      <!--&lt;!&ndash; Change roles in groups and save &ndash;&gt;-->
+      <!--<mpl_user.selectUserGroup groupIndex="1" groupRole="User" />-->
+      <!--<clickButton label="${button.save}" />-->
+      <!--<mpl_verify.success label="#{userId}" />-->
 
-      <!-- And logoff -->
-      <mpl_login.logout />
-      <mail.cleanInbox />
-    </webtest>
+      <!--&lt;!&ndash; And logoff &ndash;&gt;-->
+      <!--<mpl_login.logout />-->
+      <!--<mail.cleanInbox />-->
+    <!--</webtest>-->
 
     <webtest name="testMPL_UserCustomer_finalCleanup">
       <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />

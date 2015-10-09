@@ -49,8 +49,8 @@
       <setInputField htmlId="userForm:userId" value="${usernameM}" />
       <setSelectField htmlId="userForm:locale" value="en" />
       <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="true" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
       <clickElement htmlId="userForm:createButtonLink" />
       <common.verifySuccess label="${usernameM}" />
       <mpl_login.logout />
@@ -68,7 +68,7 @@
       <mpl_user.create userId="userN" firstname="first" lastname="last" isAdmin="true" />
       <storeProperty name="usernameN" value="#{userId}" propertyType="ant" />
       <clickElement xpath="//td[@id='userListForm:userListTable:2:colUserId']/..//img[@class='editPen']" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
 
       <!--verify userM and userN in groupIdA-->
@@ -92,7 +92,7 @@
       <!--check user count in groupIdA-->
       <mpl_goto.account.users />
       <clickElement htmlId="tabGroups:header" />
-      <verifyElementText htmlId="groupsListForm:groupListTable:1:numberOfUsers" text="1" />
+      <verifyElementText htmlId="groupsListForm:groupListTable:1:numberOfUsers" text="2" />
 
       <!--delete userM and userN-->
       <mpl_goto.account.users />

@@ -78,13 +78,13 @@ public enum HeidelpayConfigurationKey {
 
     @Doc({
             "The URL of the platform's payment registration Web service WSDL. This is a WSDL ",
-            "and must point to a secure resource. It is a CT-MG service." })
+            "and must point to a secure resource. It is a OSCM service." })
     @Example("https://<yourserver>:<yourport>/oscm/PaymentRegistrationService/CLIENTCERT?wsdl")
     PSP_PAYMENT_REGISTRATION_WSDL,
 
     @Doc({
             "The URL of the platform's payment registration Web service. This is a endpoint ",
-            "and must point to a secure resource. It is a CT-MG service." })
+            "and must point to a secure resource. It is a OSCM service." })
     @Example("https://<yourserver>:<yourport>/PaymentRegistrationService/CLIENTCERT")
     PSP_PAYMENT_REGISTRATION_ENDPOINT,
 

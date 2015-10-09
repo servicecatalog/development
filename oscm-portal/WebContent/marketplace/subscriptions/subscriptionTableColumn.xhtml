@@ -30,7 +30,9 @@
               onkeyup="AdmUtils.setFirstPage(#{rich:element(scroller)});" />
 
         </f:facet>
-        <h:outputText value="#{record[property]}" />
+        <a4j:outputPanel layout="block" styleClass="tablePanel table_padding stringInMultiLine preserveWhitespaces">
+            <h:outputText value="#{record[property]}" styleClass="wrapColumns"/>
+        </a4j:outputPanel>
     </rich:column>
     
 

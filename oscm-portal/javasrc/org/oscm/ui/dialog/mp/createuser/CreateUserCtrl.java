@@ -74,7 +74,7 @@ public class CreateUserCtrl {
     @PostConstruct
     public void init() {
         POUserAndSubscriptions data = getUserService().getNewUserData();
-        CreateUserModel m = getModel();
+        CreateUserModel m = model;
         m.setEmail(new FieldData<String>(null, false, true));
         m.setFirstName(new FieldData<String>(null, false));
         m.setLastName(new FieldData<String>(null, false));
@@ -89,7 +89,7 @@ public class CreateUserCtrl {
 
     List<UserGroup> initUserGroups() {
         List<POUserGroup> poUserGroups = getUserGroupService()
-                .getGroupsForOrganization();
+                .getGroupsForOrganizationWithoutDefault();
         List<UserGroup> userGroups = new ArrayList<>();
         for (POUserGroup poUserGroup : poUserGroups) {
             UserGroup userGroup = new UserGroup();
@@ -97,7 +97,7 @@ public class CreateUserCtrl {
             userGroup.setName(poUserGroup.getGroupName());
             userGroup.setDescription(poUserGroup.getGroupDescription());
             userGroup.setReferenceId(poUserGroup.getGroupReferenceId());
-            List<SelectItem> roles = new ArrayList<SelectItem>();
+            List<SelectItem> roles = new ArrayList<>();
             for (UnitRoleType unitRoleType : UnitRoleType.values()) {
                 SelectItem unitRole = new SelectItem(unitRoleType.name(),
                         formatRoleName(UNIT_ROLE_NAME_TEMPLATE,
@@ -105,9 +105,7 @@ public class CreateUserCtrl {
                 roles.add(unitRole);
             }
             userGroup.setRoles(roles);
-            if (userGroup.isDefault()) {
-                userGroup.setSelectedRole(UnitRoleType.USER.name());
-            }
+            userGroup.setSelectedRole(UnitRoleType.USER.name());
             userGroups.add(userGroup);
         }
         return userGroups;
@@ -144,7 +142,11 @@ public class CreateUserCtrl {
             for (POServiceRole r : roles) {
                 SelectItem si = new SelectItem(String.format("%s:%s",
                         Long.valueOf(r.getKey()), r.getId()), r.getName());
-                items.add(si);
+                if(r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
+                    items.add(0, si);
+                } else {
+                    items.add(si);
+                }
             }
             sub.setRoles(items);
             result.add(sub);
@@ -154,8 +156,8 @@ public class CreateUserCtrl {
     }
 
     public String create() throws SaaSApplicationException {
-
-        CreateUserModel m = getModel();
+    
+        CreateUserModel m = model;
         POUserAndSubscriptions user = toPOUserAndSubscriptions(m);
         String outcome = BaseBean.OUTCOME_SUCCESS;
         try {
@@ -165,7 +167,7 @@ public class CreateUserCtrl {
                 outcome = BaseBean.OUTCOME_PENDING;
             } else {
                 // reset user table paging if user was created
-                TableState ts = getTableState();
+                TableState ts = tableState;
                 ts.resetActivePages();
             }
             ui.handle(response, BaseBean.INFO_USER_CREATED, user.getUserId());
@@ -174,7 +176,7 @@ public class CreateUserCtrl {
             m.setUserGroups(initUserGroups());
             outcome = BaseBean.OUTCOME_ERROR;
         } catch (MailOperationException e) {
-            if (getApplicationBean().isInternalAuthMode()) {
+            if (applicationBean.isInternalAuthMode()) {
                 ui.handleError(null, BaseBean.ERROR_USER_CREATE_MAIL);
             } else {
                 ui.handleError(null,
@@ -263,8 +265,8 @@ public class CreateUserCtrl {
     }
 
     public boolean isSubTableRendered() {
-        return (!getModel().getSubscriptions().isEmpty())
-                && (!getApplicationBean().isUIElementHidden(
+        return (!model.getSubscriptions().isEmpty())
+                && (!applicationBean.isUIElementHidden(
                 HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS));
     }
 
@@ -272,7 +274,7 @@ public class CreateUserCtrl {
 
         if (rolesColumnVisible == null) {
             boolean rolesDefined = false;
-            List<Subscription> subs = getModel().getSubscriptions();
+            List<Subscription> subs = model.getSubscriptions();
             for (int i = 0; i < subs.size() && !rolesDefined; i++) {
                 Subscription subscription = subs.get(i);
                 rolesDefined = subscription.isRolesRendered();

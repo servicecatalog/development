@@ -94,12 +94,6 @@
                 <a4j:outputPanel id="subcribe_configurationWarning" styleClass="configurationWarning">
                   <mp:notice rendered="#{subscriptionWizardConversation.model.configurationChanged}"
                     noticeText="#{msg['info.subscriptions.configuration.unsaved']}" />
-                  <script type="text/javascript">
-                                        if(#{subscriptionWizardConversation.model.configurationChanged})
-                                        {
-                                        setDirty(true);
-                                        }
-                                    </script>
                                 </a4j:outputPanel>
                             </ui:fragment>
 

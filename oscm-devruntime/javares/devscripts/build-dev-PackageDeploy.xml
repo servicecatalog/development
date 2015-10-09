@@ -3,7 +3,7 @@
  
 <project name="ADM Developer tasks - PACKAGE, DEPLOY" default="" basedir=".">
 
-  <description>This buildfile is used to BUILD, PACKAGE and DEPLOY productive CT-MG applications like the portal, birt or the server ear.
+  <description>This buildfile is used to BUILD, PACKAGE and DEPLOY productive OSCM applications like the portal, birt or the server ear.
   </description>
 
   <import file="macrodefs-dev.xml" />
@@ -34,7 +34,12 @@
 
   <target name="MasterIndexer.BUILD" description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-search" />
+      <property name="projects" value="oscm-install-pack" />
+    </ant>
+  </target>
+  <target name="EclipseBirt.BUILD" description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="eclipse-birt-runtime" />
     </ant>
   </target>
 
@@ -86,26 +91,6 @@
     <copy todir="${bes.domain.apps}/oscm-portal">
       <fileset dir="${dev.dir}/oscm-portal/WebContent" />
     </copy>
-  </target>
-
-  <target name="Birt.BUILD" description="Builds the BIRT report engine war file, the result can be found in in oscm-build/result/package/eclipse-birt-runtime">
-    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="eclipse-birt-runtime" />
-    </ant>
-  </target>
-
-  <target name="Birt.DEPLOY" description="Deploys the BIRT report engine into the BES domain">
-    <delete file="${bes.domain.apps}/eclipse-birt-runtime/.glassfishStaleFiles" failonerror="false" />
-    <deployOnBesDomain target="server" appl="${build.result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.war" />
-  </target>
-
-  <target name="Birt.REDEPLOY" description="Redeploys the BIRT report engine into the BES domain">
-    <delete file="${bes.domain.apps}/eclipse-birt-runtime/.glassfishStaleFiles" failonerror="false" />
-    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.war" appname="eclipse-birt-runtime" />
-  </target>
-
-  <target name="Birt.UNDEPLOY" description="Undeploys the BIRT report engine from the BES domain">
-    <undeployFromBesDomain target="server" appl="eclipse-birt-runtime" failonerror="false" />
   </target>
 
   <target name="Portal.BUILD" description="Builds the BES UI portal war file, the result can be found in oscm-build/result/package/oscm-portal">

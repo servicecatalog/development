@@ -572,8 +572,17 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
 		return configurationChanged;
 	}
 
-	public void setConfigurationChanged(boolean configurationChanged) {
-		this.configurationChanged = configurationChanged;
+  public void setConfigurationChanged(boolean configurationChanged) {
+        /**
+         * Logic was changed because there was a bug with configuration warning
+         * display. Once parameters were changed and dialog opened again
+         * clicking configure button resulted in warning message being hidden.
+         * As the model is ViewScoped then this parameter should not be
+         * changed once it is set to true. After reload new object will be
+         * created with default value of false.
+         */
+        this.configurationChanged = this.configurationChanged
+                || configurationChanged;
 	}
 
 	public String getServiceParametersAsJSONString() {

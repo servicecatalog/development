@@ -72,7 +72,7 @@ public class BesDAO {
     protected APPConfigurationServiceBean configService;
 
     /**
-     * Reads the WSDL for any CT-MG web service and returns an interface to the
+     * Reads the WSDL for any OSCM web service and returns an interface to the
      * service implementation. When a service instance is given, the respective
      * BES credentials will be set. The APP specific credentials will be used
      * otherwise.
@@ -81,7 +81,7 @@ public class BesDAO {
      *            the class of the requested service interface
      * @param serviceInstance
      *            the service instance to retrieve the client for (optional)
-     * @return a service interface to the requested CT-MG service
+     * @return a service interface to the requested OSCM service
      */
     public <T> T getBESWebService(Class<T> serviceClass,
             ServiceInstance serviceInstance) throws APPlatformException {
@@ -109,7 +109,7 @@ public class BesDAO {
             throw e;
         } catch (Exception e) {
             APPlatformException pe = new APPlatformException(e.getMessage(), e);
-            LOGGER.warn("Retrieving the CT-MG service client failed.", pe);
+            LOGGER.warn("Retrieving the OSCM service client failed.", pe);
             throw pe;
         }
     }
@@ -434,7 +434,7 @@ public class BesDAO {
         }
         // Forward mapped BES notification exception
         BESNotificationException bne = new BESNotificationException(
-                "Could not notify CT-MG on processing result. Current status is "
+                "Could not notify OSCM on processing result. Current status is "
                         + statusText, e);
         LOGGER.error(bne.getMessage(), e);
         throw bne;
@@ -443,7 +443,7 @@ public class BesDAO {
     void handleObjectNotFoundException(ServiceInstance currentSI,
             InstanceResult instanceResult) {
         LOGGER.info(
-                "The processing of service instance '{}' failed with return code '{}' and description '{}', but CT-MG doesn't recognize the subscription",
+                "The processing of service instance '{}' failed with return code '{}' and description '{}', but OSCM doesn't recognize the subscription",
                 new Object[] { currentSI.getInstanceId(),
                         Long.valueOf(instanceResult.getRc()),
                         instanceResult.getDesc() });
@@ -454,12 +454,12 @@ public class BesDAO {
             SubscriptionStateException se) {
         if (isCompleted) {
             LOGGER.info(
-                    "The processing of service instance '{}' was completed, but CT-MG couldn't be informed because of the wrong subscription state '{}'",
+                    "The processing of service instance '{}' was completed, but OSCM couldn't be informed because of the wrong subscription state '{}'",
                     new Object[] { currentSI.getInstanceId(),
                             se.getFaultInfo().getReason().toString() });
         } else {
             LOGGER.info(
-                    "The processing of service instance '{}' failed with return code '{}' and description '{}'. CT-MG couldn't be informed because of the wrong subscription state '{}'",
+                    "The processing of service instance '{}' failed with return code '{}' and description '{}'. OSCM couldn't be informed because of the wrong subscription state '{}'",
                     new Object[] { currentSI.getInstanceId(),
                             Long.valueOf(instanceResult.getRc()),
                             instanceResult.getDesc(),
@@ -538,7 +538,7 @@ public class BesDAO {
             // If the subscription is now in a wrong state we can skip the
             // complete request and proceed as usual (e.g. already completed)
             LOGGER.info(
-                    "Updated status for service instance '{}' with message '{}', but CT-MG couldn't be informed because of the wrong subscription state '{}'",
+                    "Updated status for service instance '{}' with message '{}', but OSCM couldn't be informed because of the wrong subscription state '{}'",
                     new Object[] { currentSI.getInstanceId(),
                             getEnglishOrFirst(list),
                             se.getFaultInfo().getReason().toString() });
@@ -546,7 +546,7 @@ public class BesDAO {
         } catch (Exception e) {
             // Forward mapped BES notification exception
             BESNotificationException bne = new BESNotificationException(
-                    "Could not notify CT-MG on new service provisioning status",
+                    "Could not notify OSCM on new service provisioning status",
                     e);
             LOGGER.error(bne.getMessage(), bne);
             throw bne;

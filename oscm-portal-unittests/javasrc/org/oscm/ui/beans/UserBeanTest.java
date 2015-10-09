@@ -101,7 +101,7 @@ public class UserBeanTest {
     private AuthenticationSettings authSettingsMock;
     private AuthenticationHandler authHandlerMock;
     private HttpSession sessionMock;
-    private static final String ISSUER = "CT-MG";
+    private static final String ISSUER = "OSCM";
     private static final String RECIPIENT = "http://www.bes-portal.de";
     private static final String IDP = "http://www.idp.de/openam/SSORedirect/request";
     private static final String KEYSTORE_PATH = "/openam/keystore.jks";

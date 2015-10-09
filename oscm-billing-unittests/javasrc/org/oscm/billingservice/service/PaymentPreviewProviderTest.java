@@ -8,16 +8,11 @@
 
 package org.oscm.billingservice.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,17 +21,17 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
-import org.oscm.billingservice.service.DataProviderAnyPeriod;
 import org.oscm.billingservice.service.model.BillingInput;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PriceModelHistory;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.SubscriptionHistory;
 import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.DateAsserts;
 import org.oscm.test.DateTimeHandling;
-import org.oscm.internal.types.enumtypes.PriceModelType;
 
 /**
  * @author muenz
@@ -48,19 +43,18 @@ public class PaymentPreviewProviderTest {
 
     private static final long ORGANIZATION_KEY = 1000l;
 
-    private final long VALID = 10;
-
-    private final long INVALID = 0;
-
     DataProviderAnyPeriod provider;
 
     BillingDataRetrievalServiceLocal bdrMock;
 
+    private DataService dm;
+
     @Before
-    public void setup() {
+    public void setup() throws ObjectNotFoundException {
         bdrMock = mock(BillingDataRetrievalServiceLocal.class);
-        provider = null; // should be initialized per test due to invocation
-                         // time
+        dm = mock(DataService.class);
+        when(dm.getReference(eq(Subscription.class), anyLong()))
+                .thenReturn(new Subscription());
     }
 
     @Test
@@ -68,6 +62,7 @@ public class PaymentPreviewProviderTest {
 
         // bdr not set
         try {
+            long VALID = 10;
             new DataProviderAnyPeriod(null, 0, 0, VALID, true);
             fail();
         } catch (Exception e) {
@@ -76,6 +71,7 @@ public class PaymentPreviewProviderTest {
 
         // organization key not set
         try {
+            long INVALID = 0;
             new DataProviderAnyPeriod(bdrMock, 1, 2, INVALID, true);
             fail();
         } catch (Exception e) {
@@ -153,7 +149,7 @@ public class PaymentPreviewProviderTest {
         // given
         long subscriptionKey = 1l;
         long now = DateTimeHandling.defineInvocationTime("2012-12-14 11:00:00");
-        List<SubscriptionHistory> subscriptionHistoryEntries = new ArrayList<SubscriptionHistory>();
+        List<SubscriptionHistory> subscriptionHistoryEntries = new ArrayList<>();
         SubscriptionHistory subscriptionHistory1 = createSubscriptionHistory(
                 createSubscription(subscriptionKey), 3,
                 DateTimeHandling.calculateMillis("2012-12-11 15:00:00"));
@@ -168,7 +164,7 @@ public class PaymentPreviewProviderTest {
         when(bdrMock.loadCurrency(anyLong(), anyLong())).thenReturn(
                 new SupportedCurrency(CURRENCY_CODE));
 
-        List<PriceModelHistory> priceModelHistories = new LinkedList<PriceModelHistory>();
+        List<PriceModelHistory> priceModelHistories = new LinkedList<>();
         PriceModelHistory priceModelHistory = new PriceModelHistory();
         priceModelHistory.setType(PriceModelType.PRO_RATA);
         priceModelHistories.add(priceModelHistory);
@@ -179,7 +175,7 @@ public class PaymentPreviewProviderTest {
 
         // must be constructed after mock definitions
         provider = new DataProviderAnyPeriod(bdrMock, 1, now, ORGANIZATION_KEY,
-                true);
+                null, true, dm);
 
         // when
         List<BillingInput> billingInputs = provider.getBillingInput();

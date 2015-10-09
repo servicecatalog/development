@@ -58,7 +58,7 @@ public interface APPlatformService {
     public String getEventServiceUrl() throws ConfigurationException;
 
     /**
-     * Returns the base URL of the CT-MG platform services in
+     * Returns the base URL of the OSCM platform services in
      * the following format:
      * <p>
      * <code>http(s)://&lt;host&gt;:&lt;port&gt;/{SERVICE}/BASIC</code>
@@ -73,7 +73,7 @@ public interface APPlatformService {
     public String getBSSWebServiceUrl() throws ConfigurationException;
 
     /**
-     * Returns the base URL of the WSDL files of the CT-MG platform services in
+     * Returns the base URL of the WSDL files of the OSCM platform services in
      * the following format:
      * <p>
      * <code>http(s)://&lt;host&gt;:&lt;port&gt;/{SERVICE}/BASIC?wsdl</code>

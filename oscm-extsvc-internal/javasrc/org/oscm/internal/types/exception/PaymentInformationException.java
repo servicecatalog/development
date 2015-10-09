@@ -8,8 +8,6 @@
 
 package org.oscm.internal.types.exception;
 
-import javax.xml.ws.WebFault;
-
 import org.oscm.internal.types.exception.beans.ApplicationExceptionBean;
 
 /**
@@ -17,7 +15,6 @@ import org.oscm.internal.types.exception.beans.ApplicationExceptionBean;
  * fails due to the violation of a validation constraint.
  * 
  */
-@WebFault(name = "PaymentInformationException", targetNamespace = "http://oscm.org/xsd")
 public class PaymentInformationException extends SaaSApplicationException {
 
     private static final long serialVersionUID = 512438608040216774L;

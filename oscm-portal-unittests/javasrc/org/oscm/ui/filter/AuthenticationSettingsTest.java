@@ -31,7 +31,7 @@ import org.oscm.internal.vo.VOConfigurationSetting;
  */
 public class AuthenticationSettingsTest {
 
-    private static final String ISSUER = "CT-MG";
+    private static final String ISSUER = "OSCM";
     private static final String IDP = "http://idp.de:9080/openam/SSORedirect/metaAlias/idp";
     private static final String IDP_UPPERCASE = IDP.toUpperCase();
     private static final String IDP_CONTEXT_ROOT = "http://idp.de:9080/openam";

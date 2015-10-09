@@ -3,10 +3,10 @@
  */
 /**
  * Specifies the public provisioning service API of Catalog
- * Manager (CT-MG).
+ * Manager.
  * <p>
  * A provisioning service is a Web service which integrates an 
- * application with the subscription management of CT-MG. Depending
+ * application with the subscription management of Catalog Manager. Depending
  * on the access type of a subscription's underlying service, the 
  * provisioning service of an application is called when a customer 
  * creates or modifies the subscription or when user assignments 
@@ -20,3 +20,4 @@
  * </p>
  */
 package org.oscm.provisioning.intf;
+

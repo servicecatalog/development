@@ -71,7 +71,7 @@ public class SAMLCredentials {
     /**
      * Generate password which consist of the request id and the SAML response.
      * It will be used in the custom realm implementation for authenticating the
-     * user in case CT-MG acts as a service provider.
+     * user in case OSCM acts as a service provider.
      * 
      * @param request
      * @return

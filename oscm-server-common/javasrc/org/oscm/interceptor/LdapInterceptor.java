@@ -31,7 +31,7 @@ public class LdapInterceptor {
     ConfigurationServiceLocal configService;
 
     /**
-     * Ensures that LDAP support is disabled if CT-MG acts as a SAML SP.
+     * Ensures that LDAP support is disabled if OSCM acts as a SAML SP.
      */
     @AroundInvoke
     public Object ensureLdapDisabledForServiceProvider(InvocationContext context)
@@ -49,7 +49,7 @@ public class LdapInterceptor {
 
         if (configService.isServiceProvider() && organizationProperties != null) {
             UnsupportedOperationException e = new UnsupportedOperationException(
-                    "It is forbidden to perform this operation if a CT-MG acts as a SAML service provider.");
+                    "It is forbidden to perform this operation if a OSCM acts as a SAML service provider.");
 
             Log4jLogger logger = LoggerFactory.getLogger(context.getTarget()
                     .getClass());

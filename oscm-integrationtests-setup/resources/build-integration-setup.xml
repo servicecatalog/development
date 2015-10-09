@@ -504,7 +504,6 @@
     <utilcall target="deployBesEarStandalone" />
     <deployOnBesDomain target="server" appl="${work.setup.dir}/oscm-portal.war" />
     <deployOnBesDomain target="server" appl="${work.setup.dir}/oscm-portal-help.war" />
-    <deployOnBesDomain target="server" appl="${work.setup.dir}/eclipse-birt-runtime.war" />
     <stopDomain domain="${glassfish.bes.domain.name}" />
     <startDomain domain="${glassfish.bes.domain.name}" port="${glassfish.bes.domain.admin.port}" />
   </target>

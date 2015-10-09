@@ -9,7 +9,7 @@
 package org.oscm.billing.external.context;
 
 /**
- * Keys for CT-MG operation context
+ * Keys for OSCM operation context
  * 
  */
 public enum ContextKey {

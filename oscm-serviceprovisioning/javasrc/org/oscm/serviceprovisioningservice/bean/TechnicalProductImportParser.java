@@ -378,7 +378,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
      *             exist.
      * @throws BillingAdapterNotFoundException
      *             Thrown in case imported technical service specifies billing
-     *             identifier which is not registered in CT-MG.
+     *             identifier which is not registered in OSCM.
      */
     public int parse(byte[] xml) throws OperationNotPermittedException,
             TechnicalServiceActiveException, UpdateConstraintException,

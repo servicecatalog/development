@@ -75,7 +75,7 @@
       <clickElement htmlId="tabUser:header" />
       <common.ignorePageScriptError/>
       <clickElement xpath="//*[@id='editUserImage${userId}']" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickButton htmlId="editUserForm:saveButton" />
 
       <clickElement htmlId="tabGroups:header" />
@@ -101,7 +101,7 @@
       <mpl_user.create userId="userM" firstname="first" lastname="last" isAdmin="true" />
       <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
       <clickElement xpath="//td[@id='userListForm:userListTable:1:colUserId']/..//img[@class='editPen']" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
 
       <mpl_goto.account.users />
@@ -109,7 +109,7 @@
       <mpl_user.create userId="userN" firstname="first" lastname="last" isAdmin="true" />
       <storeProperty name="usernameN" value="#{userId}" propertyType="ant" />
       <clickElement xpath="//td[@id='userListForm:userListTable:2:colUserId']/..//img[@class='editPen']" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
 
       <!--edit  userGroup-->
@@ -187,7 +187,7 @@
       <!--mpl_user.editCheckboxValue userId="${userId}" fieldId="editUserForm:userGroupsTable:0:groupsCheckbox" fieldValue="true" /-->
       <common.ignorePageScriptError/>
       <clickElement htmlId="editUserImage${userId}" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickButton htmlId="editUserForm:saveButton" />
 
       <mpl_goto.GroupsTab userId="${userId}" mid="${mId}" />
@@ -313,7 +313,7 @@
       <mpl_goto.account.users />
       <clickElement htmlId="tabUser:header" />
       <clickElement htmlId="editUserImage${usernameM}" />
-      <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
 
 
@@ -419,8 +419,8 @@
       <clickElement htmlId="tabUser:header" />
       <common.ignorePageScriptError/>
       <clickElement htmlId="editUserImage${usernameL}" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
       <mpl_login.logout />
 
@@ -437,8 +437,8 @@
       <mpl_goto.account.users />
       <clickElement htmlId="tabUser:header" />
       <clickElement htmlId="editUserImage${userId}" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <mpl_user.selectUserGroup groupIndex="2" groupRole="User" />
       <clickElement htmlId="editUserForm:saveButtonLink" />
       <mpl_login.logout />
 

@@ -3,7 +3,6 @@
 	<name>oscm-install-pack</name>
 	<comment></comment>
 	<projects>
-		<project>eclipse-birt-runtime</project>
 		<project>oscm-common</project>
 		<project>oscm-devruntime</project>
 		<project>oscm-ear</project>

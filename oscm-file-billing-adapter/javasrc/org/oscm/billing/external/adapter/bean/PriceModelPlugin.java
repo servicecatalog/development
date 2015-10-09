@@ -70,7 +70,7 @@ public class PriceModelPlugin implements PriceModelPluginService {
      * @param priceModelData
      *            a List of String's containing the price model data
      * @param context
-     *            the CT-MG price model context
+     *            the OSCM price model context
      * @return a PriceModelObject
      * @throws BillingException
      *             if the call to the file billing application is not successful

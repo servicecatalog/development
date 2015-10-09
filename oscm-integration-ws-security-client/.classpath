@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

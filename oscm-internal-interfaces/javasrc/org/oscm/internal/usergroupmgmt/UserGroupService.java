@@ -238,4 +238,13 @@ public interface UserGroupService {
      * @return true - if UNIT_ADMINISTRATOR role has been removed, false - otherwise
      */
     public boolean handleRemovingCurrentUserFromGroup();
+
+    /**
+     * get all user groups to which user is assigned and role that user has in particular group
+     * without default group
+     *
+     * @param userId
+     * @return the list of user groups
+     */
+    List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(String userId);
 }

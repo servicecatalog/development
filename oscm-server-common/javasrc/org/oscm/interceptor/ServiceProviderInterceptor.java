@@ -28,7 +28,7 @@ public class ServiceProviderInterceptor {
     ConfigurationServiceLocal configService;
 
     /**
-     * Checks if CT-MG acts as a SAML service provider. If so, an
+     * Checks if OSCM acts as a SAML service provider. If so, an
      * UnsupportedOperationException will be thrown.
      */
     @AroundInvoke
@@ -38,7 +38,7 @@ public class ServiceProviderInterceptor {
 
         if (configService.isServiceProvider()) {
             UnsupportedOperationException e = new UnsupportedOperationException(
-                    "It is forbidden to perform this operation if a CT-MG acts as a SAML service provider.");
+                    "It is forbidden to perform this operation if a OSCM acts as a SAML service provider.");
 
             Log4jLogger logger = LoggerFactory.getLogger(context.getTarget()
                     .getClass());

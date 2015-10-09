@@ -214,7 +214,7 @@ public class ServiceInstanceServiceBean {
     /**
      * Deprovisions all service instance related resources, which means in
      * detail:<br />
-     * 1. Deletes the CT-MG subscription<br />
+     * 1. Deletes the OSCM subscription<br />
      * 2. Deletes the APP service instance<br />
      * 3. Deletes controller back-end resources
      * <p>
@@ -245,14 +245,14 @@ public class ServiceInstanceServiceBean {
     }
 
     /**
-     * 1. Deletes the CT-MG subscription<br />
+     * 1. Deletes the OSCM subscription<br />
      * 2. Deletes the APP service instance<br />
      * <p>
      * In contrast to the deprovision method no back-end resources are deleted.
      * <p>
      * Implementation Idea:<br />
      * Open a new transaction and mark the service instance as deleted. Then
-     * terminate the subscription on CT-MG side via a web-service call, finally
+     * terminate the subscription on OSCM side via a web-service call, finally
      * the APP is called but the APP does nothing because the service instance
      * is already marked as deleted. The final step of this method will then
      * actually delete the service instance from the APP database.

@@ -132,14 +132,16 @@
           <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
             <mp:button id="createButton" value="#{msg['button.save']}" bean="#{manageGroupCtrl}" action="save" />
             <mp:button id="cancelButton"
-              onclick="if(#{not manageGroupCtrl.manageGroupModel.selectedGroup.default}) {#{rich:component('confirmPanel')}.show();} else {location.href='users.jsf'} return false;"
+              onclick="if(getDirty()) {#{rich:component('confirmPanel')}.show();} else {cancelAction();} return false;"
               value="#{msg['button.cancel']}" />
           </a4j:outputPanel>
+
+          <a4j:jsFunction name="cancelAction" action="#{manageGroupCtrl.cancel}"></a4j:jsFunction>
 
           <mp:confirmPanel header="#{msg['group.leavePage.title']}" text1="#{msg['group.leavePage.content']}"
             submitId="confirmedBackBt" />
           <a4j:commandButton style="display:none;" id="confirmedBackBt"
-            onclick="setDirty(false);location.href='users.jsf';return false;" />
+            onclick="setDirty(false);cancelAction();return false;" />
         </h:form>
 
         <h:form id="assignUsersForm">

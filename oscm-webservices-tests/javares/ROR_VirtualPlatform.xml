@@ -36,14 +36,14 @@
     <ParameterDefinition configurable="false" default="^userKey^" id="APP_BSS_USER" mandatory="true"
       valueType="STRING">
       <LocalizedDescription locale="en">The user key of the technology manager to be used for service calls to
-        CT-MG.</LocalizedDescription>
-      <LocalizedDescription locale="ja">CT-MGのサービスを呼び出す際に利用する技術サービス管理者の利用者キー</LocalizedDescription>
+        OSCM.</LocalizedDescription>
+      <LocalizedDescription locale="ja">OSCMのサービスを呼び出す際に利用する技術サービス管理者の利用者キー</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition configurable="false" default="secret" id="APP_BSS_USER_PWD" mandatory="true"
       valueType="STRING">
-      <LocalizedDescription locale="en">The password of the user to be used for service calls to CT-MG</LocalizedDescription>
-      <LocalizedDescription locale="ja">CT-MGのサービスを呼び出す際に利用する利用者のパスワード</LocalizedDescription>
+      <LocalizedDescription locale="en">The password of the user to be used for service calls to OSCM</LocalizedDescription>
+      <LocalizedDescription locale="ja">OSCMのサービスを呼び出す際に利用する利用者のパスワード</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition configurable="true" default="ror([a-z0-9]){2,25}" id="INSTANCENAME_PATTERN"

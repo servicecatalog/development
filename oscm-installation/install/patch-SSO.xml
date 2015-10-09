@@ -139,7 +139,7 @@
   </target>
 
   <target name="packageEarForApp">
-    <zip destfile="${glassfish.domain.dir}/lib/CT-MG-wsit.jar" basedir="${domains.dir}/${domain.dir}/wsit/" update="true" />
+    <zip destfile="${glassfish.domain.dir}/lib/OSCM-wsit.jar" basedir="${domains.dir}/${domain.dir}/wsit/" update="true" />
   </target>
 
   <target name="patchController" depends="checkApplibDirEmpty" if="applib.not.empty">

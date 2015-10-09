@@ -38,7 +38,7 @@ public class AuditLogSerializer {
 
     public static final String AUDITLOG_MESSAGE_RESOURCE_NAME = "AuditLogMessages";
     public static final String USER_ID = "userId";
-    public static final String COMPONENT_NAME = "FSP_SW/CT-MG_CTMG-BSS";
+    public static final String COMPONENT_NAME = "FSP_SW/OSCM_CTMG-BSS";
     public static final String LOG_LEVEL = "INFO";
     public static final String ORGANIZATION_ID = "orgId";
     public static final String ORGANIZATION_NAME = "orgName";

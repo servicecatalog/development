@@ -9,7 +9,6 @@
 package org.oscm.internal.types.exception;
 
 import javax.ejb.ApplicationException;
-import javax.xml.ws.WebFault;
 
 import org.oscm.internal.types.exception.beans.ApplicationExceptionBean;
 import org.oscm.internal.vo.BaseVO;

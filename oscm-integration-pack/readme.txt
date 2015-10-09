@@ -1,1 +1,1 @@
-This project collects all resources to integrate technical products with CT-MG. 
+This project collects all resources to integrate technical products with OSCM. 

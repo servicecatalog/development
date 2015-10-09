@@ -45,12 +45,12 @@
 	<target name="runIntegrationTests" depends="_libraries, _clean, _package, _integrationtests, _copyResultArtifacts" />
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
-	<target name="runDocBuild" depends="_clean, _docBuild"/>
+	<!--<target name="runDocBuild" depends="_clean, _docBuild"/>-->
 
-	<target name="_docBuild">
-		<echo message="***** Build user documentation *****"/>
-		<ant antfile="build.xml" dir="../UserDoc/Tools" target="overall" />
-	</target>
+	<!--<target name="_docBuild">-->
+		<!--<echo message="***** Build user documentation *****"/>-->
+		<!--<ant antfile="build.xml" dir="../UserDoc/Tools" target="overall" />-->
+	<!--</target>-->
 
 	<target name="_copyGlassfishLogsAfterWebserviceTests">
 		<echo message="***** Copy glassfish logs after webservice test run *****" />

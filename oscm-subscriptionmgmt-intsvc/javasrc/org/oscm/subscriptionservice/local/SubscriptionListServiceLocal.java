@@ -122,4 +122,11 @@ public interface SubscriptionListServiceLocal {
     public boolean isUsableSubscriptionExistForTemplate(PlatformUser user,
             Set<SubscriptionStatus> states, Product template);
 
+    /**
+     * Returns a list of Subscriptions owned by the organization of the current user.
+     *
+     * @return the list of {@link Subscription}s
+     */
+    public List<Subscription> getAllSubscriptionsForOrganization();
+
 }

@@ -9,7 +9,7 @@
 package org.oscm.wsproxy;
 
 /**
- * Enumeration class for the different web service ports of CT-MG.
+ * Enumeration class for the different web service ports of OSCM.
  * 
  * - BASIC: service port for basic authentication using user key and password;
  * 

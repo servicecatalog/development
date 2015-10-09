@@ -26,15 +26,15 @@ public interface PriceModelPluginService {
 
     /**
      * Get the detailed description and the tag of the given price model from
-     * the external billing system for specified CT-MG context and set of
+     * the external billing system for specified OSCM context and set of
      * locales. If the set of specified locales is null or empty or if the
      * locales are not supported, the price model description and tag for the
      * default locale is returned. The price model tag is used for displaying on
-     * CT-MG marketplace. A length of maximum 30 bytes for the tag is expected,
+     * OSCM marketplace. A length of maximum 30 bytes for the tag is expected,
      * otherwise it is not displayed.
      * 
      * @param context
-     *            the CT-MG context for this operation
+     *            the OSCM context for this operation
      * @param locales
      *            set of locales
      * @return price model object containing localized description and tag or

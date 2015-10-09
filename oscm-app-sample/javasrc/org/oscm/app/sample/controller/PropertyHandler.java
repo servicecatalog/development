@@ -48,15 +48,15 @@ public class PropertyHandler {
 
     /**
      * The key of the property for specifying the user key of the technology
-     * manager to be used for service calls to CT-MG. The user must be a member
-     * of the technology provider organization for which the service controller
-     * has been registered.
+     * manager to be used for service calls to Catalog Manager. The user must be
+     * a member of the technology provider organization for which the service
+     * controller has been registered.
      */
     public static final String BSS_USER = "APP_BSS_USER";
 
     /**
      * The key of the property for specifying the password of the user to be
-     * used for service calls to CT-MG.
+     * used for service calls to Catalog Manager.
      */
     public static final String BSS_USER_PWD = "APP_BSS_USER_PWD";
 

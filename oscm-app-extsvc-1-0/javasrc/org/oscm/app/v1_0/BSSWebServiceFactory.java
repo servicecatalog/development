@@ -22,13 +22,13 @@ import org.oscm.app.v1_0.exceptions.ConfigurationException;
 import com.sun.xml.wss.XWSSConstants;
 
 /**
- * Factory for creating instances of CT-MG Web services in the context of the
+ * Factory for creating instances of OSCM Web services in the context of the
  * <code>APPlatformService</code>.
  */
 public class BSSWebServiceFactory {
 
     /**
-     * Creates a CT-MG Web service with the given parameters.
+     * Creates a OSCM Web service with the given parameters.
      * 
      * @param serviceClass
      *            the class of the Web service to be created
@@ -39,7 +39,7 @@ public class BSSWebServiceFactory {
      * @throws ConfigurationException
      *             if the configuration of the platform is incorrect
      * @throws MalformedURLException
-     *             if the base URL of the CT-MG configuration is malformed
+     *             if the base URL of the OSCM configuration is malformed
      */
     public static <T> T getBSSWebService(Class<T> serviceClass,
             PasswordAuthentication authentication)

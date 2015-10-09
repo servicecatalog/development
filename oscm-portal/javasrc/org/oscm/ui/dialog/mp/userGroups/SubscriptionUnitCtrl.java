@@ -56,7 +56,7 @@ public class SubscriptionUnitCtrl implements Serializable {
         if (!voUserDetails.hasAdminRole() && !voUserDetails.hasUnitAdminRole()) {
             return;
         }
-        if (voUserDetails.hasUnitAdminRole()) {
+        if (voUserDetails.hasUnitAdminRole() && !voUserDetails.hasAdminRole()) {
             units = getUnitService()
                     .getUserGroupsForUserWithRoleWithoutDefault(voUserDetails.getKey(),
                             UnitRoleType.ADMINISTRATOR.getKey());

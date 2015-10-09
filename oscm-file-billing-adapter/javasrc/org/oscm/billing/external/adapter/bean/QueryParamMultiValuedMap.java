@@ -60,11 +60,11 @@ public class QueryParamMultiValuedMap {
     }
 
     /**
-     * Add the CT-MG context as lists of context keys and context values to the
+     * Add the OSCM context as lists of context keys and context values to the
      * multi-valued map
      * 
      * @param context
-     *            the CT-MG context
+     *            the OSCM context
      * @return <code>true</code> if the context could be added
      */
     public boolean add(Map<ContextKey, ContextValue<?>> context) {
@@ -118,12 +118,12 @@ public class QueryParamMultiValuedMap {
     }
 
     /**
-     * Helper method for getting a parameter map out of the CT-MG context
+     * Helper method for getting a parameter map out of the OSCM context
      * 
      * @param key
      *            the key of the parameter map
      * @param context
-     *            the CT-MG context
+     *            the OSCM context
      * @return the parameter map
      */
     private Map<String, String> getParameterMap(ContextKey key,

@@ -54,7 +54,7 @@ public class DataProviderAnyPeriod extends DataProvider {
 
     public DataProviderAnyPeriod(BillingDataRetrievalServiceLocal bdr,
             long periodStart, long periodEnd, long organizationKey,
-            List<Long> unitKeys, boolean preview) {
+            List<Long> unitKeys, boolean preview, DataService dm) {
         Invariants.assertNotNull(bdr,
                 "BillingDataRetrievalServiceLocal must not be null!");
         Invariants.assertTrue(periodStart > 0, "period start have to be set!");
@@ -68,32 +68,13 @@ public class DataProviderAnyPeriod extends DataProvider {
         this.organizationKey = organizationKey;
         this.unitKeys = unitKeys;
         this.preview = preview;
-        this.billingInputList = loadBillingInputList(bdr);
-    }
-
-    public DataProviderAnyPeriod(BillingDataRetrievalServiceLocal bdr,
-            long periodStart, long periodEnd, long organizationKey,
-            boolean preview, DataService dm) {
-        Invariants.assertNotNull(bdr,
-                "BillingDataRetrievalServiceLocal must not be null!");
-        Invariants.assertTrue(periodStart > 0, "period start have to be set!");
-        Invariants.assertTrue(periodEnd > 0, "period end have to be set!");
-        Invariants.assertTrue(organizationKey > 0,
-                "organization key have to be set!");
-        this.initialPeriodStart = periodStart;
-        this.initialPeriodEnd = periodEnd;
-        this.periodStart = periodStart;
-        this.periodEnd = periodEnd;
-        this.organizationKey = organizationKey;
-        this.preview = preview;
-        this.unitKeys = null;
         this.billingInputList = loadBillingInputList(bdr, dm);
     }
 
     public DataProviderAnyPeriod(BillingDataRetrievalServiceLocal bdr,
             long periodStart, long periodEnd, long organizationKey,
             boolean preview) {
-        this(bdr, periodStart, periodEnd, organizationKey, null, preview);
+        this(bdr, periodStart, periodEnd, organizationKey, null, preview, null);
     }
 
     public long getInitialPeriodStart() {
@@ -126,17 +107,6 @@ public class DataProviderAnyPeriod extends DataProvider {
             }
         }
         return max == Long.MIN_VALUE ? Long.MAX_VALUE : max;
-    }
-
-    List<BillingInput> loadBillingInputList(
-            BillingDataRetrievalServiceLocal bdr) {
-        final CustomerData customerData = new CustomerData(
-                loadSubscriptions(bdr));
-        final List<BillingInput> result = new ArrayList<>();
-        for (Long subscriptionKey : customerData.getSubscriptionKeys()) {
-            processSubscriptionKey(bdr, customerData, result, subscriptionKey);
-        }
-        return result;
     }
 
     List<BillingInput> loadBillingInputList(

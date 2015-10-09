@@ -62,9 +62,9 @@ public interface ConfigurationService {
     public void setConfigurationSetting(String informationId, String value);
 
     /**
-     * Checks if CT-MG acts as service provider.
+     * Checks if OSCM acts as service provider.
      * 
-     * @return <code>true</code> if CT-MG acts as service provider, otherwise
+     * @return <code>true</code> if OSCM acts as service provider, otherwise
      *         <code>false</code>
      * @see ConfigurationKey#AUTH_MODE
      */

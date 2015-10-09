@@ -74,6 +74,13 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         }
     }
 
+    public String cancel() {
+        if (getIsLoggedAndUnitAdmin()) {
+            return BaseBean.OUTCOME_SUCCESS_UNIT_ADMIN;
+        }
+        return BaseBean.OUTCOME_SUCCESS;
+    }
+
     public String save() {
         if (Strings.isEmpty(manageGroupModel.getSelectedGroupId())) {
             return BaseBean.OUTCOME_ERROR;

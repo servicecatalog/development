@@ -107,8 +107,8 @@
                   <rich:column sortBy="#{rowItem.selected}" sortIcon="#{sortIcon}"
                     sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
                     styleClass="tableColumnCheckBox">
-                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true)" 
-                       disabled="#{rowItem.default}"/>
+                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'unitRole');"
+                                             disabled="#{rowItem.default}"/>
                   </rich:column>
                   <rich:column sortBy="#{rowItem.name}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
                     sortIconDescending="#{sortIconDescending}" filterevent="keyup" filterBy="#{rowItem.name}">
@@ -139,10 +139,10 @@
 
             <rich:dataTable width="100%" headerClass="rowTitle" rowClasses="rowOdd,rowEven"
               value="#{updateUserModel.subscriptions}" var="subscription" id="subscriptionTable"
-              style="width: 100%;" columnsWidth="4%,50%,46%">
+              style="width: 100%;">
 
               <rich:column width="#{checkboxWidth}" styleClass="tableColumnCheckBox">
-                <h:selectBooleanCheckbox id="assignCheckbox" value="#{subscription.selected}" onchange="setDirty(true)" >
+                <h:selectBooleanCheckbox id="assignCheckbox" value="#{subscription.selected}" onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'role');" >
                   <f:ajax event="change" />
                 </h:selectBooleanCheckbox>
               </rich:column>
@@ -193,7 +193,11 @@
             submitId="confirmedDeleteButton" />
           <mp:confirmPanel panelId="leaveConfirmPl" header="#{msg['marketplace.account.leavePage.title']}" text1="#{msg['marketplace.account.leavePage.content']}"
             submitId="confirmedBackBt" />
-          
+
+          <script type="application/javascript">
+            AdmUtils.initRoleFieldSetup('unitRole', 'groupsCheckbox');
+            AdmUtils.initRoleFieldSetup('role', 'assignCheckbox');
+          </script>
         </h:form>
       </a4j:outputPanel>
       <mp:reloginConfirmPanel />

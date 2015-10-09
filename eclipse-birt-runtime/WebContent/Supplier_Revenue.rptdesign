@@ -1,0 +1,2890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.2.1.v201209101448 Build &lt;4.2.1.v20120912-1721></property>
+    <list-property name="userProperties">
+        <structure>
+            <property name="name">Data Cube.TableRow.x</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+        <structure>
+            <property name="name">Data Cube.TableRow.y</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+    </list-property>
+    <property name="Data Cube.TableRow.x">135</property>
+    <property name="Data Cube.TableRow.y">80</property>
+    <simple-property-list name="includeResource">
+        <value>WEB-INF/reportLabels</value>
+    </simple-property-list>
+    <list-property name="propertyBindings">
+        <structure>
+            <property name="name">soapEndPoint</property>
+            <property name="id">7</property>
+            <expression name="value">params["SOAPEndPoint"].value</expression>
+        </structure>
+        <structure>
+            <property name="name">wsdlURI</property>
+            <property name="id">7</property>
+            <expression name="value">params["WSDLURL"].value</expression>
+        </structure>
+    </list-property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="layoutPreference">auto layout</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <parameters>
+        <scalar-parameter name="SessionId" id="108">
+            <property name="hidden">true</property>
+            <text-property name="promptText">SessionId</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant" isNull="true"/>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SOAPEndPoint" id="419">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="WSDLURL" id="420">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean?wsdl</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="from" id="544">
+            <method name="validate"><![CDATA[var regex = new RegExp("^(\\d{4})[\-](0[1-9]|1[012])[\-](0[1-9]|[12][0-9]|3[01])$");
+var matches = params["from"].value.match(regex);
+if (matches == null) { false;}
+else{
+var d = matches[3];
+var m = matches[2] - 1;
+var y = matches[1];
+var fromDate = new Date(y, m, d);
+if( fromDate.getDate() == d &amp;&amp;
+    fromDate.getMonth() == m &amp;&amp;
+    fromDate.getFullYear() == y){
+        true;
+    }else{
+        false;
+    };
+}]]></method>
+            <text-property name="promptText" key="DATEFROM">From</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant" isNull="true"/>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Medium Date</property>
+                <property name="pattern">Medium Date</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="to" id="545">
+            <method name="validate"><![CDATA[var regex = new RegExp("^(\\d{4})[\-](0[1-9]|1[012])[\-](0[1-9]|[12][0-9]|3[01])$");
+var matchesFrom = params["from"].value.match(regex);
+var matchesTo = params["to"].value.match(regex);
+var fromDateValid = false;
+var toDateValid = false;
+var fromDate,toDate;
+if( matchesFrom != null){
+var d1 = matchesFrom[3];
+var m1 = matchesFrom[2] - 1;
+var y1 = matchesFrom[1];
+fromDate = new Date(y1, m1, d1);
+fromDateValid = (fromDate.getDate() == d1 &amp;&amp;
+		fromDate.getMonth() == m1 &amp;&amp;
+	    fromDate.getFullYear() == y1);
+}
+if( matchesTo != null ){
+var d2 = matchesTo[3];
+var m2 = matchesTo[2] - 1;
+var y2 = matchesTo[1];
+toDate = new Date(y2, m2, d2);
+toDateValid = (toDate.getDate() == d2 &amp;&amp;
+		toDate.getMonth() == m2 &amp;&amp;
+	    toDate.getFullYear() == y2);
+}
+if ((matchesTo == null)||!toDateValid) { 
+	false;
+}else if ((matchesFrom == null)|| !fromDateValid){
+	toDateValid;
+}else {
+	BirtComp.lessOrEqual(fromDate, toDate);
+}
+]]></method>
+            <text-property name="promptText" key="DATEUNTIL">Until</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant" isNull="true"/>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Medium Date</property>
+                <property name="pattern">Medium Date</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.datatools.enablement.oda.ws" name="Reporting Webservice" id="7">
+            <property name="soapEndPoint">http://localhost:8180/Report/ReportingServiceBean</property>
+            <property name="wsdlURI">http://localhost:8180/Report/ReportingServiceBean?wsdl</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Header" id="919">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ReportDate</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">ReportDate</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">OperatorOrganization</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">OperatorOrganization</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">OperatorAddress</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">OperatorAddress</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">QuantityMarketplaces</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">QuantityMarketplaces</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">QuantitySuppliers</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">QuantitySuppliers</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Country</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Country</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">serverTimeZone</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">serverTimeZone</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">from</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">from</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">to</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">to</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <expression name="defaultValue" type="javascript">""</expression>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <expression name="defaultValue" type="javascript">""</expression>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">ReportDate</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">OperatorOrganization</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">OperatorAddress</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">QuantityMarketplaces</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">QuantitySuppliers</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">Country</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">serverTimeZone</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">from</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">to</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">ReportDate</property>
+                    <property name="nativeName">ReportDate</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">OperatorOrganization</property>
+                    <property name="nativeName">OperatorOrganization</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">OperatorAddress</property>
+                    <property name="nativeName">OperatorAddress</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">QuantityMarketplaces</property>
+                    <property name="nativeName">QuantityMarketplaces</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">QuantitySuppliers</property>
+                    <property name="nativeName">QuantitySuppliers</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">Country</property>
+                    <property name="nativeName">Country</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">serverTimeZone</property>
+                    <property name="nativeName">serverTimeZone</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values></design:values>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values></design:values>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CreationTime</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CreationTime</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return]#:#{ReportDate;STRING;creationTime},{OperatorOrganization;STRING;name},{OperatorAddress;STRING;address},{QuantityMarketplaces;STRING;noMarketplaces},{QuantitySuppliers;STRING;noSuppliers},{Country;STRING;country},{serverTimeZone;STRING;serverTimeZone},{from;STRING;from},{to;STRING;to}#:#&lt;"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="TotalByCurrency" id="1003">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Supplier</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Supplier</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Marketplace</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Marketplace</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Currency</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Revenue</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Supplier</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">Marketplace</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">Currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">Revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Supplier</property>
+                    <property name="nativeName">Supplier</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">Marketplace</property>
+                    <property name="nativeName">Marketplace</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">Currency</property>
+                    <property name="nativeName">Currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">Revenue</property>
+                    <property name="nativeName">Revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CreationTime</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CreationTime</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//totalByCurrency]#:#{Supplier;STRING;name},{Marketplace;STRING;marketplace},{Currency;STRING;currency},{Revenue;STRING;amount}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="SummaryBySupplier" id="1006">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Supplier</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Supplier</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Marketplace</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Marketplace</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Currency</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Revenue</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Supplier</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">Marketplace</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">Currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">Revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Supplier</property>
+                    <property name="nativeName">Supplier</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">Marketplace</property>
+                    <property name="nativeName">Marketplace</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">Currency</property>
+                    <property name="nativeName">Currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">Revenue</property>
+                    <property name="nativeName">Revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CreationTime</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CreationTime</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/summaryBySupplier]#:#{Supplier;STRING;name},{Marketplace;STRING;marketplace},{Currency;STRING;currency},{Revenue;STRING;amount}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="SummaryByMarketplace" id="1007">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Name</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Name</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Marketplace</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Marketplace</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Currency</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Revenue</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Name</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">Marketplace</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">Currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">Revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Name</property>
+                    <property name="nativeName">Name</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">Marketplace</property>
+                    <property name="nativeName">Marketplace</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">Currency</property>
+                    <property name="nativeName">Currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">Revenue</property>
+                    <property name="nativeName">Revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CreationTime</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CreationTime</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/summaryByMarketplace]#:#{Name;STRING;name},{Marketplace;STRING;marketplace},{Currency;STRING;currency},{Revenue;STRING;amount}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Details" id="1008">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">Supplier</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Supplier</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Marketplace</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Marketplace</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Currency</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Revenue</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Country</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">Country</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">Billingkey</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">Billingkey</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">Supplier</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">Marketplace</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">Currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">Revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">Country</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">Billingkey</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">Supplier</property>
+                    <property name="nativeName">Supplier</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">Marketplace</property>
+                    <property name="nativeName">Marketplace</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">Currency</property>
+                    <property name="nativeName">Currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">Revenue</property>
+                    <property name="nativeName">Revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">Country</property>
+                    <property name="nativeName">Country</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">Billingkey</property>
+                    <property name="nativeName">Billingkey</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>CreationTime</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>CreationTime</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/supplierDetails]#:#{Supplier;STRING;name},{Marketplace;STRING;marketplace},{Currency;STRING;currency},{Revenue;STRING;amount},{Country;STRING;country},{Billingkey;STRING;billingKey}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="SummaryByCountry" id="1249">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">country</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">country</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">currency</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">revenue</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <property name="paramName">from</property>
+                    <property name="nativeName">from</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <property name="paramName">to</property>
+                    <property name="nativeName">to</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">country</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">country</property>
+                    <property name="nativeName">country</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">currency</property>
+                    <property name="nativeName">currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">revenue</property>
+                    <property name="nativeName">revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPlatformRevenueReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<from>&amp;?from?&amp;</from>
+			<to>&amp;?to?&amp;</to>
+		</m:getPlatformRevenueReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>from</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>to</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>getPlatformRevenueReportResponse</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>getPlatformRevenueReportResponse</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/summaryByCountry]#:#{country;STRING;country},{currency;STRING;currency},{revenue;STRING;amount}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPlatformRevenueReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">"Verdana"</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="Head" id="243">
+            <property name="backgroundColor">#C0C0C0</property>
+        </style>
+        <style name="AlternatingRowColor" id="327">
+            <list-property name="highlightRules">
+                <structure>
+                    <property name="operator">gt</property>
+                    <property name="backgroundColor">#E5EBF1</property>
+                    <expression name="testExpr">row.__rownum %2</expression>
+                    <simple-property-list name="value1">
+                        <value>0.0</value>
+                    </simple-property-list>
+                </structure>
+            </list-property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="topMargin">0.25in</property>
+            <property name="leftMargin">0.25in</property>
+            <property name="bottomMargin">0.25in</property>
+            <property name="rightMargin">0.25in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid name="Title" id="958">
+            <property name="marginBottom">10pt</property>
+            <column id="959"/>
+            <column id="960">
+                <property name="width">5%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="961">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="962">
+                <property name="width">5%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="963">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <row id="964">
+                <property name="backgroundColor">gray</property>
+                <cell id="965">
+                    <label id="970">
+                        <property name="fontSize">12pt</property>
+                        <property name="color">white</property>
+                        <text-property name="text" key="SUPPLIER_REVENUE__TITLE"></text-property>
+                    </label>
+                </cell>
+                <cell id="966">
+                    <label id="971">
+                        <property name="fontSize">12pt</property>
+                        <property name="color">white</property>
+                        <text-property name="text" key="SUPPLIER_REVENUE__FROM"></text-property>
+                    </label>
+                </cell>
+                <cell id="967">
+                    <data id="973">
+                        <property name="fontSize">12pt</property>
+                        <property name="color">white</property>
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">ReportDate</property>
+                                <expression name="expression" type="javascript">dataSetRow["ReportDate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">OperatorOrganization</property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorOrganization"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">OperatorAddress</property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorAddress"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">QuantityMarketplaces</property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantityMarketplaces"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">QuantitySuppliers</property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantitySuppliers"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">Country</property>
+                                <expression name="expression" type="javascript">dataSetRow["Country"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">serverTimeZone</property>
+                                <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">from</property>
+                                <expression name="expression" type="javascript">dataSetRow["from"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">to</property>
+                                <expression name="expression" type="javascript">dataSetRow["to"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">from</property>
+                    </data>
+                </cell>
+                <cell id="968">
+                    <label id="972">
+                        <property name="fontSize">12pt</property>
+                        <property name="color">white</property>
+                        <text-property name="text" key="SUPPLIER_REVENUE__TO"></text-property>
+                    </label>
+                </cell>
+                <cell id="969">
+                    <data id="974">
+                        <property name="fontSize">12pt</property>
+                        <property name="color">white</property>
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">ReportDate</property>
+                                <expression name="expression" type="javascript">dataSetRow["ReportDate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">OperatorOrganization</property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorOrganization"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">OperatorAddress</property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorAddress"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">QuantityMarketplaces</property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantityMarketplaces"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">QuantitySuppliers</property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantitySuppliers"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">Country</property>
+                                <expression name="expression" type="javascript">dataSetRow["Country"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">serverTimeZone</property>
+                                <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">from</property>
+                                <expression name="expression" type="javascript">dataSetRow["from"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">to</property>
+                                <expression name="expression" type="javascript">dataSetRow["to"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">to</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+        <grid name="Header" id="975">
+            <property name="marginBottom">30pt</property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_HEADER", reportContext.getLocale());</expression>
+            </structure>
+            <column id="976">
+                <property name="width">20%</property>
+            </column>
+            <column id="977">
+                <property name="width">80%</property>
+                <property name="textAlign">left</property>
+            </column>
+            <row id="978">
+                <cell id="979">
+                    <label id="993">
+                        <property name="marginBottom">5pt</property>
+                        <text-property name="text" key="SUPPLIER_REVENUE__HEADER_REPORTDATE"></text-property>
+                    </label>
+                </cell>
+                <cell id="980">
+                    <data id="1224">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">ReportDate</property>
+                                <text-property name="displayName">ReportDate</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["ReportDate"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">ReportDate</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="981">
+                <cell id="982">
+                    <label id="994">
+                        <text-property name="text" key="SUPPLIER_REVENUE__HEADER_OPERATOR"></text-property>
+                    </label>
+                </cell>
+                <cell id="983">
+                    <data id="1226">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">OperatorOrganization</property>
+                                <text-property name="displayName">OperatorOrganization</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorOrganization"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">OperatorOrganization</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="984">
+                <cell id="985"/>
+                <cell id="986">
+                    <data id="1225">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">OperatorAddress</property>
+                                <text-property name="displayName">OperatorAddress</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["OperatorAddress"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">OperatorAddress</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="1229">
+                <cell id="1230"/>
+                <cell id="1231">
+                    <data id="1232">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">Country</property>
+                                <text-property name="displayName">Country</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["Country"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">Country</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="987">
+                <cell id="988">
+                    <label id="995">
+                        <property name="marginTop">5pt</property>
+                        <text-property name="text" key="SUPPLIER_REVENUE__HEADER_GLOBALMP"></text-property>
+                    </label>
+                </cell>
+                <cell id="989">
+                    <data id="1227">
+                        <property name="marginTop">5pt</property>
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">QuantityMarketplaces</property>
+                                <text-property name="displayName">QuantityMarketplaces</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantityMarketplaces"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">QuantityMarketplaces</property>
+                    </data>
+                </cell>
+            </row>
+            <row id="990">
+                <cell id="991">
+                    <label id="996">
+                        <text-property name="text" key="SUPPLIER_REVENUE__HEADER_SUPPLIERS"></text-property>
+                    </label>
+                </cell>
+                <cell id="992">
+                    <data id="1228">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">QuantitySuppliers</property>
+                                <text-property name="displayName">QuantitySuppliers</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["QuantitySuppliers"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <property name="resultSetColumn">QuantitySuppliers</property>
+                    </data>
+                </cell>
+            </row>
+        </grid>
+        <label name="Summary" id="1084">
+            <property name="backgroundColor">silver</property>
+            <property name="fontSize">12pt</property>
+            <property name="marginTop">0pt</property>
+            <property name="marginBottom">10pt</property>
+            <property name="textAlign">left</property>
+            <text-property name="text" key="SUPPLIER_REVENUE__SUMMARY"></text-property>
+        </label>
+        <table name="TotalByCurrency" id="1085">
+            <property name="dataSet">TotalByCurrency</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr" type="javascript">row["RevenueRowCounter"]==0;</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Supplier</property>
+                    <text-property name="displayName">Supplier</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Supplier"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Marketplace</property>
+                    <text-property name="displayName">Marketplace</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Marketplace"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Currency</property>
+                    <text-property name="displayName">Currency</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Currency"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Revenue</property>
+                    <text-property name="displayName">Revenue</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Revenue"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">RevenueRowCounter</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">row["Revenue"]</expression>
+                        </structure>
+                    </list-property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_BYCURRENCY", reportContext.getLocale());</expression>
+            </structure>
+            <column id="1109">
+                <property name="width">60%</property>
+            </column>
+            <column id="1111">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1112">
+                <property name="width">30%</property>
+                <property name="textAlign">right</property>
+            </column>
+            <header>
+                <row id="1086">
+                    <cell id="1087">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1113">
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__TOTALBYCURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1091">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1170">
+                            <text-property name="text" key="SUPPLIER_REVENUE__CURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1093">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1171">
+                            <text-property name="text" key="SUPPLIER_REVENUE__REVENUE"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1095">
+                    <cell id="1096"/>
+                    <cell id="1100">
+                        <data id="1101">
+                            <property name="resultSetColumn">Currency</property>
+                        </data>
+                    </cell>
+                    <cell id="1102">
+                        <data id="1103">
+                            <property name="resultSetColumn">Revenue</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1104">
+                    <cell id="1105">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1107">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1108">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <table name="SummaryBySupplier" id="1114">
+            <property name="marginTop">15pt</property>
+            <property name="dataSet">SummaryBySupplier</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr" type="javascript">row["RevenueRowCounter"]==0;</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Supplier</property>
+                    <text-property name="displayName">Supplier</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Supplier"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Marketplace</property>
+                    <text-property name="displayName">Marketplace</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Marketplace"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Currency</property>
+                    <text-property name="displayName">Currency</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Currency"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Revenue</property>
+                    <text-property name="displayName">Revenue</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Revenue"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">RevenueRowCounter</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">row["Revenue"]</expression>
+                        </structure>
+                    </list-property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_BYSUPPLIER", reportContext.getLocale());</expression>
+            </structure>
+            <column id="1138">
+                <property name="width">30%</property>
+                <property name="textAlign">left</property>
+            </column>
+            <column id="1218">
+                <property name="width">30%</property>
+                <property name="textAlign">left</property>
+            </column>
+            <column id="1140">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1141">
+                <property name="width">30%</property>
+                <property name="textAlign">right</property>
+            </column>
+            <header>
+                <row id="1115">
+                    <cell id="1116">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1172">
+                            <text-property name="text" key="SUPPLIER_REVENUE__SUMMARYBYSUPPLIER"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1215">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                    </cell>
+                    <cell id="1120">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1178">
+                            <text-property name="text" key="SUPPLIER_REVENUE__CURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1122">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1180">
+                            <text-property name="text" key="SUPPLIER_REVENUE__REVENUE"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1124">
+                    <cell id="1125">
+                        <data id="1126">
+                            <property name="resultSetColumn">Supplier</property>
+                        </data>
+                    </cell>
+                    <cell id="1216"/>
+                    <cell id="1129">
+                        <data id="1130">
+                            <property name="resultSetColumn">Currency</property>
+                        </data>
+                    </cell>
+                    <cell id="1131">
+                        <data id="1132">
+                            <property name="resultSetColumn">Revenue</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1133">
+                    <cell id="1134">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1217">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1136">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1137">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <table name="SummaryByMarketplace" id="1142">
+            <property name="marginTop">15pt</property>
+            <property name="dataSet">SummaryByMarketplace</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr" type="javascript">row["RevenueRowCounter"]==0;</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Marketplace</property>
+                    <text-property name="displayName">Marketplace</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Marketplace"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Currency</property>
+                    <text-property name="displayName">Currency</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Currency"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Revenue</property>
+                    <text-property name="displayName">Revenue</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Revenue"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">RevenueRowCounter</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">row["Revenue"]</expression>
+                        </structure>
+                    </list-property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">Name</property>
+                    <text-property name="displayName">Name</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Name"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">patchedMarketplace</property>
+                    <expression name="expression" type="javascript">if (dataSetRow["Marketplace"]=="[NOT_LISTED_IN_MARKETPLACE]") {
+reportContext.getMessage("SUPPLIER_REVENUE__NOT_ASSIGNED",reportContext.getLocale());
+} else {
+dataSetRow["Marketplace"];
+}</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_BYMARKETPLACE", reportContext.getLocale());</expression>
+            </structure>
+            <column id="1167">
+                <property name="width">30%</property>
+                <property name="textAlign">left</property>
+            </column>
+            <column id="1222">
+                <property name="width">30%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1168">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1169">
+                <property name="width">30%</property>
+                <property name="textAlign">right</property>
+            </column>
+            <header>
+                <row id="1143">
+                    <cell id="1146">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1175">
+                            <text-property name="text" key="SUPPLIER_REVENUE__SUMMARYBYMARKETPLACE"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1219">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                    </cell>
+                    <cell id="1148">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1179">
+                            <text-property name="text" key="SUPPLIER_REVENUE__CURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1150">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1181">
+                            <text-property name="text" key="SUPPLIER_REVENUE__REVENUE"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1152">
+                    <cell id="1155">
+                        <data id="1235">
+                            <property name="resultSetColumn">patchedMarketplace</property>
+                        </data>
+                    </cell>
+                    <cell id="1220"/>
+                    <cell id="1157">
+                        <data id="1158">
+                            <property name="resultSetColumn">Currency</property>
+                        </data>
+                    </cell>
+                    <cell id="1159">
+                        <data id="1160">
+                            <property name="resultSetColumn">Revenue</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1161">
+                    <cell id="1163">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1221">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1164">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1165">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <table id="1250">
+            <property name="marginTop">15pt</property>
+            <property name="dataSet">SummaryByCountry</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr" type="javascript">row["RevenueRowCounter"]==0;</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">country</property>
+                    <text-property name="displayName">country</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["country"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">currency</property>
+                    <text-property name="displayName">currency</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["currency"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">revenue</property>
+                    <text-property name="displayName">revenue</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["revenue"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">RevenueRowCounter</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">dataSetRow["revenue"]</expression>
+                        </structure>
+                    </list-property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_BYCOUNTRY", reportContext.getLocale());</expression>
+            </structure>
+            <column id="1269">
+                <property name="width">60%</property>
+            </column>
+            <column id="1270">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1271">
+                <property name="width">30%</property>
+                <property name="textAlign">right</property>
+            </column>
+            <header>
+                <row id="1251">
+                    <cell id="1252">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1274">
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__SUMMARYBYCOUNTRY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1254">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1272">
+                            <text-property name="text" key="SUPPLIER_REVENUE__CURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1256">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1273">
+                            <text-property name="text" key="SUPPLIER_REVENUE__REVENUE"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1258">
+                    <cell id="1259">
+                        <data id="1260">
+                            <property name="resultSetColumn">country</property>
+                        </data>
+                    </cell>
+                    <cell id="1261">
+                        <data id="1262">
+                            <property name="resultSetColumn">currency</property>
+                        </data>
+                    </cell>
+                    <cell id="1263">
+                        <data id="1264">
+                            <property name="resultSetColumn">revenue</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1265">
+                    <cell id="1266">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1267">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1268">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <label name="Details" id="1182">
+            <property name="backgroundColor">silver</property>
+            <property name="fontSize">12pt</property>
+            <property name="marginTop">30pt</property>
+            <property name="marginBottom">10pt</property>
+            <property name="textAlign">left</property>
+            <text-property name="text" key="SUPPLIER_REVENUE__DETAILS"></text-property>
+        </label>
+        <table name="Detail" id="1183">
+            <property name="dataSet">Details</property>
+            <list-property name="visibility">
+                <structure>
+                    <property name="format">all</property>
+                    <expression name="valueExpr" type="javascript">row["RevenueRowCounter"]==0;</expression>
+                </structure>
+            </list-property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">Supplier</property>
+                    <text-property name="displayName">Supplier</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Supplier"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Marketplace</property>
+                    <text-property name="displayName">Marketplace</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Marketplace"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Revenue</property>
+                    <text-property name="displayName">Revenue</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Revenue"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Currency</property>
+                    <text-property name="displayName">Currency</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Currency"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">RevenueRowCounter</property>
+                    <property name="dataType">integer</property>
+                    <property name="aggregateFunction">COUNT</property>
+                    <list-property name="arguments">
+                        <structure>
+                            <property name="name">Expression</property>
+                            <expression name="value" type="javascript">row["Revenue"]</expression>
+                        </structure>
+                    </list-property>
+                    <property name="allowExport">true</property>
+                </structure>
+                <structure>
+                    <property name="name">patchedMarketplace</property>
+                    <expression name="expression" type="javascript">if (dataSetRow["Marketplace"]=="[NOT_LISTED_IN_MARKETPLACE]") {
+reportContext.getMessage("SUPPLIER_REVENUE__NOT_ASSIGNED",reportContext.getLocale());
+} else {
+dataSetRow["Marketplace"];
+}</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Country</property>
+                    <text-property name="displayName">Country</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Country"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Billingkey</property>
+                    <text-property name="displayName">Billingkey</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Billingkey"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <structure name="toc">
+                <expression name="expressionValue" type="javascript">reportContext.getMessage("SUPPLIER_REVENUE__TOC_DETAILS", reportContext.getLocale());</expression>
+            </structure>
+            <column id="1207">
+                <property name="width">20%</property>
+                <property name="textAlign">left</property>
+            </column>
+            <column id="1240">
+                <property name="width">10%</property>
+                <property name="textAlign">center</property>
+            </column>
+            <column id="1245">
+                <property name="width">20%</property>
+            </column>
+            <column id="1208">
+                <property name="width">30%</property>
+            </column>
+            <column id="1209">
+                <property name="width">10%</property>
+            </column>
+            <column id="1210">
+                <property name="width">10%</property>
+                <property name="textAlign">right</property>
+            </column>
+            <header>
+                <row id="1184">
+                    <cell id="1185">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1214">
+                            <text-property name="text" key="SUPPLIER_REVENUE__SUPPLIER"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1237">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1241">
+                            <property name="textAlign">center</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__COUNTRY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1242">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1246">
+                            <property name="textAlign">center</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__BILLINGKEY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1187">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1213">
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__MARKETPLACE"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1189">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1211">
+                            <property name="textAlign">center</property>
+                            <text-property name="text" key="SUPPLIER_REVENUE__CURRENCY"></text-property>
+                        </label>
+                    </cell>
+                    <cell id="1191">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">thin</property>
+                        <label id="1212">
+                            <text-property name="text" key="SUPPLIER_REVENUE__REVENUE"></text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <detail>
+                <row id="1193">
+                    <cell id="1194">
+                        <data id="1195">
+                            <property name="resultSetColumn">Supplier</property>
+                        </data>
+                    </cell>
+                    <cell id="1238">
+                        <data id="1247">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Country</property>
+                        </data>
+                    </cell>
+                    <cell id="1243">
+                        <data id="1248">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Billingkey</property>
+                        </data>
+                    </cell>
+                    <cell id="1196">
+                        <data id="1236">
+                            <structure name="toc"/>
+                            <property name="resultSetColumn">patchedMarketplace</property>
+                        </data>
+                    </cell>
+                    <cell id="1198">
+                        <data id="1199">
+                            <property name="textAlign">center</property>
+                            <property name="resultSetColumn">Currency</property>
+                        </data>
+                    </cell>
+                    <cell id="1200">
+                        <data id="1201">
+                            <property name="resultSetColumn">Revenue</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="1202">
+                    <cell id="1203">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1239">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1244">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1204">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1205">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                    <cell id="1206">
+                        <property name="borderTopColor">#000000</property>
+                        <property name="borderTopStyle">solid</property>
+                        <property name="borderTopWidth">thin</property>
+                    </cell>
+                </row>
+            </footer>
+        </table>
+        <table name="Timezone" id="1275">
+            <property name="dataSet">Header</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">ReportDate</property>
+                    <text-property name="displayName">ReportDate</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["ReportDate"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">OperatorOrganization</property>
+                    <text-property name="displayName">OperatorOrganization</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["OperatorOrganization"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">OperatorAddress</property>
+                    <text-property name="displayName">OperatorAddress</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["OperatorAddress"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">QuantityMarketplaces</property>
+                    <text-property name="displayName">QuantityMarketplaces</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["QuantityMarketplaces"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">QuantitySuppliers</property>
+                    <text-property name="displayName">QuantitySuppliers</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["QuantitySuppliers"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">Country</property>
+                    <text-property name="displayName">Country</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["Country"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">serverTimeZone</property>
+                    <text-property name="displayName">serverTimeZone</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">from</property>
+                    <text-property name="displayName">from</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["from"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">to</property>
+                    <text-property name="displayName">to</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["to"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">footnote</property>
+                    <expression name="expression" type="javascript">l10nParams = new Array(1);
+l10nParams[0] = dataSetRow["serverTimeZone"];
+reportContext.getMessage("REPORT_FOOTNOTE", reportContext.getLocale(), l10nParams);</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <column id="1282"/>
+            <detail>
+                <row id="1278">
+                    <cell id="1279">
+                        <data id="1283">
+                            <property name="resultSetColumn">footnote</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+        </table>
+    </body>
+</report>

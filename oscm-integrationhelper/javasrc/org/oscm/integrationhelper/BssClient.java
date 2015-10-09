@@ -27,7 +27,7 @@ import org.oscm.wsproxy.WsProxy;
 import org.oscm.intf.SessionService;
 
 /**
- * Implementation of a web service client for the Session Service form the CT-MG
+ * Implementation of a web service client for the Session Service form the OSCM
  * platform API. The necessary information for building a web service client is
  * read from property file.
  * 
@@ -220,15 +220,15 @@ public class BssClient {
             HttpServletResponse response, ServletContext servletContext)
             throws ServletException, IOException {
         PrintWriter out = response.getWriter();
-        out.println("<b>CT-MG web service call test</b></br></br>");
+        out.println("<b>OSCM web service call test</b></br></br>");
         getWebServiceClientProperties(out);
         try {
             createServiceProxy().getSubscriptionKeysForSessionId("xxxx");
             out.println("Request SOAP message: </br>"
                     + VersionHandler.getMessage() + "</br>");
-            out.println("CT-MG web service call was successful.");
+            out.println("OSCM web service call was successful.");
         } catch (Exception e) {
-            out.println("Error calling CT-MG web service:</br></br>");
+            out.println("Error calling OSCM web service:</br></br>");
             out.println(e.getMessage() + "</br>");
             if (e.getCause() != null) {
                 out.println(e.getCause().getMessage() + "</br>");

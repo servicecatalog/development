@@ -1,0 +1,944 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.2.1.v201209101448 Build &lt;4.2.1.v20120912-1721></property>
+    <simple-property-list name="includeResource">
+        <value>WEB-INF/reportLabels</value>
+    </simple-property-list>
+    <list-property name="propertyBindings">
+        <structure>
+            <property name="name">soapEndPoint</property>
+            <property name="id">7</property>
+            <expression name="value">params["SOAPEndPoint"].value</expression>
+        </structure>
+        <structure>
+            <property name="name">wsdlURI</property>
+            <property name="id">7</property>
+            <expression name="value">params["WSDLURL"].value</expression>
+        </structure>
+    </list-property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="layoutPreference">auto layout</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <parameters>
+        <scalar-parameter name="SessionId" id="108">
+            <property name="hidden">true</property>
+            <text-property name="promptText">SessionId</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">dbe3606366b5f3a45e4af45cb106</value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SOAPEndPoint" id="419">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="WSDLURL" id="420">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean?wsdl</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.datatools.enablement.oda.ws" name="Data Source" id="7">
+            <property name="soapEndPoint">http://localhost:8180/Report/ReportingServiceBean</property>
+            <property name="wsdlURI">http://localhost:8180/Report/ReportingServiceBean?wsdl</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Data Set" id="9">
+            <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">ACTOR</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">ACTOR</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">TYPE</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">TYPE</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">PRODUCTID</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">PRODUCTID</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">FIRSTNAME</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">FIRSTNAME</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">LASTNAME</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">LASTNAME</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">EVENTID</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">EVENTID</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">SUBSCRIPTIONID</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">SUBSCRIPTIONID</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">MULTIPLIER</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">MULTIPLIER</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">EVENTDESCRIPTION</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">EVENTDESCRIPTION</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">OCCURENCETIME</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">OCCURENCETIME</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">ACTOR</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">TYPE</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">PRODUCTID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">FIRSTNAME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">LASTNAME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">EVENTID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">SUBSCRIPTIONID</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">MULTIPLIER</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">9</property>
+                        <property name="name">EVENTDESCRIPTION</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">10</property>
+                        <property name="name">OCCURENCETIME</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">ACTOR</property>
+                    <property name="nativeName">ACTOR</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">TYPE</property>
+                    <property name="nativeName">TYPE</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">PRODUCTID</property>
+                    <property name="nativeName">PRODUCTID</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">FIRSTNAME</property>
+                    <property name="nativeName">FIRSTNAME</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">LASTNAME</property>
+                    <property name="nativeName">LASTNAME</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">EVENTID</property>
+                    <property name="nativeName">EVENTID</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">SUBSCRIPTIONID</property>
+                    <property name="nativeName">SUBSCRIPTIONID</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">MULTIPLIER</property>
+                    <property name="nativeName">MULTIPLIER</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">9</property>
+                    <property name="name">EVENTDESCRIPTION</property>
+                    <property name="nativeName">EVENTDESCRIPTION</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">10</property>
+                    <property name="name">OCCURENCETIME</property>
+                    <property name="nativeName">OCCURENCETIME</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getReport xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<reportId>Event</reportId>
+		</m:getReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>getReportResponse</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>getReportResponse</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//data]#:#{ACTOR;STRING;//ACTOR},{TYPE;STRING;//TYPE},{PRODUCTID;STRING;//PRODUCTID},{FIRSTNAME;STRING;//FIRSTNAME},{LASTNAME;STRING;//LASTNAME},{EVENTID;STRING;//EVENTIDENTIFIER},{SUBSCRIPTIONID;STRING;//SUBSCRIPTIONID},{SUBSCRIPTIONTKEY;STRING;//SUBSCRIPTIONTKEY},{MULTIPLIER;INT;//MULTIPLIER},{EVENTDESCRIPTION;STRING;//EVENTDESCRIPTION},{OCCURENCETIME;STRING;//OCCURENCETIME}#:#&lt;"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Timezone Data Set" id="474">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">serverTimeZone</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">serverTimeZone</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">serverTimeZone</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Data Source</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">serverTimeZone</property>
+                    <property name="nativeName">serverTimeZone</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getReport xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<reportId>Event</reportId>
+		</m:getReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>getReportResponse</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>getReportResponse</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return]#:#{serverTimeZone;STRING;serverTimeZone}#:#&lt;"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">"Verdana"</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="Head" id="243">
+            <property name="backgroundColor">#C0C0C0</property>
+        </style>
+        <style name="AlternatingRowColor" id="327">
+            <list-property name="highlightRules">
+                <structure>
+                    <property name="operator">gt</property>
+                    <property name="backgroundColor">#E5EBF1</property>
+                    <expression name="testExpr">row.__rownum %2</expression>
+                    <simple-property-list name="value1">
+                        <value>0.0</value>
+                    </simple-property-list>
+                </structure>
+            </list-property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="topMargin">0.25in</property>
+            <property name="leftMargin">0.25in</property>
+            <property name="bottomMargin">0.25in</property>
+            <property name="rightMargin">0.25in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <table id="329">
+            <property name="dataSet">Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">ACTOR</property>
+                    <text-property name="displayName">ACTOR</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["ACTOR"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">TYPE</property>
+                    <text-property name="displayName">TYPE</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["TYPE"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">PRODUCTID</property>
+                    <text-property name="displayName">PRODUCTID</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["PRODUCTID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">FIRSTNAME</property>
+                    <text-property name="displayName">FIRSTNAME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["FIRSTNAME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">LASTNAME</property>
+                    <text-property name="displayName">LASTNAME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["LASTNAME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">EVENTID</property>
+                    <text-property name="displayName">EVENTID</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["EVENTID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">SUBSCRIPTIONID</property>
+                    <text-property name="displayName">SUBSCRIPTIONID</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["SUBSCRIPTIONID"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">SUBSCRIPTIONTKEY</property>
+                    <text-property name="displayName">SUBSCRIPTIONTKEY</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["SUBSCRIPTIONTKEY"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">MULTIPLIER</property>
+                    <text-property name="displayName">MULTIPLIER</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["MULTIPLIER"]</expression>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="name">EVENTDESCRIPTION</property>
+                    <text-property name="displayName">EVENTDESCRIPTION</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["EVENTDESCRIPTION"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">OCCURENCETIME</property>
+                    <text-property name="displayName">OCCURENCETIME</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["OCCURENCETIME"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <list-property name="sort">
+                <structure>
+                    <expression name="key" type="javascript">row["TYPE"]</expression>
+                    <property name="direction">asc</property>
+                    <property name="strength">0</property>
+                </structure>
+                <structure>
+                    <expression name="key" type="javascript">row["EVENTID"]</expression>
+                    <property name="direction">asc</property>
+                    <property name="strength">1</property>
+                </structure>
+            </list-property>
+            <column id="357"/>
+            <column id="358"/>
+            <column id="359"/>
+            <column id="360"/>
+            <column id="439"/>
+            <column id="361"/>
+            <column id="428"/>
+            <column id="363">
+                <property name="repeat">1</property>
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr" type="javascript">reportContext.getLocale()=="ja"</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <column id="364">
+                <property name="repeat">1</property>
+            </column>
+            <column id="452">
+                <property name="repeat">1</property>
+                <list-property name="visibility">
+                    <structure>
+                        <property name="format">all</property>
+                        <expression name="valueExpr" type="javascript">reportContext.getLocale()!="ja"</expression>
+                    </structure>
+                </list-property>
+            </column>
+            <header>
+                <row id="330">
+                    <property name="backgroundColor">#ADB7C3</property>
+                    <cell id="331">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="365">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="PRODUCTID">PRODUCTID</text-property>
+                        </label>
+                    </cell>
+                    <cell id="332">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="366">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="SUBSCRIPTIONID">SUBSCRIPTIONID</text-property>
+                        </label>
+                    </cell>
+                    <cell id="333">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="367">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="EVENTTYPE">TYPE</text-property>
+                        </label>
+                    </cell>
+                    <cell id="334">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="368">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="EVENTID">EVENTID</text-property>
+                        </label>
+                    </cell>
+                    <cell id="432">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="440">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="EVENTDESCRIPTION">EVENTID</text-property>
+                        </label>
+                    </cell>
+                    <cell id="335">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="369">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="OCCURRENCETIME">OCCURRENCETIME</text-property>
+                        </label>
+                    </cell>
+                    <cell id="421">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="431">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="EVENTCOUNT">OCCURRENCETIME</text-property>
+                        </label>
+                    </cell>
+                    <cell id="337">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="371">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr" type="javascript">reportContext.getLocale()=="ja"</expression>
+                                </structure>
+                            </list-property>
+                            <text-property name="text" key="FIRSTNAME">FIRSTNAME</text-property>
+                        </label>
+                    </cell>
+                    <cell id="338">
+                        <property name="borderRightColor">#FFFFFF</property>
+                        <property name="borderRightStyle">solid</property>
+                        <property name="borderRightWidth">thin</property>
+                        <label id="372">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <text-property name="text" key="LASTNAME">LASTNAME</text-property>
+                        </label>
+                    </cell>
+                    <cell id="453">
+                        <label id="454">
+                            <property name="fontSize">8pt</property>
+                            <property name="textAlign">left</property>
+                            <list-property name="visibility">
+                                <structure>
+                                    <property name="format">all</property>
+                                    <expression name="valueExpr" type="javascript">reportContext.getLocale()!="ja"</expression>
+                                </structure>
+                            </list-property>
+                            <text-property name="text" key="FIRSTNAME">FIRSTNAME</text-property>
+                        </label>
+                    </cell>
+                </row>
+            </header>
+            <group id="379">
+                <property name="groupName">NewTableGroup1</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["PRODUCTID"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["PRODUCTID"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <header>
+                    <row id="380">
+                        <property name="backgroundColor">gray</property>
+                        <cell id="381">
+                            <data id="398">
+                                <property name="fontSize">8pt</property>
+                                <property name="resultSetColumn">PRODUCTID</property>
+                            </data>
+                        </cell>
+                        <cell id="382"/>
+                        <cell id="383"/>
+                        <cell id="384"/>
+                        <cell id="433"/>
+                        <cell id="385"/>
+                        <cell id="422"/>
+                        <cell id="387"/>
+                        <cell id="388"/>
+                        <cell id="455"/>
+                    </row>
+                </header>
+                <footer>
+                    <row id="389">
+                        <cell id="390"/>
+                        <cell id="391"/>
+                        <cell id="392"/>
+                        <cell id="393"/>
+                        <cell id="437"/>
+                        <cell id="394"/>
+                        <cell id="426"/>
+                        <cell id="396"/>
+                        <cell id="397"/>
+                        <cell id="456"/>
+                    </row>
+                </footer>
+            </group>
+            <group id="399">
+                <property name="groupName">NewTableGroup2</property>
+                <property name="interval">none</property>
+                <property name="sortDirection">asc</property>
+                <expression name="keyExpr">row["SUBSCRIPTIONTKEY"]</expression>
+                <structure name="toc">
+                    <expression name="expressionValue">row["SUBSCRIPTIONID"]</expression>
+                </structure>
+                <property name="repeatHeader">true</property>
+                <property name="hideDetail">false</property>
+                <property name="pageBreakAfter">auto</property>
+                <property name="pageBreakBefore">auto</property>
+                <property name="pageBreakInside">auto</property>
+                <header>
+                    <row id="400">
+                        <property name="backgroundColor">silver</property>
+                        <cell id="401"/>
+                        <cell id="402">
+                            <data id="418">
+                                <property name="fontSize">8pt</property>
+                                <property name="resultSetColumn">SUBSCRIPTIONID</property>
+                            </data>
+                        </cell>
+                        <cell id="403"/>
+                        <cell id="404"/>
+                        <cell id="434"/>
+                        <cell id="405"/>
+                        <cell id="423"/>
+                        <cell id="407"/>
+                        <cell id="408"/>
+                        <cell id="457"/>
+                    </row>
+                </header>
+                <footer>
+                    <row id="409">
+                        <cell id="410"/>
+                        <cell id="411"/>
+                        <cell id="412"/>
+                        <cell id="413"/>
+                        <cell id="436"/>
+                        <cell id="414"/>
+                        <cell id="425"/>
+                        <cell id="416"/>
+                        <cell id="417"/>
+                        <cell id="458"/>
+                    </row>
+                </footer>
+            </group>
+            <detail>
+                <row id="339">
+                    <property name="style">AlternatingRowColor</property>
+                    <property name="fontSize">8pt</property>
+                    <cell id="340"/>
+                    <cell id="341"/>
+                    <cell id="342">
+                        <data id="373">
+                            <property name="resultSetColumn">TYPE</property>
+                        </data>
+                    </cell>
+                    <cell id="343">
+                        <data id="374">
+                            <property name="resultSetColumn">EVENTID</property>
+                        </data>
+                    </cell>
+                    <cell id="435">
+                        <data id="441">
+                            <property name="resultSetColumn">EVENTDESCRIPTION</property>
+                        </data>
+                    </cell>
+                    <cell id="344">
+                        <data id="484">
+                            <property name="resultSetColumn">OCCURENCETIME</property>
+                        </data>
+                    </cell>
+                    <cell id="424">
+                        <data id="430">
+                            <property name="resultSetColumn">MULTIPLIER</property>
+                        </data>
+                    </cell>
+                    <cell id="346">
+                        <data id="377">
+                            <property name="resultSetColumn">FIRSTNAME</property>
+                        </data>
+                    </cell>
+                    <cell id="347">
+                        <data id="378">
+                            <property name="resultSetColumn">LASTNAME</property>
+                        </data>
+                    </cell>
+                    <cell id="459">
+                        <data id="460">
+                            <property name="resultSetColumn">FIRSTNAME</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+            <footer>
+                <row id="348">
+                    <cell id="349"/>
+                    <cell id="350"/>
+                    <cell id="351"/>
+                    <cell id="352"/>
+                    <cell id="438"/>
+                    <cell id="353"/>
+                    <cell id="427"/>
+                    <cell id="355"/>
+                    <cell id="356"/>
+                    <cell id="461"/>
+                </row>
+            </footer>
+        </table>
+        <table name="Timezone Data Set" id="475">
+            <property name="dataSet">Timezone Data Set</property>
+            <list-property name="boundDataColumns">
+                <structure>
+                    <property name="name">serverTimeZone</property>
+                    <text-property name="displayName">serverTimeZone</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">footnote</property>
+                    <expression name="expression" type="javascript">l10nParams = new Array(1);
+l10nParams[0] = dataSetRow["serverTimeZone"];
+reportContext.getMessage("REPORT_FOOTNOTE", reportContext.getLocale(), l10nParams);</expression>
+                    <property name="dataType">string</property>
+                    <property name="allowExport">true</property>
+                </structure>
+            </list-property>
+            <column id="482"/>
+            <detail>
+                <row id="478">
+                    <cell id="479">
+                        <data id="483">
+                            <property name="resultSetColumn">footnote</property>
+                        </data>
+                    </cell>
+                </row>
+            </detail>
+        </table>
+    </body>
+</report>

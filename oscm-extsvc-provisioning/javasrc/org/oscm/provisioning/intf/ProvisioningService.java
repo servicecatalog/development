@@ -150,9 +150,9 @@ public interface ProvisioningService {
      * parameter values or options for a service whose underlying technical
      * service defines synchronous provisioning. It retrieves the status message
      * and return code of the corresponding operation in the application.
-     * Implementation must not perform any callback to CT-MG, which modifies the
-     * subscription, e.g. then storing the instance information, otherwise it'll
-     * cause the whole transaction to fail.
+     * Implementation must not perform any callback to Catalog Manager, which
+     * modifies the subscription, e.g. then storing the instance information,
+     * otherwise it'll cause the whole transaction to fail.
      * <p>
      * It is up to you to decide which operations to perform in your
      * application. The platform passes all parameters that are specified in the

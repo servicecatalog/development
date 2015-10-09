@@ -1,0 +1,2564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.23" id="1">
+    <property name="createdBy">Eclipse BIRT Designer Version 4.2.1.v201209101448 Build &lt;4.2.1.v20120912-1721></property>
+    <list-property name="userProperties">
+        <structure>
+            <property name="name">Data Cube.TableRow.x</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+        <structure>
+            <property name="name">Data Cube.TableRow.y</property>
+            <property name="type">integer</property>
+            <property name="isVisible">false</property>
+        </structure>
+    </list-property>
+    <property name="Data Cube.TableRow.x">135</property>
+    <property name="Data Cube.TableRow.y">80</property>
+    <simple-property-list name="includeResource">
+        <value>WEB-INF/reportLabels</value>
+    </simple-property-list>
+    <list-property name="propertyBindings">
+        <structure>
+            <property name="name">soapEndPoint</property>
+            <property name="id">7</property>
+            <expression name="value">params["SOAPEndPoint"].value</expression>
+        </structure>
+        <structure>
+            <property name="name">wsdlURI</property>
+            <property name="id">7</property>
+            <expression name="value">params["WSDLURL"].value</expression>
+        </structure>
+    </list-property>
+    <property name="units">in</property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="layoutPreference">auto layout</property>
+    <property name="bidiLayoutOrientation">ltr</property>
+    <parameters>
+        <scalar-parameter name="SessionId" id="108">
+            <property name="hidden">true</property>
+            <text-property name="promptText">SessionId</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">84d5e951c60fc463330eee72e81b</value>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="SOAPEndPoint" id="419">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="WSDLURL" id="420">
+            <property name="hidden">true</property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">http://localhost:8180/Report/ReportingServiceBean?wsdl</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="month" id="972">
+        	<method name="validate"><![CDATA[var regex = new RegExp("^(0?[1-9]|1[012])$");
+        var matches = params["month"].value.match(regex);
+if (matches == null) { false;} else{true}]]></method>
+            <text-property name="promptText" key="PARTNERS_REVENUESHARE__PARAMETER_MONTH"></text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant" isNull="true"/>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="year" id="1248">
+        	<method name="validate"><![CDATA[var regex = new RegExp("^(\\d{4}$)");
+        var matches = params["year"].value.match(regex);
+if (matches == null) { false;} else{true}]]></method>
+            <text-property name="promptText" key="PARTNERS_REVENUESHARE__PARAMETER_YEAR"></text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant" isNull="true"/>
+            </simple-property-list>
+            <list-property name="selectionList"/>
+            <property name="paramType">simple</property>
+            <property name="concealValue">false</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.datatools.enablement.oda.ws" name="Reporting Webservice" id="7">
+            <property name="soapEndPoint">http://localhost:8180/Report/ReportingServiceBean</property>
+            <property name="wsdlURI">http://localhost:8180/Report/ReportingServiceBean?wsdl</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Header" id="971">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">periodStart</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">periodStart</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">periodEnd</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">periodEnd</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">address</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">address</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">vendor</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">vendor</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">entryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">entryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">parentEntryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">parentEntryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">vendorType</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">vendorType</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">periodStart</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">periodEnd</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">address</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">vendor</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">entryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">parentEntryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">vendorType</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">periodStart</property>
+                    <property name="nativeName">periodStart</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">periodEnd</property>
+                    <property name="nativeName">periodEnd</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">address</property>
+                    <property name="nativeName">address</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">vendor</property>
+                    <property name="nativeName">vendor</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">entryNr</property>
+                    <property name="nativeName">entryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">parentEntryNr</property>
+                    <property name="nativeName">parentEntryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">vendorType</property>
+                    <property name="nativeName">vendorType</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>SOAP-ENV:Envelope</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>SOAP-ENV:Envelope</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/reports]#:#{periodStart;STRING;periodStart},{periodEnd;STRING;periodEnd},{address;STRING;address},{vendor;STRING;vendor},{entryNr;INT;entryNr},{parentEntryNr;INT;parentEntryNr},{vendorType;STRING;vendorType}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="RevenueDetail" id="1045">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">vendor</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">vendor</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">revenue</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">amount</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">amount</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">entryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">entryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">parentEntryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">parentEntryNr</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">vendor</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">amount</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">entryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">parentEntryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">vendor</property>
+                    <property name="nativeName">vendor</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">revenue</property>
+                    <property name="nativeName">revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">amount</property>
+                    <property name="nativeName">amount</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">entryNr</property>
+                    <property name="nativeName">entryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">parentEntryNr</property>
+                    <property name="nativeName">parentEntryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>SOAP-ENV:Envelope</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>SOAP-ENV:Envelope</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/reports/currencies/revenueDetails]#:#{vendor;STRING;vendor},{revenue;STRING;revenue},{amount;STRING;amount},{entryNr;INT;entryNr},{parentEntryNr;INT;parentEntryNr}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="RevenueDetailService" id="1047">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">revenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">revenue</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">service</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">service</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">revenueShare</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">revenueShare</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">amount</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">amount</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">entryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">entryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">parentEntryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">parentEntryNr</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">revenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">service</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">revenueShare</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">amount</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">entryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">parentEntryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">revenue</property>
+                    <property name="nativeName">revenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">service</property>
+                    <property name="nativeName">service</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">revenueShare</property>
+                    <property name="nativeName">revenueShare</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">amount</property>
+                    <property name="nativeName">amount</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">entryNr</property>
+                    <property name="nativeName">entryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">parentEntryNr</property>
+                    <property name="nativeName">parentEntryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>SOAP-ENV:Envelope</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>SOAP-ENV:Envelope</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/reports/currencies/revenueDetails/services]#:#{revenue;STRING;revenue},{service;STRING;service},{revenueShare;STRING;revenueShare},{amount;STRING;amount},{entryNr;INT;entryNr},{parentEntryNr;INT;parentEntryNr}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="PerCurrency" id="1224">
+            <property name="nullsOrdering">nulls lowest</property>
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">totalRevenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">totalRevenue</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">entryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">entryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">parentEntryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">parentEntryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">totalAmount</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">totalAmount</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">brokerRevenue</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">brokerRevenue</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">remainingAmount</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">remainingAmount</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">currency</property>
+                    <property name="analysis">attribute</property>
+                    <text-property name="heading">currency</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">totalRevenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">entryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">3</property>
+                        <property name="name">parentEntryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">4</property>
+                        <property name="name">totalAmount</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">5</property>
+                        <property name="name">brokerRevenue</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">6</property>
+                        <property name="name">remainingAmount</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">7</property>
+                        <property name="name">currency</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">totalRevenue</property>
+                    <property name="nativeName">totalRevenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">entryNr</property>
+                    <property name="nativeName">entryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">3</property>
+                    <property name="name">parentEntryNr</property>
+                    <property name="nativeName">parentEntryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">4</property>
+                    <property name="name">totalAmount</property>
+                    <property name="nativeName">totalAmount</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">5</property>
+                    <property name="name">brokerRevenue</property>
+                    <property name="nativeName">brokerRevenue</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">6</property>
+                    <property name="name">remainingAmount</property>
+                    <property name="nativeName">remainingAmount</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">7</property>
+                    <property name="name">currency</property>
+                    <property name="nativeName">currency</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>SOAP-ENV:Envelope</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>SOAP-ENV:Envelope</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return/reports/currencies]#:#{totalRevenue;STRING;totalRevenue},{entryNr;INT;entryNr},{parentEntryNr;INT;parentEntryNr},{totalAmount;STRING;totalAmount},{brokerRevenue;STRING;brokerRevenue},{remainingAmount;STRING;remainingAmount},{currency;STRING;currency}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Partner" id="1561">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">entryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">entryNr</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">parentEntryNr</property>
+                    <property name="analysis">measure</property>
+                    <text-property name="heading">parentEntryNr</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">entryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">parentEntryNr</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">entryNr</property>
+                    <property name="nativeName">entryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">parentEntryNr</property>
+                    <property name="nativeName">parentEntryNr</property>
+                    <property name="dataType">integer</property>
+                    <property name="nativeDataType">4</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>entryNr</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>4</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>entryNr</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>parentEntryNr</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>4</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>parentEntryNr</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return]#:#{entryNr;INT;entryNr},{parentEntryNr;INT;parentEntryNr}#:#&lt;"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.datatools.enablement.oda.ws.dataSet" name="Timezone" id="1730">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">serverTimeZone</property>
+                    <property name="analysis">dimension</property>
+                    <text-property name="heading">serverTimeZone</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">SessionId</property>
+                    <property name="paramName">SessionId</property>
+                    <property name="nativeName">SessionId</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">1</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">month</property>
+                    <property name="paramName">month</property>
+                    <property name="nativeName">month</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">2</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+                <structure>
+                    <property name="name">year</property>
+                    <property name="paramName">year</property>
+                    <property name="nativeName">year</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">1</property>
+                    <property name="position">3</property>
+                    <property name="isOptional">false</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">serverTimeZone</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">Reporting Webservice</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">serverTimeZone</property>
+                    <property name="nativeName">serverTimeZone</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[<?xml version="1.0"?>
+<SOAP-ENV:Envelope
+xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<SOAP-ENV:Body>
+		<m:getPartnerRevenueShareReport  xmlns:m="http://bean.reportingservice.oscm.org/">
+			<sessionId>&amp;?SessionId?&amp;</sessionId>
+			<month>&amp;?month?&amp;</month>
+			<year>&amp;?year?&amp;</year>
+		</m:getPartnerRevenueShareReport>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>]]></xml-property>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>SessionId</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>month</design:name>
+            <design:position>2</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>year</design:name>
+            <design:position>3</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>1</design:nativeDataTypeCode>
+          <design:precision>-1</design:precision>
+          <design:scale>-1</design:scale>
+          <design:nullability>Unknown</design:nullability>
+        </design:attributes>
+        <design:inputAttributes>
+          <design:elementAttributes>
+            <design:defaultValues>
+              <design:values xsi:nil="true"/>
+            </design:defaultValues>
+          </design:elementAttributes>
+        </design:inputAttributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>SOAP-ENV:Envelope</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>-1</design:precision>
+            <design:scale>-1</design:scale>
+            <design:nullability>Unknown</design:nullability>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>SOAP-ENV:Envelope</design:label>
+            <design:formattingHints/>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria/>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>xmlQueryText</name>
+                    <value>table0#-TNAME-#table0#:#[//return]#:#{serverTimeZone;STRING;serverTimeZone}#:#&lt;"SOAP-ENV","http:%%schemas.xmlsoap.org%soap%envelope%";"xsd","http:%%www.w3.org%2001%XMLSchema";"SOAP-ENC","http:%%schemas.xmlsoap.org%soap%encoding%";"xsi","http:%%www.w3.org%2001%XMLSchema-instance"></value>
+                </ex-property>
+                <ex-property>
+                    <name>operationTrace</name>
+                    <value>params["wsname"].value-params["wsport"].value-$getPartnerRevenueShareReport</value>
+                </ex-property>
+                <ex-property>
+                    <name>xmlFileURI</name>
+                </ex-property>
+                <ex-property>
+                    <name>xsdFileURI</name>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">"Verdana"</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="Head" id="243">
+            <property name="backgroundColor">#C0C0C0</property>
+        </style>
+        <style name="AlternatingRowColor" id="327">
+            <list-property name="highlightRules">
+                <structure>
+                    <property name="operator">gt</property>
+                    <property name="backgroundColor">#E5EBF1</property>
+                    <expression name="testExpr">row.__rownum %2</expression>
+                    <simple-property-list name="value1">
+                        <value>0.0</value>
+                    </simple-property-list>
+                </structure>
+            </list-property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <property name="topMargin">0.25in</property>
+            <property name="leftMargin">0.25in</property>
+            <property name="bottomMargin">0.25in</property>
+            <property name="rightMargin">0.25in</property>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <grid name="Reports" id="1754">
+            <column id="1755"/>
+            <column id="1756"/>
+            <column id="1757"/>
+            <column id="1758"/>
+            <column id="1759"/>
+            <row id="1760">
+                <cell id="1761">
+                    <property name="colSpan">5</property>
+                    <property name="rowSpan">1</property>
+                    <table name="PartnerRevenueShareReport" id="1562">
+                        <property name="dataSet">Header</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">periodStart</property>
+                                <text-property name="displayName">periodStart</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["periodStart"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">periodEnd</property>
+                                <text-property name="displayName">periodEnd</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["periodEnd"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">address</property>
+                                <text-property name="displayName">address</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["address"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">vendor</property>
+                                <text-property name="displayName">vendor</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["vendor"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">entryNr</property>
+                                <text-property name="displayName">entryNr</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["entryNr"]</expression>
+                                <property name="dataType">integer</property>
+                            </structure>
+                            <structure>
+                                <property name="name">parentEntryNr</property>
+                                <text-property name="displayName">parentEntryNr</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["parentEntryNr"]</expression>
+                                <property name="dataType">integer</property>
+                            </structure>
+                            <structure>
+                                <property name="name">vendorType</property>
+                                <text-property name="displayName">vendorType</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["vendorType"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                        </list-property>
+                        <column id="1576"/>
+                        <header>
+                            <row id="1740">
+                                <property name="backgroundColor">gray</property>
+                                <property name="textAlign">justify</property>
+                                <cell id="1741">
+                                    <label id="970">
+                                       <property name="fontSize">12pt</property>
+                                       <property name="fontWeight">bold</property>
+                                       <property name="color">white</property>
+                                       <text-property name="text" key="PARTNERS_REVENUESHARE__TITLE"></text-property>
+                                    </label>
+                                </cell>
+                            </row>
+                        </header>
+                        <group id="1784">
+                            <property name="groupName">OverViewToVendor</property>
+                            <expression name="keyExpr" type="javascript">row["vendor"]</expression>
+                            <structure name="toc">
+                                <expression name="expressionValue" type="javascript">row["vendor"]</expression>
+                            </structure>
+                            <property name="hideDetail">false</property>
+                        </group>
+                        <detail>
+                            <row id="1818">
+                                <cell id="1819">
+                                    <table name="Header" id="1596">
+                                        <property name="dataSet">Header</property>
+                                        <list-property name="boundDataColumns">
+                                            <structure>
+                                                <property name="name">periodStart</property>
+                                                <text-property name="displayName">periodStart</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["periodStart"]</expression>
+                                                <property name="dataType">string</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">periodEnd</property>
+                                                <text-property name="displayName">periodEnd</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["periodEnd"]</expression>
+                                                <property name="dataType">string</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">address</property>
+                                                <text-property name="displayName">address</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["address"]</expression>
+                                                <property name="dataType">string</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">vendor</property>
+                                                <text-property name="displayName">vendor</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["vendor"]</expression>
+                                                <property name="dataType">string</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">entryNr</property>
+                                                <text-property name="displayName">entryNr</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["entryNr"]</expression>
+                                                <property name="dataType">integer</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">parentEntryNr</property>
+                                                <text-property name="displayName">parentEntryNr</text-property>
+                                                <expression name="expression" type="javascript">dataSetRow["parentEntryNr"]</expression>
+                                                <property name="dataType">integer</property>
+                                            </structure>
+                                            <structure>
+                                                <property name="name">From</property>
+                                                <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(dataSetRow["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_FROMDATE", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">vendorType</property>
+                                    <text-property name="displayName">vendorType</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["vendorType"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">To</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(dataSetRow["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_TODATE", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">Period</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(dataSetRow["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_PERIOD", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">Address</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(dataSetRow["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_ADDRESS", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                            </list-property>
+                            <column id="1630">
+                                <property name="width">40%</property>
+                            </column>
+                            <column id="1631">
+                                <property name="width">5%</property>
+                            </column>
+                            <column id="1632">
+                                <property name="width">15%</property>
+                            </column>
+                            <column id="1634">
+                                <property name="width">5%</property>
+                            </column>
+                            <column id="1635">
+                                <property name="width">15%</property>
+                            </column>
+                            <group id="1658">
+                                <property name="groupName">HeaderToReports</property>
+                                <expression name="keyExpr" type="javascript">row["entryNr"]</expression>
+                                <property name="hideDetail">false</property>
+                                <list-property name="filter">
+                                    <structure>
+                                        <property name="operator">eq</property>
+                                        <expression name="expr" type="javascript">row["entryNr"]</expression>
+                                        <simple-property-list name="value1">
+                                            <value>row._outer["entryNr"]</value>
+                                        </simple-property-list>
+                                    </structure>
+                                </list-property>
+                            </group>
+                            <detail>
+                                <row id="1650">
+                                    <property name="backgroundColor">silver</property>
+                                    <cell id="1651">
+                                        <property name="colSpan">5</property>
+                                        <property name="rowSpan">1</property>
+                                        <data id="1618">
+                                            <property name="resultSetColumn">vendor</property>
+                                        </data>
+                                    </cell>
+                                </row>
+                                <row id="1643">
+                                    <cell id="1644"/>
+                                    <cell id="1645"/>
+                                    <cell id="1646"/>
+                                    <cell id="1648"/>
+                                    <cell id="1649"/>
+                                </row>
+                                <row id="1636">
+                                    <cell id="1637">
+                                        <data id="1715">
+                                            <property name="resultSetColumn">Period</property>
+                                        </data>
+                                    </cell>
+                                    <cell id="1638">
+                                        <data id="1712">
+                                            <property name="resultSetColumn">From</property>
+                                        </data>
+                                    </cell>
+                                    <cell id="1639">
+                                        <data id="1657">
+                                            <property name="resultSetColumn">periodStart</property>
+                                        </data>
+                                    </cell>
+                                    <cell id="1641">
+                                        <data id="1713">
+                                            <property name="resultSetColumn">To</property>
+                                        </data>
+                                    </cell>
+                                    <cell id="1642">
+                                        <data id="1614">
+                                            <property name="resultSetColumn">periodEnd</property>
+                                        </data>
+                                    </cell>
+                                </row>
+                                <row id="1610">
+                                    <cell id="1611">
+                                        <data id="1716">
+                                            <property name="resultSetColumn">Address</property>
+                                        </data>
+                                    </cell>
+                                    <cell id="1613">
+                                        <property name="colSpan">4</property>
+                                        <property name="rowSpan">1</property>
+                                        <data id="1616">
+                                            <property name="resultSetColumn">address</property>
+                                        </data>
+                                    </cell>
+                                </row>
+                            </detail>
+                        </table>
+                    </cell>
+                </row>
+                <row id="1578">
+                    <cell id="1579">
+                        <property name="borderBottomColor">#000000</property>
+                        <property name="borderBottomStyle">solid</property>
+                        <property name="borderBottomWidth">6px</property>
+                        <property name="paddingBottom">40pt</property>
+                        <table name="PerCurrency" id="1225">
+                            <property name="marginTop">15pt</property>
+                            <property name="marginBottom">15pt</property>
+                            <property name="dataSet">PerCurrency</property>
+                            <list-property name="boundDataColumns">
+                                <structure>
+                                    <property name="name">totalRevenue</property>
+                                    <text-property name="displayName">totalRevenue</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["totalRevenue"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">parentEntryNr</property>
+                                    <text-property name="displayName">parentEntryNr</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["parentEntryNr"]</expression>
+                                    <property name="dataType">integer</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">totalAmount</property>
+                                    <text-property name="displayName">totalAmount</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["totalAmount"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">entryNr</property>
+                                    <text-property name="displayName">entryNr</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["entryNr"]</expression>
+                                    <property name="dataType">integer</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">brokerRevenue</property>
+                                    <text-property name="displayName">brokerRevenue</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["brokerRevenue"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">Overview</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+l10nParams[0]=dataSetRow["currency"];
+v = BirtStr.toUpper(row._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_OVERVIEW", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">remainingAmount</property>
+                                    <text-property name="displayName">remainingAmount</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["remainingAmount"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">currency</property>
+                                    <text-property name="displayName">currency</text-property>
+                                    <expression name="expression" type="javascript">dataSetRow["currency"]</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">OverviewTotal</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_OVERVIEWTOTAL", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">SumTotalRevenue</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_SUM_TOTAL_REVENUE", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">SumRevenue</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_SUM_REVENUE", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">SumSummary</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_SUM_TOTAL_REVENUE", reportContext.getLocale(),l10nParams);</expression>
+                                    <property name="dataType">string</property>
+                                </structure>
+                                <structure>
+                                    <property name="name">RemainingAmount</property>
+                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+reportContext.getMessage("RESELLER_REVENUESHARE__LABEL_REMAINING_AMOUNT", reportContext.getLocale(),l10nParams);</expression>
+                                                <property name="dataType">string</property>
+                                            </structure>
+                                        </list-property>
+                                        <structure name="toc"/>
+                                        <column id="1239">
+                                            <property name="width">35%</property>
+                                        </column>
+                                        <column id="1240">
+                                            <property name="width">25%</property>
+                                        </column>
+                                        <column id="1482">
+                                            <property name="width">15%</property>
+                                        </column>
+                                        <column id="1475">
+                                            <property name="width">15%</property>
+                                        </column>
+                                        <column id="1468">
+                                            <property name="width">10%</property>
+                                        </column>
+                                        <group id="1711">
+                                            <property name="groupName">OverviewToReports</property>
+                                            <expression name="keyExpr" type="javascript">row["entryNr"]</expression>
+                                            <structure name="toc">
+                                                <expression name="expressionValue" type="javascript">l10nParams = new Array(1); &#13;
+l10nParams[0] = row["currency"];&#13;
+reportContext.getMessage("SUPPLIER_REVENUESHARE__TOC_CURRENCY", reportContext.getLocale(), l10nParams);</expression>
+                                            </structure>
+                                            <property name="hideDetail">false</property>
+                                            <list-property name="filter">
+                                                <structure>
+                                                    <property name="operator">eq</property>
+                                                    <expression name="expr" type="javascript">row["parentEntryNr"]</expression>
+                                                    <simple-property-list name="value1">
+                                                        <value>row._outer["entryNr"]</value>
+                                                    </simple-property-list>
+                                                </structure>
+                                            </list-property>
+                                        </group>
+                                        <detail>
+                                            <row id="1368">
+                                                <property name="backgroundColor">silver</property>
+                                                <cell id="1369">
+                                                    <property name="colSpan">2</property>
+                                                    <property name="rowSpan">1</property>
+                                                    <data id="1714">
+                                                        <property name="resultSetColumn">Overview</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="1476"/>
+                                                <cell id="1469"/>
+                                                <cell id="1462"/>
+                                            </row>
+                                            <row id="1231">
+                                                <cell id="1232">
+                                                    <data id="1717">
+                                                        <property name="resultSetColumn">OverviewTotal</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="1234">
+                                                    <property name="colSpan">4</property>
+                                                    <property name="rowSpan">1</property>
+                                                    <data id="1560">
+                                                        <property name="textAlign">right</property>
+                                                        <property name="resultSetColumn">totalAmount</property>
+                                                    </data>
+                                                </cell>
+                                            </row>
+                                            <row id="1241">
+                                                <cell id="1242">
+                                                    <property name="colSpan">5</property>
+                                                    <property name="rowSpan">1</property>
+                                                    <table name="RevenueDetail" id="1048">
+                                                        <property name="marginTop">10pt</property>
+                                                        <property name="dataSet">RevenueDetail</property>
+                                                        <list-property name="boundDataColumns">
+                                                            <structure>
+                                                                <property name="name">vendor</property>
+                                                                <text-property name="displayName">vendor</text-property>
+                                                                <expression name="expression" type="javascript">dataSetRow["vendor"]</expression>
+                                                                <property name="dataType">string</property>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="name">revenue</property>
+                                                                <text-property name="displayName">revenue</text-property>
+                                                                <expression name="expression" type="javascript">dataSetRow["revenue"]</expression>
+                                                                <property name="dataType">string</property>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="name">amount</property>
+                                                                <text-property name="displayName">amount</text-property>
+                                                                <expression name="expression" type="javascript">dataSetRow["amount"]</expression>
+                                                                <property name="dataType">string</property>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="name">entryNr</property>
+                                                                <text-property name="displayName">entryNr</text-property>
+                                                                <expression name="expression" type="javascript">dataSetRow["entryNr"]</expression>
+                                                                <property name="dataType">integer</property>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="name">parentEntryNr</property>
+                                                                <text-property name="displayName">parentEntryNr</text-property>
+                                                                <expression name="expression" type="javascript">dataSetRow["parentEntryNr"]</expression>
+                                                                <property name="dataType">integer</property>
+                                                            </structure>
+                                                            <structure>
+                                                                <property name="name">OverviewISV</property>
+                                                                <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_OVERVIEWISV", reportContext.getLocale(),l10nParams);</expression>
+                                                    <property name="dataType">string</property>
+                                                </structure>
+                                                <structure>
+                                                    <property name="name">Provision</property>
+                                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_PROVISION", reportContext.getLocale(),l10nParams);</expression>
+                                                    <property name="dataType">string</property>
+                                                </structure>
+                                                <structure>
+                                                    <property name="name">Sum</property>
+                                                    <expression name="expression" type="javascript">l10nParams = new Array(1); 
+v = BirtStr.toUpper(row._outer._outer["vendorType"]);
+reportContext.getMessage(v+"_REVENUESHARE__LABEL_SUM", reportContext.getLocale(),l10nParams);</expression>
+                                                                <property name="dataType">string</property>
+                                                            </structure>
+                                                        </list-property>
+                                                        <structure name="toc">
+                                                            <expression name="expressionValue" type="javascript">reportContext.getMessage("BROKER_REVENUESHARE__TOC_DETAILS", reportContext.getLocale());</expression>
+                                                        </structure>
+                                                        <column id="1067">
+                                                            <property name="width">35%</property>
+                                                        </column>
+                                                        <column id="1120">
+                                                            <property name="width">25%</property>
+                                                        </column>
+                                                        <column id="1127">
+                                                            <property name="width">15%</property>
+                                                        </column>
+                                                        <column id="1068">
+                                                            <property name="width">15%</property>
+                                                            <property name="textAlign">center</property>
+                                                        </column>
+                                                        <column id="1069">
+                                                            <property name="width">10%</property>
+                                                        </column>
+                                                        <header>
+                                                            <row id="1049">
+                                                                <property name="backgroundColor">silver</property>
+                                                                <cell id="1050">
+                                                                    <property name="colSpan">2</property>
+                                                                    <property name="rowSpan">1</property>
+                                                                    <property name="borderRightColor">#FFFFFF</property>
+                                                                    <property name="borderRightStyle">solid</property>
+                                                                    <property name="borderRightWidth">thin</property>
+                                                                    <data id="1718">
+                                                                        <property name="fontWeight">normal</property>
+                                                                        <property name="textAlign">left</property>
+                                                                        <property name="resultSetColumn">OverviewISV</property>
+                                                                    </data>
+                                                                </cell>
+                                                                <cell id="1123">
+                                                                    <data id="1727">
+                                                                        <property name="fontWeight">normal</property>
+                                                                        <property name="textAlign">right</property>
+                                                                        <property name="resultSetColumn">Provision</property>
+                                                                    </data>
+                                                                </cell>
+                                                                <cell id="1070">
+                                                                    <property name="borderRightColor">#FFFFFF</property>
+                                                                    <property name="borderRightStyle">solid</property>
+                                                                    <property name="borderRightWidth">thin</property>
+                                                                    <label id="3073">
+                                                                        <property name="fontWeight">normal</property>
+                                                                        <property name="textAlign">right</property>
+                                                                        <text-property name="text" key="PARTNERS_REVENUESHARE__LABEL_PROVISION_SHARE"></text-property>
+                                                                    </label>
+                                                                </cell>
+                                                                <cell id="1071">
+                                                                    <data id="1728">
+                                                                        <property name="fontWeight">normal</property>
+                                                                        <property name="textAlign">right</property>
+                                                                        <property name="resultSetColumn">Sum</property>
+                                                                    </data>
+                                                                </cell>
+                                                            </row>
+                                                        </header>
+                                                        <group id="1790">
+                                                            <property name="groupName">OverViewToRevenueDetail</property>
+                                                            <expression name="keyExpr" type="javascript">row["parentEntryNr"]</expression>
+                                                            <structure name="toc"/>
+                                                            <property name="hideDetail">false</property>
+                                                            <list-property name="filter">
+                                                                <structure>
+                                                                    <property name="operator">eq</property>
+                                                                    <expression name="expr" type="javascript">row["parentEntryNr"]</expression>
+                                                                    <simple-property-list name="value1">
+                                                                        <value>row._outer["entryNr"]</value>
+                                                                    </simple-property-list>
+                                                                    <property name="updateAggregation">true</property>
+                                                                </structure>
+                                                            </list-property>
+                                                        </group>
+                                                        <detail>
+                                                            <row id="1056">
+                                                                <cell id="1057">
+                                                                    <property name="colSpan">1</property>
+                                                                    <property name="rowSpan">1</property>
+                                                                    <data id="3074">
+                                                                        <property name="resultSetColumn">vendor</property>
+                                                                    </data>
+                                                                </cell>
+                                                                <cell id="3075"/>
+                                                                <cell id="1124">
+                                                                    <data id="1178">
+                                                                        <property name="textAlign">right</property>
+                                                                        <property name="resultSetColumn">amount</property>
+                                                                    </data>
+                                                                </cell>
+                                                                <cell id="1059"/>
+                                                                <cell id="1061">
+                                                                    <data id="1060">
+                                                                        <property name="textAlign">right</property>
+                                                                        <property name="resultSetColumn">revenue</property>
+                                                                    </data>
+                                                                </cell>
+                                                            </row>
+                                                            <row id="1072">
+                                                                <cell id="1073">
+                                                                    <property name="colSpan">5</property>
+                                                                    <property name="rowSpan">1</property>
+                                                                    <table name="RevenueDetailService" id="1079">
+                                                                        <property name="marginBottom">5pt</property>
+                                                                        <property name="dataSet">RevenueDetailService</property>
+                                                                        <list-property name="boundDataColumns">
+                                                                            <structure>
+                                                                                <property name="name">revenue</property>
+                                                                                <text-property name="displayName">revenue</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["revenue"]</expression>
+                                                                                <property name="dataType">string</property>
+                                                                            </structure>
+                                                                            <structure>
+                                                                                <property name="name">service</property>
+                                                                                <text-property name="displayName">service</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["service"]</expression>
+                                                                                <property name="dataType">string</property>
+                                                                            </structure>
+                                                                            <structure>
+                                                                                <property name="name">revenueShare</property>
+                                                                                <text-property name="displayName">revenueShare</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["revenueShare"]</expression>
+                                                                                <property name="dataType">string</property>
+                                                                            </structure>
+                                                                            <structure>
+                                                                                <property name="name">amount</property>
+                                                                                <text-property name="displayName">amount</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["amount"]</expression>
+                                                                                <property name="dataType">string</property>
+                                                                            </structure>
+                                                                            <structure>
+                                                                                <property name="name">entryNr</property>
+                                                                                <text-property name="displayName">entryNr</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["entryNr"]</expression>
+                                                                                <property name="dataType">integer</property>
+                                                                            </structure>
+                                                                            <structure>
+                                                                                <property name="name">parentEntryNr</property>
+                                                                                <text-property name="displayName">parentEntryNr</text-property>
+                                                                                <expression name="expression" type="javascript">dataSetRow["parentEntryNr"]</expression>
+                                                                                <property name="dataType">integer</property>
+                                                                            </structure>
+                                                                        </list-property>
+                                                                        <column id="1136">
+                                                                            <property name="width">35%</property>
+                                                                            <property name="textAlign">right</property>
+                                                                        </column>
+                                                                        <column id="1122">
+                                                                            <property name="width">25%</property>
+                                                                            <property name="textAlign">right</property>
+                                                                        </column>
+                                                                        <column id="1108">
+                                                                            <property name="width">15%</property>
+                                                                        </column>
+                                                                        <column id="1110">
+                                                                            <property name="width">15%</property>
+                                                                            <property name="textAlign">left</property>
+                                                                        </column>
+                                                                        <column id="1112">
+                                                                            <property name="width">10%</property>
+                                                                            <property name="textAlign">left</property>
+                                                                        </column>
+                                                                        <group id="1817">
+                                                                            <property name="groupName">NewTableGroup1</property>
+                                                                            <expression name="keyExpr" type="javascript">row["parentEntryNr"]</expression>
+                                                                            <property name="hideDetail">false</property>
+                                                                            <list-property name="filter">
+                                                                                <structure>
+                                                                                    <property name="operator">eq</property>
+                                                                                    <expression name="expr" type="javascript">row["parentEntryNr"]</expression>
+                                                                                    <simple-property-list name="value1">
+                                                                                        <value>row._outer["entryNr"]</value>
+                                                                                    </simple-property-list>
+                                                                                    <property name="updateAggregation">true</property>
+                                                                                </structure>
+                                                                            </list-property>
+                                                                        </group>
+                                                                        <detail>
+                                                                            <row id="1091">
+                                                                                <cell id="1135"/>
+                                                                                <cell id="1121">
+                                                                                    <data id="1134">
+                                                                                        <property name="textAlign">left</property>
+                                                                                        <property name="resultSetColumn">service</property>
+                                                                                    </data>
+                                                                                </cell>
+                                                                                <cell id="1092">
+                                                                                    <data id="1133">
+                                                                                        <property name="textAlign">right</property>
+                                                                                        <property name="resultSetColumn">amount</property>
+                                                                                    </data>
+                                                                                </cell>
+                                                                                <cell id="1096">
+                                                                                    <data id="1132">
+                                                                                        <property name="textAlign">right</property>
+                                                                                        <property name="resultSetColumn">revenueShare</property>
+                                                                                    </data>
+                                                                                </cell>
+                                                                                <cell id="1100">
+                                                                                    <data id="1131">
+                                                                                        <property name="textAlign">right</property>
+                                                                                        <property name="resultSetColumn">revenue</property>
+                                                                                    </data>
+                                                                                </cell>
+                                                                            </row>
+                                                                        </detail>
+                                                                    </table>
+                                                                </cell>
+                                                            </row>
+                                                        </detail>
+                                                    </table>
+                                                </cell>
+                                            </row>
+                                            <row id="1459">
+                                                <cell id="1460">
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                    <data id="1719">
+                                                        <property name="resultSetColumn">SumTotalRevenue</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="1461">
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                                <cell id="1479">
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                    <data id="1486">
+                                                        <property name="textAlign">right</property>
+                                                        <property name="resultSetColumn">totalAmount</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="1472">
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                                <cell id="1465">
+                                                    <property name="borderTopColor">#000000</property>
+                                                    <property name="borderTopStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                            </row>
+                                            <row id="1456">
+                                                <cell id="1457">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                    <data id="1720">
+                                                        <property name="resultSetColumn">SumRevenue</property>
+                                                    </data>
+                                                </cell>
+                                                <cell id="1458">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                                <cell id="1480">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                                <cell id="1473">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                </cell>
+                                                <cell id="1466">
+                                                    <property name="borderBottomColor">#000000</property>
+                                                    <property name="borderBottomStyle">solid</property>
+                                                    <property name="paddingBottom">1pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                    <data id="1487">
+                                                        <property name="textAlign">right</property>
+                                                        <property name="resultSetColumn">totalRevenue</property>
+                                                    </data>
+                                                </cell>
+                                            </row>
+                                            <row id="1244">
+                                                <cell id="1245">
+                                                    <property name="colSpan">5</property>
+                                                    <property name="rowSpan">1</property>
+                                                    <property name="paddingBottom">40pt</property>
+                                                    <property name="verticalAlign">top</property>
+                                                    <grid name="Footer" id="1191">
+                                                        <property name="marginTop">0pt</property>
+                                                        <structure name="toc">
+                                                            <expression name="expressionValue" type="javascript">reportContext.getMessage("BROKER_REVENUESHARE__TOC_FOOTER", reportContext.getLocale());</expression>
+                                                        </structure>
+                                                        <column id="1192"/>
+                                                        <column id="1193"/>
+                                                        <row id="1194">
+                                                            <cell id="1195">
+                                                                <data id="1721">
+                                                                    <property name="resultSetColumn">SumSummary</property>
+                                                                </data>
+                                                            </cell>
+                                                            <cell id="1196">
+                                                                <data id="1488">
+                                                                    <property name="textAlign">right</property>
+                                                                    <property name="resultSetColumn">brokerRevenue</property>
+                                                                </data>
+                                                            </cell>
+                                                        </row>
+                                                        <row id="1722">
+                                                            <cell id="1723">
+                                                                <data id="1725">
+                                                                    <list-property name="visibility">
+                                                                        <structure>
+                                                                            <property name="format">all</property>
+                                                                            <expression name="valueExpr" type="javascript">BirtStr.toLower(row._outer["vendorType"])=="broker";</expression>
+                                                                        </structure>
+                                                                    </list-property>
+                                                                    <property name="resultSetColumn">RemainingAmount</property>
+                                                                </data>
+                                                            </cell>
+                                                            <cell id="1724">
+                                                                <data id="1726">
+                                                                    <property name="textAlign">right</property>
+                                                                    <list-property name="visibility">
+                                                                        <structure>
+                                                                            <property name="format">all</property>
+                                                                            <expression name="valueExpr" type="javascript">BirtStr.toLower(row._outer["vendorType"])=="broker";</expression>
+                                                                        </structure>
+                                                                    </list-property>
+                                                                    <property name="resultSetColumn">remainingAmount</property>
+                                                                </data>
+                                                            </cell>
+                                                        </row>
+                                                    </grid>
+                                                </cell>
+                                            </row>
+                                        </detail>
+                                    </table>
+                                </cell>
+                            </row>
+                        </detail>
+                    </table>
+                    <table name="Timezone" id="1731">
+                        <property name="dataSet">Timezone</property>
+                        <list-property name="boundDataColumns">
+                            <structure>
+                                <property name="name">serverTimeZone</property>
+                                <text-property name="displayName">serverTimeZone</text-property>
+                                <expression name="expression" type="javascript">dataSetRow["serverTimeZone"]</expression>
+                                <property name="dataType">string</property>
+                            </structure>
+                            <structure>
+                                <property name="name">footnote</property>
+                                <expression name="expression" type="javascript">l10nParams = new Array(1);
+l10nParams[0] = dataSetRow["serverTimeZone"];
+reportContext.getMessage("REPORT_FOOTNOTE", reportContext.getLocale(), l10nParams);</expression>
+                                <property name="dataType">string</property>
+                                <property name="allowExport">true</property>
+                            </structure>
+                        </list-property>
+                        <column id="1738"/>
+                        <detail>
+                            <row id="1734">
+                                <cell id="1735">
+                                    <data id="1739">
+                                        <property name="resultSetColumn">footnote</property>
+                                    </data>
+                                </cell>
+                            </row>
+                        </detail>
+                    </table>
+                </cell>
+            </row>
+        </grid>
+    </body>
+</report>

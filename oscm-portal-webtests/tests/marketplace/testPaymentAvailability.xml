@@ -151,7 +151,7 @@
       <mpl_service.subscribe mid="${mId}" index="0" paymentType="DD" chargeable="true" />
 
       <clickLink href="/oscm-portal/marketplace/account/subscriptions.jsf" />
-      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_I')]" />
 
       <mpl_goto.tab label="${marketplace.payment.title}" />
       <not>
@@ -163,7 +163,7 @@
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
 
       <clickLink href="/oscm-portal/marketplace/account/subscriptions.jsf" />
-      <clickLink xpath="//td[contains(text(), 'Ex_All')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_All')]" />
 
       <mpl_goto.tab label="${marketplace.payment.title}" />
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
@@ -185,7 +185,7 @@
       <clickLink label="${marketplace.account.title}" />
       <clickLink htmlId="showSubscriptionsButton" />
       <!-- can be upgraded to Ex_All and Ex_None -->
-      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_I')]" />
 
       <mpl_goto.tab label="${subscription.upgrade}" />
       <clickLink label="${button.select}" />
@@ -199,7 +199,7 @@
       <clickLink label="${marketplace.account.title}" />
       <clickLink htmlId="showSubscriptionsButton" />
       <!-- can be upgraded to Ex_All and Ex_None -->
-      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_I')]" />
 
       <mpl_goto.tab label="${subscription.upgrade}" />
       <!-- we need to do it so complicated with an xpath expression because the frontend developer did
@@ -234,7 +234,7 @@
       <clickLink label="${marketplace.account.title}" />
       <clickLink htmlId="showSubscriptionsButton" />
       <verifyText description="Check that status is suspended" text="${SubscriptionStatus.SUSPENDED}" />
-      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_I')]" />
 
       <mpl_goto.tab label="${marketplace.payment.title}" />
       <not>
@@ -257,7 +257,7 @@
       <clickLink label="${marketplace.account.title}" />
       <clickLink htmlId="showSubscriptionsButton" />
       <verifyText description="Check that status is active" text="${SubscriptionStatus.ACTIVE}" />
-      <clickLink xpath="//td[contains(text(), 'Ex_I')]/../td[1]/a" />
+      <clickLink xpath="//a[contains(@id, 'Ex_I')]" />
 
       <mpl_goto.tab label="${marketplace.payment.title}" />
       <not>

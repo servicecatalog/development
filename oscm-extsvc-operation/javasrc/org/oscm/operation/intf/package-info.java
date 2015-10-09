@@ -2,11 +2,10 @@
  *  Copyright FUJITSU LIMITED 2015
  */
 /**
- * Specifies the public operation service API of Catalog Manager
- * (CT-MG).
+ * Specifies the public operation service API of Catalog Manager.
  * <p>
- * An application integrated with CT-MG may offer operations which
- * can be executed from the CT-MG user interface. Such technical
+ * An application integrated with Catalog Manager may offer operations which
+ * can be executed from the Catalog Manager user interface. Such technical
  * service operations can be used to access the resources of the 
  * application and perform administrative tasks without actually 
  * opening the application. 
@@ -24,3 +23,4 @@
  *   
  */
 package org.oscm.operation.intf;
+

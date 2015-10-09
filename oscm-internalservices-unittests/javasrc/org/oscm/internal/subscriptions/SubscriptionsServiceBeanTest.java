@@ -80,57 +80,56 @@ public class SubscriptionsServiceBeanTest {
 
     @Test
     public void getSubscriptionsForOrg_NoSubscription() {
-        // given
-//        LocalizerFacade facade = getLocalizerFacadeMock();
-//        bean = spy(bean);
-//        doReturn(facade).when(bean).getLocalizerFacade();
-//        doReturn(new POSubscriptionForList()).when(bean)
-//                .toPOSubscriptionForList(any(Subscription.class),
-//                        any(LocalizerFacade.class));
-//
-//        List<Subscription> subscriptions = new ArrayList<Subscription>();
-//        when(
-//                bean.slService
-//                        .getSubscriptionsForOrganization(anySetOf(SubscriptionStatus.class)))
-//                .thenReturn(subscriptions);
-//
-//        // when
-//        Response response = bean.getSubscriptionsForOrg(null);
-//
-//        // then
-//        List<POSubscriptionForList> result = response
-//                .getResultList(POSubscriptionForList.class);
-//        assertNotNull(result);
-//        assertEquals(0, result.size());
+
+        LocalizerFacade facade = getLocalizerFacadeMock();
+        bean = spy(bean);
+        doReturn(facade).when(bean).getLocalizerFacade();
+        doReturn(new POSubscriptionForList()).when(bean)
+                .toPOSubscriptionForList(any(Subscription.class),
+                        any(LocalizerFacade.class));
+
+        List<Subscription> subscriptions = new ArrayList<Subscription>();
+        when(
+                bean.slService
+                        .getSubscriptionsForOrganization(anySetOf(SubscriptionStatus.class)))
+                .thenReturn(subscriptions);
+        // when
+        Response response = bean.getSubscriptionsForOrg(null);
+
+        // then
+        List<POSubscriptionForList> result = response
+                .getResultList(POSubscriptionForList.class);
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
     @Test
     public void getSubscriptionsForOrg() {
         // given
-//        LocalizerFacade facade = getLocalizerFacadeMock();
-//        bean = spy(bean);
-//        doReturn(facade).when(bean).getLocalizerFacade();
-//        doReturn(new POSubscriptionForList()).when(bean)
-//                .toPOSubscriptionForList(any(Subscription.class),
-//                        any(LocalizerFacade.class));
-//
-//        List<Subscription> subscriptions = new ArrayList<Subscription>();
-//        subscriptions.add(new Subscription());
-//        subscriptions.add(new Subscription());
-//
-//        when(
-//                bean.slService
-//                        .getSubscriptionsForOrganization(anySetOf(SubscriptionStatus.class)))
-//                .thenReturn(subscriptions);
-//
-//        // when
-//        Response response = bean.getSubscriptionsForOrg(null);
-//
-//        // then
-//        List<POSubscriptionForList> result = response
-//                .getResultList(POSubscriptionForList.class);
-//        assertNotNull(result);
-//        assertEquals(2, result.size());
+        LocalizerFacade facade = getLocalizerFacadeMock();
+        bean = spy(bean);
+        doReturn(facade).when(bean).getLocalizerFacade();
+        doReturn(new POSubscriptionForList()).when(bean)
+                .toPOSubscriptionForList(any(Subscription.class),
+                        any(LocalizerFacade.class));
+
+        List<Subscription> subscriptions = new ArrayList<Subscription>();
+        subscriptions.add(new Subscription());
+        subscriptions.add(new Subscription());
+
+        when(
+                bean.slService
+                        .getSubscriptionsForOrganization(anySetOf(SubscriptionStatus.class)))
+                .thenReturn(subscriptions);
+
+        // when
+        Response response = bean.getSubscriptionsForOrg(null);
+
+        // then
+        List<POSubscriptionForList> result = response
+                .getResultList(POSubscriptionForList.class);
+        assertNotNull(result);
+        assertEquals(2, result.size());
     }
 
     @Test

@@ -189,7 +189,7 @@ public class SubscriptionDetailsServiceBean implements
                 .getSupplierOrResellerTemplate().getVendor()
                 .getOrganizationId();
         service.setSubscriptions(subscriptionServiceInternal
-                .getSubscriptionsForOrganization(PerformanceHint.ONLY_IDENTIFYING_FIELDS));
+                .getAllSubscriptionsForOrganization(PerformanceHint.ONLY_IDENTIFYING_FIELDS));
         service.setDefinitions(accountService
                 .getUdaDefinitionsForCustomer(vendorId));
         service.setOrganizationUdas(accountService.getUdasForCustomer(

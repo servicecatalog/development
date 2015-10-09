@@ -32,7 +32,7 @@ Enum.prototype = {
 }
 
 //*******************************************
-//*** CT-MG Service Parameter definitions ***
+//*** OSCM Service Parameter definitions ***
 //*******************************************
 
 function Parameter(id, valueType, modificationType, value, valueError, mandatory, readonly, description) {

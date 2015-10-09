@@ -31,7 +31,7 @@
               onclick="AdmUtils.dataTableSelectOneRadio(this);" 
               value="#{bean.subscriptionUnitCtrl.model.assignNoUnit}"
               valueChangeListener="#{bean.subscriptionUnitCtrl.changeSelectedUnit}"
-              disabled="#{userBean.isUnitAdmin}">
+              disabled="#{not userBean.isOrganizationAdmin and userBean.isUnitAdmin}">
               <f:selectItem itemValue="true" itemLabel="#{msg['unit.dialog.subscriptionIsNotAssigned']}" />
               <h:inputHidden value="0" converter="javax.faces.Long"/>
             </h:selectOneRadio>
@@ -102,7 +102,7 @@
 
           <!-- Ok/Cancel button -->
           <a4j:outputPanel layout="block" style="margin-top: 10px">
-            <mp:button id="#{dialogId}okButton" render=":unitNameDisplay :saveConfigurationPanel"
+            <mp:button id="#{dialogId}okButton" render=":unitNameDisplay :saveConfigurationPanel :selectedUnitName"
               bean="#{bean}" action="updateSelectedUnit"
               oncomplete="setDirty(true);#{rich:component(dialogId)}.hide();AdmUtils.showProgress(false);"
               value="#{msg['button.ok']}" />

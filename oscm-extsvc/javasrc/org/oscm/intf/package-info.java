@@ -2,9 +2,9 @@
  *  Copyright FUJITSU LIMITED 2015 
  */
 /**
- * Provides the public Web service API of Catalog Manager (CT-MG).
+ * Provides the public Web service API of Catalog Manager.
  * <p>  
- * CT-MG exposes its functionality as public  
+ * Catalog Manager exposes its functionality as public  
  * Web services. The Web services can be accessed
  * using SOAP messages over HTTP/HTTPS. 
  * The Web service calls a client performs invoke the 
@@ -12,3 +12,4 @@
  *  
  */
 package org.oscm.intf;
+

@@ -1,4 +1,4 @@
-The ear project of the ADM UM product.
+The ear project for the Catalog Manager application.
 
 This project serves two purposes:
 

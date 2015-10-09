@@ -49,7 +49,7 @@ public class IdentityServiceClient {
         try {
             idServ = factory.getBESWebService(IdentityService.class);
         } catch (ParserConfigurationException e) {
-            System.err.println("Connect to CT-MG failed, reason: "
+            System.err.println("Connect to OSCM failed, reason: "
                     + e.getMessage());
         }
     }

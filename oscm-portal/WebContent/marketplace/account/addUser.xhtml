@@ -93,8 +93,8 @@
                     styleClass="tableColumnCheckBox">
                     <f:facet name="header">
                     </f:facet>
-                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true)"
-                      disabled="#{rowItem.default}" />
+                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'unitRole');"
+                                             disabled="#{rowItem.default}" />
                   </rich:column>
 
                   <rich:column sortBy="#{rowItem.name}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
@@ -129,7 +129,7 @@
               style="width:100%;" columnsWidth="4%,50%,46%">
               <rich:column styleClass="tableColumnCheckBox">
                 <h:selectBooleanCheckbox id="subscriptionCheckbox" value="#{orgSubscription.selected}"
-                  onchange="setDirty(true)" />
+                                         onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'role');" />
               </rich:column>
               <rich:column>
                 <f:facet name="header">
@@ -157,6 +157,11 @@
             <mp:button id="cancelButton" onclick="setDirty(false);location.href='users.jsf';return false;"
               value="#{msg['button.cancel']}" />
           </a4j:outputPanel>
+
+          <script type="application/javascript">
+            AdmUtils.initRoleFieldSetup('unitRole', 'groupsCheckbox');
+            AdmUtils.initRoleFieldSetup('role', 'subscriptionCheckbox');
+          </script>
         </h:form>
 
       </a4j:outputPanel>

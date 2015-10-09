@@ -20,7 +20,7 @@ import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 
 /**
- * In case CT-MG is in SAML_SP mode, checks if the user, given as an argument to
+ * In case OSCM is in SAML_SP mode, checks if the user, given as an argument to
  * the invoked method, is the initial platform operator (user key 1000).
  * 
  * @author roderus

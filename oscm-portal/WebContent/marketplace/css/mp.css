@@ -416,7 +416,6 @@ div.header {
 }
  
 div.header a { text-decoration: none; }
-/* div.header a{ color:#B3B7BC;} */
 div.header a:hover { text-decoration: underline; }
 div.header a img { border: none; }
 
@@ -464,11 +463,6 @@ div#headerrightarea, rightarea a {
 
 #headnavi { display: block; width: 298px; margin: 6px 15px 0 0; text-align: right;  overflow: hidden;white-space: nowrap; }
 #headnavi .dd-country-selector  ul.dropdown-box{ display: none;	}
-
-/* #headnavi a { */
-/*   	padding: 0 15px 0 0; */
-/* 	background: transparent  url(../img/mp_icon_sprite.png) right -417px no-repeat; */
-/* } */
 
 #headnavi a {
 background: transparent url(../img/mp_icon_sprite.png) left -382px no-repeat;
@@ -594,7 +588,7 @@ div#headsearch form {
 
 /* form highlights on selected input element */
 form .formHighlight, .rowOver *{
-	background-color: #CCDCEE;/*#B0B7BE; */
+	background-color: #CCDCEE;
 }
 
 form .formHighlight input,
@@ -609,7 +603,7 @@ form .formHighlight textarea{
 }
 
 .rowCellOver * {
-	background-color: #CCDCEE;/*#B0B7BE; */
+	background-color: #CCDCEE;
 }
 
 .wrapColumns .extdt-cell-div{
@@ -1061,7 +1055,6 @@ div.box div.step{
 
 /* title displayed between breadcrumbs and content boxes */
 .contentstitle {
-/* 	width: 980px; */
 	font-size: 16px;
 	margin-bottom: 10px;
 }
@@ -1641,9 +1634,6 @@ img[src$="sortDescending"]{
 
 .rich-filter-input{
 	font-size:12px;	
-	/*background:#FFF url(../img/filter.png) no-repeat right center !important;*/
-	/*padding:2px 10% 2px 2px;*/
-	/*border:solid 1px #CCC;*/
 	margin: 0 auto;
 	color:#777;
 	width:85%;

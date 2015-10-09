@@ -3,7 +3,7 @@
  
 <project name="ADM Developer tasks - PACKAGE, DEPLOY Samples" default="" basedir=".">
 
-  <description>This buildfile is used to BUILD, PACKAGE and DEPLOY CT-MG sample applications.
+  <description>This buildfile is used to BUILD, PACKAGE and DEPLOY OSCM sample applications.
   </description>
 
   <import file="macrodefs-dev.xml" />

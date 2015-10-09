@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="/oscm-build/result/package/oscm-extsvc-internal/oscm-extsvc-internal.jar"/>
 	<classpathentry kind="lib" path="/libraries/opensaml/javalib/openws-1.5.0.jar"/>
 	<classpathentry kind="lib" path="/libraries/opensaml/javalib/xmltooling-1.4.0.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

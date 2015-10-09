@@ -106,6 +106,14 @@ public class SubscriptionListServiceBean implements
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Subscription> getAllSubscriptionsForOrganization() {
+        PlatformUser currentUser = ds.getCurrentUser();
+        return new ArrayList<Subscription>(currentUser.getOrganization()
+                    .getSubscriptions());
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner) {
         return getSubscriptionDao().getSubscriptionsForOwner(owner);
     }

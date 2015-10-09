@@ -20,7 +20,6 @@
 	<available file="${glassfish.home}/glassfish/domains/integration-bes/applications/oscm" type="dir" property="ear.deployed" />
 	<available file="${glassfish.home}/glassfish/domains/integration-bes/applications/oscm-portal" type="dir" property="portal.deployed" />
 	<available file="${glassfish.home}/glassfish/domains/integration-master-index/applications/oscm-search" type="dir" property="master-indexer.deployed" />
-	<available file="${glassfish.home}/glassfish/domains/integration-bes/applications/eclipse-birt-runtime" type="dir" property="birt.deployed" />
 	<available file="${glassfish.home}/glassfish/domains/integration-example/applications/oscm-integrationtests-mockproduct" type="dir" property="examples.deployed" />
 
 	<target name="DEPLOY.MasterIndexer" unless="${master-indexer.deployed}">

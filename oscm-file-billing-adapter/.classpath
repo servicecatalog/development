@@ -4,13 +4,9 @@
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
-		<attributes>
-			<attribute name="owner.project.facets" value="java"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-client.jar"/>
 	<classpathentry exported="true" kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-core.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

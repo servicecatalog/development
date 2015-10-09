@@ -397,15 +397,9 @@ public class IdentityServiceBean implements IdentityService,
                 }
                 for (Entry<UserGroup, UnitUserRole> groupWithRole : userToGroup
                         .entrySet()) {
-                    if (groupWithRole.getKey().isDefault()) {
-                        userGroupService.modifyUnitRoleTypeForUserGroup(groupWithRole, addedUser);
-                    } else {
-                        userGroupService
-                                .grantUserRoles(addedUser, Arrays
-                                        .asList(groupWithRole.getValue()
-                                                .getRoleName()), groupWithRole
-                                        .getKey());
-                    }
+                    userGroupService.grantUserRoles(addedUser, Arrays
+                            .asList(groupWithRole.getValue().getRoleName()),
+                            groupWithRole.getKey());
                 }
                 if (unitRoleTypes.contains(UnitRoleType.ADMINISTRATOR)) {
                     grantRole(addedUser, UserRoleType.UNIT_ADMINISTRATOR);
@@ -1757,7 +1751,7 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pu = UserDataAssembler.toPlatformUser(userDetails);
 
         pu.setOrganization(organization);
-        // Set the user account status to active if CT-MG is a SAML SP
+        // Set the user account status to active if OSCM is a SAML SP
         if (cs.isServiceProvider()
                 && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
             pu.setStatus(UserAccountStatus.ACTIVE);
@@ -1765,7 +1759,7 @@ public class IdentityServiceBean implements IdentityService,
             pu.setStatus(lockLevel);
         }
         if (userLocalLdap) {
-            // Do not set the user password if CT-MG is a SAML SP
+            // Do not set the user password if OSCM is a SAML SP
             if (!cs.isServiceProvider()) {
                 setPassword(pu, password);
             }
