@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+ <templates><template autoinsert="false" context="filecomment_context" deleted="false" description="Comment for created Java files" enabled="true" id="org.eclipse.jdt.ui.text.codetemplates.filecomment" name="filecomment">/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED ${year}                                           
+ *                                                                                                                                 
+ *  Creation Date: ${date}                                                      
+ *                                                                              
+ *******************************************************************************/
+</template></templates>
