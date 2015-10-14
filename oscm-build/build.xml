@@ -480,7 +480,7 @@
       <fileset file="${result.package.dir}/oscm-ror-install-pack/oscm-ror-install-pack.zip" />
       <fileset file="${result.package.dir}/oscm-openstack-install-pack/oscm-openstack-install-pack.zip" />
       <fileset file="${result.package.dir}/oscm-aws-install-pack/oscm-aws-install-pack.zip" />
-      <fileset file="${result.package.dir}/eclipse-birt-runtime/eclipse-birt-runtime.zip" />
+      <fileset file="${result.package.dir}/oscm-reports/oscm-reports.zip" />
     </copy>
 
     <!-- testing -->

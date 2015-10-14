@@ -96,7 +96,7 @@ public class KeystoneClient {
                 if (entry != null) {
                     String type = entry.getString("type");
                     String name = entry.getString("name");
-                    if (TYPE_HEAT.equals(type) && NAME_HEAT.equals(name)) {
+                    if (TYPE_HEAT.equals(type)) {
                         JSONArray endpoints = entry.getJSONArray("endpoints");
                         int endpointSize = endpoints.length();
                         for (int j = 0; j < endpointSize; j++) {
@@ -110,7 +110,7 @@ public class KeystoneClient {
                                 }
                             }
                         }
-                    } else if (TYPE_NOVA.equals(type) && NAME_NOVA.equals(name)) {
+                    } else if (TYPE_NOVA.equals(type)) {
                         JSONArray endpoints = entry.getJSONArray("endpoints");
                         int endpointSize = endpoints.length();
                         for (int j = 0; j < endpointSize; j++) {
