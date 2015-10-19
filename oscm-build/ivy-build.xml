@@ -180,7 +180,6 @@
     <copy file="${ivy.lib.dir}/slf4j-nop-1.7.7.jar" todir="${root.dir}/sonar-ct-mg-plugin/lib/"></copy>
     <copy file="${ivy.lib.dir}/slf4j-simple-1.7.7.jar" todir="${root.dir}/sonar-ct-mg-plugin/lib/"></copy>
     <copy file="${ivy.lib.dir}/sonar-plugin-api-3.3.jar" todir="${root.dir}/sonar-ct-mg-plugin/lib/"></copy>
-    <copy file="${ivy.lib.dir}/activation-1.1.1.jar" tofile="${root.dir}/libraries/sun-activation/javalib/activation.jar"></copy>
     <copy file="${ivy.lib.dir}/appserv-rt-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/javalib/appserv-rt.jar"></copy>
     <copy file="${ivy.lib.dir}/gf-client-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/javalib/gf-client.jar"></copy>
     <!-- The jndi-properties is not found in the Maven repository -->

@@ -273,7 +273,6 @@
         <dependency org="org.slf4j" name="slf4j-nop" rev="1.7.7" transitive="false"/>
         <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.7" transitive="false"/>
         <dependency org="org.codehaus.sonar" name="sonar-plugin-api" rev="3.3" transitive="false"/>
-        <dependency org="javax.activation" name="activation" rev="1.1.1" transitive="false"/>
         <dependency org="org.glassfish.main.extras" name="appserv-rt" rev="3.1.2.2" transitive="false"/>
         <dependency org="org.glassfish.main.appclient.client" name="gf-client" rev="3.1.2.2" transitive="false"/>
         <dependency org="org.glassfish.main.extras" name="javaee" rev="3.1.2.2"/>

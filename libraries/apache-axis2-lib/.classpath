@@ -39,6 +39,5 @@
 	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry kind="lib" path="/libraries/backport/javalib/backport-util-concurrent-3.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-activation/javalib/activation.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

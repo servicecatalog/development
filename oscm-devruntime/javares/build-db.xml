@@ -171,19 +171,6 @@
     <antcall target="dropJMSUser" />
   </target>
 
-  <target name="notifyUsers">
-    <java classname="org.oscm.setup.UserNotificationHandler" failonerror="true" fork="true">
-      <arg value="${dbproperties.file}" />
-      <arg value="${unproperties.file}" />
-      <classpath refid="client.path" />
-      <classpath>
-        <pathelement location="${work.dir}/lib/mail.jar" />
-        <pathelement location="${work.dir}/lib/activation.jar" />
-      </classpath>
-    </java>
-  </target>
-
-
   <!-- database targets -->
   <target name="createDatabase">
     <create.db dbname="${db.name}" dbuser="${db.user}" dbschema="${db.schema}" />
@@ -279,19 +266,6 @@
       <sysproperty key="javax.xml.transform.TransformerFactory" value="com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl" />
       <classpath path="${java.home}/lib/rt.jar" />
       <classpath refid="client.path" />
-    </java>
-  </target>
-
-  <target name="testNotificationSettings">
-    <java classname="org.oscm.setup.UserNotificationHandler" failonerror="true" fork="true">
-      <arg value="${dbproperties.file}" />
-      <arg value="${unproperties.file}" />
-      <arg value="${testEmailAddress}" />
-      <classpath refid="client.path" />
-      <classpath>
-        <pathelement location="${work.dir}/lib/mail.jar" />
-        <pathelement location="${work.dir}/lib/activation.jar" />
-      </classpath>
     </java>
   </target>
 

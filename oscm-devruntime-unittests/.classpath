@@ -9,7 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
 	<classpathentry kind="lib" path="/libraries/dbunit/javalib/dbunit-2.4.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/oracle-mail/javalib/mail.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-activation/javalib/activation.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
