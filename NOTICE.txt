@@ -404,10 +404,12 @@ This Agreement is governed by the laws of the State of New York and the intellec
 This software includes the following software, licensed under "GNU LESSER GENERAL PUBLIC LICENSE Version 2.1, February 1999:
 
    - JBoss Hibernate Search 3.3.1 GA
-   - JBoss RichFaces 4.5.0 Final
-   - Red Hat Hibernate 4.1.8
-   - JBoss Transaction API
+   - JBoss RichFaces 4.5.0 Final (source code available at https://repo1.maven.org/maven2/org/richfaces/richfaces-distribution/4.5.0.Final/), licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
+   - Red Hat Hibernate 4.1.8 Final(source code available at https://repo1.maven.org/maven2/org/hibernate/hibernate-core/4.1.8.Final/hibernate-core-4.1.8.Final-sources.jar licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1.
+   - JBoss Transaction API 1.0.0 (source code available at https://repo1.maven.org/maven2/org/jboss/spec/javax/transaction/jboss-transaction-api_1.1_spec/1.0.0.Final/, licensed under the GNU LESSER GENERAL PUBLIC LICENSE Version 2.1. 
 
+  In case the source code and license text are not available on those locations anymore, you can request them by adding an issue to the Open Service Catalog Manager GitHub repository, currently available at: https://github.com/servicecatalog/development
+  
   The license text of this license is shown below.
 
 		  GNU LESSER GENERAL PUBLIC LICENSE
@@ -917,8 +919,10 @@ That's all there is to it!
 
 This software includes the following software subject to COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1:
 
-   - JavaServer Faces 2.1.29
+   - JavaServer Faces 2.1.29 (source code available at https://repo1.maven.org/maven2/org/glassfish/javax.faces/2.1.29/javax.faces-2.1.29-sources.jar), licensed under the COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.1. 
 
+ In case the source code and license text are not available on those locations anymore, you can request them by adding an issue to the Open Service Catalog Manager GitHub repository, currently available at: https://github.com/servicecatalog/development
+   
 COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL)Version 1.1
 1. Definitions.
 1.1. “Contributor” means each individual or entity that creates or contributes to the creation of Modifications.
@@ -992,7 +996,9 @@ The code released under the CDDL shall be governed by the laws of the State of C
 
 This software includes the following software subject to COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0:
 
-   - Mail Framework 1.4.4
+   - Mail Framework 1.4.4 (source code available at https://repo1.maven.org/maven2/javax/mail/mail/1.4.4), licensed under the COMMON DEVELOPMENT AND DISTRIBUTION LICENSE (CDDL) Version 1.0. 
+   
+In case the source code and license text are not available on those locations anymore, you can request them by adding an issue to the Open Service Catalog Manager GitHub repository, currently available at: https://github.com/servicecatalog/development
 
   The license text of this license is shown below.
 
@@ -1534,7 +1540,7 @@ POSSIBILITY OF SUCH DAMAGE.
 
 This software includes the following software subject to ECLIPSE PUBLIC LICENSE (EPL) Version 1.0 
 
-   - BIRT Runtime 4.3.1, (source code available at  http://download.eclipse.org/birt/downloads/build.php?build=R-R1-4_3_1-201309181142).
+   - BIRT Runtime 4.3.1 (source code available at  http://download.eclipse.org/birt/downloads/build.php?build=R-R1-4_3_1-201309181142).
 
 In case the source code and license text are not available on those locations anymore, you can request them by adding an issue to the Open Service Catalog Manager GitHub repository, currently available at: https://github.com/servicecatalog/development
 

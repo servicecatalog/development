@@ -19,7 +19,7 @@
       <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month" basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
       <setup:service.activate serviceIds="ExtIntSrv" start="0" count="1" />
       <common.ignorePageScriptError />
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="ExtIntSrv0" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="ExtIntSrv0" />
       <mpl_verify.breadCrumb actualPage="ExtIntSrv0" />
       <mpl_verify.subscriptionProgress currentStep="Configuration" />
       <verifyXPath xpath="//a[@id='configurationForm:btnConfigure']" />
@@ -31,10 +31,10 @@
       <setupSupplier />
       <storeProperty name="customerUserA" value="userA" propertyType="dynamic" />
       <registerCustomer userId="#{customerUserA}" marketplaceId="${marketplaceId}" />
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <mpl_verify.loginDialog />
       <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
       <mpl_verify.subscriptionProgress currentStep="Configuration" />
       <mpl_login.logout />
@@ -47,9 +47,7 @@
       <registerCustomerBySupplier marketplaceId="${marketplaceId}" setupPayment="true" />
       <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
       <mpl_goto.marketplace mid="${marketplaceId}" />
-      <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <clickLink htmlId="showDetails1" />
       <storeProperty name="serviceName" value="Mega Office Trial" />
       <mpl_verify.breadCrumb actualPage="#{serviceName}" />
       <common.ignorePageScriptError />
@@ -69,8 +67,7 @@
     	
       <verifyXPath xpath="normalize-space(//tr[@id='subListForm:subscriptionsList:0']/td[2])" text="#{subscriptionId}" />
       <mpl_goto.marketplace mid="${marketplaceId}" />
-      <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails1" />
 
       <common.ignorePageScriptError />
       <clickLink htmlId="buyme" />
@@ -94,10 +91,10 @@
       <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
       <setupSupplier />
       <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <mpl_verify.loginDialog />
       <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
       <mpl_verify.subscriptionProgress currentStep="Configuration" />
       <clickButton name="configurationForm:next" />
@@ -117,13 +114,13 @@
       <!-- register a customer (using old portal) -->
       <registerCustomerBySupplier marketplaceId="${marketplaceId}" setupPayment="true" discountValue="99.99" discountFrom="01/1970" discountTo="12/9999" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <!-- Check that login is required first -->
       <mpl_verify.loginDialog />
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
 
       <!-- Check that you are directed to 1st page of subscription process -->
       <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
@@ -308,13 +305,13 @@
       <!-- register a customer (using old portal) -->
       <registerCustomerBySupplier marketplaceId="${marketplaceId}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <!-- Check that login is required first -->
       <mpl_verify.loginDialog />
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.user mid="${marketplaceId}" userId="#{customerUserA}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <!-- Check that you are directed to 1st page of subscription process -->
       <mpl_verify.breadCrumb actualPage="Mega Office Starter" />
       <mpl_verify.subscriptionProgress currentStep="Configuration" />
@@ -379,7 +376,7 @@
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.user mid="${marketplaceId}" userId="${customerUserID}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <clickLink htmlId="configurationForm:nextLink" />
       <!-- Check if BillingContact  and PaymentType is Available-->
       <not>
@@ -404,7 +401,7 @@
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.user mid="${marketplaceId}" userId="${customerUserID}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <clickLink htmlId="configurationForm:nextLink" />
       <!-- Check if BillingContact  and PaymentType is NOT Available-->
       <not>
@@ -431,7 +428,7 @@
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.loginWithChangePassword mid="${marketplaceId}" userId="#{userId}" oldPassword="#{userPwd}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <clickLink htmlId="configurationForm:nextLink" />
       <!-- Check if BillingContact and PaymentType is NOT available-->
       <verifyElementText type="DIV" htmlId="payment:noBillingContact" text="${organization.payment.noBillingContact}" />
@@ -460,7 +457,7 @@
       <!-- Now login to marketplace and subscribe user A to service -->
       <mpl_login.loginWithChangePassword mid="${marketplaceId}" userId="#{userId}" oldPassword="#{userPwd}" />
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton0" svcName="Mega Office Starter" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails0" svcName="Mega Office Starter" />
       <clickLink htmlId="configurationForm:nextLink" />
       <!-- Check if BillingContact is NOT available and PaymentType is available-->
       <verifyElementText type="DIV" htmlId="payment:noBillingContact" text="${organization.payment.noBillingContact}" />
@@ -553,8 +550,7 @@
     <attribute name="svcName" />
     <sequential>
       <mpl_goto.marketplace mid="@{marketplaceId}" />
-      <clickLink htmlId="@{buttonId}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />  
+      <clickLink htmlId="@{buttonId}" /> 
       <common.waitForJavaScript />
       <mpl_verify.service_details svcName="@{svcName}" />
       <clickLink htmlId="getItForLoggedUser" />

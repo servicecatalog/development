@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
-
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
@@ -46,6 +45,7 @@ public class VOPriceModelFactory {
         EXAMPLE_PERUNIT_MONTH_ROLES_PARS_FREEP, //
         EXAMPLE_PERUNIT_MONTH_STEPPED_EVENTS, //
         EXAMPLE_PERUNIT_MONTH_USER_STEPPS_ROLES_PARS_FREEP, //
+        EXAMPLE_PERUNIT_MONTH, //
 
         EXAMPLE_PERUNIT_WEEK_FREEP, //
         EXAMPLE_PERUNIT_WEEK_FREEP_1, //
@@ -190,6 +190,8 @@ public class VOPriceModelFactory {
             return createPriceModelExamplePerUnitMonthRolesParsEventsFreeP(voServiceDetails);
         case EXAMPLE_PERUNIT_MONTH_STEPPED_EVENTS:
             return createPriceModelExamplePerUnitMonthSteppedEvents(voServiceDetails);
+        case EXAMPLE_PERUNIT_MONTH:
+            return createPriceModelExamplePerUnitMonth(voServiceDetails);
         case EXAMPLE_PRORATA_MONTH_ROLES:
             return createPriceModelExampleProRataMonthRoles(voServiceDetails);
         case EXAMPLE_PRORATA_MONTH_ROLES_2:
@@ -413,6 +415,14 @@ public class VOPriceModelFactory {
         }
     }
 
+    private static VOPriceModel createPriceModelExamplePerUnitMonth(
+            VOServiceDetails voServiceDetails) {
+        VOPriceModel priceModel = newVOPriceModel(PriceModelType.PER_UNIT,
+                PricingPeriod.MONTH, "EUR", new BigDecimal("10.00"),
+                new BigDecimal("20.00"), new BigDecimal("30.00"), 0);
+        return priceModel;
+    }
+
     private static VOPriceModel createPriceModelExamplePerUnitMonthRoles(
             VOServiceDetails voServiceDetails) {
         VOPriceModel priceModel = newVOPriceModel(PriceModelType.PER_UNIT,
@@ -474,19 +484,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8), new BigDecimal(5));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -505,14 +513,14 @@ public class VOPriceModelFactory {
                 new BigDecimal(8), new BigDecimal(5));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "LONG_NUMBER"),
                         new BigDecimal("0.80"), new BigDecimal("0.30"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "PERIOD"), new BigDecimal(
-                                "1.40"), new BigDecimal("3.80"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "PERIOD"), new BigDecimal("1.40"),
+                        new BigDecimal("3.80"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -542,10 +550,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), new BigDecimal("3.00"),
-                        new BigDecimal("30.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -564,19 +571,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -597,40 +602,32 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -652,25 +649,19 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -692,25 +683,19 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -732,25 +717,19 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -769,8 +748,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -895,19 +873,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -927,10 +903,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("1.00"),
-                        new BigDecimal("10.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "1.00"), new BigDecimal("10.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -950,10 +925,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -972,19 +946,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1003,19 +975,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1045,8 +1015,8 @@ public class VOPriceModelFactory {
 
         List<VOPricedParameter> selectedParameters = Arrays
                 .asList(newVOPricedParameter(VOServiceFactory.getParameter(
-                        voServiceDetails, "PERIOD"), new BigDecimal(
-                        "1.40"), new BigDecimal("3.80"), pricedRoles),
+                        voServiceDetails, "PERIOD"), new BigDecimal("1.40"),
+                        new BigDecimal("3.80"), pricedRoles),
                         newVOPricedParameter(VOServiceFactory.getParameter(
                                 voServiceDetails, "LONG_NUMBER"), //
                                 Arrays.asList(new VOSteppedPrice[] {
@@ -1100,19 +1070,17 @@ public class VOPriceModelFactory {
                         new BigDecimal("0.30"), new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(
-                        VOTechServiceFactory.getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
-                        Arrays.asList(new VOSteppedPrice[] {
-                                newVOSteppedPrice(Long.valueOf(10),
-                                        new BigDecimal("10.00")),
-                                newVOSteppedPrice(Long.valueOf(40),
-                                        new BigDecimal("5.00")),
-                                newVOSteppedPrice(Long.valueOf(80),
-                                        new BigDecimal("2.00")),
-                                newVOSteppedPrice(null, //
-                                        new BigDecimal("1.00")) })));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(newVOPricedEvent(
+                VOTechServiceFactory.getEventDefinition(voTechService,
+                        "FILE_DOWNLOAD"), //
+                Arrays.asList(new VOSteppedPrice[] {
+                        newVOSteppedPrice(Long.valueOf(10), new BigDecimal(
+                                "10.00")),
+                        newVOSteppedPrice(Long.valueOf(40), new BigDecimal(
+                                "5.00")),
+                        newVOSteppedPrice(Long.valueOf(80), new BigDecimal(
+                                "2.00")), newVOSteppedPrice(null, //
+                                new BigDecimal("1.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1151,19 +1119,17 @@ public class VOPriceModelFactory {
                         new BigDecimal("0.30"), new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(
-                        VOTechServiceFactory.getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
-                        Arrays.asList(new VOSteppedPrice[] {
-                                newVOSteppedPrice(Long.valueOf(10),
-                                        new BigDecimal("10.00")),
-                                newVOSteppedPrice(Long.valueOf(40),
-                                        new BigDecimal("5.00")),
-                                newVOSteppedPrice(Long.valueOf(80),
-                                        new BigDecimal("2.00")),
-                                newVOSteppedPrice(null, //
-                                        new BigDecimal("1.00")) })));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(newVOPricedEvent(
+                VOTechServiceFactory.getEventDefinition(voTechService,
+                        "FILE_DOWNLOAD"), //
+                Arrays.asList(new VOSteppedPrice[] {
+                        newVOSteppedPrice(Long.valueOf(10), new BigDecimal(
+                                "10.00")),
+                        newVOSteppedPrice(Long.valueOf(40), new BigDecimal(
+                                "5.00")),
+                        newVOSteppedPrice(Long.valueOf(80), new BigDecimal(
+                                "2.00")), newVOSteppedPrice(null, //
+                                new BigDecimal("1.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1202,19 +1168,17 @@ public class VOPriceModelFactory {
                         new BigDecimal("0.30"), new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(
-                        VOTechServiceFactory.getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
-                        Arrays.asList(new VOSteppedPrice[] {
-                                newVOSteppedPrice(Long.valueOf(10),
-                                        new BigDecimal("10.00")),
-                                newVOSteppedPrice(Long.valueOf(40),
-                                        new BigDecimal("5.00")),
-                                newVOSteppedPrice(Long.valueOf(80),
-                                        new BigDecimal("2.00")),
-                                newVOSteppedPrice(null, //
-                                        new BigDecimal("1.00")) })));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(newVOPricedEvent(
+                VOTechServiceFactory.getEventDefinition(voTechService,
+                        "FILE_DOWNLOAD"), //
+                Arrays.asList(new VOSteppedPrice[] {
+                        newVOSteppedPrice(Long.valueOf(10), new BigDecimal(
+                                "10.00")),
+                        newVOSteppedPrice(Long.valueOf(40), new BigDecimal(
+                                "5.00")),
+                        newVOSteppedPrice(Long.valueOf(80), new BigDecimal(
+                                "2.00")), newVOSteppedPrice(null, //
+                                new BigDecimal("1.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1269,19 +1233,17 @@ public class VOPriceModelFactory {
                         new BigDecimal("0.30"), new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(
-                        VOTechServiceFactory.getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
-                        Arrays.asList(new VOSteppedPrice[] {
-                                newVOSteppedPrice(Long.valueOf(10),
-                                        new BigDecimal("10.00")),
-                                newVOSteppedPrice(Long.valueOf(40),
-                                        new BigDecimal("5.00")),
-                                newVOSteppedPrice(Long.valueOf(80),
-                                        new BigDecimal("2.00")),
-                                newVOSteppedPrice(null, //
-                                        new BigDecimal("1.00")) })));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(newVOPricedEvent(
+                VOTechServiceFactory.getEventDefinition(voTechService,
+                        "FILE_DOWNLOAD"), //
+                Arrays.asList(new VOSteppedPrice[] {
+                        newVOSteppedPrice(Long.valueOf(10), new BigDecimal(
+                                "10.00")),
+                        newVOSteppedPrice(Long.valueOf(40), new BigDecimal(
+                                "5.00")),
+                        newVOSteppedPrice(Long.valueOf(80), new BigDecimal(
+                                "2.00")), newVOSteppedPrice(null, //
+                                new BigDecimal("1.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1446,19 +1408,17 @@ public class VOPriceModelFactory {
                 new BigDecimal(8));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+        List<VOPricedParameter> selectedParameters = Arrays.asList(
+                newVOPricedParameter(VOServiceFactory.getParameter(
                         voServiceDetails, "HAS_OPTIONS"),
                         new BigDecimal("2.00"), new BigDecimal("1.10"),
                         pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "MAX_FOLDER_NUMBER"),
-                                new BigDecimal("2.00"),
-                                new BigDecimal("20.00"), pricedRoles),
-                        newVOPricedParameter(VOServiceFactory.getParameter(
-                                voServiceDetails, "BOOLEAN_PARAMETER"),
-                                new BigDecimal("3.00"),
-                                new BigDecimal("30.00"), pricedRoles));
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles),
+                newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1471,10 +1431,10 @@ public class VOPriceModelFactory {
                 new BigDecimal("10.00"), new BigDecimal("0.00"), 0);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), new ArrayList<VOPricedRole>()));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"),
+                        new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1487,10 +1447,10 @@ public class VOPriceModelFactory {
                 new BigDecimal("10.00"), new BigDecimal("0.00"), 0);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), new ArrayList<VOPricedRole>()));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"),
+                        new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1503,10 +1463,10 @@ public class VOPriceModelFactory {
                 new BigDecimal("10.00"), new BigDecimal("0.00"), 0);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), new ArrayList<VOPricedRole>()));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"),
+                        new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1519,10 +1479,10 @@ public class VOPriceModelFactory {
                 new BigDecimal("10.00"), new BigDecimal("0.00"), 0);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), new ArrayList<VOPricedRole>()));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"),
+                        new ArrayList<VOPricedRole>()));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1542,10 +1502,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), new BigDecimal("3.00"),
-                        new BigDecimal("30.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "3.00"), new BigDecimal("30.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1565,10 +1524,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("20.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("20.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -1589,25 +1547,19 @@ public class VOPriceModelFactory {
         VOTechnicalService voTechService = voServiceDetails
                 .getTechnicalService();
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1635,25 +1587,19 @@ public class VOPriceModelFactory {
         VOTechnicalService voTechService = voServiceDetails
                 .getTechnicalService();
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1741,25 +1687,19 @@ public class VOPriceModelFactory {
                 new BigDecimal("2.00"), new BigDecimal("3.00"));
 
         priceModel.setRoleSpecificUserPrices(pricedRoles);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
         priceModel.setConsideredEvents(consideredEvents);
 
         pricedRoles = createPricedRoles(
@@ -1818,32 +1758,25 @@ public class VOPriceModelFactory {
 
         // price for the PERIOD parameter (days subscription deactivated)
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "PERIOD"), new BigDecimal("0.00"),
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "PERIOD"), new BigDecimal("0.00"),
                         new BigDecimal("0.00"), pricedRolesPeriod));
 
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -1873,9 +1806,8 @@ public class VOPriceModelFactory {
         // priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), //
                         new BigDecimal("0.00"), // sub price
                         new BigDecimal("4.00"), // user price
                         pricedRoles));
@@ -1907,9 +1839,8 @@ public class VOPriceModelFactory {
         // priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), //
                         new BigDecimal("0.00"), // sub price
                         new BigDecimal("4.00"), // user price
                         pricedRoles));
@@ -1935,9 +1866,8 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("0.00"), // price per sub
                         new BigDecimal("0.00"), // price per user
                         pricedRoles));
@@ -1971,31 +1901,28 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("4.00"), // price per sub
                         new BigDecimal("2.00"), // price per user
                         pricedRoles));
 
         priceModel.setSelectedParameters(selectedParameters);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
                         Arrays.asList(new VOSteppedPrice[] {
                                 newVOSteppedPrice(Long.valueOf(1),
                                         new BigDecimal("10.00")),
                                 newVOSteppedPrice(null, //
                                         new BigDecimal("0.00")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), Arrays
-                                .asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("20.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.00")) })));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), Arrays
+                        .asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("20.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2027,31 +1954,28 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("40.00"), // price per sub
                         new BigDecimal("20.00"), // price per user
                         pricedRoles));
 
         priceModel.setSelectedParameters(selectedParameters);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
                         Arrays.asList(new VOSteppedPrice[] {
                                 newVOSteppedPrice(Long.valueOf(1),
                                         new BigDecimal("100.00")),
                                 newVOSteppedPrice(null, //
                                         new BigDecimal("0.00")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), Arrays
-                                .asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("200.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.00")) })));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), Arrays
+                        .asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("200.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2075,9 +1999,8 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("4.00"), // price per sub
                         new BigDecimal("2.00"), // price per user
                         pricedRoles));
@@ -2104,9 +2027,8 @@ public class VOPriceModelFactory {
                 new BigDecimal(0), new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("40.00"), // price per sub
                         new BigDecimal("20.00"), // price per user
                         pricedRoles));
@@ -2156,23 +2078,21 @@ public class VOPriceModelFactory {
                         pricedRolesEnum));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
                         Arrays.asList(new VOSteppedPrice[] {
                                 newVOSteppedPrice(Long.valueOf(1),
                                         new BigDecimal("10.00")),
                                 newVOSteppedPrice(null, //
                                         new BigDecimal("0.00")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), Arrays
-                                .asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("20.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.00")) })));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), Arrays
+                        .asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("20.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2239,23 +2159,21 @@ public class VOPriceModelFactory {
 
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), //
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
                         Arrays.asList(new VOSteppedPrice[] {
                                 newVOSteppedPrice(Long.valueOf(1),
                                         new BigDecimal("10.00")),
                                 newVOSteppedPrice(null, //
                                         new BigDecimal("0.00")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), Arrays
-                                .asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("20.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.00")) })));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), Arrays
+                        .asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("20.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.00")) })));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2285,34 +2203,27 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), //
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), //
                         new BigDecimal("4.00"), // price per sub
                         new BigDecimal("2.00"), // price per user
                         pricedRoles));
 
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2342,33 +2253,26 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), new BigDecimal("4.00"),
-                        new BigDecimal("2.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "4.00"), new BigDecimal("2.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2407,32 +2311,25 @@ public class VOPriceModelFactory {
 
         // price for the PERIOD parameter (days subscription deactivated)
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "PERIOD"), new BigDecimal("1.00"),
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "PERIOD"), new BigDecimal("1.00"),
                         new BigDecimal("1.00"), pricedRolesPeriod));
 
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2453,10 +2350,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("4.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("4.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -2476,10 +2372,9 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("4.00"),
-                        new BigDecimal("8.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "4.00"), new BigDecimal("8.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -2805,26 +2700,20 @@ public class VOPriceModelFactory {
                         voServiceDetails.getTechnicalService(), "ADMIN",
                         "USER", "GUEST"), new BigDecimal(0), new BigDecimal(0),
                 new BigDecimal(0));
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                new BigDecimal("8")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        new BigDecimal("8")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2867,26 +2756,20 @@ public class VOPriceModelFactory {
                         voServiceDetails.getTechnicalService(), "ADMIN",
                         "USER", "GUEST"), new BigDecimal(0), new BigDecimal(0),
                 new BigDecimal(0));
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                new BigDecimal("8")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        new BigDecimal("8")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2922,36 +2805,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -2996,36 +2873,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3070,36 +2941,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3135,36 +3000,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3209,36 +3068,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3399,36 +3252,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3473,36 +3320,30 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3545,36 +3386,30 @@ public class VOPriceModelFactory {
                         "USER", "GUEST"), new BigDecimal(0), new BigDecimal(0),
                 new BigDecimal(0));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(14),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("9")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("2.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(14),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("9")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("2.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -3612,25 +3447,19 @@ public class VOPriceModelFactory {
                         "USER", "GUEST"), new BigDecimal(0), new BigDecimal(0),
                 new BigDecimal(0));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
         priceModel.setConsideredEvents(consideredEvents);
 
         List<VOPricedRole> pricedRolesPar = createPricedRoles(
@@ -3675,25 +3504,19 @@ public class VOPriceModelFactory {
                         newVOSteppedPrice(null, new BigDecimal("4.00")) }), //
                 5);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
         priceModel.setConsideredEvents(consideredEvents);
 
         List<VOPricedRole> pricedRoles = createPricedRoles(
@@ -3737,25 +3560,19 @@ public class VOPriceModelFactory {
                 new BigDecimal(0));
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("10")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("10")));
         priceModel.setConsideredEvents(consideredEvents);
 
         pricedRoles = createPricedRoles(
@@ -3806,8 +3623,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -3871,8 +3687,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -3937,8 +3752,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -4013,8 +3827,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -4166,36 +3979,30 @@ public class VOPriceModelFactory {
                         new BigDecimal("1.00"), new BigDecimal("0.00"),
                         pricedRolesPar));
         priceModel.setSelectedParameters(selectedParameters);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(13),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("1")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("1.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(13),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("1")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("1.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4230,36 +4037,30 @@ public class VOPriceModelFactory {
                         new BigDecimal("1.00"), new BigDecimal("0.00"),
                         pricedRolesPar));
         priceModel.setSelectedParameters(selectedParameters);
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(13),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("1")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("1.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(13),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("1")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("1.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4289,42 +4090,35 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("1.00"),
-                        new BigDecimal("1.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "1.00"), new BigDecimal("1.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(13),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("1")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("1.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(13),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("1")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("1.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4374,8 +4168,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -4435,8 +4228,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -4511,8 +4303,7 @@ public class VOPriceModelFactory {
         List<VOPricedEvent> consideredEvents = Arrays
                 .asList(newVOPricedEvent(VOTechServiceFactory
                         .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
-                        new BigDecimal("13")),
+                                "USER_LOGIN_TO_SERVICE"), new BigDecimal("13")),
                         newVOPricedEvent(VOTechServiceFactory
                                 .getEventDefinition(voTechService,
                                         "USER_LOGOUT_FROM_SERVICE"),
@@ -4566,10 +4357,9 @@ public class VOPriceModelFactory {
                 new BigDecimal(1));
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), new BigDecimal("1.00"),
-                        new BigDecimal("1.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "1.00"), new BigDecimal("1.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
         return priceModel;
@@ -4640,42 +4430,35 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "BOOLEAN_PARAMETER"), new BigDecimal("1.00"),
-                        new BigDecimal("1.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "BOOLEAN_PARAMETER"), new BigDecimal(
+                        "1.00"), new BigDecimal("1.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("13")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("12")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(13),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(80),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(200),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("1")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("1.00")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("12")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(13),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(80),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(200),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("1")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("1.00")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4805,9 +4588,8 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "PERIOD"),
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "PERIOD"),
                         new BigDecimal("1.20"),
                         new BigDecimal("3.80"), //
                         createPricedRoles(VOTechServiceFactory
@@ -4818,36 +4600,30 @@ public class VOPriceModelFactory {
                                 new BigDecimal(1.50))));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "USER_LOGIN_TO_SERVICE"),
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGIN_TO_SERVICE"),
                         new BigDecimal("2.50")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "USER_LOGOUT_FROM_SERVICE"),
-                                new BigDecimal("3.50")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_DOWNLOAD"), //
-                                Arrays.asList(new VOSteppedPrice[] {
-                                        newVOSteppedPrice(Long.valueOf(1),
-                                                new BigDecimal("10.00")),
-                                        newVOSteppedPrice(Long.valueOf(3),
-                                                new BigDecimal("5.00")),
-                                        newVOSteppedPrice(Long.valueOf(7),
-                                                new BigDecimal("2.00")),
-                                        newVOSteppedPrice(Long.valueOf(10),
-                                                new BigDecimal("1.00")),
-                                        newVOSteppedPrice(null, //
-                                                new BigDecimal("0.50")) })),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("3.10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("8.25")));
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "USER_LOGOUT_FROM_SERVICE"),
+                        new BigDecimal("3.50")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), //
+                        Arrays.asList(new VOSteppedPrice[] {
+                                newVOSteppedPrice(Long.valueOf(1),
+                                        new BigDecimal("10.00")),
+                                newVOSteppedPrice(Long.valueOf(3),
+                                        new BigDecimal("5.00")),
+                                newVOSteppedPrice(Long.valueOf(7),
+                                        new BigDecimal("2.00")),
+                                newVOSteppedPrice(Long.valueOf(10),
+                                        new BigDecimal("1.00")),
+                                newVOSteppedPrice(null, //
+                                        new BigDecimal("0.50")) })),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("3.10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("8.25")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4870,23 +4646,18 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("2.00"),
-                        new BigDecimal("8.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "2.00"), new BigDecimal("8.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("20")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("30")));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("20")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("30")));
 
         priceModel.setConsideredEvents(consideredEvents);
 
@@ -4909,23 +4680,18 @@ public class VOPriceModelFactory {
         priceModel.setRoleSpecificUserPrices(pricedRoles);
 
         List<VOPricedParameter> selectedParameters = Arrays
-                .asList(newVOPricedParameter(
-                        VOServiceFactory.getParameter(voServiceDetails,
-                                "MAX_FOLDER_NUMBER"), new BigDecimal("1.00"),
-                        new BigDecimal("4.00"), pricedRoles));
+                .asList(newVOPricedParameter(VOServiceFactory.getParameter(
+                        voServiceDetails, "MAX_FOLDER_NUMBER"), new BigDecimal(
+                        "1.00"), new BigDecimal("4.00"), pricedRoles));
         priceModel.setSelectedParameters(selectedParameters);
 
-        List<VOPricedEvent> consideredEvents = Arrays
-                .asList(newVOPricedEvent(VOTechServiceFactory
-                        .getEventDefinition(voTechService,
-                                "FILE_DOWNLOAD"), new BigDecimal("5")),
-                        newVOPricedEvent(VOTechServiceFactory
-                                .getEventDefinition(voTechService,
-                                        "FILE_UPLOAD"), new BigDecimal("10")),
-                        newVOPricedEvent(
-                                VOTechServiceFactory.getEventDefinition(
-                                        voTechService, "FOLDER_NEW"),
-                                new BigDecimal("20")));
+        List<VOPricedEvent> consideredEvents = Arrays.asList(
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_DOWNLOAD"), new BigDecimal("5")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FILE_UPLOAD"), new BigDecimal("10")),
+                newVOPricedEvent(VOTechServiceFactory.getEventDefinition(
+                        voTechService, "FOLDER_NEW"), new BigDecimal("20")));
 
         priceModel.setConsideredEvents(consideredEvents);
 

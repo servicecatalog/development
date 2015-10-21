@@ -94,7 +94,10 @@
       <login.logout />
     </webtest>
 
-    <webtest name="testMPL_CheckRecommendedRetailPriceVisibility">
+  </target>
+	
+  <target name="disabled_tests">
+ 	<webtest name="testMPL_CheckRecommendedRetailPriceVisibility">
       <!-- Make sure recommended retail price is not shown on landing page -->
       <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf?mId=${mId}" />
       <not>
@@ -135,14 +138,6 @@
       <verifyXPath xpath="//*[@id='supplierContactUrl']/@href" text="http://www.example.com" />
       <verifyXPath xpath="//*[@id='supplierContactUrl']/@target" text="_blank" />
     </webtest>
-    
-    <webtest name="testMPL_ManageSellerSubscription_tearDown">
-      <this.grantResalePermission serviceKey="MegaOffice1" marketplaceId="${mId}" isGranted="false" brokerOrgId="${brokerId}" resellerOrgId="${resellerId}" />
-      <setup:service.delete serviceIds="*" deactivate="true" />
-      <operator.deleteMarketplaces marketplaceIds="${mId}" />
-      <mail.cleanInbox />
-    </webtest>
-
   </target>
 
   <macrodef name="this.grantResalePermission">

@@ -20,6 +20,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -414,6 +415,31 @@ public class PriceModelBeanTest {
         // then
         assertEquals(bean.getPriceModel().getSelectedParameters().get(0).getPricedOptions().get(0)
                 .getRoleSpecificUserPrices().get(0).getPricePerUser(), BigDecimal.valueOf(1));
+    }
+
+    @Test
+    public void save_Bug12158() throws Exception {
+        // given
+        bean.setCustomerID(null);
+        bean.setSelectedServiceKey(Long.valueOf(0));
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_SERVICE);
+        bean.setRoles(null);
+        bean.setServices(this.selectedServiceList);
+        doReturn(new ArrayList<String>()).when(bean).getSupportedCurrencies();
+        doReturn(new VOPriceModelLocalization()).when(bean).getLocalization();
+        bean.updatePriceModel();
+        bean.setSelectedRole(bean.getRoles().get(0));
+        bean.getParametersSelectedRole()[1].getPricedOption().setPricePerUser(BigDecimal.valueOf(1));
+        bean.saveRoles();
+        bean.setLocalization(mock(VOPriceModelLocalization.class));
+        bean.provisioningService = provisioningService;
+
+        doReturn(bean.getSelectedService()).when(provisioningService).savePriceModel(any(VOServiceDetails.class), any(VOPriceModel.class));
+        doNothing().when(provisioningService).savePriceModelLocalization(any(VOPriceModel.class), any(VOPriceModelLocalization.class));
+        // when
+        bean.save();
+        // then
+        verify(provisioningService, atLeastOnce()).savePriceModelLocalization(any(VOPriceModel.class), any(VOPriceModelLocalization.class));
     }
 
     @Test(expected = ObjectNotFoundException.class)

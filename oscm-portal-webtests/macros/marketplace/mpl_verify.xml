@@ -237,7 +237,7 @@
         </then>
       </ifStep>
       <verifyElement description="Verify existence supplier text" text="service@{pos}Supplier" type="h3" />
-      <verifyElement description="Verify existence button" text="serviceButton@{pos}" type="a" />
+      <verifyElement description="Verify existence button" text="showDetails@{pos}" type="a" />
     </sequential>
   </macrodef>
 
@@ -265,7 +265,7 @@
         </then>
       </ifStep>
       <verifyElement description="Verify existence supplier text" text="service@{pos}Supplier" type="h3" />
-      <verifyElement description="Verify existence button" text="serviceButton@{pos}" type="a" />
+      <verifyElement description="Verify existence button" text="showDetails@{pos}" type="a" />
       <mpl_verify.serviceTags pos="@{pos}" />
     </sequential>
   </macrodef>

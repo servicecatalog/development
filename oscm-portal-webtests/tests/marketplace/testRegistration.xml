@@ -81,8 +81,7 @@
       <invoke url="${mail.anyurl}/image?webtest=1" />
       <invoke url="#{marketplaceUrl}" />
 
-      <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails1" />
       <clickLink htmlId="buyme" />
       <clickLink htmlId="register" />
 

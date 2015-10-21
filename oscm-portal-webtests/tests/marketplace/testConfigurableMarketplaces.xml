@@ -82,8 +82,8 @@
       <not>
         <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
       </not>
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
 
       <verifyXPath xpath="//span[contains(@class, 'serviceRating')]" />
       <not>
@@ -92,8 +92,8 @@
       <!-- Check service details with disabled settings -->
       <mpl_goto.marketplace mid="${MID1}" />
       <verifyXPath xpath="//div[contains(@class, 'serviceRatingDisabled')]" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
 
       <not>
         <verifyXPath xpath="//span[contains(@class, 'serviceRating')]" />

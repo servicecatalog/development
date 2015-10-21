@@ -181,8 +181,7 @@
     <attribute name="serviceIndex" />
     <sequential>
       <mpl_goto.marketplace mid="@{mId}" />
-      <clickLink htmlId="serviceButton@{serviceIndex}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails@{serviceIndex}" />
 
       <mpl_goto.tab label="Supplier" />
       <!-- verify the existence of "Report Issue" button, should not be visible at anytime -->

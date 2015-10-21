@@ -57,7 +57,8 @@
            <h:outputText id="userId" value="#{user.userId}" />
         </a4j:outputPanel>
       </rich:column>
-
+      
+      <!-- This column is rendered for non-japanese locale -->
       <rich:column id="#{colFirstName}" sortBy="#{user.firstName}" width="#{nameWidth}" sortIcon="#{sortIcon}"
         sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
         rendered="#{not sessionBean.nameSequenceReversed}"
@@ -92,14 +93,15 @@
            <h:outputText id="lastName" value="#{user.lastName}" />
         </a4j:outputPanel>
       </rich:column>
-
+	
+	  <!-- This column is rendered for japanese locale -->
       <rich:column id="#{colFirstName1}" sortBy="#{user.firstName}" width="#{nameWidth}" sortIcon="#{sortIcon}"
         sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
         rendered="#{sessionBean.nameSequenceReversed}"
         sortOrder="#{tableState.sortOrders[colFirstName1]}"
         filterType="custom"
         filterValue="#{tableState.filterValues[colFirstName1]}"
-        filterExpression="#{adm:matchBegin(user.lastName, tableState.filterValues[colFirstName1], false)}">
+        filterExpression="#{adm:matchBegin(user.firstName, tableState.filterValues[colFirstName1], false)}">
         <f:facet name="header">
           <h:outputText value="#{msg['user.firstName']}" />
           <adm:filterInput inputId="filterGroupUserFirstName1" inputValue="#{tableState.filterValues[colFirstName1]}"

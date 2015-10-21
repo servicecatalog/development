@@ -189,8 +189,7 @@
       <user.editProfile/>
       <changeLanguage language="ja" />
       <mpl_goto.marketplace mid="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <clickLink htmlId="btnWriteFeedback" />
       <clickElement htmlId="star1" />

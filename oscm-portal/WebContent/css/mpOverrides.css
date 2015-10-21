@@ -121,3 +121,8 @@ div#subscriptionUsagePanelGrid.grid2span .leftCenterBorder .buttonDisabled {
 form#subListForm div.subscriptionError{
     height: auto;
 }
+
+a.linkBtn{
+	height:23px;
+	padding:2px 0px 0px 12px;
+}

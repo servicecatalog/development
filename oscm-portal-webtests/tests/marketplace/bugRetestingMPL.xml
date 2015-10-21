@@ -310,9 +310,7 @@
         **************************************************  -->
       <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf" />
       <!-- show details of first service -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <clickLink htmlId="showDetails0" />
 
       <!-- check if service belongs to supplier 1 and verify supplier tab -->
       <checkSupplierNameFromService supplierName="organizationName_#{supplierId1}" />
@@ -332,9 +330,7 @@
 
       <invoke url="${bes.http.url}/oscm-portal/marketplace/index.jsf" />
       <!-- show details of second service -->
-      <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <clickLink htmlId="showDetails1" />
 
       <!-- check if service belongs to supplier 1 and verify supplier tab -->
       <checkSupplierNameFromService supplierName="organizationName_#{supplierId1}" />
@@ -598,7 +594,7 @@
         <!-- create the review data by the new user -->
         <mpl_login.loginWithChangePassword mid="${midGlobal}" userId="${NewUserId}" oldPassword="#{userPwd}" />
         <mpl_goto.services mid="${midGlobal}" />
-        <mpl_goto.service svcButtonId="serviceButton3" svcName="Starter" isFree="true" admin="false" />
+        <mpl_goto.service svcButtonId="showDetails3" svcName="Starter" isFree="true" admin="false" />
         <mpl_rating.create title="newReview" comment="newComment" star="3" />
         <mpl_login.logout />
 
@@ -620,9 +616,8 @@
       <selectWebClient name="SUP">
         <mpl_login.user mid="${midGlobal}" userId="${supplierUserId}" />
         <mpl_goto.marketplace mid="${midGlobal}" />
-        <clickLink htmlId="serviceButton0" />
-        <clickElement htmlId="showDetailsForm:showDetails" />
-
+      	<common.ignorePageScriptError />
+      	<clickLink htmlId="showDetails0" />
         <verifyElementText htmlId="serviceStatusLabel" text="${ServiceStatus.ACTIVE}" />
         <clickLink htmlId="deactivateServiceForm:deactivateService" />
       </selectWebClient>
@@ -693,8 +688,8 @@
       <!-- 3. Subscribe the service -->
       <mpl_goto.marketplace mId="${mId}" />
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />	
+      <clickLink htmlId="showDetails0" />
 
       <mpl_goto.tab label="${service.priceModel}" />
       <common.ignorePageScriptError />
@@ -832,8 +827,7 @@
   	  <mail.cleanInbox />
   	  <mpl_login.user mid="${mId}" userId="${supplierAdminUserId}" />
       <clickLink htmlId="linkBrowseAll" />
-   	  <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+   	  <clickLink htmlId="showDetails1" />
 
   	  <clickLink htmlId="buyme" />
   	  <clickLink htmlId="configurationForm:nextLink" />
@@ -872,8 +866,7 @@
   	
     <webtest name="testAsyncSubscription - create subscription with async provisioning">
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <clickLink htmlId="buyme" />
       <setInputField htmlId="configurationForm:subscriptionIdText" value="Async" />

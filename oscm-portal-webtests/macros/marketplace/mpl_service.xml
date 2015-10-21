@@ -26,8 +26,7 @@
         </else>
       </ifStep>
       <common.ignorePageScriptError/>
-      <clickLink htmlId="serviceButton@{index}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails@{index}" />
       <common.waitForJavaScript />
       <!-- Click "Buy me" -->
       <clickLink htmlId="buyme" />

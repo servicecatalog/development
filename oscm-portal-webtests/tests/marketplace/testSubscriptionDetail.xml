@@ -27,8 +27,7 @@
       <setup:service.activate serviceIds="ServiceB" />
       
       <mpl_goto.marketplace mId="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <mpl_goto.tab label="${service.priceModel}" />
       <verifyXPath xpath="//*[@id='steppedPriceTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
@@ -40,8 +39,7 @@
       
       <!-- Verify price model tab of ServiceB. -->
       <mpl_goto.marketplace mId="${mId}" />
-      <clickLink htmlId="serviceButton1" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails1" />
 
       <!--test for bug#9531 -->
       <verifyXPath xpath="//*[@class='relatedServicePrice']/text()" regex="true" text=".*per Week" />
@@ -56,8 +54,7 @@
       
       
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <mpl_goto.tab label="${service.priceModel}" />
       <verifyXPath xpath="//*[@id='steppedPriceTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
@@ -83,9 +80,8 @@
     
     <webtest name="Bug10143_testMPL_serviceDetail">   
       <mpl_goto.marketplace mId="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
       <verifyXPath xpath="//*[@id='buyme']/@onclick" text=".*window\.open\('', 'Service'\);.*"  regex="true"/>
     </webtest>
   	
@@ -101,8 +97,7 @@
       
       <!-- Verify role specific prices displays in service details -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton2" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails2" />
 
       <mpl_goto.tab label="${service.priceModel}" /> 
       <verifyElementText htmlId="roleTable:0:roleDescription" text="Administrator"/>
@@ -152,10 +147,8 @@
       <login.logout />
       <setup:service.activate serviceIds="ServiceB" />
 	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
-      
  	  <clickLink htmlId="buyme" />
  	  <clickElement htmlId="getItForLoggedUser" />
       <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
@@ -192,8 +185,7 @@
   	  <login.logout/>
   		
   	  <mpl_goto.marketplace mId="${mId}" /> 
-  	  <clickLink htmlId="serviceButton2" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+  	  <clickLink htmlId="showDetails2" />
 
   	  <mpl_goto.tab label="${service.priceModel}" />
   		
@@ -219,8 +211,7 @@
       <setup:service.activate serviceIds="ServiceE" />
 
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 	  <clickLink htmlId="buyme" />
       <clickElement htmlId="getItForLoggedUser" />
 	  <clickLink htmlId="configurationForm:nextLink" />
@@ -238,8 +229,7 @@
 
       <storeProperty name="usernameM" value="#{userId}" propertyType="ant" />
       <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 	  <clickLink htmlId="buyme" />
       <clickElement htmlId="getItForLoggedUser" />
       <setInputField htmlId="configurationForm:subscriptionIdText" value="ServiceE_SubManager" />

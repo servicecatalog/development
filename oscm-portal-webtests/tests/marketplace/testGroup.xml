@@ -269,8 +269,8 @@
 
       <!--get service Url-->
       <mpl_goto.page mid="${mId}" relpath="index.jsf" />
-      <clickElement htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />
+      <clickElement htmlId="showDetails0" />
       <common.getCurrentRequestUrl property="tmp.currentRequestUrl" />
       <mpl_login.logout />
 
@@ -290,8 +290,7 @@
 
       <!-- userM subscribtion -->
       <mpl_login.user userId="${usernameM}" mid="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <common.ignorePageScriptError />
       <clickLink htmlId="buyme" />

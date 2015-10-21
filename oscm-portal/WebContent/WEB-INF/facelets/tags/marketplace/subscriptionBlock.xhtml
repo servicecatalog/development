@@ -8,7 +8,6 @@
   <c:if test="#{empty onClickHandler}">
 
   </c:if>
-
   <a4j:outputPanel layout="block" styleClass="left box_logo">
     <a4j:outputPanel layout="block" styleClass="box_image" onclick="#{onClickHandler}">
       <h:graphicImage id="#{fieldId}Image" value="/image?type=SERVICE_IMAGE&amp;serviceKey=#{subscription.serviceKey}" />

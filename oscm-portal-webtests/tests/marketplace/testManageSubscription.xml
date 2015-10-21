@@ -577,7 +577,7 @@
       <mpl_goto.marketplace mid="${mId}" />
 
       <!-- Click on the details button of the service Mega Office Starter -->
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="Mega Office Starter" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="Mega Office Starter" />
 
       <!-- Login as customer -->
       <clickLink label="${login}" />

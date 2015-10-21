@@ -422,8 +422,8 @@
       <!-- Go back to Home page-->
       <mpl_goto.marketplace mid="${mId}" />
       <!-- click on "show details",  and  then  "get it now "-->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />	
+      <clickLink htmlId="showDetails0" />	
       <common.ignorePageScriptError />
       <clickElement htmlId="getItForLoggedUser" />
       <clickLink htmlId="configurationForm:nextLink" />

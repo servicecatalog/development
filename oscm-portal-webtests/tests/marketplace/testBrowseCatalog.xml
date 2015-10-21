@@ -42,8 +42,8 @@
       </not>
 
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <clickLink htmlId="serviceButton4" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="showDetails4" />
 
       <mpl_verify.service_details svcName="Mega Office Professional" />
       <verifyElement description="Verify existence of Browse All button on Details page" text="buttonBrowseAllRelated" type="a" />
@@ -55,8 +55,7 @@
 
       <!-- Go back to Home page, this time click on the details button of the free service Mega Office 6 -->
       <mpl_goto.marketplace mid="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <mpl_verify.service_details svcName="Mega Office 6" isFree="true" />
       <verifyElement description="Verify existence of Browse All button on Details page" text="buttonBrowseAllRelated" type="a" />
@@ -65,7 +64,7 @@
 
       <!-- Go back to Home page, this time click on the whole block (div) of the free service Mega Office 6 -->
       <mpl_goto.marketplace mid="${mId}" />
-      <clickElement htmlId="servicePanel0" />
+      <clickLink htmlId="showDetails0" />
       <mpl_verify.breadCrumb actualPage="Mega Office 6" />
 
       <!-- Go back to Home page, this time click on Browse All button => Goto All services page -->
@@ -118,8 +117,7 @@
       <login.logout />
       <mpl_goto.marketplace mid="${mId}" />
       <mpl_verify.service_home pos="5" svcName="Mega Office Starter" />
-      <clickLink htmlId="serviceButton5" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails5" />
 
       <mpl_verify.service_details svcName="Mega Office Starter" />
       <mpl_goto.tab label="${service.supplier}" />

@@ -68,7 +68,7 @@
       <!-- 1. Customer goto a marketplace and choose a service to buy -->
       <mpl_login.user mId="${mId}" userId="${customerUserId}" />
       <common.ignorePageScriptError />
-      <chooseService marketplaceId="${mId}" buttonId="//div[@id='servicePanel1']" svcName="Mega Office Trial" isFree="true" />
+      <chooseService marketplaceId="${mId}" buttonId="//a[@id='showDetails1']" svcName="Mega Office Trial" isFree="true" />
       <!-- 2. Customer sets the value of the parameters of the subscription -->
       <verifyAndUpdateParameterOption form="configurationForm" name="Minimum Storage (1GB)" isEditable="true" />
       <verifyAndUpdateParameterOption form="configurationForm" name="Maximum storage (400GB)" isEditable="true" />

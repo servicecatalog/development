@@ -169,7 +169,6 @@
     <sequential>
       <common.ignorePageScriptError />
       <clickLink htmlId="@{svcButtonId}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
       <mpl_verify.service_details svcName="@{svcName}" isFree="@{isFree}" admin="@{admin}" />
     </sequential>
   </macrodef>

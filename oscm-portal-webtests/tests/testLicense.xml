@@ -62,8 +62,7 @@
       <mail.readPasswordAndUrlFromMail />
       <mpl_login.loginWithChangePassword mid="${mId}" oldPassword="#{userPwd}" userId="#{userId}" />
       <!-- start subscription process to check license on confirm page -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <!-- Click "Buy me" -->
       <clickElement htmlId="getItForLoggedUser" />
@@ -92,8 +91,7 @@
 
       <mpl_login.user userId="#{userId}" mid="${mId}" />
       <!-- check new license on confirmation page -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <!-- Click "Buy me" -->
       <clickElement htmlId="getItForLoggedUser" />

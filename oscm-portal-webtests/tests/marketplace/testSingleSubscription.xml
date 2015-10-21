@@ -96,8 +96,7 @@
 
       <mpl_goto.marketplace mid="${mId}" />
       <!-- try to subscribe a seonce time -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <!--the warning message not show in canoo -->
       <!--verifyXPath xpath="//*[@id='warningMessages1']/dt" text="${warning.subscription.onlyOne}" regex="true" /-->
@@ -112,8 +111,7 @@
       <login.logout />
       <mpl_login.user userId="#{customerUserId}" mid="${mId}" />
       <mpl_goto.marketplace mid="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
       <common.waitForJavaScript />
       <!-- Click "Buy me" -->
       <common.ignorePageScriptError />

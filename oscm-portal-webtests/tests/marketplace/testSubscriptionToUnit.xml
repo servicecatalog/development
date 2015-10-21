@@ -118,8 +118,7 @@
       <mpl_login.loginWithChangePassword mid="${mId}" userId="${usernameM}" oldPassword="#{userPwd}" />
 
       <!-- User should not be able to set unit (button should be disabled) during creating new subscription -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
       <common.waitForJavaScript />
       <clickLink htmlId="buyme" />
       <clickElement htmlId="getItForLoggedUser" />
@@ -162,8 +161,7 @@
       <storeProperty name="unitAdminName" value="#{userId}" propertyType="ant" />
       <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
 
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails"/>
+      <clickLink htmlId="showDetails0" />
       <common.waitForJavaScript />
 
       <!-- Click "Buy me" -->

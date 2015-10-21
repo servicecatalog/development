@@ -74,7 +74,7 @@
     <webtest name="testPaymentAvailability_subscriptionProcess">
       <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
       <common.ignorePageScriptError />
-      <clickElement htmlId="servicePanel0" />
+      <clickLink htmlId="showDetails0" />
       <clickElement htmlId="getItForLoggedUser" />
       <clickElement htmlId="configurationForm:nextLink" />
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
@@ -84,7 +84,8 @@
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
 
       <clickLink href="/oscm-portal/marketplace" />
-      <clickElement htmlId="servicePanel1" />
+      <clickLink htmlId="showDetails1" />
+
       <clickElement htmlId="getItForLoggedUser" />
       <clickElement htmlId="configurationForm:nextLink" />
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='CC']" />
@@ -94,9 +95,10 @@
       <not>
         <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
       </not>
-
+    	
       <clickLink href="/oscm-portal/marketplace" />
-      <clickElement htmlId="servicePanel2" />
+      <clickLink htmlId="showDetails2" />
+    	
       <clickElement htmlId="getItForLoggedUser" />
       <clickElement htmlId="configurationForm:nextLink" />
       <not>
@@ -110,7 +112,8 @@
       </not>
 
       <clickLink href="/oscm-portal/marketplace" />
-      <clickElement htmlId="servicePanel3" />
+      <clickLink htmlId="showDetails3" />
+
       <clickElement htmlId="getItForLoggedUser" />
       <clickElement htmlId="configurationForm:nextLink" />
       <not>
@@ -122,7 +125,8 @@
       <verifyXPath xpath="//*[@name='payment:selectPaymentInfo']/option[normalize-space(text())='Invoice']" />
 
       <clickLink href="/oscm-portal/marketplace" />
-      <clickElement htmlId="servicePanel4" />
+      <clickLink htmlId="showDetails4" />
+
       <clickElement htmlId="getItForLoggedUser" />
       <clickElement htmlId="configurationForm:nextLink" />
       <not>

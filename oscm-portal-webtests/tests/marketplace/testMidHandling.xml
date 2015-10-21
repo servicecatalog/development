@@ -54,8 +54,8 @@
         <invoke url="${baseUrlRedPortal}?mId=${mp2_global}" />
         <mpl_verify.service_home pos="0" svcName="Mega Office Basic" />
         <!-- (3) go to details page, then open url with no mId in red portal => expected result: stay on this MP -->
-        <clickLink htmlId="serviceButton0" />
-        <clickElement htmlId="showDetailsForm:showDetails" />
+      	<common.ignorePageScriptError />
+      	<clickLink htmlId="showDetails0" />
 
         <invoke url="${baseUrlRedPortal}" />
         <mpl_verify.service_home pos="0" svcName="Mega Office Basic" />

@@ -121,13 +121,13 @@
       <mpl_login.operator mid="${mId}" />
       <mpl_service.subscribe mid="${mId}" index="0" />
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
       <mpl_rating.create title="administrator" comment="administrator" star="2" />
       <mpl_login.logout />
 
       <!-- (3) Created user selects service -->
       <mpl_login.user mid="${mId}" userId="${newOperatorUserId}" />
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <!-- (4) Created user deletes review from operator -->
       <verifyXPath xpath="//*[@id='review1']" />
@@ -149,7 +149,7 @@
 
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <!-- check if in service detail shown is not rated yet -->
       <verifyXPath xpath="//span[@class='serviceRating']" text="${ratingText.noReviews}" />
@@ -163,7 +163,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
 
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <!-- open write review modal window -->
       <verifyText description="Verify existence 'Write review' button" text="${service.reviews.write}" />
@@ -208,7 +208,7 @@
 
     <webtest name="testMPL_Rating_checkDeletionLinkSupplier">
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <verifyText description="Verify added title" text="${customer1_user2}_title" />
       <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
@@ -229,7 +229,7 @@
     <webtest name="testMPL_Rating_deleteReviewByMplAdmin">
       <mpl_login.operator mid="${mId}" />
 
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <verifyText description="Verify added title" text="${customer1_user2}_title" />
       <verifyText description="Verify added comment" text="${customer1_user2}_comment" />
@@ -283,7 +283,7 @@
       <!-- Subscribe as platform operator to a service -->
       <mpl_service.subscribe mid="${mId}" index="0" />
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
 
       <!-- Check that there is no review yet -->
       <not>
@@ -308,7 +308,7 @@
 
       <!-- clean up / recreate the deleted review for the following tests -->
       <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
       <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
     </webtest>
 
@@ -318,19 +318,19 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
 
-      <mpl_goto.service svcButtonId="serviceButton1" svcName="MS S2" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails1" svcName="MS S2" isFree="true" />
       <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton2" svcName="MS S3" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails2" svcName="MS S3" isFree="true" />
       <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton3" svcName="MS S4" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails3" svcName="MS S4" isFree="true" />
       <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton4" svcName="MS S5" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails4" svcName="MS S5" isFree="true" />
       <mpl_rating.create title="${customer1_user2}_title" comment="${customer1_user2}_comment" star="${ratingValue1}" />
 
       <mpl_goto.marketplace mid="${mId}" />
@@ -350,23 +350,23 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user3}" />
 
-      <mpl_goto.service svcButtonId="serviceButton0" svcName="MS S1" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="MS S1" isFree="true" />
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue1}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton1" svcName="MS S2" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails1" svcName="MS S2" isFree="true" />
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue2}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton2" svcName="MS S3" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails2" svcName="MS S3" isFree="true" />
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue3}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton3" svcName="MS S4" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails3" svcName="MS S4" isFree="true" />
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue4}" />
 
       <mpl_goto.marketplace mid="${mId}" />
-      <mpl_goto.service svcButtonId="serviceButton4" svcName="MS S5" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails4" svcName="MS S5" isFree="true" />
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue5}" />
 
       <mpl_goto.marketplace mid="${mId}" />
@@ -386,7 +386,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <mpl_rating.create title="${customer1_user1}_title" comment="${customer1_user1}_comment" star="${ratingValue5}" />
 
@@ -402,7 +402,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
       <mpl_rating.update oldTitle="${customer1_user1}_title" oldComment="${customer1_user1}_comment" oldStar="${ratingValue5}" newTitle="${customer1_user1}_title_updated" newComment="${customer1_user1}_comment_updated" newStar="3" />
     </webtest>
 
@@ -411,7 +411,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <verifyText description="Verify added title" text="${customer1_user1}_title_updated" />
       <verifyText description="Verify added comment" text="${customer1_user1}_comment_updated" />
@@ -434,7 +434,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <!--open write review modal window-->
       <mpl_rating.create title="${customer1_user1}_title" comment="${customer1_user1}_comment" star="${ratingValue2}" />
@@ -444,7 +444,7 @@
 
       <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <!-- open write review modal window-->
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue3}" />
@@ -453,7 +453,7 @@
 
       <mpl_login.user mid="${mId}" userId="${customer1_user3}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <mpl_rating.create title="${customer1_user3}_title" comment="${customer1_user3}_comment" star="${ratingValue5}" />
 
@@ -468,7 +468,7 @@
       <!-- switch to marketplace -->
       <mpl_login.user mid="${mId}" userId="${customer1_user1}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <mpl_rating.update oldTitle="${customer1_user1}_title" oldComment="${customer1_user1}_comment" oldStar="${ratingValue2}" newTitle="${customer1_user1}_title_a" newComment="${customer1_user1}_comment_a" newStar="4" />
 
@@ -476,7 +476,7 @@
 
       <mpl_login.user mid="${mId}" userId="${customer1_user2}" />
 
-      <mpl_goto.service svcButtonId="serviceButton5" svcName="MS S6" isFree="true" />
+      <mpl_goto.service svcButtonId="showDetails5" svcName="MS S6" isFree="true" />
 
       <mpl_rating.update oldTitle="${customer1_user3}_title" oldComment="${customer1_user3}_comment" oldStar="${ratingValue5}" newTitle="${customer1_user3}_title_b" newComment="${customer1_user3}_comment_b" newStar="2" />
 
@@ -501,9 +501,7 @@
     <attribute name="index" />
     <attribute name="svcName" />
     <sequential>
-      <clickLink htmlId="serviceButton@{index}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <clickLink htmlId="showDetails@{index}" />
       <mpl_verify.service_details svcName="@{svcName}" isFree="true" />
     </sequential>
   </macrodef>

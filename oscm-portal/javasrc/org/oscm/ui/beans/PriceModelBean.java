@@ -1014,6 +1014,7 @@ public class PriceModelBean extends BaseBean implements Serializable {
             case PRICEMODEL_FOR_SERVICE:
                 voServiceDetails = getProvisioningService().savePriceModel(
                         voServiceDetails, voPriceModel);
+                saveLocalization(voServiceDetails);
                 addMessage(null, FacesMessage.SEVERITY_INFO,
                         INFO_PRICEMODEL_SAVED, voServiceDetails.getServiceId());
                 break;
@@ -1082,9 +1083,28 @@ public class PriceModelBean extends BaseBean implements Serializable {
             throws OperationNotPermittedException, ObjectNotFoundException,
             ConcurrentModificationException {
         if (localization != null) {
+            // We need to remove current localization from the list as it has been saved already during price model
+            // saving in {@link #save() save()}
+            VOPriceModelLocalization newLocalization = new VOPriceModelLocalization();
+            List<VOLocalizedText> licenses = localization.getLicenses();
+            List<VOLocalizedText> descriptions = localization.getDescriptions();
+            newLocalization.setLicenses(removeCurrentLocalizationFromList(licenses));
+            newLocalization.setDescriptions(removeCurrentLocalizationFromList(descriptions));
             getProvisioningService().savePriceModelLocalization(
-                    voServiceDetails.getPriceModel(), localization);
+                    voServiceDetails.getPriceModel(), newLocalization);
         }
+    }
+
+
+    private List<VOLocalizedText> removeCurrentLocalizationFromList(List<VOLocalizedText> textsToFilter) {
+        List<VOLocalizedText> localizatedTextTostore = new ArrayList<>();
+        String currentUserLocale = appBean.getUserFromSessionWithoutException().getLocale();
+        for (VOLocalizedText license : textsToFilter) {
+            if (!license.getLocale().equals(currentUserLocale)) {
+                localizatedTextTostore.add(license);
+            }
+        }
+        return localizatedTextTostore;
     }
 
     /**

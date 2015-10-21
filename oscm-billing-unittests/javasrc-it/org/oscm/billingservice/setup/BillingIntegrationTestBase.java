@@ -21,8 +21,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.junit.AfterClass;
-import org.w3c.dom.Document;
-
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.accountservice.bean.UserLicenseServiceLocalBean;
@@ -44,6 +42,7 @@ import org.oscm.billingservice.evaluation.ResellerShareResultEvaluator;
 import org.oscm.billingservice.evaluation.SupplierShareResultEvaluator;
 import org.oscm.billingservice.service.BillingServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
+import org.oscm.billingservice.service.model.BillingRun;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.converter.DateConverter;
 import org.oscm.converter.XMLConverter;
@@ -67,6 +66,17 @@ import org.oscm.identityservice.ldap.LdapAccessStub;
 import org.oscm.identityservice.ldap.LdapSettingsManagementServiceBean;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.accountmgmt.AccountServiceManagementBean;
+import org.oscm.internal.marketplace.MarketplaceServiceManagePartnerBean;
+import org.oscm.internal.pricing.PricingServiceBean;
+import org.oscm.internal.service.PublishServiceBean;
+import org.oscm.internal.types.enumtypes.BillingSharesResultType;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -119,17 +129,7 @@ import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.vatservice.bean.VatServiceBean;
-import org.oscm.internal.accountmgmt.AccountServiceManagementBean;
-import org.oscm.internal.marketplace.MarketplaceServiceManagePartnerBean;
-import org.oscm.internal.pricing.PricingServiceBean;
-import org.oscm.internal.service.PublishServiceBean;
-import org.oscm.internal.types.enumtypes.BillingSharesResultType;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.vo.VOCategory;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.w3c.dom.Document;
 
 /**
  * @author baumann
@@ -190,8 +190,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
      */
     public static void createBasicTestData(final boolean basicSetupRequired)
             throws Exception {
-        setDateFactoryInstance(
-                DateTimeHandling.calculateMillis("2010-01-01 00:00:00"));
+        setDateFactoryInstance(DateTimeHandling
+                .calculateMillis("2010-01-01 00:00:00"));
 
         basicDataSetup(basicSetupRequired);
 
@@ -346,8 +346,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 TenantProvisioningResult result = new TenantProvisioningResult();
                 ProvisioningType provType = subscription.getProduct()
                         .getTechnicalProduct().getProvisioningType();
-                result.setAsyncProvisioning(
-                        provType == ProvisioningType.ASYNCHRONOUS);
+                result.setAsyncProvisioning(provType == ProvisioningType.ASYNCHRONOUS);
                 return result;
             }
 
@@ -368,9 +367,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
                     super.setConfigurationSetting(new ConfigurationSetting(
                             ConfigurationKey.SUPPLIER_SETS_INVOICE_AS_DEFAULT,
-                            Configuration.GLOBAL_CONTEXT,
-                            Boolean.valueOf(setInvoiceAsDefaultPayment)
-                                    .toString()));
+                            Configuration.GLOBAL_CONTEXT, Boolean.valueOf(
+                                    setInvoiceAsDefaultPayment).toString()));
                 }
                 return super.getConfigurationSetting(informationId, contextId);
             }
@@ -560,16 +558,15 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             public Void call() throws Exception {
                 container.login(basicSetup.getSupplierAdminKey(),
                         ROLE_TECHNOLOGY_MANAGER);
-                basicSetup.createAsyncTechnicalService(
-                        TECHNICAL_SERVICES_ASYNC_XML);
+                basicSetup
+                        .createAsyncTechnicalService(TECHNICAL_SERVICES_ASYNC_XML);
                 return null;
             }
         });
 
     }
 
-    public static List<VOSubscriptionDetails> getSubscriptionDetails(
-            String key) {
+    public static List<VOSubscriptionDetails> getSubscriptionDetails(String key) {
         return subscriptionCache.get(key);
     }
 
@@ -610,8 +607,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
             public Void call() {
                 ConfigurationSetting config = new ConfigurationSetting(
                         ConfigurationKey.TIMER_INTERVAL_BILLING_OFFSET,
-                        Configuration.GLOBAL_CONTEXT,
-                        Long.valueOf(offsetInMs).toString());
+                        Configuration.GLOBAL_CONTEXT, Long.valueOf(offsetInMs)
+                                .toString());
                 configurationService.setConfigurationSetting(config);
                 return null;
             }
@@ -627,8 +624,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
     protected void performBillingRun(final long billingOffsetInDays,
             final long invocationTime) throws Exception {
         setDateFactoryInstance(invocationTime);
-        setBillingRunOffset(
-                billingOffsetInDays * DateConverter.MILLISECONDS_PER_DAY);
+        setBillingRunOffset(billingOffsetInDays
+                * DateConverter.MILLISECONDS_PER_DAY);
 
         runTX(new Callable<Void>() {
             @Override
@@ -641,7 +638,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected Document loadBillingResult(final long subscriptionKey,
             final long billingPeriodStart, final long billingPeriodEnd)
-                    throws Exception {
+            throws Exception {
         return runTX(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
@@ -663,7 +660,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected SupplierShareResultEvaluator newSupplierShareResultEvaluator(
             long supplierKey, final String periodStart, final String periodEnd)
-                    throws Exception {
+            throws Exception {
         Document sharesResult = loadSharesResult(supplierKey, periodStart,
                 periodEnd, BillingSharesResultType.SUPPLIER);
         return new SupplierShareResultEvaluator(sharesResult);
@@ -671,7 +668,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected MarketplaceShareResultEvaluator newMarketplaceShareResultEvaluator(
             long mpOwnerKey, final String periodStart, final String periodEnd)
-                    throws Exception {
+            throws Exception {
         Document sharesResult = loadSharesResult(mpOwnerKey, periodStart,
                 periodEnd, BillingSharesResultType.MARKETPLACE_OWNER);
         return sharesResult == null ? null
@@ -680,7 +677,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected BrokerShareResultEvaluator newBrokerShareResultEvaluator(
             long brokerKey, final String periodStart, final String periodEnd)
-                    throws Exception {
+            throws Exception {
         Document sharesResult = loadSharesResult(brokerKey, periodStart,
                 periodEnd, BillingSharesResultType.BROKER);
         return new BrokerShareResultEvaluator(sharesResult);
@@ -688,7 +685,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected ResellerShareResultEvaluator newResellerShareResultEvaluator(
             long resellerKey, final String periodStart, final String periodEnd)
-                    throws Exception {
+            throws Exception {
         Document sharesResult = loadSharesResult(resellerKey, periodStart,
                 periodEnd, BillingSharesResultType.RESELLER);
         return new ResellerShareResultEvaluator(sharesResult);
@@ -710,8 +707,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         return runTX(new Callable<Document>() {
             @Override
             public Document call() throws Exception {
-                Query query = dataService.createNamedQuery(
-                        "BillingSharesResult.getSharesResult");
+                Query query = dataService
+                        .createNamedQuery("BillingSharesResult.getSharesResult");
                 query.setParameter("fromDate", Long.valueOf(periodStart));
                 query.setParameter("toDate", Long.valueOf(periodEnd));
                 query.setParameter("resultType", resultType);
@@ -731,8 +728,8 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                     }
 
                     System.out.println(result.getResultXML());
-                    Document doc = XMLConverter
-                            .convertToDocument(result.getResultXML(), true);
+                    Document doc = XMLConverter.convertToDocument(
+                            result.getResultXML(), true);
                     return doc;
                 } catch (NoResultException e) {
                     return null;
@@ -743,10 +740,16 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
 
     protected List<BillingResult> generateBillingForAnyPeriod(
             String periodStart, String periodEnd, long customerKey)
-                    throws Exception {
+            throws Exception {
         return billingService.generateBillingForAnyPeriod(
                 DateTimeHandling.calculateMillis(periodStart),
                 DateTimeHandling.calculateMillis(periodEnd), customerKey);
+    }
+
+    protected BillingRun generatePaymentPreviewReport(long organizationKey,
+            String date) {
+        setDateFactoryInstance(date);
+        return billingService.generatePaymentPreviewReport(organizationKey);
     }
 
     /**

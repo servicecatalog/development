@@ -156,9 +156,8 @@
 
       <!-- (1) Got on the details page of the first service, click on tag t2 and verify all services -->
       <mpl_goto.marketplace mid="${MID1}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError/>
+      <clickLink htmlId="showDetails0" />
       <common.ignorePageScriptError/>
       <clickLink xpath="//div[@id='serviceDetailTags']//a[.='t2']" />
       <mpl_paging.changeSortOrder sortOrder="${catalog.sortorder.NAME_ASCENDING}" />
@@ -183,9 +182,7 @@
       <verifyElementText description="Verify number of services" htmlId="listInfoUp" text="1 - 5 of 5 service(s)" />
 
       <!-- (2) Click button browse all related. Number of services should be 9 -->
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <clickLink htmlId="showDetails0" />
 
       <clickElement htmlId="buttonBrowseAllRelated" />
       <verifyElementText description="Verify number of services" htmlId="listInfoUp" text="1 - 9 of 9 service(s)" />
@@ -433,9 +430,8 @@
 
   <macrodef name="mpl_tags.checkServicesOfTagT5">
     <sequential>
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError />	
+      <clickLink htmlId="showDetails0" />
       <common.ignorePageScriptError />
       <clickLink xpath="//div[@id='serviceDetailTags']//a[.='t5']" />
       <common.reSetPageScriptError />

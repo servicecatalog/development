@@ -48,7 +48,7 @@
       				(3) Check Uda default values, change them;
       				(4) Agree the terms to complete the subscription.">
       <!-- (1) Goto Marketplace and Get a prime Service -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton1" svcName="Mega Office Trial" isFree="true" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails1" svcName="Mega Office Trial" isFree="true" />
       <!-- Check that login is required first -->
       <mpl_verify.loginDialog />
       <!-- Now login to marketplace and subscribe user A to service -->
@@ -56,7 +56,7 @@
 
       <!-- (2)	Click 'Get it now' to start the subsctiption process -->
       <!-- Click on the details button of the non-free service Mega Office Professional -->
-      <chooseService marketplaceId="${marketplaceId}" buttonId="serviceButton1" svcName="Mega Office Trial" isFree="true" admin="true" />
+      <chooseService marketplaceId="${marketplaceId}" buttonId="showDetails1" svcName="Mega Office Trial" isFree="true" admin="true" />
 
       <!-- Check that you are directed to 1st page of subscription process -->
       <mpl_verify.breadCrumb actualPage="Mega Office Trial" />
@@ -222,7 +222,6 @@
       <mpl_goto.marketplace mid="@{marketplaceId}" />
       <common.ignorePageScriptError />
       <clickLink htmlId="@{buttonId}" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
       <mpl_verify.service_details svcName="@{svcName}" isFree="@{isFree}" admin="@{admin}" />
       <clickLink htmlId="getItForLoggedUser" />
     </sequential>

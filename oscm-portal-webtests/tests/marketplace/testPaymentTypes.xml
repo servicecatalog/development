@@ -6,10 +6,8 @@
   <!-- click and subscribe first available service in MPL -->
   <macrodef name="selectServiceForSubscription">
     <sequential>
-      <verifyXPath xpath="//*[@id='serviceButton0']" description="verify that 1 service is available" />
-      <clickLink htmlId="serviceButton0" description="click on 1st services" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <verifyXPath xpath="//*[@id='showDetails0']" description="verify that 1 service is available" />
+      <clickLink htmlId="showDetails0" description="click on 1st services" />
       <clickLink htmlId="getItForLoggedUser" description="click on subscribe services" />
       <clickLink htmlId="configurationForm:nextLink" />
     </sequential>

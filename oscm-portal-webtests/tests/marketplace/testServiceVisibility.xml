@@ -59,17 +59,16 @@
 
       <mpl_goto.marketplace mid="${mId}" />
       <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
 
       <mpl_visibility.checkErrorHandlingForSuspension />
       <mpl_visibility.suspendService />
       <clickElement htmlId="buttonBrowseAllRelated" />
       <clickElement htmlId="filterSelectionForm:showFilteredList" />
       <verifyElementText description="Verify service MS S1" htmlId="service2Name" text="MS S1" />
-      <clickLink htmlId="serviceButton2" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <common.ignorePageScriptError />	
+      <clickLink htmlId="showDetails2" />
       <mpl_visibility.resumeService />
     </webtest>
 
@@ -80,9 +79,8 @@
 
       <mpl_goto.marketplace mid="${mId}" />
       <verifyElementText description="Verify service MS S1" htmlId="service0Name" text="MS S1" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
 
       <mpl_visibility.suspendService />
 
@@ -173,9 +171,8 @@
     <webtest name="testMPL_serviceVisibility_checkMarketplaceUI">
 
       <mpl_goto.marketplace mid="${mId}" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
-
+      <common.ignorePageScriptError />
+      <clickLink htmlId="showDetails0" />
 
       <verifyXPath xpath="//*[@id='serviceName0'][.='MS S2']" />
       <verifyXPath xpath="//*[@id='supplier0'][.='${priceModel.text.free}']" />
@@ -200,8 +197,7 @@
       <mpl_goto.marketplace mid="${mId}" />
       <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
       <verifyElementText description="Verify service MS S1 EX" htmlId="service0Name" text="MS S1 EX" />
-      <clickLink htmlId="serviceButton0" />
-      <clickElement htmlId="showDetailsForm:showDetails" />
+      <clickLink htmlId="showDetails0" />
 
       <not>
         <verifyElementText description="'Free of charge' must not be shown" type="h1" text="${priceModel.text.free}" />
