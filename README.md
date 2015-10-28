@@ -16,7 +16,7 @@ Please follow the guide from top to bottom, this is the easiest way to avoid err
 
 #### Prerequisites
 * Installed [Java 7u3](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u3-oth-JPR) or higher.
-* [PostgreSQL 9.1.6](http://olex.openlogic.com/packages/postgresql/9.1.6) database installer.
+* [PostgreSQL 9.3](http://www.enterprisedb.com/products-services-training/pgdownload) database installer.
 * [GlassFish 3.1.2.2](http://glassfish.java.net/downloads/3.1.2.2-final.html) server installer.
 * [Eclipse ECJ 4.2.1](http://mvnrepository.com/artifact/org.eclipse.jdt.core.compiler/ecj/4.2.1) library.
 * [Apache Ivy 2.4.0](http://www.apache.org/dist/ant/ivy/2.4.0/) library.
