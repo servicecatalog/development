@@ -1,4 +1,5 @@
                        Open Service Catalog Manager
+                         Open Service Catalog Manager
   Software Grant and Corporate Contributor License Agreement ("Agreement")
 
 
@@ -17,7 +18,7 @@
    copyright and patent licenses thereto.
 
    If you have not already done so, please complete and sign, then scan and
-   email a pdf file of this Agreement to secretary@ml.css.fujitsu.com.
+   email a pdf file of this Agreement to secretary-oscm@ml.css.fujitsu.com.
    Please read this document carefully before signing and keep a copy for
    your records.
 
@@ -151,4 +152,3 @@ Schedule B
 
    [Identification of optional concurrent software grant.  Would be
     left blank or omitted if there is no concurrent software grant.]
-
