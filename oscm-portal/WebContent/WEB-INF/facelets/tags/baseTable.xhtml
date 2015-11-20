@@ -21,7 +21,7 @@
       <c:set var="style" value="max-height: #{height}; overflow-y:auto;" />
     </c:if>
     <c:if test="#{empty width}">
-      <c:set var="width" value="100%" />
+      <c:set var="style" value="width:100%" />
     </c:if>
     <c:if test="#{empty rows}">
       <c:set var="rows" value="0" />
@@ -69,6 +69,7 @@
         columnClasses="#{columnClasses}"
         id="#{tableId}"
         value="#{value}" 
+        style="#{style}"
         var="rowItem"
         rowKeyVar="rowKey"
         selectionMode="none"

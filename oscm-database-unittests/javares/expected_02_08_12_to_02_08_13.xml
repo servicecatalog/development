@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+	<TriggerProcessParameter tkey="47004" version="0" serializedvalue="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;java version=&quot;1.7.0_45&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;
+ &lt;object class=&quot;org.oscm.internal.vo.VOUserDetails&quot;&gt;
+  &lt;void property=&quot;EMail&quot;&gt;
+   &lt;string&gt;bes.G02PLXNNOW29067@dev.est.fujitsu.com&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;locale&quot;&gt;
+   &lt;string&gt;en&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;organizationId&quot;&gt;
+   &lt;string&gt;9f9e2399&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;userId&quot;&gt;
+   &lt;string&gt;150d2872f29&lt;/string&gt;
+  &lt;/void&gt;
+ &lt;/object&gt;
+ &lt;object class=&quot;org.oscm.internal.vo.VOUserDetails&quot;&gt;
+  &lt;void property=&quot;EMail&quot;&gt;
+   &lt;string&gt;bes.G02PLXNNOW29067@dev.est.fujitsu.com&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;locale&quot;&gt;
+   &lt;string&gt;en&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;organizationId&quot;&gt;
+   &lt;string&gt;9f9e2399&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;userId&quot;&gt;
+   &lt;string&gt;150d2872f29&lt;/string&gt;
+  &lt;/void&gt;
+ &lt;/object&gt;
+&lt;/java&gt;" name="USER" triggerprocess_tkey="96003" serialized="true"/>
+</dataset>

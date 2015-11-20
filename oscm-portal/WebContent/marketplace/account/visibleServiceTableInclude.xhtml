@@ -14,13 +14,13 @@
   <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
   <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
 
-  <adm:outputLabel value="#{msg['group.authorizedService']}" />
+  
   <h:panelGroup>
     <a4j:outputPanel id="servicesPanel" layout="block" styleClass="tablePanel">
       <a4j:region>
-        <adm:dataTable tableId="servicesTable" value="#{manageGroupModel.serviceRows}" columnsWidth="11%,44%,45%"
+        <adm:dataTable tableId="servicesTable" value="#{manageGroupModel.serviceRows}" columnsWidth="4%,45%,45%"
           headerClass="rowTitle serviceTableTitle" rowClasses="rowOdd,rowEven" columnClasses="wrapColumns" id="servicesTable" rows="#{pageCount}"
-          render="#{pagerId}, #{pagerId}Panel, scriptPanel" style="width: 100%;">
+          render="#{pagerId}, #{pagerId}Panel, scriptPanel">
 
           <f:facet name="header">
             <a4j:outputPanel styleClass="visibleServiceTablePager">

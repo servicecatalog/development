@@ -66,89 +66,9 @@
               <f:validator validatorId="SupportedLanguageValidator" />
             </mp:labelAndSelect>
 
-            <adm:outputLabel value="#{msg['user.role']}" />
-            <rich:dataTable rowClasses="rowEven" value="#{createUserCtrl.model.roles}" var="userRole"
-              id="userRolesTable" style="width:97%;">
-              <rich:column style="width:10%;">
-                <h:selectBooleanCheckbox id="rolesCheckbox" value="#{userRole.selected}" onchange="setDirty(true)"
-                  style="width:20px;" />
-              </rich:column>
-              <rich:column>
-                <h:outputText value="#{userRole.name}" />
-              </rich:column>
-            </rich:dataTable>
             <mp:message for="asAdmin" />
           </adm:panelGrid>
 
-          <ui:fragment rendered="#{not empty createUserModel.userGroups}">
-            <mp:outputStep value="#{msg['user.groups']}" />
-            <a4j:outputPanel layout="block" styleClass="tablePanel">
-              <a4j:region>
-                <a4j:queue requestDelay="500" ignoreDupResponses="true" />
-                <rich:dataTable value="#{createUserModel.userGroups}" id="userGroupsTable" var="rowItem" width="100%"
-                  headerClass="rowTitle groupTableTitle" rowClasses="rowOdd,rowEven" columnsWidth="4%,50%,46%"
-                  style="width: 100%" sortMode="single" >
-                  <rich:column sortBy="#{rowItem.selected}" sortIcon="#{sortIcon}"
-                    sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}"
-                    styleClass="tableColumnCheckBox">
-                    <f:facet name="header">
-                    </f:facet>
-                    <h:selectBooleanCheckbox id="groupsCheckbox" value="#{rowItem.selected}" onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'unitRole');"
-                                             disabled="#{rowItem.default}" />
-                  </rich:column>
-
-                  <rich:column sortBy="#{rowItem.name}" sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
-                    sortIconDescending="#{sortIconDescending}" filterevent="keyup" filterBy="#{rowItem.name}">
-                    <f:facet name="header">
-                      <h:outputText value="#{msg['group.groupName']}" />
-                    </f:facet>
-                    <a4j:outputPanel layout="block" styleClass="stringInMultiLine">
-                      <h:outputText value="#{rowItem.name}" />
-                    </a4j:outputPanel>
-                  </rich:column>
-
-                  <rich:column>
-                    <f:facet name="header">
-                      <h:outputText value="#{msg['marketplace.account.adduser.units.role']}" />
-                    </f:facet>
-                    <h:selectOneMenu id="unitRole" onchange="setDirty(true)" styleClass="roles-list"
-                      value="#{rowItem.selectedRole}">
-                      <f:selectItems value="#{rowItem.roles}" />
-                    </h:selectOneMenu>
-                  </rich:column>
-                </rich:dataTable>
-              </a4j:region>
-            </a4j:outputPanel>
-          </ui:fragment>
-
-          <ui:fragment rendered="#{createUserCtrl.subTableRendered}">
-            <mp:outputStep id="assignUserTitle" value="#{msg['marketplace.account.adduser.assignUser.title']}" />
-            <rich:dataTable value="#{createUserModel.subscriptions}" var="orgSubscription"
-              id="orgSubscriptionsTable" selectionMode="none" enableContextMenu="false" noDataLabel=" "
-              rowKeyVar="rowKey" headerClass="rowTitle" rowClasses="rowOdd,rowEven" columnClasses="wrapColumns"
-              style="width:100%;" columnsWidth="4%,50%,46%">
-              <rich:column styleClass="tableColumnCheckBox">
-                <h:selectBooleanCheckbox id="subscriptionCheckbox" value="#{orgSubscription.selected}"
-                                         onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'role');" />
-              </rich:column>
-              <rich:column>
-                <f:facet name="header">
-                  <h:outputText value="#{msg['marketplace.account.adduser.subscription.name']}" />
-                </f:facet>
-                <h:outputText value="#{orgSubscription.id}" />
-              </rich:column>
-              <rich:column rendered="#{createUserCtrl.roleColumnRendered}">
-                <f:facet name="header">
-                  <h:outputText value="#{msg['marketplace.account.adduser.subscription.role']}" />
-                </f:facet>
-                <h:selectOneMenu id="role" onchange="setDirty(true)" styleClass="roles-list"
-                  value="#{orgSubscription.selectedRole}" rendered="#{orgSubscription.rolesRendered}">
-                  <f:selectItems value="#{orgSubscription.roles}" />
-                </h:selectOneMenu>
-              </rich:column>
-            </rich:dataTable>
-
-          </ui:fragment>
           <mp:pixelline marginTop="10" />
 
           <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">

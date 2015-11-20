@@ -14,7 +14,7 @@
                  filterExpression="#{property}" filterType="custom" sortType="custom" styleClass="#{styleClass}">
         <f:facet name="header">
             <h:outputText value="#{columnHeaderName}" />
-            <h:commandLink action="#{bean.toggleSort}" styleClass="sort-command-link">
+            <h:commandLink action="#{bean.toggleSort}" styleClass="sort-command-link" onclick="#{sortOnClick}">
                 <a4j:ajax render="#{tableName} :#{tableName}Scripts" />
                 <f:setPropertyActionListener target="#{bean.sortProperty}" value="#{property}" />
             </h:commandLink>
@@ -26,8 +26,8 @@
             </a4j:outputPanel>
 
             <adm:filterInput inputId="#{property}" inputValue="#{bean.filterValues[property]}" 
-              queueName="#{queueName}" render="#{tableName}@body #{scroller} :pagerPanel" 
-              onkeyup="AdmUtils.setFirstPage(#{rich:element(scroller)});" />
+              queueName="#{queueName}" render="#{tableName}@body #{scroller} :pagerPanel :#{tableName}Scripts" 
+              onkeyup="#{filterOnKeyUp}" />  
 
         </f:facet>
         <a4j:outputPanel layout="block" styleClass="tablePanel table_padding stringInMultiLine preserveWhitespaces">

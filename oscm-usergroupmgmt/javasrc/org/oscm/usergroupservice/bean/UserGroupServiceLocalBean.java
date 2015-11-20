@@ -9,8 +9,10 @@
 package org.oscm.usergroupservice.bean;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,6 +42,7 @@ import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -48,6 +51,8 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.pagination.Pagination;
@@ -57,6 +62,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogOperation;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.validation.ArgumentValidator;
 
 /**
@@ -77,11 +83,18 @@ public class UserGroupServiceLocalBean {
     @EJB(beanInterface = UserGroupDao.class)
     private UserGroupDao userGroupDao;
 
+    @EJB(beanInterface = UserGroupUsersDao.class)
+    private UserGroupUsersDao userGroupUsersDao;
+
     @EJB(beanInterface = UserGroupAuditLogCollector.class)
     UserGroupAuditLogCollector audit;
     
     @EJB(beanInterface = SubscriptionListServiceLocal.class)
     SubscriptionListServiceLocal slsl;
+
+    @EJB(beanInterface = IdentityService.class)
+    private
+    IdentityService is;
 
     @Resource
     private SessionContext sessionCtx;
@@ -101,8 +114,12 @@ public class UserGroupServiceLocalBean {
         validateNotDefaultUserGroup(group);
         group.setOrganization(dm.getCurrentUser().getOrganization());
 
-        validateActiveProduct(visibleProducts);
-        validateActiveProduct(invisibleProducts);
+        if (visibleProducts != null) {
+            validateActiveProduct(visibleProducts);
+        }
+        if (invisibleProducts != null) {
+            validateActiveProduct(invisibleProducts);
+        }
 
         try {
             dm.persist(group);
@@ -141,7 +158,7 @@ public class UserGroupServiceLocalBean {
         }
         return group;
     }
-    
+
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public void deleteUserGroup(String userGroupName)
             throws ObjectNotFoundException, OperationNotPermittedException,
@@ -155,7 +172,7 @@ public class UserGroupServiceLocalBean {
 
             validateNotDefaultUserGroup(userGroup);
             validateNotUnitWithSubscriptions(userGroup);
-
+            untieSubscriptionsFromUserGroup(userGroup);
             dm.remove(userGroup);
 
             List<PlatformUser> users = userGroup.getUsers();
@@ -180,7 +197,7 @@ public class UserGroupServiceLocalBean {
         ArgumentValidator.notNull("group", groupToBeDeleted);
         validateNotDefaultUserGroup(groupToBeDeleted);
         validateNotUnitWithSubscriptions(groupToBeDeleted);
-    
+        untieSubscriptionsFromUserGroup(groupToBeDeleted);
         try {
             UserGroup userGroup = dm.getReference(UserGroup.class,
                     groupToBeDeleted.getKey());
@@ -203,17 +220,33 @@ public class UserGroupServiceLocalBean {
         return false;
     }
 
+    private void untieSubscriptionsFromUserGroup(UserGroup userGroup) {
+        List<Subscription> subscriptions = userGroup.getSubscriptions();
+        if (subscriptions == null || subscriptions.isEmpty()) {
+            return;
+        }
+        for (Iterator<Subscription> iterator = subscriptions.iterator(); iterator
+                .hasNext();) {
+            Subscription subscription = iterator.next();
+            subscription.setUserGroup(null);
+            dm.merge(subscription);
+        }
+    }
+
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public UserGroup updateUserGroup(UserGroup newGroup,
             List<Product> visibleProducts, List<Product> invisibleProducts,
-            String marketplaceId, List<PlatformUser> usersToAssign,
-            List<PlatformUser> usersToDeassign)
+            String marketplaceId, Map<PlatformUser, String> usersToAssign,
+                        List<PlatformUser> usersToUnassign,
+                        Map<PlatformUser, String> usersToRoleUpdate)
             throws OperationNotPermittedException, ObjectNotFoundException,
-            NonUniqueBusinessKeyException, MailOperationException {
+            NonUniqueBusinessKeyException, MailOperationException, UserRoleAssignmentException  {
         ArgumentValidator.notNull("group", newGroup);
         ArgumentValidator.notNull("marketplaceId", marketplaceId);
         ArgumentValidator.notNull("usersToAssign", usersToAssign);
-        ArgumentValidator.notNull("usersToDeassign", usersToDeassign);
+        ArgumentValidator.notNull("usersToDeassign", usersToUnassign);
+        ArgumentValidator.notNull("usersToUnassign", usersToUnassign);
+        ArgumentValidator.notNull("usersToRoleUpdate", usersToRoleUpdate);
         UserGroup userGroup = dm.getReference(UserGroup.class,
                 newGroup.getKey());
 
@@ -227,8 +260,8 @@ public class UserGroupServiceLocalBean {
         try {
             newGroup.setOrganization(dm.getCurrentUser().getOrganization());
             dm.validateBusinessKeyUniqueness(newGroup);
-            if (!usersToDeassign.isEmpty()) {
-                revokeUsersFromGroupInt(userGroup, usersToDeassign);
+            if (!usersToUnassign.isEmpty()) {
+                revokeUsersFromGroupInt(userGroup, usersToUnassign);
             }
             List<PlatformUser> users = userGroup.getUsers();
             userGroup.setName(newGroup.getName());
@@ -238,6 +271,9 @@ public class UserGroupServiceLocalBean {
                     invisibleProducts, marketplaceId);
             if (!usersToAssign.isEmpty()) {
                 assignUsersToGroupInt(userGroup, usersToAssign);
+            }
+            if (!usersToRoleUpdate.isEmpty()) {
+                updateRolesInUserGroup(usersToRoleUpdate, userGroup);
             }
             dm.flush();
 
@@ -255,6 +291,67 @@ public class UserGroupServiceLocalBean {
             throw e;
         }
         return userGroup;
+    }
+
+    private void assignUsersToGroupInt(UserGroup group,
+            Map<PlatformUser, String> users) throws MailOperationException,
+            NonUniqueBusinessKeyException, ObjectNotFoundException,
+            OperationNotPermittedException, UserRoleAssignmentException {
+        validateUserGroupOfOrganization(group);
+        List<PlatformUser> platformUsers = new ArrayList<PlatformUser>();
+        for (PlatformUser user : users.keySet()) {
+            PlatformUser pu = loadPlatformUser(user);
+            UserGroupToUser userGroupToUser = new UserGroupToUser();
+            userGroupToUser.setUserGroup(group);
+            userGroupToUser.setPlatformuser(pu);
+            dm.persist(userGroupToUser);
+            platformUsers.add(user);
+            List<UnitRoleType> roles = Arrays.asList(UnitRoleType.valueOf(users
+                    .get(user)));
+            grantUserRoles(user, roles, group);
+            handleGlobalUnitAdministratorRole(user);
+        }
+        dm.flush();
+        dm.refresh(group);
+
+        if (!group.isDefault()) {
+            sendMailToUser(platformUsers, EmailType.GROUP_USER_ASSIGNED,
+                    new Object[] { group.getName() });
+        }
+        if (!users.isEmpty()) {
+            audit.assignUsersToGroup(dm, group, platformUsers);
+        }
+    }
+
+    private void updateRolesInUserGroup(
+            Map<PlatformUser, String> usersToRoleUpdate, UserGroup userGroup)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+        List<UnitRoleType> allAvailableUnitRoleTypes = new ArrayList<UnitRoleType>(
+                Arrays.asList(UnitRoleType.values()));
+        for (PlatformUser user : usersToRoleUpdate.keySet()) {
+            revokeUserRoles(user, allAvailableUnitRoleTypes, userGroup);
+            String role = usersToRoleUpdate.get(user);
+            grantUserRoles(user, Arrays.asList(UnitRoleType.valueOf(role)),
+                    userGroup);
+            handleGlobalUnitAdministratorRole(user);
+        }
+    }
+
+    private void handleGlobalUnitAdministratorRole(PlatformUser user)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+        Map<UserGroup, UnitRoleType> allUserAssignments = getUserGroupsForUserWithRoles(user
+                .getUserId());
+        VOUser voUser = new VOUser();
+        voUser.setUserId(user.getUserId());
+        voUser.setKey(user.getKey());
+        if (allUserAssignments.values().contains(UnitRoleType.ADMINISTRATOR)) {
+            getIs().grantUnitRole(voUser, UserRoleType.UNIT_ADMINISTRATOR);
+        } else {
+            getIs().revokeUnitRole(voUser, UserRoleType.UNIT_ADMINISTRATOR);
+            removeSubscriptionOwner(user);
+        }
     }
 
     public UserGroup getUserGroupByName(String name)
@@ -769,7 +866,8 @@ public class UserGroupServiceLocalBean {
 
     void validateNotUnitWithSubscriptions(UserGroup unit)
             throws DeletingUnitWithSubscriptionsNotPermittedException {
-        if (userGroupDao.isSubscriptionAssignedToUnit(unit.getKey())) {
+        if (userGroupDao.isNotTerminatedSubscriptionAssignedToUnit(unit
+                .getKey())) {
             throw new DeletingUnitWithSubscriptionsNotPermittedException(
                     "You cannot delete the unit that subscriptions are assigned to.",
                     new String[] { unit.getName() });
@@ -1013,5 +1111,23 @@ public class UserGroupServiceLocalBean {
     
     public UnitUserRole getUnitRoleByName(String roleName) {
         return userGroupDao.getUnitRoleByName(roleName);
+    }
+
+    public List<PlatformUser> getUsersForGroup(Pagination pagination,
+            String selectedGroupId) {
+        return userGroupUsersDao.executeQueryGroupUsers(pagination, selectedGroupId);
+    }
+
+    public Integer getCountUsersForGroup(Pagination pagination,
+            String selectedGroupId) {
+        return userGroupUsersDao.executeQueryCountGroupUsers(pagination, selectedGroupId).intValue();
+    }
+
+    public IdentityService getIs() {
+        return is;
+    }
+
+    public void setIs(IdentityService is) {
+        this.is = is;
     }
 }

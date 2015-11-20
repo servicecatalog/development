@@ -437,23 +437,23 @@
       <!-- Assign subscriptions to user a and verify -->
       <mpl_user.display userId="${usernameA}" />
       <storeXPath xpath="//*[@id='editUserForm:userId']/@value" property="userIdA" />
-      <setCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
-      <setCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="true" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="true" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
       <clickLink htmlId="editUserForm:saveButtonLink" />
       <common.handleMessageParameters property="infoMsg" value="${info.user.saved}" att0="#{userIdA}" />
       <common.verifySuccess label="#{infoMsg}" />
 
       <mpl_user.display userId="${usernameA}" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="true" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
       <clickLink htmlId="editUserForm:cancelButton" />
       <verifyText description="${marketplace.account.leavePage.title}" text="${marketplace.account.leavePage.title}" />
       <clickLink label="${button.yes}" />
 
       <!-- Assign subscriptions to user b and verify -->
       <mpl_user.display userId="${usernameB}" />
-      <setCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
-      <setCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="true" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="true" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
 
       <clickLink htmlId="editUserForm:saveButtonLink" />
 
@@ -464,8 +464,8 @@
       <verifyText description="${marketplace.account.leavePage.title}" text="${marketplace.account.leavePage.title}" />
       <clickLink label="${button.yes}" />
       <mpl_user.display userId="${usernameB}" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="false" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="false" />
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="false" />
 
       <login.logout />
 

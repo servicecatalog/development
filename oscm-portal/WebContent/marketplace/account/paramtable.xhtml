@@ -18,6 +18,10 @@
   <script type="text/javascript">
   	var selectedRadioOptions = new Object();
   </script>
+
+  <c:if test="#{empty isOneTimeMarked}">
+    <c:set var="isOneTimeMarked" value="true" />
+  </c:if>
     
     
   <rich:dataTable id="parameterConfigTable" value="#{inputList}" var="row" width="100%" rowKeyVar="rowKey"
@@ -30,7 +34,7 @@
       </f:facet>
       <adm:paramLabel id="description" value="#{row.parameterDefinition.description}"
         rendered="#{not (row.option) and row.emptyOrFirstSteppedPrice}" required="#{row.parameterDefinition.mandatory and ((not subscriptionExisting) or (not row.oneTimeParameter and subscriptionExisting))}"
-        renderFootNote="#{row.oneTimeParameter and not subscriptionExisting}" />
+        renderFootNote="#{row.oneTimeParameter and not subscriptionExisting and isOneTimeMarked}" />
     </rich:column>
 
     <!--  configurable parameter -->
@@ -210,7 +214,7 @@
     </c:if>
   </c:forEach>
 
-  <a4j:outputPanel layout="block" rendered="#{showFootNote}">
+  <a4j:outputPanel layout="block" rendered="#{showFootNote and isOneTimeMarked}">
     <h:outputText value="#{msg['service.parameter.footnoteForCustomer']}" />
   </a4j:outputPanel>
 </ui:composition>

@@ -9,7 +9,12 @@
 package org.oscm.pagination;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
 
 /**
  * Common Pagination class with filtering and sorting options.
@@ -22,6 +27,7 @@ public class Pagination implements Serializable {
     private Sorting sorting;
     private Set<Filter> filterSet;
     private String dateFormat;
+    private Map<UnitRoleType, String> localizedRolesMap;
     
     public Pagination(int offset, int limit) {
         this();
@@ -30,6 +36,7 @@ public class Pagination implements Serializable {
     }
     
     public Pagination() {
+        localizedRolesMap = new HashMap<>();
     }
     
     public int getOffset() {
@@ -70,5 +77,9 @@ public class Pagination implements Serializable {
     
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
+    }
+
+    public Map<UnitRoleType, String> getLocalizedRolesMap() {
+        return localizedRolesMap;
     }
 }

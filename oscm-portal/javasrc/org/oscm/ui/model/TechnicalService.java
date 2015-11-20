@@ -140,7 +140,11 @@ public class TechnicalService {
 
     public void setTechnicalServiceDescription(
             String technicalServiceDescription) {
-        vo.setTechnicalServiceDescription(technicalServiceDescription);
+        if (technicalServiceDescription == null) {
+            vo.setTechnicalServiceDescription("");
+        } else {
+            vo.setTechnicalServiceDescription(technicalServiceDescription);
+        }
     }
 
     public void setTechnicalServiceId(String name) {
@@ -189,7 +193,11 @@ public class TechnicalService {
     }
 
     public void setLicense(String license) {
-        vo.setLicense(license);
+        if (license == null) {
+            vo.setLicense("");
+        } else {
+            vo.setLicense(license);
+        }
     }
 
     public void setParameterDefinitions(List<VOParameterDefinition> parameters) {

@@ -9,14 +9,17 @@
 package org.oscm.ui.dialog.mp.userGroups;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import javax.faces.model.SelectItem;
 
-import org.oscm.ui.beans.BaseModel;
-import org.oscm.ui.model.User;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
+import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.ui.beans.BaseModel;
 
 /**
  * @author mao
@@ -28,6 +31,8 @@ public class ManageGroupModel extends BaseModel {
 
     private static final long serialVersionUID = 7803451754585858737L;
 
+    static final String ATTRIBUTE_GROUP_ID = "groupId";
+
     private boolean dirty;
 
     private String selectedGroupId = "";
@@ -36,41 +41,27 @@ public class ManageGroupModel extends BaseModel {
 
     private List<ServiceRow> serviceRows = new ArrayList<ServiceRow>();
 
-    private List<User> assignedUsers = new ArrayList<User>();
-
-    private List<User> unAssignedUsers = new ArrayList<User>();
-
     private String modalTitle = "";
 
     private String deassignMessage = "";
-
-    private List<User> usersToAssign = new ArrayList<User>();
 
     private boolean isUserGroupNotFoundException = false;
 
     private boolean allServicesSelected = false;
 
-    private List<User> usersToDeassign = new ArrayList<User>();
-
-    private String deassignUserId = "";
-
     private List<POUserGroup> groups = new ArrayList<>();
 
-    public List<User> getUsersToDeassign() {
-        return usersToDeassign;
-    }
+    private List<POUserInUnit> usersToAssign = new ArrayList<POUserInUnit>();
 
-    public void setUsersToDeassign(List<User> usersToDeassign) {
-        this.usersToDeassign = usersToDeassign;
-    }
+    private List<POUserInUnit> usersToUnassign = new ArrayList<POUserInUnit>();
+    
+    private List<POUserInUnit> usersToUpdate = new ArrayList<POUserInUnit>();
 
-    public String getDeassignUserId() {
-        return deassignUserId;
-    }
+    private List<POUserInUnit> currentResultUsers = new ArrayList<POUserInUnit>();
 
-    public void setDeassignUserId(String deassignUserId) {
-        this.deassignUserId = deassignUserId;
-    }
+    private Map<String, Boolean> selectedUsersIds = new HashMap<String, Boolean>();
+
+    private List<SelectItem> roles = new ArrayList<SelectItem>();
 
     public List<ServiceRow> getServiceRows() {
         return serviceRows;
@@ -96,22 +87,6 @@ public class ManageGroupModel extends BaseModel {
         this.selectedGroupId = selectedGroupId;
     }
 
-    public List<User> getAssignedUsers() {
-        return assignedUsers;
-    }
-
-    public List<User> getUnAssignedUsers() {
-        return unAssignedUsers;
-    }
-
-    public void setAssignedUsers(List<User> assignedUsers) {
-        this.assignedUsers = assignedUsers;
-    }
-
-    public void setUnAssignedUsers(List<User> unAssignedUsers) {
-        this.unAssignedUsers = unAssignedUsers;
-    }
-
     public String getModalTitle() {
         return modalTitle;
     }
@@ -126,14 +101,6 @@ public class ManageGroupModel extends BaseModel {
 
     public void setDeassignMessage(String deassignMessage) {
         this.deassignMessage = deassignMessage;
-    }
-
-    public List<User> getUsersToAssign() {
-        return usersToAssign;
-    }
-
-    public void setUsersToAssign(List<User> usersToAssign) {
-        this.usersToAssign = usersToAssign;
     }
 
     public boolean isDirty() {
@@ -172,4 +139,53 @@ public class ManageGroupModel extends BaseModel {
     public List<POUserGroup> getGroups() {
         return groups;
     }
+
+    public List<POUserInUnit> getUsersToAssign() {
+        return usersToAssign;
+    }
+
+    public void setUsersToAssign(List<POUserInUnit> usersToAssign) {
+        this.usersToAssign = usersToAssign;
+    }
+
+    public List<POUserInUnit> getUsersToUnassign() {
+        return usersToUnassign;
+    }
+
+    public void setUsersToUnassign(List<POUserInUnit> usersToUnassign) {
+        this.usersToUnassign = usersToUnassign;
+    }
+
+    public List<POUserInUnit> getCurrentResultUsers() {
+        return currentResultUsers;
+    }
+
+    public void setCurrentResultUsers(List<POUserInUnit> currentResultUsers) {
+        this.currentResultUsers = currentResultUsers;
+    }
+
+    public Map<String, Boolean> getSelectedUsersIds() {
+        return selectedUsersIds;
+    }
+
+    public void setSelectedUsersIds(Map<String, Boolean> selectedUsersIds) {
+        this.selectedUsersIds = selectedUsersIds;
+    }
+
+    public List<SelectItem> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<SelectItem> roles) {
+        this.roles = roles;
+    }
+
+    public List<POUserInUnit> getUsersToUpdate() {
+        return usersToUpdate;
+    }
+
+    public void setUsersToUpdate(List<POUserInUnit> usersToUpdate) {
+        this.usersToUpdate = usersToUpdate;
+    }
+
 }

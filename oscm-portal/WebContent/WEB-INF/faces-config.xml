@@ -253,6 +253,10 @@
       <redirect />
       <!-- due to F5 -->
     </navigation-case>
+    <navigation-case>
+      <from-outcome>showDetails</from-outcome>
+      <to-view-id>/marketplace/account/editUser.xhtml</to-view-id>
+    </navigation-case>
   </navigation-rule>
   <navigation-rule>
     <from-view-id>/marketplace/account/profile.xhtml</from-view-id>
@@ -641,8 +645,7 @@
     <from-view-id>/marketplace/account/addGroup.xhtml</from-view-id>
     <navigation-case>
       <from-outcome>success</from-outcome>
-      <to-view-id>/marketplace/account/users.xhtml</to-view-id>
-      <redirect />
+      <to-view-id>/marketplace/account/editGroup.xhtml</to-view-id>
     </navigation-case>
     <navigation-case>
       <from-outcome>refresh</from-outcome>

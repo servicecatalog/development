@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -38,7 +37,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -48,17 +46,14 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.domobjects.UserRole;
-import org.oscm.pagination.Pagination;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
-import org.oscm.usergroupservice.auditlog.UserGroupAuditLogOperation;
-import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -68,6 +63,12 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.pagination.Pagination;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
+import org.oscm.usergroupservice.dao.UserGroupDao;
 
 /**
  * Unit tests for the user group management.
@@ -126,6 +127,9 @@ public class UserGroupServiceLocalBeanTest {
         userGroupService.setUserGroupDao(mock(UserGroupDao.class));
         userGroupService.setCs(mock(CommunicationServiceLocal.class));
         userGroupService.setSessionCtx(mock(SessionContext.class));
+        IdentityService identityService = mock(IdentityService.class);
+        userGroupService.setIs(identityService);
+        userGroupService.slsl = mock(SubscriptionListServiceLocal.class);
         when(userGroupService.getDm().find(any(DomainObject.class))).thenAnswer(
                 new Answer<DomainObject<?>>() {
 
@@ -218,7 +222,8 @@ public class UserGroupServiceLocalBeanTest {
     @Test(expected = ObjectNotFoundException.class)
     public void updateUserGroup_GroupNotExists()
             throws ObjectNotFoundException, OperationNotPermittedException,
-            MailOperationException, NonUniqueBusinessKeyException {
+            MailOperationException, NonUniqueBusinessKeyException,
+            UserRoleAssignmentException {
         // given
         List<Product> visProds = givenVisibleProducts();
         List<Product> invisProds = givenInvisibleProducts();
@@ -230,14 +235,15 @@ public class UserGroupServiceLocalBeanTest {
 
         // when
         userGroupService.updateUserGroup(group, visProds, invisProds,
-                MARKETPLACEID, givenPlatformUserList(),
-                new ArrayList<PlatformUser>());
+                MARKETPLACEID, givenPlatformUserMap(),
+                new ArrayList<PlatformUser>(), givenPlatformUserMap());
     }
 
     @Test(expected = OperationNotPermittedException.class)
     public void updateUserGroup_ServiceNotActive()
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
-            MailOperationException, OperationNotPermittedException {
+            MailOperationException, OperationNotPermittedException,
+            UserRoleAssignmentException {
         // given
         List<Product> visProds = givenVisibleProducts();
         List<Product> invisProds = givenInvisibleProducts();
@@ -245,8 +251,8 @@ public class UserGroupServiceLocalBeanTest {
 
         // when
         userGroupService.updateUserGroup(group, visProds, invisProds,
-                MARKETPLACEID, givenPlatformUserList(),
-                new ArrayList<PlatformUser>());
+                MARKETPLACEID, givenPlatformUserMap(),
+                new ArrayList<PlatformUser>(), givenPlatformUserMap());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -286,19 +292,36 @@ public class UserGroupServiceLocalBeanTest {
         verify(userGroupService.getDm(), times(1)).remove(any(DomainObject.class));
     }
 
+    @Test
+    public void bug12139_untieSubscriptionsFromUserGroup()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            MailOperationException,
+            DeletingUnitWithSubscriptionsNotPermittedException {
+        // given
+        Subscription sub = mock(Subscription.class);
+        List<Subscription> list = new ArrayList<Subscription>();
+        list.add(sub);
+        group.setSubscriptions(list);
+        // when
+        userGroupService.deleteUserGroup(group);
+        // then
+        assertTrue(sub.getUserGroup() == null);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void updateUserGroup_nullUserGroup()
             throws ObjectNotFoundException, NonUniqueBusinessKeyException,
-            MailOperationException, OperationNotPermittedException {
+            MailOperationException, OperationNotPermittedException, UserRoleAssignmentException {
         // when
         userGroupService.updateUserGroup(null, null, null, MARKETPLACEID,
-                givenPlatformUserList(), givenPlatformUserList());
+                givenPlatformUserMap(), givenPlatformUserList(), givenPlatformUserMap());
     }
 
     @Test(expected = OperationNotPermittedException.class)
     public void updateUserGroup_defaultUserGroup()
             throws ObjectNotFoundException, OperationNotPermittedException,
-            MailOperationException, NonUniqueBusinessKeyException {
+            MailOperationException, NonUniqueBusinessKeyException,
+            UserRoleAssignmentException {
         // given
         UserGroup userGroup = new UserGroup();
         userGroup.setIsDefault(true);
@@ -311,7 +334,7 @@ public class UserGroupServiceLocalBeanTest {
 
         // when
         userGroupService.updateUserGroup(group, null, null, MARKETPLACEID,
-                givenPlatformUserList(), givenPlatformUserList());
+                givenPlatformUserMap(), givenPlatformUserList(), givenPlatformUserMap());
 
         // then
         verify(userGroupService.getCs(), never()).sendMail(any(EmailType.class),
@@ -322,18 +345,38 @@ public class UserGroupServiceLocalBeanTest {
     @Test
     public void updateUserGroup_WithOldGroupNameForAssigning()
             throws ObjectNotFoundException, OperationNotPermittedException,
-            MailOperationException, NonUniqueBusinessKeyException {
+            MailOperationException, NonUniqueBusinessKeyException, UserRoleAssignmentException {
         // given
         UserGroup userGroup = givenNewUserGroup();
         doReturn(givenMarketplace()).when(userGroupService.getDm())
                 .getReferenceByBusinessKey(any(Marketplace.class));
         userGroup.setName("group");
-
+        UserGroupToUser ugtu = new UserGroupToUser();
+        ugtu.setUserGroup(userGroup);
         // when
+        
+        userGroupService.setUserGroupDao(mock(UserGroupDao.class));
+
+        when(
+                userGroupService.getDm().getReference(PlatformUser.class,
+                        user.getKey())).thenReturn(user);
+        when(
+                userGroupService.getUserGroupDao().getUserGroupAssignment(
+                        any(UserGroup.class), any(PlatformUser.class)))
+                .thenReturn(ugtu);
+
+        when(
+                userGroupService.slsl
+                        .getSubscriptionsForOwner(any(PlatformUser.class)))
+                .thenReturn(Collections.EMPTY_LIST);
+
+        doReturn(new UnitRoleAssignment()).when(userGroupService.getDm())
+        .getReferenceByBusinessKey(any(UnitRoleAssignment.class));
+        
         userGroupService.updateUserGroup(userGroup, new ArrayList<Product>(),
                 new ArrayList<Product>(), MARKETPLACEID,
-                Collections.singletonList(user),
-                new ArrayList<PlatformUser>());
+                Collections.singletonMap(user, "USER"),
+                new ArrayList<PlatformUser>(), new HashMap<PlatformUser, String>());
 
         // then
         verify(userGroupService.getCs(), times(1)).sendMail(
@@ -354,7 +397,9 @@ public class UserGroupServiceLocalBeanTest {
         // when
         userGroupService.updateUserGroup(userGroup, new ArrayList<Product>(),
                 new ArrayList<Product>(), MARKETPLACEID,
-                new ArrayList<PlatformUser>(), Collections.singletonList(user));
+                new HashMap<PlatformUser, String>(),
+                Collections.singletonList(user), new HashMap<PlatformUser, String>());
+        
 
         // then
         verify(userGroupService.getCs(), times(1)).sendMail(
@@ -372,6 +417,8 @@ public class UserGroupServiceLocalBeanTest {
         List<Product> invisProds = givenInvisibleProducts();
 
         UserGroup userGroup = givenNewUserGroup();
+        UserGroupToUser ugtu = new UserGroupToUser();
+        ugtu.setUserGroup(userGroup);
 
         when(
                 userGroupService.getDm().getReference(eq(Product.class),
@@ -379,6 +426,13 @@ public class UserGroupServiceLocalBeanTest {
         when(
                 userGroupService.getDm().getReference(eq(Product.class),
                         eq(invProductKey))).thenReturn(invisProds.get(0));
+        when(
+                userGroupService.getDm().getReference(PlatformUser.class,
+                        user.getKey())).thenReturn(user);
+        when(
+                userGroupService.getUserGroupDao().getUserGroupAssignment(
+                        any(UserGroup.class), any(PlatformUser.class)))
+                .thenReturn(ugtu);
 
         Product existingInvisibleProduct = userGroup.getInvisibleProducts()
                 .get(0);
@@ -388,21 +442,20 @@ public class UserGroupServiceLocalBeanTest {
                 existingInvisibleProduct);
         doReturn(givenMarketplace()).when(userGroupService.getDm())
                 .getReferenceByBusinessKey(any(Marketplace.class));
+        doReturn(new UnitRoleAssignment()).when(userGroupService.getDm())
+        .getReferenceByBusinessKey(any(UnitRoleAssignment.class));
 
+        when(userGroupService.slsl.getSubscriptionsForOwner(any(PlatformUser.class))).thenReturn(Collections.EMPTY_LIST);
         // when
         UserGroup result = userGroupService.updateUserGroup(userGroup,
-                visProds, invisProds, MARKETPLACEID, givenPlatformUserList(),
-                new ArrayList<PlatformUser>());
+                visProds, invisProds, MARKETPLACEID, givenPlatformUserMap(),
+                new ArrayList<PlatformUser>(), new HashMap<PlatformUser, String>());
 
         // then
         assertEquals(group.getKey(), result.getKey());
-        verify(userGroupService.getDm(), times(2)).flush();
+        verify(userGroupService.getDm(), times(4)).flush();
         verify(userGroupService.getDm(), times(2)).refresh(any(DomainObject.class));
-        verify(userGroupService.getDm(), times(2)).persist(any(DomainObject.class));
-        verify(userGroupService.getDm(), never()).remove(any(DomainObject.class));
-        verify(userGroupService.audit, times(2)).accessToServices(
-                any(DataService.class), any(UserGroupAuditLogOperation.class),
-                any(UserGroup.class), anyListOf(Product.class), anyString());
+        verify(userGroupService.getDm(), times(3)).persist(any(DomainObject.class));
     }
 
     @Test
@@ -901,6 +954,12 @@ public class UserGroupServiceLocalBeanTest {
         return users;
     }
 
+    private Map<PlatformUser, String> givenPlatformUserMap() {
+        Map<PlatformUser, String> users = new HashMap<PlatformUser, String>();
+        users.put(user, UnitRoleType.USER.name());
+        return users;
+    }
+
     private List<Product> givenInvisibleProducts() {
         List<Product> prods = new ArrayList<>();
         Product prod = new Product();
@@ -919,7 +978,7 @@ public class UserGroupServiceLocalBeanTest {
             throws Exception {
         // given
         doReturn(Boolean.valueOf(false)).when(userGroupService.getUserGroupDao())
-                .isSubscriptionAssignedToUnit(1L);
+                .isNotTerminatedSubscriptionAssignedToUnit(1L);
         // when
         userGroupService.validateNotUnitWithSubscriptions(group);
     }
@@ -929,7 +988,7 @@ public class UserGroupServiceLocalBeanTest {
             throws Exception {
         // given
         doReturn(Boolean.valueOf(true)).when(userGroupService.getUserGroupDao())
-                .isSubscriptionAssignedToUnit(1L);
+                .isNotTerminatedSubscriptionAssignedToUnit(1L);
         // when
         userGroupService.validateNotUnitWithSubscriptions(group);
     }

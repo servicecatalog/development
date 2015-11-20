@@ -8,40 +8,28 @@
 
 package org.oscm.ui.dialog.mp.createuser;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.model.SelectItem;
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.types.enumtypes.Salutation;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.usergroupmgmt.UserGroupService;
+import org.oscm.internal.usermanagement.POUserAndSubscriptions;
+import org.oscm.internal.usermanagement.UserService;
 import org.oscm.string.Strings;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.classic.manageusers.UserRole;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.profile.FieldData;
-import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.constants.HiddenUIConstants;
-import org.oscm.internal.types.enumtypes.Salutation;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.usergroupmgmt.POUserGroup;
-import org.oscm.internal.usergroupmgmt.UserGroupService;
-import org.oscm.internal.usermanagement.POServiceRole;
-import org.oscm.internal.usermanagement.POSubscription;
-import org.oscm.internal.usermanagement.POUserAndSubscriptions;
-import org.oscm.internal.usermanagement.POUserDetails;
-import org.oscm.internal.usermanagement.UserService;
 
 /**
  * @author weiser
@@ -50,9 +38,6 @@ import org.oscm.internal.usermanagement.UserService;
 @ManagedBean
 @ViewScoped
 public class CreateUserCtrl {
-
-    private static final String ROLE_NAME_TEMPLATE = "UserRoleType.%s.enum";
-    private static final String UNIT_ROLE_NAME_TEMPLATE = "UnitRoleType.%s.enum";
 
     UiDelegate ui = new UiDelegate();
 
@@ -81,85 +66,14 @@ public class CreateUserCtrl {
         m.setLocale(new FieldData<>(data.getLocale(), false, true));
         m.setUserId(new FieldData<String>(null, false, true));
         m.setSalutation(new FieldData<String>(null, false));
-        m.setRoles(initUserRoles(data));
-        m.setUserGroups(initUserGroups());
-        m.setSubscriptions(initSubscription(data));
-
-    }
-
-    List<UserGroup> initUserGroups() {
-        List<POUserGroup> poUserGroups = getUserGroupService()
-                .getGroupsForOrganizationWithoutDefault();
-        List<UserGroup> userGroups = new ArrayList<>();
-        for (POUserGroup poUserGroup : poUserGroups) {
-            UserGroup userGroup = new UserGroup();
-            userGroup.setPoUserGroup(poUserGroup);
-            userGroup.setName(poUserGroup.getGroupName());
-            userGroup.setDescription(poUserGroup.getGroupDescription());
-            userGroup.setReferenceId(poUserGroup.getGroupReferenceId());
-            List<SelectItem> roles = new ArrayList<>();
-            for (UnitRoleType unitRoleType : UnitRoleType.values()) {
-                SelectItem unitRole = new SelectItem(unitRoleType.name(),
-                        formatRoleName(UNIT_ROLE_NAME_TEMPLATE,
-                                unitRoleType.name()));
-                roles.add(unitRole);
-            }
-            userGroup.setRoles(roles);
-            userGroup.setSelectedRole(UnitRoleType.USER.name());
-            userGroups.add(userGroup);
-        }
-        return userGroups;
-    }
-
-    private String formatRoleName(String template, String roleName) {
-        return ui.getText(String.format(template, roleName));
-    }
-
-    List<UserRole> initUserRoles(POUserDetails u) {
-
-        List<UserRole> result = new ArrayList<>();
-        Set<UserRoleType> roles = u.getAvailableRoles();
-        for (UserRoleType r : roles) {
-            String name = formatRoleName(ROLE_NAME_TEMPLATE, r.name());
-            UserRole role = new UserRole(r, name, u.getAssignedRoles()
-                    .contains(r));
-            result.add(role);
-        }
-
-        return result;
-    }
-
-    List<Subscription> initSubscription(POUserAndSubscriptions data) {
-
-        List<Subscription> result = new ArrayList<>();
-        List<POSubscription> list = data.getSubscriptions();
-        for (POSubscription s : list) {
-            Subscription sub = new Subscription();
-            sub.setId(s.getId());
-            List<POServiceRole> roles = s.getRoles();
-            sub.setRolesRendered(!roles.isEmpty());
-            List<SelectItem> items = new ArrayList<>();
-            for (POServiceRole r : roles) {
-                SelectItem si = new SelectItem(String.format("%s:%s",
-                        Long.valueOf(r.getKey()), r.getId()), r.getName());
-                if(r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
-                    items.add(0, si);
-                } else {
-                    items.add(si);
-                }
-            }
-            sub.setRoles(items);
-            result.add(sub);
-        }
-
-        return result;
     }
 
     public String create() throws SaaSApplicationException {
     
         CreateUserModel m = model;
         POUserAndSubscriptions user = toPOUserAndSubscriptions(m);
-        String outcome = BaseBean.OUTCOME_SUCCESS;
+        String outcome = BaseBean.OUTCOME_SHOW_DETAILS;
+        
         try {
             Response response = getUserService().createNewUser(user,
                     ui.getMarketplaceId());
@@ -173,7 +87,6 @@ public class CreateUserCtrl {
             ui.handle(response, BaseBean.INFO_USER_CREATED, user.getUserId());
         } catch (ObjectNotFoundException ex) {
             ui.handleException(ex);
-            m.setUserGroups(initUserGroups());
             outcome = BaseBean.OUTCOME_ERROR;
         } catch (MailOperationException e) {
             if (applicationBean.isInternalAuthMode()) {
@@ -184,14 +97,16 @@ public class CreateUserCtrl {
             }
             outcome = BaseBean.OUTCOME_ERROR;
         }
-
+        
+        HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        req.setAttribute(CreateUserModel.ATTRIBUTE_USER_ID, user.getUserId());
+        
         return outcome;
     }
 
     POUserAndSubscriptions toPOUserAndSubscriptions(CreateUserModel m) {
 
         POUserAndSubscriptions uas = new POUserAndSubscriptions();
-        uas.setAssignedRoles(getSelectedUserRoles(m.getRoles()));
         uas.setEmail(m.getEmail().getValue());
         uas.setFirstName(m.getFirstName().getValue());
         uas.setLastName(m.getLastName().getValue());
@@ -202,87 +117,7 @@ public class CreateUserCtrl {
         }
         uas.setUserId(m.getUserId().getValue());
 
-        uas.setSubscriptions(getSubscriptionAssignment(m.getSubscriptions()));
-
-        uas.setGroupsToBeAssigned(getSelectedUserGroups(m.getUserGroups()));
-        uas.setAllGroups(getAllUserGroups(m.getUserGroups()));
         return uas;
-    }
-
-    List<POSubscription> getSubscriptionAssignment(List<Subscription> subs) {
-
-        List<POSubscription> result = new ArrayList<>();
-        for (Subscription sub : subs) {
-            if (!sub.isSelected()) {
-                continue;
-            }
-            POSubscription s = new POSubscription();
-            s.setId(sub.getId());
-
-            String role = sub.getSelectedRole();
-            if (!Strings.isEmpty(role)) {
-                String[] selectedRole = role.split(":");
-                long key = Long.parseLong(selectedRole[0]);
-                POServiceRole r = new POServiceRole();
-                r.setId(selectedRole[1]);
-                r.setKey(key);
-                s.getUsageLicense().setPoServieRole(r);
-            }
-            result.add(s);
-        }
-
-        return result;
-    }
-
-    Set<UserRoleType> getSelectedUserRoles(List<UserRole> roles) {
-
-        Set<UserRoleType> result = new HashSet<>();
-        for (UserRole r : roles) {
-            if (r.isSelected()) {
-                result.add(r.getType());
-            }
-        }
-
-        return result;
-    }
-
-    List<POUserGroup> getSelectedUserGroups(List<UserGroup> groups) {
-        List<POUserGroup> poUserGroups = new ArrayList<>();
-        for (UserGroup g : groups) {
-            if (g.isSelected()) {
-                poUserGroups.add(g.getPoUserGroup());
-            }
-        }
-        return poUserGroups;
-    }
-
-    List<POUserGroup> getAllUserGroups(List<UserGroup> groups) {
-        List<POUserGroup> poUserGroups = new ArrayList<>();
-        for (UserGroup group : groups) {
-            poUserGroups.add(group.getPoUserGroup());
-        }
-        return poUserGroups;
-    }
-
-    public boolean isSubTableRendered() {
-        return (!model.getSubscriptions().isEmpty())
-                && (!applicationBean.isUIElementHidden(
-                HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS));
-    }
-
-    public boolean isRoleColumnRendered() {
-
-        if (rolesColumnVisible == null) {
-            boolean rolesDefined = false;
-            List<Subscription> subs = model.getSubscriptions();
-            for (int i = 0; i < subs.size() && !rolesDefined; i++) {
-                Subscription subscription = subs.get(i);
-                rolesDefined = subscription.isRolesRendered();
-            }
-            rolesColumnVisible = Boolean.valueOf(rolesDefined);
-        }
-
-        return rolesColumnVisible.booleanValue();
     }
 
     public UserService getUserService() {

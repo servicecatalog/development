@@ -12,6 +12,10 @@
     <c:set var="readOnly" value="false" />
   </c:if>
 
+  <c:if test="#{empty isOneTimeMarked}">
+    <c:set var="isOneTimeMarked" value="true" />
+  </c:if>
+
   <c:if test="#{empty showConfigurable}">
     <c:set var="showConfigurable" value="true" />
   </c:if>
@@ -35,7 +39,7 @@
       <adm:paramLabel id="description" value="#{rowItem.parameterDefinition.description}"
         rendered="#{not (rowItem.option) and rowItem.emptyOrFirstSteppedPrice}"
         required="#{rowItem.parameterDefinition.mandatory}"
-        renderFootNote="#{rowItem.oneTimeParameter and not subscriptionExisting}" />
+        renderFootNote="#{rowItem.oneTimeParameter and not subscriptionExisting and isOneTimeMarked}" />
     </rich:column>
 
     <!--  configurable parameter -->

@@ -19,9 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.UnitRoleAssignment;
+import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
@@ -33,6 +34,7 @@ import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
 
 /**
  * Unit test of POUserGroupAssembler
@@ -112,6 +114,19 @@ public class POUserGroupAssemblerTest {
         assertEquals(2, poUserGroups.size());
         verifyPOWithDO(poUserGroups.get(0), userGroups.get(0));
         verifyPOWithDO(poUserGroups.get(1), userGroups.get(1));
+    }
+
+    @Test
+    public void toPOUserGroupWithUsers() throws Exception {
+        // given
+        UserGroup userGroup = prepareUserGroup(1209L);
+        // when
+        POUserGroup poUserGroup = POUserGroupAssembler
+                .toPOUserGroupWithUsers(userGroup);
+        // then
+        assertEquals(1, poUserGroup.getUsersAssignedToUnit().size());
+        verifyPOWithDO(poUserGroup, userGroup);
+        verifyUserInUnit(poUserGroup, userGroup);
     }
 
     @Test
@@ -252,6 +267,17 @@ public class POUserGroupAssemblerTest {
         assertEquals(poUser.getFirstName(), user.getFirstName());
         assertEquals(poUser.getLocale(), user.getLocale());
     }
+    
+    private void verifyUserInUnit(POUserGroup poUserGroup, UserGroup userGroup) {
+        POUserInUnit poUserInUnit = poUserGroup.getUsersAssignedToUnit().get(0);
+        
+        PlatformUser user = userGroup.getUserGroupToUsers().get(0)
+                .getPlatformuser();
+        assertEquals(poUserInUnit.getUserId(), user.getUserId());
+        assertEquals(poUserInUnit.getPoUser().getKey(), user.getKey());
+        assertEquals(poUserInUnit.isSelected(), true);
+        assertEquals(poUserInUnit.getRoleInUnit(), UnitRoleType.USER.name());
+    }
 
     private void verifyProduct(POUserGroup poUserGroup, UserGroup userGroup) {
         Product product = userGroup.getUserGroupToInvisibleProducts().get(0)
@@ -284,6 +310,11 @@ public class POUserGroupAssemblerTest {
         UserGroupToUser userGroupToUser = new UserGroupToUser();
         userGroupToUser.setUserGroup(userGroup);
         userGroupToUser.setPlatformuser(preparePlatformUser());
+        UnitRoleAssignment unitRoleAssignment = new UnitRoleAssignment();
+        UnitUserRole unitUserRole = new UnitUserRole();
+        unitUserRole.setRoleName(UnitRoleType.USER);
+        unitRoleAssignment.setUnitUserRole(unitUserRole);
+        userGroupToUser.setUnitRoleAssignments(Arrays.asList(unitRoleAssignment));
         userGroupToUsers.add(userGroupToUser);
         userGroup.setUserGroupToUsers(userGroupToUsers);
     }

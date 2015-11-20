@@ -21,6 +21,7 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.usermanagement.POSubscription;
 
 /**
  * @author weiser
@@ -128,5 +129,32 @@ public interface SubscriptionListServiceLocal {
      * @return the list of {@link Subscription}s
      */
     public List<Subscription> getAllSubscriptionsForOrganization();
-
+    
+    /**
+     * Retrieves the list of user's assignable subscriptions
+     * 
+     * @param pagination
+     *          the pagination, sorting, and filtering parameters
+     * @param user
+     *          user for which subscription will be retrieved
+     * @param states
+     *          subscription's assignable states
+     * 
+     * @return the list of {@link POSubscription}s which are assignable to user
+     */
+    public List<POSubscription> getUserAssignableSubscriptions(org.oscm.pagination.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
+    
+    /**
+     * Retrieves the number of user's assignable subscriptions
+     * 
+     * @param pagination
+     *          the pagination, sorting, and filtering parameters
+     * @param user
+     *          user for which subscription will be retrieved
+     * @param states
+     *          subscription's assignable states
+     * 
+     * @return number of subscriptions
+     */
+    public Long getUserAssignableSubscriptionsNumber(org.oscm.pagination.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
 }

@@ -14,6 +14,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -30,17 +31,17 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.UserGroup;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUser;
+import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
 /**
  * Unit Test for UserGroupServiceBean.
@@ -111,19 +112,23 @@ public class UserGroupServiceBeanTest {
         userGroupService.createGroup(preparePOUserGroup(123L), MARKETPLACEID);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void updateGroup() throws Exception {
         // given
         doReturn(prepareUserGroup(123L)).when(userGroupServiceLocal)
                 .getUserGroupDetails(anyLong());
+        
         // when
         userGroupService.updateGroup(preparePOUserGroup(123L), MARKETPLACEID,
-                preparePOUserDetailsList(1), preparePOUserDetailsList(2));
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
         // then
         verify(userGroupServiceLocal, times(1)).updateUserGroup(
                 any(UserGroup.class), anyListOf(Product.class),
                 anyListOf(Product.class), anyString(),
-                anyListOf(PlatformUser.class), anyListOf(PlatformUser.class));
+                anyMap(),
+                anyListOf(PlatformUser.class),
+                anyMap());
     }
 
     @Test(expected = ValidationException.class)
@@ -135,9 +140,10 @@ public class UserGroupServiceBeanTest {
         poUserGroup.setGroupName("");
         // when
         userGroupService.updateGroup(poUserGroup, MARKETPLACEID,
-                preparePOUserDetailsList(1), preparePOUserDetailsList(2));
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
     }
 
+    @SuppressWarnings("unchecked")
     @Test(expected = OperationNotPermittedException.class)
     public void updateGroup_OperationNotPermittedException() throws Exception {
         // given
@@ -146,11 +152,11 @@ public class UserGroupServiceBeanTest {
         doThrow(new OperationNotPermittedException()).when(
                 userGroupServiceLocal).updateUserGroup(any(UserGroup.class),
                 anyListOf(Product.class), anyListOf(Product.class),
-                anyString(), anyListOf(PlatformUser.class),
-                anyListOf(PlatformUser.class));
+                anyString(), anyMap(),
+                anyListOf(PlatformUser.class), anyMap());
         // when
         userGroupService.updateGroup(preparePOUserGroup(123L), MARKETPLACEID,
-                preparePOUserDetailsList(1), preparePOUserDetailsList(2));
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
     }
 
     @Test(expected = ConcurrentModificationException.class)
@@ -160,7 +166,7 @@ public class UserGroupServiceBeanTest {
                 .getUserGroupDetails(anyLong());
         // when
         userGroupService.updateGroup(preparePOUserGroup(0l), MARKETPLACEID,
-                preparePOUserDetailsList(1), preparePOUserDetailsList(2));
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
     }
 
     @Test(expected = ObjectNotFoundException.class)
@@ -170,7 +176,7 @@ public class UserGroupServiceBeanTest {
                 .getUserGroupDetails(anyLong());
         // when
         userGroupService.updateGroup(preparePOUserGroup(0l), MARKETPLACEID,
-                preparePOUserDetailsList(1), preparePOUserDetailsList(2));
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
     }
 
     @Test
@@ -383,19 +389,20 @@ public class UserGroupServiceBeanTest {
         return userGroup;
     }
 
-    private POUserDetails preparePOUserDetails() {
-        POUserDetails pOUserDetails = new POUserDetails();
-        pOUserDetails.setLocale("en");
-        pOUserDetails.setUserId("123456");
-        pOUserDetails.setEmail("bes.ma@test.fnst.cn.fujitsu.com");
-        return pOUserDetails;
+    private POUserInUnit preparePOUserDetails() {
+        POUserInUnit poUserInUnit = new POUserInUnit();
+        poUserInUnit.setPoUser(new POUser());
+        poUserInUnit.setLocale("en");
+        poUserInUnit.getPoUser().setUserId("123456");
+        poUserInUnit.getPoUser().setEmail("bes.ma@test.fnst.cn.fujitsu.com");
+        return poUserInUnit;
     }
 
-    private List<POUserDetails> preparePOUserDetailsList(int pOUserDetailsNum) {
-        List<POUserDetails> pOUserDetailsList = new ArrayList<POUserDetails>();
-        for (int i = 0; i < pOUserDetailsNum; i++) {
-            pOUserDetailsList.add(preparePOUserDetails());
+    private List<POUserInUnit> preparePOUserInUnitList(int poUsersInUnitsNum) {
+        List<POUserInUnit> poUsersInUnits = new ArrayList<POUserInUnit>();
+        for (int i = 0; i < poUsersInUnitsNum; i++) {
+            poUsersInUnits.add(preparePOUserDetails());
         }
-        return pOUserDetailsList;
+        return poUsersInUnits;
     }
 }

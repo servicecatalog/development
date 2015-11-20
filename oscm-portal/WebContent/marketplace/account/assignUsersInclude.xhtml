@@ -9,33 +9,74 @@
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:t="http://myfaces.apache.org/tomahawk">
 
   <h:form id="#{dialogId}Form" method="post" action="">
-    <a4j:queue requestDelay="500" ignoreDupResponse="true"
-               oncomplete="jQuery('body').removeClass('hourglass');"
-               onsubmit="jQuery('body').addClass('hourglass');" />
+    <a4j:queue requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
+      onsubmit="jQuery('body').addClass('hourglass');" />
     <c:set var="userIdWidth" value="25%" />
+    <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
+    <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
 
-    <div style="margin-bottom: 25px;">
-      <ui:include src="usersTable.xhtml">
-        <ui:param name="data" value="#{controller.manageGroupModel.usersToDeassign}" />
-        <ui:param name="serviceRoles" value="" />
-        <ui:param name="controller" value="#{controller}" />
-        <ui:param name="showDeleteIcon" value="false" />
-        <ui:param name="showCheckBox" value="true" />
-        <ui:param name="nameWidth" value="#{nameWidth}" />
-        <ui:param name="userIdWidth" value="#{userIdWidth}" />
-        <ui:param name="iconWidth" value="5%" />
-        <ui:param name="statePrefix" value="assign" />
-        <ui:param name="pageCount" value="#{empty pageCount ? 10 : pageCount}" />
+    <rich:dataTable rows="10" id="unassignedUsers" value="#{controller.usersLazyDataModel}" var="user"
+      headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable"
+      styleClass="sortable table-with-selectable-rows" headerCellClass="rowTitle sortable" columnClasses="wrapColumns"
+      rowClasses="rowOdd,rowEven" onRowMouseOver="AdmUtils.mouseOverRowCell(this);"
+      onRowMouseOut="AdmUtils.mouseOutRowCell(this)" noDataLabel=" " style="width:100%">
+
+      <f:facet name="header">
+        <a4j:outputPanel>
+          <adm:pager pagerId="unassignedUsersPager" />
+        </a4j:outputPanel>
+      </f:facet>
+      
+      <rich:column id="assignCol" styleClass="tableColumnCheckBox" style="padding-left: 0;">
+        <h:selectBooleanCheckbox id="assignCheckbox" value="#{user.selected}">
+          <f:ajax event="change" />
+        </h:selectBooleanCheckbox>
+      </rich:column>
+
+      <ui:include src="usersTableColumn.xhtml">
+        <ui:param name="bean" value="#{controller.usersLazyDataModel}" />
+        <ui:param name="property" value="#{controller.usersLazyDataModel.USER_ID}" />
+        <ui:param name="tableName" value="unassignedUsers" />
+        <ui:param name="record" value="#{user}" />
+        <ui:param name="columnHeaderName" value="#{msg['user.userId']}" />
+        <ui:param name="scroller" value="unassignedUsersPager" />
+        <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+        <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+        <ui:param name="queueName" value="unassignedUsersQueue" />
       </ui:include>
-    </div>
+      
+      <ui:include src="usersTableColumn.xhtml">
+        <ui:param name="bean" value="#{controller.usersLazyDataModel}" />
+        <ui:param name="property" value="#{controller.usersLazyDataModel.FIRST_NAME}" />
+        <ui:param name="tableName" value="unassignedUsers" />
+        <ui:param name="record" value="#{user}" />
+        <ui:param name="columnHeaderName" value="#{msg['user.firstName']}" />
+        <ui:param name="scroller" value="unassignedUsersPager" />
+        <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+        <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+        <ui:param name="queueName" value="unassignedUsersQueue" />
+      </ui:include>
+      
+      <ui:include src="usersTableColumn.xhtml">
+        <ui:param name="bean" value="#{controller.usersLazyDataModel}" />
+        <ui:param name="property" value="#{controller.usersLazyDataModel.LAST_NAME}" />
+        <ui:param name="tableName" value="unassignedUsers" />
+        <ui:param name="record" value="#{user}" />
+        <ui:param name="columnHeaderName" value="#{msg['user.lastName']}" />
+        <ui:param name="scroller" value="unassignedUsersPager" />
+        <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
+        <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
+        <ui:param name="queueName" value="unassignedUsersQueue" />
+      </ui:include>
+
+    </rich:dataTable>
 
 
     <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
 
-    <a4j:commandButton style="display: none" id="hiddenModalSaveAndHide" value="#{msg['button.save']}"
-                       action="#{controller.assignUsers}" render="#{dialogId}RerenderPanel,assignedUsersPanel"
-                       execute="@form"
-                       oncomplete="
+      <a4j:commandButton style="display: none" id="hiddenModalSaveAndHide" value="#{msg['button.save']}"
+        action="#{controller.assignUsers}" render="#{dialogId}RerenderPanel,assignedUsersPanel" execute="@form"
+        oncomplete="
                 AdmUtils.showProgress(false);
                 if(!#{facesContext.maximumSeverity.ordinal > 0})
                 {

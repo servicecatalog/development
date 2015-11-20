@@ -2193,9 +2193,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
         subscription.setSubscriptionId(String.valueOf(System
                 .currentTimeMillis()));
 
-        // Bug 11917: Remove user group from terminated subscription
-        subscription.setUserGroup(null);
-
         boolean removed = removeOnBehalfActingReference(subscription);
 
         triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(

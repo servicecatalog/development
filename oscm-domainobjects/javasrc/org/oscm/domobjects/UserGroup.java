@@ -71,6 +71,17 @@ public class UserGroup extends DomainObjectWithHistory<UserGroupData> {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "userGroup", fetch = FetchType.LAZY)
     private List<UserGroupToInvisibleProduct> userGroupToInvisibleProducts = new ArrayList<UserGroupToInvisibleProduct>();
 
+    @OneToMany(mappedBy = "userGroup", fetch = FetchType.LAZY)
+    private List<Subscription> subscriptions;
+
+    public List<Subscription> getSubscriptions() {
+        return subscriptions;
+    }
+
+    public void setSubscriptions(List<Subscription> subscriptions) {
+        this.subscriptions = subscriptions;
+    }
+
     public String getName() {
         return dataContainer.getName();
     }

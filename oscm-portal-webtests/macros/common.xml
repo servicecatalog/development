@@ -134,7 +134,11 @@
         'editForm:parameterTable:.*pricePerSubscription','editForm:parameterTable:.*parameterSteppedPricePrice',
         'editForm:parameterTable:.*optionPricePerSubscription','userListForm:userListTable:col.*fsp','subscriptionListForm:subListTable:col.*fsp',
         'userListForm:userListTable:.*fsp','subscriptionListForm:subListTable:.*fsp','groupsListForm:groupListTable:col.*fsp',
-        'groupsListForm:groupListTable:col.*fsp', 'groupsListForm:groupListTable:col.*fsp','.*Form:organizationIdInput', 'manageUsers:userIdInput','.*flt']
+        'groupsListForm:groupListTable:col.*fsp', 'groupsListForm:groupListTable:col.*fsp','.*Form:organizationIdInput', 'manageUsers:userIdInput','.*flt',
+        'editGroupForm:usersInGroup:userId','editGroupForm:usersInGroup:firstName','editGroupForm:usersInGroup:lastName','editGroupForm:usersInGroup:roleInUnit',
+        'editGroupForm:servicesTable:filterServiceName','editGroupForm:servicesTable:filterProviderName',
+        'editUserForm:userGroupsTable:filterUserGroupName','editUserForm:userGroupsTable:filterUserGroupRole',
+        'editUserForm:subscriptionTable:id','editUserForm:subscriptionTable:selectedRole']
 
         T: document.getElementsByAttribute('input', 'type', 'text').each{
           def id = it.getAttribute('id')

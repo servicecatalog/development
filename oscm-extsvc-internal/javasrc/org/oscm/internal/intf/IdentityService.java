@@ -795,4 +795,49 @@ public interface IdentityService {
      */
     boolean searchLdapUsersOverLimit(String userIdPattern)
             throws ValidationException;
+
+    /**
+     * Assigns the given role to the specified user. If the user already has
+     * this role or the given role is not related to administrator's units, the method has no effect.
+     * <p>
+     * Required role: administrator of the user's organization or unit administrator
+     * 
+     * @param user
+     *            the value object specifying the user to whom the role is to
+     *            be assigned
+     * @param role
+     *            the role to be set
+     * @throws ObjectNotFoundException
+     *             if a value object is not found
+     * @throws OperationNotPermittedException
+     *             if the specified user is not a member of the calling user's
+     *             organization
+     * @throws UserRoleAssignmentException
+     *             if a problem occurs in the user role assignment
+     */
+    void grantUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException;
+
+    /**
+     * Removes the given role from the specified user. If the user already has
+     * this role or the given role is not related to administrator's units, the method has no effect.
+     * <p>
+     * Required role: administrator of the user's organization or unit administrator
+     * 
+     * @param user
+     *            the value object specifying the user from which the roles are
+     *            to be removed
+     * @param role
+     *            the role to be removed
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     *             if the specified user is not a member of the calling user's
+     *             organization
+     * @throws UserRoleAssignmentException
+     *             if a problem occurs in the user role deassignment
+     */
+    void revokeUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException;
 }

@@ -199,7 +199,11 @@ public class ServiceDetails {
      * @see org.oscm.internal.vo.VOService#setDescription(java.lang.String)
      */
     public void setDescription(String marketingName) {
-        voDetails.setDescription(marketingName);
+        if (marketingName == null) {
+            voDetails.setDescription("");
+        } else {
+            voDetails.setDescription(marketingName);
+        }
     }
 
     /**

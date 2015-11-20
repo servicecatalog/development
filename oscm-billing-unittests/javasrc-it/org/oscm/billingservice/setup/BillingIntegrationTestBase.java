@@ -128,6 +128,7 @@ import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.vatservice.bean.VatServiceBean;
 import org.w3c.dom.Document;
 
@@ -273,6 +274,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new MarketingPermissionServiceBean());
         container.addBean(new MarketplaceServiceStub());
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LandingpageServiceBean());

@@ -8,7 +8,9 @@
 package org.oscm.internal.usergroupmgmt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
@@ -24,11 +26,14 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.pagination.Pagination;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.internal.assembler.BasePOAssembler;
 import org.oscm.internal.assembler.POUserGroupAssembler;
+import org.oscm.internal.components.response.Response;
+import org.oscm.internal.subscriptions.POSubscription;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
@@ -36,9 +41,13 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.DataConverter;
+import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
 
 /**
  * Manage user group Service
@@ -63,40 +72,44 @@ public class UserGroupServiceBean implements UserGroupService {
     @EJB(beanInterface = SubscriptionListServiceLocal.class)
     SubscriptionListServiceLocal slsl;
 
+    private DataConverter dc = new DataConverter();
+
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public POUserGroup createGroup(POUserGroup group, String marketplaceId)
             throws ValidationException, NonUniqueBusinessKeyException,
             OperationNotPermittedException, MailOperationException,
             ObjectNotFoundException, ConcurrentModificationException {
-        List<Product> invisibleProducts = verifyProducts(group
-                .getInvisibleServices());
-        List<Product> visibleProducts = verifyProducts(group
-                .getVisibleServices());
         return POUserGroupAssembler.toPOUserGroup(userGroupService
                 .createUserGroup(POUserGroupAssembler.toUserGroup(group),
-                        visibleProducts, invisibleProducts, marketplaceId));
+                        null, null, marketplaceId));
 
     }
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public POUserGroup updateGroup(POUserGroup group, String marketplaceId,
-            List<POUserDetails> usersToAssign,
-            List<POUserDetails> usersToDeassign) throws ValidationException,
+            List<POUserInUnit> usersToAssign,
+            List<POUserInUnit> usersToUnassign,
+            List<POUserInUnit> usersToRoleUpdate) throws ValidationException,
             OperationNotPermittedException, ConcurrentModificationException,
             ObjectNotFoundException, NonUniqueBusinessKeyException,
-            MailOperationException {
+            MailOperationException, UserRoleAssignmentException {
         verifyGroupVersionAndKey(group);
         List<Product> invisibleProducts = verifyProducts(group
                 .getInvisibleServices());
         List<Product> visibleProducts = verifyProducts(group
                 .getVisibleServices());
+        Map<PlatformUser, String> usersToAssignWithRole = convertToPlatformUsersWithRole(usersToAssign);
+        Map<PlatformUser, String> usersToUpdateWithRole = convertToPlatformUsersWithRole(usersToRoleUpdate);
+
         return POUserGroupAssembler.toPOUserGroup(userGroupService
                 .updateUserGroup(POUserGroupAssembler.toUserGroup(group),
                         visibleProducts, invisibleProducts, marketplaceId,
-                        convertToPlatformUsers(usersToAssign),
-                        convertToPlatformUsers(usersToDeassign)));
+                        usersToAssignWithRole,
+                        convertToPlatformUsers(usersToUnassign),
+                        usersToUpdateWithRole));
+
     }
 
     @Override
@@ -129,14 +142,27 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     private List<PlatformUser> convertToPlatformUsers(
-            List<POUserDetails> poUsers) throws ValidationException {
+            List<POUserInUnit> poUsers) throws ValidationException {
         if (poUsers == null) {
             return null;
         }
         DataConverter dc = new DataConverter();
         List<PlatformUser> users = new ArrayList<>();
-        for (POUserDetails poUser : poUsers) {
+        for (POUserInUnit poUser : poUsers) {
             users.add(dc.toPlatformUser(poUser));
+        }
+        return users;
+    }
+    
+    private Map<PlatformUser, String> convertToPlatformUsersWithRole(
+            List<POUserInUnit> poUsers) throws ValidationException {
+        if (poUsers == null) {
+            return null;
+        }
+        DataConverter dc = new DataConverter();
+        Map<PlatformUser, String> users = new HashMap<PlatformUser, String>();
+        for (POUserInUnit poUser : poUsers) {
+            users.put(dc.toPlatformUser(poUser), poUser.getRoleInUnit());
         }
         return users;
     }
@@ -178,6 +204,14 @@ public class UserGroupServiceBean implements UserGroupService {
         return POUserGroupAssembler.toPOUserGroup(
                 userGroupService.getUserGroupDetails(groupKey),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
+    public POUserGroup getUserGroupDetailsWithUsers(long groupKey)
+            throws ObjectNotFoundException {
+        return POUserGroupAssembler.toPOUserGroupWithUsers(userGroupService
+                .getUserGroupDetails(groupKey));
     }
 
     @Override
@@ -272,6 +306,24 @@ public class UserGroupServiceBean implements UserGroupService {
             long userRoleKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
                 .getUserGroupsForUserWithRoleWithoutDefault(userKey, userRoleKey));
+    }
+
+    @Override
+    public Response getUsersForGroup(Pagination pagination,
+            String selectedGroupId) throws OrganizationAuthoritiesException {
+        List<PlatformUser> users = userGroupService.getUsersForGroup(pagination, selectedGroupId);
+        List<POUserInUnit> poUsers = new ArrayList<POUserInUnit>();
+        for (PlatformUser user : users) {
+            POUserInUnit poUser = dc.toPoUserInUnit(user, selectedGroupId);
+            poUsers.add(poUser);
+        }
+        return new Response(poUsers);
+    }
+
+    @Override
+    public Integer getCountUsersForGroup(Pagination pagination,
+            String selectedGroupId) throws OrganizationAuthoritiesException {
+        return userGroupService.getCountUsersForGroup(pagination, selectedGroupId);
     }
 
 }

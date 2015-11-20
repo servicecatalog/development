@@ -73,6 +73,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
         @NamedQuery(name = "Subscription.getForOrgFetchRoles", query = "SELECT DISTINCT sub, role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.dataContainer.status IN (:status) AND sub.organizationKey =:orgKey ORDER by sub.key ASC"),
+        @NamedQuery(name = "Subscription.getSubRoles", query = "SELECT DISTINCT role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.organizationKey =:orgKey AND sub.dataContainer.subscriptionId=:subId ORDER by role.dataContainer.roleId ASC"),
         @NamedQuery(name = "Subscription.getForOwner", query = "SELECT sub FROM Subscription sub WHERE sub.owner.key=:ownerKey"),
         @NamedQuery(name = "Subscription.findUsageLicense", query = "SELECT lic FROM UsageLicense lic WHERE lic.user.dataContainer.userId = :userId AND lic.subscription.key = :subscriptionKey"),
         @NamedQuery(name = "Subscription.getSubscriptionsForMyCustomers", query = "SELECT DISTINCT s FROM Subscription s WHERE s.product.vendor = :offerer AND s.dataContainer.status IN (:states) ORDER BY s.dataContainer.subscriptionId ASC"),
@@ -92,7 +93,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
                 + " WHERE sub.dataContainer.status IN (:status)"
                 + " AND sub.product.template =  :prodTemplate"
                 + " AND (EXISTS (SELECT lic FROM UsageLicense lic WHERE sub.key=lic.subscription.key AND lic.user.key = :userKey) OR EXISTS(SELECT pu FROM PlatformUser pu, RoleAssignment ra WHERE pu.key=:userKey and ra.user.key=pu.key and ra.userRole.dataContainer.roleName='ORGANIZATION_ADMIN'))"),
-        @NamedQuery(name = "Subscription.isSubscriptionAssignedToUnit", query = "SELECT sub FROM Subscription sub WHERE sub.userGroup.key = :unitKey") })
+        @NamedQuery(name = "Subscription.isNotTerminatedSubscriptionAssignedToUnit", query = "SELECT sub FROM Subscription sub WHERE sub.userGroup.key = :unitKey AND sub.dataContainer.status != (:subscriptionStatus)") })
 @BusinessKey(attributes = { "subscriptionId", "organizationKey" })
 public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
 

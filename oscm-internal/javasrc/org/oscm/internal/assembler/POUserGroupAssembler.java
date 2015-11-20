@@ -15,17 +15,20 @@ import java.util.Map;
 
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.usermanagement.DataConverter;
+import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.validator.BLValidator;
 
 /**
  * Assembler to convert the POUserGroup to the according domain object and vice
@@ -86,15 +89,43 @@ public class POUserGroupAssembler extends BasePOAssembler {
     public static POUserGroup toPOUserGroup(UserGroup userGroup) {
         return toPOUserGroup(userGroup, PerformanceHint.ALL_FIELDS);
     }
+    
+    public static POUserGroup toPOUserGroupWithUsers(UserGroup userGroup) {
+        if (userGroup == null) {
+            return null;
+        }
+        POUserGroup poUserGroup = fillBasicUserGroupValues(userGroup);
+        List<POUserInUnit> assignedUsers = new ArrayList<POUserInUnit>();
+        for (UserGroupToUser userGroupToUser : userGroup.getUserGroupToUsers()) {
+            POUserInUnit poUserInUnit = new POUserInUnit();
+            POUser poUser = new POUser();
+            poUser.setKey(userGroupToUser.getPlatformuser_tkey());
+            poUser.setUserId(userGroupToUser.getPlatformuser().getUserId());
+            poUserInUnit.setPoUser(poUser);
+            poUserInUnit.setSelected(true);
+            if (!userGroupToUser.getUnitRoleAssignments().isEmpty()) {
+                UnitRoleAssignment unitRoleAssignment = userGroupToUser.getUnitRoleAssignments().get(0);
+                poUserInUnit.setRoleInUnit(unitRoleAssignment.getUnitUserRole().getRoleName().name());
+            }
+            assignedUsers.add(poUserInUnit);
+        }
+        poUserGroup.setUsersAssignedToUnit(assignedUsers);
+        return poUserGroup;
+    }
+    
+    private static POUserGroup fillBasicUserGroupValues(UserGroup userGroup) {
+        POUserGroup poUserGroup = new POUserGroup();
+        updatePresentationObject(poUserGroup, userGroup);
+        fillPOUserGroup(poUserGroup, userGroup);
+        return poUserGroup;
+    }
 
     public static POUserGroup toPOUserGroup(UserGroup userGroup,
             PerformanceHint scope) {
         if (userGroup == null) {
             return null;
         }
-        POUserGroup poUserGroup = new POUserGroup();
-        updatePresentationObject(poUserGroup, userGroup);
-        fillPOUserGroup(poUserGroup, userGroup);
+        POUserGroup poUserGroup = fillBasicUserGroupValues(userGroup);
         if (scope.equals(PerformanceHint.ALL_FIELDS)) {
             fillUsers(poUserGroup, userGroup);
             fillProducts(poUserGroup, userGroup);

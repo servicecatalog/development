@@ -23,7 +23,7 @@ import javax.persistence.Query;
 import junit.framework.Assert;
 
 import org.junit.Test;
-
+import org.mockito.Mockito;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -33,7 +33,10 @@ import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.pagination.Pagination;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
@@ -42,8 +45,7 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.dao.UserGroupDao;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 
 public class UserGroupServiceLocalBeanIT extends EJBTestBase {
     
@@ -65,13 +67,16 @@ public class UserGroupServiceLocalBeanIT extends EJBTestBase {
         
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
+        container.addBean(Mockito.mock(SubscriptionListServiceLocal.class));
         
         mgr = container.get(DataService.class);
         
         localService = container.get(UserGroupServiceLocalBean.class);
         localDao = container.get(UserGroupDao.class);
+        
     
         container.login("setup", ROLE_ORGANIZATION_ADMIN);
         runTX(new Callable<Void>() {

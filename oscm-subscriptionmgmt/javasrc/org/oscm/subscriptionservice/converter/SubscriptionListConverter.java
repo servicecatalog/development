@@ -8,6 +8,7 @@
 
 package org.oscm.subscriptionservice.converter;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,11 @@ import javax.persistence.Query;
 
 import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.bean.LocalizerFacade;
+import org.oscm.internal.usermanagement.POServiceRole;
+import org.oscm.internal.usermanagement.POSubscription;
+import org.oscm.internal.usermanagement.POUsagelicense;
 import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
 
 /**
@@ -54,6 +60,56 @@ public class SubscriptionListConverter {
             }
         }
         return result;
+    }
+
+    public POSubscription toPOSubscription(Object[] subscription,
+            List<RoleDefinition> roles, LocalizerFacade lf) {
+
+        POSubscription poSubscription = new POSubscription();
+
+        poSubscription.setId((String) subscription[0]);
+        poSubscription.setAssigned((boolean) subscription[1]);
+
+        List<POServiceRole> poRoles = new ArrayList<>();
+
+        if (!roles.isEmpty()) {
+
+            for (RoleDefinition roleDef : roles) {
+                if (roleDef != null) {
+                    POServiceRole role = toPOServiceRole(lf, roleDef);
+                    poRoles.add(role);
+
+                    String roleId = (String) subscription[2];
+
+                    if (role.getId().equals(roleId)) {
+                        POUsagelicense poUsageLicense = new POUsagelicense();
+                        poUsageLicense.setKey(
+                                ((BigInteger) subscription[4]).longValue());
+                        poUsageLicense.setVersion((int) subscription[5]);
+                        poUsageLicense.setPoServieRole(role);
+
+                        poSubscription.setUsageLicense(poUsageLicense);
+                    }
+                }
+            }
+        }
+        poSubscription.setRoles(poRoles);
+
+        return poSubscription;
+    }
+
+    public POServiceRole toPOServiceRole(LocalizerFacade lf,
+            RoleDefinition role) {
+        if (role == null) {
+            return null;
+        }
+        POServiceRole r = new POServiceRole();
+        r.setId(role.getRoleId());
+        r.setKey(role.getKey());
+        r.setName(
+                lf.getText(role.getKey(), LocalizedObjectTypes.ROLE_DEF_NAME));
+        r.setVersion(role.getVersion());
+        return r;
     }
 
 }

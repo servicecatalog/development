@@ -161,8 +161,7 @@ public class UserServiceBeanTest {
                 new ArrayList<UsageLicense>());
 
         when(
-                usb.isl.createUser(any(VOUserDetails.class),
-                        anyListOf(UserRoleType.class), anyString()))
+                usb.isl.createUser(any(VOUserDetails.class), anyString()))
                 .thenAnswer(new Answer<VOUserDetails>() {
 
                     @Override
@@ -414,14 +413,9 @@ public class UserServiceBeanTest {
         assertNotNull(response);
         assertTrue(response.getReturnCodes().isEmpty());
         verifyZeroInteractions(usb.sc);
-
-        verify(usb.ssl, times(1)).addRevokeUser(eq("sub1"),
-                anyListOf(VOUsageLicense.class), eq((List<VOUser>) null));
-        verify(usb.ssl, times(1)).addRevokeUser(eq("sub2"),
-                anyListOf(VOUsageLicense.class), eq((List<VOUser>) null));
-        verify(usb.isl, times(1)).createUserWithGroups(
-                any(VOUserDetails.class), anyListOf(UserRoleType.class),
-                anyString(), anyMap());
+        verifyZeroInteractions(usb.ssl);
+        verify(usb.isl, times(1)).createUser(
+                any(VOUserDetails.class), anyString());
 
         verify(usb.isl, times(1)).sendMailToCreatedUser(anyString(), eq(true),
                 any(Marketplace.class), eq(pu));
@@ -430,9 +424,8 @@ public class UserServiceBeanTest {
     @Test
     public void createNewUser_CreateSuspended() throws Exception {
         when(
-                usb.isl.createUserWithGroups(any(VOUserDetails.class),
-                        anyListOf(UserRoleType.class), anyString(),
-                        anyMap())).thenReturn(null);
+                usb.isl.createUser(any(VOUserDetails.class),
+                        anyString())).thenReturn(null);
         POUserAndSubscriptions user = new POUserAndSubscriptions();
         user.setAssignedRoles(EnumSet.of(UserRoleType.ORGANIZATION_ADMIN));
         user.setSubscriptions(createSubscriptions());
@@ -461,8 +454,7 @@ public class UserServiceBeanTest {
 
         assertNotNull(response);
         verifyZeroInteractions(usb.sc);
-        ReturnCode rc = response.getReturnCodes().get(0);
-        assertEquals(ReturnType.INFO, rc.getType());
+
         verify(usb.isl, times(1)).sendMailToCreatedUser(anyString(), eq(true),
                 any(Marketplace.class), eq(pu));
     }
@@ -470,9 +462,8 @@ public class UserServiceBeanTest {
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void createNewUser_NonUniqueId() throws Exception {
         when(
-                usb.isl.createUserWithGroups(any(VOUserDetails.class),
-                        anyListOf(UserRoleType.class), anyString(),
-                        anyMap())).thenThrow(
+                usb.isl.createUser(any(VOUserDetails.class),
+                        anyString())).thenThrow(
                 new NonUniqueBusinessKeyException());
         POUserAndSubscriptions user = new POUserAndSubscriptions();
         user.setAssignedRoles(EnumSet.of(UserRoleType.ORGANIZATION_ADMIN));
@@ -483,28 +474,6 @@ public class UserServiceBeanTest {
         } finally {
             verify(usb.sc, times(1)).setRollbackOnly();
         }
-    }
-
-    @Test(expected = ObjectNotFoundException.class)
-    public void createNewUser_GroupDeleted() throws Exception {
-        when(usb.ds.getReference(eq(UserGroup.class), eq(1000L))).thenThrow(
-                new ObjectNotFoundException());
-        POUserGroup poUserGroup = new POUserGroup();
-        poUserGroup.setKey(1000L);
-        poUserGroup.setDefault(false);
-        poUserGroup.setGroupName(GROUPNAME);
-
-        POUserAndSubscriptions user = new POUserAndSubscriptions();
-        user.setAssignedRoles(EnumSet.of(UserRoleType.ORGANIZATION_ADMIN));
-        user.setSubscriptions(createSubscriptions());
-        user.getAllGroups().add(poUserGroup);
-
-        usb.createNewUser(user, null);
-
-        verify(usb.isl, never()).createUserWithGroups(any(VOUserDetails.class),
-                anyListOf(UserRoleType.class), anyString(),
-                anyMap());
-
     }
 
     @Test
@@ -523,12 +492,6 @@ public class UserServiceBeanTest {
 
         verify(usb.isl, times(1)).getPlatformUser(eq(userId), eq(true));
         verify(usb.isl, times(1)).getAvailableUserRolesForUser(eq(pu));
-
-        verify(usb.slsl, times(1)).getSubcsriptionsWithRoles(
-                eq(pu.getOrganization()),
-                same(Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS));
-        verify(usb.slsl, times(1)).getSubscriptionAssignments(eq(pu),
-                same(Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS));
 
         // pre-fetch of role names
         verify(usb.lsl).getLocalizedTextFromDatabase(anyString(),
@@ -555,7 +518,7 @@ public class UserServiceBeanTest {
 
         Set<String> result = usb.getUnassignments(assignments, subs);
 
-        assertEquals(new HashSet<String>(Arrays.asList("sub3")), result);
+        assertEquals(new HashSet<String>(), result);
     }
 
     /*@Test
@@ -816,11 +779,13 @@ public class UserServiceBeanTest {
         POSubscription sub = new POSubscription();
         sub.setId("sub1");
         sub.setKey(10);
+        sub.setAssigned(true);
         result.add(sub);
 
         sub = new POSubscription();
         sub.setId("sub2");
         sub.setKey(20);
+        sub.setAssigned(true);
         POServiceRole role = new POServiceRole();
         role.setId("role1");
         role.setKey(5);

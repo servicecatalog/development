@@ -133,14 +133,25 @@ public class WSPortConnector {
      */
     public <T> T getPort(URL localWsdlUrl, Class<T> serviceClass)
             throws ParserConfigurationException, WebServiceException {
-        QName serviceQName = new QName(details.getTargetNamespace(),
-                serviceClass.getSimpleName());
-        // as the real provisioning WSDL URL might require authentication,
-        // we refer to a local version. The direct WSDL could be read with
-        // appropriate credentials, but evaluation the imports will fail
-        // with a 401. So we use a local version as workaround...
-        Service service = Service.create(localWsdlUrl, serviceQName);
 
+        Service service = getService(localWsdlUrl, serviceClass);
+
+        EndpointReference epr = determineEndpointReference();
+        T port = service.getPort(epr, serviceClass);
+        if (requiresUserAuthentication(userName, password)) {
+            BindingProvider bindingProvider = (BindingProvider) port;
+            Map<String, Object> clientRequestContext = bindingProvider
+                    .getRequestContext();
+            clientRequestContext.put(BindingProvider.USERNAME_PROPERTY,
+                    userName);
+            clientRequestContext.put(BindingProvider.PASSWORD_PROPERTY,
+                    password);
+        }
+        return port;
+    }
+
+    public <T> T getPort(Service service, Class<T> serviceClass)
+            throws ParserConfigurationException {
         // and determine the real endpoint belonging to the provisioning
         // URL, and create the port based on it. Doing so, we omit
         // parsing the remote WSDL twice and also related authentication
@@ -157,6 +168,19 @@ public class WSPortConnector {
                     password);
         }
         return port;
+    }
+
+    public <T> Service getService(URL localWsdlUrl, Class<T> serviceClass)
+            throws WebServiceException {
+        QName serviceQName = new QName(details.getTargetNamespace(),
+                serviceClass.getSimpleName());
+        // as the real provisioning WSDL URL might require authentication,
+        // we refer to a local version. The direct WSDL could be read with
+        // appropriate credentials, but evaluation the imports will fail
+        // with a 401. So we use a local version as workaround...
+        Service service = Service.create(localWsdlUrl, serviceQName);
+
+        return service;
     }
 
     /**
@@ -185,6 +209,19 @@ public class WSPortConnector {
             WebServiceException {
 
         T port = getPort(localWsdlUrl, serviceClass);
+        if (wsTimeout != null) {
+            BindingProvider bindingProvider = (BindingProvider) port;
+            bindingProvider.getRequestContext().put(REQUEST_TIMEOUT, wsTimeout);
+            bindingProvider.getRequestContext().put(CONNECT_TIMEOUT, wsTimeout);
+        }
+        return port;
+    }
+
+    public <T> T getPort(Service service, Class<T> serviceClass,
+            Integer wsTimeout) throws ParserConfigurationException,
+            WebServiceException {
+
+        T port = getPort(service, serviceClass);
         if (wsTimeout != null) {
             BindingProvider bindingProvider = (BindingProvider) port;
             bindingProvider.getRequestContext().put(REQUEST_TIMEOUT, wsTimeout);

@@ -359,13 +359,19 @@ public interface IdentityServiceLocal {
             throws MailOperationException;
 
     /**
-     * FIXME: Duplicated in local and remote interface
+     * Method creates platform user
      * 
-     * @see IdentityService#createUser(VOUserDetails user, List<UserRoleType>
-     *      roles, String marketplaceId)
+     * @param user - details of user that has to be created
+     * @param marketplaceId - marketplace identifier
+     * @return created user details
+     * 
+     * @throws NonUniqueBusinessKeyException
+     * @throws MailOperationException
+     * @throws ValidationException
+     * @throws UserRoleAssignmentException
+     * @throws OperationPendingException
      */
-    VOUserDetails createUser(VOUserDetails user, List<UserRoleType> roles,
-            String marketplaceId) throws NonUniqueBusinessKeyException,
+    VOUserDetails createUser(VOUserDetails user, String marketplaceId) throws NonUniqueBusinessKeyException,
                     MailOperationException, ValidationException,
                     UserRoleAssignmentException, OperationPendingException;
 

@@ -51,6 +51,16 @@ public class SessionBean implements Serializable {
     private Boolean selfRegistrationEnabled = null;
 
     /**
+     * The key of the last edited user group.
+     */
+    private String selectedUserGroupId;
+
+    /**
+     * The key of the last edited user.
+     */
+    private String selectedUserIdToEdit;
+
+    /**
      * The key of the last selected technical service - applies to technology
      * provider and supplier (operations on technical and marketable services).
      */
@@ -492,5 +502,21 @@ public class SessionBean implements Serializable {
      */
     public void setSelectedSubscriptionKey(long selectedSubscriptionKey) {
         this.selectedSubscriptionKey = selectedSubscriptionKey;
+    }
+
+    public String getSelectedUserGroupId() {
+        return selectedUserGroupId;
+    }
+
+    public void setSelectedUserGroupId(String selectedUserGroupId) {
+        this.selectedUserGroupId = selectedUserGroupId;
+    }
+
+    public String getSelectedUserIdToEdit() {
+        return selectedUserIdToEdit;
+    }
+
+    public void setSelectedUserIdToEdit(String selectedUserIdToEdit) {
+        this.selectedUserIdToEdit = selectedUserIdToEdit;
     }
 }

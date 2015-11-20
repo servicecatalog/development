@@ -6,12 +6,12 @@ package org.oscm.app.business;
 
 import javax.naming.InitialContext;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.oscm.app.adapter.APPlatformControllerAdapter;
 import org.oscm.app.i18n.Messages;
 import org.oscm.app.v1_0.exceptions.ControllerLookupException;
 import org.oscm.app.v1_0.intf.APPlatformController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class APPlatformControllerFactory {
 
@@ -31,7 +31,8 @@ public class APPlatformControllerFactory {
                 throw new ControllerLookupException(
                         Messages.getAll("error_controller_lookup"));
             }
-            return (APPlatformController) lookup;
+
+            return new APPlatformControllerAdapter((APPlatformController)lookup);
         } catch (Exception e) {
             logger.warn("Exception during controller lookup ["
                     + controllerFullId + "]", e);

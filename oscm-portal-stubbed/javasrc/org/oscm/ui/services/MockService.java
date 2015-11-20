@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.oscm.ui.services;
 
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,12 +25,11 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.beanutils.PropertyUtils;
 import org.oscm.converter.XMLConverter;
-import org.oscm.types.constants.Configuration;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.model.MockVOParameter;
-import org.oscm.ui.model.MockVOParameterDefinition;
-import org.oscm.ui.model.MockVOParameterOption;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.BrandService;
 import org.oscm.internal.intf.ConfigurationService;
@@ -89,8 +86,6 @@ import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDeregistrationException;
 import org.oscm.internal.types.exception.PaymentInformationException;
-import org.oscm.internal.types.exception.PropertiesImportException;
-import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ServiceOperationException;
 import org.oscm.internal.types.exception.ServiceParameterException;
@@ -158,7 +153,11 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.internal.vo.VOUserSubscription;
 import org.oscm.internal.vo.VOVatRate;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.oscm.types.constants.Configuration;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.model.MockVOParameter;
+import org.oscm.ui.model.MockVOParameterDefinition;
+import org.oscm.ui.model.MockVOParameterOption;
 
 public class MockService implements IdentityService, SubscriptionService,
         ServiceProvisioningService, AccountService, ConfigurationService,
@@ -2635,5 +2634,17 @@ public class MockService implements IdentityService, SubscriptionService,
     public List<VOServicePaymentConfiguration> getServicePaymentConfiguration(
             PerformanceHint performanceHint) {
         return null;
+    }
+
+    @Override
+    public void grantUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+    }
+
+    @Override
+    public void revokeUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
     }
 }

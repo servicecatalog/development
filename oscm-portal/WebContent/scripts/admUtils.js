@@ -2053,6 +2053,50 @@ AdmUtils.initRoleFieldSetup = function (roleId, checkboxId) {
 	}
 }
 
+AdmUtils.updateSubRoleComboBox = function(event, roleId) {
+
+	var elements = $("[id$='{0}']".f(roleId));
+	var id = event.target.id.replace('assignCheckbox',roleId);
+	
+	for(var i = 0; i < elements.length; i++) {	
+		if(elements[i].id==id){
+		
+			var roleSelector = document.getElementById(id);
+			
+			if (!event.target.checked) {
+				roleSelector.style.visibility = 'hidden';
+			} else {
+				roleSelector.style.visibility = 'visible';
+			}
+			
+		}		
+	}
+}
+
+AdmUtils.initSubRoleFieldSetup = function (roleId, checkboxId) {
+	
+	
+	var roleElems = $("[id$='{0}']".f(roleId));
+	var checkboxElems = $("[id*='{0}']".f(checkboxId));
+
+	for (var i = 0; i < roleElems.length; i++) {
+		
+		var roleElement = roleElems[i];
+		var roleElementId = roleElems[i].id;
+
+		var checkElementId = roleElementId.replace(':role',':assignCheckbox');
+		var checkElement = document.getElementById(checkElementId);
+
+		if(checkElement.checked){
+			roleElement.style.visibility = 'visible';
+		} else{
+			roleElement.style.visibility = 'hidden';
+		}		
+	}
+}
+
+
+
 String.prototype.format = String.prototype.f = function() {
 	var s = this,
 		i = arguments.length;
@@ -2062,3 +2106,73 @@ String.prototype.format = String.prototype.f = function() {
 	}
 	return s;
 };
+
+AdmUtils.handleSelectAllWithPaging = function(panelClass) {
+	var checkBoxes = $('.' + panelClass + ' .user-group-select-user');
+	var selectAllCheckbox = $('.' + panelClass + ' .select-all-checkbox')[0];
+
+	selectAllCheckbox.checked = checkBoxes.length != 0;
+
+	$.each(checkBoxes, function() {
+		if ($(this)[0].checked == false) {
+			selectAllCheckbox.checked = false;
+			return;
+		}
+	})
+}
+
+AdmUtils.handlePagerActionsWithPopup = function(panelClass, pagerComponent, pagerButtonId) {
+	$.each($('.' + panelClass + ' a.rf-ds-nmb-btn'), function() {
+    	var pageNr = $(this).html();
+    	$(this).unbind('click');
+    	$(this).bind('click', function() {
+    		if (handleOnKeyUp() == true) {
+    			pagerComponent.switchToPage(pageNr);
+    			
+    		}
+    	});
+    });
+    
+    var nextButton = $('.' + panelClass + ' a.rf-ds-btn.rf-ds-btn-next');
+    nextButton.unbind('click');
+    nextButton.bind('click', function() {
+    	if (handleOnKeyUp() == true) {
+    		pagerComponent.next();
+    	}
+    });
+    
+    var lastButton = $('.' + panelClass + ' a.rf-ds-btn.rf-ds-btn-last');
+    lastButton.unbind('click');
+    lastButton.bind('click', function() {
+    	if (handleOnKeyUp() == true) {
+    		pagerComponent.last();
+    	}
+    });
+    
+    var prevButton = $('.' + panelClass + ' a.rf-ds-btn.rf-ds-btn-prev');
+    prevButton.unbind('click');
+    prevButton.bind('click', function() {
+    	if (handleOnKeyUp() == true) {
+    		pagerComponent.previous();
+    	}
+    });
+    
+    var firstButton = $('.' + panelClass + ' a.rf-ds-btn.rf-ds-btn-first');
+    firstButton.unbind('click');
+    firstButton.bind('click', function() {
+    	if (handleOnKeyUp() == true) {
+    		pagerComponent.first();
+    	}
+    });
+    
+    var pageButton = document.getElementById(pagerButtonId);
+    $(pageButton).unbind('click');
+    $(pageButton)[0].onclick = null;
+    $(pageButton).bind('click', function(event) {
+    	event.preventDefault();
+    	if (handleOnKeyUp() == true) {
+    		var pageNr = $('.' + panelClass + ' .pageInput').val();
+    		pagerComponent.switchToPage(pageNr);
+    	}
+    });
+}

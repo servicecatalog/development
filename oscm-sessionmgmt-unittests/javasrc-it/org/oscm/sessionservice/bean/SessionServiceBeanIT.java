@@ -16,13 +16,13 @@ import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import javax.ejb.EJBException;
 
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -61,6 +61,8 @@ import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.EventType;
@@ -113,6 +115,7 @@ public class SessionServiceBeanIT extends EJBTestBase {
         org.setKey(0);
 
         container.login("1", ROLE_ORGANIZATION_ADMIN);
+        container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean() {
             @Override
             public PlatformUser getCurrentUser() {
@@ -123,6 +126,8 @@ public class SessionServiceBeanIT extends EJBTestBase {
         container.addBean(new CommunicationServiceStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
+        container.addBean(Mockito.mock(IdentityService.class));
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());

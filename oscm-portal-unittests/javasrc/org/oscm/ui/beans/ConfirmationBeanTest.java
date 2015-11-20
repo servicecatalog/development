@@ -521,6 +521,18 @@ public class ConfirmationBeanTest {
                 throws ValidationException {
             return false;
         }
+
+        @Override
+        public void grantUnitRole(VOUser user, UserRoleType role)
+                throws ObjectNotFoundException, OperationNotPermittedException,
+                UserRoleAssignmentException {
+        }
+
+        @Override
+        public void revokeUnitRole(VOUser user, UserRoleType role)
+                throws ObjectNotFoundException, OperationNotPermittedException,
+                UserRoleAssignmentException {
+        }
     }
 
 }

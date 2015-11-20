@@ -2931,7 +2931,6 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertNotNull(renamedSub);
         // check results
         assertEquals(SubscriptionStatus.DEACTIVATED, renamedSub.getStatus());
-        assertEquals("Unit key must be deleted", 0, renamedSub.getUnitKey());
         assertEquals(
                 new SimpleDateFormat("yyyy-MM-dd").format(GregorianCalendar
                         .getInstance().getTime()), new SimpleDateFormat(

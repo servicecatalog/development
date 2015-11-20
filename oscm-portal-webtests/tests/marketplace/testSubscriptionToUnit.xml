@@ -263,11 +263,9 @@
       <clickElement htmlId="tabGroups:header"/>
       <clickElement xpath="//tbody[@id='groupsListForm:groupListTable:tb']//span[contains (text(), 'TestUnit')]//..//..//..//a"/>
       
-      <!-- Click on deassign button -->
-      <clickElement xpath="//tbody[@id='editGroupForm:userTable:tb']//span[contains (text(), '${unitAdminName2}')]//..//..//..//input"/>
-      
-      <!-- Confirm popup -->
-      <clickElement htmlId="deleteForm:deassignConfirmPlOkButton"/>
+      <!-- deassign user -->
+      <verifyCheckbox xpath="//*[@id='editGroupForm:usersInGroup']//*[contains(@id,'${unitAdminName2}')]/input" checked="true" />
+      <setCheckbox xpath="//*[@id='editGroupForm:usersInGroup']//*[contains(@id,'${unitAdminName2}')]/input" checked="false" />
       <clickElement htmlId="editGroupForm:createButtonLink"/>
       
       <!-- Check if admin is still owner -->

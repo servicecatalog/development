@@ -48,10 +48,12 @@
       <setInputField htmlId="userForm:email" value="${common.email}" />
       <setInputField htmlId="userForm:userId" value="${usernameM}" />
       <setSelectField htmlId="userForm:locale" value="en" />
+      <clickElement htmlId="userForm:createButtonLink" />
+      <common.verifySuccess label="${usernameM}" />
       <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="true" />
       <mpl_user.selectUserGroup groupIndex="0" groupRole="User" />
       <mpl_user.selectUserGroup groupIndex="1" groupRole="User" />
-      <clickElement htmlId="userForm:createButtonLink" />
+      <clickElement htmlId="editUserForm:saveButtonLink" />
       <common.verifySuccess label="${usernameM}" />
       <mpl_login.logout />
       <mail.readPasswordAndUrlFromMail />
@@ -446,16 +448,18 @@
 
       <mpl_goto.account.users />
       <mpl_user.create userId="#{newUserId}" createUniqueUserId="false" submit="false" />
+      <clickLink htmlId="userForm:createButtonLink" />
+      <mpl_verify.success label="#{newUserId}" />
 
       <!--  (1) table with two subscriptions is displayed -->
-      <verifyXPath xpath="//*[contains(text(),'${marketplace.account.adduser.assignUser.title}')]" />
-      <verifyXPath xpath="//*[@id='userForm:orgSubscriptionsTable']" />
+      <verifyXPath xpath="//*[contains(text(),'${marketplace.account.edituser.assignUser.title}')]" />
+      <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable']" />
 
-      <setCheckbox htmlId="userForm:orgSubscriptionsTable:0:subscriptionCheckbox" checked="true" />
-      <setCheckbox htmlId="userForm:orgSubscriptionsTable:1:subscriptionCheckbox" checked="true" />
-      <clickLink htmlId="userForm:createButtonLink" />
+      <setCheckbox xpath="//*[@id='editUserForm:subscriptionTable']/tbody/tr[1]//*[contains(@id, 'assignCheckbox')]" checked="true" />
+      <setCheckbox xpath="//*[@id='editUserForm:subscriptionTable']/tbody/tr[2]//*[contains(@id, 'assignCheckbox')]" checked="true" />
+      <clickLink htmlId="editUserForm:saveButtonLink" />
       <!--  (2) success message -->
-      <common.handleMessageParameters property="infoMsg" value="${info.user.created}" att0="#{newUserId}" />
+      <common.handleMessageParameters property="infoMsg" value="${info.user.saved}" att0="#{newUserId}" />
       <common.verifySuccess label="#{infoMsg}" />
 
       <!--  (3) redirect to overview -->
@@ -465,8 +469,8 @@
       <mpl_user.display userId="#{newUserId}" />
 
       <!-- (4) all subscriptions are checked in editUser page -->
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="true" />
+      <verifyCheckbox xpath="//*[@id='editUserForm:subscriptionTable']/tbody/tr[1]//*[contains(@id, 'assignCheckbox')]" checked="true" />
+      <verifyCheckbox xpath="//*[@id='editUserForm:subscriptionTable']/tbody/tr[2]//*[contains(@id, 'assignCheckbox')]" checked="true" />
       <mpl_login.logout />
     </webtest>
 
@@ -487,16 +491,17 @@
       <!-- (1) success message -->
       <common.handleMessageParameters property="infoMsg" value="${info.user.created}" att0="#{newUserId}" />
       <common.verifySuccess label="#{infoMsg}" />
+      <verifyView view="marketplace/account/addUser.jsf" />
 
-      <!-- (2) redirect to overview page -->
-      <verifyView view="marketplace/account/users.jsf" />
+      <!-- (2) go to overview page -->
+      <mpl_goto.account.users />
 
       <verifyXPath xpath="//*[contains(text(),'#{newUserId}')]" />
       <mpl_user.display userId="#{newUserId}" />
 
       <!-- (3) no subscriptions are checked in edit page -->
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="false" />
-      <verifyCheckbox htmlId="editUserForm:subscriptionTable:1:assignCheckbox" checked="false" />
+      <verifyCheckbox xpath="//*[@id='editUserForm:subscriptionTable:0']//input[contains(@id,'assignCheckbox')]" checked="false" />
+      <verifyCheckbox xpath="//*[@id='editUserForm:subscriptionTable:1']//input[contains(@id,'assignCheckbox')]" checked="false" />
       <mpl_login.logout />
     </webtest>
 

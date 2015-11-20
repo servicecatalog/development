@@ -32,6 +32,7 @@ import java.util.Set;
 import javax.annotation.Resource;
 import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Remote;
@@ -219,6 +220,17 @@ public class IdentityServiceBean implements IdentityService,
             ValidationException, UserRoleAssignmentException,
             OperationPendingException {
 
+        return createUser(user, roles, marketplaceId, null);
+    }
+    
+    @Override
+    @RolesAllowed("ORGANIZATION_ADMIN")
+    public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException {
+        
+        List<UserRoleType> roles = Collections.emptyList();
         return createUser(user, roles, marketplaceId, null);
     }
 
@@ -545,6 +557,30 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pUser = getPlatformUser(user.getUserId(), true);
         grantUserRoles(pUser, roles);
 
+    }
+
+    @Override
+    @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
+    public void grantUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+
+        ArgumentValidator.notNull("user", user);
+        ArgumentValidator.notNull("role", role);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        grantUnitRole(pUser, role);
+    }
+
+    @Override
+    @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
+    public void revokeUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+
+        ArgumentValidator.notNull("user", user);
+        ArgumentValidator.notNull("role", role);
+        PlatformUser pUser = getPlatformUser(user.getUserId(), true);
+        revokeUnitRole(pUser, role);
     }
 
     @Override
@@ -930,7 +966,7 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Asynchronous
     public void sendUserUpdatedMail(PlatformUser existingUser,
             PlatformUser oldUser) {
 
@@ -1947,13 +1983,16 @@ public class IdentityServiceBean implements IdentityService,
 
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
-    public void revokeUnitRole(PlatformUser user, UserRoleType role)
-            throws UserModificationConstraintException {
+    public void revokeUnitRole(PlatformUser user, UserRoleType role) {
         if (!user.hasRole(role)) {
             return;
         }
-        if (role.isUnitRole()) {
-            revokeRole(user, role);
+        if (!role.isUnitRole()) {
+            return;
+        }
+        RoleAssignment roleAssignment = user.getAssignedRole(role);
+        if (roleAssignment != null) {
+            dm.remove(roleAssignment);
         }
     }
 

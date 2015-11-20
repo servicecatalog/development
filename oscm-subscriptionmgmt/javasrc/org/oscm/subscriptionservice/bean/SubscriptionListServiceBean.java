@@ -24,18 +24,23 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UsageLicense;
+import org.oscm.i18nservice.bean.LocalizerFacade;
+import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.subscriptionservice.converter.SubscriptionListConverter;
-import org.oscm.subscriptionservice.dao.SubscriptionDao;
-import org.oscm.subscriptionservice.dao.UsageLicenseDao;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.usermanagement.POSubscription;
+import org.oscm.subscriptionservice.converter.SubscriptionListConverter;
+import org.oscm.subscriptionservice.dao.SubscriptionDao;
+import org.oscm.subscriptionservice.dao.UsageLicenseDao;
+import org.oscm.subscriptionservice.dao.UserSubscriptionDao;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
 
 /**
  * @author weiser
@@ -44,11 +49,14 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 @Stateless
 @Local(SubscriptionListServiceLocal.class)
 @Interceptors({ ExceptionMapper.class })
-public class SubscriptionListServiceBean implements
-        SubscriptionListServiceLocal {
+public class SubscriptionListServiceBean
+        implements SubscriptionListServiceLocal {
 
     @EJB
     DataService ds;
+
+    @EJB(beanInterface = LocalizerServiceLocal.class)
+    LocalizerServiceLocal lsl;
 
     SubscriptionListConverter slc = new SubscriptionListConverter();
 
@@ -57,8 +65,8 @@ public class SubscriptionListServiceBean implements
     public List<SubscriptionWithRoles> getSubcsriptionsWithRoles(
             Organization owner, Set<SubscriptionStatus> states) {
         List<SubscriptionWithRoles> result = new ArrayList<SubscriptionWithRoles>();
-        List<Object[]> list = getSubscriptionDao().getSubscriptionsWithRoles(
-                owner, states);
+        List<Object[]> list = getSubscriptionDao()
+                .getSubscriptionsWithRoles(owner, states);
         result = slc.convert(list);
         return result;
     }
@@ -108,8 +116,8 @@ public class SubscriptionListServiceBean implements
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Subscription> getAllSubscriptionsForOrganization() {
         PlatformUser currentUser = ds.getCurrentUser();
-        return new ArrayList<Subscription>(currentUser.getOrganization()
-                    .getSubscriptions());
+        return new ArrayList<Subscription>(
+                currentUser.getOrganization().getSubscriptions());
     }
 
     @Override
@@ -122,6 +130,10 @@ public class SubscriptionListServiceBean implements
         return new SubscriptionDao(ds);
     }
 
+    public UserSubscriptionDao getUserSubscriptionDao() {
+        return new UserSubscriptionDao(ds);
+    }
+
     public UsageLicenseDao getUsageLicenseDao() {
         return new UsageLicenseDao(ds);
     }
@@ -129,7 +141,7 @@ public class SubscriptionListServiceBean implements
     @Override
     public List<Subscription> getSubscriptionsForOrganization(
             Set<SubscriptionStatus> states, Pagination pagination)
-            throws OrganizationAuthoritiesException {
+                    throws OrganizationAuthoritiesException {
         List<Subscription> result = new ArrayList<>();
         PlatformUser currentUser = ds.getCurrentUser();
         if (currentUser.isOrganizationAdmin()) {
@@ -162,6 +174,43 @@ public class SubscriptionListServiceBean implements
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
             Pagination pagination) throws OrganizationAuthoritiesException {
         return getSubscriptionDao().getSubscriptionsForOwner(owner, pagination);
+    }
+
+    @Override
+    public List<POSubscription> getUserAssignableSubscriptions(
+            org.oscm.pagination.Pagination pagination, PlatformUser user,
+            Set<SubscriptionStatus> states) {
+
+        List<Object[]> list = getUserSubscriptionDao()
+                .getUserAssignableSubscriptions(pagination,
+                        user.getOrganization(), user.getKey(), states);
+
+        LocalizerFacade lf = new LocalizerFacade(lsl, user.getLocale());
+        List<POSubscription> subscriptions = new ArrayList<>();
+
+        for (Object[] sub : list) {
+
+            String subId = (String) sub[0];
+            List<RoleDefinition> roles = getSubscriptionDao()
+                    .getSubscriptionRoles(user.getOrganization(), subId);
+
+            POSubscription subscription = slc.toPOSubscription(sub, roles, lf);
+
+            subscriptions.add(subscription);
+        }
+
+        return subscriptions;
+    }
+
+    @Override
+    public Long getUserAssignableSubscriptionsNumber(
+            org.oscm.pagination.Pagination pagination, PlatformUser user,
+            Set<SubscriptionStatus> states) {
+
+        Long numberOfSubs = getUserSubscriptionDao()
+                .getCountUserAssignableSubscriptions(pagination,
+                        user.getOrganization(), user.getKey(), states);
+        return numberOfSubs;
     }
 
 }

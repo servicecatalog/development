@@ -12,14 +12,18 @@ import java.util.List;
 
 import javax.ejb.Remote;
 
+import org.oscm.internal.components.response.Response;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.pagination.Pagination;
 
 /**
  * Service providing the functionality to manage user group.
@@ -61,19 +65,23 @@ public interface UserGroupService {
      *            the users to assign
      * @param usersToDeAssign
      *            the users to deassign
+     * @param usersToRoleUpdate
+     *            the users to update
      * @throws ValidationException
      * @throws OperationNotPermittedException
      * @throws ConcurrentModificationException
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
      * @throws MailOperationException
+     * @throws UserRoleAssignmentException 
      */
     public POUserGroup updateGroup(POUserGroup group, String marketplaceId,
-            List<POUserDetails> usersToAssign,
-            List<POUserDetails> usersToDeassign) throws ValidationException,
+            List<POUserInUnit> usersToAssign,
+            List<POUserInUnit> usersToUnassign,
+            List<POUserInUnit> usersToRoleUpdate) throws ValidationException,
             OperationNotPermittedException, ConcurrentModificationException,
             ObjectNotFoundException, NonUniqueBusinessKeyException,
-            MailOperationException;
+            MailOperationException, UserRoleAssignmentException;
 
     /**
      * delete user group
@@ -246,5 +254,32 @@ public interface UserGroupService {
      * @param userId
      * @return the list of user groups
      */
-    List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(String userId);
+    List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
+            String userId);
+
+    Response getUsersForGroup(Pagination pagination, String selectedGroupId)
+            throws OrganizationAuthoritiesException;
+
+    /**
+     * get details of user group by key including details of users assigned to
+     * this user group.
+     *
+     * @param groupKey
+     *            the key of user group
+     * @return POUserGroup
+     * @throws ObjectNotFoundException
+     */
+    public POUserGroup getUserGroupDetailsWithUsers(long groupKey)
+            throws ObjectNotFoundException;
+
+    /**
+     * get number of users assigned to this user group.
+     *
+     * @param groupKey
+     *            the key of user group
+     * @return number of users
+     * @throws OrganizationAuthoritiesException
+     */
+    public Integer getCountUsersForGroup(Pagination pagination, String selectedGroupId)
+            throws OrganizationAuthoritiesException;
 }

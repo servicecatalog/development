@@ -26,6 +26,7 @@ import java.util.List;
 public class CreateUserModel extends BaseModel {
 
     private static final long serialVersionUID = -1295546968971087022L;
+    public static final String ATTRIBUTE_USER_ID = "userId";
 
     private FieldData<String> salutation;
     private FieldData<String> locale;

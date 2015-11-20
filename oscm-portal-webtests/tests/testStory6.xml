@@ -63,7 +63,8 @@
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
       <mpl_goto.account.users />
       <mpl_user.display userId="${customer.ldapuserid}" />
-      <setCheckbox xpath="//td[text()='#{givenSubscriptionId}']/..//input" checked="true" />
+      <setCheckbox xpath="//span[text()='#{givenSubscriptionId}']/../../../td/input" checked="true" />
+      
       <clickButton label="${button.save}" />
       <mpl_login.logout />
 
@@ -81,7 +82,8 @@
 	  <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
       <mpl_goto.account.users />
       <mpl_user.display userId="${customer.ldapuserid}" />
-      <setCheckbox xpath="//td[text()='#{givenSubscriptionId}']/..//input" checked="true" />
+      <setCheckbox xpath="//span[text()='#{givenSubscriptionId}']/../../../td/input" checked="true" />
+      
       <clickButton label="${button.save}" />
       <mpl_login.logout />
 

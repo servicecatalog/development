@@ -49,9 +49,11 @@
       <adm:buttonCustomizedOnClick id="#{pagerId}pagerButton" value="#{msg['common.go']}" buttonType="smallExecute"
         onclick="AdmUtils.pageTo(#{rich:element(pagerId)},#{rich:element(pageValue)});return false;"/>
     </a4j:outputPanel>
-    <script type="text/javascript">
+    <a4j:outputPanel id="#{pagerId}Scripts">
+      <script type="text/javascript">
       var pager = #{rich:element(pagerId)}.id;
       AdmUtils.managePageSelection(pager);
     </script>
+    </a4j:outputPanel>
   </a4j:outputPanel>
 </ui:composition>

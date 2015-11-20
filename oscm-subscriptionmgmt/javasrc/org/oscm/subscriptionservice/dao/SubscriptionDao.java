@@ -25,6 +25,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.UsageLicense;
@@ -44,7 +45,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
  */
 @Interceptors({ ExceptionMapper.class })
 public class SubscriptionDao {
-
+    
     private final DataService dataManager;
     private Log4jLogger logger = LoggerFactory.getLogger(SubscriptionDao.class);
 
@@ -225,6 +226,28 @@ public class SubscriptionDao {
      * @param pagination
      * @param query
      */
+    private void setPaginationParameters(org.oscm.pagination.Pagination pagination, Query query) {
+        setSortingParameter(query, pagination);
+        setFilterParameters(query, pagination);
+
+        query.setFirstResult(pagination.getOffset());
+        query.setMaxResults(pagination.getLimit());
+    }
+
+    private void setSortingParameter(Query query, org.oscm.pagination.Pagination pagination) {
+        if (pagination.getSorting() != null) {
+            query.setParameter("sortColumn", pagination.getSorting().getColumn().name());
+        }
+    }
+
+    private void setFilterParameters(Query query, org.oscm.pagination.Pagination pagination) {
+        if (pagination.getFilterSet() != null) {
+            for (Filter filter : pagination.getFilterSet()) {
+                setFilterParameter(query, filter);
+            }
+        }
+    }
+ 
     private void setPaginationParameters(Pagination pagination, Query query) {
         setSortingParameter(query, pagination);
         setFilterParameters(query, pagination);
@@ -974,6 +997,14 @@ public class SubscriptionDao {
 
         List<UsageLicense> result = ParameterizedTypes.list(query.getResultList(), UsageLicense.class);
         return result.isEmpty() ? null : result.get(0);
+    }
+
+    public List<RoleDefinition> getSubscriptionRoles(Organization owner, String subId) {
+        Query q = dataManager
+                .createNamedQuery("Subscription.getSubRoles");
+        q.setParameter("orgKey", Long.valueOf(owner.getKey()));
+        q.setParameter("subId", subId);
+        return ParameterizedTypes.list(q.getResultList(), RoleDefinition.class);
     }
 
 }

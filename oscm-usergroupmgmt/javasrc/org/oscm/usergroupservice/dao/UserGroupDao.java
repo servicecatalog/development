@@ -8,6 +8,7 @@
 
 package org.oscm.usergroupservice.dao;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -22,12 +23,16 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.pagination.Filter;
 import org.oscm.pagination.Pagination;
+import org.oscm.pagination.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -137,10 +142,11 @@ public class UserGroupDao {
         return ParameterizedTypes.list(query.getResultList(), String.class);
     }
 
-    public boolean isSubscriptionAssignedToUnit(long groupKey) {
+    public boolean isNotTerminatedSubscriptionAssignedToUnit(long groupKey) {
         Query query = dm
-                .createNamedQuery("Subscription.isSubscriptionAssignedToUnit");
+                .createNamedQuery("Subscription.isNotTerminatedSubscriptionAssignedToUnit");
         query.setParameter("unitKey", Long.valueOf(groupKey));
+        query.setParameter("subscriptionStatus", SubscriptionStatus.DEACTIVATED);
         query.setMaxResults(1);
         try {
             query.getSingleResult();
@@ -253,4 +259,5 @@ public class UserGroupDao {
         }
         return usgtu;
     }
+
 }

@@ -252,6 +252,52 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
             pagination.setSorting(sorting);
         }
     }
+    
+    protected void applyFilters(List<FilterField> filterFields,
+            org.oscm.pagination.Pagination pagination) {
+        Set<Filter> filters = new HashSet<>();
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        for (FilterField filterField : filterFields) {
+            String propertyName = (String) filterField.getFilterExpression()
+                    .getValue(facesContext.getELContext());
+            Object filterValue = filterField.getFilterValue();
+
+            if (filterValue == null || filterValue.equals("")) {
+                continue;
+            }
+            Filter filter = new Filter(columnNamesMapping.get(propertyName),
+                    filterValue.toString());
+            filters.add(filter);
+        }
+        ResourceBundle bundle = facesContext.getApplication()
+                .getResourceBundle(facesContext, Constants.BUNDLE_NAME);
+        pagination.setDateFormat(bundle
+                .getString(ApplicationBean.DatePatternEnum.DATE_INPUT_PATTERN
+                        .getMessageKey()));
+        pagination.setFilterSet(filters);
+    }
+
+    protected void applySorting(List<SortField> sortFields,
+            org.oscm.pagination.Pagination pagination) {
+        FacesContext facesContext = FacesContext.getCurrentInstance();
+        Sorting sorting = null;
+        for (SortField sortField : sortFields) {
+            String propertyName = (String) sortField.getSortBy().getValue(
+                    facesContext.getELContext());
+            SortOrder order;
+            if (sortField.getSortOrder() == org.richfaces.component.SortOrder.ascending) {
+                order = SortOrder.ASC;
+            } else if (sortField.getSortOrder() == org.richfaces.component.SortOrder.descending) {
+                order = SortOrder.DESC;
+            } else {
+                order = SortOrder.UNSORTED;
+            }
+            sorting = new Sorting(columnNamesMapping.get(propertyName), order);
+        }
+        if (sorting != null) {
+            pagination.setSorting(sorting);
+        }
+    }
 
     public void toggleSort() {
         for (Map.Entry<String, org.richfaces.component.SortOrder> entry : sortOrders

@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -35,6 +34,8 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 
@@ -77,10 +78,12 @@ public class SessionDaoIT extends EJBTestBase {
                 return givenUserAdmin(1, "userId", org);
             }
         };
+        container.enableInterfaceMocking(true);
         container.addBean(ds);
         container.addBean(new CommunicationServiceStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());
@@ -88,6 +91,7 @@ public class SessionDaoIT extends EJBTestBase {
         container.addBean(new EventServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new SessionServiceBean());
+        container.addBean(Mockito.mock(IdentityService.class));
         sessionMgmt = container.get(SessionService.class);
         dao = new SessionDao(ds);
         container.login("1", ROLE_ORGANIZATION_ADMIN);

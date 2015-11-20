@@ -36,6 +36,7 @@
         <emailStoreMessageId subject="${USER_CREATED.subject}" property="mId" />
         <emailMessageContentFilter save="plain" messageId="#{mId}" />
         <storeRegEx description="Extract url from mail content" text="URL:\s(\S*)" property="orgUrl" group="1" />
+        <storeRegEx description="Extract url from mail content" text="URL:\s(\S*oscm-portal)" property="oscmPortalUrl" group="1" />
         <storeRegEx description="Extract base url from mail content" text="URL:\s([^\?\s]*)" property="baseUrl" group="1" />
         <storeRegEx description="Extract user id from mail content" text="user ID is:\s(\S*)" property="userId" group="1" />
         <storeRegEx description="Extract password from mail content" text="password is:\s(\S*)" property="userPwd" group="1" />

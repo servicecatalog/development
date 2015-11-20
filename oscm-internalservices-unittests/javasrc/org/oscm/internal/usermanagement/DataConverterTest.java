@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.RoleDefinition;
@@ -40,6 +39,7 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.types.enumtypes.SettingType;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 
@@ -137,9 +137,34 @@ public class DataConverterTest {
 
     @Test
     public void toPlatformUser_Null() throws Exception {
-        PlatformUser pu = dc.toPlatformUser(null);
+        PlatformUser pu = dc.toPlatformUser((POUserDetails) null);
 
         assertNull(pu);
+    }
+    
+    @Test
+    public void toPlatformUser_FromPOUserInUnit() throws Exception {
+        POUserInUnit ud = dc.toPoUserInUnit(user, UnitRoleType.USER.name());
+
+        PlatformUser pu = dc.toPlatformUser(ud);
+
+        validate(ud, pu);
+    }
+
+    @Test
+    public void updatePlatformUser() throws Exception {
+        POUserInUnit ud = dc.toPoUserInUnit(user, UnitRoleType.USER.name());
+
+        PlatformUser pu = dc.updatePlatformUser(ud, user);
+
+        validate(ud, pu);
+    }
+    
+    @Test
+    public void toPOUserInUnit() throws Exception {
+        POUserInUnit ud = dc.toPoUserInUnit(user, UnitRoleType.USER.name());
+
+        validate(ud, user);
     }
 
     @Test
@@ -314,6 +339,15 @@ public class DataConverterTest {
         assertEquals(exp.getLocale(), act.getLocale());
         assertEquals(exp.getSalutation(), act.getSalutation());
         assertNull(act.getStatus());
+    }
+
+    private static void validate(POUserInUnit exp, PlatformUser act) {
+        assertEquals(exp.getPoUser().getEmail(), act.getEmail());
+        assertEquals(exp.getFirstName(), act.getFirstName());
+        assertEquals(exp.getLastName(), act.getLastName());
+        assertEquals(exp.getUserId(), act.getUserId());
+        assertEquals(exp.getLocale(), act.getLocale());
+        assertEquals(exp.getSalutation(), act.getSalutation());
     }
 
     private static List<SubscriptionWithRoles> prepareSubscriptions() {

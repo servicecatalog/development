@@ -14,7 +14,11 @@ package org.oscm.enums;
  */
 public enum APIVersion {
 
-    V1_9("v1_9", "v1.9", true);
+    V1_9("v1_9", "v1.9", true),
+
+    V1_8("v1_8", "v1.8", false),
+
+    V1_7("v1_7", "v1.7", false);
 
     private String sourceLocation;
     private String versionName;

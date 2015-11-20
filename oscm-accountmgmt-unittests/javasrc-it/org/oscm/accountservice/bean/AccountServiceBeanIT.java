@@ -67,7 +67,6 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.PaymentTypeAssembler;
 import org.oscm.accountservice.dao.PaymentTypeDao;
@@ -152,6 +151,7 @@ import org.oscm.types.enumtypes.TriggerProcessParameterName;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -278,6 +278,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         setInvoiceAsDefaultPayment = false;
 
         container.login(1L);
+        container.enableInterfaceMocking(true);
 
         container.addBean(new DataServiceBean());
         container.addBean(new PaymentTypeDao());
@@ -338,6 +339,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         container.addBean(userGroupDao);
         userGroupServiceLocal = mock(UserGroupServiceLocalBean.class);
         container.addBean(userGroupServiceLocal);
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new ImageResourceServiceStub() {
             ImageResource saved;
 

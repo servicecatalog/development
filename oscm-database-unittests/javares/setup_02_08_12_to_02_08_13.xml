@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+	<Organization tkey="11001" version="0" organizationid="SUPP1" name="SUPP1" registrationdate="1234" cutoffday="1"/>
+	<PlatformUser tkey="10000" creationdate="98765432" failedlogincounter="0" locale="en" status="ACTIVE"
+				  passwordsalt="324" userid="admin" version="0" organizationkey="11001" />
+	<TriggerDefinition tkey="98762" version="0" target="http://someNotificationServiceURL2" targettype="WEB_SERVICE"
+					   type="DEACTIVATE_SERVICE" organization_tkey="11001" suspendprocess="true" name="xyz"/>
+	<TriggerProcess tkey="96003" version="0" activationdate="12345678" status="WAITING_FOR_APPROVAL"
+					triggerdefinition_tkey="98762" user_tkey="10000" />
+	<TriggerProcessParameter tkey="47004" version="0" serializedvalue="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;java version=&quot;1.7.0_45&quot; class=&quot;java.beans.XMLDecoder&quot;&gt;
+ &lt;object class=&quot;com.fujitsu.adm.um.internal.vo.VOUserDetails&quot;&gt;
+  &lt;void property=&quot;EMail&quot;&gt;
+   &lt;string&gt;bes.G02PLXNNOW29067@dev.est.fujitsu.com&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;locale&quot;&gt;
+   &lt;string&gt;en&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;organizationId&quot;&gt;
+   &lt;string&gt;9f9e2399&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;userId&quot;&gt;
+   &lt;string&gt;150d2872f29&lt;/string&gt;
+  &lt;/void&gt;
+ &lt;/object&gt;
+ &lt;object class=&quot;com.fujitsu.bss.internal.vo.VOUserDetails&quot;&gt;
+  &lt;void property=&quot;EMail&quot;&gt;
+   &lt;string&gt;bes.G02PLXNNOW29067@dev.est.fujitsu.com&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;locale&quot;&gt;
+   &lt;string&gt;en&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;organizationId&quot;&gt;
+   &lt;string&gt;9f9e2399&lt;/string&gt;
+  &lt;/void&gt;
+  &lt;void property=&quot;userId&quot;&gt;
+   &lt;string&gt;150d2872f29&lt;/string&gt;
+  &lt;/void&gt;
+ &lt;/object&gt;
+&lt;/java&gt;" name="USER" triggerprocess_tkey="96003" serialized="true"/>
+</dataset>

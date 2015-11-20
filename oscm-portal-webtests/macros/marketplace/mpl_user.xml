@@ -37,20 +37,21 @@
         <verifySelectField htmlId="userForm:locale" value="" />
       </not>
       <setSelectField htmlId="userForm:locale" value="en" />
-      <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="@{isAdmin}" />
-      <setCheckbox xpath="//td[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" checked="@{isSubMgr}" />
-      <ifStep test="@{isSvcMgr}">
-        <setCheckbox xpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" checked="true" />
-      </ifStep>
-      <ifStep test="@{isTechMgr}">
-        <setCheckbox xpath="//td[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" checked="true" />
-      </ifStep>
-      <ifStep test="@{isOperator}">
-        <setCheckbox xpath="//td[text()='${UserRoleType.PLATFORM_OPERATOR}']/..//input" checked="true" />
-      </ifStep>
-
       <ifStep test="@{submit}">
         <then>
+          <clickButton label="${button.save}" />
+          <mpl_verify.success label="#{userId}" />
+          <setCheckbox xpath="//td[text()='${UserRoleType.ORGANIZATION_ADMIN}']/..//input" checked="@{isAdmin}" />
+          <setCheckbox xpath="//td[text()='${UserRoleType.SUBSCRIPTION_MANAGER}']/..//input" checked="@{isSubMgr}" />
+          <ifStep test="@{isSvcMgr}">
+            <setCheckbox xpath="//td[text()='${UserRoleType.SERVICE_MANAGER}']/..//input" checked="true" />
+          </ifStep>
+          <ifStep test="@{isTechMgr}">
+            <setCheckbox xpath="//td[text()='${UserRoleType.TECHNOLOGY_MANAGER}']/..//input" checked="true" />
+          </ifStep>
+          <ifStep test="@{isOperator}">
+            <setCheckbox xpath="//td[text()='${UserRoleType.PLATFORM_OPERATOR}']/..//input" checked="true" />
+          </ifStep>
           <clickButton label="${button.save}" />
           <mpl_verify.success label="#{userId}" />
         </then>
@@ -312,30 +313,27 @@
       <mpl_goto.account.users />
       <clickElement htmlId="tabGroups:header"/>
       <clickElement htmlId="groupsListForm:addGroupButton" />
-      <!-- No user assinged ... no table but a warning is shown -->
-      <verifyXPath xpath="//*[@id='groupForm:assignedUsersPanel']/dl[@class='rich-messages box warning']/dt/text()" text="${info.group.noUsers}" regex="true" />
-      <not>
-        <verifyXPath xpath="//*[@id='userListForm:userTable']" />
-      </not>
       <setInputField htmlId="groupForm:groupId" value="@{groupId}" />
       <setInputField htmlId="groupForm:groupDescription" value="@{groupDescription}" />
       <setInputField htmlId="groupForm:groupReferenceId" value="@{groupReferenceId}" />
+      <clickLink htmlId="groupForm:createButtonLink" />
+      <common.verifySuccess label="@{groupId}" />
       <ifStep>
         <condition>
-          <verifyXPath xpath="//*[@id='groupForm:servicesTable:@{serviceNumber}:serviceCheckbox']" />
+          <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:@{serviceNumber}:serviceCheckbox']" />
         </condition>
         <then>
           <ifStep test="@{hasService}">
             <then>
-              <setCheckbox name="groupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="true" />
+              <setCheckbox name="editGroupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="true" />
             </then>
             <else>
-              <setCheckbox name="groupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="false" />
+              <setCheckbox name="editGroupForm:servicesTable:@{serviceNumber}:serviceCheckbox" checked="false" />
             </else>
           </ifStep>
         </then>
       </ifStep>
-      <clickLink htmlId="groupForm:createButtonLink" />
+      <clickLink htmlId="editGroupForm:createButtonLink" />
       <common.verifySuccess label="@{groupId}" />
     </sequential>
   </macrodef>

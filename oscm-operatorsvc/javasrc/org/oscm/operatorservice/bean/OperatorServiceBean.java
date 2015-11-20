@@ -9,6 +9,7 @@
 package org.oscm.operatorservice.bean;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,8 +30,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.PaymentTypeAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
@@ -73,18 +72,6 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
-import org.oscm.paymentservice.assembler.PSPAccountAssembler;
-import org.oscm.paymentservice.assembler.PSPAssembler;
-import org.oscm.paymentservice.assembler.PSPSettingAssembler;
-import org.oscm.paymentservice.local.PaymentServiceLocal;
-import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
-import org.oscm.timerservice.bean.TimerServiceBean;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.exceptions.BillingRunFailed;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validator.BLValidator;
-import org.oscm.validator.OrganizationRoleValidator;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.ImageType;
@@ -121,6 +108,20 @@ import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOTimerInfo;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paymentservice.assembler.PSPAccountAssembler;
+import org.oscm.paymentservice.assembler.PSPAssembler;
+import org.oscm.paymentservice.assembler.PSPSettingAssembler;
+import org.oscm.paymentservice.local.PaymentServiceLocal;
+import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
+import org.oscm.timerservice.bean.TimerServiceBean;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.exceptions.BillingRunFailed;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validator.BLValidator;
+import org.oscm.validator.OrganizationRoleValidator;
 
 /**
  * Bean implementation of the operator related functionality.
@@ -1145,16 +1146,23 @@ public class OperatorServiceBean implements OperatorService {
 
     @Override
     public List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
-            Long organizationKey) {
-        Query query = dm.createNamedQuery("PlatformUser.findUnassignedByOrg");
+                                                       Long organizationKey) {
+        Query query = dm.createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname from " +
+                "PlatformUser as usr left join UsageLicense as lic on lic.user_tkey=usr.tkey where " +
+                "lic.subscription_tkey != :subscriptionKey and usr.organizationkey=:organizationKey");
         query.setParameter("subscriptionKey", subscriptionKey);
         query.setParameter("organizationKey", organizationKey);
         List<VOUserDetails> result = new ArrayList<>();
-        for (PlatformUser user : ParameterizedTypes.iterable(
-                query.getResultList(), PlatformUser.class)) {
-            result.add(UserDataAssembler.toVOUserDetails(user));
+        List<Object[]> resultList = query.getResultList();
+        VOUserDetails pu;
+        for (Object[] cols : resultList) {
+            pu = new VOUserDetails();
+            pu.setKey(((BigInteger)cols[0]).longValue());
+            pu.setUserId((String) cols[1]);
+            pu.setFirstName((String) cols[2]);
+            pu.setLastName((String) cols[3]);
+            result.add(pu);
         }
-
         return result;
     }
 

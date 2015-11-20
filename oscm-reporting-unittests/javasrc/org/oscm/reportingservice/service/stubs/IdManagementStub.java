@@ -417,4 +417,24 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     public void revokeUnitRole(PlatformUser user, UserRoleType role)
             throws UserModificationConstraintException {
     }
+
+    @Override
+    public void grantUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+    }
+
+    @Override
+    public void revokeUnitRole(VOUser user, UserRoleType role)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            UserRoleAssignmentException {
+    }
+
+    @Override
+    public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException {
+        return null;
+    }
 }

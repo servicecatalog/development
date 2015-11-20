@@ -30,7 +30,6 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -65,6 +64,7 @@ import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.constants.Configuration;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -122,6 +122,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         });
         container.addBean(mock(ReviewServiceLocalBean.class));
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new SessionServiceStub());

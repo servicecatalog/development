@@ -2934,7 +2934,6 @@ div.pagingOptions p{
 
 .serviceListPanel{  
 	width: 550px; 
-	padding: 8px 6px;
 }
 
 .visibleServiceTablePager td{  
@@ -3382,4 +3381,27 @@ form .formHighlight div.div-for-input {
 
 .preserveWhitespaces {
 	white-space: pre-wrap;
+}
+
+.assign-panel .input-filter-icon {
+	height: 12px !important;
+	top: 3px !important;
+}
+
+#editUserForm .user-groups-table-panel {
+	margin-bottom: 20px;
+}
+
+.tableBottomMargin {
+	margin-bottom:20px;
+}
+
+.assign-panel tr > td, .assign-panel tr > th {
+	vertical-align: middle;
+}
+
+.assign-panel .rf-dt-shdr-c {
+	background-image:
+		url("/oscm-portal/org.richfaces.resources/rfRes/colHdrGrad.png?v=4.5.0.Final&db=eAFjZJBjZDBiZBBhYGBgAgADawBq&ln=org.richfaces.images")
+		!important;
 }

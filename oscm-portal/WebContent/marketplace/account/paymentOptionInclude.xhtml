@@ -66,7 +66,7 @@
         <a4j:outputPanel layout="block" styleClass="clearfix">
 
             <h:commandButton styleClass="button" id="switchToDetailsAjax" value="#{msg['button.next']}"
-                             disabled="#{noPaymentTypesAvailable}"
+                             rendered="#{not noPaymentTypesAvailable}"
                              action="#{paymentInfoBean.switchToPaymentDetails}"
                              onclick="AdmUtils.showProgress(true); setOnSubmit(false);">
                 <f:ajax execute="@form" render=":paymentOptionPanelRerenderPanel :#{dialogId}modalErrorMasterPanel #{additionalRender} @form" onevent="#{dialogId}eventHandler"/>

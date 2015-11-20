@@ -41,7 +41,6 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
-import org.oscm.billingadapterservice.bean.BillingAdapterDAO;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
@@ -2312,6 +2311,7 @@ public class ServiceProvisioningServiceBean implements
 
         persistProduct(currentUser, product);
 
+        dm.flush();
         boolean descriptionChanged = localizePriceModel(voPriceModel,
                 currentUser, priceModel);
 
@@ -2584,7 +2584,7 @@ public class ServiceProvisioningServiceBean implements
             PlatformUser currentUser, boolean isCreateNewPriceModel) {
         final String userLocale = currentUser.getLocale();
 
-        List<VOLocalizedText> oldLicenses = null;
+        List<VOLocalizedText> oldLicenses;
         if (isCreateNewPriceModel) {
             oldLicenses = localizer.getLocalizedValues(productKey,
                     LocalizedObjectTypes.PRODUCT_LICENSE_DESC);

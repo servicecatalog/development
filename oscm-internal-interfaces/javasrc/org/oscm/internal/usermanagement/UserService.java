@@ -15,6 +15,7 @@ import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
+import org.oscm.pagination.Pagination;
 
 /**
  * @author weiser
@@ -123,7 +124,7 @@ public interface UserService {
 
     Response saveUserAndSubscriptionAssignment(POUserAndSubscriptions user,
             List<POUserGroup> allUserGroupsWithoutDefault)
-            throws SaaSApplicationException;
+                    throws SaaSApplicationException;
 
     /**
      * An organization administrator can import multiple users to its own
@@ -133,7 +134,8 @@ public interface UserService {
      * <br>
      * 
      * User ID (mandatory), Email (mandatory), Language, Locale (mandatory),
-     * Title ("MR" or "MS"), First name, Last name, One or several user roles<br>
+     * Title ("MR" or "MS"), First name, Last name, One or several user roles
+     * <br>
      * <br>
      * 
      * As first and last name may contain a comma and multiple roles are also
@@ -143,7 +145,8 @@ public interface UserService {
      * quotes.<br>
      * <br>
      * 
-     * Sample for users to be imported to a technology provider organization:<br>
+     * Sample for users to be imported to a technology provider organization:
+     * <br>
      * <br>
      * 
      * "user1,user1@org.com,en,MR,"John","Doe","ORGANIZATION_ADMIN,
@@ -167,7 +170,8 @@ public interface UserService {
      * <br>
      * 
      * User ID (mandatory), Email (mandatory), Language, Locale (mandatory),
-     * Title ("MR" or "MS"), First name, Last name, One or several user roles<br>
+     * Title ("MR" or "MS"), First name, Last name, One or several user roles
+     * <br>
      * <br>
      * 
      * As first and last name may contain a comma and multiple roles are also
@@ -177,7 +181,8 @@ public interface UserService {
      * quotes.<br>
      * <br>
      * 
-     * Sample for users to be imported to a technology provider organization:<br>
+     * Sample for users to be imported to a technology provider organization:
+     * <br>
      * <br>
      * 
      * "user1,user1@org.com,en,MR,"John","Doe","ORGANIZATION_ADMIN,
@@ -190,6 +195,12 @@ public interface UserService {
      * @throws SaaSApplicationException
      *             if the given CSV data have syntax errors
      */
-    Response importUsers(byte[] users, String orgID,
-            String marketplaceId) throws SaaSApplicationException;
+    Response importUsers(byte[] users, String orgID, String marketplaceId)
+            throws SaaSApplicationException;
+
+    List<POSubscription> getUserAssignableSubscriptions(Pagination pagination,
+            String userId) throws SaaSApplicationException;
+
+    public Long getUserAssignableSubscriptionsNumber(Pagination pagination,
+            String userId) throws SaaSApplicationException;
 }

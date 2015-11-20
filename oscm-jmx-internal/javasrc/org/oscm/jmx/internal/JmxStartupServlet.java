@@ -28,7 +28,7 @@ public class JmxStartupServlet extends HttpServlet {
         mbeanRegistration = new MBeanRegistration(
                 "org.oscm.jmx.internal", ejbClientFacade);
         mbeanRegistration
-                .registerFromFolder("org.oscm/jmx/internal/mbean");
+                .registerFromFolder("org/oscm/jmx/internal/mbean");
     }
 
     @Override

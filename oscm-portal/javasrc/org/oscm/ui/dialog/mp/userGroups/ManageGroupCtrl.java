@@ -20,19 +20,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.string.Strings;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.dialog.state.TableState;
-import org.oscm.ui.model.User;
 import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -40,8 +33,18 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
-import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.string.Strings;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.state.TableState;
 
 /**
  * @author mao
@@ -52,12 +55,20 @@ import org.oscm.internal.vo.VOUserDetails;
 public class ManageGroupCtrl extends UserGroupBaseCtrl {
 
     protected static final String ASSIGN_USERS_MODAL_TITLE = "marketplace.group.assign.user.modal.title";
+    private static final String UNIT_ROLE_NAME_TEMPLATE = "UnitRoleType.%s.enum";
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(ManageGroupCtrl.class);
 
     @ManagedProperty(value = "#{manageGroupModel}")
     private ManageGroupModel manageGroupModel;
+    
+    @ManagedProperty(value = "#{usersLazyDataModel}")
+    private UsersLazyDataModel usersLazyDataModel;
 
+    @ManagedProperty(value="#{sessionBean}")
+    private SessionBean sessionBean;
+
+    UiDelegate ui = new UiDelegate();
     /**
      * EJB injected through setters.
      */
@@ -66,12 +77,25 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
 
     @PostConstruct
     public void getInitialize() {
+        TableState ts = getUi().findBean(TableState.BEAN_NAME);
+        ts.resetActiveUnitPage();
         manageGroupModel.setSelectedGroupId(getSelectedGroupId());
+
         if (!Strings.isEmpty(manageGroupModel.getSelectedGroupId())) {
             initSelectedGroup();
         } else {
             redirectToGroupListPage();
         }
+        for (UnitRoleType unitRoleType : UnitRoleType.values()) {
+            SelectItem unitRole = new SelectItem(unitRoleType.name(),
+                    formatRoleName(UNIT_ROLE_NAME_TEMPLATE,
+                            unitRoleType.name()));
+            manageGroupModel.getRoles().add(unitRole);
+        }
+    }
+    
+    private String formatRoleName(String template, String roleName) {
+        return ui.getText(String.format(template, roleName));
     }
 
     public String cancel() {
@@ -80,20 +104,45 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         }
         return BaseBean.OUTCOME_SUCCESS;
     }
+    
+    private void determineAssignmentsToUpdate() throws SaaSApplicationException {
+        POUserGroup poUserGroup = userGroupService.getUserGroupDetailsWithUsers(manageGroupModel.getSelectedGroup().getKey());
+        Map<String, String> userAndRole = new HashMap<String, String>();
+        
+        for (POUserInUnit poUserInUnit : poUserGroup.getUsersAssignedToUnit()) {
+            userAndRole.put(poUserInUnit.getUserId(), poUserInUnit.getRoleInUnit());
+        }
+        
+        for (POUserInUnit poUserInUnit : manageGroupModel.getCurrentResultUsers()) {
+            if (poUserInUnit.isSelected() && !userAndRole.containsKey(poUserInUnit.getUserId())) {
+                manageGroupModel.getUsersToAssign().add(poUserInUnit);
+                continue;
+            }
+            if (poUserInUnit.isSelected() && userAndRole.containsKey(poUserInUnit.getUserId())) {
+                if (!poUserInUnit.getRoleInUnit().equals(userAndRole.get(poUserInUnit.getUserId()))) {
+                    manageGroupModel.getUsersToUpdate().add(poUserInUnit);
+                }
+                continue;
+            }
+            if (!poUserInUnit.isSelected() && userAndRole.containsKey(poUserInUnit.getUserId())) {
+                manageGroupModel.getUsersToUnassign().add(poUserInUnit);
+            }
+        }
+    }
 
     public String save() {
         if (Strings.isEmpty(manageGroupModel.getSelectedGroupId())) {
             return BaseBean.OUTCOME_ERROR;
         }
         try {
-            List<POUserDetails> usersToAssign = getChangedUsers(
-                    manageGroupModel.getAssignedUsers(), manageGroupModel.getUsersToAssign());
-            List<POUserDetails> usersToDeassign = getChangedUsers(
-                    manageGroupModel.getUnAssignedUsers(), manageGroupModel.getUsersToDeassign());
+            determineAssignmentsToUpdate();
             setSelectedServices();
             POUserGroup group = getUserGroupService().updateGroup(
-                    manageGroupModel.getSelectedGroup(), BaseBean.getMarketplaceIdStatic(),
-                    usersToAssign, usersToDeassign);
+                    manageGroupModel.getSelectedGroup(),
+                    BaseBean.getMarketplaceIdStatic(),
+                    manageGroupModel.getUsersToAssign(),
+                    manageGroupModel.getUsersToUnassign(),
+                    manageGroupModel.getUsersToUpdate());
             manageGroupModel.setSelectedGroup(group);
             if (getUserGroupService().handleRemovingCurrentUserFromGroup()) {
                 updateUserInSession();
@@ -129,16 +178,12 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                 }
 
             }
-            if (ex.getMessageKey().equals(BaseBean.ERROR_USER_NOT_FOUND)) {
-                resetUsersToAssign(ex.getMessageParams());
-            }
             getUi().handleException(ex);
             return outcome;
         } catch (SaaSApplicationException e) {
             getUi().handleException(e);
             return BaseBean.OUTCOME_ERROR;
         }
-
         if(getIsLoggedAndUnitAdmin()) {
             return BaseBean.OUTCOME_SUCCESS_UNIT_ADMIN;
         } else {
@@ -157,61 +202,6 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                 user);
     }
 
-    void resetUsersToAssign(String[] deletedUserIds) {
-        String deletedUserId = deletedUserIds[0];
-        List<User> deletedUsers = new ArrayList<>();
-        List<User> usersToAssign = manageGroupModel.getUsersToAssign();
-        for (User user : usersToAssign) {
-            if (user.getUserId().equals(deletedUserId)) {
-                deletedUsers.add(user);
-            }
-        }
-        manageGroupModel.getUsersToAssign().removeAll(deletedUsers);
-    }
-
-    void initAssignedUnassignedUsers(POUserGroup userGroup) {
-        manageGroupModel.getAssignedUsers().clear();
-        manageGroupModel.getUnAssignedUsers().clear();
-        manageGroupModel.getUsersToAssign().clear();
-        manageGroupModel.getUsersToDeassign().clear();
-
-        List<VOUserDetails> users = getIdService().getUsersForOrganization();
-
-        if (!userGroup.isDefault()) {
-            initAssignedUnassignedUsersForNoneDefaultGroup(userGroup, users);
-        } else {
-            for (VOUserDetails voUserDetails : users) {
-                User user = new User(voUserDetails);
-                manageGroupModel.getAssignedUsers().add(user);
-            }
-            manageGroupModel.getUsersToAssign().addAll(manageGroupModel.getAssignedUsers());
-        }
-    }
-
-    void initAssignedUnassignedUsersForNoneDefaultGroup(POUserGroup userGroup,
-            List<VOUserDetails> users) {
-        Map<String, User> organizationUsersMap = new HashMap<>();
-        List<String> assignedUserIds = getUserGroupService()
-                .getAssignedUserIdsForUserGroup(userGroup.getKey());
-
-        for (VOUserDetails voUserDetails : users) {
-            User user = new User(voUserDetails);
-            manageGroupModel.getUnAssignedUsers().add(user);
-            organizationUsersMap.put(voUserDetails.getUserId(), user);
-        }
-
-        for (String assignedUserId : assignedUserIds) {
-            if (organizationUsersMap.containsKey(assignedUserId)) {
-                User selectedUser = organizationUsersMap.get(assignedUserId);
-                manageGroupModel.getAssignedUsers().add(selectedUser);
-                manageGroupModel.getUnAssignedUsers().remove(selectedUser);
-                organizationUsersMap.remove(assignedUserId);
-            }
-        }
-        manageGroupModel.getUsersToAssign().addAll(manageGroupModel.getAssignedUsers());
-        manageGroupModel.getUsersToDeassign().addAll(manageGroupModel.getUnAssignedUsers());
-    }
-
     void initSelectedGroup() {
         try {
             POUserGroup userGroup = getUserGroupService()
@@ -220,7 +210,6 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                                     .longValue());
             manageGroupModel.setSelectedGroup(userGroup);
             manageGroupModel.setServiceRows(initServiceRows());
-            initAssignedUnassignedUsers(manageGroupModel.getSelectedGroup());
         } catch (ObjectNotFoundException e) {
             manageGroupModel.setSelectedGroup(null);
             manageGroupModel.setSelectedGroupId(null);
@@ -242,41 +231,6 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             return BaseBean.OUTCOME_REFRESH;
         }
         return BaseBean.OUTCOME_EDIT_GROUP;
-    }
-
-    public String setPopupTargetAssignUsers() {
-        String msg = manageGroupModel.getSelectedGroup().getGroupName();
-        if (msg.length() > 40) {
-            msg = msg.substring(0, 40).concat("...");
-        }
-        manageGroupModel.setModalTitle(getUi().getText(ASSIGN_USERS_MODAL_TITLE, msg));
-        if (manageGroupModel.getUsersToDeassign().size() < 1) {
-            getUi().handleError(null, BaseBean.INFO_NO_MORE_USERS);
-        }
-        return "";
-    }
-
-    List<POUserDetails> getChangedUsers(List<User> existingUsers,
-            List<User> newUsers) {
-        List<POUserDetails> changedUsers = new ArrayList<>();
-        Map<Long, User> existingUsersMap = new HashMap<>();
-
-        for (User user : existingUsers) {
-            existingUsersMap.put(Long.valueOf(user.getKey()), user);
-        }
-
-        for (User user : newUsers) {
-            if (!existingUsersMap.keySet()
-                    .contains(Long.valueOf(user.getKey()))) {
-                POUserDetails changedUser = new POUserDetails();
-                changedUser.setKey(user.getKey());
-                changedUser.setUserId(user.getUserId());
-                changedUser.setEmail(user.getEmail());
-                changedUser.setLocale(user.getLocale());
-                changedUsers.add(changedUser);
-            }
-        }
-        return changedUsers;
     }
 
     void setSelectedServices() {
@@ -357,7 +311,18 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
 
     public String getSelectedGroupId() {
         HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        return req.getParameter("groupId");
+        String groupId = req.getParameter("groupId");
+        
+        // directly after creating user group
+        if (groupId == null) {
+            groupId = (String) req.getAttribute(ManageGroupModel.ATTRIBUTE_GROUP_ID);
+        }
+        if (groupId == null || groupId.equals("")) {
+            groupId = getSessionBean().getSelectedGroupId();
+        } else {
+            getSessionBean().setSelectedGroupId(groupId);
+        }
+        return groupId;
     }
 
     @Override
@@ -387,5 +352,25 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                 && !user.getUserRoles().contains(
                         UserRoleType.ORGANIZATION_ADMIN);
     }
-    
+
+    public UsersLazyDataModel getUsersLazyDataModel() {
+        return usersLazyDataModel;
+    }
+
+    public void setUsersLazyDataModel(UsersLazyDataModel usersLazyDataModel) {
+        this.usersLazyDataModel = usersLazyDataModel;
+    }
+
+    public void selectUser(final String userId, final boolean selected) {
+        manageGroupModel.getSelectedUsersIds().put(userId, new Boolean(selected));
+    }
+
+    public SessionBean getSessionBean() {
+        return sessionBean;
+    }
+
+    public void setSessionBean(SessionBean sessionBean) {
+        this.sessionBean = sessionBean;
+    }
+
 }

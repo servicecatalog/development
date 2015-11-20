@@ -50,6 +50,7 @@ public class MySubscriptionsCtrl implements Serializable {
     private static final long serialVersionUID = -9209968842729517052L;
     @ManagedProperty(value = "#{mySubscriptionsLazyDataModel}")
     private MySubscriptionsLazyDataModel model;
+    
     @ManagedProperty(value = "#{appBean}")
     ApplicationBean applicationBean;
 

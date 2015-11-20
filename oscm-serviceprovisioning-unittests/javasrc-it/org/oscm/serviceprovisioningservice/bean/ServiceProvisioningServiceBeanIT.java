@@ -1842,6 +1842,100 @@ public class ServiceProvisioningServiceBeanIT
         assertTrue(tags.contains("tag1"));
         assertTrue(tags.contains("tag2"));
     }
+    
+    
+    @Test
+    public void testSaveTechnicalProductWithEmptyDesc() throws Exception {
+        VOTechnicalService techProd = createTechnicalProduct(svcProv);
+        Assert.assertNotNull(techProd);
+        final String valueToSet = "";
+        techProd.setLicense("");
+        String license = "";
+        techProd.setAccessInfo(valueToSet);
+        techProd.setTechnicalServiceDescription(valueToSet);
+        List<VOEventDefinition> eventDefinitions = techProd
+                .getEventDefinitions();
+        for (VOEventDefinition event : eventDefinitions) {
+            event.setEventDescription(valueToSet);
+        }
+        List<VOParameterDefinition> parameterDefinitions = techProd
+                .getParameterDefinitions();
+        for (VOParameterDefinition parameter : parameterDefinitions) {
+            parameter.setDescription(valueToSet);
+            List<VOParameterOption> parameterOptions = parameter
+                    .getParameterOptions();
+            for (VOParameterOption option : parameterOptions) {
+                option.setOptionDescription(valueToSet);
+            }
+        }
+        List<VORoleDefinition> roleDefinitions = techProd.getRoleDefinitions();
+        for (VORoleDefinition role : roleDefinitions) {
+            role.setDescription(valueToSet);
+            role.setName(valueToSet);
+        }
+        List<VOTechnicalServiceOperation> ops = techProd
+                .getTechnicalServiceOperations();
+        for (VOTechnicalServiceOperation op : ops) {
+            op.setOperationDescription(valueToSet);
+            op.setOperationName(valueToSet);
+            List<VOServiceOperationParameter> operationParameters = op
+                    .getOperationParameters();
+            for (VOServiceOperationParameter p : operationParameters) {
+                p.setParameterName(valueToSet);
+            }
+        }
+        List<String> tags = new ArrayList<String>();
+        tags.add("tag1");
+        tags.add("tag2");
+        techProd.setTags(tags);
+
+        deleteEmptyTp_keyRecord(techProd);
+        svcProv.saveTechnicalServiceLocalization(techProd);
+        techProd = svcProv.getTechnicalServices(
+                OrganizationRoleType.TECHNOLOGY_PROVIDER).get(0);
+        Assert.assertEquals(valueToSet, techProd.getAccessInfo());
+        Assert.assertEquals(valueToSet,
+                techProd.getTechnicalServiceDescription());
+        Assert.assertEquals(license, techProd.getLicense());
+        eventDefinitions = techProd.getEventDefinitions();
+        for (VOEventDefinition event : eventDefinitions) {
+            if (event.getEventType() != EventType.PLATFORM_EVENT) {
+                Assert.assertEquals(valueToSet, event.getEventDescription());
+            }
+        }
+        parameterDefinitions = techProd.getParameterDefinitions();
+        for (VOParameterDefinition parameter : parameterDefinitions) {
+            if (parameter.getParameterType() != ParameterType.PLATFORM_PARAMETER) {
+                Assert.assertEquals(valueToSet, parameter.getDescription());
+                List<VOParameterOption> parameterOptions = parameter
+                        .getParameterOptions();
+                for (VOParameterOption option : parameterOptions) {
+                    Assert.assertEquals(valueToSet,
+                            option.getOptionDescription());
+                }
+            }
+        }
+        roleDefinitions = techProd.getRoleDefinitions();
+        for (VORoleDefinition role : roleDefinitions) {
+            Assert.assertEquals(valueToSet, role.getDescription());
+            Assert.assertEquals(valueToSet, role.getName());
+        }
+        ops = techProd.getTechnicalServiceOperations();
+        for (VOTechnicalServiceOperation op : ops) {
+            Assert.assertEquals(valueToSet, op.getOperationDescription());
+            Assert.assertEquals(valueToSet, op.getOperationName());
+            List<VOServiceOperationParameter> operationParameters = op
+                    .getOperationParameters();
+            for (VOServiceOperationParameter p : operationParameters) {
+                assertEquals(valueToSet, p.getParameterName());
+            }
+
+        }
+        tags = techProd.getTags();
+        assertEquals(2, tags.size());
+        assertTrue(techProd.getLicense().equals(""));
+        assertTrue(techProd.getTechnicalServiceDescription().equals(""));
+    }
 
     @Test(expected = ValidationException.class)
     public void testSaveTechnicalProduct_TooLongRoleName() throws Exception {
@@ -2008,6 +2102,60 @@ public class ServiceProvisioningServiceBeanIT
                     createdProduct.getParameters().get(2).getValue());
             Assert.assertEquals("Wrong parameter value", false,
                     createdProduct.getParameters().get(2).isConfigurable());
+
+        }
+    }
+
+    @Test
+    public void testUpdateMarketingProductWithEmptyDesc()
+            throws Exception {
+        VOTechnicalService tp = createTechnicalProduct(svcProv);
+        VOService product = new VOService();
+        product.setDescription("");
+        product.setServiceId("modifiedProductWithEmptyDesc");
+        List<VOParameter> parameters = new ArrayList<VOParameter>();
+        // product has no parameters so far, so add one
+        List<VOParameterDefinition> parameterDefinitions = tp
+                .getParameterDefinitions();
+
+        VOParameterDefinition enumParamDefi = null;
+        for (VOParameterDefinition parameterDef : parameterDefinitions) {
+            if (parameterDef.getValueType() == ParameterValueType.ENUMERATION) {
+                enumParamDefi = parameterDef;
+                break;
+            }
+        }
+        if (enumParamDefi != null) {
+            VOParameter parameter = new VOParameter(enumParamDefi);
+            parameter.setConfigurable(false);
+            parameter.setValue("1");
+            parameters.add(parameter);
+            product.setParameters(parameters);
+            container.login(supplierUserKey, ROLE_SERVICE_MANAGER,
+                    ROLE_TECHNOLOGY_MANAGER);
+            VOServiceDetails createdProduct = svcProv.createService(tp,
+                    product, null);
+            parameters = createdProduct.getParameters();
+
+            VOParameter newParam = new VOParameter(parameterDefinitions.get(1));
+            newParam.setValue("5555");
+            parameter.setConfigurable(false);
+            parameters.add(newParam);
+
+            // add a second new parameter
+            parameters = createdProduct.getParameters();
+            newParam = new VOParameter(parameterDefinitions.get(2));
+            newParam.setValue("86400000");
+            parameter.setConfigurable(false);
+            parameters.add(newParam);
+
+            // and change the value of the Enumeration
+            VOParameter parameterWithEnumValues = parameters.get(0);
+            parameterWithEnumValues.setValue("3");
+
+            createdProduct = svcProv.updateService(createdProduct, null);
+
+            Assert.assertEquals(product.getDescription(), "");
 
         }
     }

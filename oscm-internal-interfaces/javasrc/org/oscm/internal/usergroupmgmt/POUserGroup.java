@@ -15,6 +15,7 @@ import javax.faces.model.SelectItem;
 
 import org.oscm.internal.base.BasePO;
 import org.oscm.internal.usermanagement.POUserDetails;
+import org.oscm.internal.usermanagement.POUserInUnit;
 
 /**
  * @author qiu
@@ -34,6 +35,7 @@ public class POUserGroup extends BasePO {
     private long userNum;
     private String unitChecked;
     private boolean unitSelected;
+    private List<POUserInUnit> usersAssignedToUnit = new ArrayList<POUserInUnit>();
 
     public List<POService> getVisibleServices() {
         return visibleServices;
@@ -135,5 +137,13 @@ public class POUserGroup extends BasePO {
 
     public void setRoles(List<SelectItem> roles) {
         this.roles = roles;
+    }
+
+    public List<POUserInUnit> getUsersAssignedToUnit() {
+        return usersAssignedToUnit;
+    }
+
+    public void setUsersAssignedToUnit(List<POUserInUnit> usersAssignedToUnit) {
+        this.usersAssignedToUnit = usersAssignedToUnit;
     }
 }

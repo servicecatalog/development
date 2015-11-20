@@ -42,7 +42,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterEncoder;
@@ -86,6 +85,7 @@ import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.EmailType;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -171,6 +171,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         ldapSettingsMock = mock(LdapSettingsManagementServiceLocal.class);
         container.addBean(ldapSettingsMock);
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());

@@ -45,15 +45,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.mp.createuser.Subscription;
-import org.oscm.ui.dialog.mp.createuser.UserGroup;
-import org.oscm.ui.dialog.state.TableState;
-import org.oscm.ui.model.User;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.components.response.ReturnType;
@@ -76,6 +67,15 @@ import org.oscm.internal.usermanagement.POUserAndSubscriptions;
 import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.pagination.Pagination;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.mp.createuser.Subscription;
+import org.oscm.ui.dialog.mp.createuser.UserGroup;
+import org.oscm.ui.dialog.state.TableState;
+import org.oscm.ui.model.User;
 
 /**
  * @author weiser
@@ -96,6 +96,7 @@ public class UpdateUserCtrlTest {
     @Mock
     private HttpSession session;
     private POUserAndSubscriptions uas;
+    private List<POSubscription> subs = prepareSubscriptions();
     @Mock
     private ApplicationBean applicationBean;
     @Mock
@@ -113,11 +114,11 @@ public class UpdateUserCtrlTest {
         ctrl.setIdentityService(mock(IdentityService.class));
         ctrl.setModel(model);
         ctrl.setAppBean(applicationBean);
-
+        
         uas = new POUserAndSubscriptions();
         uas.setLocale("en");
         uas.setAvailableRoles(EnumSet.of(UserRoleType.ORGANIZATION_ADMIN));
-        uas.setSubscriptions(prepareSubscriptions());
+        uas.setSubscriptions(subs);
         uas.setKey(1234);
         uas.setVersion(7);
 
@@ -131,6 +132,9 @@ public class UpdateUserCtrlTest {
                 us.saveUserAndSubscriptionAssignment(
                         any(POUserAndSubscriptions.class),
                         anyListOf(POUserGroup.class))).thenReturn(response);
+        
+        when(us.getUserAssignableSubscriptions(any(Pagination.class), anyString())).thenReturn(subs);
+        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class), anyString())).thenReturn((long) subs.size());
 
         when(
                 Boolean.valueOf(applicationBean
@@ -151,13 +155,15 @@ public class UpdateUserCtrlTest {
         ctrl.setTs(ts);
         user = new User(new VOUserDetails());
         model.setUser(user);
+        
 
         doNothing().when(ctrl).addMessage(any(FacesMessage.Severity.class),
                 anyString());
     }
 
     @Test
-    public void isSubTableRendered_NoSubs() {
+    public void isSubTableRendered_NoSubs() throws Exception {
+        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class), anyString())).thenReturn(0L);
         assertFalse(ctrl.isSubTableRendered());
     }
 
@@ -181,6 +187,7 @@ public class UpdateUserCtrlTest {
     @Test
     public void isSubTableRendered() {
         ctrl.init(uas);
+        ctrl.initSubscriptions(subs);
         assertTrue(ctrl.isSubTableRendered());
     }
 
@@ -208,6 +215,7 @@ public class UpdateUserCtrlTest {
     @Test
     public void isRoleColumnRendered() {
         ctrl.init(uas);
+        ctrl.initSubscriptions(subs);
         assertTrue(ctrl.isRoleColumnRendered());
     }
 
@@ -218,7 +226,7 @@ public class UpdateUserCtrlTest {
 
         // when
         List<UserGroup> result = ctrl.initUserGroups();
-
+        
         // then
         assertEquals(3, result.size());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
@@ -226,6 +234,21 @@ public class UpdateUserCtrlTest {
                 .getGroupListForOrganizationWithoutDefault();
         verify(userGroupService, times(1))
                 .getUserGroupListForUserWithRolesWithoutDefault(anyString());
+        assertGroupsSorted(result);
+    }
+
+    private void assertGroupsSorted(List<UserGroup> groups) {
+        UserGroup prev = null;
+        for (UserGroup group : groups) {
+            if (prev == null) {
+                prev = group;
+            } else {
+                if (!prev.isSelected() && group.isSelected()) {
+                    assertFalse(true);
+                }
+            }
+        }
+        assertTrue(true);
     }
 
     @Test
@@ -617,6 +640,7 @@ public class UpdateUserCtrlTest {
         doReturn(user.getUserId()).when(ctrl).getSelectedUserId();
         doReturn(Boolean.FALSE).when(ctrl).isCurrentUserRolesChanged();
         ctrl.init(uas);
+        ctrl.initSubscriptions(subs);
         updateData(model);
 
         String outcome = ctrl.save();
@@ -642,6 +666,8 @@ public class UpdateUserCtrlTest {
         model.setToken(model.getToken());
 
         ctrl.save();
+        assertTrue(model.getSubscriptions().isEmpty());
+        verify(model).setSubscriptions(any(List.class));
     }
 
     @Test
@@ -802,8 +828,8 @@ public class UpdateUserCtrlTest {
                 user.getAssignedRoles());
 
         List<POSubscription> subs = user.getSubscriptions();
-        assertEquals(2, subs.size());
-        POSubscription sub = subs.get(0);
+        assertEquals(3, subs.size());
+        POSubscription sub = subs.get(1);
         assertEquals("sub2", sub.getId());
         POServiceRole role = sub.getUsageLicense().getPoServieRole();
         assertNotNull(role);
@@ -812,7 +838,7 @@ public class UpdateUserCtrlTest {
         assertEquals(1, sub.getUsageLicense().getVersion());
         assertEquals(111, sub.getUsageLicense().getKey());
 
-        sub = subs.get(1);
+        sub = subs.get(2);
         assertEquals("sub3", sub.getId());
         assertNull(sub.getUsageLicense().getPoServieRole());
     }

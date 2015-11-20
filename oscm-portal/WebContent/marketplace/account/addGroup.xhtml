@@ -2,11 +2,9 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-                xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:a4j="http://richfaces.org/a4j"
-                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
-                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
-                template="../templates/main.xhtml">
+  xmlns:h="http://java.sun.com/jsf/html" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace" template="../templates/main.xhtml">
   <ui:define name="pageId">
     <c:set var="pageId" value="marketplace.account.addGroup" />
     <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
@@ -35,26 +33,9 @@
 
     <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
       <a4j:outputPanel layout="block" styleClass="box">
-
-        <!-- include popup -->
-        <a4j:outputPanel>
-          <c:set var="dialogId" value="assignUsersPanelForAddGroup" />
-          <c:set var="dialogWidth" value="750" />
-          <c:set var="dialogHelpId" value="groupAssignUsers" />
-          <c:set var="dialogTitle" value="#{addGroupCtrl.manageGroupModel.modalTitle}" />
-          <c:set var="targetCtrl" value="/marketplace/account/assignUsersInclude.xhtml" />
-          <c:set var="addGroup" value="true" />
-          <c:set var="controller" value="#{addGroupCtrl}" />
-          <c:set var="queueName" value="assignUsersAddGroupPanelQueue" />
-          <c:set var="cancelHandler"
-            value="setDirty(#{rich:element('configDirty')}.value=='true');#{rich:component(dialogId)}.hide();" />
-          <ui:include src="/marketplace/popup.xhtml" />
-        </a4j:outputPanel>
-
         <h:form id="groupForm">
-          <a4j:queue requestDelay="500" ignoreDupResponse="true"
-                     oncomplete="jQuery('body').removeClass('hourglass');"
-                     onsubmit="jQuery('body').addClass('hourglass');" />
+          <a4j:queue requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
+            onsubmit="jQuery('body').addClass('hourglass');" />
           <mp:outputStep value="#{msg['marketplace.account.addGroup.title']}" />
 
           <adm:panelGrid>
@@ -68,68 +49,26 @@
               value="#{addGroupCtrl.manageGroupModel.selectedGroup.groupDescription}" styleClass="field"
               maxlength="#{appBean.descriptionLen}" />
           </adm:panelGrid>
-          
-          <adm:panelGrid columns="2" columnClasses="labelAndValuePanelCol1,serviceListPanel">
-            <ui:include src="visibleServiceTableInclude.xhtml">
-              <ui:param name="controller" value="#{addGroupCtrl}" />
-              <ui:param name="pagerId" value="addGroupServiceListPager" />
-              <ui:param name="size" value="#{addGroupCtrl.manageGroupModel.servicesNumber}" />
-              <ui:param name="pageCount" value="#{pageCount}" />
-              <ui:param name="formName" value="groupForm" />
-            </ui:include>
-          </adm:panelGrid>
 
-          <mp:pixelline marginTop="10" />
+          <mp:pixelline marginTop="20" />
 
-          <a4j:outputPanel id="assignedUsersPanel">
-            <h:inputHidden id="configDirty" value="#{addGroupCtrl.manageGroupModel.dirty}" />
-            <mp:outputStep id="outputStep" value="#{msg['group.users.assigned.users.title']}" />
-            <div class="bottomButtonPanel assignUserButton">
-              <adm:buttonCustomizedOnClick id="assignUsers" value="#{msg['button.assignUsers']}"
-                onclick="#{rich:element('configDirty')}.value=getDirty();#{rich:element('hiddenAssignUser')}.click();return false;" />
-            </div> 
-            <br/><br/>
-            <div class="userTablePanel">
-            <ui:include src="usersTable.xhtml">
-              <ui:param name="data" value="#{addGroupCtrl.manageGroupModel.usersToAssign}" />
-              <ui:param name="controller" value="#{addGroupCtrl}" />
-              <ui:param name="rendered" value="#{not empty addGroupCtrl.manageGroupModel.usersToAssign}" />
-              <ui:param name="nameWidth" value="34%" />
-              <ui:param name="userIdWidth" value="25%" />
-              <ui:param name="showDeleteIcon" value="true" />
-              <ui:param name="showCheckBox" value="false" />
-              <ui:param name="statePrefix" value="group" />
-              <ui:param name="pageCount" value="#{pageCount}" />
-            </ui:include>
-            </div>
-            <mp:notice noticeId="notice" rendered="#{(empty addGroupCtrl.manageGroupModel.usersToAssign)}"
-              noticeText="#{msg['info.group.noUsers']}" />
-          </a4j:outputPanel>
-          <br />
-          <mp:pixelline marginTop="10" />
           <a4j:outputPanel layout="block" styleClass="clearfix bottomButtonPanel">
             <mp:button id="createButton" value="#{msg['button.save']}" bean="#{addGroupCtrl}" action="create" />
             <mp:button id="cancelButton" onclick="setDirty(false);location.href='users.jsf';return false;"
               value="#{msg['button.cancel']}" />
           </a4j:outputPanel>
         </h:form>
-        <h:form id="assignUsersForm">
-            <a4j:commandButton id="hiddenAssignUser" style="display:none;" render="assignUsersPanelForAddGroup,assignUsersPanelForAddGroupForm,hiddenErrorPanel"
-              action="#{addGroupCtrl.setPopupTargetAssignUsers}"
-              oncomplete="if(#{empty facesContext.maximumSeverity.ordinal or facesContext.maximumSeverity.ordinal ==1 }){RichFaces.$('assignUsersPanelForAddGroup').show();}
-              else {window.scrollTo(0,0);}" />
-        </h:form>
+
         <h:form id="deleteForm">
-          <a4j:jsFunction name="selectItem" action="#{addGroupCtrl.determineUserToDeassign}"
-            render="deassignConfirmPl"
+          <a4j:jsFunction name="selectItem" action="#{addGroupCtrl.determineUserToDeassign}" render="deassignConfirmPl"
             oncomplete="#{rich:component('deassignConfirmPl')}.show();return false;">
             <a4j:param name="userToDeassign" value="#{user.userId}" />
           </a4j:jsFunction>
           <mp:confirmPanel panelId="deassignConfirmPl" header="#{msg['group.users.deassign.title']}"
-            bean="#{addGroupCtrl}" text1="#{addGroupCtrl.manageGroupModel.deassignMessage}" text2="#{msg['marketplace.areyousure']}"
-            submitId="confirmedDeassignBt" />
+            bean="#{addGroupCtrl}" text1="#{addGroupCtrl.manageGroupModel.deassignMessage}"
+            text2="#{msg['marketplace.areyousure']}" submitId="confirmedDeassignBt" />
           <a4j:commandButton style="display:none;" id="confirmedDeassignBt" action="#{addGroupCtrl.deassignUser}"
-            onclick="AdmUtils.showProgress(true);" render="assignedUsersPanel"
+            onclick="AdmUtils.showProgress(true);"
             oncomplete="#{rich:component('deassignConfirmPl')}.hide();AdmUtils.showProgress(false);">
           </a4j:commandButton>
         </h:form>

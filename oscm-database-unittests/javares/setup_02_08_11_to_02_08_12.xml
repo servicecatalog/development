@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+<dataset>
+    <Organization tkey="111" version="0" organizationid="SUPPLIER" name="TP1" registrationdate="0" locale="en"
+                  cutoffday="1"/>
+
+    <UserGroup tkey="1" version="0" name="default" description="Default Unit" isdefault="TRUE"
+               organization_tkey="111"/>
+    <UserGroup tkey="1000" version="0" name="Unit0" description="Description Unit0" isdefault="FALSE"
+               organization_tkey="111"/>
+    <UnitUserRole tkey="1" version="0" rolename="ADMINISTRATOR"/>
+    <UnitUserRole tkey="2" version="0" rolename="USER"/>
+    <PlatformUser tkey="11000" additionalname="" address="" creationdate="1359538315333" email="useraemail@orga.com"
+                  failedlogincounter="0" firstname="Firstname" lastname="Lastname" locale="en" phone="" salutation="MR"
+                  status="ACTIVE" passwordsalt="1441738011085557673" passwordhash="xyz" userid="usera" version="0"
+                  organizationkey="111" olduserid="" realmuserid="usera"/>
+    <UserGroupToUser tkey="1000" version="0" usergroup_tkey="1000" platformuser_tkey="11000"/>
+</dataset>
+  

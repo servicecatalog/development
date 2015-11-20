@@ -488,7 +488,7 @@ public class UserGroupDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void isSubscriptionAssignedToUnitWithAssignedSubscription()
+    public void isNotTerminatedSubscriptionAssignedToUnitWithAssignedSubscription()
             throws Exception {
         // given
         runTX(new Callable<Void>() {
@@ -511,7 +511,7 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isSubscriptionAssignedToUnit(group1
+                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
                         .getKey()));
             }
         });
@@ -520,7 +520,7 @@ public class UserGroupDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void isSubscriptionAssignedToUnitWithAssignedSubscriptions()
+    public void isNotTerminatedSubscriptionAssignedToUnitWithAssignedSubscriptions()
             throws Exception {
         // given
         runTX(new Callable<Void>() {
@@ -549,7 +549,7 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isSubscriptionAssignedToUnit(group1
+                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
                         .getKey()));
             }
         });
@@ -558,7 +558,7 @@ public class UserGroupDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void isSubscriptionAssignedToUnitWithoutAssignedSubscriptions()
+    public void isNotTerminatedSubscriptionAssignedToUnitWithoutAssignedSubscriptions()
             throws Exception {
         // given
         runTX(new Callable<Void>() {
@@ -585,7 +585,7 @@ public class UserGroupDaoIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(dao.isSubscriptionAssignedToUnit(group1
+                return Boolean.valueOf(dao.isNotTerminatedSubscriptionAssignedToUnit(group1
                         .getKey()));
             }
         });

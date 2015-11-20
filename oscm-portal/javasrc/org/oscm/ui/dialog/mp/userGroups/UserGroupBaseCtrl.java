@@ -47,49 +47,6 @@ public abstract class UserGroupBaseCtrl {
         ui = new UiDelegate();
     }
 
-    public String determineUserToDeassign() {
-        getManageGroupModel().setDeassignUserId(ui.getExternalContext()
-                .getRequestParameterMap().get(REQUEST_PARAM_USER_TO_DEASSIGN));
-        getManageGroupModel().setDeassignMessage(ui.getText(GROUP_USER_DEASSIGN_MSG_KEY,
-                getManageGroupModel().getDeassignUserId()));
-        return "";
-    }
-
-    public String assignUsers() {
-        List<User> selectedUsers = getSelectedUsersFromList(getManageGroupModel()
-                .getUsersToDeassign());
-        getManageGroupModel().getUsersToAssign().addAll(selectedUsers);
-        getManageGroupModel().getUsersToDeassign().removeAll(selectedUsers);
-        return "";
-    }
-
-    public String deassignUser() throws Exception {
-        String userIdToDeassign = getManageGroupModel().getDeassignUserId();
-        User userToDeassign = null;
-        for (User user : getManageGroupModel().getUsersToAssign()) {
-            if (userIdToDeassign.equals(user.getUserId())) {
-                userToDeassign = user;
-                userToDeassign.setSelected(false);
-            }
-        }
-        if (userToDeassign != null) {
-            getManageGroupModel().getUsersToAssign().remove(userToDeassign);
-            getManageGroupModel().getUsersToDeassign().add(userToDeassign);
-        }
-        return "";
-    }
-
-    public String assignUsersCancel() {
-        if (getManageGroupModel().isUserGroupNotFoundException()) {
-            return BaseBean.OUTCOME_ERROR;
-        } else {
-            for (User user : getManageGroupModel().getUsersToDeassign()) {
-                user.setSelected(false);
-            }
-            return "";
-        }
-    }
-
     abstract ManageGroupModel getManageGroupModel();
 
     List<POService> initServiceList() throws ObjectNotFoundException {
@@ -162,12 +119,18 @@ public abstract class UserGroupBaseCtrl {
         public int compare(ServiceRow o1, ServiceRow o2) {
             String name1 = o1.getService().getServiceName();
             String name2 = o2.getService().getServiceName();
-            int order = name1.compareToIgnoreCase(name2);
 
-            if (order == 0) {
-                return name1.compareTo(name2);
+            if ((o1.isSelected() && o2.isSelected()) || (!o1.isSelected() && !o2.isSelected())) {
+                int order = name1.compareToIgnoreCase(name2);
+                if (order == 0) {
+                    return name1.compareTo(name2);
+                }
+                return order;
             }
-            return order;
+            if (o1.isSelected()) {
+                return -1;
+            }
+            return 1;
         }
     };
 

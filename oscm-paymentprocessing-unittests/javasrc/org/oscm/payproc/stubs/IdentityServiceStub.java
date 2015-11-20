@@ -269,8 +269,7 @@ public class IdentityServiceStub implements IdentityServiceLocal {
     }
 
     @Override
-    public VOUserDetails createUser(VOUserDetails user,
-            List<UserRoleType> roles, String marketplaceId)
+    public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
             throws NonUniqueBusinessKeyException, MailOperationException,
             ValidationException, UserRoleAssignmentException,
             OperationPendingException {

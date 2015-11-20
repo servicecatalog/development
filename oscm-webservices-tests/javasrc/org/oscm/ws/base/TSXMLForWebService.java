@@ -23,6 +23,7 @@ public class TSXMLForWebService {
             + "TechnicalService></" + TNS + "TechnicalServices>";
     private static final String XML_FIRST_PART = "<" + TNS
             + "TechnicalServices " + TARGET_NAMESPACE + ">";
+    private static final String MOCK = "oscm-integrationtests-mockproduct";
 
     private TSXMLForWebService() {
     }
@@ -38,9 +39,8 @@ public class TSXMLForWebService {
         sb.append("<tns:TechnicalService ");
         sb.append("accessType=\"DIRECT\" ");
         sb.append("allowingOnBehalfActing=\"false\" ");
-        sb.append("baseUrl=\""
-                + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\" ");
+        sb.append("baseUrl=\"" + baseUrl + "/" + MOCK
+                + "/ProvisioningService?wsdl\" ");
         sb.append("build=\"\" ");
         sb.append("id=\"" + technicalProductId + "\" ");
         sb.append("loginPath=\"\" ");
@@ -80,7 +80,9 @@ public class TSXMLForWebService {
                 + "TechnicalService id=\"tp1\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -116,7 +118,9 @@ public class TSXMLForWebService {
                 + "\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -147,7 +151,9 @@ public class TSXMLForWebService {
                 + "\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -187,7 +193,9 @@ public class TSXMLForWebService {
                 + "TechnicalService id=\"technicalProduct2\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -224,7 +232,9 @@ public class TSXMLForWebService {
                 + "\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -269,7 +279,9 @@ public class TSXMLForWebService {
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct\""
+                + "/"
+                + MOCK
+                + "\""
                 + " loginPath=\"/login\" provisioningTimeout=\"50000\""
                 + " provisioningUsername=\"admin\" provisioningPassword=\"adminadmin\">"
                 + " <AccessInfo locale=\"en\">AccessInfo</AccessInfo>"
@@ -309,7 +321,9 @@ public class TSXMLForWebService {
                 + "\" build=\"1\" provisioningType=\"SYNCHRONOUS\""
                 + " provisioningUrl=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/ProvisioningService?wsdl\""
+                + "/"
+                + MOCK
+                + "/ProvisioningService?wsdl\""
                 + " provisioningVersion=\"1.0\" accessType=\"DIRECT\""
                 + " baseUrl=\""
                 + baseUrl
@@ -321,7 +335,9 @@ public class TSXMLForWebService {
                 + " <LocalizedLicense locale=\"en\">LocalizedLicense</LocalizedLicense>"
                 + "<Operation id=\"SNAPSHOT\" actionURL=\""
                 + baseUrl
-                + "/oscm-integrationtests-mockproduct/OperationService?wsdl\">"
+                + "/"
+                + MOCK
+                + "/OperationService?wsdl\">"
                 + "<LocalizedName locale=\"en\">Help</LocalizedName>"
                 + "<LocalizedDescription locale=\"en\">Help activation.</LocalizedDescription>"
                 + "<OperationParameter id=\"SERVER\" mandatory=\"true\" type=\"REQUEST_SELECT\">"

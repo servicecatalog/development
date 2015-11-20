@@ -1,0 +1,38 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+
+  <rich:column sortBy="#{property}" sortOrder="#{bean.sortOrders[property]}"
+    filterValue="#{bean.filterValues[property]}" style="max-width:100px"
+    headerClass="rowTitle sortable clickable-header" filterExpression="#{property}" filterType="custom"
+    filterEvent="oki"
+    sortType="custom" styleClass="#{styleClass}">
+    <f:facet name="header">
+      <h:outputText value="#{columnHeaderName}" />
+      <h:commandLink action="#{bean.toggleSort}" styleClass="sort-command-link"
+        onclick="if (handleOnKeyUp() == false) { return false;}">
+        <a4j:ajax render="#{tableName} :#{tableName}Scripts" />
+        <f:setPropertyActionListener target="#{bean.sortProperty}" value="#{property}" />
+      </h:commandLink>
+      <a4j:outputPanel id="#{property}sortIcons" styleClass="sort-icons non-clickable-element">
+        <h:graphicImage value="#{sortIconAscending}" rendered="#{bean.sortOrders[property] == 'ascending'}" />
+        <h:graphicImage value="#{sortIconDescending}" rendered="#{bean.sortOrders[property] == 'descending'}" />
+      </a4j:outputPanel>
+
+      <adm:filterInput inputId="#{property}" inputValue="#{bean.filterValues[property]}" queueName="#{queueName}"
+        render="#{tableName}@body #{scroller} :pagerPanel :#{tableName}Scripts #{scroller}Scripts"
+        onkeyup="if (handleOnKeyUp($(this)) == false) { return false;}" />
+
+    </f:facet>
+    <a4j:outputPanel layout="block" styleClass="tablePanel table_padding stringInMultiLine preserveWhitespaces">
+      <h:selectOneMenu id="unitRole" onchange="showConfirm=true;" styleClass="roles-list" value="#{record[property]}">
+        <f:selectItems value="#{manageGroupCtrl.manageGroupModel.roles}" />
+      </h:selectOneMenu>
+    </a4j:outputPanel>
+  </rich:column>
+
+</ui:composition>

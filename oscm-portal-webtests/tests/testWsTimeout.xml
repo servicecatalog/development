@@ -58,7 +58,7 @@
       <mpl_goto.account.users />
       <common.ignorePageScriptError/>
       <clickElement htmlId="editUserImage${customerUserId}" />
-      <setCheckbox htmlId="editUserForm:subscriptionTable:0:assignCheckbox" checked="true" />
+      <setCheckbox htmlId="editUserForm:subscriptionTable:${subscriptionName}:assignCheckbox" checked="true" />
       <clickButton label="${button.save}" />
       <!-- The call is not successfull. A timeout error appears. This is OK so we know the timeout setting works. -->
       <common.handleMessageParameters property="expectedErrorMsg" value="${ex.TechnicalServiceNotAliveException.TIMEOUT}" att0="${subscriptionName}" />

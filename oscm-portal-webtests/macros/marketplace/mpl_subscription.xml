@@ -45,7 +45,7 @@
     <sequential>
       <mpl_goto.account.users />
       <mpl_user.display userId="@{userId}" />
-      <setCheckbox xpath="//*[@id='editUserForm:subscriptionTable']//td[text()='@{subscriptionId}']/..//input" checked="true" />
+      <setCheckbox xpath="//*[@id='editUserForm:subscriptionTable:@{subscriptionId}:assignCheckbox']" checked="true" />
       <clickButton label="${button.save}" />
     </sequential>
   </macrodef>

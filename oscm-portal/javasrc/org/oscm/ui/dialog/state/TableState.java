@@ -43,6 +43,9 @@ public class TableState implements Serializable {
 
         static final String ADD_GROUPSERVICE_SUFFIX = "addGroupServiceListPager";
         static final String EDIT_GROUPSERVICE_SUFFIX = "editGroupServiceListPager";
+        static final String EDIT_UNIT_USERS_SUFFIX = "usersInGroupPager";
+        static final String EDIT_USER_GROUPS_SUFFIX = "userGroupsPager";
+        static final String EDIT_USER_SUBSCRIPTIONS_SUFFIX = "userSubscriptions";
 
         @Override
         public Integer get(Object key) {
@@ -131,5 +134,14 @@ public class TableState implements Serializable {
     public void resetActiveEditPage() {
         activePages
                 .resetGroupServicePage(ActivePageMap.EDIT_GROUPSERVICE_SUFFIX);
+    }
+
+    public void resetActiveUnitPage() {
+        activePages.resetGroupServicePage(ActivePageMap.EDIT_UNIT_USERS_SUFFIX);
+    }
+
+    public void resetActiveUserGroupsAndSubscriptionsPage() {
+        activePages.resetGroupServicePage(ActivePageMap.EDIT_USER_GROUPS_SUFFIX);
+        activePages.resetGroupServicePage(ActivePageMap.EDIT_USER_SUBSCRIPTIONS_SUFFIX);
     }
 }

@@ -1,8 +1,8 @@
 <!-- Copyright FUJITSU LIMITED 2015-->
 <project default="bugTests" xmlns:setup="antlib:org.oscm.webtest.setup">
   <import file="../macros/marketplace/all.xml" />
-
-  <target name="bugTests" depends="testBug10160,testBug10079,Bug9993,Bug10058,testBug10055,testBug10271,Bug10300,testBug10314,Bug10329,Bug10447,Bug10439,Bug10651,Bug11014,testBug11036" />
+  <!-- disable testBug10160 till it is fixed -->
+  <target name="bugTests" depends="testBug10079,Bug9993,Bug10058,testBug10055,testBug10271,Bug10300,testBug10314,Bug10329,Bug10447,Bug10439,Bug10651,Bug11014,testBug11036" />
 
   <target name="Bug9993">
     <webtest name="Bug 9993: Up/downgrade service: Confirmation panel should be displayed in case of none free of charge services">

@@ -6,9 +6,12 @@ package org.oscm.app.business;
 
 import javax.naming.InitialContext;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import org.oscm.app.adapter.APPlatformControllerAdapter;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.APPlatformControllerFactory;
@@ -22,14 +25,16 @@ import org.oscm.app.v1_0.intf.APPlatformController;
  */
 public class APPlatformControllerFactoryIT extends EJBTestBase {
 
+    private InitialContext context;
+
     @Override
     protected void setup(TestContainer container) throws Exception {
+        context = new InitialContext();
     }
 
     @Test(expected = ControllerLookupException.class)
     public void testWrongInterface() throws Exception {
 
-        InitialContext context = new InitialContext();
         context.bind(APPlatformController.JNDI_PREFIX + "test.controller",
                 new String());
         APPlatformControllerFactory.getInstance("test.controller");
@@ -39,10 +44,10 @@ public class APPlatformControllerFactoryIT extends EJBTestBase {
     public void testOK() throws Exception {
 
         new APPlatformControllerFactory(); // coverage
-        InitialContext context = new InitialContext();
         context.bind(APPlatformController.JNDI_PREFIX + "test.controller",
                 Mockito.mock(APPlatformController.class));
-        APPlatformControllerFactory.getInstance("test.controller");
+        APPlatformController instance = APPlatformControllerFactory.getInstance("test.controller");
+        Assert.assertTrue(instance instanceof APPlatformControllerAdapter);
     }
 
     @Test(expected = ControllerLookupException.class)

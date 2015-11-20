@@ -19,7 +19,7 @@ import org.oscm.internal.usergroupmgmt.POUserGroup;
  * @author qiuw
  * 
  */
-public class UserGroup implements Serializable {
+public class UserGroup implements Serializable, Comparable<UserGroup> {
 
     private static final long serialVersionUID = -4007271052444698069L;
     private POUserGroup poUserGroup;
@@ -87,4 +87,21 @@ public class UserGroup implements Serializable {
     public boolean isDefault() {
         return poUserGroup.isDefault();
     }
+
+    @Override
+    public int compareTo(UserGroup o) {
+        if ((this.isSelected() && o.isSelected())
+                || (!this.isSelected() && !o.isSelected())) {
+            int order = this.getName().compareToIgnoreCase(o.getName());
+            if (order == 0) {
+                return this.getName().compareTo(o.getName());
+            }
+            return order;
+        }
+        if (this.isSelected()) {
+            return -1;
+        }
+        return 1;
+    }
+
 }

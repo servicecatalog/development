@@ -109,6 +109,7 @@ import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.internal.accountmgmt.AccountServiceManagement;
 import org.oscm.internal.accountmgmt.AccountServiceManagementBean;
 import org.oscm.internal.intf.AccountService;
@@ -188,6 +189,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(new MarketingPermissionServiceBean());
         container.addBean(new MarketplaceServiceStub());
         container.addBean(new UserGroupDao());
+        container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LandingpageServiceBean());
