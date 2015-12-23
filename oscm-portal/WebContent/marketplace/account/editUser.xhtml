@@ -172,13 +172,16 @@
 
               <f:facet name="header">
                 <a4j:outputPanel>
-                  <adm:pager pagerId="userSubscriptions" render="subscriptionTable@body subscriptionTableScripts"/>
+                  <adm:pager pagerId="userSubscriptions" render="subscriptionTableScripts"/>
                 </a4j:outputPanel>
               </f:facet>
 
               <rich:column styleClass="tableColumnCheckBox">
                 <h:selectBooleanCheckbox id="assignCheckbox" value="#{subscription.selected}" onchange="setDirty(true);AdmUtils.updateSubRoleComboBox(event, 'role');showConfirm=true;" >
-                  <f:ajax event="change" />
+                  <a4j:ajax event="change" listener="#{updateUserCtrl.selectSubscription}" execute="@this"/>
+    			  <f:attribute name="subscriptionId" value="#{subscription.id}" /> 
+    			  <f:attribute name="selected" value="#{subscription.selected}" />
+    			  <f:attribute name="items" value="#{subscription.roles}"/>
                 </h:selectBooleanCheckbox>
               </rich:column>
 
@@ -192,8 +195,6 @@
                 <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
                 <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
                 <ui:param name="queueName" value="userSubscriptionsQueue"/>
-                <ui:param name="filterOnKeyUp" value="if (handleOnKeyUp($(this)) == false) { return false;}"/>
-                <ui:param name="sortOnClick" value="if (handleOnKeyUp($(this)) == false) { return false;}"/>
               </ui:include>
 
               <ui:include src="../subscriptions/subscriptionTableRoleColumn.xhtml">
@@ -209,9 +210,7 @@
                 <ui:param name="items" value="#{subscription.roles}"/>
                 <ui:param name="itemsRendered" value="#{subscription.rolesRendered}"/>
                 <ui:param name="selectorId" value="role"/>   
-                <ui:param name="filterOnKeyUp" value="if (handleOnKeyUp($(this)) == false) { return false;}"/> 
-                <ui:param name="onchange" value="setDirty(true);showConfirm=true;"/>  
-                <ui:param name="sortOnClick" value="if (handleOnKeyUp($(this)) == false) { return false;}"/>        
+                <ui:param name="onchange" value="setDirty(true);showConfirm=true;"/>        
               </ui:include>
 
             </rich:dataTable>
@@ -219,36 +218,6 @@
             <a4j:outputPanel id="subscriptionTableScripts">
               <script type="text/javascript">     
                 AdmUtils.initSubRoleFieldSetup('role', 'assignCheckbox');
-                
-                function handleOnKeyUp(inputHandler) {
-
-                	var select = showConfirmMessage();
-                	if (select == false) {
-                		if (typeof inputHandler !== 'undefined') {
-                			inputHandler.val('');
-                		}
-                		showConfirm = true;
-                		return false;
-                	}
-                	showConfirm = false;
-                	return true;
-                }
-
-                function showConfirmMessage() {
-                	if (typeof showConfirm === 'undefined') {
-                		return null;
-                	}
-                	if (showConfirm) {
-                		return confirm(getConfirmPopupMessage());
-                	}
-                	return null;
-                }
-                
-                function getConfirmPopupMessage() { return "#{appBean.getJSMessageByKey('confirm.assign.subs.changes.will.be.lost')}"; }
-                
-                var pagerComponent = #{rich:component('userSubscriptions')};
-                AdmUtils.handlePagerActionsWithPopup('assign-panel', pagerComponent, 'editUserForm:subscriptionTable:userSubscriptionspagerButton');
-                
               </script>
             </a4j:outputPanel>   
           </a4j:outputPanel>

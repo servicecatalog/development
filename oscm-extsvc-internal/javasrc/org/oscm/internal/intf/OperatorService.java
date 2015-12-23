@@ -508,6 +508,20 @@ public interface OperatorService {
             throws OrganizationAuthoritiesException;
 
     /**
+     *
+     * Returns all users belonging to the user organization and
+     * with assigned role "ORGANIZATION_ADMIN" or "SUBSCRIPTION_MANAGER"
+     * or "UNIT_ADMINISTRATOR". It is used for finding all users available
+     * for subscription owner assignment.
+     *
+     * @param organizationKey
+     *            The organization to retrieve users from.
+     *
+     * @return the list of users available for subscription owner assignment.
+     */
+    public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey);
+
+    /**
      * Returns all users having the specified filter criteria.
      *
      * @param userIdPattern

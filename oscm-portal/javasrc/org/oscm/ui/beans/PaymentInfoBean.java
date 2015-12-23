@@ -29,9 +29,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.delegates.ServiceLocator;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.PaymentService;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
@@ -39,6 +36,9 @@ import org.oscm.internal.types.exception.PSPCommunicationException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPaymentInfo;
 import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.delegates.ServiceLocator;
 
 /**
  * @author weiser

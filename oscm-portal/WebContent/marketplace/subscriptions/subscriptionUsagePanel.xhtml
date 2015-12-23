@@ -111,6 +111,10 @@
       </a4j:outputPanel>
 
     </h:form>
+
+    <h:outputText id="AccessInfoFormPart" value="#{subscription.serviceAccessInfoFormPart}"
+      rendered="#{not empty subscription.serviceAccessInfoFormPart}" escape="false" />
+
     <form id="subscriptionForm"></form>
     <script type="text/javascript">
           startService = function(subscriptionKey, accessUrl) {

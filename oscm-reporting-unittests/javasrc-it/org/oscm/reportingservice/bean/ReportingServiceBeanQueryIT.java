@@ -12,8 +12,8 @@
 
 package org.oscm.reportingservice.bean;
 
-import static org.oscm.test.Numbers.L123;
 import static org.junit.Assert.assertEquals;
+import static org.oscm.test.Numbers.L123;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,10 +32,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -77,6 +73,24 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ReportingService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.service.stubs.ApplicationServiceStub;
@@ -106,24 +120,8 @@ import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.PaymentProcessingStatus;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ReportingService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUser;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * The tests for reporting queries
@@ -881,7 +879,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         sessions.add(session);
 
         // one subscription for three users of first customer for product A => 3
-        testReportQuery("Subscription", 3);
+        // one subscription without user from the runBillingForCustomer()
+        testReportQuery("Subscription", 4);
 
         sessions.clear();
         uAdmin = testUsers.get(testOrganizations.get("B").get(0)).get(1);
@@ -891,7 +890,8 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         sessions.add(session);
 
         // one subscription for three users of first customer for product B => 3
-        testReportQuery("Subscription", 3);
+        // one subscription without user from the runBillingForCustomer()
+        testReportQuery("Subscription", 4);
     }
 
     @Test

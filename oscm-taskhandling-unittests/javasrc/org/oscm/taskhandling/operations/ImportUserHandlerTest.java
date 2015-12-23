@@ -4,31 +4,32 @@
 
 package org.oscm.taskhandling.operations;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.taskhandling.facade.ServiceFacade;
-import org.oscm.taskhandling.payloads.ImportUserPayload;
-import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.taskhandling.facade.ServiceFacade;
+import org.oscm.taskhandling.payloads.ImportUserPayload;
+import org.oscm.types.enumtypes.EmailType;
 
 /**
  * 
@@ -97,6 +98,33 @@ public class ImportUserHandlerTest {
     }
 
     /**
+     * Import one user with unit admin roles. The role should be removed.
+     */
+    @Test
+    public void execute_userUnitAdmin() throws Exception {
+
+        // given one user to be imported
+        given("user1", UserRoleType.ORGANIZATION_ADMIN,
+                UserRoleType.UNIT_ADMINISTRATOR);
+
+        // when
+        handler.execute();
+
+        // then
+        Report report = handler.report;
+        assertEquals(1, report.allUsersToBeImported());
+        assertEquals(1, report.importedUsers());
+        assertEquals(0, report.failedUsers());
+        assertEquals(EmailType.BULK_USER_IMPORT_SUCCESS, report.buildMailType());
+        assertTrue(handler.payload.getUsersToBeImported().get(0)
+                .getUserDetails().getUserRoles()
+                .contains(UserRoleType.ORGANIZATION_ADMIN));
+        assertFalse(handler.payload.getUsersToBeImported().get(0)
+                .getUserDetails().getUserRoles()
+                .contains(UserRoleType.UNIT_ADMINISTRATOR));
+    }
+
+    /**
      * One create user operation fails. Report must show failure
      */
     @Test
@@ -143,7 +171,7 @@ public class ImportUserHandlerTest {
     }
 
     /**
-     * Marketplace Id might not be set. 
+     * Marketplace Id might not be set.
      */
     @Test
     public void execute_noMarketplace() throws Exception {
@@ -160,12 +188,12 @@ public class ImportUserHandlerTest {
         assertEquals(EmailType.BULK_USER_IMPORT_SUCCESS, report.buildMailType());
     }
 
-    private void given(String userId, UserRoleType role) {
+    private void given(String userId, UserRoleType... roles) {
         handler.payload.setImportingUserKey(importingUser.getKey());
         handler.payload.setMarketplaceId("marketplaceId");
         VOUserDetails userDetails = new VOUserDetails();
         userDetails.setUserId(userId);
-        handler.payload.addUser(userDetails, Collections.singletonList(role));
+        handler.payload.addUser(userDetails, Arrays.asList(roles));
     }
 
     /**
@@ -183,7 +211,8 @@ public class ImportUserHandlerTest {
     }
 
     /**
-     * Use key as fall back text if message is missing in property file for one locale
+     * Use key as fall back text if message is missing in property file for one
+     * locale
      */
     @Test
     public void formatMessage_noLocalization() {
@@ -191,6 +220,66 @@ public class ImportUserHandlerTest {
                 new NonUniqueBusinessKeyException(ClassEnum.USER, "cheld"),
                 Locale.KOREA.getLanguage());
         assertEquals("ex.NonUniqueBusinessKeyException.USER", message);
+    }
+
+    @Test
+    public void removeRoles_nullArguments() {
+        // when
+        List<UserRoleType> result = handler.removeRoles(null, null);
+
+        // then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void removeRoles_emptyArguments() {
+        // when
+        List<UserRoleType> result = handler.removeRoles(
+                Collections.<UserRoleType> emptyList(),
+                Collections.<UserRoleType> emptyList());
+
+        // then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void removeRoles_noRemove() {
+        // given
+        List<UserRoleType> roles = Arrays.asList(
+                UserRoleType.ORGANIZATION_ADMIN, UserRoleType.BROKER_MANAGER);
+        // when
+        List<UserRoleType> result = handler.removeRoles(roles, null);
+
+        // then
+        assertTrue(result.containsAll(roles));
+    }
+
+    @Test
+    public void removeRoles_allRemove() {
+        // given
+        List<UserRoleType> roles = Arrays.asList(
+                UserRoleType.ORGANIZATION_ADMIN, UserRoleType.BROKER_MANAGER);
+        // when
+        List<UserRoleType> result = handler.removeRoles(roles, roles);
+
+        // then
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void removeRoles_remove() {
+        // given
+        List<UserRoleType> roles = Arrays.asList(
+                UserRoleType.ORGANIZATION_ADMIN, UserRoleType.BROKER_MANAGER,
+                UserRoleType.UNIT_ADMINISTRATOR);
+        List<UserRoleType> rolesToRemove = Arrays
+                .asList(UserRoleType.UNIT_ADMINISTRATOR);
+        // when
+        List<UserRoleType> result = handler.removeRoles(roles, rolesToRemove);
+
+        // then
+        assertEquals(2, result.size());
+        assertTrue(!result.contains(UserRoleType.UNIT_ADMINISTRATOR));
     }
 
 }

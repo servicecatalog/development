@@ -17,15 +17,15 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
+import org.oscm.internal.subscriptions.POSubscriptionForList;
+import org.oscm.internal.triggerprocess.TriggerProcessesService;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.validator.SubscriptionActivationValidator;
 import org.oscm.ui.validator.ValidationPerformer;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
-import org.oscm.internal.subscriptions.POSubscriptionForList;
-import org.oscm.internal.triggerprocess.TriggerProcessesService;
 
 /**
  * @author tokoda
@@ -59,12 +59,13 @@ public class SubscriptionsCtrl implements Serializable {
                         POSubscriptionForList.class));
     }
 
-    public String showSubscriptionDetails() {
-        final String id = model.getSelectedSubscriptionId();
+    public String showSubscriptionDetails(String subId, String subKey) {
+        model.setSelectedSubscriptionId(subId);
+        model.setSelectedSubscriptionKey(Long.valueOf(subKey));
 
-        if(validateSubscriptionStatus(id)) {
+        if(validateSubscriptionStatus(subId)) {
             sessionBean.setSelectedTab("tabUser");
-            sessionBean.setSelectedSubscriptionId(id);
+            sessionBean.setSelectedSubscriptionId(subId);
             sessionBean.setSelectedSubscriptionKey(model.getSelectedSubscriptionKey());
 
             return BaseBean.OUTCOME_SHOW_DETAILS;

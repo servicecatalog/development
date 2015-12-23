@@ -45,10 +45,10 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
+import org.oscm.dataservice.local.DataService;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.dataservice.local.DataService;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.operations.HandlerStub;
 import org.oscm.taskhandling.operations.SendMailHandler;
@@ -57,7 +57,6 @@ import org.oscm.taskhandling.payloads.PayloadStub;
 import org.oscm.taskhandling.payloads.SendMailPayload;
 import org.oscm.taskhandling.payloads.UpdateUserPayload;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.exception.SaaSSystemException;
 
 @SuppressWarnings("rawtypes")
 public class TaskQueueServiceBeanTest {
@@ -186,6 +185,22 @@ public class TaskQueueServiceBeanTest {
         assertEquals(1, storedObjects.size());
         assertEquals(objectMessageMock, storedObjects.get(0));
         assertEquals(correctMessage, storedObjectMessage);
+    }
+
+    @Test
+    public void testSendAllMessagesBigPortion() throws Exception {
+
+        PayloadStub payload = new PayloadStub();
+        TaskMessage correctMessage = new TaskMessage(HandlerStub.class, payload);
+
+        List<TaskMessage> messages = new ArrayList<>();
+        int msgStack = 1001;
+        for (int i = 0; i < msgStack; i++) {
+            messages.add(correctMessage);
+        }
+        tqs.sendAllMessages(messages);
+
+        assertEquals(msgStack, storedObjects.size());
     }
 
     @Test(expected = SaaSSystemException.class)

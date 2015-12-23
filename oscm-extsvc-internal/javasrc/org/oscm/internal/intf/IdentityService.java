@@ -812,12 +812,9 @@ public interface IdentityService {
      * @throws OperationNotPermittedException
      *             if the specified user is not a member of the calling user's
      *             organization
-     * @throws UserRoleAssignmentException
-     *             if a problem occurs in the user role assignment
      */
     void grantUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException;
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Removes the given role from the specified user. If the user already has
@@ -834,10 +831,7 @@ public interface IdentityService {
      * @throws OperationNotPermittedException
      *             if the specified user is not a member of the calling user's
      *             organization
-     * @throws UserRoleAssignmentException
-     *             if a problem occurs in the user role deassignment
      */
     void revokeUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException;
+            throws ObjectNotFoundException, OperationNotPermittedException;
 }

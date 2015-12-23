@@ -23,7 +23,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.pagination.Filter;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationUsersInUnit;
 import org.oscm.pagination.TableColumns;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
@@ -94,7 +94,7 @@ public class UserGroupUsersDaoIT extends EJBTestBase {
 
     @Test
     public void executeQueryGroupUsers() throws Exception {
-        final Pagination pagination = new Pagination();
+        final PaginationUsersInUnit pagination = new PaginationUsersInUnit();
         pagination.setOffset(0);
         pagination.setLimit(10);
 
@@ -113,7 +113,7 @@ public class UserGroupUsersDaoIT extends EJBTestBase {
 
     @Test
     public void executeQueryGroupUsers_greaterOffset() throws Exception {
-        final Pagination pagination = new Pagination();
+        final PaginationUsersInUnit pagination = new PaginationUsersInUnit();
         pagination.setOffset(5);
         pagination.setLimit(10);
 
@@ -132,7 +132,7 @@ public class UserGroupUsersDaoIT extends EJBTestBase {
 
     @Test
     public void executeQueryGroupUsers_filter() throws Exception {
-        final Pagination pagination = new Pagination();
+        final PaginationUsersInUnit pagination = new PaginationUsersInUnit();
         pagination.setOffset(0);
         pagination.setLimit(10);
         Set<Filter> filterSet = createFilterSet("user1", "Mi", "Kn", "U");

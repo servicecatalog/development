@@ -126,6 +126,10 @@ public class POSubscription implements Serializable {
         return voSubscription.getServiceAccessInfo();
     }
 
+    public String getServiceAccessInfoFormPart() {
+        return voSubscription.getServiceAccessInfoFormPart();
+    }
+
     public ServiceAccessType getServiceAccessType() {
         return voSubscription.getServiceAccessType();
     }

@@ -8,11 +8,15 @@
 
 package org.oscm.ui.dialog.mp.updateuser;
 
-import org.oscm.ui.dialog.mp.createuser.CreateUserModel;
-import org.oscm.ui.model.User;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+
+import org.oscm.ui.dialog.mp.createuser.CreateUserModel;
+import org.oscm.ui.dialog.mp.createuser.Subscription;
+import org.oscm.ui.model.User;
 
 /**
  * @author weiser
@@ -31,6 +35,10 @@ public class UpdateUserModel extends CreateUserModel {
     private int version;
     private String userName;
     private User user;
+    private Map<String, Boolean> selectedSubsIds = new HashMap<String, Boolean>();
+    private Map<String, String> changedRoles = new HashMap<String, String>();
+    private long assignableSubscriptionsNumber;
+    private Map<String, Subscription> allSubscriptions = new HashMap<>();
 
     public UpdateUserModel() {
         super();
@@ -90,5 +98,38 @@ public class UpdateUserModel extends CreateUserModel {
 
     public User getUser() {
         return user;
+    }
+
+    public Map<String, Boolean> getSelectedSubsIds() {
+        return selectedSubsIds;
+    }
+
+    public void setSelectedSubsIds(Map<String, Boolean> selectedSubsIds) {
+        this.selectedSubsIds = selectedSubsIds;
+    }
+
+    public Map<String, String> getChangedRoles() {
+        return changedRoles;
+    }
+
+    public void setChangedRoles(Map<String, String> changedRoles) {
+        this.changedRoles = changedRoles;
+    }
+
+    public long getAssignableSubscriptionsNumber() {
+        return assignableSubscriptionsNumber;
+    }
+
+    public void setAssignableSubscriptionsNumber(
+            long assignableSubscriptionsNumber) {
+        this.assignableSubscriptionsNumber = assignableSubscriptionsNumber;
+    }
+
+    public Map<String, Subscription> getAllSubscriptions() {
+        return allSubscriptions;
+    }
+
+    public void setAllSubscriptions(Map<String, Subscription> allSubscriptions) {
+        this.allSubscriptions = allSubscriptions;
     }
 }

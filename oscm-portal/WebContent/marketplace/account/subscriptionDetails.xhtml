@@ -2,12 +2,12 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
-  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:t="http://myfaces.apache.org/tomahawk"
-  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
-  template="../templates/main.xhtml">
+                xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
+                xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:t="http://myfaces.apache.org/tomahawk"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                template="../templates/main.xhtml">
 
   <ui:define name="pageId">
     <c:set var="pageId" value="marketplace.account.subscriptionsDetails" />
@@ -111,14 +111,14 @@
               <div class="bottomButtonPanel assignUserButton">
 
                 <mp:button id="editRoles" value="#{msg['button.editRoles']}" render="editRolesPanelTitle"
-                  bean="#{manageSubscriptionCtrl}" action="setPopupTargetEditRoles" 
+                  bean="#{manageSubscriptionCtrl}" action="setPopupTargetEditRoles"
                   rendered="#{not empty manageSubscriptionModel.serviceRoles and not empty manageSubscriptionModel.assignedUsers}"
                   disabled="#{manageSubscriptionCtrl.model.usersTabDisabled}"
                   oncomplete="AdmUtils.showProgress(false);RichFaces.$('editRolesPanel').show();" />
-                <mp:button id="assignUsers" value="#{msg['button.assignUsers']}" 
-                  bean="#{manageSubscriptionCtrl}" action="initializeUnassignedUsers" 
-                  disabled="#{manageSubscriptionCtrl.model.usersTabDisabled}"
-                  oncomplete="updateUnassignedUsersContent();" />
+                <h:commandButton id="assignUsers" value="#{msg['button.assignUsers']}" type="button"
+                  onclick="AdmUtils.showProgress(true); updateUnassignedUsersContent(); return false;" styleClass="button"
+                   oncomplete="AdmUtils.showProgress(false);"
+                  disabled="#{manageSubscriptionCtrl.model.usersTabDisabled}"/>
               <a4j:jsFunction name="updateUnassignedUsersContent" 
               action="#{manageSubscriptionCtrl.setPopupTargetAssignUsers}"
               oncomplete="AdmUtils.showProgress(false);if(#{manageSubscriptionModel.assignAllowed}) RichFaces.$('assignUsersPanel').show();" 
@@ -222,10 +222,11 @@
                 <t:panelGrid columns="2" styleClass="label-with-pencil"
                   rendered="#{userBean.isOrganizationAdmin or userBean.isUnitAdmin}">
                   <adm:outputLabel textId="subscriptionOwnerId" value="#{msg['subscription.owner']}" />
-                  <a4j:commandLink rendered="#{not manageSubscriptionModel.cfgTabDisabled}" disabled="#{manageSubscriptionModel.cfgTabDisabled}" render="configurationForm"
-                    onclick="if(getDirty()==true){setPageDirty();};setPopupTargetSelectOwners();">
-                    <img src="#{imgUrl}/transparentPixel.png" id="editSubImage#{sub.subscriptionId}" class="editPen" />
-                  </a4j:commandLink>
+                  <h:commandButton rendered="#{not manageSubscriptionModel.cfgTabDisabled}"
+                                   type="button" styleClass="editPen"
+                                   disabled="#{manageSubscriptionModel.cfgTabDisabled}" render="configurationForm"
+                    onclick="if(getDirty()==true){setPageDirty();};initializeSubscriptionOwners();">
+                  </h:commandButton>
                 </t:panelGrid>
 
                 <a4j:outputPanel layout="block" id="selectedOwnerText" styleClass="subscrOwnerName clipped"
@@ -240,11 +241,10 @@
 
                 <t:panelGrid columns="2" styleClass="label-with-pencil">
                   <adm:outputLabel textId="subscriptionUnitName" value="#{msg['unit.organizationalUnit']}" />
-                  <a4j:commandLink render="configurationForm"
+                  <h:commandButton render="configurationForm" type="button" styleClass="editPen" id="editUnit"
                     rendered="#{not manageSubscriptionModel.cfgTabDisabled and (userBean.isOrganizationAdmin or userBean.isUnitAdmin)}"
-                    onclick="if(getDirty()==true){setPageDirty();};setPopupTargetSelectUnits();">
-                    <img src="#{imgUrl}/transparentPixel.png" id="editUnitImage#{sub.subscriptionId}" class="editPen" />
-                  </a4j:commandLink>
+                    onclick="if(getDirty()==true){setPageDirty();};setPopupTargetSelectUnits(); return false;">
+                  </h:commandButton>
                 </t:panelGrid>
 
                 <a4j:outputPanel layout="block" id="selectedUnitName" styleClass="subscrOwnerName clipped">
@@ -465,8 +465,8 @@
           </a4j:jsFunction>
         </h:form>
         <h:form>
-          <a4j:jsFunction name="setPopupTargetSelectOwners" render="selectOwnerPanel"
-            action="#{manageSubscriptionCtrl.setPopupTargetSelectOwners}" oncomplete="setDirty(false);AdmUtils.showProgress(false);RichFaces.$('selectOwnerPanel').show();">
+          <a4j:jsFunction name="initializeSubscriptionOwners" render="selectOwnerPanel"
+            action="#{manageSubscriptionCtrl.initializeSubscriptionOwners}" oncomplete="setDirty(false);AdmUtils.showProgress(false);RichFaces.$('selectOwnerPanel').show();">
           </a4j:jsFunction>
           <a4j:jsFunction name="setPopupTargetSelectUnits" render="organizationUnitPanel"
             action="#{manageSubscriptionCtrl.subscriptionUnitCtrl.initializeUnitListForModifySubscription}"

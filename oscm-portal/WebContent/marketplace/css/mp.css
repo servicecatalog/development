@@ -2723,7 +2723,7 @@ div.pagingOptions p{
 /* edit entry e.g. user details */
 .editPen {
 	margin:2px 2px 0px;
-	background: transparent url(../img/mp_icon_sprite.png) 2px -364px no-repeat;
+	background: transparent url(../img/mp_icon_sprite.png) 2px -364px no-repeat !important;
 	border:0;
 	cursor:pointer;
 	height:16px;
@@ -3108,6 +3108,13 @@ input.button, a.button {
 	background-position: -3px -2px !important;
 	color: #44556a;
 	margin-right: 10px;
+}
+
+input.button[disabled="disabled"], input.button[disabled="disabled"]:HOVER{
+	background-position: right -412px !important;
+	border:1px solid !important;
+	color: #666;
+	padding:0px 10px 0px 10px;
 }
 
 input.button:HOVER, a.button:HOVER {

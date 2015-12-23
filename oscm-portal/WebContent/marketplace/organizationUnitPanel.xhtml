@@ -31,7 +31,7 @@
               onclick="AdmUtils.dataTableSelectOneRadio(this);" 
               value="#{bean.subscriptionUnitCtrl.model.assignNoUnit}"
               valueChangeListener="#{bean.subscriptionUnitCtrl.changeSelectedUnit}"
-              disabled="#{not userBean.isOrganizationAdmin and userBean.isUnitAdmin}">
+              disabled="#{not userBean.isOrganizationAdmin and userBean.isUnitAdmin and not userBean.isSubscriptionManager}">
               <f:selectItem itemValue="true" itemLabel="#{msg['unit.dialog.subscriptionIsNotAssigned']}" />
               <h:inputHidden value="0" converter="javax.faces.Long"/>
             </h:selectOneRadio>
@@ -39,7 +39,7 @@
 
           <!-- Table -->
           <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
-            <a4j:queue requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
+            <a4j:queue requestDelay="500" ignoreDupResponses="true" oncomplete="jQuery('body').removeClass('hourglass');"
               onsubmit="jQuery('body').addClass('hourglass');" />
 
             <rich:dataTable rows="10" headerClass="rowTitle"

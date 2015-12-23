@@ -114,7 +114,7 @@ public class ManageGroupCtrlTest {
 
             @Override
             public void handleError(String clientId, String messageKey,
-                                    Object... params) {
+                    Object... params) {
 
             }
 
@@ -138,7 +138,8 @@ public class ManageGroupCtrlTest {
         doReturn(voServiceListResult).when(searchServiceInternal)
                 .getServicesByCriteria(anyString(), anyString(),
                         any(ListCriteria.class), any(PerformanceHint.class));
-        doReturn(tableStatus).when(ctrl.getUi()).findBean(eq(TableState.BEAN_NAME));
+        doReturn(tableStatus).when(ctrl.getUi()).findBean(
+                eq(TableState.BEAN_NAME));
 
         initModelData();
     }
@@ -164,11 +165,14 @@ public class ManageGroupCtrlTest {
                 anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
         userGroup.setKey(1L);
 
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
 
         ctrl.getManageGroupModel().setSelectedGroup(selectedGroup);
-        doReturn(new ArrayList<Long>()).when(userGroupService).getInvisibleProductKeysForGroup(anyLong());
+        doReturn(new ArrayList<Long>()).when(userGroupService)
+                .getInvisibleProductKeysForGroup(anyLong());
         ctrl.getInitialize();
 
         // when
@@ -180,7 +184,6 @@ public class ManageGroupCtrlTest {
         verify(tableStatus, times(1)).resetActiveEditPage();
     }
 
-
     @Test
     public void save_ObjectNotFound() throws Exception {
         // given
@@ -188,8 +191,10 @@ public class ManageGroupCtrlTest {
         doThrow(e).when(userGroupService).updateGroup(eq(selectedGroup),
                 anyString(), anyListOf(POUserInUnit.class),
                 anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         // when
         String result = ctrl.save();
@@ -207,8 +212,10 @@ public class ManageGroupCtrlTest {
         doThrow(e).when(userGroupService).updateGroup(eq(selectedGroup),
                 anyString(), anyListOf(POUserInUnit.class),
                 anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         // when
         String result = ctrl.save();
@@ -226,8 +233,10 @@ public class ManageGroupCtrlTest {
         doThrow(e).when(userGroupService).updateGroup(eq(selectedGroup),
                 anyString(), anyListOf(POUserInUnit.class),
                 anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
 
         // when
@@ -315,8 +324,10 @@ public class ManageGroupCtrlTest {
                 anyString(), anyListOf(POUserInUnit.class),
                 anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
         model.setSelectedGroup(new POUserGroup());
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         String result = ctrl.save();
         verify(userGroupService, times(1)).updateGroup(eq(selectedGroup),
@@ -330,10 +341,12 @@ public class ManageGroupCtrlTest {
     public void update_ValidationException() throws Exception {
         model.setSelectedGroup(new POUserGroup());
         doThrow(new ValidationException()).when(userGroupService).updateGroup(
-                eq(selectedGroup), anyString(),
-                anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+                eq(selectedGroup), anyString(), anyListOf(POUserInUnit.class),
+                anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         String result = ctrl.save();
         verify(userGroupService, times(1)).updateGroup(eq(selectedGroup),
@@ -345,13 +358,16 @@ public class ManageGroupCtrlTest {
     @Test
     public void update_ConcurrentModificationException() throws Exception {
         model.setSelectedGroup(new POUserGroup());
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         doThrow(new ConcurrentModificationException()).when(userGroupService)
                 .updateGroup(eq(selectedGroup), anyString(),
                         anyListOf(POUserInUnit.class),
-                        anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
+                        anyListOf(POUserInUnit.class),
+                        anyListOf(POUserInUnit.class));
         String result = ctrl.save();
         verify(userGroupService, times(1)).updateGroup(eq(selectedGroup),
                 anyString(), anyListOf(POUserInUnit.class),
@@ -365,9 +381,12 @@ public class ManageGroupCtrlTest {
         doThrow(new OperationNotPermittedException()).when(userGroupService)
                 .updateGroup(eq(selectedGroup), anyString(),
                         anyListOf(POUserInUnit.class),
-                        anyListOf(POUserInUnit.class), anyListOf(POUserInUnit.class));
-        doReturn(model.getSelectedGroup()).when(userGroupService).getUserGroupDetailsForList(anyLong());
-        doReturn(selectedGroup).when(userGroupService).getUserGroupDetailsWithUsers(anyLong());
+                        anyListOf(POUserInUnit.class),
+                        anyListOf(POUserInUnit.class));
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        doReturn(selectedGroup).when(userGroupService)
+                .getUserGroupDetailsWithUsers(anyLong());
         ctrl.getInitialize();
         String result = ctrl.save();
         verify(userGroupService, times(1)).updateGroup(eq(selectedGroup),
@@ -446,9 +465,10 @@ public class ManageGroupCtrlTest {
         boolean prevSelected = false;
         for (ServiceRow row : rows) {
             if (prev != null) {
-                if ((row.isSelected() && prevSelected) || (!row.isSelected() && !prevSelected)) {
-                    assertEquals(Boolean.TRUE, Boolean.valueOf(prev.compareTo(row
-                            .getService().getServiceName()) <= 0));
+                if ((row.isSelected() && prevSelected)
+                        || (!row.isSelected() && !prevSelected)) {
+                    assertEquals(Boolean.TRUE, Boolean.valueOf(prev
+                            .compareTo(row.getService().getServiceName()) <= 0));
                 } else if (row.isSelected() && !prevSelected) {
                     assertEquals(1, 0);
                 } else {
@@ -477,5 +497,68 @@ public class ManageGroupCtrlTest {
         servicesList.add(serviceFirst);
         servicesList.add(serviceSecond);
         return servicesList;
+    }
+
+    @Test
+    public void confirmIfUnitExists() throws Exception {
+        // given
+        ManageGroupCtrl mgc = new ManageGroupCtrl() {
+            @Override
+            public String getSelectedGroupId() {
+                return "1000";
+            }
+        };
+        mgc.setManageGroupModel(model);
+        doReturn(model.getSelectedGroup()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+
+        // when
+        String result = ctrl.confirmIfUnitExists();
+
+        // then
+        assertEquals(BaseBean.OUTCOME_EDIT_GROUP, result);
+    }
+
+    @Test
+    public void confirmIfUnitExists_EmptyId() throws Exception {
+        // given
+        ManageGroupCtrl mgc = new ManageGroupCtrl() {
+            @Override
+            public String getSelectedGroupId() {
+                return "";
+            }
+        };
+        mgc.setManageGroupModel(model);
+        // when
+        String result = mgc.confirmIfUnitExists();
+        // then
+        assertEquals(BaseBean.OUTCOME_REFRESH, result);
+    }
+
+    @Test
+    public void confirmIfUnitExists_NullId() throws Exception {
+        // given
+        ManageGroupCtrl mgc = new ManageGroupCtrl() {
+            @Override
+            public String getSelectedGroupId() {
+                return null;
+            }
+        };
+        mgc.setManageGroupModel(model);
+        // when
+        String result = mgc.confirmIfUnitExists();
+        // then
+        assertEquals(BaseBean.OUTCOME_REFRESH, result);
+    }
+
+    @Test
+    public void confirmIfUnitExists_ObjectNotFound() throws Exception {
+        // given
+        doThrow(new ObjectNotFoundException()).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
+        // when
+        String result = ctrl.confirmIfUnitExists();
+        // then
+        assertEquals(BaseBean.OUTCOME_REFRESH, result);
     }
 }

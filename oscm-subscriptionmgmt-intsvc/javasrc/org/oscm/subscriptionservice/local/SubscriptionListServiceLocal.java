@@ -22,6 +22,7 @@ import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POSubscription;
+import org.oscm.pagination.PaginationInt;
 
 /**
  * @author weiser
@@ -156,5 +157,6 @@ public interface SubscriptionListServiceLocal {
      * 
      * @return number of subscriptions
      */
-    public Long getUserAssignableSubscriptionsNumber(org.oscm.pagination.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
+    Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
+            PlatformUser user, Set<SubscriptionStatus> states);
 }

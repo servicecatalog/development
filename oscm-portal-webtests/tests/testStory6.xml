@@ -117,7 +117,7 @@
       <!-- Retest bug 9788, no addUser link will be shown when user is in LDAP -->
       <mpl_goto.account.subscriptions />
       <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
       <not>
         <verifyXPath xpath="//*[@id='assignUsersPanelForm:addUser']" />

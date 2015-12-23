@@ -562,8 +562,7 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
     public void grantUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
@@ -574,8 +573,7 @@ public class IdentityServiceBean implements IdentityService,
     @Override
     @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
     public void revokeUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("role", role);
@@ -938,7 +936,8 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void notifySubscriptionsAboutUserUpdate(PlatformUser existingUser) {
 
         // 2. notify all products the user is subscribed to
@@ -1787,7 +1786,7 @@ public class IdentityServiceBean implements IdentityService,
         PlatformUser pu = UserDataAssembler.toPlatformUser(userDetails);
 
         pu.setOrganization(organization);
-        // Set the user account status to active if OSCM is a SAML SP
+        // Set the user account status to active if CT-MG is a SAML SP
         if (cs.isServiceProvider()
                 && UserAccountStatus.PASSWORD_MUST_BE_CHANGED.equals(lockLevel)) {
             pu.setStatus(UserAccountStatus.ACTIVE);
@@ -1795,7 +1794,7 @@ public class IdentityServiceBean implements IdentityService,
             pu.setStatus(lockLevel);
         }
         if (userLocalLdap) {
-            // Do not set the user password if OSCM is a SAML SP
+            // Do not set the user password if CT-MG is a SAML SP
             if (!cs.isServiceProvider()) {
                 setPassword(pu, password);
             }
@@ -2827,5 +2826,7 @@ public class IdentityServiceBean implements IdentityService,
         }
         return allExpired;
     }
+
+    
 
 }

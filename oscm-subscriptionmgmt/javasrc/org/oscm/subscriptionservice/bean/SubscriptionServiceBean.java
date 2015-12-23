@@ -601,9 +601,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         // for subscribing service, set the current user as subscription owner
         newSub.setOwner(owner);
 
-        if (currentUser.isOrganizationAdmin() || currentUser.isUnitAdmin()) {
-            newSub.setUserGroup(unit);
-        }
+        verifyUnitAndRoles(currentUser, unit, newSub);
 
         Product theProduct = productTemplate.copyForSubscription(
                 productTemplate.getTargetCustomer(), newSub);
@@ -704,6 +702,25 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 originalCustomerUdas);
 
         return newSub;
+    }
+
+    private void verifyUnitAndRoles(PlatformUser currentUser, UserGroup unit, Subscription newSub) throws OperationNotPermittedException {
+        if(!currentUser.isOrganizationAdmin()){
+            boolean isUnitAdmin = currentUser.isUnitAdmin();
+            boolean isSubMgr = currentUser.isSubscriptionManager();
+            boolean isUnitToBeAssigned = unit != null;
+            boolean unitIsMandatory = isUnitAdmin && !isSubMgr;
+            boolean unitIsForbidden = !isUnitAdmin && isSubMgr;
+
+            if (isUnitToBeAssigned && unitIsForbidden) {
+                throw new OperationNotPermittedException();
+            } else if (unitIsMandatory && !isUnitToBeAssigned) {
+                    throw new OperationNotPermittedException();
+            }
+        }
+        if (currentUser.isOrganizationAdmin() || currentUser.isUnitAdmin()) {
+            newSub.setUserGroup(unit);
+        }
     }
 
     private void autoAssignUserForTriggerProcess(TriggerProcess tp,

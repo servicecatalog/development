@@ -46,13 +46,6 @@
 
         <h:form id="subListForm">
 
-          <a4j:jsFunction name="validateSubscriptionStatus"
-                          action="#{subscriptionsCtrl.showSubscriptionDetails}"
-                          render=":hiddenErrorPanel subListForm">
-            <a4j:param name="param1" assignTo="#{subscriptionsCtrl.model.selectedSubscriptionId}" />
-            <a4j:param name="param2" assignTo="#{subscriptionsCtrl.model.selectedSubscriptionKey}" />
-          </a4j:jsFunction>
-
           <rich:dataTable rows="10" id="subscriptionsList" value="#{subscriptionsCtrl.model}" var="sub"
             headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable" styleClass="sortable"
             headerCellClass="rowTitle sortable" columnClasses="wrapColumns" rowClasses="rowOdd,rowEven"
@@ -65,13 +58,12 @@
               </a4j:outputPanel>
             </f:facet>
             <rich:column width="#{iconWidth}" styleClass="tableColumnCheckBox">
-              <a4j:commandLink
-                      onclick="validateSubscriptionStatus('#{sub.subscriptionId}', '#{sub.subscriptionKey}');"
+              <h:commandLink action="#{subscriptionsCtrl.showSubscriptionDetails(sub.subscriptionId, sub.subscriptionKey)}"
                       render=":hiddenErrorPanel subListForm">
                 <img src="#{imgUrl}/transparentPixel.png" id="editSubImage#{sub.subscriptionId}" class="editPen" />
                 <f:setPropertyActionListener target="#{subscriptionsCtrl.model.selectedSubscription}" value="#{sub}" />
                 <!--<f:param name="action" value="#{param.action}" />-->
-              </a4j:commandLink>
+              </h:commandLink>
             </rich:column>
 
             <ui:include src="../subscriptions/subscriptionTableColumn.xhtml">

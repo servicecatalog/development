@@ -12,12 +12,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
@@ -57,7 +57,7 @@ public class BillingDaoIT extends EJBTestBase {
     private static final String UNIT_NAME = "test unit";
 
     private Organization supplierOrg;
-    private UserGroup unit;
+    private UserGroup testUnit;
 
     @Override
     protected void setup(TestContainer container) throws Exception {
@@ -66,7 +66,7 @@ public class BillingDaoIT extends EJBTestBase {
         dao = new BillingDao(ds);
 
         supplierOrg = createOrganization(SUPPLIER_ORG_ID);
-        unit = createUnit(UNIT_NAME);
+        testUnit = createUnit(UNIT_NAME);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class BillingDaoIT extends EJBTestBase {
                 "2013-01-21 09:00:00", 19, ModificationType.ADD,
                 SubscriptionStatus.ACTIVE, 100L, 200L);
         final BillingResult br = createBillingResult(1L, 1L,
-                Long.valueOf(subscriptionKey), 1000L, supplierOrg.getKey());
+                Long.valueOf(subscriptionKey), 1000L, supplierOrg.getKey(), 0L);
 
         // when
         List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
@@ -98,7 +98,7 @@ public class BillingDaoIT extends EJBTestBase {
                 "2013-01-21 09:00:00", 19, ModificationType.ADD,
                 SubscriptionStatus.ACTIVE, 100L, 200L);
         final BillingResult br = createBillingResult(1L, 1L,
-                Long.valueOf(subscriptionKey), 1000L, supplierOrg.getKey());
+                Long.valueOf(subscriptionKey), 1000L, supplierOrg.getKey(), 0L);
 
         // when
         List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
@@ -106,7 +106,6 @@ public class BillingDaoIT extends EJBTestBase {
 
         // then
         assertEquals(1, result.size());
-        assertEquals(unit.getKey(), result.get(0).getUserGroup().longValue());
     }
 
     private List<ReportBillingData> retrieveBillingDetails(
@@ -154,7 +153,7 @@ public class BillingDaoIT extends EJBTestBase {
         createSubscriptionHistory(2L, customer.getKey(), "2013-01-21 09:00:00",
                 19, ModificationType.ADD, SubscriptionStatus.ACTIVE, 100L, 200L);
         BillingResult br = createBillingResult(0L, 1L, 2L, customer.getKey(),
-                supplierOrg.getKey());
+                supplierOrg.getKey(), 0L);
 
         // when
         List<ReportResultData> reportData = retrieveSupplierBillingBySupplierId(supplierOrg
@@ -171,7 +170,7 @@ public class BillingDaoIT extends EJBTestBase {
     }
 
     @Test
-    public void retrieveBillingDetailsForUnit() throws Exception {
+    public void retrieveBillingDetailsForUnitOfSubscription() throws Exception {
         // given
         createSupportedCountriesAndCurrencies();
         UserGroup unit = createUnit("unit", supplierOrg, null);
@@ -185,7 +184,7 @@ public class BillingDaoIT extends EJBTestBase {
                 SubscriptionStatus.ACTIVE, 100L, 200L);
         final BillingResult br = createBillingResult(1L, 1L,
                 Long.valueOf(sub.getKey()), supplierOrg.getKey(),
-                supplierOrg.getKey());
+                supplierOrg.getKey(), 0L);
 
         // when
         List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
@@ -194,6 +193,121 @@ public class BillingDaoIT extends EJBTestBase {
 
         // then
         assertEquals(1, result.size());
+        assertEquals(br.getResultXML(), result.get(0).getBillingResult());
+    }
+
+    @Test
+    public void retrieveBillingDetailsForUnitOfBillingResult() throws Exception {
+        // given
+        createSupportedCountriesAndCurrencies();
+        UserGroup unit = createUnit("unit", supplierOrg, null);
+        Product product = createProduct("serviceA", "techServiceA",
+                supplierOrg.getOrganizationId(), ServiceAccessType.LOGIN);
+        Subscription sub = createSubscription(supplierOrg.getOrganizationId(),
+                product.getProductId(), "SubscriptionId", supplierOrg);
+        createSubscriptionHistory(sub.getKey(), supplierOrg.getKey(),
+                "2013-01-21 09:00:00", 19, ModificationType.ADD,
+                SubscriptionStatus.ACTIVE, 100L, 200L);
+        final BillingResult br = createBillingResult(1L, 1L,
+                Long.valueOf(sub.getKey()), supplierOrg.getKey(),
+                supplierOrg.getKey(), unit.getKey());
+
+        // when
+        List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
+                supplierOrg.getKey(),
+                Collections.singletonList(Long.valueOf(unit.getKey())));
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals(br.getResultXML(), result.get(0).getBillingResult());
+    }
+
+    @Test
+    public void retrieveBillingDetailsForUnitNoRights1() throws Exception {
+        // given
+        createSupportedCountriesAndCurrencies();
+        UserGroup unit = createUnit("unit", supplierOrg, null);
+        Product product = createProduct("serviceA", "techServiceA",
+                supplierOrg.getOrganizationId(), ServiceAccessType.LOGIN);
+        Subscription sub = createSubscription(supplierOrg.getOrganizationId(),
+                product.getProductId(), "SubscriptionId", supplierOrg);
+        createSubscriptionHistory(sub.getKey(), supplierOrg.getKey(),
+                "2013-01-21 09:00:00", 19, ModificationType.ADD,
+                SubscriptionStatus.ACTIVE, 100L, 200L);
+        final BillingResult br = createBillingResult(1L, 1L,
+                Long.valueOf(sub.getKey()), supplierOrg.getKey(),
+                supplierOrg.getKey(), 0L);
+
+        // when
+        List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
+                supplierOrg.getKey(),
+                Collections.singletonList(Long.valueOf(unit.getKey())));
+
+        // then
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void retrieveBillingDetailsForUnitNoRights2() throws Exception {
+        // given
+        createSupportedCountriesAndCurrencies();
+        UserGroup unit = createUnit("unit", supplierOrg, null);
+        Product product = createProduct("serviceA", "techServiceA",
+                supplierOrg.getOrganizationId(), ServiceAccessType.LOGIN);
+        Subscription sub = createSubscription(supplierOrg.getOrganizationId(),
+                product.getProductId(), "SubscriptionId", supplierOrg);
+        assignSubscriptionToUnit(sub, testUnit);
+        createSubscriptionHistory(sub.getKey(), supplierOrg.getKey(),
+                "2013-01-21 09:00:00", 19, ModificationType.ADD,
+                SubscriptionStatus.ACTIVE, 100L, 200L);
+        final BillingResult br = createBillingResult(1L, 1L,
+                Long.valueOf(sub.getKey()), supplierOrg.getKey(),
+                supplierOrg.getKey(), testUnit.getKey());
+
+        // when
+        List<ReportBillingData> result = retrieveBillingDetails(br.getKey(),
+                supplierOrg.getKey(),
+                Collections.singletonList(Long.valueOf(unit.getKey())));
+
+        // then
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void retrieveBillingDetailsMoreUnits() throws Exception {
+        // given
+        createSupportedCountriesAndCurrencies();
+        UserGroup unit0 = createUnit("unit0", supplierOrg, null);
+        UserGroup unit1 = createUnit("unit1", supplierOrg, null);
+        UserGroup unit2 = createUnit("unit2", supplierOrg, null);
+        UserGroup unit3 = createUnit("unit3", supplierOrg, null);
+        UserGroup unit4 = createUnit("unit4", supplierOrg, null);
+        Product product = createProduct("serviceA", "techServiceA",
+                supplierOrg.getOrganizationId(), ServiceAccessType.LOGIN);
+        Subscription sub = createSubscription(supplierOrg.getOrganizationId(),
+                product.getProductId(), "SubscriptionId", supplierOrg);
+        createSubscriptionHistory(sub.getKey(), supplierOrg.getKey(),
+                "2013-01-21 09:00:00", 19, ModificationType.ADD,
+                SubscriptionStatus.ACTIVE, 100L, 200L);
+        assignSubscriptionToUnit(sub, testUnit);
+        final BillingResult br = createBillingResult(1L, 1L,
+                Long.valueOf(sub.getKey()), supplierOrg.getKey(),
+                supplierOrg.getKey(), unit0.getKey());
+
+        // when
+        List<ReportBillingData> result = retrieveBillingDetails(
+                br.getKey(),
+                supplierOrg.getKey(),
+                Arrays.asList(Long.valueOf(unit0.getKey()),
+                        Long.valueOf(unit1.getKey()),
+                        Long.valueOf(unit2.getKey()),
+                        Long.valueOf(unit3.getKey()),
+                        Long.valueOf(unit4.getKey()),
+                        Long.valueOf(testUnit.getKey())));
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals(br.getResultXML(), result.get(0).getBillingResult());
     }
 
     @Test
@@ -359,7 +473,8 @@ public class BillingDaoIT extends EJBTestBase {
      */
     private BillingResult createBillingResult(final long periodStart,
             final long periodEnd, final Long subscriptionKey,
-            final long customerOrgKey, final long sellerKey) throws Exception {
+            final long customerOrgKey, final long sellerKey, final long unitKey)
+            throws Exception {
         return runTX(new Callable<BillingResult>() {
             @Override
             public BillingResult call() throws Exception {
@@ -375,7 +490,9 @@ public class BillingDaoIT extends EJBTestBase {
                 br.setGrossAmount(BigDecimal.TEN);
                 br.setSubscriptionKey(subscriptionKey);
                 br.setVendorKey(sellerKey);
-                br.setUsergroupKey(unit.getKey());
+                if (unitKey != 0) {
+                    br.setUsergroupKey(unitKey);
+                }
                 ds.persist(br);
                 return br;
             }
@@ -406,7 +523,7 @@ public class BillingDaoIT extends EJBTestBase {
         // given
         Organization supplier = createOrganization("supplier");
         BillingResult br = createBillingResult(0L, 1L, 2L, 3L,
-                supplier.getKey());
+                supplier.getKey(), 0L);
 
         // when
         List<ReportBillingData> billingDetails = retrieveBillingDetailsByKey(br

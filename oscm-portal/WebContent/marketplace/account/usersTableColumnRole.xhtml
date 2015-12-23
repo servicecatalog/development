@@ -7,14 +7,11 @@
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
 
   <rich:column sortBy="#{property}" sortOrder="#{bean.sortOrders[property]}"
-    filterValue="#{bean.filterValues[property]}" style="max-width:100px"
-    headerClass="rowTitle sortable clickable-header" filterExpression="#{property}" filterType="custom"
-    filterEvent="oki"
-    sortType="custom" styleClass="#{styleClass}">
+    filterValue="#{bean.filterValues[property]}" style="max-width:100px" sortType="custom"
+    headerClass="rowTitle sortable clickable-header" filterExpression="#{property}" filterType="custom">
     <f:facet name="header">
       <h:outputText value="#{columnHeaderName}" />
-      <h:commandLink action="#{bean.toggleSort}" styleClass="sort-command-link"
-        onclick="if (handleOnKeyUp() == false) { return false;}">
+      <h:commandLink action="#{bean.toggleSort}" styleClass="sort-command-link">
         <a4j:ajax render="#{tableName} :#{tableName}Scripts" />
         <f:setPropertyActionListener target="#{bean.sortProperty}" value="#{property}" />
       </h:commandLink>
@@ -24,14 +21,20 @@
       </a4j:outputPanel>
 
       <adm:filterInput inputId="#{property}" inputValue="#{bean.filterValues[property]}" queueName="#{queueName}"
-        render="#{tableName}@body #{scroller} :pagerPanel :#{tableName}Scripts #{scroller}Scripts"
-        onkeyup="if (handleOnKeyUp($(this)) == false) { return false;}" />
+        render="#{tableName}@body #{scroller} :pagerPanel :#{tableName}Scripts #{scroller}Scripts"/>
 
     </f:facet>
-    <a4j:outputPanel layout="block" styleClass="tablePanel table_padding stringInMultiLine preserveWhitespaces">
-      <h:selectOneMenu id="unitRole" onchange="showConfirm=true;" styleClass="roles-list" value="#{record[property]}">
+    <a4j:outputPanel layout="block" styleClass="tablePanel table_padding stringInMultiLine preserveWhitespaces" id="rolePanel">
+      <h:selectOneMenu id="unitRole" onchange="saveChangedRole('#{user.userId}', $(this).val());"
+        styleClass="roles-list" value="#{user.roleInUnit}">
         <f:selectItems value="#{manageGroupCtrl.manageGroupModel.roles}" />
       </h:selectOneMenu>
+      
+      <a4j:jsFunction name="saveChangedRole" action="#{manageGroupCtrl.saveInMap}">
+        <a4j:param name="param1" assignTo="#{manageGroupCtrl.manageGroupModel.changedUserId}"/>
+        <a4j:param name="param2" assignTo="#{manageGroupCtrl.manageGroupModel.changedRoleName}"/>
+      </a4j:jsFunction>
+
     </a4j:outputPanel>
   </rich:column>
 

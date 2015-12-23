@@ -1,12 +1,12 @@
 <!-- Copyright FUJITSU LIMITED 2015-->
-<project xmlns:setup="antlib:org.oscm.webtest.setup">
+<project>
 
   <macrodef name="mpl_subscription.assignUserModal">
     <attribute name="userIndex" />
     <attribute name="suspended" default="false" />
     <attribute name="reExecution" default="false" />
     <sequential>
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
       <setCheckbox htmlId="assignUsersPanelForm:userTable:@{userIndex}:assignCheckbox" checked="true" />
       <clickLink htmlId="assignUsersPanelForm:saveButton" />

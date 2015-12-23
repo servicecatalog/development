@@ -24,17 +24,17 @@
     <!-- left Logo -->
     <div id="w_004_h_e_logo">
 
-      <div id="w_004_h_e_g_header_l" onclick="#{rich:element('formVersion:versionHiddenButton')}.click()">
+      <div id="w_004_h_e_g_header_l" onclick="#{rich:element('formVersion:versionHiddenButton')}.click()" style="cursor:pointer;">
       </div>
       <div id="w_004_h_e_g_header_r">
         <div id="w_004_h_e_g_header_ie6">
           <!-- right logo -->
-         
+
           <h:form id="formVersion">
           <a4j:commandButton style="display:none;" id="versionHiddenButton"
             oncomplete="#{rich:component('version')}.show()" render="version">
                </a4j:commandButton>
-          
+
            <div id="w_004_h_e_logo_r"></div>
    		   </h:form>
            <c:if test="#{not empty showUserId}">

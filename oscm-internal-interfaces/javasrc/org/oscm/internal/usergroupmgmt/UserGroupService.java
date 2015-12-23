@@ -23,7 +23,7 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.POUserInUnit;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationUsersInUnit;
 
 /**
  * Service providing the functionality to manage user group.
@@ -257,9 +257,6 @@ public interface UserGroupService {
     List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
             String userId);
 
-    Response getUsersForGroup(Pagination pagination, String selectedGroupId)
-            throws OrganizationAuthoritiesException;
-
     /**
      * get details of user group by key including details of users assigned to
      * this user group.
@@ -273,13 +270,23 @@ public interface UserGroupService {
             throws ObjectNotFoundException;
 
     /**
+     * 
+     * @param pagination - sorting, filtering, paging details
+     * @param selectedGroupId - the key of user group
+     * @return sorted and filtered list of users
+     * @throws OrganizationAuthoritiesException
+     */
+    Response getUsersForGroup(PaginationUsersInUnit pagination,
+            String selectedGroupId) throws OrganizationAuthoritiesException;
+
+    /**
      * get number of users assigned to this user group.
      *
-     * @param groupKey
-     *            the key of user group
+     * @param selectedGroupId - the key of user group
+     * @param pagination - sorting, filtering, paging details
      * @return number of users
      * @throws OrganizationAuthoritiesException
      */
-    public Integer getCountUsersForGroup(Pagination pagination, String selectedGroupId)
-            throws OrganizationAuthoritiesException;
+    Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
+            String selectedGroupId) throws OrganizationAuthoritiesException;
 }

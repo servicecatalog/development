@@ -61,7 +61,7 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
 
         try {
             localService
-                    .grantUserRoles(
+                    .grantUserRolesWithHandleUnitAdminRole(
                             pUser,
                             EnumConverter
                                     .convertList(

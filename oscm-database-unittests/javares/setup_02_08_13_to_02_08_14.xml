@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <UserGroupHistory tkey="13000" objversion="0" name="default" description="Default Unit" isdefault="TRUE"
+    organizationobjkey="111" objkey="1" moduser="1000" modtype="ADD" moddate="2015-09-08 10:07:28.706" />
+  <UserGroupHistory tkey="14000" objversion="0" name="Unit0" description="Description Unit0" isdefault="FALSE"
+    organizationobjkey="111" objkey="1000" moduser="1000" modtype="ADD" moddate="2015-09-08 10:07:28.706"/>
+  <UserGroupHistory tkey="15000" objversion="1" name="Unit1" description="Description Unit1" isdefault="FALSE"
+    organizationobjkey="111" objkey="1001" moduser="1000" modtype="ADD" moddate="2015-09-08 10:07:28.706"/>
+  <UserGroupHistory tkey="16000" objversion="2" name="Unit2" description="Description Unit2" isdefault="FALSE"
+    organizationobjkey="112" objkey="1002" moduser="1000" modtype="ADD" moddate="2015-09-08 10:07:28.706"/>
+</dataset>

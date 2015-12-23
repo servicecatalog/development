@@ -24,20 +24,20 @@ import org.ajax4jsf.model.DataVisitor;
 import org.ajax4jsf.model.ExtendedDataModel;
 import org.ajax4jsf.model.Range;
 import org.ajax4jsf.model.SequenceRange;
-import org.richfaces.model.Arrangeable;
-import org.richfaces.model.ArrangeableState;
-import org.richfaces.model.FilterField;
-import org.richfaces.model.SortField;
-
+import org.oscm.internal.tables.Pagination;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.pagination.Filter;
+import org.oscm.pagination.PaginationInt;
 import org.oscm.pagination.SortOrder;
 import org.oscm.pagination.Sorting;
 import org.oscm.pagination.TableColumns;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
-import org.oscm.internal.tables.Pagination;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.richfaces.model.Arrangeable;
+import org.richfaces.model.ArrangeableState;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.SortField;
 
 /**
  * Extended data model
@@ -60,7 +60,7 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
     private String sortProperty;
 
     public abstract List<T> getDataList(int firstRow, int numRows,
-            List<FilterField> filterFields, List<SortField> sortFields);
+            List<FilterField> filterFields, List<SortField> sortFields, Object argument);
 
     protected void decorateWithLocalizedStatuses(Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination
@@ -89,7 +89,7 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
         if (!CACHE_ENABLED
                 || (cachedList == null || !equalRanges(cachedRange, sr))) {
             cachedList = getDataList(sr.getFirstRow(), sr.getRows(),
-                    arrangeable.getFilterFields(), arrangeable.getSortFields());
+                    arrangeable.getFilterFields(), arrangeable.getSortFields(), argument);
             cachedRange = sr;
         }
 
@@ -254,7 +254,7 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
     }
     
     protected void applyFilters(List<FilterField> filterFields,
-            org.oscm.pagination.Pagination pagination) {
+            PaginationInt pagination) {
         Set<Filter> filters = new HashSet<>();
         FacesContext facesContext = FacesContext.getCurrentInstance();
         for (FilterField filterField : filterFields) {
@@ -278,7 +278,7 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
     }
 
     protected void applySorting(List<SortField> sortFields,
-            org.oscm.pagination.Pagination pagination) {
+            PaginationInt pagination) {
         FacesContext facesContext = FacesContext.getCurrentInstance();
         Sorting sorting = null;
         for (SortField sortField : sortFields) {

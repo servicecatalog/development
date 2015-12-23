@@ -53,8 +53,8 @@
       <a4j:outputPanel layout="block" styleClass="box">
 
         <h:form id="editGroupForm">
-          <a4j:queue requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
-            onsubmit="jQuery('body').addClass('hourglass');" />
+          <a4j:queue oncomplete="jQuery('body').removeClass('hourglass');" size="4"
+            onsubmit="jQuery('body').addClass('hourglass');" name="unassignedUsersQueue" />
           <h2 style="word-wrap: break-word;">
             <h:outputFormat value="#{msg['marketplace.account.editGroup.title']}">
               <f:param value="#{manageGroupCtrl.manageGroupModel.selectedGroup.groupName}" />
@@ -88,13 +88,14 @@
 
             <h:inputHidden id="configDirty" value="#{manageGroupCtrl.manageGroupModel.dirty}" />
             <mp:outputStep id="outputStep" value="#{msg['group.users.assigned.users.title']}" />
+            
             <rich:dataTable rows="10" id="usersInGroup" value="#{manageGroupCtrl.usersLazyDataModel}" var="user"
               headerClass="rowTitle sortable serviceTableTitle" columnHeaderClass="rowTitle sortable"
               rowClasses="rowOdd,rowEven"
               columnHeaderCellClass="column-header-cell"
               styleClass="sortable" headerCellClass="rowTitle sortable" columnClasses="wrapColumns"
               onRowMouseOver="AdmUtils.mouseOverRowCell(this);" onRowMouseOut="AdmUtils.mouseOutRowCell(this)"
-              noDataLabel=" " style="width:100%">
+              noDataLabel=" " style="width:100%" >
 
               <f:facet name="header">
                 <a4j:outputPanel>
@@ -103,19 +104,26 @@
                 </a4j:outputPanel>
               </f:facet>
 
-              <rich:column id="assignCol" styleClass="serviceTableColumnCheckBox">
+              <rich:column id="assignCol" styleClass="serviceTableColumnCheckBox" sortType="custom">
                 <f:facet name="header">
                   <a4j:outputPanel styleClass="serviceTableSelectAllCheckBox">
-                    <h:selectBooleanCheckbox id="assignAllCheckbox" onclick="handleSelectAll($(this));"
-                      styleClass="select-all-checkbox">
-                      <f:ajax event="change" />
+                    <h:selectBooleanCheckbox id="assignAllCheckbox" value="#{manageGroupCtrl.manageGroupModel.selectAll}"
+                      onclick="handleSelectAll($(this));" styleClass="select-all-checkbox" >
+                      <a4j:ajax event="change" listener="#{manageGroupCtrl.selectDeselectAllUsers}" >
+                      </a4j:ajax>
                     </h:selectBooleanCheckbox>
                   </a4j:outputPanel>
                 </f:facet>
                 <h:selectBooleanCheckbox id="assignCheckbox" value="#{user.selected}"
-                  styleClass="user-group-select-user" onchange="setDirty(true);manageRolesListVisibility($(this));showConfirm=true;">
-                  <f:ajax event="change" listener="#{manageGroupCtrl.selectUser(user.userId, user.selected)}" />
+                  styleClass="user-group-select-user"
+                  onchange="setDirty(true);manageRolesListVisibility($(this));saveSelection('#{user.userId}', $(this)[0].checked);">
                 </h:selectBooleanCheckbox>
+
+                <a4j:jsFunction name="saveSelection" action="#{manageGroupCtrl.selectUser}">
+                  <a4j:param name="param1" assignTo="#{manageGroupCtrl.manageGroupModel.changedUserId}" />
+                  <a4j:param name="param2" assignTo="#{manageGroupCtrl.manageGroupModel.selection}" />
+                </a4j:jsFunction>
+
               </rich:column>
 
               <ui:include src="usersTableColumn.xhtml">
@@ -128,6 +136,7 @@
                 <ui:param name="sortIconDescending" value="#{sortIconDescending}" />
                 <ui:param name="sortIconAscending" value="#{sortIconAscending}" />
                 <ui:param name="queueName" value="unassignedUsersQueue" />
+                <ui:param name="outputStyleClass" value="user-id-class" />
               </ui:include>
 
               <ui:include src="usersTableColumn.xhtml">
@@ -168,18 +177,18 @@
 
             </rich:dataTable>
 
-
             <a4j:outputPanel id="usersInGroupScripts">
               <script type="text/javascript">
                 function handleSelectAll(selectAllHandler) {
-                  selectDeselectAll(selectAllHandler[0].checked);
+                  return selectDeselectAll(selectAllHandler[0].checked);
                 }
                 function selectDeselectAll(checked) {
-                  $(".user-group-select-user").each(function() {
-                    $(this).click();
-                    $(this)[0].checked = checked;
-                    manageRolesListVisibility($(this));
-                  })
+                    $(".user-group-select-user").each(function() {
+                      if ($(this)[0].checked == !checked) {
+                        $(this)[0].checked = checked;
+                        manageRolesListVisibility($(this));
+                      }
+                    })
                 }
                 function initRolesLists() {
                   $('.user-group-select-user').each(function() {
@@ -189,6 +198,7 @@
                       dropDown.hide(); 
                   } })
                 }
+
                 initRolesLists();
                 AdmUtils.handleSelectAllWithPaging('assign-panel');
                 
@@ -199,41 +209,10 @@
                     dropDown.show();
                   } else {
                     dropDown.hide();
+                    $(dropDown).find("option[value='ADMINISTRATOR']").removeAttr("selected");
+                    $(dropDown).find("option[value='USER']").attr("selected", "selected");
                   }
                 }
-                
-                $(document).ready(function() {
-                	var showConfirm = false;
-                });
-                
-                function handleOnKeyUp(inputHandler) {
-                	var select = showConfirmMessage();
-                	if (select == false) {
-                		if (typeof inputHandler !== 'undefined') {
-                			inputHandler.val('');
-                		}
-                		showConfirm = true;
-                		return false;
-                	}
-                	showConfirm = false;
-                	return true;
-                }
-
-                function showConfirmMessage() {
-                	if (typeof showConfirm === 'undefined') {
-                		return null;
-                	}
-                	if (showConfirm) {
-                		return confirm(getConfirmPopupMessage());
-                	}
-                	return null;
-                }
-                
-                function getConfirmPopupMessage() { return "#{appBean.getJSMessageByKey('confirm.assign.users.changes.will.be.lost')}"; }
-                
-                var pagerComponent = #{rich:component('usersInGroupPager')};
-                AdmUtils.handlePagerActionsWithPopup('assign-panel', pagerComponent, 'editGroupForm:usersInGroup:usersInGroupPagerpagerButton');
-                
               </script>
             </a4j:outputPanel>
           </a4j:outputPanel>

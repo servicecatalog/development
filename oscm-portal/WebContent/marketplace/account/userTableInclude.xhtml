@@ -17,12 +17,12 @@
   <c:set var="sortIconAscending" value="#{mpImgUrl}/transparentPixel.png?id=sortAscending" />
   <c:set var="sortIconDescending" value="#{mpImgUrl}/transparentPixel.png?id=sortDescending" />
 
-  <c:set var="colAssign" value="#{statePrefix}ColAssign" scope="view" />
-  <c:set var="colUserId" value="#{statePrefix}ColUserId" scope="view" />
-  <c:set var="colFirstName" value="#{statePrefix}ColFirstName" scope="view" />
-  <c:set var="colLastName" value="#{statePrefix}ColLastName" scope="view" />
-  <c:set var="colFirstName1" value="#{statePrefix}ColFirstName1" scope="view" />
-  <c:set var="colRole" value="#{statePrefix}ColRole" scope="view" />
+  <c:set var="colAssign" value="#{statePrefix}ColAssign"/>
+  <c:set var="colUserId" value="#{statePrefix}ColUserId"/>
+  <c:set var="colFirstName" value="#{statePrefix}ColFirstName"/>
+  <c:set var="colLastName" value="#{statePrefix}ColLastName"/>
+  <c:set var="colFirstName1" value="#{statePrefix}ColFirstName1"/>
+  <c:set var="colRole" value="#{statePrefix}ColRole"/>
 
   <a4j:outputPanel id="userTablePanel"  layout="block" styleClass="tablePanel table_padding" rendered="#{empty rendered or rendered}">
 
@@ -144,7 +144,8 @@
       <rich:column width="40" rendered="#{(showDeleteIcon eq 'true') }">
         <a4j:commandButton styleClass="deassignButton" id="deassignBt" action="#{controller.determineUserToDeassign}"
           image="/marketplace/img/transparentPixel.png" title="#{msg['subscription.users.deassign.title']}"
-          render="deassignConfirmPl" oncomplete="#{rich:component('deassignConfirmPl')}.show();return false;">
+          render="deassignConfirmPl" oncomplete="#{rich:component('deassignConfirmPl')}.show();return false;"
+          onclick="AdmUtils.showProgress(true);">
           <a4j:param name="userToDeassign" value="#{user.userId}" />
         </a4j:commandButton>
       </rich:column>

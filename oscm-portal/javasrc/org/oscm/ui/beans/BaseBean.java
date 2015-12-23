@@ -29,18 +29,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.beanutils.BeanUtils;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocalizationLocal;
-import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.delegates.ServiceLocator;
-import org.oscm.ui.model.User;
-import org.oscm.ui.resources.DbMessages;
 import org.oscm.internal.accountmgmt.AccountServiceManagement;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.BillingService;
@@ -78,6 +66,17 @@ import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocalizationLocal;
+import org.oscm.types.constants.marketplace.Marketplace;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.delegates.ServiceLocator;
+import org.oscm.ui.model.User;
+import org.oscm.ui.resources.DbMessages;
 
 /**
  * Base class for all backing beans which provides the getters for the services
@@ -197,7 +196,9 @@ public class BaseBean {
     public static final String ERROR_SUBSCRIPTION_NOT_FOUND = "error.subscription.subscriptionNotFound";
     public static final String ERROR_USER_NOT_FOUND = "ex.ObjectNotFoundException.USER";
     public static final String ERROR_USERGROUP_NOT_FOUND = "ex.ObjectNotFoundException.USER_GROUP";
+    public static final String ERROR_USER_GROUP_TO_USER_NOT_FOUND = "ex.ObjectNotFoundException.USER_GROUP_TO_USER";
     public static final String ERROR_USERGROUP_NOT_FOUND_EXCEPTION = "errorUserGroupNotFound";
+    public static final String ERROR_USER_GROUP_TO_USER_NOT_FOUND_EXCEPTION = "errorUserGroupToUserNotFound";
     public static final String ERROR_USERGROUP_NOT_FOUND_EXCEPTION_UNIT_ADMIN = "errorUserGroupNotFoundUnitAdmin";
     public static final String ERROR_NO_CURRENCIES = "error.no.currencies";
     public static final String ERROR_NOT_AVALIABLE_SERVICE = "ex.OperationNotPermittedException.NOT_AVALIABLE_SERVICE";
@@ -210,6 +211,7 @@ public class BaseBean {
     public static final String ERROR_FILE_IMPORT_TRANSLATIONS_MULTIPLEKEY_EXISTING = "error.translations.multiplekey.existing";
     public static final String ERROR_BILLING_CONTACT_MODIFIED_OR_DELETED_CONCURRENTLY = "error.paymentInfo.modifiedConcurrently";
     public static final String ERROR_ACOUNT_MODIFIED_OR_DELETED_CONCURRENTLY = "error.editUser.modifiedConcurrently";
+    public static final String ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY = "error.editUnit.modifiedConcurrently";
     public static final String ERROR_SUBSCRIPTION_MODIFIED_OR_DELETED_CONCURRENTLY = "error.editSubscription.modifiedConcurrently";
     public static final String ERROR_REVENUESHARE_INVALID_FRACTIONAL_PART = "error.revenueshare.invalid.fractional.part";
     public static final String ERROR_REVENUESHARE_VALUE = "error.revenueshare.value";
@@ -225,7 +227,7 @@ public class BaseBean {
     public static final String ERROR_LOCALE_INVALID = "error.locale.invalid";
     public static final String ERROR_LDAPUSER_RESETPASSWORD = "error.ldapuser.resetpassword";
     public static final String ERROR_INVALID_GROUP = "error.group.invalid";
-    public static final String ERROR_TO_PROCEED_SELECT_UNIT="error.subscription.unitHasToBeSelected";
+    public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -330,7 +332,7 @@ public class BaseBean {
 
     public static final String LABEL_SHOP_TRANSLARIONS = "shop.translations.title";
     public static final String LABEL_SHOP_TRANSLARIONS_KEY = "shop.translations.key";
-    
+
     public static final String INFO_ADAPTER_SAVED = "info.billingAdapter.saved";
     public static final String INFO_ADAPTER_DELETED = "info.billingAdapter.deleted";
     public static final String INFO_BILLINGSYSTEM_CONNECTION_SUCCESS = "info.billingSystem.connection.success";
@@ -1025,7 +1027,7 @@ public class BaseBean {
     protected void addMessage(final String clientId,
             final FacesMessage.Severity severity, final String key,
             final String param) {
-        addMessage(clientId, severity, key, new Object[]{param});
+        addMessage(clientId, severity, key, new Object[] { param });
     }
 
     /**
@@ -1180,9 +1182,9 @@ public class BaseBean {
     /**
      * Returns true if current user is logged in as Unit Administrator, but not
      * as a Organization Administrator.
-     *
+     * 
      * @return true if current user is logged in as Unit Administrator, but not
-     * as a Organization Administrator
+     *         as a Organization Administrator
      */
     public boolean isLoggedInAndUnitAdmin() {
         VOUserDetails user = getUserFromSessionWithoutException();
@@ -1378,7 +1380,7 @@ public class BaseBean {
     /**
      * Checks if current user is logged in and has Subscription Manager role
      * assigned.
-     *
+     * 
      * @return true if current user is logged in and has Subscription Manager
      *         role assigned
      */
@@ -1392,18 +1394,18 @@ public class BaseBean {
     /**
      * Checks if current user is logged in and allowed to subscribe
      * 
-     * @return true if user is organization admin or subscription manager or unit administrator,
-     *         otherwise false.
+     * @return true if user is organization admin or subscription manager or
+     *         unit administrator, otherwise false.
      */
     public boolean isLoggedInAndAllowedToSubscribe() {
         VOUserDetails user = this.getUserFromSessionWithoutException();
         return user != null
                 && (user.getUserRoles().contains(
-                        UserRoleType.SUBSCRIPTION_MANAGER) || user
-                        .getUserRoles().contains(
+                        UserRoleType.SUBSCRIPTION_MANAGER)
+                        || user.getUserRoles().contains(
                                 UserRoleType.ORGANIZATION_ADMIN) || user
-                                .getUserRoles().contains(
-                                        UserRoleType.UNIT_ADMINISTRATOR));
+                        .getUserRoles().contains(
+                                UserRoleType.UNIT_ADMINISTRATOR));
     }
 
     /**

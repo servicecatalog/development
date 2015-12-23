@@ -95,7 +95,9 @@
     <copy file="${ivy.lib.dir}/bcprov-jdk15-1.45.jar" tofile="${root.dir}/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"></copy>
     <copy file="${ivy.lib.dir}/dbunit-2.4.7.jar" todir="${root.dir}/libraries/dbunit/javalib"></copy>
     <copy file="${ivy.lib.dir}/ecj-4.2.1.jar" todir="${root.dir}/libraries/eclipse-ecj/javalib"></copy>
-    <copy file="${ivy.lib.dir}/postgresql-9.1-901-1.jdbc4.jar" todir="${root.dir}/oscm-app/resources/lib"></copy>
+    <!-- The postgresql-9.1-903.jdbc4 is not found in the Maven repository -->
+    <get src="https://jdbc.postgresql.org/download/postgresql-9.1-903.jdbc4.jar" dest="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar"/>
+    <copy file="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar" todir="${root.dir}/oscm-app/resources/lib"></copy>
     <copy file="${ivy.lib.dir}/junit-4.5.jar" todir="${root.dir}/oscm-integrationtests-apiversioning-test-client/javalib"></copy>
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/j2ep/WebContent/WEB-INF/lib"></copy>
     <copy file="${ivy.lib.dir}/jackson-annotations-2.2.3.jar" todir="${root.dir}/libraries/jackson/javalib/"></copy>
@@ -147,7 +149,7 @@
     <copy file="${ivy.lib.dir}/xmlsec-1.5.4.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/xmltooling-1.4.0.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/mail-1.4.4.jar" tofile="${root.dir}/libraries/oracle-mail/javalib/mail.jar"></copy>
-    <copy file="${ivy.lib.dir}/postgresql-9.1-901-1.jdbc4.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib"></copy>
+    <copy file="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib"></copy>
     <copy file="${ivy.lib.dir}/antlr-2.7.7.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"></copy>
     <copy file="${ivy.lib.dir}/dom4j-1.6.1.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"></copy>
     <copy file="${ivy.lib.dir}/hibernate-commons-annotations-4.0.1.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"></copy>

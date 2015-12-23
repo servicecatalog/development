@@ -32,9 +32,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.faces.application.FacesMessage;
 import javax.servlet.http.HttpSession;
@@ -89,6 +92,8 @@ public class UpdateUserCtrlTest {
 
     private UpdateUserCtrl ctrl = new UpdateUserCtrl();
     private UpdateUserModel model = new UpdateUserModel();
+    private UserSubscriptionsLazyDataModel lazyDataModel = new UserSubscriptionsLazyDataModel();
+
     @Mock
     private UserService us;
     @Mock
@@ -108,13 +113,18 @@ public class UpdateUserCtrlTest {
     public void setup() throws Exception {
         ctrl = spy(ctrl);
         model = spy(model);
+        lazyDataModel = spy(lazyDataModel);
+
         ctrl.setUserService(us);
         ctrl.setUserGroupService(userGroupService);
         ctrl.setUi(mock(UiDelegate.class));
         ctrl.setIdentityService(mock(IdentityService.class));
         ctrl.setModel(model);
+        ctrl.setUserSubscriptionsLazyDataModel(lazyDataModel);
         ctrl.setAppBean(applicationBean);
-        
+
+        lazyDataModel.setModel(model);
+
         uas = new POUserAndSubscriptions();
         uas.setLocale("en");
         uas.setAvailableRoles(EnumSet.of(UserRoleType.ORGANIZATION_ADMIN));
@@ -128,42 +138,51 @@ public class UpdateUserCtrlTest {
 
         when(us.getUserAndSubscriptionDetails(anyString())).thenReturn(uas);
         response = new Response();
-        when(
-                us.saveUserAndSubscriptionAssignment(
-                        any(POUserAndSubscriptions.class),
-                        anyListOf(POUserGroup.class))).thenReturn(response);
-        
-        when(us.getUserAssignableSubscriptions(any(Pagination.class), anyString())).thenReturn(subs);
-        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class), anyString())).thenReturn((long) subs.size());
+        when(us.saveUserAndSubscriptionAssignment(
+                any(POUserAndSubscriptions.class),
+                anyListOf(POUserGroup.class))).thenReturn(response);
 
-        when(
-                Boolean.valueOf(applicationBean
-                        .isUIElementHidden(
-                                eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
-                .thenReturn(Boolean.FALSE);
+        when(us.getUserAssignableSubscriptions(any(Pagination.class),
+                anyString())).thenReturn(subs);
+        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class),
+                anyString())).thenReturn((long) subs.size());
+
+        when(Boolean.valueOf(applicationBean.isUIElementHidden(
+                eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
+                        .thenReturn(Boolean.FALSE);
 
         when(userGroupService.getGroupListForOrganizationWithoutDefault())
                 .thenReturn(preparePOUserGroups(3));
-        
+
         when(userGroupService.getUserGroupsForUserWithoutDefault("userId"))
                 .thenReturn(preparePOUserGroups(3));
 
-        when(userGroupService.getUserGroupListForUserWithRolesWithoutDefault(anyString()))
-                .thenReturn(preparePOUserGroups(1));
+        when(userGroupService
+                .getUserGroupListForUserWithRolesWithoutDefault(anyString()))
+                        .thenReturn(preparePOUserGroups(1));
 
         when(ctrl.getUi().getSession(anyBoolean())).thenReturn(session);
         ctrl.setTs(ts);
         user = new User(new VOUserDetails());
         model.setUser(user);
-        
+        model.setSubscriptions(lazyDataModel.toSubscriptionList(subs));
 
+        Map<String, Subscription> allSubs = new HashMap<>();
+
+        for (Subscription sub : model.getSubscriptions()) {
+            allSubs.put(sub.getId(), sub);
+        }
+
+        model.setAllSubscriptions(allSubs);
+        // when(ctrl.getAllSubscriptions(anyListOf(Subscription.class))).thenReturn(prepareSubscriptions());
         doNothing().when(ctrl).addMessage(any(FacesMessage.Severity.class),
                 anyString());
     }
 
     @Test
     public void isSubTableRendered_NoSubs() throws Exception {
-        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class), anyString())).thenReturn(0L);
+        when(us.getUserAssignableSubscriptionsNumber(any(Pagination.class),
+                anyString())).thenReturn(0L);
         assertFalse(ctrl.isSubTableRendered());
     }
 
@@ -176,10 +195,9 @@ public class UpdateUserCtrlTest {
 
     @Test
     public void isSubTableRendered_TableHidden() {
-        when(
-                Boolean.valueOf(applicationBean
-                        .isUIElementHidden(eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
-                .thenReturn(Boolean.TRUE);
+        when(Boolean.valueOf(applicationBean.isUIElementHidden(
+                eq(HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))))
+                        .thenReturn(Boolean.TRUE);
 
         assertFalse(ctrl.isSubTableRendered());
     }
@@ -187,12 +205,13 @@ public class UpdateUserCtrlTest {
     @Test
     public void isSubTableRendered() {
         ctrl.init(uas);
-        ctrl.initSubscriptions(subs);
+        model.setAssignableSubscriptionsNumber(subs.size());
         assertTrue(ctrl.isSubTableRendered());
     }
 
     @Test
     public void isRoleColumnRendered_NoSubs() {
+        model.setSubscriptions(Collections.<Subscription> emptyList());
         assertFalse(ctrl.isRoleColumnRendered());
     }
 
@@ -215,7 +234,6 @@ public class UpdateUserCtrlTest {
     @Test
     public void isRoleColumnRendered() {
         ctrl.init(uas);
-        ctrl.initSubscriptions(subs);
         assertTrue(ctrl.isRoleColumnRendered());
     }
 
@@ -226,7 +244,7 @@ public class UpdateUserCtrlTest {
 
         // when
         List<UserGroup> result = ctrl.initUserGroups();
-        
+
         // then
         assertEquals(3, result.size());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
@@ -563,8 +581,8 @@ public class UpdateUserCtrlTest {
 
     @Test(expected = OperationNotPermittedException.class)
     public void delete_Error() throws Exception {
-        when(us.deleteUser(any(POUser.class), anyString())).thenThrow(
-                new OperationNotPermittedException());
+        when(us.deleteUser(any(POUser.class), anyString()))
+                .thenThrow(new OperationNotPermittedException());
         model.setToken(model.getToken());
 
         ctrl.delete();
@@ -606,8 +624,7 @@ public class UpdateUserCtrlTest {
 
         String outcome = ctrl.resetPwd();
 
-        assertEquals(BaseBean.OUTCOME_RESET_PWD + "?userId="
-                + model.getUser().getUserId(), outcome);
+        assertEquals(BaseBean.OUTCOME_SUCCESS, outcome);
         verify(ctrl.getUi()).handle(any(Response.class),
                 eq(BaseBean.INFO_USER_PWD_RESET));
         ArgumentCaptor<POUser> ac = ArgumentCaptor.forClass(POUser.class);
@@ -628,8 +645,8 @@ public class UpdateUserCtrlTest {
 
     @Test(expected = OperationNotPermittedException.class)
     public void resetPwd_Error() throws Exception {
-        when(us.resetUserPassword(any(POUser.class), anyString())).thenThrow(
-                new OperationNotPermittedException());
+        when(us.resetUserPassword(any(POUser.class), anyString()))
+                .thenThrow(new OperationNotPermittedException());
         model.setToken(model.getToken());
 
         ctrl.resetPwd();
@@ -640,7 +657,6 @@ public class UpdateUserCtrlTest {
         doReturn(user.getUserId()).when(ctrl).getSelectedUserId();
         doReturn(Boolean.FALSE).when(ctrl).isCurrentUserRolesChanged();
         ctrl.init(uas);
-        ctrl.initSubscriptions(subs);
         updateData(model);
 
         String outcome = ctrl.save();
@@ -658,11 +674,10 @@ public class UpdateUserCtrlTest {
     @Test(expected = ObjectNotFoundException.class)
     public void save_Error() throws Exception {
         ctrl.init(uas);
-        when(
-                us.saveUserAndSubscriptionAssignment(
-                        any(POUserAndSubscriptions.class),
-                        anyListOf(POUserGroup.class))).thenThrow(
-                new ObjectNotFoundException());
+        when(us.saveUserAndSubscriptionAssignment(
+                any(POUserAndSubscriptions.class),
+                anyListOf(POUserGroup.class)))
+                        .thenThrow(new ObjectNotFoundException());
         model.setToken(model.getToken());
 
         ctrl.save();
@@ -676,10 +691,9 @@ public class UpdateUserCtrlTest {
         Response resp = new Response();
         resp.getReturnCodes().add(new ReturnCode(ReturnType.INFO, "key"));
         String newId = "newuserid";
-        when(
-                us.saveUserAndSubscriptionAssignment(
-                        any(POUserAndSubscriptions.class),
-                        anyListOf(POUserGroup.class))).thenReturn(resp);
+        when(us.saveUserAndSubscriptionAssignment(
+                any(POUserAndSubscriptions.class),
+                anyListOf(POUserGroup.class))).thenReturn(resp);
         model.getSalutation().setValue(Salutation.MR.name());
         model.getUserId().setValue(newId);
         model.setToken(model.getToken());
@@ -736,8 +750,7 @@ public class UpdateUserCtrlTest {
         List<UserGroup> groups = new ArrayList<UserGroup>();
         groups.add(prepareUserGroup(true));
         groups.add(prepareUserGroup(false));
-        List<POUserGroup> poUserGroups = ctrl
-                .getAllUserGroups(groups);
+        List<POUserGroup> poUserGroups = ctrl.getAllUserGroups(groups);
 
         assertEquals(2, poUserGroups.size());
     }
@@ -809,9 +822,9 @@ public class UpdateUserCtrlTest {
         m.getRoles().get(0).setSelected(true);
         m.getSalutation().setValue(Salutation.MR.name());
         m.getUserId().setValue("userid");
-        m.getSubscriptions().get(0).setSelected(false);
-        m.getSubscriptions().get(1).setSelectedRole("5:role1");
-        m.getSubscriptions().get(2).setSelected(true);
+        m.getAllSubscriptions().get("sub1").setSelected(false);
+        m.getAllSubscriptions().get("sub2").setSelectedRole("5:role1");
+        m.getAllSubscriptions().get("sub3").setSelected(true);
         m.setToken(m.getToken());
     }
 
@@ -839,12 +852,12 @@ public class UpdateUserCtrlTest {
         assertEquals(111, sub.getUsageLicense().getKey());
 
         sub = subs.get(2);
-        assertEquals("sub3", sub.getId());
+        assertEquals("sub1", sub.getId());
         assertNull(sub.getUsageLicense().getPoServieRole());
     }
 
     private void givenAuthMode(boolean isInternalAuthMode) {
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.valueOf(isInternalAuthMode));
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.valueOf(isInternalAuthMode));
     }
 }

@@ -23,7 +23,6 @@
   <configEntry>
     <page>account/addGroup.jsf</page>
     <rolesAllowed>
-      <role>UNIT_ADMINISTRATOR</role>
       <role>ORGANIZATION_ADMIN</role>
     </rolesAllowed>
   </configEntry>

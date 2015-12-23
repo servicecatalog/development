@@ -35,12 +35,13 @@
     <ant antfile="./marketplace/testManageOperations.xml" />
     <ant antfile="./marketplace/testReferenceToUnits.xml" />
     <!-- finally: bug retesting (please leave it as final action) -->
-    <ant antfile="./marketplace/bugRetestingMPL.xml" />
+     <ant antfile="./marketplace/bugRetestingMPL.xml" />
     <ant antfile="./marketplace/testPasswordRecovery.xml" />
     <ant antfile="./marketplace/testUserSubscriptionManager.xml" />
     <ant antfile="./marketplace/testHideUserAccountsMenuEntry.xml" />
     <ant antfile="./marketplace/testGroup.xml" />
-    <ant antfile="./marketplace/testSubscriptionToUnit.xml" />
+     <ant antfile="./marketplace/testSubscriptionToUnit.xml" />
     <ant antfile="./marketplace/testPageAccess.xml" />
+    <ant antfile="./marketplace/testAccessInfo.xml" />
   </target>
 </project>

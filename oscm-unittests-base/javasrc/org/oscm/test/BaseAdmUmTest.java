@@ -120,6 +120,8 @@ public class BaseAdmUmTest {
             .name();
     protected static final String ROLE_RESELLER_MANAGER = UserRoleType.RESELLER_MANAGER
             .name();
+    protected static final String ROLE_UNIT_ADMINISTRATOR = UserRoleType.UNIT_ADMINISTRATOR
+            .name();
 
     public static final String TOO_LONG_ID = "id_123456789_123456789_123456789_12345678";
     public static final String TOO_LONG_NAME = "name_123456789_123456789_123456789_123456789"

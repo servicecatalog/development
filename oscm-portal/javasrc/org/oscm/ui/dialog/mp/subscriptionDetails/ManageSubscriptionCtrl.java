@@ -52,38 +52,6 @@ import javax.inject.Inject;
 
 import org.apache.commons.beanutils.BeanComparator;
 import org.apache.commons.collections.comparators.ComparatorChain;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.json.JsonConverter;
-import org.oscm.json.JsonParameterValidator;
-import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.BillingContactBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
-import org.oscm.ui.beans.PaymentInfoBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UdaBean;
-import org.oscm.ui.beans.UserBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.RolePriceHandler;
-import org.oscm.ui.common.SteppedPriceComparator;
-import org.oscm.ui.common.SteppedPriceHandler;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.delegates.ServiceLocator;
-import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionsHelper;
-import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.PriceModel;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.model.User;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -116,6 +84,37 @@ import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.json.JsonConverter;
+import org.oscm.json.JsonParameterValidator;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.marketplace.Marketplace;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.BillingContactBean;
+import org.oscm.ui.beans.MenuBean;
+import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
+import org.oscm.ui.beans.PaymentInfoBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UdaBean;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.ADMStringUtils;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.RolePriceHandler;
+import org.oscm.ui.common.SteppedPriceComparator;
+import org.oscm.ui.common.SteppedPriceHandler;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.delegates.ServiceLocator;
+import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionsHelper;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
+import org.oscm.ui.model.Discount;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.PriceModel;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.UdaRow;
+import org.oscm.ui.model.User;
 
 @ManagedBean
 @ViewScoped
@@ -135,6 +134,7 @@ public class ManageSubscriptionCtrl implements Serializable {
             return new Service(vo);
         }
     };
+    public static final String DONT_OPEN_MODAL_DIALOG = "dontOpenModalDialog";
 
     private final ComparatorChain comparatorChain = new ComparatorChain();
     private JsonConverter jsonConverter;
@@ -581,8 +581,6 @@ public class ManageSubscriptionCtrl implements Serializable {
     }
 
     public String setPopupTargetEditRoles() {
-        model.setModalTitle(ui.getText(EDIT_ROLES_MODAL_TITLE, model
-                .getSubscription().getSubscriptionId()));
         return null;
     }
 
@@ -593,6 +591,8 @@ public class ManageSubscriptionCtrl implements Serializable {
      * created.
      */
     public String setPopupTargetAssignUsers() {
+        model.setModalTitle(ui.getText(EDIT_ROLES_MODAL_TITLE, model
+                .getSubscription().getSubscriptionId()));
         boolean dontOpenModalDialog = false;
         model.setModalTitle(ui.getText(ASSIGN_USERS_MODAL_TITLE, model
                 .getSubscription().getSubscriptionId()));
@@ -609,7 +609,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         if (dontOpenModalDialog) {
             // invoke navigation rule so that
             // error message is displayed.
-            return "dontOpenModalDialog";
+            return DONT_OPEN_MODAL_DIALOG;
         } else {
             // continue modal dialog process.
             return null;
@@ -632,6 +632,23 @@ public class ManageSubscriptionCtrl implements Serializable {
         }
         return null;
     }
+
+    public String initializeSubscriptionOwners() {
+
+        Long orgKey = userBean.getOrganizationBean().getOrganization().getKey();
+
+        List<VOUserDetails> usersAvailableForAssignment = getOperatorService()
+                .getSubscriptionOwnersForAssignment(orgKey);
+        List<User> list = model.getSubscriptionOwners();
+        list.clear();
+        User user;
+        for (VOUserDetails voUserDetails : usersAvailableForAssignment) {
+            user = new User(voUserDetails);
+             list.add(user);
+        }
+        return setPopupTargetSelectOwners();
+    }
+
 
     /**
      * deassign a user from the subscription
@@ -1193,7 +1210,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         }
 
         if (dontOpenModalDialog) {
-            return "dontOpenModalDialog";
+            return DONT_OPEN_MODAL_DIALOG;
         } else {
             return null;
         }
@@ -1467,6 +1484,16 @@ public class ManageSubscriptionCtrl implements Serializable {
 
     public void setPaymentAndBillingVisibleBean(PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
         this.paymentAndBillingVisibleBean = paymentAndBillingVisibleBean;
+    }
+
+    public void selectedBillingContactChanged(ValueChangeEvent event) {
+        billingContactBean.selectedBillingContactChanged(event);
+        model.setDirty(true);
+    }
+
+    public void selectedPaymentInfoChanged(ValueChangeEvent event) {
+        paymentInfoBean.selectedPaymentInfoChanged(event);
+        model.setDirty(true);
     }
 
 }

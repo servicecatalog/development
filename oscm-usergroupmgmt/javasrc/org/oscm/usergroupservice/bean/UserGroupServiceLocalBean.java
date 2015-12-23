@@ -24,11 +24,13 @@ import javax.ejb.LocalBean;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.persistence.NonUniqueResultException;
 
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.data.SendMailStatus.SendMailStatusItem;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
@@ -51,12 +53,19 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationUsersInUnit;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.SendMailHandler;
+import org.oscm.taskhandling.payloads.SendMailPayload;
 import org.oscm.types.enumtypes.EmailType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
@@ -92,9 +101,15 @@ public class UserGroupServiceLocalBean {
     @EJB(beanInterface = SubscriptionListServiceLocal.class)
     SubscriptionListServiceLocal slsl;
 
+    @EJB(beanInterface = SubscriptionServiceLocal.class)
+    SubscriptionServiceLocal ssl;
+
     @EJB(beanInterface = IdentityService.class)
     private
     IdentityService is;
+    
+    @EJB(beanInterface = TaskQueueServiceLocal.class)
+    public TaskQueueServiceLocal tqs;
 
     @Resource
     private SessionContext sessionCtx;
@@ -198,6 +213,8 @@ public class UserGroupServiceLocalBean {
         validateNotDefaultUserGroup(groupToBeDeleted);
         validateNotUnitWithSubscriptions(groupToBeDeleted);
         untieSubscriptionsFromUserGroup(groupToBeDeleted);
+        untieUnitAdministratorRoleIfNeeded(groupToBeDeleted);
+
         try {
             UserGroup userGroup = dm.getReference(UserGroup.class,
                     groupToBeDeleted.getKey());
@@ -216,6 +233,44 @@ public class UserGroupServiceLocalBean {
         } catch (ObjectNotFoundException | MailOperationException e) {
             sessionCtx.setRollbackOnly();
             throw e;
+        }
+        return false;
+    }
+
+    private void untieUnitAdministratorRoleIfNeeded(UserGroup groupToBeDeleted) {
+        for (PlatformUser user : groupToBeDeleted.getUsers()) {
+            if (!user.isUnitAdmin()) {
+                continue;
+            }
+            if (doesUserHaveAdminRoleInAnotherUnit(user, groupToBeDeleted.getKey())) {
+                continue;
+            }
+            RoleAssignment roleAssignment = user.getAssignedRole(UserRoleType.UNIT_ADMINISTRATOR);
+            if (roleAssignment != null) {
+                user.getAssignedRoles().remove(roleAssignment);
+                dm.remove(roleAssignment);
+            }
+            if (user.hasSubscriptionOwnerRole()) {
+                continue;
+            }
+            List<Subscription> subscriptions = slsl
+                    .getSubscriptionsForOwner(user);
+            for (Subscription subscription : subscriptions) {
+                ssl.removeSubscriptionOwner(subscription);
+            }
+        }
+    }
+
+    private boolean doesUserHaveAdminRoleInAnotherUnit(PlatformUser user, long userGroupId) {
+        for (UserGroupToUser userGroupToUser : user.getUserGroupToUsers()) {
+            if (userGroupToUser.getUserGroup().getKey() == userGroupId) {
+                continue;
+            }
+            for (UnitRoleAssignment unitRoleAssignment : userGroupToUser.getUnitRoleAssignments()) {
+                if (unitRoleAssignment.getUnitUserRole().getRoleName() == UnitRoleType.ADMINISTRATOR) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -339,8 +394,7 @@ public class UserGroupServiceLocalBean {
     }
 
     private void handleGlobalUnitAdministratorRole(PlatformUser user)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
         Map<UserGroup, UnitRoleType> allUserAssignments = getUserGroupsForUserWithRoles(user
                 .getUserId());
         VOUser voUser = new VOUser();
@@ -528,6 +582,8 @@ public class UserGroupServiceLocalBean {
             userGroupToUser.setUserGroup(group);
             userGroupToUser.setPlatformuser(pu);
             dm.persist(userGroupToUser);
+            List<UnitRoleType> roles = Arrays.asList(UnitRoleType.USER);
+            grantUserRoles(user, roles, group);
         }
         dm.flush();
         dm.refresh(group);
@@ -680,12 +736,15 @@ public class UserGroupServiceLocalBean {
             }
             dm.flush();
             if (!groupNames.isEmpty()) {
-                sendMailToUser(Collections.singletonList(user),
-                        EmailType.GROUP_USER_ASSIGNED,
-                        new Object[] { removeTailString(groupNames) });
+                
+                SendMailPayload payload = new SendMailPayload();
+                payload.addMailObjectForUser(user.getKey(), EmailType.GROUP_USER_ASSIGNED, new Object[] { removeTailString(groupNames) }, null);
+                
+                TaskMessage message = new TaskMessage(SendMailHandler.class, payload);              
+                tqs.sendAllMessages(Collections.singletonList(message));
             }
             audit.assignUserToGroups(dm, groups.keySet(), user);
-        } catch (NonUniqueBusinessKeyException | MailOperationException e) {
+        } catch (NonUniqueBusinessKeyException e) {
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -718,11 +777,15 @@ public class UserGroupServiceLocalBean {
                 }
             }
             dm.flush();
-            sendMailToUser(Collections.singletonList(user),
-                    EmailType.GROUP_USER_REVOKED,
-                    new Object[] { removeTailString(groupNames) });
+            
+            SendMailPayload payload = new SendMailPayload();
+            payload.addMailObjectForUser(user.getKey(), EmailType.GROUP_USER_REVOKED, new Object[] { removeTailString(groupNames) }, null);
+            
+            TaskMessage message = new TaskMessage(SendMailHandler.class, payload); 
+            tqs.sendAllMessages(Collections.singletonList(message));
+
             audit.removeUserFromGroups(dm, groups, user);
-        } catch (ObjectNotFoundException | MailOperationException e) {
+        } catch (ObjectNotFoundException e) {
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -966,7 +1029,6 @@ public class UserGroupServiceLocalBean {
         
         validatePlatformUserOfOrganization(dbUser);
         validateUserGroupOfOrganization(userGroupToUser.getUserGroup());
-
         UnitRoleAssignment roleAssignment;
         for (UnitRoleType roleType : unitRoleTypes) {
             roleAssignment = new UnitRoleAssignment();
@@ -977,15 +1039,24 @@ public class UserGroupServiceLocalBean {
 
             roleAssignment.setUnitUserRole(userRole);
             roleAssignment.setUserGroupToUser(userGroupToUser);
-
-            try {
-                dm.persist(roleAssignment);
-                dm.flush();
-            } catch (NonUniqueBusinessKeyException ignored) {
-                // if role assignment exists, nothing should be done
+            DomainObject<?> result = userGroupDao
+                    .getRoleAssignmentByUserAndGroup(userGroup.getKey(), dbUser.getUserId());
+            if (result == null) {
+                try {
+                    dm.persist(roleAssignment);
+                    dm.flush();
+                } catch (NonUniqueBusinessKeyException ignored) {
+                    // check already has been performed, this will not happen again
+                }
             }
-
         }
+    }
+    @RolesAllowed({ "ORGANIZATION_ADMIN" })
+    public void grantUserRolesWithHandleUnitAdminRole(PlatformUser user,
+            List<UnitRoleType> unitRoleTypes, UserGroup userGroup)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        grantUserRoles(user, unitRoleTypes, userGroup);
+        handleGlobalUnitAdministratorRole(user);
     }
 
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
@@ -1113,12 +1184,12 @@ public class UserGroupServiceLocalBean {
         return userGroupDao.getUnitRoleByName(roleName);
     }
 
-    public List<PlatformUser> getUsersForGroup(Pagination pagination,
+    public List<PlatformUser> getUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) {
         return userGroupUsersDao.executeQueryGroupUsers(pagination, selectedGroupId);
     }
 
-    public Integer getCountUsersForGroup(Pagination pagination,
+    public Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) {
         return userGroupUsersDao.executeQueryCountGroupUsers(pagination, selectedGroupId).intValue();
     }
@@ -1129,5 +1200,13 @@ public class UserGroupServiceLocalBean {
 
     public void setIs(IdentityService is) {
         this.is = is;
+    }
+    
+    public TaskQueueServiceLocal getTqs() {
+        return tqs;
+    }
+
+    public void setTqs(TaskQueueServiceLocal tqs) {
+        this.tqs = tqs;
     }
 }

@@ -2,15 +2,14 @@
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
-  xmlns:fn="http://java.sun.com/jsp/jstl/functions" xmlns:c="http://java.sun.com/jsp/jstl/core"
-  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:t="http://myfaces.apache.org/tomahawk">
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace"
+>
 
 
   <h:form id="#{dialogId}Form" method="post" action="">
-    <a4j:queue requestDelay="500" ignoreDupResponse="true"
+    <a4j:queue requestDelay="500" ignoreDupResponses="true"
                oncomplete="jQuery('body').removeClass('hourglass');"
                name="#{queueName}"
                onsubmit="jQuery('body').addClass('hourglass');" />

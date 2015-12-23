@@ -33,7 +33,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRole;
@@ -46,9 +45,6 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.serviceprovisioningservice.auditlog.PriceModelAuditLogCollector;
-import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
@@ -61,6 +57,9 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.serviceprovisioningservice.auditlog.PriceModelAuditLogCollector;
+import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
 
 public class ServiceProvisioningServiceBeanLocalizationTest {
 
@@ -749,10 +748,35 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
     }
 
     @Test
-    public void saveLicenseInformationForPriceModel_oldLicensesEmptyAndNewLicenseEmpty() {
+    public void saveLicenseInformationForPriceModel_oldLicensesNull() {
         // given
         VOPriceModel priceModel = new VOPriceModel();
-        priceModel.setLicense("");
+        priceModel.setLicense("license");
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("en");
+        doReturn(null).when(localizer).getLocalizedValues(eq(productKey),
+                eq(LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, true);
+
+        // then
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(priceModel.getLicense()));
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModel_oldLicensesEmptyAndNewLicenseEmpty() {
+        // given
+        final String EMPTY = "";
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense(null);
         List<VOLocalizedText> oldLicenses = new ArrayList<VOLocalizedText>();
         long productKey = 1L;
         long priceModelKey = 1L;
@@ -769,8 +793,158 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         assertEquals(Boolean.FALSE, Boolean.valueOf(result));
         verify(localizer, times(1)).storeLocalizedResource(
                 eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE), eq(EMPTY));
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModel_oldLicensesExists() {
+        // given
+        final String NEW_LICENSE_DESCRIPTION = "license";
+        final String OLD_LICENSE_DESCRIPTION = "description";
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense(NEW_LICENSE_DESCRIPTION);
+        priceModel.setKey(0);
+        List<VOLocalizedText> oldLicenses = new ArrayList<VOLocalizedText>();
+        VOLocalizedText enText = createVOLocalizedText("en",
+                OLD_LICENSE_DESCRIPTION, 0);
+        oldLicenses.add(enText);
+        VOLocalizedText deText = createVOLocalizedText("de",
+                OLD_LICENSE_DESCRIPTION, 0);
+        oldLicenses.add(deText);
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("jp");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(priceModel.getKey()),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, false);
+
+        // then
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
                 eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
-                eq(priceModel.getLicense()));
+                eq(NEW_LICENSE_DESCRIPTION));
+        verify(localizer, times(1)).storeLocalizedResource(eq("en"),
+                eq(productKey), eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(OLD_LICENSE_DESCRIPTION));
+        verify(localizer, times(1)).storeLocalizedResource(eq("de"),
+                eq(productKey), eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(OLD_LICENSE_DESCRIPTION));
+    }
+
+    /**
+     * @return
+     */
+    private VOLocalizedText createVOLocalizedText(String locale, String text,
+            int version) {
+        VOLocalizedText enText = new VOLocalizedText();
+        enText.setLocale(locale);
+        enText.setText(text);
+        enText.setVersion(version);
+        return enText;
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModel_oldLicensesForUserLocaleExists() {
+        // given
+        final String NEW_LICENSE_DESCRIPTION = "license";
+        final String OLD_LICENSE_DESCRIPTION = "description";
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense(NEW_LICENSE_DESCRIPTION);
+        priceModel.setKey(0);
+        List<VOLocalizedText> oldLicenses = new ArrayList<VOLocalizedText>();
+        VOLocalizedText jpText = createVOLocalizedText("jp",
+                OLD_LICENSE_DESCRIPTION, 0);
+        oldLicenses.add(jpText);
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("jp");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(priceModel.getKey()),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, false);
+
+        // then
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(NEW_LICENSE_DESCRIPTION));
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModel_oldLicensesForUserLocaleExistsSameNewLicense() {
+        // given
+        final String UNCHANGED_LICENSE_DESCRIPTION = "description";
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense(UNCHANGED_LICENSE_DESCRIPTION);
+        priceModel.setKey(0);
+        List<VOLocalizedText> oldLicenses = new ArrayList<VOLocalizedText>();
+        VOLocalizedText jpText = createVOLocalizedText("jp",
+                UNCHANGED_LICENSE_DESCRIPTION, 0);
+        oldLicenses.add(jpText);
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("jp");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(priceModel.getKey()),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, false);
+
+        // then
+        assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(UNCHANGED_LICENSE_DESCRIPTION));
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModel_oldLicensesForUserLocaleNotExistsNewLicenseEmpty() {
+        // given
+        final String EMPTY_LICENSE_DESCRIPTION = "";
+        final String OLD_LICENSE_DESCRIPTION = "description";
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense(EMPTY_LICENSE_DESCRIPTION);
+        priceModel.setKey(0);
+        List<VOLocalizedText> oldLicenses = new ArrayList<VOLocalizedText>();
+        VOLocalizedText jpText = createVOLocalizedText("jp",
+                OLD_LICENSE_DESCRIPTION, 0);
+        oldLicenses.add(jpText);
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("de");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(priceModel.getKey()),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, false);
+
+        // then
+        assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(EMPTY_LICENSE_DESCRIPTION));
+        verify(localizer, times(1)).storeLocalizedResource(eq("jp"),
+                eq(productKey), eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(OLD_LICENSE_DESCRIPTION));
     }
 
     @Test

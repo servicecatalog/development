@@ -16,6 +16,7 @@ import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationInt;
 
 /**
  * @author weiser
@@ -201,6 +202,6 @@ public interface UserService {
     List<POSubscription> getUserAssignableSubscriptions(Pagination pagination,
             String userId) throws SaaSApplicationException;
 
-    public Long getUserAssignableSubscriptionsNumber(Pagination pagination,
+    Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
             String userId) throws SaaSApplicationException;
 }

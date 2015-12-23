@@ -85,7 +85,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
     }
 
     @Override
-    public List<POSubscriptionForList> getDataList(int firstRow, int numRows, List<FilterField> filterFields, List<SortField> sortFields) {
+    public List<POSubscriptionForList> getDataList(int firstRow, int numRows, List<FilterField> filterFields, List<SortField> sortFields, Object refreshDataModel) {
         Pagination pagination = new Pagination(firstRow, numRows);
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);

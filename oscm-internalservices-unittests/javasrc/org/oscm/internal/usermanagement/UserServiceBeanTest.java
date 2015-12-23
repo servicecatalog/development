@@ -50,7 +50,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
@@ -66,11 +65,6 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.assembler.POUserGroupAssembler;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.components.response.ReturnType;
@@ -86,6 +80,10 @@ import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
 /**
  * @author weiser
@@ -105,6 +103,7 @@ public class UserServiceBeanTest {
     private List<POUserGroup> assginedUserGroups;
     private List<UserGroup> assginedUserGroupsInDB;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setup() throws Exception {
         usb = new UserServiceBean();

@@ -189,6 +189,8 @@ public class OrganizationalUnitServiceWSTest {
         VOOrganizationalUnit unit = getUnitWithName(userGroup.getName());
 
         Assert.assertNotNull(unit);
+        unitService.revokeUserRoles(USER,
+                Collections.singletonList(UnitRoleType.USER), unit);
         unitService.grantUserRoles(USER,
                 Collections.singletonList(UnitRoleType.ADMINISTRATOR), unit);
     }

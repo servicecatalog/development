@@ -382,14 +382,12 @@ public class IdentityServiceStub implements IdentityService,
 
     @Override
     public void grantUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
     }
 
     @Override
     public void revokeUnitRole(VOUser user, UserRoleType role)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UserRoleAssignmentException {
+            throws ObjectNotFoundException, OperationNotPermittedException {
     }
 
 }

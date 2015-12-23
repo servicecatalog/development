@@ -18,7 +18,7 @@
 		<f:facet name="header">
 			<h:outputText value="#{columnHeaderName}" />
 			<h:commandLink action="#{bean.toggleSort}"
-				styleClass="sort-command-link" onclick="#{sortOnClick}">
+				styleClass="sort-command-link">
 				<a4j:ajax render="#{tableName} :#{tableName}Scripts" />
 				<f:setPropertyActionListener target="#{bean.sortProperty}"
 					value="#{property}" />
@@ -33,8 +33,7 @@
 
 			<adm:filterInput inputId="#{property}"
 				inputValue="#{bean.filterValues[property]}" queueName="#{queueName}"
-				render="#{tableName}@body #{scroller} :pagerPanel :#{tableName}Scripts"
-				onkeyup="#{filterOnKeyUp}" />  
+				render="#{tableName}@body #{scroller} #{scroller}Scripts :pagerPanel :#{tableName}Scripts" />  
 
 		</f:facet>
 
@@ -44,7 +43,10 @@
 			<h:selectOneMenu id="#{selectorId}" inputId="#{property}"
 				onchange="#{onchange}" styleClass="roles-list"
 				value="#{record[property]}" rendered="#{itemsRendered}">
+				<a4j:ajax event="change" listener="#{updateUserCtrl.selectSubscriptionRole}" execute="@this"/>
 				<f:selectItems value="#{items}" />
+				<f:attribute name="subscriptionId" value="#{record.id}" />
+				<f:attribute name="items" value="#{items}" />
 			</h:selectOneMenu>
 		</a4j:outputPanel>
 

@@ -509,4 +509,11 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
         this.licenses = licenses;
     }
 
+    /**
+     *
+     * @returns true if the user has SUBSCRIPTION_MANAGER role
+     */
+    public boolean isSubscriptionManager() {
+        return hasRole(UserRoleType.SUBSCRIPTION_MANAGER);
+    }
 }

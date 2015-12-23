@@ -19,7 +19,7 @@
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-logging-3.1.0.GA.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
-	<classpathentry kind="lib" path="/libraries/postgresql-jdbc/javalib/postgresql-9.1-901-1.jdbc4.jar"/>
+	<classpathentry kind="lib" path="/libraries/postgresql-jdbc/javalib/postgresql-9.1-903.jdbc4.jar"/>
 	<classpathentry kind="lib" path="/libraries/oracle-mail/javalib/mail.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-validator/javalib/commons-validator-1.4.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>

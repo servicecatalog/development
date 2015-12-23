@@ -35,9 +35,6 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.apache.commons.validator.GenericValidator;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -89,44 +86,6 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.landingpageService.local.LandingpageServiceLocal;
-import org.oscm.marketplace.assembler.MarketplaceAssembler;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.serviceprovisioningservice.assembler.EventAssembler;
-import org.oscm.serviceprovisioningservice.assembler.ParameterAssembler;
-import org.oscm.serviceprovisioningservice.assembler.ParameterOptionAssembler;
-import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
-import org.oscm.serviceprovisioningservice.assembler.PricedOptionAssembler;
-import org.oscm.serviceprovisioningservice.assembler.PricedProductRoleAssembler;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.assembler.SteppedPriceAssembler;
-import org.oscm.serviceprovisioningservice.assembler.TagAssembler;
-import org.oscm.serviceprovisioningservice.assembler.TechnicalProductAssembler;
-import org.oscm.serviceprovisioningservice.auditlog.PriceModelAuditLogCollector;
-import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
-import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocalizationLocal;
-import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
-import org.oscm.serviceprovisioningservice.verification.PricedParameterChecks;
-import org.oscm.serviceprovisioningservice.verification.ServiceVisibilityCheck;
-import org.oscm.sessionservice.local.SessionServiceLocal;
-import org.oscm.string.Strings;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.triggerservice.validator.TriggerProcessValidator;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validation.ImageValidator;
-import org.oscm.validator.BLValidator;
-import org.oscm.validator.ProductValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ImageType;
@@ -199,6 +158,46 @@ import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOSteppedPrice;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.serviceprovisioningservice.assembler.EventAssembler;
+import org.oscm.serviceprovisioningservice.assembler.ParameterAssembler;
+import org.oscm.serviceprovisioningservice.assembler.ParameterOptionAssembler;
+import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
+import org.oscm.serviceprovisioningservice.assembler.PricedOptionAssembler;
+import org.oscm.serviceprovisioningservice.assembler.PricedProductRoleAssembler;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.assembler.SteppedPriceAssembler;
+import org.oscm.serviceprovisioningservice.assembler.TagAssembler;
+import org.oscm.serviceprovisioningservice.assembler.TechnicalProductAssembler;
+import org.oscm.serviceprovisioningservice.auditlog.PriceModelAuditLogCollector;
+import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
+import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocalizationLocal;
+import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
+import org.oscm.serviceprovisioningservice.verification.PricedParameterChecks;
+import org.oscm.serviceprovisioningservice.verification.ServiceVisibilityCheck;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.string.Strings;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.triggerservice.validator.TriggerProcessValidator;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validation.ImageValidator;
+import org.oscm.validator.BLValidator;
+import org.oscm.validator.ProductValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Session Bean implementation class ServiceProvisioningServiceBean
@@ -258,13 +257,13 @@ public class ServiceProvisioningServiceBean implements
 
     @EJB
     SubscriptionAuditLogCollector subscriptionAudit;
-    
+
     @EJB
     ConfigurationServiceLocal configurationService;
 
     @EJB
     BillingAdapterLocalBean billingAdapterLocalBean;
-    
+
     @Resource
     private SessionContext sessionCtx;
 
@@ -755,7 +754,8 @@ public class ServiceProvisioningServiceBean implements
     public String importTechnicalServices(byte[] xml) throws ImportException,
             OperationNotPermittedException, TechnicalServiceActiveException,
             UpdateConstraintException, TechnicalServiceMultiSubscriptions,
-            UnchangeableAllowingOnBehalfActingException, BillingAdapterNotFoundException {
+            UnchangeableAllowingOnBehalfActingException,
+            BillingAdapterNotFoundException {
 
         ArgumentValidator.notNull("xml", xml);
 
@@ -1612,7 +1612,7 @@ public class ServiceProvisioningServiceBean implements
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     productShortDescription);
         }
-        
+
         if (isCreation) {
             // copy the technical product description to marketing description
             // in all locales except the users one
@@ -2598,10 +2598,12 @@ public class ServiceProvisioningServiceBean implements
             newLicense = "";
         }
         if (oldLicenses != null && !oldLicenses.isEmpty()) {
+            boolean licenseForUserLocaleExists = false;
             for (VOLocalizedText localizedText : oldLicenses) {
                 String oldLicense = localizedText.getText();
                 String locale = localizedText.getLocale();
                 if (locale.equals(userLocale)) {
+                    licenseForUserLocaleExists = true;
                     // write input value from price model input page
                     localizer
                             .storeLocalizedResource(userLocale, priceModelKey,
@@ -2617,6 +2619,11 @@ public class ServiceProvisioningServiceBean implements
                                     LocalizedObjectTypes.PRICEMODEL_LICENSE,
                                     oldLicense);
                 }
+            }
+            if (!licenseForUserLocaleExists) {
+                localizer.storeLocalizedResource(userLocale, priceModelKey,
+                        LocalizedObjectTypes.PRICEMODEL_LICENSE, newLicense);
+                licenseInforChanged = !newLicense.isEmpty();
             }
         } else {
             localizer.storeLocalizedResource(userLocale, priceModelKey,
@@ -4887,14 +4894,14 @@ public class ServiceProvisioningServiceBean implements
         ArgumentValidator.notNull("technicalService", technicalService);
 
         Organization org = dm.getCurrentUser().getOrganization();
-        
+
         String billingId = technicalService.getBillingIdentifier();
 
         if (billingId == null || billingId.trim().length() == 0) {
             billingId = billingAdapterLocalBean.getDefaultBillingIdentifier();
             technicalService.setBillingIdentifier(billingId);
         }
-        
+
         TechnicalProduct domObj = TechnicalProductAssembler
                 .toTechnicalProduct(technicalService);
         domObj.setOrganization(org);

@@ -36,7 +36,12 @@ public class POServiceConverterTest {
     private String poServiceAsString = "10001$%&/$%5$%&/$%Hello Kitty November 6.66 1234:$%&/$%"
             + "Fujitsu$%&/$%/image?type=SERVICE_IMAGE&amp;serviceKey="
             + "10001$%&/$%status_NOT_ACTIVE";
-
+    
+    // Provider name contains comma
+    private String poServiceAsStringWithComma = "10001$%&/$%5$%&/$%Hello Kitty November 6.66 1234:$%&/$%"
+            + "Fujitsu&comma; INC.$%&/$%/image?type=SERVICE_IMAGE&amp;serviceKey="
+            + "10001$%&/$%status_NOT_ACTIVE";
+    
     /**
      * Setup method.
      */
@@ -60,6 +65,40 @@ public class POServiceConverterTest {
         Assert.assertEquals(actual.getPictureUrl(),
                 "/image?type=SERVICE_IMAGE&amp;serviceKey=10001");
         Assert.assertEquals(actual.getProviderName(), "Fujitsu");
+        Assert.assertEquals(actual.getServiceName(),
+                "Hello Kitty November 6.66 1234:");
+        Assert.assertEquals(actual.getStatusSymbol(), "status_NOT_ACTIVE");
+        Assert.assertEquals(actual.getVersion(), 5);
+    }
+
+    /**
+     * Test for getting string of the value containing provider name with comma.
+     */
+    @Test
+    public void testGetAsStringWithComma() {
+        UIComponent component = getComponent();
+        POService po = createPOService(10001,
+                "/image?type=SERVICE_IMAGE&amp;serviceKey=10001", "Fujitsu, INC.",
+                "Hello Kitty November 6.66 1234:", "status_NOT_ACTIVE", 5);
+        String actual = converter.getAsString(context, component, po);
+        Assert.assertTrue(actual.contains("&comma;"));
+    }
+    
+    /**
+     * Test for getting value with unescaped comma.
+     * 
+     * @throws ParseException
+     */
+    @Test
+    public void testGetAsObjectWithComma() throws ConverterException, ParseException {
+        UIComponent component = getComponent();
+        POService actual = (POService) converter.getAsObject(context,
+                component, poServiceAsStringWithComma);
+        
+        Assert.assertEquals(actual.getKey(), 10001);
+        Assert.assertEquals(actual.getPictureUrl(),
+                "/image?type=SERVICE_IMAGE&amp;serviceKey=10001");
+        Assert.assertEquals(actual.getProviderName(), "Fujitsu, INC.");
         Assert.assertEquals(actual.getServiceName(),
                 "Hello Kitty November 6.66 1234:");
         Assert.assertEquals(actual.getStatusSymbol(), "status_NOT_ACTIVE");

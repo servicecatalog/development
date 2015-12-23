@@ -132,7 +132,7 @@ public class OrganizationalUnitServiceWSTest {
                 toVOOrganizationalUnit(group));
 
         // then
-        verify(service.localService, times(1)).grantUserRoles(
+        verify(service.localService, times(1)).grantUserRolesWithHandleUnitAdminRole(
                 any(PlatformUser.class), eq(roleTypes), any(UserGroup.class));
     }
 

@@ -86,4 +86,11 @@ public class Subscription implements Serializable {
     public void setLicVersion(int licVersion) {
         this.licVersion = licVersion;
     }
+    
+    @Override
+    public String toString() {
+        return "Subscription [selected=" + selected + ", id=" + id
+                + ", selectedRole=" + selectedRole + ", rolesRendered="
+                + rolesRendered + "]";
+    }
 }

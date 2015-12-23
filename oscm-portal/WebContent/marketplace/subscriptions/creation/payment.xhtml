@@ -16,10 +16,15 @@
                 xmlns:a4j="http://richfaces.org/a4j"
                 xmlns:t="http://myfaces.apache.org/tomahawk"
                 xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
 
 
 	<ui:fragment rendered="true">
+		<c:set var="paymentInfoVisible" value="#{subscriptionWizardConversation.paymentInfoVisible eq true}"  scope="request"  />
+		<c:set var="emptyEnabledPaymentTypes" value="#{empty subscriptionWizardConversation.enabledPaymentTypes}"  scope="request" />
+		<c:set var="availableSubsAndAdmin" value="#{not empty subscriptionWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}"  scope="request" />
+
 		<mp:subscriptionProcess active="payment" service="#{subscriptionWizardConversation.model.service}">
 			<h:form id="payment">
 				<adm:keepDirty value="#{subscriptionWizardConversation.model.dirty}" />
@@ -37,7 +42,7 @@
 						assignTo="#{paymentInfoBean.creationContext}" />
 				</a4j:jsFunction>
 
-                <a4j:jsFunction name="setDirtyOnManageSubscriptionModelAddress" render="bcInformation" 
+                <a4j:jsFunction name="setDirtyOnManageSubscriptionModelAddress" render="bcInformation"
                   execute="selectBillingContact bcInformation"
                   oncomplete="AdmUtils.showProgress(false);" onbegin="setDirty(true);AdmUtils.showProgress(true);">
                   <a4j:param name="param1" assignTo="#{subscriptionWizardConversation.model.dirty}"/>
@@ -145,7 +150,7 @@
 									required="#{!empty param['payment:next']}"
 									value="#{subscriptionWizardConversation.selectedPaymentInfo}"
 									disabled="false"
-									rendered="#{subscriptionWizardConversation.paymentInfoVisible}"
+									rendered="#{paymentInfoVisible}"
                                     onchange="setDirtyOnManageSubscriptionModelPayment(true);"
 									converter="#{paymentTypeConverter}">
 									<adm:selectItemPleaseSelect itemValue="" />
@@ -160,19 +165,19 @@
 								<h:outputText
 									value="#{subscriptionWizardConversation.paymentMissingText}"
 									id="noPaymenttypesAvailableForAdmin"
-									rendered="#{not subscriptionWizardConversation.paymentInfoVisible}" />
+									rendered="#{not paymentInfoVisible}" />
 							</a4j:outputPanel>
 
 
 							<a4j:outputPanel layout="block" style="margin-bottom: 8px;"
-								rendered="#{not empty subscriptionWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}">
+								rendered="#{availableSubsAndAdmin}">
 								<h:outputLink value="" id="newPaymentInfo"
 									onclick="newPaymentItem('#{subscriptionWizardConversation.model.service.key}'); return false;">
 									<h:outputText value="#{msg['payment.new.PaymentOption.title']}" />
 								</h:outputLink>
 							</a4j:outputPanel>
 							<h:panelGroup
-								rendered="#{not empty subscriptionWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}"
+								rendered="#{availableSubsAndAdmin}"
 								layout="block" />
 						</t:panelGrid>
 
@@ -207,7 +212,7 @@
 					<mp:button id="next" value="#{msg['button.next']}"
 						bean="#{subscriptionWizardConversation}" action="next"
 						style="float:right;"
-						disabled="#{empty subscriptionWizardConversation.enabledPaymentTypes}"
+						disabled="#{emptyEnabledPaymentTypes}"
 						keepDirty="true" clearDirty="#{clearDirtyForward}" />
 				</a4j:outputPanel>
 			</h:form>

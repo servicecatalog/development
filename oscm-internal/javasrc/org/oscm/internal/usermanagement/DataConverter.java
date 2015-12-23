@@ -24,12 +24,12 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
-import org.oscm.validator.BLValidator;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.subscriptionservice.local.SubscriptionWithRoles;
+import org.oscm.validator.BLValidator;
 
 /**
  * @author weiser
@@ -221,7 +221,7 @@ public class DataConverter {
         }
         return false;
     }
-    
+
     public POUserInUnit toPoUserInUnit(PlatformUser user, String selectedGroupId) {
         POUser poUser = toPOUser(user);
         POUserInUnit poUserInUnit = new POUserInUnit();
@@ -229,16 +229,19 @@ public class DataConverter {
         poUserInUnit.setSalutation(user.getSalutation());
         poUserInUnit.setLocale(user.getLocale());
         poUserInUnit.getPoUser().setKey(user.getKey());
-        if (selectedGroupId.isEmpty()) {
+        if (selectedGroupId == null || selectedGroupId.isEmpty()) {
             return poUserInUnit;
         }
         poUserInUnit.setRoleInUnit(UnitRoleType.USER.name());
         for (UserGroupToUser ugtu : user.getUserGroupToUsers()) {
-            if (ugtu.getUsergroup_tkey() == Long.valueOf(selectedGroupId)) {
+            if (ugtu.getUsergroup_tkey() == Long.valueOf(selectedGroupId)
+                    .longValue()) {
                 poUserInUnit.setSelected(true);
-                UnitRoleAssignment unitRoleAssignment = ugtu.getUnitRoleAssignments().get(0);
+                UnitRoleAssignment unitRoleAssignment = ugtu
+                        .getUnitRoleAssignments().get(0);
                 if (unitRoleAssignment != null) {
-                    poUserInUnit.setRoleInUnit(unitRoleAssignment.getUnitUserRole().getRoleName().name()); 
+                    poUserInUnit.setRoleInUnit(unitRoleAssignment
+                            .getUnitUserRole().getRoleName().name());
                 }
                 break;
             }
@@ -255,6 +258,7 @@ public class DataConverter {
         return updatePlatformUser(poUserInUnit, pu);
     }
 
+    @SuppressWarnings("unused")
     public PlatformUser updatePlatformUser(POUserInUnit user, PlatformUser pu)
             throws ValidationException {
         pu.setEmail(user.getPoUser().getEmail());

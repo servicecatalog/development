@@ -64,7 +64,7 @@
       <verifyElementText htmlId="subscriptionUsers" text="2" />
 
       <!-- try to assign another user, this should trigger an error -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <mpl_verify.error label="${info.subscriptions.maximumNumberOfUsersReached}" />
 
       <!-- bug 10332, verify content is visible when clicking on the 'Configuration' tab again -->

@@ -397,7 +397,7 @@
       <mpl_login.logout />
     </webtest>
 
-    <webtest name="testMPL_AssignSubscriptionsToUser_B7744">
+  	<webtest name="testMPL_AssignSubscriptionsToUser_B7744">
       <!-- setup data-->
       <mail.cleanInbox />
       <operator.createorganization />
@@ -419,14 +419,20 @@
       <setup:pricemodel.define serviceId="S1" isFree="true" />
       <setup:service.define serviceId="S2" name="MS S2" techServiceId="S2" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" svcKeyProperty="svcKey2"/>
       <setup:pricemodel.define serviceId="S2" isFree="true" />
-      <setup:service.activate serviceIds="S" start="1" count="2" />
+      <setup:service.define serviceId="S3" name="MS S3" techServiceId="S3" description="Limited evaluation version." marketplaceId="${mId}" useParameters="false" svcKeyProperty="svcKey3"/>
+      <setup:pricemodel.define serviceId="S3" isFree="true" />	
+      <setup:service.activate serviceIds="S" start="1" count="3" />
       <login.logout />
 
       <mpl_login.user mid="${mId}" userId="#{userId}" />
       <!-- Subscribe services -->
       <setup:subscription.create subId="subscribeUserService1" marketplaceId="${mId}" serviceKey="${svcKey1}" />
       <setup:subscription.create subId="subscribeUserService2" marketplaceId="${mId}" serviceKey="${svcKey2}" />
-
+      <setup:subscription.create subId="userService1" marketplaceId="${mId}" serviceKey="${svcKey1}" />
+      <setup:subscription.create subId="userService2" marketplaceId="${mId}" serviceKey="${svcKey1}" />	
+      <setup:subscription.create subId="subRoleService1" marketplaceId="${mId}" serviceKey="${svcKey3}" />
+      <setup:subscription.create subId="subRoleService2" marketplaceId="${mId}" serviceKey="${svcKey3}" />
+    	
       <!-- Switch to account / users page and create a new user-->
       <mpl_goto.account.users />
       <mpl_user.create userId="a" firstname="a" lastname="a" />
@@ -514,54 +520,132 @@
       <mpl_verify.success label="${info.user.profileSaved}" />
     </webtest>
 
-    <!-- Commented out as default group display has been removed and this test mostly relies on it -->
-    <!--<webtest name="testMPL_UserCustomer_CreateUserWithGroup">-->
-      <!--&lt;!&ndash; Login as customer &ndash;&gt;-->
-      <!--<mpl_login.user mid="${mId}" userId="${customerUserId}" />-->
-      <!--<mpl_user.createUniqueName userIdPrefix="testUser" />-->
-      <!--<storeProperty name="userId" value="#{uniqueUserId}" />-->
-      <!--<mpl_user.createGroup groupId="group1" />-->
-
-      <!--&lt;!&ndash; Switch to account / users page &ndash;&gt;-->
-      <!--<mpl_goto.account.users />-->
-
-      <!--&lt;!&ndash; Click Add user &ndash;&gt;-->
-      <!--<clickLink xpath="//a[matches(@id, 'userListForm:addUserButtonLink')]" />-->
-
-      <!--&lt;!&ndash; Check if checkbox, in the default group row, is checked and disabled &ndash;&gt;-->
-      <!--<verifyCheckbox htmlId="userForm:userGroupsTable:0:groupsCheckbox" checked="true" />-->
-      <!--<verifyXPath xpath="//*[@id='userForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />-->
-
-      <!--&lt;!&ndash; Set mandatory fields &ndash;&gt;-->
-      <!--<setInputField htmlId="userForm:email" value="test@gmail.com" />-->
-      <!--<setInputField htmlId="userForm:userId" value="#{userId}" />-->
-
-      <!--&lt;!&ndash; Set role for user groups &ndash;&gt;-->
-      <!--<setSelectField name="userForm:userGroupsTable:0:unitRole" text="Administrator" />-->
-      <!--<mpl_user.selectUserGroup groupIndex="1" groupRole="User" />-->
-      <!--<clickButton label="${button.save}" />-->
-      <!--<mpl_verify.success label="#{userId}" />-->
-
-      <!--&lt;!&ndash; Edit added user data &ndash;&gt;-->
-      <!--<mpl_goto.account.users />-->
-      <!--<mpl_user.display userId="#{userId}" />-->
-
-      <!--&lt;!&ndash; Check if user groups with roles were saved &ndash;&gt;-->
-      <!--<verifyCheckbox htmlId="editUserForm:userGroupsTable:0:groupsCheckbox" checked="true" />-->
-      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']/@disabled='disabled'" />-->
-      <!--<verifyCheckbox htmlId="editUserForm:userGroupsTable:1:groupsCheckbox" checked="true" />-->
-      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole']/option[@value='ADMINISTRATOR']/@selected='selected'" />-->
-      <!--<verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:1:unitRole']/option[@value='USER']/@selected='selected'" />-->
-
-      <!--&lt;!&ndash; Change roles in groups and save &ndash;&gt;-->
-      <!--<mpl_user.selectUserGroup groupIndex="1" groupRole="User" />-->
-      <!--<clickButton label="${button.save}" />-->
-      <!--<mpl_verify.success label="#{userId}" />-->
-
-      <!--&lt;!&ndash; And logoff &ndash;&gt;-->
-      <!--<mpl_login.logout />-->
-      <!--<mail.cleanInbox />-->
-    <!--</webtest>-->
+  	<webtest name="testMPL_EditUser_SubscriptionAssignments_VerifyIdFiltering">
+  	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+  	  
+  	  <mpl_goto.account.users />
+  	  <mpl_user.display userId="${usernameB}" />
+  	  <storeXPath xpath="//*[@id='editUserForm:userId']/@value" property="userIdB" />
+  	  
+  	  <!-- Verify subscriptions list (all subscriptions are visible)-->	
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />
+	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />
+  		
+  	  <!-- Filter out subscriptions which id not starts with 'user' -->	
+  	  <setInputField htmlId="editUserForm:subscriptionTable:id" value="user" />
+	  
+  	  <!-- Verify subscriptions list (only subscriptions with id starting with 'user' are visible)-->
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />	
+  	  <not>	
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />
+	  </not>
+	  
+  	</webtest>
+  	
+  	<webtest name="testMPL_EditUser_SubscriptionAssignments_VerifyRoleFiltering">
+  	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+  	  
+  	  <mpl_goto.account.users />
+  	  <mpl_user.display userId="${usernameB}" />
+  	  <storeXPath xpath="//*[@id='editUserForm:userId']/@value" property="userIdB" />
+  	  
+  	  <!-- Verify subscriptions list (all subscriptions are visible)-->	
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+      <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />
+  	  
+  	  <!-- Assign subscriptions to make roles selection visible -->	
+  	  <setCheckbox htmlId="editUserForm:subscriptionTable:subRoleService1:assignCheckbox" checked="true" />
+  	  <setCheckbox htmlId="editUserForm:subscriptionTable:subRoleService2:assignCheckbox" checked="true" />
+  	  
+  	  <!-- Filter subscriptions with role 'User' -->	
+  	  <setInputField htmlId="editUserForm:subscriptionTable:selectedRole" value="User" />
+	  
+  	  <!-- Verify subscriptions list (only subscriptions with role 'User' are visible)-->
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />	
+  	  <not>	
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />
+	  </not>
+  	  
+  	  <!-- Change subscription's role -->
+  	  <setSelectField htmlId="editUserForm:subscriptionTable:subRoleService1:role" optionIndex="1" />
+  	  
+  	  <!-- Filter subscriptions with role 'Administrator' -->	
+  	  <setInputField htmlId="editUserForm:subscriptionTable:selectedRole" value="Admin" />	
+  	  
+	  <!-- Verify subscriptions list (only subscriptions with role 'Administrator' are visible)-->
+  	  <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+  	  <not>	
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />
+	  </not>
+	  
+  	</webtest>
+  	
+  	<webtest name="testMPL_EditUser_SubscriptionAssignments_Bug12419">
+  	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+  	  
+  	  <mpl_goto.account.users />
+  	  <mpl_user.display userId="${usernameB}" />
+  	  <storeXPath xpath="//*[@id='editUserForm:userId']/@value" property="userIdB" />
+  		
+  	  <setCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
+      <clickLink htmlId="editUserForm:saveButtonLink" />
+  	  <common.handleMessageParameters property="infoMsg" value="${info.user.saved}" att0="#{userIdB}" />
+  	  <common.verifySuccess label="#{infoMsg}" />	
+  	  
+  	  <!-- Verify subscriptions assigned to #{userIdB} -->	
+  	  <mpl_user.display userId="${usernameB}" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="false" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:userService1:assignCheckbox" checked="false" />	
+      <verifyCheckbox htmlId="editUserForm:subscriptionTable:userService2:assignCheckbox" checked="false" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subRoleService1:assignCheckbox" checked="false" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subRoleService2:assignCheckbox" checked="false" />	
+  		
+  	  <!-- Filter out all subscriptions -->	
+  	  <setInputField htmlId="editUserForm:subscriptionTable:id" value="Empty Sub" />
+	  
+  	  <!-- Verify subscriptions list is empty -->
+  	  <not description="Subscriptions list is empty">	
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:userService2:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService1:assignCheckbox']"  />
+  	    <verifyXPath xpath="//*[@id='editUserForm:subscriptionTable:subRoleService2:assignCheckbox']"  />
+	  </not>
+	  
+  	  <!-- Save user} -->	
+  	  <clickLink htmlId="editUserForm:saveButtonLink" />
+  		
+  	  <!-- Verify subscriptions are still assigned to #{userIdB} -->	
+  	  <mpl_user.display userId="${usernameB}" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService1:assignCheckbox" checked="false" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subscribeUserService2:assignCheckbox" checked="true" />
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:userService1:assignCheckbox" checked="false" />	
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:userService2:assignCheckbox" checked="false" />	
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subRoleService1:assignCheckbox" checked="false" />	
+  	  <verifyCheckbox htmlId="editUserForm:subscriptionTable:subRoleService2:assignCheckbox" checked="false" />
+  	</webtest>
 
     <webtest name="testMPL_UserCustomer_finalCleanup">
       <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />

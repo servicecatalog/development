@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="javalib/commons-collections-3.2.1.jar" sourcepath="resources/commons-collections-3.2.1-src.zip"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

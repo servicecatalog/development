@@ -34,7 +34,7 @@
     <a4j:outputPanel layout="block" styleClass="grid4span clearfix">
       <a4j:outputPanel layout="block" styleClass="box">
         <h:form id="groupForm">
-          <a4j:queue requestDelay="500" ignoreDupResponse="true" oncomplete="jQuery('body').removeClass('hourglass');"
+          <a4j:queue requestDelay="500" ignoreDupResponses="true" oncomplete="jQuery('body').removeClass('hourglass');"
             onsubmit="jQuery('body').addClass('hourglass');" />
           <mp:outputStep value="#{msg['marketplace.account.addGroup.title']}" />
 

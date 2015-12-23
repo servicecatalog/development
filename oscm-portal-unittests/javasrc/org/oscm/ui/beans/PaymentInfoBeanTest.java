@@ -26,13 +26,12 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.PaymentDeregistrationException;
 import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.test.stubs.AccountServiceStub;
 
 /**
  * Unit tests for PaymentInfoBean

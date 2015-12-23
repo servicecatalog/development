@@ -26,14 +26,9 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.pagination.Pagination;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.internal.assembler.BasePOAssembler;
 import org.oscm.internal.assembler.POUserGroupAssembler;
 import org.oscm.internal.components.response.Response;
-import org.oscm.internal.subscriptions.POSubscription;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
@@ -45,9 +40,11 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.DataConverter;
-import org.oscm.internal.usermanagement.POUser;
-import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.POUserInUnit;
+import org.oscm.pagination.PaginationUsersInUnit;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
 /**
  * Manage user group Service
@@ -309,7 +306,7 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     @Override
-    public Response getUsersForGroup(Pagination pagination,
+    public Response getUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) throws OrganizationAuthoritiesException {
         List<PlatformUser> users = userGroupService.getUsersForGroup(pagination, selectedGroupId);
         List<POUserInUnit> poUsers = new ArrayList<POUserInUnit>();
@@ -321,7 +318,7 @@ public class UserGroupServiceBean implements UserGroupService {
     }
 
     @Override
-    public Integer getCountUsersForGroup(Pagination pagination,
+    public Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) throws OrganizationAuthoritiesException {
         return userGroupService.getCountUsersForGroup(pagination, selectedGroupId);
     }

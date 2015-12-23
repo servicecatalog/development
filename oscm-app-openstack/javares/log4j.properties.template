@@ -1,4 +1,4 @@
-# TEMPLATE FILE for the log4j configuration of the AWS controller.
+# TEMPLATE FILE for the log4j configuration of the OpenStack controller.
 
 # Source path:
 # <DOMAIN_ROOT>\applications\oscm-app-openstack\oscm-app-openstack_jar\log4j.properties.template

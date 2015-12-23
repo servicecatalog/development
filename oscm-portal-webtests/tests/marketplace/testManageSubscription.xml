@@ -143,7 +143,7 @@
                 </testInfo>
       <mpl_login.user mid="${mId}" userId="${customerUserA}" />
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office Trial')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office Trial')]" />
 
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
 
@@ -153,20 +153,20 @@
         <verifyXPath xpath="//*[@id='userListForm:userTable']" />
       </not>
 
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//div[@id='assignUsersPanel_content']" description="modalDialog is shown" />
       <!-- assign first user -->
       <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
       <!--<mpl_subscription.setUserRoleInAllUserGroups userId="${customerUserA}" />-->
       <!-- verify that table is displayed and contains 1 row -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office Trial')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office Trial')]" />
 
       <verifyXPath xpath="//*[@id='userListForm:userTable']" />
       <verifyXPath xpath="count(//*[@id='userListForm:userTable:tb']/tr)" text="1" />
 
       <!-- open modal dialog again and verify that only 1 unassigned user is shown -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//div[@id='assignUsersPanel_content']"  description="modalDialog is shown" />
       <this.countRowInModalTable expected="1" />
 
@@ -175,12 +175,12 @@
 
       <!-- verify the number of assigned users in the subscription details page is 2 -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office Trial')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office Trial')]" />
 
       <verifyXPath xpath="count(//*[@id='userListForm:userTable:tb']/tr)" text="2" description="number of assigned users should be 2" />
 
       <!-- All users have been assigned .. but try to assign more -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <mpl_verify.error label="${info.subscriptions.noMoreUsersForAssignment}" />
       <!-- reset -->
       <deAssignUser userIndex="0" />
@@ -196,7 +196,7 @@
       <mpl_goto.account.subscriptions />
 
       <!-- Invoke "administer" of first displayed service -->
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
 
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
 
@@ -211,7 +211,7 @@
       <mpl_service.validateUser index="1" userId="${customerUserB}" assigned="false" />
 
       <!-- BUG 8759: no error/warning shown when leaving popup without any checkbox checked -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
       <!-- click save without checking any checkbox -->
       <clickLink htmlId="assignUsersPanelForm:saveButton" />
@@ -228,7 +228,7 @@
       <!-- Now check first user and save -->
       <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
 
       <verifyElementText htmlId="subscriptionUsers" text="1" />
       <mpl_service.validateUser index="0" userId="${customerUserA}" assigned="true" />
@@ -251,7 +251,7 @@
               </testInfo>
       <mpl_login.user mid="${mId}" userId="${customerUserA}" />
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office X')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office X')]" />
 
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
 
@@ -270,12 +270,12 @@
       <common.verifyError label="#{errorMsg}" />
 
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office X')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office X')]" />
 
       <verifyElementText htmlId="subscriptionUsers" text="1" />
 
       <!-- try to assign another user, this should trigger an error -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <mpl_verify.error label="${info.subscriptions.maximumNumberOfUsersReached}" />
 
       <deAssignUser userIndex="0" />
@@ -297,7 +297,7 @@
 
       <!-- 1. Check subscription without roles -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
       <!-- Since the service defines no roles, the "edit roles" btn must not be visible -->
       <not>
         <verifyXPath xpath=".//*[@id='usersForm:editRolesLink']" />
@@ -309,7 +309,7 @@
 
       <!-- 2. Check subscription with roles enabled-->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office X')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office X')]" />
 
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
 
@@ -320,13 +320,13 @@
       </not>
 
       <!-- The table must contain the roles column -->
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath=".//*[@id='assignUsersPanelForm:userTable:0:role']" />
 
       <!-- After the user was assinged the edit roles btn is visible -->
       <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office X')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office X')]" />
 
       <verifyXPath xpath=".//*[@id='usersForm:editRolesLink']" />
 
@@ -422,7 +422,7 @@
 
       <!-- Switch to "Upgrade/Downgrade" tab -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office Trial')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office Trial')]" />
 
       <mpl_goto.tab label="${subscription.upgrade}" />
 
@@ -492,7 +492,7 @@
       <mpl_login.user mid="${mId}" userId="${customerUserA}" />
       <!-- Switch to "Upgrade/Downgrade" tab -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
 
       <mpl_goto.tab label="${subscription.upgrade}" />
       <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
@@ -508,7 +508,7 @@
       <mpl_login.user mid="${mId}" userId="${customerUserA}" />
 
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
 
       <clickLink htmlId="openLicenseLink" />
       <verifyElementText htmlId="licensePanelTitle" text="${priceModel.service.license}" />
@@ -523,7 +523,7 @@
       <mpl_login.user mid="${mId}" userId="${customerUserA}" />
 
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'Mega Office Trial')]" />
+      <clickElement xpath="//img[contains(@id, 'Mega Office Trial')]" />
 
       <clickElement htmlId="tabPriceModel:header" />
       <login.logout />
@@ -535,7 +535,7 @@
 
       <!-- Switch to "Administer" tab -->
       <mpl_goto.account.subscriptions />
-      <clickLink xpath="//a[contains(@id, 'ServiceC')]" />
+      <clickElement xpath="//img[contains(@id, 'ServiceC')]" />
 
       <mpl_verify.selectedTab label="${subscription.users}" />
       <deassignUserIfNecessary />
@@ -638,20 +638,20 @@
         <mpl_service.subscribe mid="${mId}" index="0" />
         <mpl_goto.account.subscriptions />
         <!-- Invoke "administer" of first displayed service -->
-        <clickLink xpath="//a[contains(@id, 'Mega Office X(2)')]" />
+        <clickElement xpath="//img[contains(@id, 'Mega Office X(2)')]" />
 
         <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
         <mpl_subscription.assignUserToSubscription subscriptionId="#{givenSubscriptionId}" userId="${customerUserA}" />
 
         <!-- Invoke "administer" of first displayed service -->
         <mpl_goto.account.subscriptions />
-        <clickLink xpath="//a[contains(@id, 'Mega Office X(2)')]" />
+        <clickElement xpath="//img[contains(@id, 'Mega Office X(2)')]" />
 
 
       </selectWebClient>
 
       <selectWebClient name="client_B">
-        <terminateSubscriptionByXpath subsXpath="//a[contains(@id, 'Mega Office X(2)')]" />
+        <terminateSubscriptionByXpath subsXpath="//img[contains(@id, 'Mega Office X(2)')]" />
       </selectWebClient>
 
       <selectWebClient name="client_A">
@@ -678,7 +678,7 @@
         <!-- Login as customer -->
         <mpl_login.user mid="${mId}" userId="${customerUserA}" />
         <mpl_goto.account.subscriptions />
-        <clickLink xpath="//a[contains(@id, 'ServiceB')]" />
+        <clickElement xpath="//img[contains(@id, 'ServiceB')]" />
 
         <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
 
@@ -690,7 +690,7 @@
       </selectWebClient>
 
       <selectWebClient name="client_B">
-        <terminateSubscriptionByXpath subsXpath="//a[contains(@id, 'ServiceB')]" />
+        <terminateSubscriptionByXpath subsXpath="//img[contains(@id, 'ServiceB')]" />
       </selectWebClient>
       <sleep description="Wait for subscription to terminate" seconds="5"/>
       <selectWebClient name="client_A">
@@ -754,7 +754,7 @@
       <mpl_goto.account.subscriptions />
 
       <!-- Invoke "administer" of first displayed service -->
-      <clickLink xpath="@{subsXpath}" />
+      <clickElement xpath="@{subsXpath}" />
 
 
       <mpl_verify.selectedTab label="${subscription.users}" />

@@ -15,6 +15,7 @@ package org.oscm.taskhandling.bean;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.ejb.Asynchronous;
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
@@ -28,14 +29,14 @@ import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.exception.SaaSSystemException;
 
 /**
  * The bean implementation for the task queue service.
@@ -60,11 +61,19 @@ public class TaskQueueServiceBean implements TaskQueueServiceLocal {
     DataService dm;
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Asynchronous
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void sendAllMessages(List<TaskMessage> messages) {
         validateJMSResources();
         validateMessages(messages);
-        sendObjectMessage(messages);
+        double msgSize = Math.ceil(messages.size()/1000.0);
+        int counter = 0;
+        while(counter < msgSize) {
+            int fromIndex = counter * 1000;
+            int toIndex = Math.min(fromIndex + 1000, messages.size());
+            sendObjectMessage(messages.subList(fromIndex, toIndex));
+            counter++;
+        }
     }
 
     /**

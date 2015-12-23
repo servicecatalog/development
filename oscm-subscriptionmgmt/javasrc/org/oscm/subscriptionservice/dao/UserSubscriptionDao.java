@@ -10,6 +10,8 @@ import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.interceptor.Interceptors;
@@ -20,24 +22,22 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.pagination.Filter;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationInt;
+import org.oscm.pagination.PaginationSubForUser;
 import org.oscm.pagination.TableColumns;
 
 @Interceptors({ ExceptionMapper.class })
 public class UserSubscriptionDao {
 
     private final DataService dataManager;
-    private Log4jLogger logger = LoggerFactory.getLogger(SubscriptionDao.class);
 
     public UserSubscriptionDao(DataService ds) {
         this.dataManager = ds;
     }
 
     private String paginatedQuery(String selectWhereQuery,
-            Pagination pagination) {
+            PaginationInt pagination) {
 
         String queryOrderBy = " ORDER BY subscription.assigned DESC, subscription.subscriptionid ASC ";
 
@@ -55,7 +55,7 @@ public class UserSubscriptionDao {
     }
 
     private String paginatedQueryForCountSubs(String selectWhereQuery,
-            Pagination pagination) {
+            PaginationInt pagination) {
 
         String queryFilter = "";
         if (pagination.getFilterSet() != null
@@ -66,13 +66,13 @@ public class UserSubscriptionDao {
         return selectWhereQuery + queryFilter;
     }
 
-    private String createQueryOrderBy(Pagination pagination) {
+    private String createQueryOrderBy(PaginationInt pagination) {
         String queryOrderBy;
 
         String whenUserId = " WHEN '" + TableColumns.SUBSCRIPTION_ID.name()
                 + "' THEN subscription.subscriptionid ";
         String whenFirstName = "WHEN '" + TableColumns.ROLE_IN_SUB.name()
-                + "' THEN subscription.displayedrole ";
+                + "' THEN " + createQueryWithChangedRoles(pagination) + " ";
 
         queryOrderBy = " ORDER BY (CASE :sortColumn " + whenUserId
                 + whenFirstName + " END) "
@@ -80,7 +80,40 @@ public class UserSubscriptionDao {
         return queryOrderBy;
     }
 
-    private String createQueryFilter(Pagination pagination,
+    private String createQueryWithChangedRoles(PaginationInt pagination) {
+
+        Map<String, String> changedRoles = ((PaginationSubForUser) pagination)
+                .getChangedRoles();
+
+        Map<String, Boolean> changedSelectedSubs = ((PaginationSubForUser) pagination)
+                .getSelectedUsersIds();
+
+        if (changedRoles.isEmpty() && changedSelectedSubs.isEmpty()) {
+            return " subscription.displayedrole ";
+        }
+        String query = "";
+
+        for (Entry<String, Boolean> selectedSub : changedSelectedSubs
+                .entrySet()) {
+            if (!selectedSub.getValue()) {
+                query += " WHEN subscription.subscriptionid = '"
+                        + selectedSub.getKey() + "' THEN null ";
+            }
+        }
+
+        for (Entry<String, String> role : changedRoles.entrySet()) {
+            query += " WHEN subscription.subscriptionid = '" + role.getKey()
+                    + "' THEN '" + role.getValue() + "' ";
+        }
+
+        if (query.equals("")) {
+            return " subscription.displayedrole ";
+        }
+        return " CASE " + query + " ELSE subscription.displayedrole END ";
+
+    }
+
+    private String createQueryFilter(PaginationInt pagination,
             String queryFilter) {
 
         Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
@@ -100,7 +133,7 @@ public class UserSubscriptionDao {
         return queryFilterBuilder.toString();
     }
 
-    private void addFilterColumn(Pagination pagination,
+    private void addFilterColumn(PaginationInt pagination,
             StringBuilder queryFilterBuilder, Filter filter) {
         switch (filter.getColumn()) {
         case SUBSCRIPTION_ID:
@@ -108,14 +141,15 @@ public class UserSubscriptionDao {
                     " subscription.subscriptionid ILIKE :filterExpressionSubscriptionId");
             break;
         case ROLE_IN_SUB:
-            queryFilterBuilder.append(
-                    " subscription.displayedrole ILIKE :filterExpressionRoleInSub ");
+            queryFilterBuilder.append(createQueryWithChangedRoles(pagination)
+                    + " ILIKE :filterExpressionRoleInSub ");
         default:
             break;
         }
     }
 
-    private void setPaginationParameters(Pagination pagination, Query query) {
+    private void setPaginationParameters(PaginationInt pagination,
+            Query query) {
         setSortingParameter(query, pagination);
         setFilterParameters(query, pagination);
 
@@ -123,14 +157,14 @@ public class UserSubscriptionDao {
         query.setMaxResults(pagination.getLimit());
     }
 
-    private void setSortingParameter(Query query, Pagination pagination) {
+    private void setSortingParameter(Query query, PaginationInt pagination) {
         if (pagination.getSorting() != null) {
             query.setParameter("sortColumn",
                     pagination.getSorting().getColumn().name());
         }
     }
 
-    private void setFilterParameters(Query query, Pagination pagination) {
+    private void setFilterParameters(Query query, PaginationInt pagination) {
         if (pagination.getFilterSet() != null) {
             for (Filter filter : pagination.getFilterSet()) {
                 setFilterParameter(query, filter);
@@ -153,8 +187,9 @@ public class UserSubscriptionDao {
         }
     }
 
-    public List<Object[]> getUserAssignableSubscriptions(Pagination pagination,
-            Organization owner, long userKey, Set<SubscriptionStatus> states) {
+    public List<Object[]> getUserAssignableSubscriptions(
+            PaginationInt pagination, Organization owner, long userKey,
+            Set<SubscriptionStatus> states) {
 
         String nativeQuery = getQueryUserAssignableSubscriptions(pagination);
         Query q = dataManager.createNativeQuery(nativeQuery);
@@ -168,7 +203,7 @@ public class UserSubscriptionDao {
         return ParameterizedTypes.list(q.getResultList(), Object[].class);
     }
 
-    public Long getCountUserAssignableSubscriptions(Pagination pagination,
+    public Long getCountUserAssignableSubscriptions(PaginationInt pagination,
             Organization owner, long userKey, Set<SubscriptionStatus> states) {
 
         String nativeQuery = getQueryCountUserAssignableSubscriptions(
@@ -186,17 +221,18 @@ public class UserSubscriptionDao {
         return result.longValue();
     }
 
-    private String getQueryUserAssignableSubscriptions(Pagination pagination) {
+    private String getQueryUserAssignableSubscriptions(
+            PaginationInt pagination) {
 
         String query = "SELECT * FROM ("
                 + "                     SELECT  sub.subscriptionid, "
                 + "                             true as assigned, "
                 + "                             roles.roleid, "
-                + "                             (SELECT loc.value FROM bssuser.localizedresource loc WHERE loc.objecttype = 'ROLE_DEF_NAME' AND loc.objectkey=roles.tkey AND loc.locale =:locale) as displayedrole, "
+                + "                             (SELECT loc.value FROM localizedresource loc WHERE loc.objecttype = 'ROLE_DEF_NAME' AND loc.objectkey=roles.tkey AND loc.locale =:locale) as displayedrole, "
                 + "                             license.tkey as key, "
                 + "                             license.version as version"
-                + "                     FROM bssuser.subscription sub, bssuser.usagelicense license"
-                + "                     LEFT JOIN bssuser.roledefinition roles"
+                + "                     FROM subscription sub, usagelicense license"
+                + "                     LEFT JOIN roledefinition roles"
                 + "                     ON roles.tkey = license.roledefinition_tkey"
                 + "                     WHERE license.subscription_tkey = sub.tkey "
                 + "                             AND sub.status IN (:states) "
@@ -209,8 +245,8 @@ public class UserSubscriptionDao {
                 + "                             null as displayedrole, "
                 + "                             null as key, "
                 + "                             null as version"
-                + "                     FROM bssuser.subscription sub"
-                + "                     WHERE sub.tkey NOT IN (SELECT lic.subscription_tkey FROM bssuser.usagelicense lic WHERE lic.user_tkey=:userKey)"
+                + "                     FROM subscription sub"
+                + "                     WHERE sub.tkey NOT IN (SELECT lic.subscription_tkey FROM usagelicense lic WHERE lic.user_tkey=:userKey)"
                 + "                             AND sub.status IN (:states)"
                 + "                             AND sub.organizationKey =:orgKey) AS subscription ";
 
@@ -218,17 +254,17 @@ public class UserSubscriptionDao {
     }
 
     private String getQueryCountUserAssignableSubscriptions(
-            Pagination pagination) {
+            PaginationInt pagination) {
 
         String query = "SELECT COUNT(*) FROM ("
                 + "                     SELECT  sub.subscriptionid, "
                 + "                             true as assigned, "
                 + "                             roles.roleid, "
-                + "                             (SELECT loc.value FROM bssuser.localizedresource loc WHERE loc.objecttype = 'ROLE_DEF_NAME' AND loc.objectkey=roles.tkey AND loc.locale =:locale) as displayedrole, "
+                + "                             (SELECT loc.value FROM localizedresource loc WHERE loc.objecttype = 'ROLE_DEF_NAME' AND loc.objectkey=roles.tkey AND loc.locale =:locale) as displayedrole, "
                 + "                             license.tkey as key, "
                 + "                             license.version as version"
-                + "                     FROM bssuser.subscription sub, bssuser.usagelicense license"
-                + "                     LEFT JOIN bssuser.roledefinition roles"
+                + "                     FROM subscription sub, usagelicense license"
+                + "                     LEFT JOIN roledefinition roles"
                 + "                     ON roles.tkey = license.roledefinition_tkey"
                 + "                     WHERE license.subscription_tkey = sub.tkey "
                 + "                             AND sub.status IN (:states) "
@@ -241,15 +277,15 @@ public class UserSubscriptionDao {
                 + "                             null as displayedrole, "
                 + "                             null as key, "
                 + "                             null as version"
-                + "                     FROM bssuser.subscription sub"
-                + "                     WHERE sub.tkey NOT IN (SELECT lic.subscription_tkey FROM bssuser.usagelicense lic WHERE lic.user_tkey=:userKey)"
+                + "                     FROM subscription sub"
+                + "                     WHERE sub.tkey NOT IN (SELECT lic.subscription_tkey FROM usagelicense lic WHERE lic.user_tkey=:userKey)"
                 + "                             AND sub.status IN (:states)"
                 + "                             AND sub.organizationKey =:orgKey) AS subscription ";
 
         return paginatedQueryForCountSubs(query, pagination);
     }
 
-    Set<String> getSubscriptionStatesAsString(Set<SubscriptionStatus> states) {
+    private Set<String> getSubscriptionStatesAsString(Set<SubscriptionStatus> states) {
         Set<String> statesAsString = new HashSet<String>();
         for (SubscriptionStatus s : states) {
             statesAsString.add(s.name());

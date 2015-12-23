@@ -18,7 +18,9 @@ public class POServiceConverter implements Converter {
             String value) {
         if (value == null)
             return null;
-        String[] tokens = value.split("\\$%&/\\$%");
+
+        String unescapedValue = unescapeCommas(value);
+        String[] tokens = unescapedValue.split("\\$%&/\\$%");
 
         POService po = new POService();
         po.setKey(Long.parseLong(tokens[0]));
@@ -35,11 +37,26 @@ public class POServiceConverter implements Converter {
             Object value) {
         if (value == null)
             return null;
+
         POService po = (POService) value;
-        return po.getKey() + SEPARATOR + po.getVersion() + SEPARATOR
-                + po.getServiceName() + SEPARATOR + po.getProviderName()
-                + SEPARATOR + po.getPictureUrl() + SEPARATOR
-                + po.getStatusSymbol();
+        String passedValue = po.getKey() + SEPARATOR + po.getVersion()
+                + SEPARATOR + po.getServiceName() + SEPARATOR
+                + po.getProviderName() + SEPARATOR + po.getPictureUrl()
+                + SEPARATOR + po.getStatusSymbol();
+
+        return escapeCommas(passedValue);
+    }
+
+    private String escapeCommas(String value) {
+
+        String escapedValue = value.replace(",", "&comma;");
+        return escapedValue;
+    }
+
+    private String unescapeCommas(String value) {
+
+        String unescapedValue = value.replace("&comma;", ",");
+        return unescapedValue;
     }
 
 }

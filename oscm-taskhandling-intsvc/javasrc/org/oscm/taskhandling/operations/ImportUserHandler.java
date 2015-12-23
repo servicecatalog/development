@@ -5,24 +5,27 @@
 package org.oscm.taskhandling.operations;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.BulkUserImportException;
+import org.oscm.internal.types.exception.BulkUserImportException.Reason;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.taskhandling.payloads.ImportUserPayload;
 import org.oscm.taskhandling.payloads.ImportUserPayload.UserDefinition;
 import org.oscm.taskhandling.payloads.TaskPayload;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.BulkUserImportException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.BulkUserImportException.Reason;
 
 /**
  * Asynchronous import of users for non-ldap organizations.
@@ -64,8 +67,14 @@ public class ImportUserHandler extends TaskHandler {
             try {
                 userToBeImported.getUserDetails().setOrganizationId(
                         payload.getOrganizationId());
-                userToBeImported.getUserDetails().setUserRoles(
-                        new HashSet<UserRoleType>(userToBeImported.getRoles()));
+
+                userToBeImported
+                        .getUserDetails()
+                        .setUserRoles(
+                                new HashSet<UserRoleType>(
+                                        removeRoles(
+                                                userToBeImported.getRoles(),
+                                                Arrays.asList(UserRoleType.UNIT_ADMINISTRATOR))));
 
                 serviceFacade.getIdentityService().importUser(
                         userToBeImported.getUserDetails(),
@@ -143,6 +152,23 @@ public class ImportUserHandler extends TaskHandler {
         String errorMessage = mf.format(e.getMessageParams(),
                 new StringBuffer(), null).toString();
         return errorMessage;
+    }
+
+    List<UserRoleType> removeRoles(List<UserRoleType> roles,
+            List<UserRoleType> rolesToRemove) {
+        List<UserRoleType> result = new ArrayList<UserRoleType>();
+        if (roles == null) {
+            return result;
+        }
+        if (rolesToRemove == null) {
+            return roles;
+        }
+        for (UserRoleType role : roles) {
+            if (!rolesToRemove.contains(role)) {
+                result.add(role);
+            }
+        }
+        return result;
     }
 
     /**

@@ -31,8 +31,6 @@ import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
@@ -40,14 +38,16 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * The bean implementation for the trigger queue service.
@@ -157,18 +157,27 @@ public class TriggerQueueServiceBean implements TriggerQueueServiceLocal {
      */
     private void sendObjectMessage(List<? extends Serializable> objectsToSend)
             throws JMSException {
+        double msgSize = Math.ceil(objectsToSend.size()/1000.0);
+        int counter = 0;
+        while(counter < msgSize) {
+            int fromIndex = counter * 1000;
+            int toIndex = Math.min(fromIndex + 1000, objectsToSend.size());
+            sendObjectMsgSingleSession(objectsToSend.subList(fromIndex, toIndex));
+            counter++;
+        }
+    }
+
+    private void sendObjectMsgSingleSession(List<? extends Serializable> objectsToSend) throws JMSException {
         Session session = null;
         Connection conn = null;
         try {
-            if (objectsToSend.size() > 0) {
-                conn = qFactory.createConnection();
-                session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                MessageProducer producer = session.createProducer(queue);
-                for (Serializable objectToSend : objectsToSend) {
-                    ObjectMessage msg = session.createObjectMessage();
-                    msg.setObject(objectToSend);
-                    producer.send(msg);
-                }
+            conn = qFactory.createConnection();
+            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(queue);
+            for (Serializable objectToSend : objectsToSend) {
+                ObjectMessage msg = session.createObjectMessage();
+                msg.setObject(objectToSend);
+                producer.send(msg);
             }
         } finally {
             closeSession(session);

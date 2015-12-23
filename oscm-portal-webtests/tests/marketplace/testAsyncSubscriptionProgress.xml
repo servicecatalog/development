@@ -116,7 +116,7 @@
       <verifyInputField htmlId="configurationForm:subscriptionIdText" value="${initialAsyncName}" />
       <mpl_goto.tab label="${subscription.users}" />
       <verifyXPath xpath="//*[@id='tabUser']//*[@class='box suspendedNotMessage suspended']"/>
-      <verifyXPath xpath="//*[@id='tabUser']//*[@class='buttonDisabled']" />
+      <verifyXPath xpath="//*[@id='tabUser']//*[@disabled='disabled']" />
       <mpl_goto.tab label="${subscription.upgrade}" />
       <verifyXPath xpath="//*[@id='tabUpgrade']//*[@class='box suspendedNotMessage suspended']"/>
       <verifyXPath xpath="//*[@id='tabUpgrade']//*[@class='buttonDisabled']" />

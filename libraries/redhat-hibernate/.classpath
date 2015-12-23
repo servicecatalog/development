@@ -2,7 +2,6 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-collections/javalib/commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/><classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/antlr-2.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="javalib/dom4j-1.6.1.jar"/>

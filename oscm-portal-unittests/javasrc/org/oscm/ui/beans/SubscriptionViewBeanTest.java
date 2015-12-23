@@ -438,7 +438,7 @@ public class SubscriptionViewBeanTest {
         bean.getInitialize();
         List<FilterField> filters = Collections.emptyList();
         List<SortField> sorters = Collections.emptyList();
-        model.getDataList(0, 2, filters, sorters);
+        model.getDataList(0, 2, filters, sorters, true);
 
         // then
         verify(subscriptionsService, times(1)).getSubscriptionsAndCustomersForManagers(any(Pagination.class));

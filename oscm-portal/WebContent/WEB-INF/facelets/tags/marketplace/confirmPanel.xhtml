@@ -20,7 +20,7 @@
   </c:if>
 
   <rich:popupPanel id="${modalId}" trimOverlayedElements="false" resizeable="false" autosized="true" height="100"
-    width="350" onresize="return false;" zindex="16000" onshow="AdmUtils.adjustMplModalDialogPosition('${modalId}');"
+    width="350" onresize="return false;" zindex="16000" onshow="AdmUtils.adjustMplModalDialogPosition('${modalId}');AdmUtils.showProgress(false);"
     onbeforeshow="AdmUtils.setPageOverflow('hidden');" onhide="#{handleOnHideConfirmModal}">
 
     <img onclick="#{rich:component(modalId)}.hide();" src="#{imgUrl}/transparentPixel.png" class="closeButton" />

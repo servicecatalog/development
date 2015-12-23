@@ -26,7 +26,7 @@ import org.oscm.ui.beans.BaseModel;
  * 
  */
 @ViewScoped
-@ManagedBean(name="manageGroupModel")
+@ManagedBean(name = "manageGroupModel")
 public class ManageGroupModel extends BaseModel {
 
     private static final long serialVersionUID = 7803451754585858737L;
@@ -54,7 +54,7 @@ public class ManageGroupModel extends BaseModel {
     private List<POUserInUnit> usersToAssign = new ArrayList<POUserInUnit>();
 
     private List<POUserInUnit> usersToUnassign = new ArrayList<POUserInUnit>();
-    
+
     private List<POUserInUnit> usersToUpdate = new ArrayList<POUserInUnit>();
 
     private List<POUserInUnit> currentResultUsers = new ArrayList<POUserInUnit>();
@@ -62,6 +62,18 @@ public class ManageGroupModel extends BaseModel {
     private Map<String, Boolean> selectedUsersIds = new HashMap<String, Boolean>();
 
     private List<SelectItem> roles = new ArrayList<SelectItem>();
+
+    private Map<String, String> userAndRole = new HashMap<String, String>();
+
+    private String changedUserId;
+
+    private String changedRoleName;
+    
+    private boolean selection;
+    
+    private boolean selectAll;
+    
+    private Map<String, POUserInUnit> usersAssignedToUnit = new HashMap<String, POUserInUnit>();
 
     public List<ServiceRow> getServiceRows() {
         return serviceRows;
@@ -186,6 +198,54 @@ public class ManageGroupModel extends BaseModel {
 
     public void setUsersToUpdate(List<POUserInUnit> usersToUpdate) {
         this.usersToUpdate = usersToUpdate;
+    }
+
+    public Map<String, String> getUserAndRole() {
+        return userAndRole;
+    }
+
+    public void setUserAndRole(Map<String, String> userAndRole) {
+        this.userAndRole = userAndRole;
+    }
+
+    public String getChangedUserId() {
+        return changedUserId;
+    }
+
+    public void setChangedUserId(String changedUserId) {
+        this.changedUserId = changedUserId;
+    }
+
+    public String getChangedRoleName() {
+        return changedRoleName;
+    }
+
+    public void setChangedRoleName(String changedRoleName) {
+        this.changedRoleName = changedRoleName;
+    }
+
+    public boolean isSelection() {
+        return selection;
+    }
+
+    public void setSelection(boolean selection) {
+        this.selection = selection;
+    }
+
+    public Map<String, POUserInUnit> getUsersAssignedToUnit() {
+        return usersAssignedToUnit;
+    }
+
+    public void setUsersAssignedToUnit(Map<String, POUserInUnit> usersAssignedToUnit) {
+        this.usersAssignedToUnit = usersAssignedToUnit;
+    }
+
+    public boolean isSelectAll() {
+        return selectAll;
+    }
+
+    public void setSelectAll(boolean selectAll) {
+        this.selectAll = selectAll;
     }
 
 }

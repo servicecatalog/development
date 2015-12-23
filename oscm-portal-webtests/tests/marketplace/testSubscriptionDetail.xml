@@ -170,7 +170,7 @@
       <mpl_goto.account.subscriptions />
       <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
       
-	  <clickLink htmlId="usersForm:assignUsersLink" />
+	  <clickElement htmlId="usersForm:assignUsers" />
 	  <clickElement xpath="//*[@id='assignUsersPanelForm:userTable:0:assignColAssign']" />
 	  <setCheckbox htmlId="assignUsersPanelForm:userTable:0:assignCheckbox" checked="false" />
   	  <clickLink htmlId="assignUsersPanelForm:saveButton" />
@@ -217,7 +217,7 @@
 	  <clickLink htmlId="configurationForm:nextLink" />
       <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
       <clickButton htmlId="confirmForm:confirm" />
-      <clickLink htmlId="usersForm:assignUsersLink" />
+      <clickElement htmlId="usersForm:assignUsers" />
       <common.waitForJavaScript />
       <verifyXPath xpath="//a[@id='assignUsersPanelForm:addUser']" />
 
@@ -237,7 +237,7 @@
       <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
       <clickButton htmlId="confirmForm:confirm" />
 
-      <clickLink htmlId="usersForm:assignUsersLink" />
+      <clickElement htmlId="usersForm:assignUsers" />
       <common.waitForJavaScript />
       <not>
       	<verifyXPath xpath="//a[@id='assignUsersPanelForm:addUser']" />

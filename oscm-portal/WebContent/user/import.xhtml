@@ -64,7 +64,7 @@
       	<c:set var="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
 
         <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
-          <a4j:queue requestDelay="500" ignoreDupResponse="true"
+          <a4j:queue requestDelay="500" ignoreDupResponses="true"
             oncomplete="jQuery('body').removeClass('hourglass');"
             onsubmit="jQuery('body').addClass('hourglass');" />
           <rich:dataTable width="100%" styleClass="sortable" headerClass="rowTitle sortable" rowClasses="rowOdd,rowEven"

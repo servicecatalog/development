@@ -1,6 +1,12 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2015
+ *
+ *  Creation Date: 18.11.2015
+ *
+ *******************************************************************************/
 package org.oscm.ui.dialog.mp.userGroups;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +24,15 @@ import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.usermanagement.POUserInUnit;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationUsersInUnit;
 import org.oscm.pagination.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.dialog.mp.usesubscriptions.MySubscriptionsLazyDataModel;
 import org.oscm.ui.model.RichLazyDataModel;
-import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
+import org.richfaces.component.SortOrder;
 
 @ViewScoped
 @ManagedBean(name = "usersLazyDataModel")
@@ -63,7 +69,7 @@ public class UsersLazyDataModel extends RichLazyDataModel<POUserInUnit> {
         getSortOrders().put(ROLE_IN_UNIT, SortOrder.unsorted);
     }
 
-    private void decorateWithLocalizedRoles(Pagination pagination) {
+    private void decorateWithLocalizedRoles(PaginationUsersInUnit pagination) {
         Map<UnitRoleType, String> localizedRolesMap = pagination
                 .getLocalizedRolesMap();
         for (UnitRoleType role : UnitRoleType.values()) {
@@ -74,15 +80,26 @@ public class UsersLazyDataModel extends RichLazyDataModel<POUserInUnit> {
         }
     }
 
+    private void decorateWithChangedRoles(PaginationUsersInUnit pagination) {
+        pagination.setChangedRoles(manageGroupModel.getUserAndRole());
+        pagination.setSelectedUsersIds(manageGroupModel.getSelectedUsersIds());
+    }
+
     @Override
     public List<POUserInUnit> getDataList(int firstRow, int numRows,
-            List<FilterField> filterFields, List<SortField> sortFields) {
-        Pagination pagination = new Pagination(firstRow, numRows);
+            List<FilterField> filterFields, List<SortField> sortFields, Object argument) {
+        
+        PaginationUsersInUnit pagination = new PaginationUsersInUnit(firstRow, numRows);
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedRoles(pagination);
+        decorateWithChangedRoles(pagination);
+
         List<POUserInUnit> resultList = Collections.emptyList();
 
+        if (argument == null) {
+            return manageGroupModel.getCurrentResultUsers();
+        }
         try {
             Response response = userGroupService.getUsersForGroup(pagination,
                     getManageGroupModel().getSelectedGroupId());
@@ -91,17 +108,20 @@ public class UsersLazyDataModel extends RichLazyDataModel<POUserInUnit> {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }
-        /*for (POUserInUnit poUserInUnit : resultList) {
+
+        Map<String, String> userAndRole = manageGroupModel.getUserAndRole();
+        for (POUserInUnit poUserInUnit : resultList) {
             Boolean isSelected = manageGroupModel.getSelectedUsersIds().get(
                     poUserInUnit.getUserId());
-            if (isSelected == null) {
-                continue;
+            if (userAndRole.containsKey(poUserInUnit.getUserId())) {
+                String role = userAndRole.get(poUserInUnit.getUserId());
+                poUserInUnit.setRoleInUnit(role);
             }
-            poUserInUnit.setSelected(isSelected.booleanValue());
-        }*/
-        manageGroupModel.setCurrentResultUsers(new ArrayList<POUserInUnit>(
-                resultList));
-
+            if (isSelected != null) {
+                poUserInUnit.setSelected(isSelected.booleanValue());
+            }
+        }
+        manageGroupModel.setCurrentResultUsers(resultList);
         return resultList;
     }
 
@@ -112,9 +132,10 @@ public class UsersLazyDataModel extends RichLazyDataModel<POUserInUnit> {
 
     public int getTotalCount() {
         try {
-            Pagination pagination = new Pagination();
+            PaginationUsersInUnit pagination = new PaginationUsersInUnit();
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithLocalizedRoles(pagination);
+            decorateWithChangedRoles(pagination);
             Integer response = userGroupService.getCountUsersForGroup(pagination,
                     getManageGroupModel().getSelectedGroupId());
             setTotalCount(response.intValue());

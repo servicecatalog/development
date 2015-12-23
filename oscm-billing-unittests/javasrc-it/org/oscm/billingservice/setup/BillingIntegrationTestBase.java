@@ -103,6 +103,7 @@ import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionUtilBean;
 import org.oscm.subscriptionservice.bean.TerminateSubscriptionBean;
 import org.oscm.subscriptionservice.bean.ValidateSubscriptionStateBean;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.techproductoperation.bean.OperationRecordServiceLocalBean;
 import org.oscm.techproductoperation.dao.OperationRecordDao;
@@ -250,6 +251,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(mock(CommunicationServiceLocal.class));
         container.addBean(mock(ImageResourceServiceLocal.class));
         container.addBean(mock(TaskQueueServiceLocal.class));
+        container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new TriggerQueueServiceStub() {
             @Override
             public List<TriggerProcessMessageData> sendSuspendingMessages(

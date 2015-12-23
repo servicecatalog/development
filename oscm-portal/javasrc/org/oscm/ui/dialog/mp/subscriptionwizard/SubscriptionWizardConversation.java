@@ -168,6 +168,8 @@ public class SubscriptionWizardConversation implements Serializable {
                 conversation.setTimeout(TIMEOUT);
                 conversation.begin();
             }
+            model.setAnyPaymentAvailable(paymentAndBillingVisibleBean.isPaymentVisible(getEnabledPaymentTypes(),
+                getPaymentInfosForSubscription()));
         } catch (ObjectNotFoundException e) {
             result = redirectToServiceList();
         } catch (ServiceStateException | OperationNotPermittedException
@@ -347,8 +349,7 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public boolean isPaymentInfoVisible() {
-        return paymentAndBillingVisibleBean.isPaymentVisible(getEnabledPaymentTypes(),
-                getPaymentInfosForSubscription());
+        return model.isAnyPaymentAvailable();
     }
 
     /**
@@ -442,8 +443,10 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public List<VOPaymentInfo> getPaymentInfosForSubscription() {
-        return paymentInfoBean.getPaymentInfosForSubscription(model
+        List<VOPaymentInfo> payments = paymentInfoBean.getPaymentInfosForSubscription(model
                 .getService().getKey(), getAccountingService());
+        model.setAnyPaymentAvailable(!payments.isEmpty());
+        return payments;
     }
 
     /**
@@ -772,4 +775,5 @@ public class SubscriptionWizardConversation implements Serializable {
     public long getTimeout() {
         return TIMEOUT;
     }
+
 }

@@ -49,6 +49,7 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
     private Discount discount;
     private List<PricedEventRow> serviceEvents;
     private String serviceParametersAsJSONString;
+    private boolean anyPaymentAvailable;
 
     /**
      * Form data
@@ -328,4 +329,13 @@ public class SubscriptionWizardConversationModel implements Serializable, Config
     public void setParameterValidationResult(ParameterValidationResult parameterValidationResult) {
 		this.parameterValidationResult = parameterValidationResult;
 	}
+
+    public boolean isAnyPaymentAvailable() {
+        return anyPaymentAvailable;
+    }
+
+    public void setAnyPaymentAvailable(boolean anyPaymentAvailable) {
+        this.anyPaymentAvailable = anyPaymentAvailable;
+    }
+
 }

@@ -10,11 +10,13 @@ package org.oscm.ui.beans;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.List;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOPaymentInfo;
 import org.oscm.internal.vo.VOPaymentType;
 
@@ -33,6 +35,9 @@ public class PaymentAndBillingVisibleBean implements Serializable {
     @ManagedProperty(value = "#{billingContactBean}")
     private BillingContactBean billingContactBean;
 
+    private Boolean isPaymentVisible;
+    private Boolean isBillingVisible;
+
     public boolean isPaymentVisible(Collection<VOPaymentType> enabledPaymentTypes,
                                     Collection<VOPaymentInfo> paymentInfosForSubscription) {
         if (userBean.isLoggedInAndAdmin()) {
@@ -47,7 +52,6 @@ public class PaymentAndBillingVisibleBean implements Serializable {
     }
 
     public boolean isBillingContactVisible() {
-
         if (userBean.isLoggedInAndAdmin()) {
             return true;
         }
@@ -74,5 +78,9 @@ public class PaymentAndBillingVisibleBean implements Serializable {
 
     public void setBillingContactBean(BillingContactBean billingContactBean) {
         this.billingContactBean = billingContactBean;
+    }
+    
+    public Collection<VOBillingContact> getBillingContacts(){
+        return billingContactBean.getBillingContacts();
     }
 }

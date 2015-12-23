@@ -101,7 +101,7 @@ public class SubscriptionListsLazyDataModelTest {
 
         //when
         List<POSubscriptionForList> result = beanUnderTheTest.getDataList(firstRow, numRows,
-                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList());
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), true);
         //then
         assertArrayEquals(expectedList.toArray(), result.toArray());
         assertEquals(beanUnderTheTest.getTotalCount(), totalCount);

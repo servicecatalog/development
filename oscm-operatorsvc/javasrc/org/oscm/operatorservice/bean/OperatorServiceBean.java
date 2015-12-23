@@ -78,6 +78,7 @@ import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.AddMarketingPermissionException;
 import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -1089,12 +1090,14 @@ public class OperatorServiceBean implements OperatorService {
     public List<VOOrganization> getOrganizations(String organizationIdPattern,
             List<OrganizationRoleType> organizationRoleTypes)
             throws OrganizationAuthoritiesException {
-        return getOrganizationsWithLimit(organizationIdPattern, organizationRoleTypes, DB_SEARCH_LIMIT);
+        return getOrganizationsWithLimit(organizationIdPattern,
+                organizationRoleTypes, DB_SEARCH_LIMIT);
     }
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOOrganization> getOrganizationsWithLimit(String organizationIdPattern,
+    public List<VOOrganization> getOrganizationsWithLimit(
+            String organizationIdPattern,
             List<OrganizationRoleType> organizationRoleTypes, Integer queryLimit)
             throws OrganizationAuthoritiesException {
         Query query = dm
@@ -1128,8 +1131,8 @@ public class OperatorServiceBean implements OperatorService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOUserDetails> getUsersWithLimit(String userIdPattern, Integer queryLimit)
-            throws OrganizationAuthoritiesException {
+    public List<VOUserDetails> getUsersWithLimit(String userIdPattern,
+            Integer queryLimit) throws OrganizationAuthoritiesException {
 
         Query query = dm.createNamedQuery("PlatformUser.findByIdPattern");
         query.setMaxResults(queryLimit.intValue());
@@ -1145,11 +1148,13 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     @Override
+    @RolesAllowed({"ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR"})
     public List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
-                                                       Long organizationKey) {
-        Query query = dm.createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname from " +
-                "PlatformUser as usr left join UsageLicense as lic on lic.user_tkey=usr.tkey where " +
-                "lic.subscription_tkey != :subscriptionKey and usr.organizationkey=:organizationKey");
+            Long organizationKey) {
+        Query query = dm
+                .createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname from  PlatformUser as usr "
+                        + " where not exists (select 1 from UsageLicense as lic1 where lic1.subscription_tkey=:subscriptionKey and lic1.user_tkey=usr.tkey) and usr.organizationkey=:organizationKey");
+
         query.setParameter("subscriptionKey", subscriptionKey);
         query.setParameter("organizationKey", organizationKey);
         List<VOUserDetails> result = new ArrayList<>();
@@ -1157,7 +1162,29 @@ public class OperatorServiceBean implements OperatorService {
         VOUserDetails pu;
         for (Object[] cols : resultList) {
             pu = new VOUserDetails();
-            pu.setKey(((BigInteger)cols[0]).longValue());
+            pu.setKey(((BigInteger) cols[0]).longValue());
+            pu.setUserId((String) cols[1]);
+            pu.setFirstName((String) cols[2]);
+            pu.setLastName((String) cols[3]);
+            result.add(pu);
+        }
+        return result;
+    }
+
+    @Override
+    @RolesAllowed({"ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR"})
+    public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey) {
+        Query query = dm.createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname " +
+                "from platformuser as usr " +
+                "left outer join roleassignment as ass on usr.tkey=ass.user_tkey " +
+                "where usr.organizationkey=:organizationKey and (ass.userrole_tkey=8 or ass.userrole_tkey=9 or ass.userrole_tkey=1);");
+        query.setParameter("organizationKey", organizationKey);
+        List<VOUserDetails> result = new ArrayList<>();
+        List<Object[]> resultList = query.getResultList();
+        VOUserDetails pu;
+        for (Object[] cols : resultList) {
+            pu = new VOUserDetails();
+            pu.setKey(((BigInteger) cols[0]).longValue());
             pu.setUserId((String) cols[1]);
             pu.setFirstName((String) cols[2]);
             pu.setLastName((String) cols[3]);

@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.oscm.stream.Streams;
 import com.sun.xml.wss.impl.callback.PasswordValidationCallback;
 import com.sun.xml.wss.impl.callback.PasswordValidationCallback.PasswordValidationException;
 
@@ -62,10 +61,10 @@ public class UserValidator implements
     }
 
     private void loadUserList() throws IOException {
-        BufferedReader reader = null;
         try (InputStream in = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("UserList");) {
-            reader = new BufferedReader(new InputStreamReader(in));
+                .getResourceAsStream("UserList");
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(in));) {
             userList = new HashMap<String, String>();
             String data = null;
             while ((data = reader.readLine()) != null) {
@@ -74,8 +73,6 @@ public class UserValidator implements
                     userList.put(userData[0], userData[1]);
                 }
             }
-        } finally {
-            Streams.close(reader);
         }
     }
 }

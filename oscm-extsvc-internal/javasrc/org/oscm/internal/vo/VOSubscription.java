@@ -44,7 +44,6 @@ public class VOSubscription extends BaseVO implements Serializable {
     private long unitKey;
     private String unitName;
     private String successInfo;
-
     /**
      * The technical service operations.
      */
@@ -133,6 +132,16 @@ public class VOSubscription extends BaseVO implements Serializable {
      * @return the access information
      */
     public String getServiceAccessInfo() {
+        if (serviceAccessInfo == null) {
+            return serviceAccessInfo;
+        }
+        if (serviceAccessInfo.contains("<form")) {
+            int startInx = serviceAccessInfo.indexOf("<form");
+            int endInx = serviceAccessInfo.indexOf("</form>") + 7;
+            return (String) serviceAccessInfo.subSequence(0, startInx)
+                    + (String) serviceAccessInfo.subSequence(endInx,
+                            serviceAccessInfo.length());
+        }
         return serviceAccessInfo;
     }
 
@@ -482,6 +491,13 @@ public class VOSubscription extends BaseVO implements Serializable {
     public void setSuccessInfo(String successInfo) {
         this.successInfo = successInfo;
     }
-    
-    
+
+    public String getServiceAccessInfoFormPart() {
+        if (serviceAccessInfo.contains("<form")) {
+            int startInx = serviceAccessInfo.indexOf("<form");
+            int endInx = serviceAccessInfo.indexOf("</form>") + 7;
+            return (String) serviceAccessInfo.subSequence(startInx, endInx);
+        }
+        return null;
+    }
 }

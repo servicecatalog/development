@@ -2,10 +2,11 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
-  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:t="http://myfaces.apache.org/tomahawk" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
-  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+                xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:t="http://myfaces.apache.org/tomahawk"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
 
   <a4j:outputPanel layout="block">
     <ui:include src="../account/billingContact.xhtml">
@@ -20,6 +21,11 @@
       <ui:param name="dialogHeight" value="60" />
     </ui:include>
   </a4j:outputPanel>
+
+  <c:set var="paymentInfoVisible" value="#{manageSubscriptionCtrl.paymentInfoVisible eq true}"  scope="request"  />
+  <c:set var="emptyEnabledPaymentTypes" value="#{empty manageSubscriptionCtrl.paymentInfoBean.enabledPaymentTypes}"  scope="request" />
+  <c:set var="availableSubsAndAdmin" value="#{previousRendered and (not empty paymentInfoBean.availablePaymentTypesForCreation) and userBean.loggedInAndAdmin}"  scope="request" />
+  <c:set var="selectedPaymentInfoForSubscription" value="#{paymentInfoBean.selectedPaymentInfoForSubscription}"  scope="request" />
 
   <h:form id="payment">
     <adm:keepDirty value="#{manageSubscriptionModel.dirty}" />
@@ -37,10 +43,6 @@
       oncomplete="AdmUtils.initFocus();RichFaces.$('paymentOptionPanel').show();">
       <a4j:param name="param1" assignTo="#{paymentInfoBean.paymentInfoId}" />
       <a4j:param name="param2" value="subscription" assignTo="#{paymentInfoBean.creationContext}" />
-    </a4j:jsFunction>
-    
-    <a4j:jsFunction name="setDirtyOnManageSubscriptionModel">
-      <a4j:param name="param1" assignTo="#{manageSubscriptionModel.dirty}"/>
     </a4j:jsFunction>
     
     <!-- SELECT PAYMENT INFORMATION -->
@@ -68,7 +70,7 @@
                 <c:forEach items="#{billingContactBean.billingContacts}" var="bc">
                   <f:selectItem itemLabel="#{bc.id}" itemValue="#{bc.key}" />
                 </c:forEach>
-                <a4j:ajax render="bcInformation" event="change" onbeforesubmit="setDirty(true);" oncomplete="setDirtyOnManageSubscriptionModel(true);"/>
+                <a4j:ajax render="bcInformation" event="change" onbeforesubmit="setDirty(true);"/>
               </h:selectOneMenu>
             </a4j:outputPanel>
 
@@ -119,12 +121,12 @@
             <h:selectOneMenu id="selectPaymentInfo" styleClass="select" required="#{!empty param['payment:next']}"
               value="#{paymentInfoBean.selectedPaymentInfoForSubscriptionKeyReadOnly}" disabled="#{isDisabled}"
               valueChangeListener="#{paymentInfoBean.selectedPaymentInfoChanged}"
-              rendered="#{manageSubscriptionCtrl.paymentInfoVisible}">
+              rendered="#{paymentInfoVisible}">
               <adm:selectItemPleaseSelect itemValue="" />
               <c:forEach items="#{paymentInfoBean.paymentInfosForSubscription}" var="pi">
                 <f:selectItem itemLabel="#{pi.id}" itemValue="#{pi.key}" />
               </c:forEach>
-              <a4j:ajax render="piInformation" event="change" onbeforesubmit="setDirty(true);" oncomplete="setDirtyOnManageSubscriptionModel(true);"/>
+              <a4j:ajax render="piInformation" event="change" onbeforesubmit="setDirty(true);"/>
             </h:selectOneMenu>
           </a4j:outputPanel>
 
@@ -132,31 +134,31 @@
           <a4j:outputPanel layout="block">
             <h:outputText
               value="#{msg[manageSubscriptionCtrl.noPaymentTypeAvailableMSG]}"
-              id="noPaymenttypesAvailable" rendered="#{not manageSubscriptionCtrl.paymentInfoVisible}" />
+              id="noPaymenttypesAvailable" rendered="#{not paymentInfoVisible}" />
           </a4j:outputPanel>
 
 
           <a4j:outputPanel layout="block" style="margin-bottom: 8px;"
-            rendered="#{previousRendered and (not empty paymentInfoBean.availablePaymentTypesForCreation) and userBean.loggedInAndAdmin}">
+            rendered="#{availableSubsAndAdmin}">
             <h:outputLink value="" id="newPaymentInfo" onclick="newPaymentItem(-1); return false;">
               <h:outputText value="#{msg['payment.new.PaymentOption.title']}" />
             </h:outputLink>
           </a4j:outputPanel>
           <h:panelGroup
-            rendered="#{previousRendered and (not empty paymentInfoBean.availablePaymentTypesForCreation) and userBean.loggedInAndAdmin}"
+            rendered="#{availableSubsAndAdmin}"
             layout="block" />
         </t:panelGrid>
 
         <!-- PANEL 4 -->
         <!-- provider and account right of it -->
         <a4j:outputPanel id="piInformation" layout="block">
-          <mp:message for="selectPaymentInfo" rendered="#{empty paymentInfoBean.selectedPaymentInfoForSubscription}" />
-          <ui:fragment rendered="#{not empty paymentInfoBean.selectedPaymentInfoForSubscription}">
+          <mp:message for="selectPaymentInfo" rendered="#{empty selectedPaymentInfoForSubscription}" />
+          <ui:fragment rendered="#{not empty selectedPaymentInfoForSubscription}">
             <a4j:outputPanel layout="block">
-              <h:outputText value="#{paymentInfoBean.selectedPaymentInfoForSubscription.providerName}" id="provider" />
+              <h:outputText value="#{selectedPaymentInfoForSubscription.providerName}" id="provider" />
             </a4j:outputPanel>
             <a4j:outputPanel layout="block">
-              <h:outputText value="#{paymentInfoBean.selectedPaymentInfoForSubscription.accountNumber}" id="account" />
+              <h:outputText value="#{selectedPaymentInfoForSubscription.accountNumber}" id="account" />
             </a4j:outputPanel>
           </ui:fragment>
         </a4j:outputPanel>
@@ -170,7 +172,7 @@
         rendered="#{previousRendered}" keepDirty="#{keepDirtyBack}" clearDirty="#{clearDirtyBack}" />
       <mp:button id="next" value="#{buttonLabel}" bean="#{bean}" action="#{action}"
         style="float: #{previousRendered ? 'right' : 'left'};"
-        disabled="#{(isDisabled) or (empty paymentInfoBean.enabledPaymentTypes)}" keepDirty="#{keepDirtyForward}"
+        disabled="#{(isDisabled) or (emptyEnabledPaymentTypes)}" keepDirty="#{keepDirtyForward}"
         clearDirty="#{clearDirtyForward}" />
     </a4j:outputPanel>
   </h:form>

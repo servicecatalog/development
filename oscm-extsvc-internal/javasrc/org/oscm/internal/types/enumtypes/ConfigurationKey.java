@@ -331,8 +331,8 @@ public enum ConfigurationKey {
     AUTH_MODE(true, "INTERNAL", "string", true),
 
     @Doc({
-        "URL to the SAML Identity Provider (IdP) used by CT-MG. To be considered only if the configuration setting AUTH_MODE is set ",
-        "to any other option than INTERNAL." })
+            "URL to the SAML Identity Provider (IdP) used by CT-MG. To be considered only if the configuration setting AUTH_MODE is set ",
+            "to any other option than INTERNAL." })
     @Example("https://<host>:<port>/<RedirectServiceEndpoint>")
     SSO_IDP_URL(false, null, "url"),
 

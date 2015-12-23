@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,35 +30,47 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.xml.ws.client.ClientTransportException;
+import com.sun.xml.ws.fault.ServerSOAPFaultException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.vo.VOOperatorOrganization;
+import org.oscm.intf.OrganizationalUnitService;
+import org.oscm.intf.ServiceProvisioningService;
+import org.oscm.types.enumtypes.OperationParameterType;
+import org.oscm.types.enumtypes.SubscriptionStatus;
+import org.oscm.types.enumtypes.TriggerType;
 import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.types.enumtypes.UnitRoleType;
+import org.oscm.types.exceptions.DomainObjectException.ClassEnum;
+import org.oscm.types.exceptions.beans.ApplicationExceptionBean;
+import org.oscm.vo.VOOrganizationalUnit;
+import org.oscm.vo.VORoleDefinition;
+import org.oscm.vo.VOServiceOperationParameterValues;
+import org.oscm.vo.VOSubscriptionIdAndOrganizations;
+import org.oscm.vo.VOTechnicalServiceOperation;
+import org.oscm.vo.VOTriggerDefinition;
+import org.oscm.vo.VOUser;
+import org.oscm.vo.VOUserSubscription;
 import org.oscm.ws.base.PaymentTypeFactory;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
 import org.oscm.ws.base.WebserviceTestBase;
 import org.oscm.ws.base.WebserviceTestSetup;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.vo.VOOperatorOrganization;
 import org.oscm.intf.AccountService;
 import org.oscm.intf.IdentityService;
 import org.oscm.intf.MarketplaceService;
-import org.oscm.intf.ServiceProvisioningService;
 import org.oscm.intf.SubscriptionService;
-import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.types.enumtypes.PriceModelType;
 import org.oscm.types.enumtypes.Salutation;
-import org.oscm.types.enumtypes.SubscriptionStatus;
-import org.oscm.types.enumtypes.TriggerType;
 import org.oscm.types.enumtypes.UdaConfigurationType;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.types.exceptions.ConcurrentModificationException;
-import org.oscm.types.exceptions.DomainObjectException.ClassEnum;
 import org.oscm.types.exceptions.MandatoryUdaMissingException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
@@ -72,7 +85,6 @@ import org.oscm.types.exceptions.SubscriptionStateException;
 import org.oscm.types.exceptions.TechnicalServiceNotAliveException;
 import org.oscm.types.exceptions.TechnicalServiceOperationException;
 import org.oscm.types.exceptions.ValidationException;
-import org.oscm.types.exceptions.beans.ApplicationExceptionBean;
 import org.oscm.vo.VOBillingContact;
 import org.oscm.vo.VOInstanceInfo;
 import org.oscm.vo.VOMarketplace;
@@ -81,25 +93,16 @@ import org.oscm.vo.VOParameter;
 import org.oscm.vo.VOParameterDefinition;
 import org.oscm.vo.VOPaymentInfo;
 import org.oscm.vo.VOPriceModel;
-import org.oscm.vo.VORoleDefinition;
 import org.oscm.vo.VOService;
-import org.oscm.vo.VOServiceOperationParameterValues;
 import org.oscm.vo.VOSubscription;
 import org.oscm.vo.VOSubscriptionDetails;
-import org.oscm.vo.VOSubscriptionIdAndOrganizations;
 import org.oscm.vo.VOTechnicalService;
-import org.oscm.vo.VOTechnicalServiceOperation;
-import org.oscm.vo.VOTriggerDefinition;
 import org.oscm.vo.VOUda;
 import org.oscm.vo.VOUdaDefinition;
 import org.oscm.vo.VOUsageLicense;
-import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
-import org.oscm.vo.VOUserSubscription;
-import com.sun.xml.ws.client.ClientTransportException;
 
-//FIXME
-@Ignore
+
 public class SubscriptionServiceWSTest {
 
     private static final String SUPPLIER_ORG_NAME = "Supplier";
@@ -121,12 +124,17 @@ public class SubscriptionServiceWSTest {
     private static SubscriptionService subscrServiceForSupplier;
     private static SubscriptionService subscrServiceForReseller;
     private static SubscriptionService subscrServiceForSubManager;
+    private static SubscriptionService service4UnitAdminSubManager;
+    private static SubscriptionService service4UnitAdminOnly;
+    private static SubscriptionService service4SubManagerOnly;
+    private static SubscriptionService service4notUnitAdminNotSubManager;
     private static AccountService accountService;
     private static AccountService accountServiceForCustomer;
     private static IdentityService identityService;
     private static List<VOUsageLicense> usageLicences;
     private static VOUserDetails orgAdmin;
     private static SubscriptionService subscrServiceForOrgAdmin;
+    private static OrganizationalUnitService organizationalUnitService;
 
     private String mailContentReceived = null;
     private String mailSubjectToSend;
@@ -144,8 +152,14 @@ public class SubscriptionServiceWSTest {
     private static VOFactory factory = new VOFactory();
     private static VOUserDetails subscriptionManager;
     private static VOUserDetails user;
+    private static VOUserDetails unitAdminSubManager;
+    private static VOUserDetails unitAdminOnly;
+    private static VOUserDetails subManagerOnly;
+    private static VOUserDetails notUnitAdminNotSubManager;
     private static VOService svcWithOp;
     private static VOTechnicalService tpWithOp;
+    private static VOOrganizationalUnit orgUnit;
+    private static VOOrganizationalUnit unitBug12379;
 
     @BeforeClass
     public static void setUpOnce() throws Exception {
@@ -251,6 +265,56 @@ public class SubscriptionServiceWSTest {
     public void setup() throws Exception {
         mailSubjectToSend = "Test ReportIssue";
         mailContentToSend = "Test ReportIssue Content.";
+
+        unitAdminSubManager = createVOUser();
+        unitAdminSubManager = identityService.createUser(unitAdminSubManager,
+                Arrays.asList(UserRoleType.SUBSCRIPTION_MANAGER),
+                mpLocal.getMarketplaceId());
+        unitAdminSubManager.setKey(Long.parseLong(WebserviceTestBase
+                .readLastMailAndSetCommonPassword(unitAdminSubManager.getUserId())));
+
+        organizationalUnitService = ServiceFactory.getDefault()
+                .getOrganizationalUnitService(String.valueOf(orgAdmin.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+
+        unitBug12379 = organizationalUnitService.createUnit("testUnit" + new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()),
+                "testDescription", new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
+        identityService.addRevokeUserUnitAssignment(unitBug12379.getName(), Arrays.<VOUser>asList(unitAdminSubManager), Collections.<VOUser>emptyList());
+
+        organizationalUnitService.revokeUserRoles(unitAdminSubManager, Arrays.asList(UnitRoleType.USER), unitBug12379);
+        organizationalUnitService.grantUserRoles(unitAdminSubManager, Arrays.asList(org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR), unitBug12379);
+        service4UnitAdminSubManager = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(subscriptionManager.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+
+        unitAdminOnly = createVOUser();
+        unitAdminOnly = identityService.createUser(unitAdminOnly,
+                Collections.<UserRoleType>emptyList(),
+                mpLocal.getMarketplaceId());
+        unitAdminOnly.setKey(Long.parseLong(WebserviceTestBase
+                .readLastMailAndSetCommonPassword(unitAdminOnly.getUserId())));
+        identityService.addRevokeUserUnitAssignment(unitBug12379.getName(), Arrays.<VOUser>asList(unitAdminOnly), Collections.<VOUser>emptyList());
+
+        service4UnitAdminOnly = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(unitAdminOnly.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+
+        subManagerOnly = createVOUser();
+        subManagerOnly = identityService.createUser(subManagerOnly, Arrays.asList(UserRoleType.SUBSCRIPTION_MANAGER), mpLocal.getMarketplaceId());
+        subManagerOnly.setKey(Long.parseLong(WebserviceTestBase
+                .readLastMailAndSetCommonPassword(subManagerOnly.getUserId())));
+
+        service4SubManagerOnly = ServiceFactory.getDefault().getSubscriptionService(String.valueOf(subManagerOnly.getKey()), WebserviceTestBase.DEFAULT_PASSWORD);
+
+
+        notUnitAdminNotSubManager = createVOUser();
+        notUnitAdminNotSubManager = identityService.createUser(notUnitAdminNotSubManager, Collections.<UserRoleType>emptyList(), mpLocal.getMarketplaceId());
+        notUnitAdminNotSubManager.setKey(Long.parseLong(WebserviceTestBase
+                .readLastMailAndSetCommonPassword(notUnitAdminNotSubManager.getUserId())));
+
+        service4notUnitAdminNotSubManager = ServiceFactory.getDefault().getSubscriptionService(String.valueOf(notUnitAdminNotSubManager.getKey()), WebserviceTestBase.DEFAULT_PASSWORD);
     }
 
     @After
@@ -260,6 +324,11 @@ public class SubscriptionServiceWSTest {
                 subscrServiceForCustomer
                         .unsubscribeFromService(createdSubscription
                                 .getSubscriptionId());
+                subscrServiceForSubManager
+                        .unsubscribeFromService(createdSubscription
+                                .getSubscriptionId());
+                subscrServiceForOrgAdmin
+                        .unsubscribeFromService(createdSubscription.getSubscriptionId());
             } catch (ObjectNotFoundException e) {
                 // for unsubscribe test, it is already done
             }
@@ -269,10 +338,10 @@ public class SubscriptionServiceWSTest {
         setup.deleteTriggersForUser();
     }
 
-    private void teminateAsyncSubscription() throws Exception {
+    private void terminateAsyncSubscription() throws Exception {
         if (createdSubscription != null) {
             subscrServiceForSupplier.terminateSubscription(createdSubscription,
-                    "reson");
+                    "reason");
         }
     }
 
@@ -292,6 +361,151 @@ public class SubscriptionServiceWSTest {
         subscriptionID = createdSubscription.getSubscriptionId();
         return createdSubscription;
     }
+
+    @Test
+    public void bug12379_subscriptionToServiceWithUnitAssignedByApi_unitAdminSubManager() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        subscription.setUnitKey(unitBug12379.getKey());
+        subscription.setUnitName(unitBug12379.getName());
+
+        organizationalUnitService.revokeUserRoles(unitAdminSubManager, Arrays.asList(UnitRoleType.USER), unitBug12379);
+        organizationalUnitService.grantUserRoles(unitAdminSubManager, Arrays.asList(org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR), unitBug12379);
+        //when
+        service4UnitAdminSubManager = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(unitAdminSubManager.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+        VOSubscription voSubscription = service4UnitAdminSubManager.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        //then
+        assertEquals(voSubscription.getUnitKey(), unitBug12379.getKey());
+        assertEquals(voSubscription.getUnitName(), unitBug12379.getName());
+        service4UnitAdminSubManager.unsubscribeFromService(voSubscription.getSubscriptionId());
+    }
+
+    @Test
+    public void bug12379_subscriptionToServiceWithoutUnitAssignedByApi_unitAdminSubManager() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+
+        organizationalUnitService.revokeUserRoles(unitAdminSubManager, Arrays.asList(UnitRoleType.USER), unitBug12379);
+        organizationalUnitService.grantUserRoles(unitAdminSubManager, Arrays.asList(org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR), unitBug12379);
+        //when
+        VOSubscription voSubscription = service4UnitAdminSubManager.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        waitForLogStored();
+        //then
+        assertTrue(voSubscription.getUnitKey() == 0);
+        assertNull(voSubscription.getUnitName());
+        service4UnitAdminSubManager.unsubscribeFromService(voSubscription.getSubscriptionId());
+    }
+
+    @Test
+    public void bug12379_subscriptionToServiceWithUnitAssignedByApi_unitAdminOnly() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        subscription.setUnitKey(unitBug12379.getKey());
+        subscription.setUnitName(unitBug12379.getName());
+        organizationalUnitService.revokeUserRoles(unitAdminOnly, Arrays.asList(UnitRoleType.USER), unitBug12379);
+        organizationalUnitService.grantUserRoles(unitAdminOnly, Arrays.asList(org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR), unitBug12379);
+        service4UnitAdminOnly = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(unitAdminOnly.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+        //when
+        VOSubscription voSubscription = service4UnitAdminOnly.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        waitForLogStored();
+        //then
+        assertEquals(voSubscription.getUnitKey(), unitBug12379.getKey());
+        assertEquals(voSubscription.getUnitName(), unitBug12379.getName());
+        service4UnitAdminOnly.unsubscribeFromService(voSubscription.getSubscriptionId());
+    }
+    @Test(expected = OperationNotPermittedException.class)
+    public void bug12379_subscriptionToServiceWithoutUnitAssignedByApi_unitAdminOnly() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        organizationalUnitService.revokeUserRoles(unitAdminOnly, Arrays.asList(UnitRoleType.USER), unitBug12379);
+        organizationalUnitService.grantUserRoles(unitAdminOnly, Arrays.asList(org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR), unitBug12379);
+
+        //when
+        VOSubscription voSubscription = service4UnitAdminOnly.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        waitForLogStored();
+        //then
+        assertTrue(voSubscription.getUnitKey()== 0);
+        assertNull(voSubscription.getUnitName());
+    }
+
+    @Test(expected = OperationNotPermittedException.class)
+    public void bug12379_subscriptionToServiceWithUnitAssignedByApi_subManagerOnly() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        subscription.setUnitKey(unitBug12379.getKey());
+        subscription.setUnitName(unitBug12379.getName());
+        service4SubManagerOnly = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(subManagerOnly.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+        //when
+        VOSubscription voSubscription = service4SubManagerOnly.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        //then
+        assertEquals(unitBug12379.getKey(), voSubscription.getUnitKey());
+        assertEquals(unitBug12379.getName(), voSubscription.getUnitName());
+    }
+    @Test
+    public void bug12379_subscriptionToServiceWithoutUnitAssignedByApi_subManagerOnly() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        service4SubManagerOnly = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(subManagerOnly.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+        //when
+        VOSubscription voSubscription = service4SubManagerOnly.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        //then
+        assertTrue(voSubscription.getUnitKey() == 0);
+        assertNull(voSubscription.getUnitName());
+        service4SubManagerOnly.unsubscribeFromService(voSubscription.getSubscriptionId());
+    }
+
+    @Test
+    public void bug12379_subscriptionToServiceWithoutUnitAssignedByApi_notUnitAdminNotSubManager() throws Exception{
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        //when
+        try {
+            service4notUnitAdminNotSubManager.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+            fail();
+        } catch (ServerSOAPFaultException e) {
+            //then
+            assertTrue(e.getMessage().contains("javax.ejb.EJBAccessException"));
+        }
+    }
+    @Test
+    public void bug12379_subscriptionToServiceWithUnitAssignedByApi_notUnitAdminNotSubManager() throws Exception {
+        //given
+        List<VOUda> udasToSave = prepareUdasForSave();
+        VOSubscription subscription = createSubscription();
+        subscription.setUnitKey(unitBug12379.getKey());
+        subscription.setUnitName(unitBug12379.getName());
+        service4notUnitAdminNotSubManager = ServiceFactory.getDefault()
+                .getSubscriptionService(
+                        String.valueOf(notUnitAdminNotSubManager.getKey()),
+                        WebserviceTestBase.DEFAULT_PASSWORD);
+        //when
+        try {
+            service4notUnitAdminNotSubManager.subscribeToService(subscription, freeService, usageLicences, null, null, udasToSave);
+        } catch (ServerSOAPFaultException e) {
+            //then
+            assertTrue(e.getMessage().contains("javax.ejb.EJBAccessException"));
+        }
+    }
+
 
     @Test
     public void subscribeToFreeService() throws Exception {
@@ -331,8 +545,8 @@ public class SubscriptionServiceWSTest {
     /**
      * The log method will be invoked asynchronously, so some time is needed
      * before retrieving log entries.
-     * 
-     * 
+     *
+     *
      * @throws InterruptedException
      */
     private void waitForLogStored() throws InterruptedException {
@@ -572,7 +786,7 @@ public class SubscriptionServiceWSTest {
                 createdSubscription.getStatus());
         createdSubscription = subscrServiceForCustomer
                 .getSubscriptionDetails(newSubscriptionId);
-        teminateAsyncSubscription();
+        terminateAsyncSubscription();
     }
 
     @Test
@@ -619,7 +833,7 @@ public class SubscriptionServiceWSTest {
         createdSubscription = subscrServiceForCustomer
                 .getSubscriptionDetails(oldSubscriptionId);
         assertEquals(SubscriptionStatus.ACTIVE, createdSubscription.getStatus());
-        teminateAsyncSubscription();
+        terminateAsyncSubscription();
     }
 
     @Test
@@ -651,7 +865,7 @@ public class SubscriptionServiceWSTest {
         // then
         refreshSubscriptionDetails();
         assertEquals(SubscriptionStatus.ACTIVE, createdSubscription.getStatus());
-        teminateAsyncSubscription();
+        terminateAsyncSubscription();
     }
 
     @Test
@@ -691,7 +905,7 @@ public class SubscriptionServiceWSTest {
                 createdSubscription.getStatus());
         refreshSubscriptionDetails();
         assertEquals(SubscriptionStatus.ACTIVE, createdSubscription.getStatus());
-        teminateAsyncSubscription();
+        terminateAsyncSubscription();
     }
 
     @Test
@@ -730,7 +944,7 @@ public class SubscriptionServiceWSTest {
                 createdSubscription.getStatus());
         refreshSubscriptionDetails();
         assertEquals(SubscriptionStatus.ACTIVE, createdSubscription.getStatus());
-        teminateAsyncSubscription();
+        terminateAsyncSubscription();
     }
 
     @Test

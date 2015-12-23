@@ -23,15 +23,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
-
-import org.oscm.string.Strings;
-import org.oscm.ws.base.ServiceFactory;
-import org.oscm.ws.base.VOFactory;
-import org.oscm.ws.base.WebserviceTestBase;
-import org.oscm.ws.base.WebserviceTestSetup;
 import org.oscm.intf.IdentityService;
+import org.oscm.intf.OrganizationalUnitService;
 import org.oscm.intf.SessionService;
+import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.OrganizationRoleType;
 import org.oscm.types.enumtypes.Salutation;
 import org.oscm.types.enumtypes.UserAccountStatus;
@@ -50,14 +47,19 @@ import org.oscm.types.exceptions.UserRoleAssignmentException;
 import org.oscm.types.exceptions.ValidationException;
 import org.oscm.types.exceptions.ValidationException.ReasonEnum;
 import org.oscm.vo.VOOrganization;
+import org.oscm.vo.VOOrganizationalUnit;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
+import org.oscm.ws.base.ServiceFactory;
+import org.oscm.ws.base.VOFactory;
+import org.oscm.ws.base.WebserviceTestBase;
+import org.oscm.ws.base.WebserviceTestSetup;
 
 /**
  * Tests for {@link IdentityService} web service.
- * 
+ *
  * @author weiser
- * 
+ *
  */
 public class IdentityServiceWSTest {
 
@@ -69,6 +71,7 @@ public class IdentityServiceWSTest {
     private static VOFactory factory = new VOFactory();
     private static VOOrganization supplier1;
     private static VOUserDetails supplier2User;
+    private static OrganizationalUnitService unitService;
 
     @BeforeClass
     public static void setUp() throws Exception {
@@ -80,6 +83,8 @@ public class IdentityServiceWSTest {
         is = ServiceFactory.getDefault()
                 .getIdentityService(setup.getSupplierUserKey(),
                         WebserviceTestBase.DEFAULT_PASSWORD);
+        unitService = ServiceFactory.getDefault().getOrganizationalUnitService(setup.getSupplierUserKey(),
+                WebserviceTestBase.DEFAULT_PASSWORD);
         WebserviceTestBase.getMailReader().deleteMails();
         setup.createSupplier("Supplier2");
         IdentityService is = ServiceFactory.getDefault()
@@ -825,6 +830,20 @@ public class IdentityServiceWSTest {
         }
     }
 
+    @Test
+    public void addRevokeUserUnitAssignment() throws Exception {
+        VOUserDetails uniqueUser = createUniqueUser();
+        uniqueUser.setFirstName("User");
+        is.createUser(uniqueUser, Arrays.asList(UserRoleType.SERVICE_MANAGER), null);
+        VOOrganizationalUnit unit = unitService.createUnit("someUnit", "description", "123456");
+        List<VOUser> usersToBeAdded = new ArrayList<>();
+        usersToBeAdded.add(uniqueUser);
+        List<VOUser> usersToBeRevoked = new ArrayList<>();
+        boolean result = is.addRevokeUserUnitAssignment(unit.getName(), usersToBeAdded,
+                usersToBeRevoked);
+        assertTrue(result);
+    }
+
     protected static void validateException(ConcurrentModificationException e) {
         assertEquals("ex.ConcurrentModificationException", e.getMessageKey());
     }
@@ -938,7 +957,7 @@ public class IdentityServiceWSTest {
         return b.toString();
     }
 
-    @Test
+    @Ignore
     public void importUsersInOwnOrganization() throws Exception {
         // given
         String userId = "importedUser_" + System.currentTimeMillis();

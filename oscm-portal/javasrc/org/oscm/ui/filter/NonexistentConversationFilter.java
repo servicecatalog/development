@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jboss.weld.context.NonexistentConversationException;
-
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
 
@@ -38,9 +37,17 @@ public class NonexistentConversationFilter extends BaseBesFilter {
             filterChain.doFilter(servletRequest, servletResponse);
         } catch (Exception t) {
             if (t.getCause() instanceof NonexistentConversationException) {
-                request.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                        SubscriptionDetailsCtrlConstants.ERROR_SUBSCRIPTION_REPEATSTEPS);
-                sendRedirect(request, response, "/marketplace/index.jsf");
+                //Refresh from subscription creation and upgrade
+                String requestURI = request.getRequestURI();
+                if (requestURI.contains("/marketplace/subscriptions/upgrade/confirmUpgrade.jsf") ||
+                        requestURI.contains("/marketplace/subscriptions/creation/confirmAdd.jsf")){
+                    sendRedirect(request, response,
+                            "/marketplace/account/subscriptionDetails.jsf");
+                } else {
+                    request.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                            SubscriptionDetailsCtrlConstants.ERROR_SUBSCRIPTION_REPEATSTEPS);
+                    sendRedirect(request, response, "/marketplace/index.jsf");
+                }
             } else {
         		throw t;
         	}

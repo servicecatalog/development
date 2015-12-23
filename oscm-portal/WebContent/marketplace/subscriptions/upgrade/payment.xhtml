@@ -16,8 +16,12 @@
                 xmlns:a4j="http://richfaces.org/a4j"
                 xmlns:t="http://myfaces.apache.org/tomahawk"
                 xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+				xmlns:c="http://java.sun.com/jsp/jstl/core"
                 xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
 	<ui:fragment rendered="true">
+		<c:set var="paymentInfoVisible" value="#{upgradeWizardConversation.paymentInfoVisible eq true}"  scope="request"  />
+		<c:set var="emptyEnabledPaymentTypes" value="#{empty upgradeWizardConversation.enabledPaymentTypes}"  scope="request" />
+		<c:set var="availableSubsAndAdmin" value="#{not empty upgradeWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}"  scope="request" />
 		<mp:subscriptionProcess active="payment" service="#{upgradeWizardConversation.model.service}">
 			<h:form id="payment">
 				<adm:keepDirty value="#{upgradeWizardConversation.model.dirty}" />
@@ -143,7 +147,7 @@
 									required="#{!empty param['payment:next']}"
 									value="#{upgradeWizardConversation.selectedPaymentInfo}"
 									disabled="false"
-									rendered="#{upgradeWizardConversation.paymentInfoVisible}"
+									rendered="#{paymentInfoVisible}"
                                     onchange="setDirtyOnManageSubscriptionModelPayment(true);"
 									converter="#{paymentTypeConverter}">
 									<adm:selectItemPleaseSelect itemValue="" />
@@ -158,19 +162,19 @@
 								<h:outputText
 										value="#{upgradeWizardConversation.paymentMissingText}"
 										id="noPaymenttypesAvailableForAdmin"
-										rendered="#{not upgradeWizardConversation.paymentInfoVisible}" />
+										rendered="#{not paymentInfoVisible}" />
 							</a4j:outputPanel>
 
 
 							<a4j:outputPanel layout="block" style="margin-bottom: 8px;"
-								rendered="#{not empty upgradeWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}">
+								rendered="#{availableSubsAndAdmin}">
 								<h:outputLink value="" id="newPaymentInfo"
 									  onclick="newPaymentItem('#{upgradeWizardConversation.model.service.key}'); return false;">
 									<h:outputText value="#{msg['payment.new.PaymentOption.title']}" />
 								</h:outputLink>
 							</a4j:outputPanel>
 							<h:panelGroup
-								rendered="#{not empty upgradeWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}"
+								rendered="#{availableSubsAndAdmin}"
 								layout="block" />
 						</t:panelGrid>
 
@@ -206,7 +210,7 @@
 					<mp:button id="next" value="#{msg['button.next']}"
 						bean="#{upgradeWizardConversation}" action="next"
 						style="float: right;"
-						disabled="#{empty upgradeWizardConversation.enabledPaymentTypes}"
+						disabled="#{emptyEnabledPaymentTypes}"
 						keepDirty="true" clearDirty="#{clearDirtyForward}" />
 				</a4j:outputPanel>
 			</h:form>

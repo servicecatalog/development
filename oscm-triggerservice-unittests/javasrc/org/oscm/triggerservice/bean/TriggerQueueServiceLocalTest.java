@@ -29,7 +29,6 @@ import javax.ejb.SessionContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Organization;
@@ -37,17 +36,17 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.TriggerProcessParameter;
+import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.triggerservice.stubs.ConnectionFactoryStub;
 import org.oscm.triggerservice.stubs.QueueStub;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.SaaSSystemException;
 
 public class TriggerQueueServiceLocalTest {
 
@@ -128,10 +127,16 @@ public class TriggerQueueServiceLocalTest {
                 .singletonList(new TriggerDefinition()));
         TriggerMessage messageData = new TriggerMessage(
                 TriggerType.ACTIVATE_SERVICE);
+        List<TriggerMessage> listOfMsgs = new ArrayList<>();
+        int msgsCount = 2543;
+        for (int i = 0; i < msgsCount; i++) {
+            listOfMsgs.add(messageData);
+        }
         List<TriggerProcessMessageData> list = tqs
-                .sendSuspendingMessages(Collections.singletonList(messageData));
+                .sendSuspendingMessages(listOfMsgs);
         Assert.assertNotNull(list.get(0).getTrigger());
         Assert.assertNull(list.get(0).getTrigger().getTriggerDefinition());
+        Assert.assertTrue(list.size() == msgsCount);
     }
 
     @Test

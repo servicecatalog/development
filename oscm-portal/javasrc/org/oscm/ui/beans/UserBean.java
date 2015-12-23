@@ -286,6 +286,10 @@ public class UserBean extends BaseBean implements Serializable {
     public boolean getIsUnitAdmin() {
         return getUserFromSession().getUserRoles().contains(UserRoleType.UNIT_ADMINISTRATOR);
     }
+
+    public boolean getIsSubscriptionManager() {
+        return getUserFromSession().getUserRoles().contains(UserRoleType.SUBSCRIPTION_MANAGER);
+    }
     /**
      * Returns the user details for the logged in user.
      * 

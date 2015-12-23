@@ -350,6 +350,11 @@ public class ServiceDetailsCtrl {
      */
     public void generateWarning() {
         logger.logDebug("generateWarning");
+
+        if (!ui.isLoggedIn()){
+            return;
+        }
+
         if (!checkIfUserCanSubscribeToService()) {
             ui.getRequest().setAttribute(Constants.REQ_ATTR_WARNING_KEY,
                     BaseBean.WARNING_SUBSCRIBE_ONLY_BY_ADMIN);

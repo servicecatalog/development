@@ -79,7 +79,9 @@ public class BPLazyDataModel extends RichLazyDataModel<POSubscriptionAndCustomer
     }
 
     @Override
-    public List<POSubscriptionAndCustomer> getDataList(int firstRow, int numRows, List<FilterField> filterFields, List<SortField> sortFields) {
+    public List<POSubscriptionAndCustomer> getDataList(int firstRow,
+            int numRows, List<FilterField> filterFields,
+            List<SortField> sortFields, Object argument) {
         Pagination pagination = new Pagination(firstRow, numRows);
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);

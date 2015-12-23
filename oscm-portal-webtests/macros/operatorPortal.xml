@@ -182,9 +182,7 @@
     <attribute name="to" default="2011-02-28" />
     <sequential>
       <clickLink href="/operator/exportBillingData.jsf" />
-      <setInputField htmlId="getBillingData:organizationIdValue" value="@{orgId}" />
-      <clickElement htmlId="getBillingData:organizationSuggestionImage" />
-      <clickElement xpath="//*[@id='getBillingData:organizationIdItems']//*[contains(.//text(), '@{orgId}')]" />
+      <setInputField htmlId="getBillingData:organizationIdInput" value="@{orgId}" />
       <setInputField htmlId="getBillingData:fromDateInputDate" value="@{from}" />
       <setInputField htmlId="getBillingData:toDateInputDate" value="@{to}" />
       <clickElement htmlId="getBillingData:hiddenBillingDataButton" />

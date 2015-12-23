@@ -18,7 +18,7 @@ import org.oscm.internal.usermanagement.POSubscription;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationSubForUser;
 import org.oscm.pagination.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.dialog.mp.createuser.Subscription;
@@ -34,13 +34,13 @@ public class UserSubscriptionsLazyDataModel
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(UserSubscriptionsLazyDataModel.class);
-    
+
     private static final String SUBSCRIPTION_ID = "id";
     private static final String ROLE_IN_SUB = "selectedRole";
 
     @EJB
     private UserService userService;
-    
+
     @ManagedProperty(value = "#{updateUserModel}")
     private UpdateUserModel model;
 
@@ -60,74 +60,114 @@ public class UserSubscriptionsLazyDataModel
 
     @Override
     public List<Subscription> getDataList(int firstRow, int numRows,
-            List<FilterField> filterFields, List<SortField> sortFields) {
+            List<FilterField> filterFields, List<SortField> sortFields,
+            Object refreshDataModel) {
 
-        Pagination pagination = new Pagination(firstRow, numRows);
+        PaginationSubForUser pagination = new PaginationSubForUser(firstRow,
+                numRows);
 
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);
+        decorateWithChangedData(pagination);
 
         List<Subscription> resultList = Collections.emptyList();
         String userId = model.getUser().getUserId();
-        
-        try {
-            List<POSubscription> userSubscriptions = userService
-                    .getUserAssignableSubscriptions(pagination, userId);
+
+        if (refreshDataModel!=null) {
+            try {
+                List<POSubscription> userSubscriptions = userService
+                        .getUserAssignableSubscriptions(pagination, userId);
+
+                resultList = toSubscriptionList(userSubscriptions);
+                
+                if(!resultList.isEmpty()){
+                    
+                    for(Subscription sub:resultList){
+                        model.getAllSubscriptions().put(sub.getId(), sub);
+                    }
+                }
+                
+            } catch (SaaSApplicationException e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR);
+            }
+            model.setSubscriptions(resultList);
             
-            resultList = toSubscriptionList(userSubscriptions);
             
-        } catch (SaaSApplicationException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR);
+            
+        } else {
+            resultList = model.getSubscriptions();
         }
-        
-        model.setSubscriptions(resultList);
+
         return resultList;
     }
 
-    private List<Subscription> toSubscriptionList(List<POSubscription> poSubs) {
-        
+    List<Subscription> toSubscriptionList(List<POSubscription> poSubs) {
+
         ArrayList<Subscription> list = new ArrayList<>();
-        
+
         for (POSubscription poSub : poSubs) {
-            
+
+            String subscriptionId = poSub.getId();
+
             Subscription sub = new Subscription();
-            sub.setId(poSub.getId());
+            sub.setId(subscriptionId);
             List<POServiceRole> roles = poSub.getRoles();
             sub.setRolesRendered(!roles.isEmpty());
             List<SelectItem> items = new ArrayList<>();
-            
+
             for (POServiceRole r : roles) {
                 SelectItem si = new SelectItem(String.format("%s:%s",
                         Long.valueOf(r.getKey()), r.getId()), r.getName());
-                if(r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
+                if (r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
                     items.add(0, si);
                 } else {
                     items.add(si);
                 }
             }
-            
+
             sub.setRoles(items);
-            sub.setSelected(poSub.isAssigned());
-            
+
+            if (model.getSelectedSubsIds().containsKey(subscriptionId)) {
+                Boolean selected = model.getSelectedSubsIds()
+                        .get(subscriptionId);
+                sub.setSelected(selected);
+            } else {
+                sub.setSelected(poSub.isAssigned());
+            }
+
             String selectedRole = null;
-            
+
             if (poSub.getUsageLicense() != null
                     && poSub.getUsageLicense().getPoServieRole() != null) {
+
                 POServiceRole poServiceRole = poSub.getUsageLicense()
                         .getPoServieRole();
-                selectedRole = String.format("%s:%s",
-                        Long.valueOf(poServiceRole.getKey()),
-                        poServiceRole.getId());
+
+                long roleKey = poServiceRole.getKey();
+                String roleId = poServiceRole.getId();
+
+                selectedRole = String.format("%s:%s", Long.valueOf(roleKey),
+                        roleId);
 
                 sub.setLicKey(poSub.getUsageLicense().getKey());
                 sub.setLicVersion(poSub.getUsageLicense().getVersion());
             }
-            
+
+            if (model.getChangedRoles().containsKey(subscriptionId)) {
+                String displayedRole = model.getChangedRoles()
+                        .get(subscriptionId);
+                for (SelectItem item : items) {
+                    if (item.getLabel().equals(displayedRole)) {
+                        selectedRole = (String) item.getValue();
+                    }
+                }
+            }
+
             sub.setSelectedRole(selectedRole);
             list.add(sub);
         }
-        
+
         return list;
     }
 
@@ -136,27 +176,38 @@ public class UserSubscriptionsLazyDataModel
 
         return t.getId();
     }
-    
+
     @Override
     public int getTotalCount() {
-        
-        String userId = model.getUser().getUserId();  
-        
+
+        String userId = model.getUser().getUserId();
+
         try {
-            Pagination pagination = new Pagination();
+            PaginationSubForUser pagination = new PaginationSubForUser();
             applyFilters(getArrangeable().getFilterFields(), pagination);
-            
+            decorateWithChangedData(pagination);
+
             Long totalCount = userService
                     .getUserAssignableSubscriptionsNumber(pagination, userId);
-            
+
             setTotalCount(totalCount.intValue());
             
+            if(totalCount.intValue()==0){
+                List<Subscription> emptyList = Collections.emptyList();
+                model.setSubscriptions(emptyList);
+            }
+
         } catch (SaaSApplicationException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
+
         return super.getTotalCount();
+    }
+
+    private void decorateWithChangedData(PaginationSubForUser pagination) {
+        pagination.setChangedRoles(model.getChangedRoles());
+        pagination.setSelectedUsersIds(model.getSelectedSubsIds());
     }
 
     public String getSUBSCRIPTION_ID() {
@@ -166,7 +217,7 @@ public class UserSubscriptionsLazyDataModel
     public String getROLE_IN_SUB() {
         return ROLE_IN_SUB;
     }
-    
+
     public UpdateUserModel getModel() {
         return model;
     }

@@ -15,6 +15,14 @@
       <service-impl-bean>
         <ejb-link>AccountServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                
+        </handler-chain>
+      </handler-chains>      
     </port-component>
 
     <port-component>
@@ -25,6 +33,14 @@
       <service-impl-bean>
         <ejb-link>AccountServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -39,6 +55,14 @@
       <service-impl-bean>
         <ejb-link>BillingServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>BillingServicePortCLIENTCERT</port-component-name>
@@ -48,6 +72,14 @@
       <service-impl-bean>
         <ejb-link>BillingServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -62,6 +94,14 @@
       <service-impl-bean>
         <ejb-link>EventServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>EventServicePortCLIENTCERT</port-component-name>
@@ -71,6 +111,14 @@
       <service-impl-bean>
         <ejb-link>EventServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -85,6 +133,14 @@
       <service-impl-bean>
         <ejb-link>IdentityServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>IdentityServicePortCLIENTCERT</port-component-name>
@@ -94,7 +150,15 @@
       <service-impl-bean>
         <ejb-link>IdentityServiceWS2</ejb-link>
       </service-impl-bean>
-    </port-component>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
+    </port-component>    
   </webservice-description>
 
   <webservice-description>
@@ -108,6 +172,14 @@
       <service-impl-bean>
         <ejb-link>SessionServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
 
     <port-component>
@@ -118,6 +190,14 @@
       <service-impl-bean>
         <ejb-link>SessionServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
 
   </webservice-description>
@@ -134,6 +214,14 @@
       <service-impl-bean>
         <ejb-link>ReportingServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>ReportingServicePortCLIENTCERT</port-component-name>
@@ -143,6 +231,14 @@
       <service-impl-bean>
         <ejb-link>ReportingServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -157,6 +253,14 @@
       <service-impl-bean>
         <ejb-link>TagServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>TagServicePortCLIENTCERT</port-component-name>
@@ -166,6 +270,14 @@
       <service-impl-bean>
         <ejb-link>TagServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -180,6 +292,14 @@
       <service-impl-bean>
         <ejb-link>ServiceProvisioningServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>ServiceProvisioningServicePortCLIENTCERT</port-component-name>
@@ -189,6 +309,14 @@
       <service-impl-bean>
         <ejb-link>ServiceProvisioningServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -203,6 +331,14 @@
       <service-impl-bean>
         <ejb-link>SearchServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>SearchServicePortCLIENTCERT</port-component-name>
@@ -212,6 +348,14 @@
       <service-impl-bean>
         <ejb-link>SearchServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -226,6 +370,14 @@
       <service-impl-bean>
         <ejb-link>SubscriptionServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>SubscriptionServicePortCLIENTCERT</port-component-name>
@@ -235,6 +387,14 @@
       <service-impl-bean>
         <ejb-link>SubscriptionServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -249,6 +409,14 @@
       <service-impl-bean>
         <ejb-link>TriggerServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
 
     <port-component>
@@ -259,6 +427,14 @@
       <service-impl-bean>
         <ejb-link>TriggerServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -273,6 +449,14 @@
       <service-impl-bean>
         <ejb-link>TriggerDefinitionServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
 
     <port-component>
@@ -283,6 +467,14 @@
       <service-impl-bean>
         <ejb-link>TriggerDefinitionServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -297,6 +489,14 @@
       <service-impl-bean>
         <ejb-link>VatServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>VatServicePortCLIENTCERT</port-component-name>
@@ -306,6 +506,14 @@
       <service-impl-bean>
         <ejb-link>VatServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -321,6 +529,14 @@
       <service-impl-bean>
         <ejb-link>MarketplaceServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
 
     <port-component>
@@ -331,6 +547,14 @@
       <service-impl-bean>
         <ejb-link>MarketplaceServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -347,6 +571,14 @@
       <service-impl-bean>
         <ejb-link>ReviewServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>ReviewServicePortCLIENTCERT</port-component-name>
@@ -356,6 +588,14 @@
       <service-impl-bean>
         <ejb-link>ReviewServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -372,6 +612,14 @@
       <service-impl-bean>
         <ejb-link>PaymentRegistrationServiceWS</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -387,6 +635,14 @@
       <service-impl-bean>
         <ejb-link>DiscountServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>      
     </port-component>
     <port-component>
       <port-component-name>DiscountServicePortCLIENTCERT</port-component-name>
@@ -396,6 +652,14 @@
       <service-impl-bean>
         <ejb-link>DiscountServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -411,6 +675,14 @@
       <service-impl-bean>
         <ejb-link>CategorizationServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>CategorizationServicePortCLIENTCERT</port-component-name>
@@ -420,6 +692,14 @@
       <service-impl-bean>
         <ejb-link>CategorizationServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -435,6 +715,14 @@
       <service-impl-bean>
         <ejb-link>SamlServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>SamlServicePortCLIENTCERT</port-component-name>
@@ -444,6 +732,14 @@
       <service-impl-bean>
         <ejb-link>SamlServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
   </webservice-description>
 
@@ -459,6 +755,14 @@
       <service-impl-bean>
         <ejb-link>OrganizationalUnitServiceWS1</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>            
     </port-component>
     <port-component>
       <port-component-name>OrganizationalUnitServicePortCLIENTCERT</port-component-name>
@@ -468,6 +772,14 @@
       <service-impl-bean>
         <ejb-link>OrganizationalUnitServiceWS2</ejb-link>
       </service-impl-bean>
+      <handler-chains xmlns="http://java.sun.com/xml/ns/javaee">
+        <handler-chain>
+          <handler>
+            <handler-name>org.oscm.webservices.handler.SupportedVersionHandler</handler-name>
+            <handler-class>org.oscm.webservices.handler.SupportedVersionHandler</handler-class>
+          </handler>                    
+        </handler-chain>
+      </handler-chains>      
     </port-component>
   </webservice-description>
 </webservices>

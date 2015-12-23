@@ -15,7 +15,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.pagination.Filter;
-import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationUsersInUnit;
 import org.oscm.pagination.TableColumns;
 
 @Stateless
@@ -25,8 +25,9 @@ public class UserGroupUsersDao {
     @EJB(beanInterface = DataService.class)
     DataService dm;
 
+    @SuppressWarnings("unchecked")
     public List<PlatformUser> executeQueryGroupUsers(
-            Pagination pagination, String userGroupKey) {
+            PaginationUsersInUnit pagination, String userGroupKey) {
         String nativeQuery = getQueryGroupUsers(pagination);
         Query query = dm.createNativeQuery(nativeQuery, PlatformUser.class);
         query.setParameter("organization_key",
@@ -39,9 +40,9 @@ public class UserGroupUsersDao {
         setPaginationParameters(pagination, query);
         return query.getResultList();
     }
-    
-    public Long executeQueryCountGroupUsers(
-            Pagination pagination, String userGroupKey) {
+
+    public Long executeQueryCountGroupUsers(PaginationUsersInUnit pagination,
+            String userGroupKey) {
         String nativeQuery = getQueryCountGroupUsers(pagination);
         Query query = dm.createNativeQuery(nativeQuery);
         query.setParameter("organization_key",
@@ -55,34 +56,38 @@ public class UserGroupUsersDao {
         BigInteger bi = (BigInteger) query.getSingleResult();
         return bi.longValue();
     }
-    
-    private void setPaginationParameters(Pagination pagination, Query query) {
+
+    private void setPaginationParameters(PaginationUsersInUnit pagination,
+            Query query) {
         setSortingParameter(query, pagination);
         setFilterParameters(query, pagination);
 
         query.setFirstResult(pagination.getOffset());
         query.setMaxResults(pagination.getLimit());
     }
-    
-    private void setSortingParameter(Query query, Pagination pagination) {
+
+    private void setSortingParameter(Query query,
+            PaginationUsersInUnit pagination) {
         if (pagination.getSorting() != null) {
-            query.setParameter("sortColumn", pagination.getSorting().getColumn().name());
+            query.setParameter("sortColumn", pagination.getSorting()
+                    .getColumn().name());
         }
     }
 
-    private void setFilterParameters(Query query, Pagination pagination) {
+    private void setFilterParameters(Query query,
+            PaginationUsersInUnit pagination) {
         if (pagination.getFilterSet() != null) {
             for (Filter filter : pagination.getFilterSet()) {
                 setFilterParameter(query, filter);
             }
         }
     }
-    
+
     private void setFilterParameter(Query query, Filter filter) {
         switch (filter.getColumn()) {
         case USER_ID:
-            query.setParameter("filterExpressionUserId",
-                    filter.getExpression() + "%");
+            query.setParameter("filterExpressionUserId", filter.getExpression()
+                    + "%");
             break;
         case FIRST_NAME:
             query.setParameter("filterExpressionFirstName",
@@ -101,63 +106,64 @@ public class UserGroupUsersDao {
         }
     }
 
-    private String getQueryGroupUsers(Pagination pagination) {
+    private String getQueryGroupUsers(PaginationUsersInUnit pagination) {
         String querySelect = " SELECT * FROM (SELECT pu.*,"
-                           + "                       uur.rolename, "
-                           + "                       1 as assigned "
-                           + "                FROM platformuser pu, "
-                           + "                     usergrouptouser ugtu, "
-                           + "                     unitroleassignment ura, "
-                           + "                     unituserrole uur "
-                           + "                WHERE NOT EXISTS (SELECT 1 "
-                           + "                                  FROM onbehalfuserreference ref "
-                           + "                                  WHERE ref.slaveUser_tkey = pu.tkey) "
-                           + "                AND ugtu.platformuser_tkey = pu.tkey "
-                           + "                AND ura.usergrouptouser_tkey = ugtu.tkey "
-                           + "                AND uur.tkey = ura.unituserrole_tkey "
-                           + "                AND ugtu.usergroup_tkey = :userGroup_key "
-                           + "                UNION "
-                           + "                SELECT pu.*, "
-                           + "                       '', "
-                           + "                       0 as assigned "
-                           + "                FROM platformuser pu "
-                           + "                WHERE NOT EXISTS (SELECT 1 "
-                           + "                                  FROM usergrouptouser ugtu1 "
-                           + "                                  WHERE ugtu1.platformuser_tkey = pu.tkey "
-                           + "                                  AND ugtu1.usergroup_tkey = :userGroup_key)) AS unituser "
-                           + " WHERE unituser.organizationkey = :organization_key ";
+                + "                       uur.rolename, "
+                + "                       1 as assigned "
+                + "                FROM platformuser pu, "
+                + "                     usergrouptouser ugtu, "
+                + "                     unitroleassignment ura, "
+                + "                     unituserrole uur "
+                + "                WHERE NOT EXISTS (SELECT 1 "
+                + "                                  FROM onbehalfuserreference ref "
+                + "                                  WHERE ref.slaveUser_tkey = pu.tkey) "
+                + "                AND ugtu.platformuser_tkey = pu.tkey "
+                + "                AND ura.usergrouptouser_tkey = ugtu.tkey "
+                + "                AND uur.tkey = ura.unituserrole_tkey "
+                + "                AND ugtu.usergroup_tkey = :userGroup_key "
+                + "                UNION "
+                + "                SELECT pu.*, "
+                + "                       '', "
+                + "                       0 as assigned "
+                + "                FROM platformuser pu "
+                + "                WHERE NOT EXISTS (SELECT 1 "
+                + "                                  FROM usergrouptouser ugtu1 "
+                + "                                  WHERE ugtu1.platformuser_tkey = pu.tkey "
+                + "                                  AND ugtu1.usergroup_tkey = :userGroup_key)) AS unituser "
+                + " WHERE unituser.organizationkey = :organization_key ";
         return paginatedQueryForUsers(querySelect, pagination);
     }
 
-    private String getQueryCountGroupUsers(Pagination pagination) {
+    private String getQueryCountGroupUsers(PaginationUsersInUnit pagination) {
         String querySelect = " SELECT count(*) FROM (SELECT pu.*,"
-                           + "                       uur.rolename, "
-                           + "                       1 as assigned "
-                           + "                FROM platformuser pu, "
-                           + "                     usergrouptouser ugtu, "
-                           + "                     unitroleassignment ura, "
-                           + "                     unituserrole uur "
-                           + "                WHERE NOT EXISTS (SELECT 1 "
-                           + "                                  FROM onbehalfuserreference ref "
-                           + "                                  WHERE ref.slaveUser_tkey = pu.tkey) "
-                           + "                AND ugtu.platformuser_tkey = pu.tkey "
-                           + "                AND ura.usergrouptouser_tkey = ugtu.tkey "
-                           + "                AND uur.tkey = ura.unituserrole_tkey "
-                           + "                AND ugtu.usergroup_tkey = :userGroup_key "
-                           + "                UNION "
-                           + "                SELECT pu.*, "
-                           + "                       '', "
-                           + "                       0 as assigned "
-                           + "                FROM platformuser pu "
-                           + "                WHERE NOT EXISTS (SELECT 1 "
-                           + "                                  FROM usergrouptouser ugtu1 "
-                           + "                                  WHERE ugtu1.platformuser_tkey = pu.tkey "
-                           + "                                  AND ugtu1.usergroup_tkey = :userGroup_key)) AS unituser "
-                           + " WHERE unituser.organizationkey = :organization_key ";
+                + "                       uur.rolename, "
+                + "                       1 as assigned "
+                + "                FROM platformuser pu, "
+                + "                     usergrouptouser ugtu, "
+                + "                     unitroleassignment ura, "
+                + "                     unituserrole uur "
+                + "                WHERE NOT EXISTS (SELECT 1 "
+                + "                                  FROM onbehalfuserreference ref "
+                + "                                  WHERE ref.slaveUser_tkey = pu.tkey) "
+                + "                AND ugtu.platformuser_tkey = pu.tkey "
+                + "                AND ura.usergrouptouser_tkey = ugtu.tkey "
+                + "                AND uur.tkey = ura.unituserrole_tkey "
+                + "                AND ugtu.usergroup_tkey = :userGroup_key "
+                + "                UNION "
+                + "                SELECT pu.*, "
+                + "                       '', "
+                + "                       0 as assigned "
+                + "                FROM platformuser pu "
+                + "                WHERE NOT EXISTS (SELECT 1 "
+                + "                                  FROM usergrouptouser ugtu1 "
+                + "                                  WHERE ugtu1.platformuser_tkey = pu.tkey "
+                + "                                  AND ugtu1.usergroup_tkey = :userGroup_key)) AS unituser "
+                + " WHERE unituser.organizationkey = :organization_key ";
         return paginatedQueryForCountUsers(querySelect, pagination);
     }
-    
-    private String paginatedQueryForUsers(String selectWhereQuery, Pagination pagination) {
+
+    private String paginatedQueryForUsers(String selectWhereQuery,
+            PaginationUsersInUnit pagination) {
         String queryOrderBy = " ORDER BY unituser.assigned DESC, unituser.userid ASC";
         if (pagination.getSorting() != null) {
             queryOrderBy = createQueryOrderBy(pagination);
@@ -169,8 +175,9 @@ public class UserGroupUsersDao {
         }
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
-    
-    private String paginatedQueryForCountUsers(String selectWhereQuery, Pagination pagination) {
+
+    private String paginatedQueryForCountUsers(String selectWhereQuery,
+            PaginationUsersInUnit pagination) {
         String queryFilter = "";
         if (pagination.getFilterSet() != null) {
             queryFilter = createQueryFilter(pagination, queryFilter);
@@ -178,7 +185,7 @@ public class UserGroupUsersDao {
         return selectWhereQuery + queryFilter;
     }
 
-    private String createQueryFilter(Pagination pagination,
+    private String createQueryFilter(PaginationUsersInUnit pagination,
             String queryFilter) {
         Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
         StringBuilder queryFilterBuilder = new StringBuilder(queryFilter);
@@ -189,8 +196,8 @@ public class UserGroupUsersDao {
         }
         return queryFilterBuilder.toString();
     }
-    
-    private void addFilterColumn(Pagination pagination,
+
+    private void addFilterColumn(PaginationUsersInUnit pagination,
             StringBuilder queryFilterBuilder, Filter filter) {
         switch (filter.getColumn()) {
         case USER_ID:
@@ -213,7 +220,7 @@ public class UserGroupUsersDao {
         }
     }
 
-    private String createQueryOrderBy(Pagination pagination) {
+    private String createQueryOrderBy(PaginationUsersInUnit pagination) {
         String queryOrderBy;
         String whenUserId = "WHEN '" + TableColumns.USER_ID.name()
                 + "' THEN unituser.userid ";
@@ -229,16 +236,47 @@ public class UserGroupUsersDao {
                 + pagination.getSorting().getOrder().name();
         return queryOrderBy;
     }
-    
-    private String createRolesAndQueryPart(Pagination pagination) {
-        Set<Map.Entry<UnitRoleType, String>> statusesEntry = pagination.getLocalizedRolesMap().entrySet();
-        String query = "case ";
-        for(Map.Entry<UnitRoleType, String> entry : statusesEntry) {
+
+    private String createRolesAndQueryPart(PaginationUsersInUnit pagination) {
+        String query = "";
+        query = createChangedRolesAndQueryPart(pagination);
+        Set<Map.Entry<UnitRoleType, String>> statusesEntry = pagination
+                .getLocalizedRolesMap().entrySet();
+        if (query.equals("")) {
+            query = "case ";
+        }
+
+        for (Map.Entry<UnitRoleType, String> entry : statusesEntry) {
             query += " when unituser.rolename='" + entry.getKey().name()
                     + "' then '" + entry.getValue() + "'";
         }
         query += " end";
         return query;
     }
-    
+
+    private String createChangedRolesAndQueryPart(PaginationUsersInUnit pagination) {
+        Map<UnitRoleType, String> statusesEntry = pagination.getLocalizedRolesMap();
+        Map<String, Boolean> selectedUsersIds = pagination.getSelectedUsersIds();
+        Map<String, String> changedRoles = pagination.getChangedRoles();
+        if (selectedUsersIds.isEmpty()) {
+            return "";
+        }
+
+        String query = "case ";
+        for (Map.Entry<String, Boolean> entry : selectedUsersIds.entrySet()) {
+            if (!selectedUsersIds.get(entry.getKey())) {
+                query += " when unituser.userId='" + entry.getKey()
+                        + "' then null";
+                continue;
+            }
+            if (changedRoles.containsKey(entry.getKey())) {
+                UnitRoleType unitRoleType = UnitRoleType.valueOf(changedRoles.get(entry.getKey()));
+                String localizedRole = statusesEntry.get(unitRoleType);
+                query += " when unituser.userId='" + entry.getKey()
+                        + "' then '" + localizedRole + "' ";
+            }
+        }
+        return query;
+    }
+
 }

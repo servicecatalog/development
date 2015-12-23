@@ -24,6 +24,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
@@ -75,21 +76,21 @@ public class UpdateUserCtrl {
     private static final String ROLE_NAME_TEMPLATE = "UserRoleType.%s.enum";
     private static final String UNIT_ROLE_NAME_TEMPLATE = "UnitRoleType.%s.enum";
     private static final Set<UserAccountStatus> LOCKED = Collections
-            .unmodifiableSet(EnumSet
-                    .of(UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS));
+            .unmodifiableSet(
+                    EnumSet.of(UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS));
 
     private UiDelegate ui;
 
     @ManagedProperty(value = "#{updateUserModel}")
     private UpdateUserModel model;
-    
+
     @ManagedProperty(value = "#{appBean}")
     private ApplicationBean appBean;
-    
+
     @ManagedProperty(value = "#{tableState}")
     private TableState ts;
 
-    @ManagedProperty(value="#{sessionBean}")
+    @ManagedProperty(value = "#{sessionBean}")
     private SessionBean sessionBean;
 
     /**
@@ -102,18 +103,22 @@ public class UpdateUserCtrl {
     transient Boolean rolesColumnVisible;
 
     @ManagedProperty(value = "#{userSubscriptionsLazyDataModel}")
-    private UserSubscriptionsLazyDataModel userSubscriptionsLazyDataModel;  
-    
+    private UserSubscriptionsLazyDataModel userSubscriptionsLazyDataModel;
+
     @PostConstruct
     public void postConstruct() {
         ts.resetActiveUserGroupsAndSubscriptionsPage();
         ui = new UiDelegate();
         String userId = getSelectedUserId();
-        
+
         try {
-            POUserAndSubscriptions user = getUserService()
-                    .getUserAndSubscriptionDetails(userId);
-            
+            Long subscriptionsNumber = getUserService()
+                    .getUserAssignableSubscriptionsNumber(new Pagination(),
+                            userId);
+            model.setAssignableSubscriptionsNumber(subscriptionsNumber);
+
+            POUserDetails user = getUserService().getUserDetails(userId);
+
             model.setUser(new User(new VOUserDetails()));
             model.getUser().setUserId(userId);
             init(user);
@@ -134,17 +139,21 @@ public class UpdateUserCtrl {
     }
 
     /**
-     * TODO: think about different value passing between views. NOT through the session bean.
+     * TODO: think about different value passing between views. NOT through the
+     * session bean.
+     * 
      * @return
      */
     public String getSelectedUserId() {
-        
-        HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();      
+
+        HttpServletRequest request = (HttpServletRequest) FacesContext
+                .getCurrentInstance().getExternalContext().getRequest();
         String userId = request.getParameter("userId");
-        
+
         // directly after creating new user
         if (userId == null) {
-            userId = (String) request.getAttribute(CreateUserModel.ATTRIBUTE_USER_ID);
+            userId = (String) request
+                    .getAttribute(CreateUserModel.ATTRIBUTE_USER_ID);
         }
         if (userId == null || userId.equals("")) {
             userId = getSessionBean().getSelectedUserIdToEdit();
@@ -158,7 +167,8 @@ public class UpdateUserCtrl {
         List<POUserGroup> orgUserGroups = getUserGroupService()
                 .getGroupListForOrganizationWithoutDefault();
         List<POUserGroup> userGroups = getUserGroupService()
-                .getUserGroupListForUserWithRolesWithoutDefault(model.getUser().getUserId());
+                .getUserGroupListForUserWithRolesWithoutDefault(
+                        model.getUser().getUserId());
         Map<Long, POUserGroup> userGroupMap = new HashMap<>();
         for (POUserGroup g : userGroups) {
             userGroupMap.put(Long.valueOf(g.getKey()), g);
@@ -184,9 +194,11 @@ public class UpdateUserCtrl {
             }
             userGroup.setRoles(roles);
             if (userGroupMap.containsKey(Long.valueOf(poUserGroup.getKey()))) {
-                userGroup.setSelectedRole(userGroupMap.get(Long.valueOf(poUserGroup.getKey())).getSelectedRole());
+                userGroup.setSelectedRole(
+                        userGroupMap.get(Long.valueOf(poUserGroup.getKey()))
+                                .getSelectedRole());
             } else {
-               userGroup.setSelectedRole(UnitRoleType.USER.name());
+                userGroup.setSelectedRole(UnitRoleType.USER.name());
             }
             groups.add(userGroup);
         }
@@ -197,7 +209,7 @@ public class UpdateUserCtrl {
     private String formatRoleName(String template, String roleName) {
         return ui.getText(String.format(template, roleName));
     }
-    
+
     public String save() throws SaaSApplicationException {
 
         if (!model.isTokenValid()) {
@@ -210,7 +222,7 @@ public class UpdateUserCtrl {
             response = getUserService().saveUserAndSubscriptionAssignment(user,
                     getAllUserGroups(model.getUserGroups()));
         } catch (ObjectNotFoundException ex) {
-            model.setSubscriptions(Collections.<Subscription>emptyList());
+            model.setSubscriptions(Collections.<Subscription> emptyList());
             model.resetToken();
             throw ex;
         } catch (SaaSApplicationException ex) {
@@ -220,7 +232,8 @@ public class UpdateUserCtrl {
         if (response.getReturnCodes().size() > 0) {
             outcome = BaseBean.OUTCOME_PENDING;
         }
-        if (Strings.areStringsEqual(ui.getMyUserId(), model.getUser().getUserId())) {
+        if (Strings.areStringsEqual(ui.getMyUserId(),
+                model.getUser().getUserId())) {
             ui.handle(response, BaseBean.INFO_USER_SAVED_ITSELF,
                     user.getUserId());
             refreshUser();
@@ -237,7 +250,8 @@ public class UpdateUserCtrl {
     public String resetPwd() throws SaaSApplicationException {
 
         if (!model.isTokenValid()) {
-            return BaseBean.OUTCOME_RESET_PWD + "?userId=" + model.getUser().getUserId();
+            return BaseBean.OUTCOME_RESET_PWD + "?userId="
+                    + model.getUser().getUserId();
         }
         POUser user = toPOUser();
         Response r = getUserService().resetUserPassword(user,
@@ -245,7 +259,7 @@ public class UpdateUserCtrl {
         ui.handle(r, BaseBean.INFO_USER_PWD_RESET);
         model.resetToken();
 
-        return BaseBean.OUTCOME_RESET_PWD + "?userId=" +  model.getUser().getUserId();
+        return BaseBean.OUTCOME_SUCCESS;
     }
 
     public String delete() throws SaaSApplicationException {
@@ -260,7 +274,8 @@ public class UpdateUserCtrl {
             ui.handle(r, BaseBean.INFO_USER_DELETED, user.getUserId());
         } catch (TechnicalServiceNotAliveException
                 | TechnicalServiceOperationException e) {
-            addMessage(FacesMessage.SEVERITY_ERROR, BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION);
+            addMessage(FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_DELETE_USER_FROM_EXPIRED_SUBSCRIPTION);
             return "";
         }
         // reset user table paging if user was deleted
@@ -270,41 +285,37 @@ public class UpdateUserCtrl {
         return BaseBean.OUTCOME_SUCCESS;
     }
 
-    void init(POUserAndSubscriptions u) {
+    void init(POUserDetails u) {
         boolean isLocked = LOCKED.contains(u.getStatus());
         Set<SettingType> set = u.getMappedAttributes();
-        model.setEmail(new FieldData<>(u.getEmail(), set
-                .contains(SettingType.LDAP_ATTR_EMAIL) || isLocked, true));
-        model.setFirstName(new FieldData<>(u.getFirstName(), set
-                .contains(SettingType.LDAP_ATTR_FIRST_NAME) || isLocked));
-        model.setLastName(new FieldData<>(u.getLastName(), set
-                .contains(SettingType.LDAP_ATTR_LAST_NAME) || isLocked));
+        model.setEmail(new FieldData<>(u.getEmail(),
+                set.contains(SettingType.LDAP_ATTR_EMAIL) || isLocked, true));
+        model.setFirstName(new FieldData<>(u.getFirstName(),
+                set.contains(SettingType.LDAP_ATTR_FIRST_NAME) || isLocked));
+        model.setLastName(new FieldData<>(u.getLastName(),
+                set.contains(SettingType.LDAP_ATTR_LAST_NAME) || isLocked));
         model.setLocale(new FieldData<>(u.getLocale(), isLocked, true));
         model.setUserId(new FieldData<>(u.getUserId(),
-                set.contains(SettingType.LDAP_ATTR_UID)
-                        || isLocked
+                set.contains(SettingType.LDAP_ATTR_UID) || isLocked
                         || (Strings.areStringsEqual(ui.getMyUserId(),
-                                u.getUserId()) && !appBean
-                                .isInternalAuthMode()), true));
+                                u.getUserId())
+                        && !appBean.isInternalAuthMode()),
+                true));
         String sal = null;
         if (u.getSalutation() != null) {
             sal = u.getSalutation().name();
         }
-        
-        
+
         model.setSalutation(new FieldData<>(sal, isLocked));
         model.setKey(u.getKey());
         model.setVersion(u.getVersion());
         model.setRoles(initUserRoles(u));
         model.setLocked(isLocked);
-        //List<Subscription> subs = initSubscription(u);
-        //model.setSubscriptions(subs);
         model.setUserName(createUserName(u));
         model.setLdapManaged(!set.isEmpty());
         model.setUserGroups(initUserGroups());
 
-       appBean.checkLocaleValidation(u.getLocale());
-
+        appBean.checkLocaleValidation(u.getLocale());
     }
 
     List<UserRole> initUserRoles(POUserDetails u) {
@@ -314,58 +325,11 @@ public class UpdateUserCtrl {
         for (UserRoleType r : roles) {
             String name = ui
                     .getText(String.format(ROLE_NAME_TEMPLATE, r.name()));
-            UserRole role = new UserRole(r, name, u.getAssignedRoles()
-                    .contains(r));
+            UserRole role = new UserRole(r, name,
+                    u.getAssignedRoles().contains(r));
             result.add(role);
         }
 
-        return result;
-    }
-    
-    List<Subscription> initSubscriptions(List<POSubscription> subs) {
-
-        List<Subscription> result = new ArrayList<>();
-
-        for (POSubscription poSub : subs) {
-            
-            Subscription sub = new Subscription();
-            sub.setId(poSub.getId());
-            List<POServiceRole> roles = poSub.getRoles();
-            sub.setRolesRendered(!roles.isEmpty());
-            List<SelectItem> items = new ArrayList<>();
-            
-            for (POServiceRole r : roles) {
-                SelectItem si = new SelectItem(String.format("%s:%s",
-                        Long.valueOf(r.getKey()), r.getId()), r.getName());
-                if(r.getName().equalsIgnoreCase(UnitRoleType.USER.name())) {
-                    items.add(0, si);
-                } else {
-                    items.add(si);
-                }
-            }
-            
-            sub.setRoles(items);
-            sub.setSelected(poSub.isAssigned());
-            
-            String selectedRole = null;
-            
-            if (poSub.getUsageLicense() != null
-                    && poSub.getUsageLicense().getPoServieRole() != null) {
-                POServiceRole poServiceRole = poSub.getUsageLicense()
-                        .getPoServieRole();
-                selectedRole = String.format("%s:%s",
-                        Long.valueOf(poServiceRole.getKey()),
-                        poServiceRole.getId());
-
-                sub.setLicKey(poSub.getUsageLicense().getKey());
-                sub.setLicVersion(poSub.getUsageLicense().getVersion());
-            }
-            
-            sub.setSelectedRole(selectedRole);
-            result.add(sub);
-        }
-        
-        model.setSubscriptions(result);
         return result;
     }
 
@@ -384,7 +348,11 @@ public class UpdateUserCtrl {
         uas.setUserId(model.getUserId().getValue());
         uas.setKey(model.getKey());
         uas.setVersion(model.getVersion());
-        uas.setSubscriptions(getAllSubscriptions(model.getSubscriptions()));
+
+        List<Subscription> allSubs = new ArrayList<>();
+        allSubs.addAll(model.getAllSubscriptions().values());
+
+        uas.setSubscriptions(getAllSubscriptions(allSubs));
         uas.setGroupsToBeAssigned(getSelectedUserGroups(model.getUserGroups()));
         return uas;
     }
@@ -433,7 +401,7 @@ public class UpdateUserCtrl {
 
         return result;
     }
-    
+
     List<POSubscription> getAllSubscriptions(List<Subscription> subs) {
 
         List<POSubscription> result = new ArrayList<>();
@@ -481,16 +449,14 @@ public class UpdateUserCtrl {
 
     public boolean isResetPwdDisabled() {
         return Strings.areStringsEqual(ui.getMyUserId(),
-                model.getUser().getUserId())
-                || model.isErrorOnRead();
+                model.getUser().getUserId()) || model.isErrorOnRead();
     }
 
     public boolean isDeleteDisabled() {
         return Strings.areStringsEqual(ui.getMyUserId(),
-                model.getUser().getUserId())
-                || model.isErrorOnRead();
+                model.getUser().getUserId()) || model.isErrorOnRead();
     }
-    
+
     public boolean isRoleColumnRendered() {
 
         if (rolesColumnVisible == null) {
@@ -509,35 +475,25 @@ public class UpdateUserCtrl {
     public boolean isResetPwdRendered() {
 
         boolean isLdapNotManaged = !model.isLdapManaged();
-        boolean isInternalMode =appBean.isInternalAuthMode();
+        boolean isInternalMode = appBean.isInternalAuthMode();
         return isLdapNotManaged && isInternalMode;
     }
 
     public boolean isSubTableRendered() {
-        String userId = model.getUser().getUserId();
-        
-        Long number = 0L;
-        
-        try {
-            number = getUserService().getUserAssignableSubscriptionsNumber(new Pagination(), userId);   
-        } catch (SaaSApplicationException e) {
-            e.printStackTrace();
-        }
-        
-        return (number.intValue()>0)
+        Long number = model.getAssignableSubscriptionsNumber();
+
+        return (number.intValue() > 0)
                 && (!appBean.isUIElementHidden(
-                HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))
+                        HiddenUIConstants.PANEL_USER_LIST_SUBSCRIPTIONS))
                 && !model.isErrorOnRead();
-      
     }
 
     public String getDeleteMsgForUser() {
 
-        return ui.getText("marketplace.account.deleteMsg",
-                model.getUserName());
+        return ui.getText("marketplace.account.deleteMsg", model.getUserName());
     }
 
-    String createUserName(POUserAndSubscriptions u) {
+    String createUserName(POUserDetails u) {
         String userName = "";
         if (!Strings.isEmpty(u.getFirstName())) {
             userName = u.getFirstName().trim();
@@ -567,18 +523,65 @@ public class UpdateUserCtrl {
     }
 
     public boolean isCurrentUserRolesChanged() {
-        return new BaseBean(){}.isCurrentUserRolesChanged();
+        return new BaseBean() {
+        }.isCurrentUserRolesChanged();
     }
 
     private void refreshUser() {
-        VOUserDetails u = getIdentityService()
-                .getCurrentUserDetails();
+        VOUserDetails u = getIdentityService().getCurrentUserDetails();
         ui.getSession(true).setAttribute(Constants.SESS_ATTR_USER, u);
     }
 
+    public void selectSubscription(AjaxBehaviorEvent event) {
+
+        String subscriptionId = (String) event.getComponent().getAttributes()
+                .get("subscriptionId");
+        boolean selected = (boolean) event.getComponent().getAttributes()
+                .get("selected");
+        List<SelectItem> items = (List<SelectItem>) event.getComponent()
+                .getAttributes().get("items");
+
+        boolean existsInChangedSelectedSubs = model.getSelectedSubsIds()
+                .containsKey(subscriptionId);
+        boolean existsInChangedRoles = model.getChangedRoles()
+                .containsKey(subscriptionId);
+
+        if (existsInChangedSelectedSubs) {
+            model.getSelectedSubsIds().remove(subscriptionId);
+        } else {
+            model.getSelectedSubsIds().put(subscriptionId, selected);
+        }
+
+        if (!items.isEmpty() && Boolean.TRUE.equals(selected)) {
+            model.getChangedRoles().put(subscriptionId,
+                    items.get(0).getLabel());
+        } else if (existsInChangedRoles && Boolean.FALSE.equals(selected)) {
+            model.getChangedRoles().remove(subscriptionId);
+        }
+
+        System.out.println(event);
+    }
+
+    public void selectSubscriptionRole(AjaxBehaviorEvent event) {
+
+        String roleWithId = (String) ((javax.faces.component.html.HtmlSelectOneMenu) event
+                .getSource()).getValue();
+        String subscriptionId = (String) event.getComponent().getAttributes()
+                .get("subscriptionId");
+        List<SelectItem> items = (List<SelectItem>) event.getComponent()
+                .getAttributes().get("items");
+
+        for (SelectItem item : items) {
+            if (item.getValue().equals(roleWithId)) {
+                model.getChangedRoles().put(subscriptionId, item.getLabel());
+            }
+        }
+
+        System.out.println(event);
+    }
+
     protected void addMessage(FacesMessage.Severity severity, String key) {
-        JSFUtils.addMessage(null, severity,
-                key, null);
+        JSFUtils.addMessage(null, severity, key, null);
     }
 
     public UiDelegate getUi() {

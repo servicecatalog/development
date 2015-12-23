@@ -1,0 +1,47 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_accessInfoAcceptForm" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+
+  <target name="testMPL_accessInfoAcceptForm">
+    <!-- Create supplier account -->
+    <webtest name="setup">
+      <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />
+      <storeProperty name="subscriptionNewName" value="SubscriptionNewName1" propertyType="dynamic" />
+
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="supplierUrl" value="#{orgUrl}" />
+      <storeProperty name="supplierId" value="#{orgId}" />
+      <storeProperty name="supplierUserId" value="#{userId}" />
+      <property name="supplierUserKey" value="#{userKey}" />
+      <operator.addAvailablePaymentTypes orgId="#{supplierId}" />
+      <operator.createMarketplace mIdProperty="mId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" />
+
+      <!-- Platform login (admin) -->
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <landingpage.setSortOrderForLandingpage mId="${mId}" />
+
+      <!-- define and activate service -->
+      <techservice.import file="data/TechnicalServices-AccessInfo.xml" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.define marketplaceId="${mId}" techServiceId="ExampleDirect 1.00" serviceId="ExampleDirect 1.00" svcKeyProperty="svcKey1"/>
+      <setup:pricemodel.define serviceId="ExampleDirect 1.00" isFree="true" />
+      <setup:service.activate serviceIds="ExampleDirect 1.00" />
+
+      <login.logout />
+
+      <!-- Platform login (admin) -->
+      <mpl_login.user mid="${mId}" userId="#{userId}" />
+      <setup:subscription.create subId="#{subscriptionName}" marketplaceId="${mId}" serviceKey="${svcKey1}" userIds="#{userId}" />
+      <!--<setup:subscription.addRevokeUser subscriptionId="#{subscriptionName}" usersToAdd="#{userId}" runAs="#{userId}" />-->
+
+      <mpl_goto.page relpath="/subscriptions/index.jsf" mid="${mId}" />
+      <clickElement htmlId="subListForm:subscriptionsList:0" />
+      <verifyXPath xpath="//*[@id='1441015496534']" />
+    </webtest>
+  </target>
+
+</project>

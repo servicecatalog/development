@@ -185,7 +185,7 @@
 
       <!-- Check if unit is selected -->
       <verifyXPath xpath="//*[@id='configurationForm:selectedUnitName']/span[text()]" />
-      <clickElement xpath="//*[@id='editUnitImage']/.."/>
+      <clickElement xpath="//*[contains(@id, 'editUnit')]"/>
 
       <!-- Check if unit administrator is not able to leave user group empty -->
       <verifyXPath xpath="//*[@id='organizationUnitPanelForm:selectOneRadio:0' and @disabled='disabled']" />
@@ -271,7 +271,7 @@
       <!-- Check if admin is still owner -->
       <mpl_goto.account.subscriptions/>
 
-      <clickElement xpath="//a[contains(@id, 'ServiceX3')]"/>
+      <clickElement xpath="//img[contains(@id, 'ServiceX3')]"/>
 
       <clickElement htmlId="tabConfiguration:header" />
 
@@ -317,7 +317,7 @@
       <!-- Login as unit administrator and subscribe to service -->
       <mpl_login.user userId="${unitAdminName3}" mid="${mId}" />
       <mpl_goto.account.subscriptions/>
-      <clickElement xpath="//a[contains(@id, 'ServiceX4')]"/>
+      <clickElement xpath="//img[contains(@id, 'ServiceX4')]"/>
       <clickElement htmlId="tabConfiguration:header" />
 
       <!-- Check if unit administrator is set as subscription owner -->

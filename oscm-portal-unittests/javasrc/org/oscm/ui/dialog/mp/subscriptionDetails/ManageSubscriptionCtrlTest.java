@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,11 +43,13 @@ import javax.faces.component.html.HtmlSelectOneRadio;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpServletRequest;
 
+import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import org.oscm.internal.vo.VOUser;
 import org.oscm.json.JsonConverter;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.BillingContactBean;
@@ -1738,6 +1741,69 @@ public class ManageSubscriptionCtrlTest {
         verify(ctrl).setOwnerWarningMessage(
                 BaseBean.WARNING_OWNER_NOT_A_UNIT_ADMIN,
                 new Object[] { "unit2", "owner" });
+    }
+
+    @Test
+    public void testInitializeSubscriptionOwners() {
+        //given
+        UserBean userBean = new UserBean();
+        userBean = spy(userBean);
+        ctrl.setUserBean(userBean);
+
+        OrganizationBean organizationBean = mock(OrganizationBean.class);
+        VOOrganization org = new VOOrganization();
+        org.setKey(1L);
+        when(organizationBean.getOrganization()).thenReturn(org);
+        userBean.setOrganizationBean(organizationBean);
+
+        operatorService = mock(OperatorService.class);
+        ctrl.setOperatorService(operatorService);
+
+        List<User> users = new ArrayList<>();
+        List<VOUserDetails> voUsers = new ArrayList<>();
+        VOUserDetails voUserDetails = new VOUserDetails();
+        voUserDetails.setUserRoles(Sets.newHashSet(UserRoleType.SUBSCRIPTION_MANAGER));
+        voUsers.add(voUserDetails);
+        User user = new User(voUserDetails);
+
+        users.add(user);
+        model = spy(model);
+        ctrl.setModel(model);
+        model.setSubscriptionOwners(new ArrayList<User>());
+        when(ctrl.getOperatorService()
+                .getSubscriptionOwnersForAssignment(anyLong())).thenReturn(voUsers);
+        //when
+        String result = ctrl.initializeSubscriptionOwners();
+        //then
+        assertTrue(users.contains(user));
+        assertEquals(null, result);
+    }
+
+    @Test
+    public void testInitializeSubscriptionOwnersNotAllowed() {
+        //given
+        UserBean userBean = new UserBean();
+        userBean = spy(userBean);
+        ctrl.setUserBean(userBean);
+
+        OrganizationBean organizationBean = mock(OrganizationBean.class);
+        VOOrganization org = new VOOrganization();
+        org.setKey(1L);
+        when(organizationBean.getOrganization()).thenReturn(org);
+        userBean.setOrganizationBean(organizationBean);
+
+        operatorService = mock(OperatorService.class);
+        ctrl.setOperatorService(operatorService);
+
+        List<User> users = new ArrayList<>();
+        User user = mock(User.class);
+
+        users.add(user);
+        model.setSubscriptionOwners(users);
+        //when
+        String result = ctrl.initializeSubscriptionOwners();
+        //then
+        assertEquals("dontOpenModalDialog", result);
     }
 
     private User prepareSubOwnerWithRole(String userId, boolean isSelected,

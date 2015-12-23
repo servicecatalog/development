@@ -19,13 +19,12 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.ui.stubs.ExternalContextStub;
 import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.HttpServletRequestStub;
 import org.oscm.ui.stubs.HttpSessionStub;
 import org.oscm.ui.stubs.UIViewRootStub;
-import org.oscm.internal.vo.VOUserDetails;
 
 public class UiDelegateTest {
 

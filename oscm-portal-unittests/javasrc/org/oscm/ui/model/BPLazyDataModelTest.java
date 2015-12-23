@@ -76,7 +76,7 @@ public class BPLazyDataModelTest {
 
         //when
         List<POSubscriptionAndCustomer> result = beanUnderTheTest.getDataList(firstRow, numRows,
-                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList());
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), new Object());
         //then
         assertArrayEquals(expectedList.toArray(), result.toArray());
         assertEquals(beanUnderTheTest.getTotalCount(), totalCount);

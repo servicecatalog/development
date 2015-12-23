@@ -9,22 +9,25 @@
 package org.oscm.ui.dialog.mp.subscriptions;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.SessionBean;
 import org.oscm.internal.subscriptiondetails.POSubscriptionDetails;
 import org.oscm.internal.subscriptions.POSubscriptionForList;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
 
 @SuppressWarnings("boxing")
 public class SubscriptionsCtrlTest {
 
 
-    public static final String SUBSCRIPTION_ID = "id";
+    public static final String SUBSCRIPTION_ID = "234";
     private SubscriptionsCtrl ctrl;
 
     private SubscriptionListsLazyDataModel model;
@@ -42,16 +45,17 @@ public class SubscriptionsCtrlTest {
         ctrl.setModel(model);
         ctrl.setSessionBean(session);
         ctrl.setPOSubscriptionDetails(subscriptionDetails);
+        ctrl = spy(ctrl);
+        doReturn(Boolean.TRUE).when(ctrl).validateSubscriptionStatus(anyString());
     }
 
     @Test
-    @Ignore
     public void showSubscriptionDetails_succeed() throws Exception {
         // given
         mockModel();
 
         // when
-        String result = ctrl.showSubscriptionDetails();
+        String result = ctrl.showSubscriptionDetails(SUBSCRIPTION_ID, SUBSCRIPTION_ID);
 
         // then
         assertEquals(BaseBean.OUTCOME_SHOW_DETAILS, result);
@@ -59,13 +63,12 @@ public class SubscriptionsCtrlTest {
 
 
     @Test
-    @Ignore
     public void showSubscriptionDetails_selectedSubscription() throws Exception {
         // given
         mockModel();
 
         // when
-        String result = ctrl.showSubscriptionDetails();
+        String result = ctrl.showSubscriptionDetails(SUBSCRIPTION_ID, SUBSCRIPTION_ID);
 
         // then
         verify(session).setSelectedSubscriptionId(SUBSCRIPTION_ID);

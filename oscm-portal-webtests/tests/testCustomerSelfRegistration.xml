@@ -85,6 +85,30 @@
       <!-- 4. U registers as new customer. -->
       <this.registration />
     </webtest>
+
+    <webtest name="bug12434: salutation check">
+      <!-- 1. U accesses a marketplace. -->
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- logout if already logged in -->
+      <ifStep description="Logout if logged in">
+        <condition>
+          <verifyXPath xpath="//a[.='${login}']" />
+        </condition>
+        <else>
+          <login.logout />
+        </else>
+      </ifStep>
+      <!-- 2. U clicks on "Login". -->
+      <clickLink label="${login}" />
+      <!-- 3. The system does allow the user to register as new customer. -->
+      <verifyXPath xpath="//*[@id='register']" />
+      <clickLink htmlId="register" />
+      <!-- 4. User clicks on the salutation label, verify that the additional unnecessary label is not rendered -->
+      <setSelectField htmlId="registrationForm:salutation" optionIndex="1" />
+      <not description="salutationSelected should not exists">
+        <verifyXPath xpath="//*[@id='registrationForm:salutationSelected']" />
+      </not>
+    </webtest>
   </target>
 
   <macrodef name="this.registration">

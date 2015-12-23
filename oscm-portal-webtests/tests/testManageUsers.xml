@@ -1,6 +1,6 @@
 <!-- Copyright FUJITSU LIMITED 2015-->
 <!DOCTYPE project SYSTEM "../dtd/Project.dtd">
-<project default="testManageUsers" xmlns:setup="antlib:org.oscm.webtest.setup">
+<project default="testManageUsers">
   <import file="../macros/all.xml" />
   
   <target name="testManageUsers" depends="testManageUsersOper,testManageUsersNumbers" />
@@ -22,12 +22,12 @@
       <selectWebClient name="A">
         <login.login url="${supplierUrl}" userId="${supplierUserId}" />
         <!-- Switch to account / users page -->
-        <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+        <clickLink href="/user/list.jsf" />
         <verifyElementText htmlId="userListForm:userListTable:1:userId" text="z${supplierId}" />
       </selectWebClient>
       <selectWebClient name="B">
         <login.login url="${supplierUrl}" userId="${supplierUserId}" />
-        <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+        <clickLink href="/user/list.jsf" />
         <verifyElementText htmlId="userListForm:userListTable:1:userId" text="z${supplierId}" />
       </selectWebClient>
       <selectWebClient name="A">
@@ -113,7 +113,7 @@
     
     <webtest name="bug11591">
       <login.login url="${supplierUrl}" userId="${supplierUserId}" />
-      <invoke url="${bes.http.url}/oscm-portal/user/list.jsf" />
+      <clickLink href="/user/list.jsf" />
       <clickElement htmlId="userListForm:userListTable:0" />
       <setCheckbox htmlId="editForm:userRolesTable:0:rolesCheckbox" checked="false" />
       <setCheckbox htmlId="editForm:userRolesTable:1:rolesCheckbox" checked="false" />

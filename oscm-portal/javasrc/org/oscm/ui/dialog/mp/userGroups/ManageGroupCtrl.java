@@ -9,9 +9,8 @@
 package org.oscm.ui.dialog.mp.userGroups;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -33,6 +32,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
+import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.POUserInUnit;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
@@ -61,11 +61,11 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
 
     @ManagedProperty(value = "#{manageGroupModel}")
     private ManageGroupModel manageGroupModel;
-    
+
     @ManagedProperty(value = "#{usersLazyDataModel}")
     private UsersLazyDataModel usersLazyDataModel;
 
-    @ManagedProperty(value="#{sessionBean}")
+    @ManagedProperty(value = "#{sessionBean}")
     private SessionBean sessionBean;
 
     UiDelegate ui = new UiDelegate();
@@ -87,13 +87,37 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             redirectToGroupListPage();
         }
         for (UnitRoleType unitRoleType : UnitRoleType.values()) {
-            SelectItem unitRole = new SelectItem(unitRoleType.name(),
-                    formatRoleName(UNIT_ROLE_NAME_TEMPLATE,
-                            unitRoleType.name()));
+            SelectItem unitRole = new SelectItem(
+                    unitRoleType.name(),
+                    formatRoleName(UNIT_ROLE_NAME_TEMPLATE, unitRoleType.name()));
             manageGroupModel.getRoles().add(unitRole);
         }
+        try {
+            initUsersAssignedToUnitList();
+        } catch (SaaSApplicationException e) {
+            e.printStackTrace();
+            getUi().handleException(e);
+        }
     }
-    
+
+    public String confirmIfUnitExists() {
+        manageGroupModel.setSelectedGroupId(getSelectedGroupId());
+        if (!Strings.isEmpty(manageGroupModel.getSelectedGroupId())) {
+            try {
+                getUserGroupService().getUserGroupDetailsForList(
+                        Long.valueOf(manageGroupModel.getSelectedGroupId())
+                                .longValue());
+                return BaseBean.OUTCOME_EDIT_GROUP;
+            } catch (ObjectNotFoundException e) {
+                manageGroupModel.setSelectedGroupId(null);
+                return BaseBean.OUTCOME_REFRESH;
+            }
+        } else {
+            manageGroupModel.setSelectedGroupId(null);
+            return BaseBean.OUTCOME_REFRESH;
+        }
+    }
+
     private String formatRoleName(String template, String roleName) {
         return ui.getText(String.format(template, roleName));
     }
@@ -104,30 +128,66 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         }
         return BaseBean.OUTCOME_SUCCESS;
     }
-    
-    private void determineAssignmentsToUpdate() throws SaaSApplicationException {
+
+    private void initUsersAssignedToUnitList() throws SaaSApplicationException {
         POUserGroup poUserGroup = userGroupService.getUserGroupDetailsWithUsers(manageGroupModel.getSelectedGroup().getKey());
-        Map<String, String> userAndRole = new HashMap<String, String>();
-        
         for (POUserInUnit poUserInUnit : poUserGroup.getUsersAssignedToUnit()) {
-            userAndRole.put(poUserInUnit.getUserId(), poUserInUnit.getRoleInUnit());
+            manageGroupModel.getUsersAssignedToUnit().put(poUserInUnit.getUserId(), poUserInUnit);
         }
-        
-        for (POUserInUnit poUserInUnit : manageGroupModel.getCurrentResultUsers()) {
-            if (poUserInUnit.isSelected() && !userAndRole.containsKey(poUserInUnit.getUserId())) {
-                manageGroupModel.getUsersToAssign().add(poUserInUnit);
-                continue;
-            }
-            if (poUserInUnit.isSelected() && userAndRole.containsKey(poUserInUnit.getUserId())) {
-                if (!poUserInUnit.getRoleInUnit().equals(userAndRole.get(poUserInUnit.getUserId()))) {
-                    manageGroupModel.getUsersToUpdate().add(poUserInUnit);
+    }
+
+    private void fillChangedUsersLists() {
+        List<VOUserDetails> users = getIdService().getUsersForOrganization();
+        for (Entry<String, Boolean> usersAssignment : manageGroupModel.getSelectedUsersIds().entrySet()) {
+            boolean isUserAlreadyAssigned = manageGroupModel.getUsersAssignedToUnit().containsKey(usersAssignment.getKey());
+            if (usersAssignment.getValue().booleanValue() && !isUserAlreadyAssigned) {
+                String roleInUnit = null;
+                if (manageGroupModel.getUserAndRole().containsKey(usersAssignment.getKey())) {
+                    roleInUnit = manageGroupModel.getUserAndRole().get(usersAssignment.getKey());
+                } else {
+                    roleInUnit = UnitRoleType.USER.name();
                 }
-                continue;
-            }
-            if (!poUserInUnit.isSelected() && userAndRole.containsKey(poUserInUnit.getUserId())) {
-                manageGroupModel.getUsersToUnassign().add(poUserInUnit);
+                POUserInUnit newUser = createPoUserInUnit(users, usersAssignment.getKey(), roleInUnit);
+                manageGroupModel.getUsersToAssign().add(newUser);
+            } else if (!usersAssignment.getValue().booleanValue() && isUserAlreadyAssigned) {
+                POUserInUnit newUser = manageGroupModel.getUsersAssignedToUnit().get(usersAssignment.getKey());
+                manageGroupModel.getUsersToUnassign().add(newUser);
+            } else if (usersAssignment.getValue().booleanValue() && isUserAlreadyAssigned) {
+                POUserInUnit newUser = manageGroupModel.getUsersAssignedToUnit().get(usersAssignment.getKey());
+                
+                if (!manageGroupModel.getUserAndRole().containsKey(usersAssignment.getKey())) {
+                    continue;
+                }
+                String changedRoleInUnit = manageGroupModel.getUserAndRole().get(usersAssignment.getKey());
+                if (!newUser.getRoleInUnit().equals(changedRoleInUnit)) {
+                    newUser.setRoleInUnit(changedRoleInUnit);
+                    manageGroupModel.getUsersToUpdate().add(newUser);
+                }
             }
         }
+    }
+    
+    private POUserInUnit createPoUserInUnit(List<VOUserDetails> users, String userId, String roleInUnit) {
+        for (VOUserDetails voUserDetails : users) {
+            if (voUserDetails.getUserId().equals(userId)) {
+                POUserInUnit poUserInUnit = new POUserInUnit();
+                poUserInUnit.setLocale(voUserDetails.getLocale());
+                if (roleInUnit != null) {
+                    poUserInUnit.setRoleInUnit(roleInUnit);
+                }
+                poUserInUnit.setSalutation(voUserDetails.getSalutation());
+                poUserInUnit.setSelected(true);
+                POUser poUser = new POUser();
+                poUser.setEmail(voUserDetails.getEMail());
+                poUser.setFirstName(voUserDetails.getFirstName());
+                poUser.setLastName(voUserDetails.getLastName());
+                poUser.setKey(voUserDetails.getKey());
+                poUser.setUserId(userId);
+                poUserInUnit.setPoUser(poUser);
+                return poUserInUnit;
+            }
+        }
+        return null;
     }
 
     public String save() {
@@ -135,7 +195,7 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             return BaseBean.OUTCOME_ERROR;
         }
         try {
-            determineAssignmentsToUpdate();
+            fillChangedUsersLists();
             setSelectedServices();
             POUserGroup group = getUserGroupService().updateGroup(
                     manageGroupModel.getSelectedGroup(),
@@ -146,12 +206,13 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             manageGroupModel.setSelectedGroup(group);
             if (getUserGroupService().handleRemovingCurrentUserFromGroup()) {
                 updateUserInSession();
-                JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO, BaseBean.INFO_USER_SAVED_ITSELF,
-                        new Object[]{});
+                JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO,
+                        BaseBean.INFO_USER_SAVED_ITSELF, new Object[] {});
                 return BaseBean.OUTCOME_SUCCESS_UNIT_ADMIN;
             }
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO, BaseBean.INFO_GROUP_SAVED,
-                    new Object[]{manageGroupModel.getSelectedGroup().getGroupName()});
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO,
+                    BaseBean.INFO_GROUP_SAVED, new Object[] { manageGroupModel
+                            .getSelectedGroup().getGroupName() });
             TableState ts = getUi().findBean(TableState.BEAN_NAME);
             ts.resetActiveEditPage();
         } catch (OperationNotPermittedException ex) {
@@ -168,15 +229,17 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         } catch (ObjectNotFoundException ex) {
             String outcome = BaseBean.OUTCOME_ERROR;
             if (ex.getMessageKey().equals(BaseBean.ERROR_USERGROUP_NOT_FOUND)) {
-                ex.setMessageParams(new String[]{manageGroupModel.getSelectedGroup()
-                        .getGroupName()});
+                ex.setMessageParams(new String[] { manageGroupModel
+                        .getSelectedGroup().getGroupName() });
 
-                if(getIsLoggedAndUnitAdmin()) {
+                if (getIsLoggedAndUnitAdmin()) {
                     outcome = BaseBean.ERROR_USERGROUP_NOT_FOUND_EXCEPTION_UNIT_ADMIN;
                 } else {
                     outcome = BaseBean.ERROR_USERGROUP_NOT_FOUND_EXCEPTION;
                 }
 
+            } else if (ex.getMessageKey().equals(BaseBean.ERROR_USER_GROUP_TO_USER_NOT_FOUND)) {
+                outcome = BaseBean.ERROR_USER_GROUP_TO_USER_NOT_FOUND_EXCEPTION;
             }
             getUi().handleException(ex);
             return outcome;
@@ -184,7 +247,7 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             getUi().handleException(e);
             return BaseBean.OUTCOME_ERROR;
         }
-        if(getIsLoggedAndUnitAdmin()) {
+        if (getIsLoggedAndUnitAdmin()) {
             return BaseBean.OUTCOME_SUCCESS_UNIT_ADMIN;
         } else {
             return BaseBean.OUTCOME_SUCCESS;
@@ -198,8 +261,7 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                         .getCurrentInstance());
         user.getUserRoles().remove(UserRoleType.UNIT_ADMINISTRATOR);
         HttpServletRequest request = JSFUtils.getRequest();
-        request.getSession().setAttribute(Constants.SESS_ATTR_USER,
-                user);
+        request.getSession().setAttribute(Constants.SESS_ATTR_USER, user);
     }
 
     void initSelectedGroup() {
@@ -213,24 +275,34 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         } catch (ObjectNotFoundException e) {
             manageGroupModel.setSelectedGroup(null);
             manageGroupModel.setSelectedGroupId(null);
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR, BaseBean.ERROR_INVALID_GROUP, null);
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_UNIT_MODIFIED_OR_DELETED_CONCURRENTLY, null);
         }
     }
 
     public String selectGroup() {
-        getUi().findSessionBean().setSelectedGroupId(manageGroupModel.getSelectedGroupId());
+        getUi().findSessionBean().setSelectedGroupId(
+                manageGroupModel.getSelectedGroupId());
         if (manageGroupModel.getSelectedGroupId() == null) {
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR, BaseBean.ERROR_INVALID_GROUP, null);
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_INVALID_GROUP, null);
             return BaseBean.OUTCOME_REFRESH;
         }
         try {
             getUserGroupService().getUserGroupDetails(
-                    Long.valueOf(manageGroupModel.getSelectedGroupId()).longValue());
+                    Long.valueOf(manageGroupModel.getSelectedGroupId())
+                            .longValue());
         } catch (ObjectNotFoundException e) {
-            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR, BaseBean.ERROR_INVALID_GROUP, null);
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_INVALID_GROUP, null);
             return BaseBean.OUTCOME_REFRESH;
         }
         return BaseBean.OUTCOME_EDIT_GROUP;
+    }
+
+    public String selectGroup(String groupId) {
+        manageGroupModel.setSelectedGroupId(groupId);
+        return selectGroup();
     }
 
     void setSelectedServices() {
@@ -254,12 +326,12 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         HttpServletResponse response = JSFUtils.getResponse();
 
         String relativePath = null;
-        if(getIsLoggedAndUnitAdmin()) {
+        if (getIsLoggedAndUnitAdmin()) {
             relativePath = BaseBean.MARKETPLACE_UNITS_PAGE;
         } else {
             relativePath = BaseBean.MARKETPLACE_USERS_PAGE;
         }
-        
+
         try {
             JSFUtils.sendRedirect(response, request.getContextPath()
                     + relativePath);
@@ -310,12 +382,14 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
     }
 
     public String getSelectedGroupId() {
-        HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        HttpServletRequest req = (HttpServletRequest) FacesContext
+                .getCurrentInstance().getExternalContext().getRequest();
         String groupId = req.getParameter("groupId");
-        
+
         // directly after creating user group
         if (groupId == null) {
-            groupId = (String) req.getAttribute(ManageGroupModel.ATTRIBUTE_GROUP_ID);
+            groupId = (String) req
+                    .getAttribute(ManageGroupModel.ATTRIBUTE_GROUP_ID);
         }
         if (groupId == null || groupId.equals("")) {
             groupId = getSessionBean().getSelectedGroupId();
@@ -338,9 +412,9 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
     /**
      * Returns true if current user is logged in as Unit Administrator, but not
      * as a Organization Administrator.
-     *
+     * 
      * @return true if current user is logged in as Unit Administrator, but not
-     * as a Organization Administrator
+     *         as a Organization Administrator
      */
     public boolean getIsLoggedAndUnitAdmin() {
         VOUserDetails user = BaseBean
@@ -361,8 +435,36 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         this.usersLazyDataModel = usersLazyDataModel;
     }
 
-    public void selectUser(final String userId, final boolean selected) {
-        manageGroupModel.getSelectedUsersIds().put(userId, new Boolean(selected));
+    public void selectUser() {
+        String changedUserId = manageGroupModel.getChangedUserId();
+        boolean isSelect = manageGroupModel.isSelection();
+        manageGroupModel.getSelectedUsersIds().put(changedUserId,
+                new Boolean(isSelect));
+        manageGroupModel.getUserAndRole().put(changedUserId,
+                UnitRoleType.USER.name());
+    }
+
+    public void selectDeselectAllUsers() {
+        for (POUserInUnit poUserInUnit : manageGroupModel.getCurrentResultUsers()) {
+            if (poUserInUnit.isSelected() == manageGroupModel.isSelectAll()) {
+                continue;
+            }
+            poUserInUnit.setRoleInUnit(UnitRoleType.USER.name());
+            poUserInUnit.setSelected(manageGroupModel.isSelectAll());
+            manageGroupModel.getSelectedUsersIds().put(
+                    poUserInUnit.getUserId(),
+                    new Boolean(manageGroupModel.isSelectAll()));
+            manageGroupModel.getUserAndRole().put(poUserInUnit.getUserId(),
+                    UnitRoleType.USER.name());
+        }
+    }
+
+    public void saveInMap() {
+        manageGroupModel.getUserAndRole().put(
+                manageGroupModel.getChangedUserId(),
+                manageGroupModel.getChangedRoleName());
+        manageGroupModel.getSelectedUsersIds().put(
+                manageGroupModel.getChangedUserId(), new Boolean(true));
     }
 
     public SessionBean getSessionBean() {

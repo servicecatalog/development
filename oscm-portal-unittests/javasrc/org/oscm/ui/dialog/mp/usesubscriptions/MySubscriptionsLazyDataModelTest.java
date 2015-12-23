@@ -289,7 +289,7 @@ public class MySubscriptionsLazyDataModelTest {
 
         //when
         List<POSubscription> result = model.getDataList(firstRow, numRows,
-                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList());
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), new Object());
         //then
         assertArrayEquals(expectedList.toArray(), result.toArray());
         assertEquals(model.getTotalCount(), totalCount);

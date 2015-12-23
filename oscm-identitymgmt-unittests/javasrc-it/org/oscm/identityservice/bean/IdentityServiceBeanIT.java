@@ -301,6 +301,26 @@ public class IdentityServiceBeanIT extends EJBTestBase {
             }
         }).when(ldapSettingsMock).getOrganizationSettingsResolved(anyString());
         container.login(userName, ROLE_ORGANIZATION_ADMIN);
+        initUnitRoles();
+    }
+
+    private void initUnitRoles() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                insertUnitRole(Long.valueOf(1L), Long.valueOf(0L), "ADMINISTRATOR");
+                insertUnitRole(Long.valueOf(2L), Long.valueOf(0L), "USER");
+                return null;
+            }
+        });
+    }
+
+    private void insertUnitRole(Long key, Long version, String roleName) {
+        Query query = mgr.createNativeQuery(INSERT_UNIT_ROLE_SQL);
+        query.setParameter(1, key);
+        query.setParameter(2, version);
+        query.setParameter(3, roleName);
+        query.executeUpdate();
     }
 
     private PlatformUser givenUser(long key, String id, Organization org) {

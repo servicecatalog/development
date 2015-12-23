@@ -22,5 +22,37 @@
     <LocalizedLicense locale="en">a license text
 		</LocalizedLicense>
   </tns:TechnicalService>
+  
+  <tns:TechnicalService id="S3" build="18.11.2010" provisioningType="SYNCHRONOUS" provisioningUrl="@techService.https.baseurl@/oscm-integrationtests-mockproduct/ProvisioningService?wsdl"
+    provisioningVersion="1.0" accessType="LOGIN" provisioningUsername="admin" provisioningPassword="adminadmin" baseUrl="@techService.http.baseurl@/oscm-integrationtests-mockproduct"
+    loginPath="/login">
+    <LocalizedDescription locale="en">Just a mock service with roles.
+		</LocalizedDescription>
+    <LocalizedLicense locale="en">a license text
+		</LocalizedLicense>	
+   <Role id="ADMIN">
+      <LocalizedName locale="en">Administrator</LocalizedName>
+      <LocalizedName locale="de">Administrator</LocalizedName>
+      <LocalizedDescription locale="en">Administrators have full access to all data entities and can
+        execute administartive tasks such as role assignments and user creation.</LocalizedDescription>
+      <LocalizedDescription locale="de">Administratoren haben vollen Datenzugriff und können
+        administartive Aufgaben erledigen wie Rollen zuweisen oder Benutzer anlegen.</LocalizedDescription>
+    </Role>
+    <Role id="USER">
+      <LocalizedName locale="en">User</LocalizedName>
+      <LocalizedName locale="de">Benutzer</LocalizedName>
+      <LocalizedDescription locale="en">Users have full access to all data entities but cannot execute
+        adminstartive tasks.</LocalizedDescription>
+      <LocalizedDescription locale="de">Benutzer haben vollen Datenzugriff aber können keine
+        administrativen Aufgaben erledigen.</LocalizedDescription>
+    </Role>
+    <Role id="GUEST">
+      <LocalizedName locale="en">Guest</LocalizedName>
+      <LocalizedName locale="de">Gast</LocalizedName>
+      <LocalizedDescription locale="en">Gustes only have limited read access.</LocalizedDescription>
+      <LocalizedDescription locale="de">Gäste haben nur eingeschränkten Lesezugriff. </LocalizedDescription>
+    </Role>		
+  </tns:TechnicalService>
+  
 </tns:TechnicalServices>
 

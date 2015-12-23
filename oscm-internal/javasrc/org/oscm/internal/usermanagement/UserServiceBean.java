@@ -30,6 +30,7 @@ import javax.interceptor.Interceptors;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.pagination.Pagination;
+import org.oscm.pagination.PaginationInt;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleDefinition;
@@ -663,7 +664,7 @@ public class UserServiceBean implements UserService {
     }
 
     @Override
-    public Long getUserAssignableSubscriptionsNumber(Pagination pagination,
+    public Long getUserAssignableSubscriptionsNumber(PaginationInt pagination,
             String userId) throws SaaSApplicationException {
 
         PlatformUser user = isl.getPlatformUser(userId, true);

@@ -24,11 +24,11 @@
 
   <a4j:outputPanel layout="block" styleClass="tablePanel table_padding"
                    style="margin-top: 10px;">
-    <a4j:queue requestDelay="500" ignoreDupResponse="true"
+    <a4j:queue requestDelay="500" ignoreDupResponses="true"
                oncomplete="jQuery('body').removeClass('hourglass');"
                onsubmit="jQuery('body').addClass('hourglass');"/>
     <rich:dataTable width="100%"
-                    style="min-width:680px;position:relative; width: 100%;"
+                    style="min-width:680px;position:relative;"
                     rows="10"
                     headerClass="rowTitle" rowClasses="rowOdd,rowEven"
                     id="groupListTable"
@@ -41,10 +41,10 @@
 
       <rich:column id="colEditGroup" width="#{iconWidth}"
                    styleClass="tableColumnCheckBox">
-        <h:link outcome="editGroup">
-          <img src="#{imgUrl}/transparentPixel.png" class="editPen" alt=""/>
-          <f:param name="groupId" value="#{group.key}"/>
-        </h:link>
+          <h:commandLink action="#{manageGroupCtrl.confirmIfUnitExists()}">
+              <img src="#{imgUrl}/transparentPixel.png" class="editPen" alt=""/>
+              <f:param name="groupId" value="#{group.key}"/>
+          </h:commandLink>
       </rich:column>
 
       <rich:column id="colGroupName" width="#{moreWidth}"
@@ -52,6 +52,7 @@
                    sortIcon="#{sortIcon}"
                    sortIconAscending="#{sortIconAscending}"
                    sortIconDescending="#{sortIconDescending}"
+                   style="min-width: 200px;"
                    filterType="custom"
                    filterValue="#{tableState.filterValues['colGroupName']}"
                    filterExpression="#{adm:matchBegin(group.groupName, tableState.filterValues['colGroupName'], false)}">
@@ -72,6 +73,7 @@
                    sortIcon="#{sortIcon}"
                    sortIconAscending="#{sortIconAscending}"
                    sortIconDescending="#{sortIconDescending}"
+                   style="min-width: 100px;"
                    filterType="custom"
                    filterValue="#{tableState.filterValues['colGroupReferenceId']}"
                    filterExpression="#{adm:matchBegin(group.groupReferenceId, tableState.filterValues['colGroupReferenceId'], false)}">
@@ -118,7 +120,7 @@
                    sortIconDescending="#{sortIconDescending}"
                    filterType="custom"
                    filterValue="#{tableState.filterValues['colNumberOfUsers']}"
-                   style="min-width: 100px;"
+                   style="min-width: 120px;"
                    filterExpression="#{adm:matchBegin(group.userNum, tableState.filterValues['colNumberOfUsers'], false)}">
         <f:facet name="header">
           <h:outputText value="#{msg['group.numberOfUsers']}"/>

@@ -114,7 +114,7 @@
       <!-- bug 11280 -->
       <setInputField htmlId="userListForm:userTable:filterFirstName" value="Rolf" />
       <common.waitForJavaScript />
-      <common.clickAjaxLink htmlId="usersForm:assignUsersLink" />
+      <common.clickAjaxLink htmlId="usersForm:assignUsers" />
       <verifyXPath xpath="//*[@id='assignUsersPanelForm']" description="modalDialog is shown" />
       <setInputField htmlId="assignUsersPanelForm:userTable:filterFirstName" value="*" />
       <common.waitForJavaScript timeout="50000"/>
@@ -147,7 +147,7 @@
 
       <!-- open assign users dialog; check default page and filter -->
       <clickElement htmlId="editRolesPanelForm:cancelButton" />
-      <clickLink htmlId="usersForm:assignUsersLink" />
+      <clickElement htmlId="usersForm:assignUsers" />
       <common.waitForJavaScript />
 
       <!-- first time page one must be shown and filter from previous pages must not be applied -->

@@ -206,6 +206,35 @@
       <verifyXPath description="Technical Service of type EXTERNAL must open Fujitsu site in new window" xpath="//a[@id='buyme']/@onclick" text="if.*true.*window.open.*serviceid.*" regex="true" />
     </webtest>
 
+    <webtest name="testBug12418">
+      <mail.cleanInbox />
+
+      <!-- Create a customer non-admin account -->
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="nonadmin" />
+      <login.logout />
+
+      <!-- Log in as newly created user -->
+      <mail.readPasswordAndUrlFromMail />
+
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_login.loginWithChangePassword userId="#{userId}" oldPassword="#{userPwd}" mid="${mId}" />
+
+      <!-- Click on the first available service details and check if the error message appears -->
+      <clickLink htmlId="categorySelectionForm:buttonBrowseAllLink" />
+      <clickLink htmlId="showDetails0" />
+      <verifyXPath xpath="//*[@id='hiddenErrorPanel'][contains(., 'Only administrators and subscription managers can subscribe to a service.')]" />
+
+      <!-- Log out and check if the error disappeared -->
+      <login.logout />
+      <clickLink htmlId="showDetails0" />
+      <verifyXPath xpath="//*[@id='hiddenErrorPanel'][not (contains(., 'Only administrators and subscription managers can subscribe to a service.'))]" />
+
+    </webtest>
+
     <webtest name="testMPL_serviceVisibility_tearDown">
       <setup:service.delete serviceIds="*" deactivate="true" />
       <setup:techservice.delete serviceIds="*" />

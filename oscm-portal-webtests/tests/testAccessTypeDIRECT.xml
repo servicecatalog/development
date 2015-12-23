@@ -97,8 +97,7 @@
 
     <!-- If the baseurl  is available in the technical service definition, than the use button is shown.-->
     <webtest name="testAccessTypeDIRECT_FCIP">
-      <landingpage.loginAsSupplier />
-      <mpl_goto.marketplace mid="${MID1}" />
+      <mpl_login.user userId="${supplierUserId}" mid="${MID1}" />
       <mpl_goto.subscriptions />
       <clickElement xpath="//*[@id='subListForm:subscriptionsList:0']" />	
       <!-- Ensure that use button is available  -->
