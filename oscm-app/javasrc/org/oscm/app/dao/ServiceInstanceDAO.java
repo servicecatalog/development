@@ -18,11 +18,14 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
 import org.oscm.app.domain.InstanceParameter;
 import org.oscm.app.domain.ProvisioningStatus;
 import org.oscm.app.domain.ServiceInstance;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 @Stateless
 @LocalBean
@@ -30,6 +33,8 @@ public class ServiceInstanceDAO {
 
     @PersistenceContext(name = "persistence/em", unitName = "oscm-app")
     public EntityManager em;
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(ServiceInstanceDAO.class);
 
     public ServiceInstance getInstanceById(String instanceId)
             throws ServiceInstanceNotFoundException {
@@ -111,6 +116,7 @@ public class ServiceInstanceDAO {
         try {
             instance = (ServiceInstance) query.getSingleResult();
         } catch (NoResultException e) {
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return instance;
     }

@@ -431,26 +431,28 @@ public class RORVServerCommunication extends RORCommonInfo implements
     @Override
     public String getNonErrorVServerStatus(PropertyHandler paramHandler)
             throws Exception {
-        String status = this.getVServerStatus(paramHandler);
+        final String status = this.getVServerStatus(paramHandler);
         boolean isErrorState = false;
         String errorCode = "";
-        switch (status) {
-        case VServerStatus.ERROR:
-            isErrorState = true;
-            errorCode = "error_state_vserver";
-            break;
-        case VServerStatus.START_ERROR:
-            isErrorState = true;
-            errorCode = "error_failed_to_start_vserver";
-            break;
-        case VServerStatus.STOP_ERROR:
-            isErrorState = true;
-            errorCode = "error_failed_to_stop_vserver";
-            break;
-        case VServerStatus.UNEXPECTED_STOP:
-            isErrorState = true;
-            errorCode = "error_unexpected_stop_vserver";
-            break;
+        if (status != null) {
+            switch (status) {
+                case VServerStatus.ERROR:
+                    isErrorState = true;
+                    errorCode = "error_state_vserver";
+                    break;
+                case VServerStatus.START_ERROR:
+                    isErrorState = true;
+                    errorCode = "error_failed_to_start_vserver";
+                    break;
+                case VServerStatus.STOP_ERROR:
+                    isErrorState = true;
+                    errorCode = "error_failed_to_stop_vserver";
+                    break;
+                case VServerStatus.UNEXPECTED_STOP:
+                    isErrorState = true;
+                    errorCode = "error_unexpected_stop_vserver";
+                    break;
+            }
         }
 
         if (isErrorState) {

@@ -804,8 +804,7 @@ public class MockService implements IdentityService, SubscriptionService,
             OperationNotPermittedException, UserRoleAssignmentException {
         VOUserDetails voUserDetails = getUserById(getOrganizationDataInt(),
                 user.getUserId());
-        voUserDetails.getUserRoles()
-                .removeAll(new HashSet<>(roles));
+        voUserDetails.getUserRoles().removeAll(new HashSet<>(roles));
     }
 
     @Override
@@ -917,8 +916,8 @@ public class MockService implements IdentityService, SubscriptionService,
      */
 
     public VOSubscription getSubscriptionById(String subscriptionId) {
-        return subscriptionFinder.findById(
-                getSubscriptionsForOrganization(), subscriptionId);
+        return subscriptionFinder.findById(getSubscriptionsForOrganization(),
+                subscriptionId);
     }
 
     @Override
@@ -1090,13 +1089,13 @@ public class MockService implements IdentityService, SubscriptionService,
 
         return voSubscriptionDetails;
     }
-    
+
     @Override
     public VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey)
             throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
-    
+
     @Override
     public List<VOService> getUpgradeOptions(String subscriptionId) {
         List<VOService> list = new ArrayList<>();
@@ -1115,13 +1114,13 @@ public class MockService implements IdentityService, SubscriptionService,
         }
         return list;
     }
-    
+
     @Override
     public List<VOService> getUpgradeOptions(long subscriptionKey)
             throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
-    
+
     @Override
     public boolean unsubscribeFromService(String subId)
             throws ObjectNotFoundException, TechnicalServiceNotAliveException,
@@ -1264,8 +1263,8 @@ public class MockService implements IdentityService, SubscriptionService,
     public String getOrganizationId(long subscriptionKey) {
         for (VOOrganization organization : organizationSubscriptionsMap
                 .keySet()) {
-            for (VOSubscription sub : organizationSubscriptionsMap.get(
-                    organization)) {
+            for (VOSubscription sub : organizationSubscriptionsMap
+                    .get(organization)) {
                 if (sub.getKey() == subscriptionKey) {
                     return organization.getOrganizationId();
                 }
@@ -1807,14 +1806,14 @@ public class MockService implements IdentityService, SubscriptionService,
 
         return null;
     }
-    
+
     @Override
     public List<VORoleDefinition> getServiceRolesForSubscription(
-            long subscriptionKey)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+            long subscriptionKey) throws ObjectNotFoundException,
+            OperationNotPermittedException {
         return null;
     }
-    
+
     @Override
     public List<VORoleDefinition> getServiceRolesForService(VOService service)
             throws ObjectNotFoundException, OperationNotPermittedException {
@@ -2409,8 +2408,7 @@ public class MockService implements IdentityService, SubscriptionService,
      * (non-Javadoc)
      * 
      * @see org.oscm.internal.intf.ServiceProvisioningServiceInternal#
-     * getSuppliedServices
-     * (org.oscm.internal.types.enumtypes.PerformanceHint)
+     * getSuppliedServices (org.oscm.internal.types.enumtypes.PerformanceHint)
      */
     @Override
     public List<VOService> getSuppliedServices(PerformanceHint performanceHint) {
@@ -2422,8 +2420,7 @@ public class MockService implements IdentityService, SubscriptionService,
      * (non-Javadoc)
      * 
      * @see org.oscm.internal.intf.ServiceProvisioningServiceInternal#
-     * getTechnicalServices
-     * (org.oscm.types.enumtypes.OrganizationRoleType,
+     * getTechnicalServices (org.oscm.types.enumtypes.OrganizationRoleType,
      * org.oscm.internal.types.enumtypes.PerformanceHint)
      */
     @Override
@@ -2580,7 +2577,7 @@ public class MockService implements IdentityService, SubscriptionService,
     public long countRegisteredUsers() {
         return 0;
     }
-    
+
     @Override
     public void deleteTriggerDefinition(VOTriggerDefinition triggerDefinition)
             throws ObjectNotFoundException, DeletionConstraintException,
@@ -2644,5 +2641,12 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public void revokeUnitRole(VOUser user, UserRoleType role)
             throws ObjectNotFoundException, OperationNotPermittedException {
+    }
+
+    @Override
+    public VOServiceListResult getAccesibleServices(String marketplaceId,
+            String locale, ListCriteria listCriteria,
+            PerformanceHint performanceHint) throws ObjectNotFoundException {
+        return new VOServiceListResult();
     }
 }

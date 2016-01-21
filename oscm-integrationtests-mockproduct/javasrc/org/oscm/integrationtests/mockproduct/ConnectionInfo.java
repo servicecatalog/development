@@ -27,6 +27,8 @@ public class ConnectionInfo {
 
     private boolean clientCert;
 
+    private String authMode;
+
     public String getBaseUrl() {
         return baseUrl;
     }
@@ -71,6 +73,7 @@ public class ConnectionInfo {
         info.setUsername("10000");
         info.setPassword("secret");
         info.setVersion("v1.9");
+        info.setAuthMode("INTERNAL");
         return info;
     }
 
@@ -91,5 +94,20 @@ public class ConnectionInfo {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    /**
+     * @param authMode
+     *            the authMode to set
+     */
+    public void setAuthMode(String authMode) {
+        this.authMode = authMode;
+    }
+
+    /**
+     * @return the authMode
+     */
+    public String getAuthMode() {
+        return authMode;
     }
 }

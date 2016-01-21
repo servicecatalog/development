@@ -13,6 +13,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
@@ -58,13 +63,16 @@ public class Initializer {
                 File root = new File(instanceRoot);
                 if (root.isDirectory()) {
                     // Determine log file
-                    logFile = new File(root, "/config/log4j." + controllerId
-                            + ".properties");
+                    String filePath = "/config/log4j." + controllerId
+                            + ".properties";
+                    logFile = new File(root, filePath);
 
                     // If the target file does not exist we will provide it once
                     // from the template
                     if (!logFile.exists()) {
                         publishTemplateFile();
+                    } else {
+                        replacePackageName(instanceRoot + filePath);
                     }
 
                     // Read configuration
@@ -140,6 +148,22 @@ public class Initializer {
                     // ignore, wanted to close anyway
                 }
             }
+        }
+    }
+
+    /**
+     * Replace the package names from "com.fujitsu.bss.app" to "org.oscm.app" in
+     * the existing log files.
+     */
+    private void replacePackageName(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            Charset charset = StandardCharsets.UTF_8;
+            String content = new String(Files.readAllBytes(path), charset);
+            content = content.replaceAll("com.fujitsu.bss.app", "org.oscm.app");
+            Files.write(path, content.getBytes(charset));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

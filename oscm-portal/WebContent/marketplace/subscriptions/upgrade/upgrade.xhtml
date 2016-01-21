@@ -36,7 +36,7 @@
 
       <mp:subscriptionProcess active="configuration"
                               showPayment="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
-                              service="#{upgradeWizardConversation.model.service}">
+                              service="#{upgradeWizardConversation.model.service}" bean="#{upgradeWizardConversation}">
 
         <!-- TABS -->
         <rich:tabPanel headerAlignment="left" switchType="client">
@@ -79,7 +79,7 @@
                   <ui:param name="dialogId" value="configurator" />
                   <ui:param name="dialogHeight" value="115" />
                   <ui:param name="bean" value="#{upgradeWizardConversation}"/>
-                  <ui:param name="conversationTimeout" value="#{upgradeWizardConversation.timeout}"/>
+                  <ui:param name="conversationTimeout" value="#{upgradeWizardConversation.timeout}" />
                   <ui:param name="cancelHandler"
                             value="AdmUtils.blurButton('configurationForm:btnConfigureLabel');setDirty(false);#{rich:component(dialogId)}.hide();" />
                 </ui:include>

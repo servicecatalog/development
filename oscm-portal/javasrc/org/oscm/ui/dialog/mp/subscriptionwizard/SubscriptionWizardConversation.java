@@ -48,6 +48,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.json.JsonConverter;
 import org.oscm.json.JsonParameterValidator;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.BillingContactBean;
 import org.oscm.ui.beans.MenuBean;
@@ -113,6 +115,10 @@ public class SubscriptionWizardConversation implements Serializable {
     private JsonConverter jsonConverter;
     private JsonParameterValidator jsonValidator;
     private SubscriptionsHelper subscriptionsHelper;
+
+
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(SubscriptionWizardConversation.class);
 
     @Inject
     private Conversation conversation;
@@ -203,7 +209,7 @@ public class SubscriptionWizardConversation implements Serializable {
 
         model.setReadOnlyParams(true);
         VOUserDetails voUserDetails = ui.getUserFromSessionWithoutException();
-        if (voUserDetails.hasUnitAdminRole() && !voUserDetails.hasAdminRole()
+        if (!canUserSubscribeWithoutUnitSelection(voUserDetails)
                 && subscriptionUnitCtrl.getModel().getSelectedUnitId() == 0L) {
             addMessage(FacesMessage.SEVERITY_ERROR, ERROR_TO_PROCEED_SELECT_UNIT);
             return "";
@@ -213,6 +219,11 @@ public class SubscriptionWizardConversation implements Serializable {
             return OUTCOME_ENTER_PAYMENT;
         }
         return OUTCOME_SUCCESS;
+    }
+
+    private boolean canUserSubscribeWithoutUnitSelection(
+            VOUserDetails voUserDetails) {
+        return voUserDetails.hasAdminRole() || voUserDetails.hasSubscriptionManagerRole();
     }
 
     public void addMessage(FacesMessage.Severity severityError, String msgKey) {
@@ -768,8 +779,7 @@ public class SubscriptionWizardConversation implements Serializable {
     }
     
     public void keepAlive() {
-        // to reset conversation timeout any conversation bean method has to be
-        // called
+        LOGGER.logDebug("Keep alive for conversation ID = " + conversation.getId());
     }
     
     public long getTimeout() {

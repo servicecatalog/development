@@ -29,7 +29,7 @@ import org.oscm.apiversioning.handler.ClientVersionHandler;
  */
 public class WsProxy {
     private static Log logger = LogFactory.getLog(WsProxy.class);
-    private static String NAMESPACE_URI = "http://osm.org/xsd";
+    private static String NAMESPACE_URI = "http://oscm.org/xsd";
 
     /**
      * Returns a web service proxy for a BASIC or CLIENTCERT port of the

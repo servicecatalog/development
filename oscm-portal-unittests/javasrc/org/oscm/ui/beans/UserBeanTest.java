@@ -45,8 +45,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.types.constants.Configuration;
+import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.common.UiDelegate;
@@ -69,6 +69,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -87,6 +88,7 @@ public class UserBeanTest {
     private final String OUTCOME_SHOW_REGISTRATION = "showRegistration";
     private final String ERROR_COMPLETE_REGISTRATION = "error.complete.registration";
     private final String BASE_URL = "http://localhost:8180/oscm-portal";
+    private final String SUBSCRIPTION_ADD_PAGE = "/marketplace/subscriptions/creation/add.jsf";
 
     private HttpServletRequest requestMock;
     private HttpServletResponse responseMock;
@@ -101,7 +103,8 @@ public class UserBeanTest {
     private AuthenticationSettings authSettingsMock;
     private AuthenticationHandler authHandlerMock;
     private HttpSession sessionMock;
-    private static final String ISSUER = "OSCM";
+    private UserGroupService userGroupService = mock(UserGroupService.class);
+    private static final String ISSUER = "CT-MG";
     private static final String RECIPIENT = "http://www.bes-portal.de";
     private static final String IDP = "http://www.idp.de/openam/SSORedirect/request";
     private static final String KEYSTORE_PATH = "/openam/keystore.jks";
@@ -190,6 +193,8 @@ public class UserBeanTest {
                 eq(ServiceAccess.SESS_ATTR_SERVICE_ACCESS));
         doReturn(idServiceMock).when(serviceAccessMock).getService(
                 eq(IdentityService.class));
+
+        doReturn(userGroupService).when(userBean).getUserGroupService();
     }
 
     void mockErrorAttribute(HttpServletRequest requestMock) {
@@ -358,7 +363,8 @@ public class UserBeanTest {
         userBean.showRegistration();
 
         // then
-        verify(authHandlerMock, times(1)).handleAuthentication(true, sessionMock);
+        verify(authHandlerMock, times(1)).handleAuthentication(true,
+                sessionMock);
     }
 
     @Test
@@ -386,7 +392,8 @@ public class UserBeanTest {
         userBean.redirectToIDP();
 
         // then
-        verify(authHandlerMock, times(1)).handleAuthentication(true, sessionMock);
+        verify(authHandlerMock, times(1)).handleAuthentication(true,
+                sessionMock);
     }
 
     @Test
@@ -729,6 +736,60 @@ public class UserBeanTest {
 
         // then
         assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+    }
+
+    @Test
+    public void checkAddSubscription_NullUser() {
+        // given
+        final String REDIRECT = "some redirect";
+        userBean.setRequestedRedirect(REDIRECT);
+
+        // when
+        userBean.checkAddSubacription(null);
+
+        // then
+        assertEquals(REDIRECT, userBean.getRequestedRedirect());
+    }
+
+    @Test
+    public void checkAddSubscription_addSubscription_NoAccess()
+            throws ObjectNotFoundException {
+        // given
+        final long SERVICE_KEY = 12000L;
+        userBean.setRequestedRedirect(SUBSCRIPTION_ADD_PAGE);
+        userBean.getSessionBean().setSelectedServiceKeyForCustomer(SERVICE_KEY);
+        VOUserDetails user = new VOUserDetails();
+        user.setKey(1000L);
+        List<Long> invisibleServices = Arrays.asList(Long.valueOf(SERVICE_KEY));
+        doReturn(invisibleServices).when(userGroupService)
+                .getInvisibleProductKeysForUser(user.getKey());
+
+        // when
+        userBean.checkAddSubacription(user);
+
+        // then
+        assertEquals(BaseBean.MARKETPLACE_ACCESS_DENY_PAGE,
+                userBean.getRequestedRedirect());
+    }
+
+    @Test
+    public void checkAddSubscription_addSubscription_Access()
+            throws ObjectNotFoundException {
+        // given
+        final long SERVICE_KEY = 12000L;
+        userBean.setRequestedRedirect(SUBSCRIPTION_ADD_PAGE);
+        userBean.getSessionBean().setSelectedServiceKeyForCustomer(SERVICE_KEY);
+        VOUserDetails user = new VOUserDetails();
+        user.setKey(1000L);
+        List<Long> invisibleServices = Arrays.asList(Long.valueOf(110L));
+        doReturn(invisibleServices).when(userGroupService)
+                .getInvisibleProductKeysForUser(user.getKey());
+
+        // when
+        userBean.checkAddSubacription(user);
+
+        // then
+        assertEquals(SUBSCRIPTION_ADD_PAGE, userBean.getRequestedRedirect());
     }
 
     private ConfigurationService setupConfigurationMockForRegistrationenablement(

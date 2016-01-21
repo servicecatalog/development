@@ -53,7 +53,7 @@
     <copy file="${ivy.lib.dir}/XmlSchema-1.4.3.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/"></copy>
     <copy file="${ivy.lib.dir}/commons-beanutils-1.8.3.jar" todir="${root.dir}/libraries/apache-beanutils/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-codec-1.7.jar" todir="${root.dir}/libraries/apache-codec/javalib"></copy>
-    <copy file="${ivy.lib.dir}/commons-collections-3.2.1.jar" todir="${root.dir}/libraries/apache-collections/javalib"></copy>
+    <copy file="${ivy.lib.dir}/commons-collections-3.2.2.jar" todir="${root.dir}/libraries/apache-collections/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-lang3-3.1.jar" todir="${root.dir}/libraries/apache-commons-lang/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-configuration-1.8.jar" todir="${root.dir}/libraries/apache-configuration/javalib"></copy>
     <!-- jar is not used but sources
@@ -135,7 +135,7 @@
     <copy file="${ivy.lib.dir}/not-yet-commons-ssl-0.3.9.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/bcprov-jdk15-1.45.jar" todir="${root.dir}/libraries/opensaml/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-codec-1.7.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
-    <copy file="${ivy.lib.dir}/commons-collections-3.2.1.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
+    <copy file="${ivy.lib.dir}/commons-collections-3.2.2.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/commons-lang-2.6.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/esapi-2.0.1.jar" todir="${root.dir}/libraries/opensaml/javalib/"></copy>
     <copy file="${ivy.lib.dir}/jcl-over-slf4j-1.7.7.jar" todir="${root.dir}/libraries/opensaml/javalib"></copy>

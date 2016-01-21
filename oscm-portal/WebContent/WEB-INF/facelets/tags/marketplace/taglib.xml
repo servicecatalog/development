@@ -166,4 +166,8 @@
     <tag-name>keepAlive</tag-name>
     <source>keepAlive.xhtml</source>
   </tag>
+  <tag>
+    <tag-name>conversationKeepAlive</tag-name>
+    <source>conversationKeepAlive.xhtml</source>
+  </tag>
 </facelet-taglib>

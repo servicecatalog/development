@@ -22,7 +22,8 @@
 		<c:set var="paymentInfoVisible" value="#{upgradeWizardConversation.paymentInfoVisible eq true}"  scope="request"  />
 		<c:set var="emptyEnabledPaymentTypes" value="#{empty upgradeWizardConversation.enabledPaymentTypes}"  scope="request" />
 		<c:set var="availableSubsAndAdmin" value="#{not empty upgradeWizardConversation.availablePaymentTypesForCreation and userBean.loggedInAndAdmin}"  scope="request" />
-		<mp:subscriptionProcess active="payment" service="#{upgradeWizardConversation.model.service}">
+		<mp:subscriptionProcess active="payment" service="#{upgradeWizardConversation.model.service}"
+								bean="#{upgradeWizardConversation}">
 			<h:form id="payment">
 				<adm:keepDirty value="#{upgradeWizardConversation.model.dirty}" />
 				<a4j:jsFunction name="newBillingContact"

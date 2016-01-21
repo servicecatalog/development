@@ -51,7 +51,8 @@ public abstract class UserGroupBaseCtrl {
 
     List<POService> initServiceList() throws ObjectNotFoundException {
         VOServiceListResult voServiceListResult = getSearchServiceInternal()
-                .getServicesByCriteria(BaseBean.getMarketplaceIdStatic(),
+                .getAccesibleServices(
+                        BaseBean.getMarketplaceIdStatic(),
                         JSFUtils.getViewLocale().getLanguage(),
                         getInitListCriteria(),
                         PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
@@ -120,7 +121,8 @@ public abstract class UserGroupBaseCtrl {
             String name1 = o1.getService().getServiceName();
             String name2 = o2.getService().getServiceName();
 
-            if ((o1.isSelected() && o2.isSelected()) || (!o1.isSelected() && !o2.isSelected())) {
+            if ((o1.isSelected() && o2.isSelected())
+                    || (!o1.isSelected() && !o2.isSelected())) {
                 int order = name1.compareToIgnoreCase(name2);
                 if (order == 0) {
                     return name1.compareTo(name2);
@@ -137,7 +139,8 @@ public abstract class UserGroupBaseCtrl {
     public abstract void setManageGroupModel(ManageGroupModel model);
 
     @EJB
-    public void setSearchServiceInternal(SearchServiceInternal searchServiceInternal) {
+    public void setSearchServiceInternal(
+            SearchServiceInternal searchServiceInternal) {
         this.searchServiceInternal = searchServiceInternal;
     }
 

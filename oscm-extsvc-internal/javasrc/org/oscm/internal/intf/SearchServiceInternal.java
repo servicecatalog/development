@@ -61,6 +61,36 @@ public interface SearchServiceInternal {
             PerformanceHint performanceHint) throws ObjectNotFoundException;
 
     /**
+     * Returns a list of services according to the specified criteria. The list
+     * all services which are for his organization. This method is a temporary
+     * included to give the unit administrators the possibility to assign and
+     * deassign accessible services to their units.
+     * <p>
+     * Required role: none
+     * 
+     * @param marketplaceId
+     *            the ID of the marketplace to get the services for
+     * @param locale
+     *            the language in which the service data are to be returned.
+     *            Specify a language code as returned by
+     *            <code>getLanguage()</code> of <code>java.util.Locale</code>.
+     * @param listCriteria
+     *            a <code>ListCriteria</code> object specifying the search and
+     *            sorting conditions as well as list and page sizes for the
+     *            results
+     * @param performanceHint
+     *            a <code>performanceHint</code> constant specifying the data to
+     *            include in the result. This can be used to increase the search
+     *            performance.
+     * @return the list of services matching the specified criteria
+     * @throws ObjectNotFoundException
+     *             if the specified marketplace or category was not found
+     */
+    public VOServiceListResult getAccesibleServices(
+            String marketplaceId, String locale, ListCriteria listCriteria,
+            PerformanceHint performanceHint) throws ObjectNotFoundException;
+
+    /**
      * Executes a full-text search for services with the specified search
      * phrase. If the calling user is logged in, the search result only includes
      * services which are visible to him and his organization. Otherwise, the

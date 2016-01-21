@@ -30,16 +30,23 @@ import org.apache.commons.httpclient.methods.GetMethod;
  */
 public class PortFactory {
 
+    public static final String INTERNAL = "INTERNAL";
+    public static final String SAML_SP = "SAML_SP";
+
     private static URL getWsdlLocation(final ConnectionInfo connection,
             final String serviceName) throws IOException {
         StringBuilder s = new StringBuilder();
         s.append(connection.getBaseUrl()).append("oscm/");
         s.append(connection.getVersion()).append("/");
         s.append(serviceName).append("/");
-        if (connection.isClientCert()) {
-            s.append("CLIENTCERT?wsdl");
+        if (connection.getAuthMode().equals(INTERNAL)) {
+            if (connection.isClientCert()) {
+                s.append("CLIENTCERT?wsdl");
+            } else {
+                s.append("BASIC?wsdl");
+            }
         } else {
-            s.append("BASIC?wsdl");
+            s.append("STS?wsdl");
         }
         return new URL(s.toString());
     }
@@ -49,11 +56,16 @@ public class PortFactory {
         StringBuilder s = new StringBuilder();
         s.append(connection.getBaseUrl());
         s.append(serviceName).append("/");
-        if (connection.isClientCert()) {
-            s.append("CLIENTCERT?wsdl");
+        if (INTERNAL.equals(connection.getAuthMode())) {
+            if (connection.isClientCert()) {
+                s.append("CLIENTCERT?wsdl");
+            } else {
+                s.append("BASIC?wsdl");
+            }
         } else {
-            s.append("BASIC?wsdl");
+            s.append("STS?wsdl");
         }
+
         return new URL(s.toString());
     }
 
@@ -81,6 +93,9 @@ public class PortFactory {
         if (!info.isClientCert()) {
             ctx.put(BindingProvider.USERNAME_PROPERTY, info.getUsername());
             ctx.put(BindingProvider.PASSWORD_PROPERTY, info.getPassword());
+        } else if (SAML_SP.equals(info.getAuthMode())) {
+            ctx.put("username", info.getUsername());
+            ctx.put("password", info.getPassword());
         }
 
         return port;

@@ -317,7 +317,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public VOOrganization getOrganizationData() {
 
         final Organization organization = getOrganization();
@@ -732,7 +733,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
         for (Organization customer : list) {
             result.add(OrganizationAssembler.toVOOrganization(customer, false,
-                    null, PerformanceHint.ONLY_IDENTIFYING_FIELDS));
+                    null, PerformanceHint.ONLY_FIELDS_FOR_LISTINGS));
         }
 
         return result;
@@ -754,7 +755,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     @SuppressWarnings("boxing")
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Organization> getCustomersOptimization(Organization seller) {
-        final String queryString = "SELECT o.tkey, o.organizationid, o.name "
+        final String queryString = "SELECT o.tkey, o.organizationid, o.name, o.address "
                 + "FROM Organization o, OrganizationReference orgref "
                 + "WHERE orgref.targetkey=o.tkey "
                 + "AND orgref.sourcekey=:supplierKey "
@@ -773,6 +774,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
             customer.setOrganizationId(resultElement[1].toString());
             if (resultElement[2] != null) {
                 customer.setName(resultElement[2].toString());
+            }
+            if (resultElement[3] != null) {
+                customer.setAddress(resultElement[3].toString());
             }
             customerList.add(customer);
         }
@@ -1799,7 +1803,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOBillingContact> getBillingContacts() {
 
         Organization organization = dm.getCurrentUser().getOrganization();
@@ -3626,7 +3631,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOPaymentInfo> getPaymentInfos() {
         return getPaymentInfosInt();
     }
@@ -3648,7 +3654,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public Set<VOPaymentType> getAvailablePaymentTypes() {
 
         Query query = dm.createNamedQuery("PaymentType.getAllExceptInvoice");

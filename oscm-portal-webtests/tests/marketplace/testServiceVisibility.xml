@@ -66,6 +66,7 @@
       <mpl_visibility.suspendService />
       <clickElement htmlId="buttonBrowseAllRelated" />
       <clickElement htmlId="filterSelectionForm:showFilteredList" />
+      <clickElement xpath="//*[contains(@id, 'showFilteredList')]" />
       <verifyElementText description="Verify service MS S1" htmlId="service2Name" text="MS S1" />
       <common.ignorePageScriptError />	
       <clickLink htmlId="showDetails2" />

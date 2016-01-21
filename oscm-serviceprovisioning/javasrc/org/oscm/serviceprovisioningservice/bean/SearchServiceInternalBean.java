@@ -41,6 +41,7 @@ import org.oscm.internal.vo.VOServiceListResult;
 public class SearchServiceInternalBean extends SearchServiceBean implements
         SearchServiceInternal {
 
+    @Override
     public VOServiceListResult getServicesByCriteria(String marketplaceId,
             String locale, ListCriteria listCriteria,
             PerformanceHint performanceHint) throws ObjectNotFoundException {
@@ -48,6 +49,15 @@ public class SearchServiceInternalBean extends SearchServiceBean implements
                 performanceHint);
     }
 
+    @Override
+    public VOServiceListResult getAccesibleServices(
+            String marketplaceId, String locale, ListCriteria listCriteria,
+            PerformanceHint performanceHint) throws ObjectNotFoundException {
+        return super.getAccesibleServices(marketplaceId, locale,
+                listCriteria, performanceHint);
+    }
+
+    @Override
     public VOServiceListResult searchServices(String marketplaceId,
             String locale, String searchPhrase, PerformanceHint performanceHint)
             throws InvalidPhraseException, ObjectNotFoundException {

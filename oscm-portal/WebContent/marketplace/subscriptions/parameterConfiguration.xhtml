@@ -13,7 +13,7 @@
 
   <ui:define name="dialogScripts">
     <c:if test="${conversationTimeout != null}">
-      <a4j:poll interval="#{conversationTimeout - (60 * 1000)}" action="#{bean.keepAlive}" enabled="true"/>
+      <mp:conversationKeepAlive/>
     </c:if>
     
     <script src="#{facesContext.externalContext.requestContextPath}/scripts/configurationApi.js" type="text/javascript"></script>

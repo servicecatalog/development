@@ -33,15 +33,19 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.ERROR_TO_PROCEED_SELECT_UNIT;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.SUBSCRIPTION_NAME_ALREADY_EXISTS;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.enterprise.context.Conversation;
 import javax.faces.application.FacesMessage;
+import javax.faces.application.FacesMessage.Severity;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import javax.faces.component.UIViewRoot;
@@ -70,6 +74,7 @@ import org.oscm.internal.vo.VOParameterDefinition;
 import org.oscm.internal.vo.VOParameterOption;
 import org.oscm.internal.vo.VOPaymentInfo;
 import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
@@ -89,11 +94,15 @@ import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.beans.UserBean;
 import org.oscm.ui.common.DurationValidation;
+import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
 import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
 import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionWizardConversation;
 import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionWizardConversationModel;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitModel;
+import org.oscm.ui.model.PriceModel;
 import org.oscm.ui.model.PricedParameterRow;
 import org.oscm.ui.model.Service;
 import org.oscm.ui.stubs.FacesContextStub;
@@ -107,6 +116,8 @@ public class SubscriptionWizardConversationTest {
     public static final String CONFIG_RESPONSE_ERROR = "{\"messageType\":\"CONFIG_RESPONSE\",\"responseCode\":\"CONFIGURATION_FINISHED\""
             + ",\"parameters\":[{\"id\":\"ABoolean\",\"value\":\"abcd\"}]}";
     private SubscriptionWizardConversationModel model;
+    private SubscriptionUnitCtrl unitCtrl;
+    private SubscriptionUnitModel unitModel;
     private SubscriptionWizardConversation bean;
     private ServiceDetailsModel sdm;
     private Conversation conversation;
@@ -143,6 +154,9 @@ public class SubscriptionWizardConversationTest {
         userBean = spy(new UserBean());
         pabv = mock(PaymentAndBillingVisibleBean.class);
         accountService = mock(AccountService.class);
+        unitCtrl = new SubscriptionUnitCtrl();
+        unitModel = new SubscriptionUnitModel();
+        unitCtrl.setModel(unitModel);
 
         bean = spy(new SubscriptionWizardConversation());
         decorateBean();
@@ -170,6 +184,7 @@ public class SubscriptionWizardConversationTest {
         bean.setUserBean(userBean);
         bean.setAccountingService(accountService);
         bean.setPaymentAndBillingVisibleBean(pabv);
+        bean.setSubscriptionUnitCtrl(unitCtrl);
     }
 
     @Test
@@ -280,6 +295,67 @@ public class SubscriptionWizardConversationTest {
         String result = bean.selectService();
         // then
         assertEquals("", result);
+    }
+
+    @Test
+    public void selectServiceByUnitAdministrator_WithoutUnit() {
+        // given
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
+        prepareDataForTestUnitSelection(userRoles, false);
+
+        // when
+        String result = bean.selectService();
+
+        // then
+        verify(bean, times(1)).addMessage(FacesMessage.SEVERITY_ERROR, ERROR_TO_PROCEED_SELECT_UNIT);
+        assertEquals("", result);
+    }
+
+    @Test
+    public void selectServiceByUnitAdministrator_WithUnit() {
+        // given
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
+        prepareDataForTestUnitSelection(userRoles, true);
+
+        // when
+        String result = bean.selectService();
+
+        // then
+        verify(bean, times(0)).addMessage(any(Severity.class), any(String.class));
+        assertEquals("success", result);
+    }
+
+    @Test
+    public void selectServiceByUnitAdminSubMan_WithoutUnit() {
+        // given
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
+        userRoles.add(UserRoleType.SUBSCRIPTION_MANAGER);
+        prepareDataForTestUnitSelection(userRoles, false);
+
+        // when
+        String result = bean.selectService();
+
+        // then
+        verify(bean, times(0)).addMessage(any(Severity.class), any(String.class));
+        assertEquals("success", result);
+    }
+
+    @Test
+    public void selectServiceByUnitAdminOrgUnit_WithoutUnit() {
+        // given
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
+        userRoles.add(UserRoleType.ORGANIZATION_ADMIN);
+        prepareDataForTestUnitSelection(userRoles, false);
+        // when
+        String result = bean.selectService();
+
+        // then
+        verify(bean, times(0)).addMessage(any(Severity.class), any(String.class));
+        assertEquals("success", result);
     }
 
     @Test
@@ -1166,9 +1242,9 @@ public class SubscriptionWizardConversationTest {
     private void prepareServiceAccessible(boolean isAccessible)
             throws Exception {
         VOUserDetails voUserDetails = new VOUserDetails();
-        voUserDetails.setKey(1000l);
+        voUserDetails.setKey(1000L);
         VOService voService = new VOService();
-        voService.setKey(1001l);
+        voService.setKey(1001L);
         Service service = new Service(voService);
         model.setService(service);
         doReturn(voUserDetails).when(ui).getUserFromSessionWithoutException();
@@ -1181,7 +1257,7 @@ public class SubscriptionWizardConversationTest {
         if (!isAccessible) {
             invisibleServiceKeys.add(service.getKey());
         }
-        invisibleServiceKeys.add(1002l);
+        invisibleServiceKeys.add(1002L);
         doReturn(invisibleServiceKeys).when(userGroupService)
                 .getInvisibleProductKeysForUser(voUserDetails.getKey());
     }
@@ -1397,4 +1473,18 @@ public class SubscriptionWizardConversationTest {
         return userDetails;
     }
 
+    private void prepareDataForTestUnitSelection(Set<UserRoleType> userRoles, boolean isUnitSelected) {
+        VOUserDetails voUserDetails = new VOUserDetails();
+        voUserDetails.setKey(1001L);
+        voUserDetails.setUserRoles(userRoles);
+        doReturn(voUserDetails).when(ui).getUserFromSessionWithoutException();
+        mock(JSFUtils.class);
+        if (isUnitSelected) {
+            unitCtrl.getModel().setSelectedUnitId(1000L);
+        } else {
+            unitCtrl.getModel().setSelectedUnitId(0L);
+        }
+        bean.getModel().getService().setPriceModel(new PriceModel(new VOPriceModel()));
+        doNothing().when(bean).updateSelectedUnit();
+    }
 }

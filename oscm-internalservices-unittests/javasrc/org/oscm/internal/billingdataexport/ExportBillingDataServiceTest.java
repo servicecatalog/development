@@ -332,8 +332,8 @@ public class ExportBillingDataServiceTest {
         List<VOOrganization> organizationList = createOrganizationList();
         List<POOrganization> poList = createCustomerList();
 
-        given(exportBillingService.accountService.getMyCustomers()).willReturn(
-                organizationList);
+        given(exportBillingService.accountService.getMyCustomersOptimization())
+                .willReturn(organizationList);
         // when
         List<POOrganization> returnedCustomers = exportBillingService
                 .getCustomers();

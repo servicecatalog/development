@@ -566,7 +566,7 @@ public class UserServiceBean implements UserService {
                     OperationNotPermittedException,
                     UserModificationConstraintException {
         List<UnitRoleType> allAvailableUnitRoleTypes;
-        allAvailableUnitRoleTypes = new ArrayList<UnitRoleType>(
+        allAvailableUnitRoleTypes = new ArrayList<>(
                 Arrays.asList(UnitRoleType.values()));
         for (Entry<UserGroup, UnitUserRole> groupWithRoles : userGroupsToBeAssigned
                 .entrySet()) {

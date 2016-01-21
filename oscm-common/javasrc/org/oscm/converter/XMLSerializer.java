@@ -4,6 +4,10 @@
 
 package org.oscm.converter;
 
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+
 import java.beans.DefaultPersistenceDelegate;
 import java.beans.Encoder;
 import java.beans.Expression;
@@ -22,6 +26,10 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class XMLSerializer {
+
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(XMLSerializer.class);
+
     private static class BigDecimalPersistenceDelegate extends
             DefaultPersistenceDelegate {
         @Override
@@ -127,7 +135,7 @@ public class XMLSerializer {
                 closeable.close();
             }
         } catch (IOException e) {
-            // ignore, stream already closed
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
     }
 
@@ -138,6 +146,7 @@ public class XMLSerializer {
             decoder = new XMLDecoder(new ByteArrayInputStream(xml.getBytes()));
             result = decoder.readObject();
         } catch (Exception e) {
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         } finally {
             if (decoder != null) {
                 decoder.close();

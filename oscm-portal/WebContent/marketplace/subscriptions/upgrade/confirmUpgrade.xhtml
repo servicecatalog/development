@@ -36,6 +36,7 @@
 
         <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
             <mp:subscriptionProcess active="confirmation"
+                                    bean="#{upgradeWizardConversation}"
                                     showPayment="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
                                     service="#{upgradeWizardConversation.model.service}">
                 <a4j:outputPanel layout="block" styleClass="col5span clearfix">

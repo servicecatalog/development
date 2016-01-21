@@ -143,6 +143,17 @@ public class VOUserDetails extends VOUser {
     }
 
     /**
+     * Checks whether the user is a subscription manager..
+     * 
+     * @return <code>true</code> if the user has the subscription manager,
+     *         <code>false</code> otherwise
+     * 
+     */
+    public boolean hasSubscriptionManagerRole() {
+        return getUserRoles().contains(UserRoleType.SUBSCRIPTION_MANAGER);
+    }
+
+    /**
      * Constructs a user details object with the given numeric key and version.
      * 
      * @param id

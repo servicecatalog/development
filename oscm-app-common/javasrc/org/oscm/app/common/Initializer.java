@@ -9,7 +9,13 @@
 package org.oscm.app.common;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 
 import javax.annotation.PostConstruct;
@@ -25,10 +31,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
+import org.oscm.app.common.intf.ControllerAccess;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.oscm.app.common.intf.ControllerAccess;
 
 @Singleton
 @Startup
@@ -66,14 +71,17 @@ public class Initializer {
             if (instanceRoot != null) {
                 File root = new File(instanceRoot);
                 if (root.isDirectory()) {
+                    String filePath = "/config/log4j." + controllerId
+                            + ".properties";
                     // Determine log file
-                    logFile = new File(root, "/config/log4j." + controllerId
-                            + ".properties");
+                    logFile = new File(root, filePath);
 
                     // If the target file does not exist we will provide it once
                     // from the template
                     if (!logFile.exists()) {
                         publishTemplateFile();
+                    } else {
+                        replacePackageName(instanceRoot + filePath);
                     }
 
                     // Read configuration
@@ -132,6 +140,23 @@ public class Initializer {
                 is.close();
             }
         }
+    }
+
+    /**
+     * Replace the package names from "com.fujitsu.bss.app" to "org.oscm.app" in
+     * the existing log files.
+     */
+    private void replacePackageName(String filePath) {
+        try {
+            Path path = Paths.get(filePath);
+            Charset charset = StandardCharsets.UTF_8;
+            String content = new String(Files.readAllBytes(path), charset);
+            content = content.replaceAll("com.fujitsu.bss.app", "org.oscm.app");
+            Files.write(path, content.getBytes(charset));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**

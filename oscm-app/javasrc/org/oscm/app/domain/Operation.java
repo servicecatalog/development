@@ -25,8 +25,11 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.SequenceGenerator;
 
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.app.v1_0.intf.APPlatformController;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * Represents an operation for a service instance.
@@ -41,6 +44,8 @@ import org.oscm.app.v1_0.intf.APPlatformController;
         @NamedQuery(name = "Operation.getOperationByInstanceId", query = "SELECT op FROM Operation op WHERE op.serviceInstance.instanceId = :id AND op.forQueue = false"),
         @NamedQuery(name = "Operation.removeForKey", query = "DELETE FROM Operation op WHERE op.tkey =:key") })
 public class Operation {
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(Operation.class);
 
     /**
      * The technical key of the entity.
@@ -178,7 +183,7 @@ public class Operation {
             properties.storeToXML(out, null, "UTF-8");
             xmlString = out.toString();
         } catch (IOException e) {
-
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return xmlString;
     }
@@ -188,7 +193,7 @@ public class Operation {
         try (InputStream in = new ByteArrayInputStream(xmlString.getBytes())) {
             properties.loadFromXML(in);
         } catch (IOException e) {
-
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return properties;
     }

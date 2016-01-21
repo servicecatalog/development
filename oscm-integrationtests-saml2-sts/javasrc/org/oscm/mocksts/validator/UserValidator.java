@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.oscm.mocksts.PropertyLoader;
+
 import com.sun.xml.wss.impl.callback.PasswordValidationCallback;
 import com.sun.xml.wss.impl.callback.PasswordValidationCallback.PasswordValidationException;
 
@@ -28,6 +30,8 @@ public class UserValidator implements
         PasswordValidationCallback.PasswordValidator {
 
     private static Map<String, String> userList;
+    private static final String COMMON_PROPERTIES_PATH = "common.properties";
+    private static final String DELIMITER = "delimiter";
 
     @Override
     public boolean validate(PasswordValidationCallback.Request request)
@@ -61,6 +65,8 @@ public class UserValidator implements
     }
 
     private void loadUserList() throws IOException {
+        String delimiter = PropertyLoader.getInstance()
+                .load(COMMON_PROPERTIES_PATH).getProperty(DELIMITER);
         try (InputStream in = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("UserList");
                 BufferedReader reader = new BufferedReader(
@@ -69,10 +75,11 @@ public class UserValidator implements
             String data = null;
             while ((data = reader.readLine()) != null) {
                 if (!data.trim().isEmpty()) {
-                    String[] userData = data.split("@");
+                    String[] userData = data.split(delimiter);
                     userList.put(userData[0], userData[1]);
                 }
             }
         }
     }
+
 }

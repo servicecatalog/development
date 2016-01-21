@@ -534,7 +534,7 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
         return null;
     }
 
-    private void adaptFeaturedServiceList(Marketplace marketplace,
+    void adaptFeaturedServiceList(Marketplace marketplace,
             List<VOService> voServices, PlatformUser currentUser,
             List<Long> invisibleProductKeys, String locale) {
         int servicesMax = marketplace.getPublicLandingpage()
@@ -565,11 +565,9 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
             }
 
             // FillinCriterion.ACTIVATION_DESCENDING sorted by database
-            Set<Long> keys = new HashSet<Long>();
-            for (Product p : products) {
-                keys.add(Long.valueOf(p.getKey()));
-                keys.add(Long.valueOf(p.getTemplateOrSelf().getKey()));
-            }
+
+            Set<Long> keys = getKeysForLocalization(products);
+
             LocalizerFacade facade = new LocalizerFacade(localizer, locale);
             // read at least name for comparison
             facade.prefetch(new ArrayList<Long>(keys), Arrays.asList(
@@ -598,6 +596,16 @@ public class LandingpageServiceBean implements LandingpageServiceLocal {
                 voServices.add(voService);
             }
         }
+    }
+
+    Set<Long> getKeysForLocalization(List<Product> products) {
+        Set<Long> keys = new HashSet<Long>();
+        for (Product p : products) {
+            // Bug #12479 Only template keys because the localized sources
+            // are only on templates
+            keys.add(Long.valueOf(p.getTemplateOrSelf().getKey()));
+        }
+        return keys;
     }
 
     private int numberToFillin(int servicesMax, int servicesSize,

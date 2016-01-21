@@ -138,6 +138,9 @@ public class ManageGroupCtrlTest {
         doReturn(voServiceListResult).when(searchServiceInternal)
                 .getServicesByCriteria(anyString(), anyString(),
                         any(ListCriteria.class), any(PerformanceHint.class));
+        doReturn(voServiceListResult).when(searchServiceInternal)
+                .getAccesibleServices(anyString(), anyString(),
+                        any(ListCriteria.class), any(PerformanceHint.class));
         doReturn(tableStatus).when(ctrl.getUi()).findBean(
                 eq(TableState.BEAN_NAME));
 

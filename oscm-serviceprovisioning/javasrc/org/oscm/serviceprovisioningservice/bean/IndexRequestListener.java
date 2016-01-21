@@ -117,6 +117,8 @@ public class IndexRequestListener {
             MessageProducer producer = session.createProducer(targetQueue);
             producer.send(message);
         } catch (Throwable e) {
+            logger.logInfo(Log4jLogger.SYSTEM_LOG,
+                    LogMessageIdentifier.ERROR_EVALUATE_MESSAGE_FAILED);
             if (putBackMessageOnIndexerQueue(message)) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR_EVALUATE_MESSAGE_FAILED);

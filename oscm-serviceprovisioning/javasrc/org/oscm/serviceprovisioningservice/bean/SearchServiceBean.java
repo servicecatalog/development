@@ -86,7 +86,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
             .getLogger(SearchServiceBean.class);
 
     @EJB(beanInterface = DataService.class)
-    DataService dm;
+    private DataService dm;
 
     @EJB(beanInterface = LocalizerServiceLocal.class)
     private LocalizerServiceLocal localizer;
@@ -96,6 +96,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
 
     private static String DEFAULT_LOCALE = "en";
 
+    @Override
     public void initIndexForFulltextSearch(final boolean force) {
         IndexReinitRequestMessage msg = new IndexReinitRequestMessage(force);
         IndexMQSender messageSender = getMQSender();
@@ -110,7 +111,8 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
     protected IndexMQSender getMQSender() {
         return new IndexMQSender();
     }
-    
+
+    @Override
     public VOServiceListResult searchServices(String marketplaceId,
             String locale, String searchPhrase) throws InvalidPhraseException,
             ObjectNotFoundException {
@@ -135,7 +137,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         listResult.setServices(voList);
 
         try {
-            Session session = dm.getSession();
+            Session session = getDm().getSession();
             if (session != null) {
                 LinkedHashMap<Long, VOService> map = new LinkedHashMap<Long, VOService>();
                 FullTextSession fts = Search.getFullTextSession(session);
@@ -267,6 +269,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         }
     }
 
+    @Override
     public VOServiceListResult getServicesByCriteria(String marketplaceId,
             String locale, ListCriteria listCriteria)
             throws ObjectNotFoundException {
@@ -281,14 +284,37 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         ArgumentValidator.notEmptyString("locale", locale);
         ArgumentValidator.notNull("listCriteria", listCriteria);
 
-        PlatformUser user = dm.getCurrentUserIfPresent();
+        PlatformUser user = getDm().getCurrentUserIfPresent();
         Set<Long> invisibleKeys = getInvisibleServiceKeySet(user);
-        ProductSearch search = new ProductSearch(dm, marketplaceId,
+        ProductSearch search = new ProductSearch(getDm(), marketplaceId,
                 listCriteria, DEFAULT_LOCALE, locale, invisibleKeys);
 
         return convertToVoServiceList(search.execute(), locale, performanceHint);
     }
 
+    public VOServiceListResult getAccesibleServices(
+            String marketplaceId, String locale, ListCriteria listCriteria,
+            PerformanceHint performanceHint) throws ObjectNotFoundException {
+        ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
+        ArgumentValidator.notEmptyString("locale", locale);
+        ArgumentValidator.notNull("listCriteria", listCriteria);
+
+        PlatformUser user = getDm().getCurrentUserIfPresent();
+        // temporary solution to get all services for initializing the accesible
+        // service list for unit admin
+        Set<Long> invisibleKeys = null;
+        if ((user != null) && !user.isOrganizationAdmin()
+                && !user.isUnitAdmin()) {
+            List<Long> invisibleKeyList = userGroupService
+                    .getInvisibleProductKeysForUser(user.getKey());
+            invisibleKeys = new HashSet<Long>(invisibleKeyList);
+        }
+
+        ProductSearch search = new ProductSearch(getDm(), marketplaceId,
+                listCriteria, DEFAULT_LOCALE, locale, invisibleKeys);
+
+        return convertToVoServiceList(search.execute(), locale, performanceHint);
+    }
 
     VOServiceListResult convertToVoServiceList(ProductSearchResult services,
             String locale, PerformanceHint performanceHint) {
@@ -321,18 +347,19 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
     private Marketplace loadMarketplace(String marketplaceId)
             throws ObjectNotFoundException {
         Marketplace marketplace = new Marketplace(marketplaceId);
-        return (Marketplace) dm.getReferenceByBusinessKey(marketplace);
+        return (Marketplace) getDm().getReferenceByBusinessKey(marketplace);
     }
 
+    @Override
     public ProductSearchResult getServicesByCategory(String marketplaceId,
             String categoryId) throws ObjectNotFoundException {
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
         ArgumentValidator.notEmptyString("categoryId", categoryId);
 
-        PlatformUser user = dm.getCurrentUserIfPresent();
+        PlatformUser user = getDm().getCurrentUserIfPresent();
         Set<Long> invisibleKeys = getInvisibleServiceKeySet(user);
 
-        ProductSearch search = new ProductSearch(dm, marketplaceId,
+        ProductSearch search = new ProductSearch(getDm(), marketplaceId,
                 generateListCriteria(categoryId), DEFAULT_LOCALE, null,
                 invisibleKeys);
         return search.execute();
@@ -345,6 +372,14 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
         criteria.setOffset(0);
         criteria.setLimit(100);
         return criteria;
+    }
+
+    public DataService getDm() {
+        return dm;
+    }
+
+    public void setDm(DataService dm) {
+        this.dm = dm;
     }
 
 }

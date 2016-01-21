@@ -58,7 +58,7 @@
       <property name="antlr.jar.name" value="antlr-2.7.7.jar" />
       <property name="antlr.jar" value="${jdbc.driver.jar.path}/${antlr.jar.name}" />
       <!-- app commons-collections jar -->
-      <property name="commons.collections.jar.name" value="commons-collections-3.2.1.jar" />
+      <property name="commons.collections.jar.name" value="commons-collections-3.2.2.jar" />
       <property name="commons.collections.jar" value="${jdbc.driver.jar.path}/${commons.collections.jar.name}" />
       <!-- app dom4j jar -->
       <property name="dom4j.jar.name" value="dom4j-1.6.1.jar" />

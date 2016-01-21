@@ -21,14 +21,20 @@ import java.util.TreeSet;
 
 import org.oscm.domobjects.BillingAdapter;
 import org.oscm.domobjects.enums.BillingAdapterIdentifier;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.billing.application.bean.PluginServiceFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * @author stavreva
  * 
  */
 public class BillingAdapterAssembler {
+
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(BillingAdapterAssembler.class);
 
     public static List<POBaseBillingAdapter> toPOBaseBillingAdapter(
             List<BillingAdapter> adapters) {
@@ -140,7 +146,7 @@ public class BillingAdapterAssembler {
     static String convertPropertiesToXML(Properties properties)
             throws IOException {
         if (properties != null) {
-            String xmlString = null;
+            String xmlString;
             try (OutputStream out = new ByteArrayOutputStream()) {
                 properties.storeToXML(out, null, "UTF-8");
                 xmlString = out.toString();
@@ -150,14 +156,13 @@ public class BillingAdapterAssembler {
         return null;
     }
 
-    // TODO handle IOException
     static Properties convertXMLToProperties(String xmlString) {
         if (xmlString != null) {
             Properties properties = new Properties();
             try (InputStream in = new ByteArrayInputStream(xmlString.getBytes())) {
                 properties.loadFromXML(in);
             } catch (IOException e) {
-
+                LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
             }
             return properties;
         }

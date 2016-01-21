@@ -8,6 +8,9 @@
 
 package org.oscm.apiversioning.handler;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -18,6 +21,7 @@ import java.util.Properties;
  * needs to access a web service.
  */
 public class PropertyFileReader {
+    private static Log logger = LogFactory.getLog(PropertyFileReader.class);
     /**
      * Get properties from specified file for accessing the target Web service.
      * 
@@ -40,11 +44,12 @@ public class PropertyFileReader {
         try {
             props.load(in);
         } catch (IOException e) {
+            logger.error("Error loading properties.", e);
         } finally {
             try {
                 in.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.error("Error closing stream.", e);
             }
         }
         return props;

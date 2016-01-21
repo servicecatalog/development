@@ -5,8 +5,10 @@
 package org.oscm.serviceprovisioningservice.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.math.BigDecimal;
@@ -35,7 +37,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -66,41 +67,6 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.landingpageService.local.LandingpageServiceLocal;
-import org.oscm.marketplace.bean.CategorizationServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.search.IndexRequestMasterListener;
-import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
-import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
-import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
-import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
-import org.oscm.test.StaticEJBTestBase;
-import org.oscm.test.TestDateFactory;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PaymentInfos;
-import org.oscm.test.data.PaymentTypes;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.FifoJMSQueue;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.LdapAccessServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.types.constants.Configuration;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.internal.intf.CategorizationService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.SearchService;
@@ -135,7 +101,42 @@ import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOUda;
+import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.marketplace.bean.CategorizationServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.provisioning.data.User;
+import org.oscm.search.IndexRequestMasterListener;
+import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
+import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
+import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
+import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
+import org.oscm.test.StaticEJBTestBase;
+import org.oscm.test.TestDateFactory;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PaymentInfos;
+import org.oscm.test.data.PaymentTypes;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.FifoJMSQueue;
+import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.LdapAccessServiceStub;
+import org.oscm.test.stubs.PaymentServiceStub;
+import org.oscm.test.stubs.SessionServiceStub;
+import org.oscm.test.stubs.TaskQueueServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.types.constants.Configuration;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 
 public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
@@ -248,6 +249,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
     private static long platformOperatorAdminKey;
     private static long platformOperatorUserKey;
+    private static long unitAdminUserKey;
     private static long suspendedServiceKey;
     private static long suspendedCustServiceKey;
 
@@ -261,6 +263,8 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
 
     private static UserGroupServiceLocalBean userGroupServiceLocalBean;
     private static long endUerKey;
+
+    private static PlatformUser unitAdminUser;
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -432,6 +436,22 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
                 platformOperatorUser = Organizations.createUserForOrg(ds,
                         platformOperatorOrg, false, "mpOwnerUser");
                 platformOperatorUserKey = platformOperatorUser.getKey();
+                return null;
+            }
+        });
+
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+
+                unitAdminUser = Organizations.createUserForOrg(ds,
+                        platformOperatorOrg, false, "unitAdmin");
+                unitAdminUser = Organizations.createUserForOrg(ds,
+                        platformOperatorOrg, false, "unitAdminUser");
+                PlatformUsers.grantRoles(ds, unitAdminUser,
+                        UserRoleType.UNIT_ADMINISTRATOR);
+                unitAdminUserKey = unitAdminUser.getKey();
                 return null;
             }
         });
@@ -2349,6 +2369,20 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         Assert.assertFalse(resultContainsService(suspendedServiceKey, result));
         Assert.assertFalse(resultContainsService(suspendedCustServiceKey,
                 result));
+    }
+
+    @Test
+    public void testGetServicesByCriteria_AsUnitAdmin() throws Exception {
+        // given
+        container.login(unitAdminUserKey, ROLE_UNIT_ADMINISTRATOR);
+        ListCriteria crit = getCriteria(-1, -1, null, null);
+
+        // when
+        search.getServicesByCriteria(FUJITSU, "en", crit);
+
+        // then
+        verify(userGroupServiceLocalBean, atLeastOnce())
+                .getInvisibleProductKeysForUser(unitAdminUserKey);
     }
 
     /**

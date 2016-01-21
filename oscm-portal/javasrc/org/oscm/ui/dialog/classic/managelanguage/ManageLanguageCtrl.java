@@ -529,11 +529,12 @@ public class ManageLanguageCtrl extends BaseBean implements Serializable {
                         TranslationImportException.Reason.MISSING_STANDARD_LANGUAGE);
             }
         }
-        if (propertiesMap.keySet().size() == STANDARD_LANGUAGE_NUM) {
+        int keysetSize = propertiesMap.keySet().size();
+        if (keysetSize == STANDARD_LANGUAGE_NUM) {
             throw new PropertiesImportException(
                     PropertiesImportException.Reason.NONE_LANGUAGE_CODE);
         }
-        if (propertiesMap.keySet().size() != STANDARD_LANGUAGE_NUM
+        if (keysetSize != STANDARD_LANGUAGE_NUM
                 + ALLOWED_IMPORTED_LANGUAGE_NUM) {
             throw new TranslationImportException(
                     TranslationImportException.Reason.MULTI_LANGUAGE_CODE_NOT_SUPPORTE);

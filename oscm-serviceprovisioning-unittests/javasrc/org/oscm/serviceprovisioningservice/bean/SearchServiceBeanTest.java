@@ -41,7 +41,7 @@ public class SearchServiceBeanTest {
     public void setUp() throws Exception {
         searchServiceBean = spy(new SearchServiceBean());
         indexMQSender = mock(IndexMQSender.class);
-        searchServiceBean.dm = mock(DataService.class);
+        searchServiceBean.setDm(mock(DataService.class));
         searchServiceBean.userGroupService = mock(UserGroupServiceLocalBean.class);
         doReturn(indexMQSender).when(searchServiceBean).getMQSender();
     }

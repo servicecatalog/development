@@ -99,18 +99,14 @@ public class PasswordRecoveryServiceBean implements PasswordRecoveryService {
                     new Object[] { confirmationURL });
             logger.logInfo(Log4jLogger.ACCESS_LOG,
                     LogMessageIdentifier.INFO_USER_PWDRECOVERY_REQUEST, userId);
-        } catch (ObjectNotFoundException e) {
-
-        } catch (OperationNotPermittedException e) {
-
-        } catch (UnsupportedEncodingException e) {
-            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_ENCODE_URL_FAILED);
         } catch (MailOperationException e) {
             sessionCtx.setRollbackOnly();
             logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_MAIL_OPERATION_FAILED);
-        } catch (EJBTransactionRolledbackException e) {
+        } catch (UnsupportedEncodingException | OperationNotPermittedException
+                | EJBTransactionRolledbackException | ObjectNotFoundException e) {
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_ENCODE_URL_FAILED);
 
         }
     }

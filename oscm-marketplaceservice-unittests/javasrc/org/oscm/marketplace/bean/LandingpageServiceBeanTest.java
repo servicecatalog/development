@@ -9,15 +9,16 @@
 package org.oscm.marketplace.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Product;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
@@ -28,13 +29,13 @@ import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
  */
 public class LandingpageServiceBeanTest {
 
-    private LandingpageServiceBean LandingpageService;
+    private LandingpageServiceBean landingpageServiceBean;
 
     @Before
     public void setup() throws Exception {
-        LandingpageService = spy(new LandingpageServiceBean());
-        LandingpageService.dm = mock(DataService.class);
-        LandingpageService.userGroupService = mock(UserGroupServiceLocalBean.class);
+        landingpageServiceBean = spy(new LandingpageServiceBean());
+        landingpageServiceBean.dm = mock(DataService.class);
+        landingpageServiceBean.userGroupService = mock(UserGroupServiceLocalBean.class);
     }
 
     @Test
@@ -45,7 +46,7 @@ public class LandingpageServiceBeanTest {
         keys.add(Long.valueOf(1000L));
 
         // when
-        List<Product> result = LandingpageService.removeInvisibleProducts(
+        List<Product> result = landingpageServiceBean.removeInvisibleProducts(
                 prods, keys);
 
         // then
@@ -61,11 +62,32 @@ public class LandingpageServiceBeanTest {
         keys.add(Long.valueOf(4000L));
 
         // when
-        LandingpageService.removeInvisibleProducts(prods, keys);
+        landingpageServiceBean.removeInvisibleProducts(prods, keys);
 
         // then
         assertEquals(prods.size(), prods.size());
 
+    }
+
+    @Test
+    public void getKeysForLocalization() {
+        // given
+        List<Product> products = new ArrayList<Product>();
+        Product templateProduct = new Product();
+        templateProduct.setKey(1000L);
+        Product customerProduct = new Product();
+        customerProduct.setKey(2000L);
+        customerProduct.setTemplate(templateProduct);
+        products.add(templateProduct);
+        products.add(customerProduct);
+
+        // when
+        Set<Long> keys = landingpageServiceBean
+                .getKeysForLocalization(products);
+
+        // then
+        assertEquals(1, keys.size());
+        assertTrue(keys.contains(Long.valueOf(1000L)));
     }
 
     private List<Product> givenProducts() {
@@ -79,4 +101,5 @@ public class LandingpageServiceBeanTest {
 
         return prods;
     }
+
 }

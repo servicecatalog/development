@@ -69,7 +69,7 @@
         <dependency org="org.apache.ws.commons.schema" name="XmlSchema" rev="1.4.3" transitive="false"/>
         <dependency org="commons-beanutils" name="commons-beanutils" rev="1.8.3" transitive="false"/>
         <dependency org="commons-codec" name="commons-codec" rev="1.4" transitive="false"/>
-        <dependency org="commons-collections" name="commons-collections" rev="3.2.1" transitive="false"/>
+        <dependency org="commons-collections" name="commons-collections" rev="3.2.2" transitive="false"/>
         <dependency org="org.apache.commons" name="commons-lang3" rev="3.1" transitive="false"/>
         <dependency org="commons-configuration" name="commons-configuration" rev="1.8" transitive="false"/>
         <!--jar is not used but sources

@@ -30,23 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.resolver.IPResolver;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
-import org.oscm.ui.common.SessionListener;
-import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
-import org.oscm.ui.dialog.state.TableState;
-import org.oscm.ui.filter.AuthenticationSettings;
-import org.oscm.ui.model.User;
-import org.oscm.ui.model.UserRole;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -67,6 +50,22 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.resolver.IPResolver;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.constants.marketplace.Marketplace;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.common.ADMStringUtils;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.ServiceAccess;
+import org.oscm.ui.common.SessionListener;
+import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
+import org.oscm.ui.dialog.state.TableState;
+import org.oscm.ui.filter.AuthenticationSettings;
+import org.oscm.ui.model.User;
+import org.oscm.ui.model.UserRole;
 
 /**
  * Backing bean for user related actions
@@ -284,12 +283,15 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     public boolean getIsUnitAdmin() {
-        return getUserFromSession().getUserRoles().contains(UserRoleType.UNIT_ADMINISTRATOR);
+        return getUserFromSession().getUserRoles().contains(
+                UserRoleType.UNIT_ADMINISTRATOR);
     }
 
     public boolean getIsSubscriptionManager() {
-        return getUserFromSession().getUserRoles().contains(UserRoleType.SUBSCRIPTION_MANAGER);
+        return getUserFromSession().getUserRoles().contains(
+                UserRoleType.SUBSCRIPTION_MANAGER);
     }
+
     /**
      * Returns the user details for the logged in user.
      * 
@@ -625,6 +627,8 @@ public class UserBean extends BaseBean implements Serializable {
             HttpSession session, boolean successOnEmptyRedirect) {
         VOUserDetails user = getLoggedInUser();
 
+        checkAddSubacription(user);
+
         if (requestedRedirect != null && requestedRedirect.trim().length() > 0) {
             confirmedRedirect = requestedRedirect;
         } else if (!successOnEmptyRedirect
@@ -667,6 +671,39 @@ public class UserBean extends BaseBean implements Serializable {
             return OUTCOME_SUCCESS;
         }
         return OUTCOME_MARKETPLACE_REDIRECT;
+    }
+
+    /**
+     * The method to block the users with no access rights for subscriptions,
+     * direct after login
+     * 
+     * @param user
+     */
+    void checkAddSubacription(VOUserDetails user) {
+        if (user == null) {
+            return;
+        }
+        final String subscriptionAddPage = "/marketplace/subscriptions/creation/add.jsf";
+        if (requestedRedirect.contains(subscriptionAddPage)) {
+
+            List<Long> invisibleProductKeys = new ArrayList<Long>();
+            try {
+                invisibleProductKeys = getUserGroupService()
+                        .getInvisibleProductKeysForUser(user.getKey());
+            } catch (ObjectNotFoundException e) {
+            }
+
+            long selectedServiceKey = sessionBean
+                    .getSelectedServiceKeyForCustomer();
+
+            if (!user.hasAdminRole()
+                    && invisibleProductKeys.contains(Long
+                            .valueOf(selectedServiceKey))) {
+                requestedRedirect = requestedRedirect.replaceAll(
+                        subscriptionAddPage,
+                        BaseBean.MARKETPLACE_ACCESS_DENY_PAGE);
+            }
+        }
     }
 
     /**
@@ -852,8 +889,8 @@ public class UserBean extends BaseBean implements Serializable {
         try {
             getIdService().changePassword(currentPassword, password);
         } catch (SecurityCheckException e) {
-                VOUserDetails user = getIdService().getCurrentUserDetails();
-                if (user.getStatus() == UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS) {
+            VOUserDetails user = getIdService().getCurrentUserDetails();
+            if (user.getStatus() == UserAccountStatus.LOCKED_FAILED_LOGIN_ATTEMPTS) {
                 if (!isChangePwdOnLogin()) {
                     return logoff();
                 } else {
@@ -1010,7 +1047,8 @@ public class UserBean extends BaseBean implements Serializable {
 
     private String handleAuthentication(HttpSession session) {
         try {
-            return getAuthenticationHandler().handleAuthentication(true, session);
+            return getAuthenticationHandler().handleAuthentication(true,
+                    session);
         } catch (SAML2AuthnRequestException e) {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
             return OUTCOME_MARKETPLACE_ERROR_PAGE;

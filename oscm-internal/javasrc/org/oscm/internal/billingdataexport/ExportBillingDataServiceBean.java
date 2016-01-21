@@ -50,6 +50,7 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
     @EJB(beanInterface = DataService.class)
     DataService dm;
 
+    @Override
     @RolesAllowed({ "MARKETPLACE_OWNER", "SERVICE_MANAGER", "RESELLER_MANAGER",
             "BROKER_MANAGER", "PLATFORM_OPERATOR" })
     public Response exportRevenueShares(PORevenueShareExport exportParam)
@@ -78,6 +79,7 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
         return new Response(xmlResult);
     }
 
+    @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER" })
     public Response exportBillingData(POBillingDataExport exportParam)
             throws NoBilingSharesDataAvailableException,
@@ -101,6 +103,7 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
         return new Response(xmlResult);
     }
 
+    @Override
     public List<BillingSharesResultType> getBillingShareResultTypes() {
 
         List<BillingSharesResultType> resultTypes = new ArrayList<BillingSharesResultType>();
@@ -109,10 +112,11 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
         return resultTypes;
     }
 
+    @Override
     public List<POOrganization> getCustomers() {
         List<VOOrganization> customerOrgs = null;
         try {
-            customerOrgs = accountService.getMyCustomers();
+            customerOrgs = accountService.getMyCustomersOptimization();
         } catch (OrganizationAuthoritiesException e) {
             return new ArrayList<POOrganization>();
         }
@@ -164,6 +168,7 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
         return billingShareTypes;
     }
 
+    @Override
     public boolean isPlatformOperator() {
         Set<OrganizationRoleType> orgRoles = idService.getCurrentUserDetails()
                 .getOrganizationRoles();
@@ -173,6 +178,7 @@ public class ExportBillingDataServiceBean implements ExportBillingDataService {
         return false;
     }
 
+    @Override
     public boolean isSupplierOrReseller() {
         Set<OrganizationRoleType> orgRoles = idService.getCurrentUserDetails()
                 .getOrganizationRoles();
