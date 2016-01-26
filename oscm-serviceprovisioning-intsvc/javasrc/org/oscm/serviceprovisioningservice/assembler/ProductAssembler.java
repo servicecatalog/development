@@ -30,8 +30,6 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -48,6 +46,8 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * @author G&uuml;nther Schmid
@@ -270,7 +270,8 @@ public class ProductAssembler extends BaseAssembler {
         if (scope == PerformanceHint.ONLY_FIELDS_FOR_LISTINGS) {
             List<Long> objectKeys = new ArrayList<Long>();
             for (Product product : products) {
-                objectKeys.add(Long.valueOf(product.getKey()));
+                objectKeys.add(Long.valueOf(product.getTemplateOrSelf()
+                        .getKey()));
             }
             facade.prefetch(
                     objectKeys,

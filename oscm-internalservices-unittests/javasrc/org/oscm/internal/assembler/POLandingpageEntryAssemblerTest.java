@@ -8,13 +8,16 @@
 
 package org.oscm.internal.assembler;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.oscm.test.Numbers.L_TIMESTAMP;
 import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static org.oscm.test.matchers.JavaMatchers.hasOneItem;
 import static org.oscm.test.matchers.JavaMatchers.isNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +25,10 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
+import org.mockito.MockitoAnnotations;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
@@ -30,12 +36,12 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.internal.landingpage.POLandingpageEntry;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.test.stubs.LocalizerServiceStub;
 
 /**
  * @author zankov
@@ -44,6 +50,8 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 public class POLandingpageEntryAssemblerTest {
 
     private LocalizerFacade facade;
+    @Captor
+    ArgumentCaptor<List<Long>> objectKeyCaptor;
 
     @Before
     public void setup() throws Exception {
@@ -55,6 +63,8 @@ public class POLandingpageEntryAssemblerTest {
                 return objectType.name();
             }
         }, "en");
+
+        MockitoAnnotations.initMocks(this);
     }
 
     private Organization givenSupplier() {
@@ -260,5 +270,70 @@ public class POLandingpageEntryAssemblerTest {
         owner.setUserId("OWNER_USER_ID");
         subscription.setOwner(owner);
         return subscription;
+    }
+
+    @Test
+    public void toPOLandingpageEntries_prefetchForPoducts_withoutTemplates_bug12479() {
+        // given
+        List<Subscription> subscriptions = Arrays.asList(
+                givenSubscription("sub_1", ServiceAccessType.LOGIN),
+                givenSubscription("sub_2", ServiceAccessType.LOGIN));
+        List<Product> services = Arrays
+                .asList(givenProduct(ServiceAccessType.LOGIN));
+        LocalizerFacade facadeMock = spy(facade);
+
+        // when
+        POLandingpageEntryAssembler.toPOLandingpageEntries(services,
+                subscriptions, facadeMock);
+
+        // than
+        verify(facadeMock, times(2)).prefetch(objectKeyCaptor.capture(),
+                Matchers.anyListOf(LocalizedObjectTypes.class));
+        List<List<Long>> args = objectKeyCaptor.getAllValues();
+        List<Long> objectkeys = args.get(0);
+        assertEquals(1, objectkeys.size());
+        assertEquals(Long.valueOf(4321), objectkeys.get(0));
+    }
+
+    @Test
+    public void toPOLandingpageEntries_prefetchForPoducts_withTemplates_bug12479() {
+        // given
+        List<Subscription> subscriptions = Arrays.asList(
+                givenSubscription("sub_1", ServiceAccessType.LOGIN),
+                givenSubscription("sub_2", ServiceAccessType.LOGIN));
+        List<Product> services = new ArrayList<Product>();
+        services.add(givenProduct(ServiceAccessType.LOGIN));
+        Product template = new Product();
+        template.setType(ServiceType.TEMPLATE);
+        template.setVendor(givenSupplier());
+        template.setTechnicalProduct(givenTechnicalProduct(ServiceAccessType.LOGIN));
+        template.setKey(4322);
+        template.setProductId("template");
+        template.setStatus(ServiceStatus.ACTIVE);
+        services.add(template);
+        Product product = new Product();
+        product.setType(ServiceType.TEMPLATE);
+        product.setVendor(givenSupplier());
+        product.setTechnicalProduct(givenTechnicalProduct(ServiceAccessType.LOGIN));
+        product.setKey(4323);
+        product.setProductId("product");
+        product.setStatus(ServiceStatus.ACTIVE);
+        product.setTemplate(template);
+        services.add(product);
+        LocalizerFacade facadeMock = spy(facade);
+
+        // when
+        POLandingpageEntryAssembler.toPOLandingpageEntries(services,
+                subscriptions, facadeMock);
+
+        // than
+        verify(facadeMock, times(2)).prefetch(objectKeyCaptor.capture(),
+                Matchers.anyListOf(LocalizedObjectTypes.class));
+        List<List<Long>> args = objectKeyCaptor.getAllValues();
+        List<Long> objectkeys = args.get(0);
+        assertEquals(3, objectkeys.size());
+        assertEquals(Long.valueOf(4321), objectkeys.get(0));
+        assertEquals(Long.valueOf(4322), objectkeys.get(1));
+        assertEquals(Long.valueOf(4322), objectkeys.get(2));
     }
 }

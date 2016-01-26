@@ -20,10 +20,10 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductOperation;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.internal.landingpage.POLandingpageEntry;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 
 /**
  * Assembler that merges service and subscription into PO object
@@ -142,8 +142,8 @@ public class POLandingpageEntryAssembler extends BasePOAssembler {
         entry.setSubscribed(true);
     }
 
-    static void setServiceAccessUrl(Subscription subscription, POLandingpageEntry entry,
-            TechnicalProduct techProd) {
+    static void setServiceAccessUrl(Subscription subscription,
+            POLandingpageEntry entry, TechnicalProduct techProd) {
         if (subscription.getBaseURL() == null) {
             entry.setServiceAccessURL(techProd.getBaseURL());
         } else {
@@ -178,7 +178,7 @@ public class POLandingpageEntryAssembler extends BasePOAssembler {
             LocalizerFacade facade) {
         List<Long> objectKeys = new ArrayList<Long>();
         for (Product product : products) {
-            objectKeys.add(Long.valueOf(product.getKey()));
+            objectKeys.add(Long.valueOf(product.getTemplateOrSelf().getKey()));
         }
         facade.prefetch(
                 objectKeys,
