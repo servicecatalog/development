@@ -263,6 +263,7 @@ public class BillingAdapterCtrl extends BaseBean {
     private void setSelectedPanel(int index){
         String selectedPanel = model.getPanelBarItemPrefix() + ":" + index
                 + ":" + model.getPanelBarItemSufix();
+        model.setSelectedIndex(index);
         model.setSelectedPanel(selectedPanel);
     }
 

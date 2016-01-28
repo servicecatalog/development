@@ -14,11 +14,12 @@
 
   <adm:buttonPanel id="externalPriceModelActions">
     <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
-      onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click()" value="#{msg['button.upload']}"
+      onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click();" value="#{msg['button.upload']}"
       type="submit" buttonType="upload" />
 
-    <a4j:commandButton id="hiddenUploadExternalPriceModelButton" action="#{priceModelCtrl.upload}" style="display:none"
-      render="mainTmplMessagesPanel externalPriceModelActions" />
+    <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
+      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);"
+      action="#{priceModelCtrl.upload}" />
 
     <ui:include src="showExternalPriceModel.xhtml">
       <ui:param name="controller" value="#{priceModelCtrl}" />
