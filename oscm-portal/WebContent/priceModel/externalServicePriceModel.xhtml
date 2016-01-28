@@ -1,0 +1,68 @@
+<!-- Copyright FUJITSU LIMITED 2015-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
+
+
+  <adm:buttonPanel id="externalPriceModelActions">
+    <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
+      onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click()" value="#{msg['button.upload']}"
+      type="submit" buttonType="upload" />
+
+    <a4j:commandButton id="hiddenUploadExternalPriceModelButton" action="#{priceModelCtrl.upload}" style="display:none"
+      render="mainTmplMessagesPanel externalPriceModelActions" />
+
+    <ui:include src="showExternalPriceModel.xhtml">
+      <ui:param name="controller" value="#{priceModelCtrl}" />
+      <ui:param name="disabled" value="#{empty priceModelCtrl.model.selectedPriceModelContent}" />
+      <ui:param name="buttonType" value="preview" />
+    </ui:include>
+  </adm:buttonPanel>
+
+  <script type="text/javascript">
+      syncFreePeriod = function() {
+        if(#{rich:element('freePeriod')}) {
+          // synchronize the hidden field, as the validation of freePeriod might fail
+          #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
+        }
+      }
+      toggleFreePeriod = function() {
+        if(#{rich:element('freePeriod')}) {
+          var isFreePeriodAvailable = #{rich:element('freePeriodAvailable')}.checked;
+          
+         switch(isFreePeriodAvailable) {
+	         case false:
+	        	  jQuery( #{rich:element('freePeriodPanel')}).css('display','none');
+	        	  break;
+	         case true:
+	        	 // remove display on element. using block or inline introduces unwanted padding
+	        	 jQuery( #{rich:element('freePeriodPanel')}).css('display','');
+	        	 break;
+          }
+
+          if(isFreePeriodAvailable) {
+            // restore the freePeriod from hidden, as it might have been reseted
+            #{rich:element('freePeriod')}.value=#{rich:element('freePeriodHidden')}.value;
+          } else {
+            // store the freePeriod in hidden and reset it, as it might be invalid
+            #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
+            #{rich:element('freePeriod')}.value=0;
+          }
+        }
+        AdmUtils.setUIElements();
+      }
+      // initialize the freePeriodHidden field after page load, to avoid being resetted by JSF on validation errors
+      syncFreePeriod();
+      // initialize the freePeriod visibility
+      toggleFreePeriod();
+    </script>
+
+</ui:composition>

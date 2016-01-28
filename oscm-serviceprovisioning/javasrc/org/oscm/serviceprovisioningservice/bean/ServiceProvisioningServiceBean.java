@@ -35,6 +35,7 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.apache.commons.validator.GenericValidator;
+
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -2304,7 +2305,14 @@ public class ServiceProvisioningServiceBean implements
                     productType, targetCustomer, subscription,
                     isTemplateExistsForCustomer);
         } else {
-            setPriceModelToFree(voPriceModel, priceModel);
+
+            if (voPriceModel.isExternal()) {
+                setPriceModelToExternal(voPriceModel, priceModel);
+                priceModel.setExternal(true);
+                priceModel.setUuid(voPriceModel.getUuid());
+            } else{
+                setPriceModelToFree(voPriceModel, priceModel);
+            }
         }
 
         product.setPriceModel(priceModel);
@@ -2347,7 +2355,16 @@ public class ServiceProvisioningServiceBean implements
         PriceModelType oldPriceModelType = priceModel.getType();
         PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
                 priceModel, DateFactory.getInstance().getTransactionTime());
-        priceModelHandler.resetToNonChargeable();
+        priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
+        priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
+                voPriceModel.getKey(), oldPriceModelType);
+    }
+    
+    void setPriceModelToExternal(VOPriceModel voPriceModel, PriceModel priceModel) {
+        PriceModelType oldPriceModelType = priceModel.getType();
+        PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
+                priceModel, DateFactory.getInstance().getTransactionTime());
+        priceModelHandler.resetToNonChargeable(PriceModelType.UNKNOWN);
         priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
                 voPriceModel.getKey(), oldPriceModelType);
     }

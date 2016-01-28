@@ -31,9 +31,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.types.enumtypes.ProvisioningType;
 
 /**
  * This object represents a technical product that is provided via the platform
@@ -43,13 +44,13 @@ import org.oscm.internal.types.enumtypes.ServiceAccessType;
  */
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {
-        "technicalProductId", "organizationKey" }))
+        "technicalProductId", "organizationKey" }) )
 @NamedQueries({
         @NamedQuery(name = "TechnicalProduct.findByBusinessKey", query = "SELECT obj FROM TechnicalProduct obj WHERE obj.dataContainer.technicalProductId = :technicalProductId AND obj.organizationKey = :organizationKey"),
         @NamedQuery(name = "TechnicalProduct.getTechnicalProductsById", query = "SELECT p FROM TechnicalProduct p WHERE p.dataContainer.technicalProductId = :technicalProductId") })
 @BusinessKey(attributes = { "technicalProductId", "organizationKey" })
-public class TechnicalProduct extends
-        DomainObjectWithHistory<TechnicalProductData> {
+public class TechnicalProduct
+        extends DomainObjectWithHistory<TechnicalProductData> {
 
     private static final long serialVersionUID = -3908268076011224319L;
 
@@ -179,6 +180,12 @@ public class TechnicalProduct extends
         return dataContainer.getBillingIdentifier();
     }
 
+    public boolean isExternalBilling() {
+        String billingIdentifier = getBillingIdentifier();
+        return (!BillingAdapterIdentifier.NATIVE_BILLING.toString()
+                .equals(billingIdentifier));
+    }
+
     public Long getProvisioningTimeout() {
         return dataContainer.getProvisioningTimeout();
     }
@@ -282,7 +289,8 @@ public class TechnicalProduct extends
         return dataContainer.isOnlyOneSubscriptionAllowed();
     }
 
-    public void setOnlyOneSubscriptionAllowed(boolean onlyOneSubscriptionAllowed) {
+    public void setOnlyOneSubscriptionAllowed(
+            boolean onlyOneSubscriptionAllowed) {
         dataContainer.setOnlyOneSubscriptionAllowed(onlyOneSubscriptionAllowed);
     }
 
@@ -296,11 +304,10 @@ public class TechnicalProduct extends
 
     @Override
     String toStringAttributes() {
-        return String
-                .format(", technicalProductId='%s', organizationKey='%s', %nevents='%s', %nparameterDefinitions='%s'",
-                        getTechnicalProductId(),
-                        Long.valueOf(getOrganizationKey()), getEvents(),
-                        getParameterDefinitions());
+        return String.format(
+                ", technicalProductId='%s', organizationKey='%s', %nevents='%s', %nparameterDefinitions='%s'",
+                getTechnicalProductId(), Long.valueOf(getOrganizationKey()),
+                getEvents(), getParameterDefinitions());
     }
 
     @Override

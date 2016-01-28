@@ -25,6 +25,7 @@ public class PriceModelContent implements Serializable {
     private String contentType;
     private byte[] content;
     private String tag;
+    private String filename;
 
     public PriceModelContent() {
     }
@@ -63,6 +64,14 @@ public class PriceModelContent implements Serializable {
 
     public void setTag(String tag) {
         this.tag = tag;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
 }

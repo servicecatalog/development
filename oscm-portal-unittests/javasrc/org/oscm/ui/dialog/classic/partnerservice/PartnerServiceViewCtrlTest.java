@@ -170,7 +170,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void save() throws Exception {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.partnerServices = mock(PartnerService.class);
         when(
                 ctrl.partnerServices
@@ -190,7 +190,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void save_Failure() throws Exception {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.partnerServices = mock(PartnerService.class);
         doThrow(new ServiceStateException())
                 .when(ctrl.partnerServices)
@@ -231,7 +231,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ServiceKeyZero() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(0);
 
         // when
@@ -244,7 +244,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ServiceKeyNegative() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(-1);
 
         // when
@@ -257,7 +257,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ServiceKeyPositive() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(1);
 
         // when
@@ -270,7 +270,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ResellerServiceKeyPositive() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(1);
         user.getUserRoles().add(UserRoleType.RESELLER_MANAGER);
 
@@ -284,7 +284,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ResellerServiceKeyNegative() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(-1);
         user.getUserRoles().add(UserRoleType.RESELLER_MANAGER);
 
@@ -298,7 +298,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_ResellerServiceKeyZero() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(0);
         user.getUserRoles().add(UserRoleType.RESELLER_MANAGER);
 
@@ -312,7 +312,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_BrokerServiceKeyPositive() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(1);
         user.getUserRoles().add(UserRoleType.BROKER_MANAGER);
 
@@ -326,7 +326,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_BrokerServiceKeyNegative() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(-1);
         user.getUserRoles().add(UserRoleType.BROKER_MANAGER);
 
@@ -340,7 +340,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void isDisabled_BrokerServiceKeyZero() {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setSelectedServiceKey(0);
         user.getUserRoles().add(UserRoleType.BROKER_MANAGER);
 
@@ -354,7 +354,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void serviceChanged() throws Exception {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.partnerServices = mock(PartnerService.class);
         POPartnerServiceDetails s = new POPartnerServiceDetails();
         s.setServiceKey(4L);
@@ -383,7 +383,7 @@ public class PartnerServiceViewCtrlTest {
     @Test
     public void serviceChanged_Error() throws Exception {
         // given
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.partnerServices = mock(PartnerService.class);
         doThrow(new ServiceStateException()).when(ctrl.partnerServices)
                 .getServiceDetails(3L);
@@ -402,7 +402,7 @@ public class PartnerServiceViewCtrlTest {
 
     @Test
     public void isRolesRendered() {
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
         ctrl.getModel().setRolePrices(null);
 
         boolean rolesRendered = ctrl.isRolesRendered();
@@ -412,7 +412,7 @@ public class PartnerServiceViewCtrlTest {
 
     @Test
     public void isRolesRendered_RolePrices() {
-        ctrl.getInitializePartnerServiceView();
+        ctrl.initializePartnerServiceView();
 
         boolean rolesRendered = ctrl.isRolesRendered();
 

@@ -23,6 +23,7 @@ import org.oscm.ui.model.PricedParameterRow;
 import org.oscm.ui.model.RoleSpecificPrice;
 import org.oscm.ui.model.Service;
 import org.oscm.ui.model.ServiceReview;
+import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.partnerservice.POVendorAddress;
 import org.oscm.internal.review.POServiceFeedback;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -41,6 +42,7 @@ public class ServiceDetailsModel implements Serializable {
     private POVendorAddress servicePartner;
     private POVendorAddress serviceSupplier;
     List<Long> invisibleProductKeys;
+    private PriceModelContent priceModelContent;
 
     boolean parametersWithSteppedPrices = false;
     boolean pricedEventsWithSteppedPrices = false;
@@ -185,6 +187,14 @@ public class ServiceDetailsModel implements Serializable {
 
     public void setInvisibleProductKeys(List<Long> invisibleProductsKeys) {
         invisibleProductKeys = invisibleProductsKeys;
+    }
+
+    public PriceModelContent getPriceModelContent() {
+        return priceModelContent;
+    }
+
+    public void setPriceModelContent(PriceModelContent priceModelContent) {
+        this.priceModelContent = priceModelContent;
     }
 
 }

@@ -11,9 +11,12 @@ package org.oscm.internal.vo;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * Represents a price model.
@@ -21,6 +24,10 @@ import org.oscm.internal.types.enumtypes.PricingPeriod;
 public class VOPriceModel extends BaseVO {
 
     private static final long serialVersionUID = 5326854330135373796L;
+
+    private byte[] presentation;
+
+    private String presentationDataType;
 
     private String description;
 
@@ -93,6 +100,89 @@ public class VOPriceModel extends BaseVO {
     private String license;
 
     /**
+     * Boolean flag for the type of the price model (external or native).
+     */
+    private boolean external;
+
+    /**
+     * UUID, the external price model id (from billing adapter).
+     */
+    private UUID uuid;
+
+    /**
+     * Returns a boolean flag for the type of the price model (external or
+     * native).
+     * 
+     * @return true if the price model is external, false otherwise
+     */
+    public boolean isExternal() {
+        return this.external;
+    }
+
+    /**
+     * Sets the boolean flag for the price model type (external or native)
+     * 
+     * @param external
+     *            boolean which is true for external price model
+     */
+    public void setExternal(boolean external) {
+        this.external = external;
+    }
+
+    /**
+     * Retrieves the price model presentation.
+     * 
+     * @return the price model presentation data
+     */
+    public byte[] getPresentation() {
+        return presentation;
+    }
+
+    /**
+     * Sets the price model presentation
+     * 
+     * @param presentation
+     *            the price model presentation data
+     */
+    public void setPresentation(byte[] presentation) {
+        this.presentation = presentation;
+    }
+
+    /**
+     * Retrieves the price model presentation data type.
+     * 
+     * @return the price model presentation data type
+     */
+    public String getPresentationDataType() {
+        return presentationDataType;
+    }
+
+    /**
+     * Returns the JSON representation of the price model as a string. The
+     * representation is only valid for external price models.
+     * 
+     * @return
+     */
+    public String getAsJSON() {
+        if (presentation != null
+                && MediaType.APPLICATION_JSON.equals(presentationDataType)) {
+            return new String(presentation);
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Sets the price model presentation data type
+     * 
+     * @param presentationDataType
+     *            the price model presentation data type
+     */
+    public void setPresentationDataType(String presentationDataType) {
+        this.presentationDataType = presentationDataType;
+    }
+
+    /**
      * Sets the priced events to be considered in the price model.
      * 
      * @param consideredEvents
@@ -129,7 +219,18 @@ public class VOPriceModel extends BaseVO {
      *         the service is free of charge
      */
     public boolean isChargeable() {
-        return type != PriceModelType.FREE_OF_CHARGE;
+        return type != PriceModelType.FREE_OF_CHARGE
+                && type != PriceModelType.UNKNOWN;
+    }
+
+    /**
+     * Checks whether customers are not charged for the service.
+     * 
+     * @return <code>true</code> if customers are not charged,
+     *         <code>false</code> otherwise
+     */
+    public boolean isFree() {
+        return type == PriceModelType.FREE_OF_CHARGE;
     }
 
     /**
@@ -274,7 +375,8 @@ public class VOPriceModel extends BaseVO {
      * @param selectedParameters
      *            the list of priced parameters
      */
-    public void setSelectedParameters(List<VOPricedParameter> selectedParameters) {
+    public void setSelectedParameters(
+            List<VOPricedParameter> selectedParameters) {
         this.selectedParameters = selectedParameters;
     }
 
@@ -369,5 +471,25 @@ public class VOPriceModel extends BaseVO {
      */
     public void setType(PriceModelType type) {
         this.type = type;
+    }
+
+    public UUID getUuid() {
+        return this.uuid;
+    }
+
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean isPricePerPeriodSet() {
+        return this.pricePerPeriod.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public boolean isPricePerUserAssignmentSet() {
+        return this.pricePerUserAssignment.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    public boolean isOneTimeFeeSet() {
+        return this.oneTimeFee.compareTo(BigDecimal.ZERO) > 0;
     }
 }

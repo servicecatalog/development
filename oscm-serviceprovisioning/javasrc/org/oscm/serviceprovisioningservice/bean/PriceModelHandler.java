@@ -61,9 +61,9 @@ public class PriceModelHandler {
      * 
      * @return The modified price model.
      */
-    public PriceModel resetToNonChargeable() {
+    public PriceModel resetToNonChargeable(PriceModelType priceModelType) {
 
-        priceModel.setType(PriceModelType.FREE_OF_CHARGE);
+        priceModel.setType(priceModelType);
         priceModel.setPeriod(null);
         priceModel.setPricePerPeriod(BigDecimal.ZERO);
         priceModel.setPricePerUserAssignment(BigDecimal.ZERO);

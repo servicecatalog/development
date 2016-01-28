@@ -35,5 +35,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-application"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

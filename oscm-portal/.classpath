@@ -48,5 +48,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
 	<classpathentry kind="src" path="/oscm-app-aws"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -36,6 +36,7 @@ import org.oscm.domobjects.PricedParameter;
 import org.oscm.domobjects.PricedProductRole;
 import org.oscm.domobjects.SteppedPrice;
 import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.test.stubs.DataServiceStub;
 
 /**
@@ -72,7 +73,7 @@ public class PriceModelHandlerTest {
 
     @Test
     public void testResetToNonChargeable_PrimitiveFields() throws Exception {
-        priceModel = priceModelHandler.resetToNonChargeable();
+        priceModel = priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
         assertFalse(priceModel.isChargeable());
         Assert.assertTrue(BigDecimalComparator.isZero(priceModel.getOneTimeFee()));
         Assert.assertTrue(BigDecimalComparator.isZero(priceModel.getPricePerPeriod()));
@@ -91,7 +92,7 @@ public class PriceModelHandlerTest {
         SteppedPrice steppedPrice = new SteppedPrice();
         evt.setSteppedPrices(Collections.singletonList(steppedPrice));
 
-        priceModel = priceModelHandler.resetToNonChargeable();
+        priceModel = priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
         List<PricedEvent> consideredEvents = priceModel.getConsideredEvents();
         assertTrue(consideredEvents.isEmpty());
         assertEquals(1, removedObjects.size());
@@ -111,7 +112,7 @@ public class PriceModelHandlerTest {
         rolePrices.add(ppr);
         priceModel.setRoleSpecificUserPrices(rolePrices);
 
-        priceModel = priceModelHandler.resetToNonChargeable();
+        priceModel = priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
         steppedPrices = priceModel.getSteppedPrices();
         List<PricedProductRole> roleSpecificUserPrices = priceModel
                 .getRoleSpecificUserPrices();
@@ -146,7 +147,7 @@ public class PriceModelHandlerTest {
         option.setRoleSpecificUserPrices(rolePrices);
         param.setPricedOptionList(options);
 
-        priceModel = priceModelHandler.resetToNonChargeable();
+        priceModel = priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
 
         steppedPrices = priceModel.getSteppedPrices();
         List<PricedProductRole> roleSpecificUserPrices = priceModel

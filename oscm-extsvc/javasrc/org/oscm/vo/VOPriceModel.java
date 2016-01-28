@@ -91,7 +91,12 @@ public class VOPriceModel extends BaseVO {
      * per time unit).
      */
     private PriceModelType type = PriceModelType.FREE_OF_CHARGE;
-
+    
+    /**
+     * Boolean flag for the type of the price model (external or native).
+     */
+    private boolean external;
+    
     /**
      * Sets the priced events to be considered in the price model.
      * 
@@ -358,5 +363,25 @@ public class VOPriceModel extends BaseVO {
      */
     public void setType(PriceModelType type) {
         this.type = type;
+    }
+    
+    /**
+     * Returns a boolean flag for the type of the price model (external or
+     * native).
+     * 
+     * @return true if the price model is external, false otherwise
+     */
+    public boolean isExternal() {
+        return this.external;
+    }
+
+    /**
+     * Sets the boolean flag for the price model type (external or native)
+     * 
+     * @param external
+     *            boolean which is true for external price model
+     */
+    public void setExternal(boolean external) {
+        this.external = external;
     }
 }

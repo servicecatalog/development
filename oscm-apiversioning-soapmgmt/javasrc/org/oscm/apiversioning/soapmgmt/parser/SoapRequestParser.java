@@ -101,4 +101,21 @@ public class SoapRequestParser {
         throw new SOAPException(
                 "Soap message param " + paramName + " not found.");
     }
+    
+    public static SOAPBodyElement getChildNode(SOAPBodyElement element, String name) throws SOAPException {
+
+        @SuppressWarnings("unchecked")
+        Iterator<SOAPBodyElement> elements = element.getChildElements();
+
+        while (elements.hasNext()) {
+            SOAPBodyElement childNode = elements.next();
+
+            if (childNode.getNodeName().contains(name)) {
+                return childNode;
+            }
+        }
+
+        throw new SOAPException(
+                "Child element: " + name + " not found.");
+    }
 }

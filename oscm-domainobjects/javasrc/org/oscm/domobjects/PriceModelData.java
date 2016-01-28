@@ -75,7 +75,10 @@ public class PriceModelData extends DomainDataContainer implements Serializable 
      */
     @Column(nullable = false)
     private BigDecimal oneTimeFee = BigDecimal.ZERO;
-
+    
+    @Column(nullable = false)
+    private boolean external;
+    
     public PriceModelData() {
         super();
     }
@@ -135,5 +138,12 @@ public class PriceModelData extends DomainDataContainer implements Serializable 
     public boolean isProvisioningCompleted() {
         return provisioningCompleted;
     }
+    
+    public void setExternal(boolean external) {
+        this.external = external;
+    }
 
+    public boolean isExternal() {
+        return external;
+    }
 }

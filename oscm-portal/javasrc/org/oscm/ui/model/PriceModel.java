@@ -70,6 +70,10 @@ public class PriceModel {
         return vo.isChargeable();
     }
 
+    public boolean isExternal() {
+        return vo.isExternal();
+    }
+
     public PricingPeriod getPeriod() {
         return vo.getPeriod();
     }

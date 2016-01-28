@@ -421,6 +421,15 @@ public class ServiceProvisioningServiceWS
                     ValidationException, ServiceStateException,
                     ConcurrentModificationException, PriceModelException {
         WS_LOGGER.logAccess(wsContext, ds);
+
+        if ((productDetails != null
+                && productDetails.getTechnicalService() != null
+                && productDetails.getTechnicalService().isExternalBilling())
+                || (priceModel != null && priceModel.isExternal())) {
+            throw new PriceModelException(
+                    "Unable to save price model for service with external billing adapter connected");
+        }
+
         try {
             return VOConverter.convertToApi(delegate.savePriceModel(
                     VOConverter.convertToUp(productDetails),
@@ -451,6 +460,15 @@ public class ServiceProvisioningServiceWS
                     ServiceStateException, ServiceOperationException,
                     ConcurrentModificationException, PriceModelException {
         WS_LOGGER.logAccess(wsContext, ds);
+
+        if ((productDetails != null
+                && productDetails.getTechnicalService() != null
+                && productDetails.getTechnicalService().isExternalBilling())
+                || (priceModel != null && priceModel.isExternal())) {
+            throw new PriceModelException(
+                    "Unable to save price model for service with external billing adapter connected");
+        }
+
         try {
             return VOConverter.convertToApi(delegate.savePriceModelForCustomer(
                     VOConverter.convertToUp(productDetails),

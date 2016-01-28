@@ -29,5 +29,10 @@ public enum PriceModelType {
      * The costs are calculated based on full time units, such as full months or
      * days, for which the service was used.
      */
-    PER_UNIT;
+    PER_UNIT,
+
+    /**
+     * The price model type is unknown, it comes from external billing system.
+     */
+    UNKNOWN;
 }

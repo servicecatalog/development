@@ -96,6 +96,7 @@ public class PriceModelPlugin implements PriceModelPluginService {
                     content.setContentType(fileType);
                     content.setTag(tag);
                     content.setContent(priceModelFile);
+                    content.setFilename(fileName);
                     priceModel.put(locale, content);
                 }
             }
@@ -126,5 +127,4 @@ public class PriceModelPlugin implements PriceModelPluginService {
                 properties.getConfigProperty(PRICEMODEL_FILE_URL), queryParams);
         return restDao.getFileResponse(webResource);
     }
-
 }

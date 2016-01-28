@@ -132,7 +132,13 @@ public class VOService extends BaseVO implements Serializable {
      * The URL of an external parameter tool
      */
     private String configuratorUrl;
-
+    
+    /**
+     * The identifier of adapter for external billing system, if null System
+     * default will be used
+     */
+    private String billingIdentifier;
+    
     /**
      * Retrieves the service Id to display.
      * 
@@ -576,5 +582,20 @@ public class VOService extends BaseVO implements Serializable {
     public void setConfiguratorUrl(String configuratorUrl) {
         this.configuratorUrl = configuratorUrl;
     }
+    
+    /**
+     * @return the identifier of adapter for external billing system.
+     */
+    public String getBillingIdentifier() {
+        return billingIdentifier;
+    }
 
+    /**
+     * Sets the identifier of adapter for external billing system.
+     * 
+     * @param billingIdentifier
+     */
+    public void setBillingIdentifier(String billingIdentifier) {
+        this.billingIdentifier = billingIdentifier;
+    }
 }

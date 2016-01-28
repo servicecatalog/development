@@ -2,108 +2,152 @@
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-  xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
-  xmlns:t="http://myfaces.apache.org/tomahawk">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+	xmlns:t="http://myfaces.apache.org/tomahawk">
 
-  <adm:initialize initializingMethod="#{partnerServiceViewCtrl.initializePartnerServiceView}" />
+	<adm:outputStep value="#{msg['subscription.view.step.service']}" />
 
-  <adm:outputStep value="#{msg['subscription.view.step.service']}" />
+	<h:form id="editForm">
+		<adm:panelGrid>
+			<adm:outputLabel value="#{msg['service.serviceId']}" />
+			<a4j:outputPanel styleClass="jqSelect" layout="block">
+				<a4j:outputPanel styleClass="select">
+					<a4j:outputPanel styleClass="option" />
+				</a4j:outputPanel>
+				<h:selectOneMenu id="selectedKeyDisplay"
+					value="#{partnerServiceViewModel.selectedServiceKey}"
+					styleClass="select"
+					valueChangeListener="#{partnerServiceViewCtrl.serviceChanged}">
+					<a4j:ajax event="change"
+						render="mainTmplMessagesPanel, editForm, priceModelReadonlyPanel, buttonPanel"
+						onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
+						oncomplete="AdmUtils.setUIElements();" />
+					<adm:selectItemPleaseSelect itemValue="0" />
+					<c:forEach items="#{serviceBean.serviceNames}" var="service">
+						<f:selectItem itemLabel="#{service.serviceIdToDisplay}"
+							itemValue="#{service.key}" />
+					</c:forEach>
+				</h:selectOneMenu>
+			</a4j:outputPanel>
+			<adm:message for="selectedServiceId" />
 
-  <h:form id="editForm">
-    <adm:panelGrid>
-      <adm:outputLabel value="#{msg['service.serviceId']}" />
-      <a4j:outputPanel styleClass="jqSelect" layout="block">
-        <a4j:outputPanel styleClass="select">
-          <a4j:outputPanel styleClass="option" />
-        </a4j:outputPanel>
-        <h:selectOneMenu id="selectedKeyDisplay" value="#{partnerServiceViewModel.selectedServiceKey}"
-          styleClass="select" valueChangeListener="#{partnerServiceViewCtrl.serviceChanged}">
-        <a4j:ajax event="change"
-          render="mainTmplMessagesPanel, editForm, priceModelReadonlyPanel, buttonPanel"
-          onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}"
-          oncomplete="AdmUtils.setUIElements();" />
-        <adm:selectItemPleaseSelect itemValue="0" />
-        <c:forEach items="#{serviceBean.serviceNames}" var="service">
-          <f:selectItem itemLabel="#{service.serviceIdToDisplay}" itemValue="#{service.key}" />
-        </c:forEach>
-      </h:selectOneMenu>
-      </a4j:outputPanel>
-      <adm:message for="selectedServiceId" />
+			<h:panelGroup>
+				<adm:outputLabel value="#{msg['service.name']}" />
+			</h:panelGroup>
+			<h:panelGroup>
+				<h:outputText id="serviceName"
+					value="#{partnerServiceViewModel.partnerServiceDetails.serviceName}" />
+			</h:panelGroup>
+			<h:panelGroup />
 
-      <h:panelGroup>
-        <adm:outputLabel value="#{msg['service.name']}" />
-      </h:panelGroup>
-      <h:panelGroup>
-        <h:outputText id="serviceName" value="#{partnerServiceViewModel.partnerServiceDetails.serviceName}" />
-      </h:panelGroup>
-	  <h:panelGroup />
-	  
-	  <adm:labelAndOutputLarge label="#{msg['service.shortDescription']}" 
-          inline="false" value="#{partnerServiceViewModel.partnerServiceDetails.serviceShortDescription}" />
+			<adm:labelAndOutputLarge label="#{msg['service.shortDescription']}"
+				inline="false"
+				value="#{partnerServiceViewModel.partnerServiceDetails.serviceShortDescription}" />
 
-	  <adm:outputLabel value="#{msg['service.autoAssignUser']}" />
-      <h:selectBooleanCheckbox id="checkboxAutoAssignUser" value="#{partnerServiceViewModel.partnerServiceDetails.autoAssignUserEnabled}" disabled="true" />
-      <adm:message for="checkboxAutoAssignUser" />
+			<adm:outputLabel value="#{msg['service.autoAssignUser']}" />
+			<h:selectBooleanCheckbox id="checkboxAutoAssignUser"
+				value="#{partnerServiceViewModel.partnerServiceDetails.autoAssignUserEnabled}"
+				disabled="true" />
+			<adm:message for="checkboxAutoAssignUser" />
 
-    </adm:panelGrid>
+		</adm:panelGrid>
 
-    <a4j:outputPanel id="serviceDataPanel">
+		<a4j:outputPanel id="serviceDataPanel">
 
-      <adm:labelAndRichEditor id="description" label="#{msg['service.description']}"
-        value="#{partnerServiceViewModel.partnerServiceDetails.serviceDescription}"
-        maxlength="#{appBean.descriptionLen}" disabled="true" />
+			<adm:labelAndRichEditor id="description"
+				label="#{msg['service.description']}"
+				value="#{partnerServiceViewModel.partnerServiceDetails.serviceDescription}"
+				maxlength="#{appBean.descriptionLen}" disabled="true" />
 
-      <c:choose>
-        <c:when test="#{partnerServiceViewModel.disabled}">
-          <adm:outputStep value="#{msg['priceModel.step5.license.view']}" styleClass="preWrapping" />
-        </c:when>
-        <c:otherwise>
-          <adm:outputStep value="#{msg['priceModel.step5.license.define']}" styleClass="preWrapping" />
-        </c:otherwise>
-      </c:choose>
-      <adm:labelAndRichEditor id="license" label="#{msg['priceModel.textarea.licenseAgreement']}"
-        value="#{partnerServiceViewModel.partnerServiceDetails.priceModel.license}"
-        disabled="#{partnerServiceViewModel.disabled}" />
+			<c:choose>
+				<c:when test="#{partnerServiceViewModel.disabled}">
+					<adm:outputStep value="#{msg['priceModel.step5.license.view']}"
+						styleClass="preWrapping" />
+				</c:when>
+				<c:otherwise>
+					<adm:outputStep value="#{msg['priceModel.step5.license.define']}"
+						styleClass="preWrapping" />
+				</c:otherwise>
+			</c:choose>
+			<adm:labelAndRichEditor id="license"
+				label="#{msg['priceModel.textarea.licenseAgreement']}"
+				value="#{partnerServiceViewModel.partnerServiceDetails.priceModel.license}"
+				disabled="#{partnerServiceViewModel.disabled}" />
 
-      <h:commandButton style="display:none;" id="confirmedButton" value="#{msg['button.save']}"
-        action="#{partnerServiceViewCtrl.save}" />
+			<h:commandButton style="display:none;" id="confirmedButton"
+				value="#{msg['button.save']}"
+				action="#{partnerServiceViewCtrl.save}" />
 
-    </a4j:outputPanel>
+		</a4j:outputPanel>
 
-  </h:form>
 
-  <a4j:outputPanel id="priceModelReadonlyPanel">
-    <c:choose>
-      <c:when test="#{partnerServiceViewModel.disabled}">
-        <adm:outputStep value="#{msg['priceModel.subscription.view.title']}" styleClass="preWrapping" />
-      </c:when>
-      <c:otherwise>
-        <adm:outputStep value="#{msg['priceModel.subscription.define.title']}" styleClass="preWrapping" />
-      </c:otherwise>
-    </c:choose>
-    <ui:include src="../priceModel/priceModelDescription.xhtml" />
+		<a4j:outputPanel id="priceModelReadonlyPanel">
 
-    <!-- Roles table -->
-    <ui:fragment rendered="#{partnerServiceViewCtrl.rolesRendered}">
-      <adm:outputStep value="#{msg['subscription.priceModel.rolePrices.label']}" />
-      <a4j:outputPanel layout="block" styleClass="tablePanel">
-        <ui:include src="../subscription/rolepricetable.xhtml">
-          <ui:param name="inputList" value="#{partnerServiceViewModel.rolePrices}" />
-        </ui:include>
-      </a4j:outputPanel>
-    </ui:fragment>
+			<c:choose>
+				<c:when test="#{partnerServiceViewModel.disabled}">
+					<adm:outputStep
+						value="#{msg['priceModel.subscription.view.title']}"
+						styleClass="preWrapping" />
+				</c:when>
+				<c:otherwise>
+					<adm:outputStep
+						value="#{msg['priceModel.subscription.define.title']}"
+						styleClass="preWrapping" />
+				</c:otherwise>
+			</c:choose>
 
-  </a4j:outputPanel>
+			<a4j:outputPanel id="internalPriceModel"
+				rendered="#{not partnerServiceViewModel.partnerServiceDetails.priceModel.external}">
 
-  <a4j:outputPanel id="buttonPanel">
-    <adm:buttonPanel rendered="#{not partnerServiceViewModel.disabled}">
-      <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}" buttonType="save"
-        onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);#{rich:element('confirmedButton')}.click();setOnSubmit(false);return false;" />
+				<ui:include src="../priceModel/priceModelDescription.xhtml" />
 
-    </adm:buttonPanel>
-  </a4j:outputPanel>
+				<!-- Roles table -->
+				<ui:fragment rendered="#{partnerServiceViewCtrl.rolesRendered}">
+					<adm:outputStep
+						value="#{msg['subscription.priceModel.rolePrices.label']}" />
+					<a4j:outputPanel layout="block" styleClass="tablePanel">
+						<ui:include src="../subscription/rolepricetable.xhtml">
+							<ui:param name="inputList"
+								value="#{partnerServiceViewModel.rolePrices}" />
+						</ui:include>
+					</a4j:outputPanel>
+				</ui:fragment>
+
+			</a4j:outputPanel>
+
+			<a4j:outputPanel id="externalPriceModel"
+				rendered="#{partnerServiceViewModel.partnerServiceDetails.priceModel.external}">
+
+				<adm:buttonPanel id="externalPriceModelActions">
+					<adm:buttonCustomizedOnClick id="displayExternalPriceModelButton"
+						onclick="#{rich:element('hiddenDisplayExternalPriceModelButton')}.click()"
+						value="#{msg['button.display']}" type="submit"
+						buttonType="preview" />
+
+					<h:commandButton id="hiddenDisplayExternalPriceModelButton"
+						action="#{partnerServiceViewCtrl.display}" style="display:none"
+						render="mainTmplMessagesPanel" />
+				</adm:buttonPanel>
+
+			</a4j:outputPanel>
+
+
+		</a4j:outputPanel>
+	</h:form>
+	<a4j:outputPanel id="buttonPanel">
+		<adm:buttonPanel rendered="#{not partnerServiceViewModel.disabled}">
+			<adm:buttonCustomizedOnClick id="saveButton"
+				value="#{msg['button.save']}" buttonType="save"
+				onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);#{rich:element('confirmedButton')}.click();setOnSubmit(false);return false;" />
+
+		</adm:buttonPanel>
+	</a4j:outputPanel>
 
 </ui:composition>

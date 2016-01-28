@@ -13,7 +13,7 @@
 
   <a4j:outputPanel id="buttonPanel" layout="block">
     <h:commandButton style="display:none;" id="confirmedButton" value="#{msg['button.save']}"
-      onclick="setOnSubmit(true);syncFreePeriod();setDirty(false);AdmUtils.showProgress(true);"
+      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);"
       action="#{priceModelBean.save}" />
     <a4j:commandButton style="display:none;" id="addButtonHidden" value="#{msg['button.plus']}"
       action="#{steppedPriceBean.add}"
