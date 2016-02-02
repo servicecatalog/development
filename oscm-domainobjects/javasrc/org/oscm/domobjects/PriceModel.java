@@ -289,7 +289,7 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
         return String
                 .format(", isExternal='%s', isChargeable='%s', currency='%s', oneTimeFee='%s', pricePerPeriod='%s', pricePerUser='%s'",
                         Boolean.valueOf(isExternal()),
-                        Boolean.valueOf(getType() != PriceModelType.FREE_OF_CHARGE),
+                        Boolean.valueOf(isChargeable()),
                         getCurrency(), getOneTimeFee(), getPricePerPeriod(),
                         getPricePerUserAssignment());
     }
