@@ -145,6 +145,11 @@ public class VOSubscription extends BaseVO implements Serializable {
         return serviceAccessInfo;
     }
 
+    public boolean isAccessViaAccessInfo(){
+        return getServiceAccessType() == ServiceAccessType.DIRECT
+                || getServiceAccessType() == ServiceAccessType.USER;
+    }
+
     /**
      * Sets the text describing how to access the underlying application.
      * 
