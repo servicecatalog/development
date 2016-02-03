@@ -465,17 +465,27 @@ public class UserGroupServiceLocalBean {
             List<Product> invisibleProds) throws NonUniqueBusinessKeyException {
         List<Product> newInvisibleProds = new ArrayList<>();
         for (Product invisibleProd : invisibleProds) {
+            PlatformUser currentUser = dm.getCurrentUser();
             if (!existingInvisibilities.keySet().contains(
                     Long.valueOf(invisibleProd.getKey()))) {
                 newInvisibleProds.add(invisibleProd);
                 UserGroupToInvisibleProduct grpToProd = new UserGroupToInvisibleProduct();
                 grpToProd.setProduct(invisibleProd);
                 grpToProd.setUserGroup(newUserGroup);
-                PlatformUser currentUser = dm.getCurrentUser();
                 if (currentUser.isOrganizationAdmin()) {
                     grpToProd.setForallusers(true);
                 }
                 dm.persist(grpToProd);
+                continue;
+            }
+            if (!currentUser.isOrganizationAdmin()) {
+                continue;
+            }
+            UserGroupToInvisibleProduct existingInvisibility = existingInvisibilities
+                    .get(Long.valueOf(invisibleProd.getKey()));
+            if (!existingInvisibility.isForallusers()) {
+                existingInvisibility.setForallusers(true);
+                dm.merge(existingInvisibility);
             }
         }
         return newInvisibleProds;
