@@ -54,6 +54,8 @@ public class UserGroupToInvisibleProduct extends
     @JoinColumn(name = "product_tkey")
     private Product product;
 
+    private boolean forallusers;
+
     public long getUsergroup_tkey() {
         return usergroup_tkey;
     }
@@ -90,6 +92,14 @@ public class UserGroupToInvisibleProduct extends
         if (product != null) {
             setProduct_tkey(product.getKey());
         }
+    }
+
+    public boolean isForallusers() {
+        return forallusers;
+    }
+
+    public void setForallusers(boolean forallusers) {
+        this.forallusers = forallusers;
     }
 
 }

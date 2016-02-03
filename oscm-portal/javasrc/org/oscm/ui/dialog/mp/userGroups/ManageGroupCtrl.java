@@ -10,6 +10,7 @@ package org.oscm.ui.dialog.mp.userGroups;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -130,35 +131,51 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
     }
 
     private void initUsersAssignedToUnitList() throws SaaSApplicationException {
-        POUserGroup poUserGroup = userGroupService.getUserGroupDetailsWithUsers(manageGroupModel.getSelectedGroup().getKey());
+        POUserGroup poUserGroup = userGroupService
+                .getUserGroupDetailsWithUsers(manageGroupModel
+                        .getSelectedGroup().getKey());
         for (POUserInUnit poUserInUnit : poUserGroup.getUsersAssignedToUnit()) {
-            manageGroupModel.getUsersAssignedToUnit().put(poUserInUnit.getUserId(), poUserInUnit);
+            manageGroupModel.getUsersAssignedToUnit().put(
+                    poUserInUnit.getUserId(), poUserInUnit);
         }
     }
 
     private void fillChangedUsersLists() {
         List<VOUserDetails> users = getIdService().getUsersForOrganization();
-        for (Entry<String, Boolean> usersAssignment : manageGroupModel.getSelectedUsersIds().entrySet()) {
-            boolean isUserAlreadyAssigned = manageGroupModel.getUsersAssignedToUnit().containsKey(usersAssignment.getKey());
-            if (usersAssignment.getValue().booleanValue() && !isUserAlreadyAssigned) {
+        for (Entry<String, Boolean> usersAssignment : manageGroupModel
+                .getSelectedUsersIds().entrySet()) {
+            boolean isUserAlreadyAssigned = manageGroupModel
+                    .getUsersAssignedToUnit().containsKey(
+                            usersAssignment.getKey());
+            if (usersAssignment.getValue().booleanValue()
+                    && !isUserAlreadyAssigned) {
                 String roleInUnit = null;
-                if (manageGroupModel.getUserAndRole().containsKey(usersAssignment.getKey())) {
-                    roleInUnit = manageGroupModel.getUserAndRole().get(usersAssignment.getKey());
+                if (manageGroupModel.getUserAndRole().containsKey(
+                        usersAssignment.getKey())) {
+                    roleInUnit = manageGroupModel.getUserAndRole().get(
+                            usersAssignment.getKey());
                 } else {
                     roleInUnit = UnitRoleType.USER.name();
                 }
-                POUserInUnit newUser = createPoUserInUnit(users, usersAssignment.getKey(), roleInUnit);
+                POUserInUnit newUser = createPoUserInUnit(users,
+                        usersAssignment.getKey(), roleInUnit);
                 manageGroupModel.getUsersToAssign().add(newUser);
-            } else if (!usersAssignment.getValue().booleanValue() && isUserAlreadyAssigned) {
-                POUserInUnit newUser = manageGroupModel.getUsersAssignedToUnit().get(usersAssignment.getKey());
+            } else if (!usersAssignment.getValue().booleanValue()
+                    && isUserAlreadyAssigned) {
+                POUserInUnit newUser = manageGroupModel
+                        .getUsersAssignedToUnit().get(usersAssignment.getKey());
                 manageGroupModel.getUsersToUnassign().add(newUser);
-            } else if (usersAssignment.getValue().booleanValue() && isUserAlreadyAssigned) {
-                POUserInUnit newUser = manageGroupModel.getUsersAssignedToUnit().get(usersAssignment.getKey());
-                
-                if (!manageGroupModel.getUserAndRole().containsKey(usersAssignment.getKey())) {
+            } else if (usersAssignment.getValue().booleanValue()
+                    && isUserAlreadyAssigned) {
+                POUserInUnit newUser = manageGroupModel
+                        .getUsersAssignedToUnit().get(usersAssignment.getKey());
+
+                if (!manageGroupModel.getUserAndRole().containsKey(
+                        usersAssignment.getKey())) {
                     continue;
                 }
-                String changedRoleInUnit = manageGroupModel.getUserAndRole().get(usersAssignment.getKey());
+                String changedRoleInUnit = manageGroupModel.getUserAndRole()
+                        .get(usersAssignment.getKey());
                 if (!newUser.getRoleInUnit().equals(changedRoleInUnit)) {
                     newUser.setRoleInUnit(changedRoleInUnit);
                     manageGroupModel.getUsersToUpdate().add(newUser);
@@ -166,8 +183,9 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             }
         }
     }
-    
-    private POUserInUnit createPoUserInUnit(List<VOUserDetails> users, String userId, String roleInUnit) {
+
+    private POUserInUnit createPoUserInUnit(List<VOUserDetails> users,
+            String userId, String roleInUnit) {
         for (VOUserDetails voUserDetails : users) {
             if (voUserDetails.getUserId().equals(userId)) {
                 POUserInUnit poUserInUnit = new POUserInUnit();
@@ -238,7 +256,8 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                     outcome = BaseBean.ERROR_USERGROUP_NOT_FOUND_EXCEPTION;
                 }
 
-            } else if (ex.getMessageKey().equals(BaseBean.ERROR_USER_GROUP_TO_USER_NOT_FOUND)) {
+            } else if (ex.getMessageKey().equals(
+                    BaseBean.ERROR_USER_GROUP_TO_USER_NOT_FOUND)) {
                 outcome = BaseBean.ERROR_USER_GROUP_TO_USER_NOT_FOUND_EXCEPTION;
             }
             getUi().handleException(ex);
@@ -341,20 +360,76 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
         }
     }
 
-    List<ServiceRow> initServiceRows() throws ObjectNotFoundException {
+    List<ServiceRow> initServiceRowsForOrgAdmin()
+            throws ObjectNotFoundException {
         List<ServiceRow> serviceRows = new ArrayList<>();
-        List<Long> invisibleServiceKeys = getUserGroupService()
-                .getInvisibleProductKeysForGroup(
+
+        Map<Long, Boolean> invisibleServiceKeys = getUserGroupService()
+                .getInvisibleProductKeysWithUsersFlag(
                         getManageGroupModel().getSelectedGroup().getKey());
+
         for (POService service : initServiceList()) {
-            ServiceRow serviceRow = new ServiceRow(service, true);
-            if (invisibleServiceKeys.contains(Long.valueOf(service.getKey()))) {
-                serviceRow.setSelected(false);
+            if (isServiceVisibleOnlyForOrgAdmin(invisibleServiceKeys,
+                    service.getKey())) {
+                serviceRows.add(new ServiceRow(service, false));
+                continue;
             }
-            serviceRows.add(serviceRow);
+            serviceRows.add(new ServiceRow(service, true));
         }
         sortServiceRows(serviceRows);
         return serviceRows;
+    }
+
+    List<ServiceRow> initServiceRowsForUnitAdmin()
+            throws ObjectNotFoundException {
+        List<ServiceRow> serviceRows = new ArrayList<>();
+
+        Map<Long, Boolean> invisibleServiceKeys = getUserGroupService()
+                .getInvisibleProductKeysWithUsersFlag(
+                        getManageGroupModel().getSelectedGroup().getKey());
+
+        for (POService service : initServiceList()) {
+            if (isServiceVisibleForAllUsers(invisibleServiceKeys,
+                    service.getKey())) {
+                serviceRows.add(new ServiceRow(service, true));
+                continue;
+            }
+            if (isServiceVisibleForUnitAdmin(invisibleServiceKeys,
+                    service.getKey())) {
+                serviceRows.add(new ServiceRow(service, false));
+            }
+        }
+        sortServiceRows(serviceRows);
+        return serviceRows;
+    }
+
+    private boolean isServiceVisibleForAllUsers(
+            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
+        return !invisibleServiceKeys.containsKey(Long.valueOf(serviceKey));
+    }
+
+    private boolean isServiceVisibleForUnitAdmin(
+            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
+        return invisibleServiceKeys.containsKey(Long.valueOf(serviceKey))
+                && !invisibleServiceKeys.get(Long.valueOf(serviceKey));
+    }
+
+    private boolean isServiceVisibleOnlyForOrgAdmin(
+            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
+        return invisibleServiceKeys.containsKey(Long.valueOf(serviceKey))
+                && invisibleServiceKeys.get(Long.valueOf(serviceKey));
+    }
+
+    List<ServiceRow> initServiceRows() throws ObjectNotFoundException {
+        VOUserDetails user = getUi().findUserBean()
+                .getUserFromSessionWithoutException();
+        if (user.hasAdminRole()) {
+            return initServiceRowsForOrgAdmin();
+        }
+        if (user.hasUnitAdminRole()) {
+            return initServiceRowsForUnitAdmin();
+        }
+        return new ArrayList<ServiceRow>();
     }
 
     public UserGroupService getUserGroupService() {
@@ -445,7 +520,8 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
     }
 
     public void selectDeselectAllUsers() {
-        for (POUserInUnit poUserInUnit : manageGroupModel.getCurrentResultUsers()) {
+        for (POUserInUnit poUserInUnit : manageGroupModel
+                .getCurrentResultUsers()) {
             if (poUserInUnit.isSelected() == manageGroupModel.isSelectAll()) {
                 continue;
             }

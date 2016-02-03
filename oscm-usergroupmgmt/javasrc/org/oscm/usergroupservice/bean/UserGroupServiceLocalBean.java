@@ -24,7 +24,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.persistence.NonUniqueResultException;
 
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.data.SendMailStatus.SendMailStatusItem;
@@ -53,7 +52,6 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.logging.Log4jLogger;
@@ -97,7 +95,7 @@ public class UserGroupServiceLocalBean {
 
     @EJB(beanInterface = UserGroupAuditLogCollector.class)
     UserGroupAuditLogCollector audit;
-    
+
     @EJB(beanInterface = SubscriptionListServiceLocal.class)
     SubscriptionListServiceLocal slsl;
 
@@ -105,9 +103,8 @@ public class UserGroupServiceLocalBean {
     SubscriptionServiceLocal ssl;
 
     @EJB(beanInterface = IdentityService.class)
-    private
-    IdentityService is;
-    
+    private IdentityService is;
+
     @EJB(beanInterface = TaskQueueServiceLocal.class)
     public TaskQueueServiceLocal tqs;
 
@@ -208,7 +205,7 @@ public class UserGroupServiceLocalBean {
             throws OperationNotPermittedException, ObjectNotFoundException,
             MailOperationException,
             DeletingUnitWithSubscriptionsNotPermittedException {
-    
+
         ArgumentValidator.notNull("group", groupToBeDeleted);
         validateNotDefaultUserGroup(groupToBeDeleted);
         validateNotUnitWithSubscriptions(groupToBeDeleted);
@@ -242,10 +239,12 @@ public class UserGroupServiceLocalBean {
             if (!user.isUnitAdmin()) {
                 continue;
             }
-            if (doesUserHaveAdminRoleInAnotherUnit(user, groupToBeDeleted.getKey())) {
+            if (doesUserHaveAdminRoleInAnotherUnit(user,
+                    groupToBeDeleted.getKey())) {
                 continue;
             }
-            RoleAssignment roleAssignment = user.getAssignedRole(UserRoleType.UNIT_ADMINISTRATOR);
+            RoleAssignment roleAssignment = user
+                    .getAssignedRole(UserRoleType.UNIT_ADMINISTRATOR);
             if (roleAssignment != null) {
                 user.getAssignedRoles().remove(roleAssignment);
                 dm.remove(roleAssignment);
@@ -261,12 +260,14 @@ public class UserGroupServiceLocalBean {
         }
     }
 
-    private boolean doesUserHaveAdminRoleInAnotherUnit(PlatformUser user, long userGroupId) {
+    private boolean doesUserHaveAdminRoleInAnotherUnit(PlatformUser user,
+            long userGroupId) {
         for (UserGroupToUser userGroupToUser : user.getUserGroupToUsers()) {
             if (userGroupToUser.getUserGroup().getKey() == userGroupId) {
                 continue;
             }
-            for (UnitRoleAssignment unitRoleAssignment : userGroupToUser.getUnitRoleAssignments()) {
+            for (UnitRoleAssignment unitRoleAssignment : userGroupToUser
+                    .getUnitRoleAssignments()) {
                 if (unitRoleAssignment.getUnitUserRole().getRoleName() == UnitRoleType.ADMINISTRATOR) {
                     return true;
                 }
@@ -292,10 +293,11 @@ public class UserGroupServiceLocalBean {
     public UserGroup updateUserGroup(UserGroup newGroup,
             List<Product> visibleProducts, List<Product> invisibleProducts,
             String marketplaceId, Map<PlatformUser, String> usersToAssign,
-                        List<PlatformUser> usersToUnassign,
-                        Map<PlatformUser, String> usersToRoleUpdate)
+            List<PlatformUser> usersToUnassign,
+            Map<PlatformUser, String> usersToRoleUpdate)
             throws OperationNotPermittedException, ObjectNotFoundException,
-            NonUniqueBusinessKeyException, MailOperationException, UserRoleAssignmentException  {
+            NonUniqueBusinessKeyException, MailOperationException,
+            UserRoleAssignmentException {
         ArgumentValidator.notNull("group", newGroup);
         ArgumentValidator.notNull("marketplaceId", marketplaceId);
         ArgumentValidator.notNull("usersToAssign", usersToAssign);
@@ -444,8 +446,7 @@ public class UserGroupServiceLocalBean {
     List<Product> handleInvisibleRelationsToBeRemoved(
             List<Product> visibleProducts,
             Map<Long, UserGroupToInvisibleProduct> existingInvisibilities) {
-        final List<Long> newVisibleProductKeys = getNewVisibleProductKeys(
-                visibleProducts);
+        final List<Long> newVisibleProductKeys = getNewVisibleProductKeys(visibleProducts);
 
         List<Product> newVisibleProds = new ArrayList<>();
         for (Entry<Long, UserGroupToInvisibleProduct> existingInvisibility : existingInvisibilities
@@ -470,6 +471,10 @@ public class UserGroupServiceLocalBean {
                 UserGroupToInvisibleProduct grpToProd = new UserGroupToInvisibleProduct();
                 grpToProd.setProduct(invisibleProd);
                 grpToProd.setUserGroup(newUserGroup);
+                PlatformUser currentUser = dm.getCurrentUser();
+                if (currentUser.isOrganizationAdmin()) {
+                    grpToProd.setForallusers(true);
+                }
                 dm.persist(grpToProd);
             }
         }
@@ -501,7 +506,8 @@ public class UserGroupServiceLocalBean {
     }
 
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
-    public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRoles(String userId) {
+    public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRoles(
+            String userId) {
         Map<UserGroup, UnitRoleType> groupsWithRoles = new HashMap<>();
         List<UserGroup> groups = userGroupDao.getUserGroupsForUser(userId);
         for (UserGroup group : groups) {
@@ -511,15 +517,18 @@ public class UserGroupServiceLocalBean {
                 groupsWithRoles.put(group, UnitRoleType.USER);
                 continue;
             }
-            groupsWithRoles.put(group, unitRoleAssignment.getUnitUserRole().getRoleName());
+            groupsWithRoles.put(group, unitRoleAssignment.getUnitUserRole()
+                    .getRoleName());
         }
         return groupsWithRoles;
     }
-    
+
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
-    public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRolesWithoutDefault(String userId) {
+    public Map<UserGroup, UnitRoleType> getUserGroupsForUserWithRolesWithoutDefault(
+            String userId) {
         Map<UserGroup, UnitRoleType> groupsWithRoles = new HashMap<>();
-        List<UserGroup> groups = userGroupDao.getUserGroupsForUserWithoutDefault(userId);
+        List<UserGroup> groups = userGroupDao
+                .getUserGroupsForUserWithoutDefault(userId);
         for (UserGroup group : groups) {
             UnitRoleAssignment unitRoleAssignment = userGroupDao
                     .getRoleAssignmentByUserAndGroup(group.getKey(), userId);
@@ -527,7 +536,8 @@ public class UserGroupServiceLocalBean {
                 groupsWithRoles.put(group, UnitRoleType.USER);
                 continue;
             }
-            groupsWithRoles.put(group, unitRoleAssignment.getUnitUserRole().getRoleName());
+            groupsWithRoles.put(group, unitRoleAssignment.getUnitUserRole()
+                    .getRoleName());
         }
         return groupsWithRoles;
     }
@@ -626,7 +636,8 @@ public class UserGroupServiceLocalBean {
             for (UserGroupToUser userGroupToUser : group.getUserGroupToUsers()) {
                 if (userGroupToUser.getPlatformuser().getUserId()
                         .equals(user.getUserId())) {
-                    userGroupToUser.getPlatformuser().getUserGroupToUsers().remove(userGroupToUser);
+                    userGroupToUser.getPlatformuser().getUserGroupToUsers()
+                            .remove(userGroupToUser);
                     removeSubscriptionOwner(userGroupToUser.getPlatformuser());
                     dm.remove(userGroupToUser);
                 }
@@ -642,7 +653,7 @@ public class UserGroupServiceLocalBean {
         }
         return group;
     }
-    
+
     /**
      * Used while removing user from unit. If user is only unit admin and has
      * subscriptions that he is owner of then ownership has to be removed from
@@ -699,9 +710,11 @@ public class UserGroupServiceLocalBean {
         if (!currentUser.isUnitAdmin()) {
             return false;
         }
-        List<UserGroup> userGroups = getUserGroupsForUserWithRole(currentUser.getKey(), UnitRoleType.ADMINISTRATOR.getKey());
+        List<UserGroup> userGroups = getUserGroupsForUserWithRole(
+                currentUser.getKey(), UnitRoleType.ADMINISTRATOR.getKey());
         if (userGroups.isEmpty()) {
-            RoleAssignment adminAssignment = currentUser.getAssignedRole(UserRoleType.UNIT_ADMINISTRATOR);
+            RoleAssignment adminAssignment = currentUser
+                    .getAssignedRole(UserRoleType.UNIT_ADMINISTRATOR);
             dm.remove(adminAssignment);
             dm.flush();
             dm.refresh(currentUser);
@@ -712,8 +725,8 @@ public class UserGroupServiceLocalBean {
 
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public PlatformUser assignUserToGroups(PlatformUser user,
-            Map<UserGroup, UnitUserRole> groups) throws NonUniqueBusinessKeyException,
-            MailOperationException {
+            Map<UserGroup, UnitUserRole> groups)
+            throws NonUniqueBusinessKeyException, MailOperationException {
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("groups", groups);
 
@@ -722,7 +735,8 @@ public class UserGroupServiceLocalBean {
         try {
             for (Entry<UserGroup, UnitUserRole> entry : groups.entrySet()) {
                 if (!entry.getKey().isDefault()) {
-                    groupNames = groupNames.concat(entry.getKey().getName()).concat(",");
+                    groupNames = groupNames.concat(entry.getKey().getName())
+                            .concat(",");
                 }
                 UserGroupToUser userGroupToUser = new UserGroupToUser();
                 userGroupToUser.setUserGroup(entry.getKey());
@@ -736,11 +750,14 @@ public class UserGroupServiceLocalBean {
             }
             dm.flush();
             if (!groupNames.isEmpty()) {
-                
+
                 SendMailPayload payload = new SendMailPayload();
-                payload.addMailObjectForUser(user.getKey(), EmailType.GROUP_USER_ASSIGNED, new Object[] { removeTailString(groupNames) }, null);
-                
-                TaskMessage message = new TaskMessage(SendMailHandler.class, payload);              
+                payload.addMailObjectForUser(user.getKey(),
+                        EmailType.GROUP_USER_ASSIGNED,
+                        new Object[] { removeTailString(groupNames) }, null);
+
+                TaskMessage message = new TaskMessage(SendMailHandler.class,
+                        payload);
                 tqs.sendAllMessages(Collections.singletonList(message));
             }
             audit.assignUserToGroups(dm, groups.keySet(), user);
@@ -777,11 +794,14 @@ public class UserGroupServiceLocalBean {
                 }
             }
             dm.flush();
-            
+
             SendMailPayload payload = new SendMailPayload();
-            payload.addMailObjectForUser(user.getKey(), EmailType.GROUP_USER_REVOKED, new Object[] { removeTailString(groupNames) }, null);
-            
-            TaskMessage message = new TaskMessage(SendMailHandler.class, payload); 
+            payload.addMailObjectForUser(user.getKey(),
+                    EmailType.GROUP_USER_REVOKED,
+                    new Object[] { removeTailString(groupNames) }, null);
+
+            TaskMessage message = new TaskMessage(SendMailHandler.class,
+                    payload);
             tqs.sendAllMessages(Collections.singletonList(message));
 
             audit.removeUserFromGroups(dm, groups, user);
@@ -809,6 +829,12 @@ public class UserGroupServiceLocalBean {
             return userGroupDao.getInvisibleProductKeysForGroup(userGroup
                     .getKey());
         }
+    }
+
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
+    public Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(
+            long userGroupKey) {
+        return userGroupDao.getInvisibleProductKeysWithUsersFlag(userGroupKey);
     }
 
     public List<Long> getInvisibleProductKeysForGroup(long groupKey) {
@@ -1026,7 +1052,7 @@ public class UserGroupServiceLocalBean {
         PlatformUser dbUser = findUser(user);
         UserGroupToUser userGroupToUser = userGroupDao.getUserGroupAssignment(
                 userGroup, dbUser);
-        
+
         validatePlatformUserOfOrganization(dbUser);
         validateUserGroupOfOrganization(userGroupToUser.getUserGroup());
         UnitRoleAssignment roleAssignment;
@@ -1040,17 +1066,20 @@ public class UserGroupServiceLocalBean {
             roleAssignment.setUnitUserRole(userRole);
             roleAssignment.setUserGroupToUser(userGroupToUser);
             DomainObject<?> result = userGroupDao
-                    .getRoleAssignmentByUserAndGroup(userGroup.getKey(), dbUser.getUserId());
+                    .getRoleAssignmentByUserAndGroup(userGroup.getKey(),
+                            dbUser.getUserId());
             if (result == null) {
                 try {
                     dm.persist(roleAssignment);
                     dm.flush();
                 } catch (NonUniqueBusinessKeyException ignored) {
-                    // check already has been performed, this will not happen again
+                    // check already has been performed, this will not happen
+                    // again
                 }
             }
         }
     }
+
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
     public void grantUserRolesWithHandleUnitAdminRole(PlatformUser user,
             List<UnitRoleType> unitRoleTypes, UserGroup userGroup)
@@ -1070,7 +1099,7 @@ public class UserGroupServiceLocalBean {
         PlatformUser dbUser = findUser(user);
         UserGroupToUser userGroupToUser = userGroupDao.getUserGroupAssignment(
                 userGroup, dbUser);
-    
+
         validatePlatformUserOfOrganization(dbUser);
         validateUserGroupOfOrganization(userGroupToUser.getUserGroup());
 
@@ -1127,8 +1156,9 @@ public class UserGroupServiceLocalBean {
     public List<UnitUserRole> getRolesAvailableForUnit() {
         return userGroupDao.getRolesAvailableForUnit();
     }
-    
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR", "SUBSCRIPTION_MANAGER" })
+
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR",
+            "SUBSCRIPTION_MANAGER" })
     public List<UserGroup> getUserGroupsForUserWithRole(long userKey,
             long userRoleKey) {
         return userGroupDao.getUserGroupsForUserWithRole(userKey, userRoleKey);
@@ -1137,7 +1167,8 @@ public class UserGroupServiceLocalBean {
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public List<UserGroup> getUserGroupsForUserWithRoleWithoutDefault(
             long userKey, long userRoleKey) {
-        return userGroupDao.getUserGroupsForUserWithRoleWithoutDefault(userKey, userRoleKey);
+        return userGroupDao.getUserGroupsForUserWithRoleWithoutDefault(userKey,
+                userRoleKey);
     }
 
     public DataService getDm() {
@@ -1179,19 +1210,21 @@ public class UserGroupServiceLocalBean {
     public void setSessionCtx(SessionContext sessionCtx) {
         this.sessionCtx = sessionCtx;
     }
-    
+
     public UnitUserRole getUnitRoleByName(String roleName) {
         return userGroupDao.getUnitRoleByName(roleName);
     }
 
-    public List<PlatformUser> getUsersForGroup(PaginationUsersInUnit pagination,
-            String selectedGroupId) {
-        return userGroupUsersDao.executeQueryGroupUsers(pagination, selectedGroupId);
+    public List<PlatformUser> getUsersForGroup(
+            PaginationUsersInUnit pagination, String selectedGroupId) {
+        return userGroupUsersDao.executeQueryGroupUsers(pagination,
+                selectedGroupId);
     }
 
     public Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) {
-        return userGroupUsersDao.executeQueryCountGroupUsers(pagination, selectedGroupId).intValue();
+        return userGroupUsersDao.executeQueryCountGroupUsers(pagination,
+                selectedGroupId).intValue();
     }
 
     public IdentityService getIs() {
@@ -1201,7 +1234,7 @@ public class UserGroupServiceLocalBean {
     public void setIs(IdentityService is) {
         this.is = is;
     }
-    
+
     public TaskQueueServiceLocal getTqs() {
         return tqs;
     }

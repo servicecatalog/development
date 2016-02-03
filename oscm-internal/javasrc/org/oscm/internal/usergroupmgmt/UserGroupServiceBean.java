@@ -78,8 +78,8 @@ public class UserGroupServiceBean implements UserGroupService {
             OperationNotPermittedException, MailOperationException,
             ObjectNotFoundException, ConcurrentModificationException {
         return POUserGroupAssembler.toPOUserGroup(userGroupService
-                .createUserGroup(POUserGroupAssembler.toUserGroup(group),
-                        null, null, marketplaceId));
+                .createUserGroup(POUserGroupAssembler.toUserGroup(group), null,
+                        null, marketplaceId));
 
     }
 
@@ -138,8 +138,8 @@ public class UserGroupServiceBean implements UserGroupService {
         return userGroupService.deleteUserGroup(storedGroup);
     }
 
-    private List<PlatformUser> convertToPlatformUsers(
-            List<POUserInUnit> poUsers) throws ValidationException {
+    private List<PlatformUser> convertToPlatformUsers(List<POUserInUnit> poUsers)
+            throws ValidationException {
         if (poUsers == null) {
             return null;
         }
@@ -150,7 +150,7 @@ public class UserGroupServiceBean implements UserGroupService {
         }
         return users;
     }
-    
+
     private Map<PlatformUser, String> convertToPlatformUsersWithRole(
             List<POUserInUnit> poUsers) throws ValidationException {
         if (poUsers == null) {
@@ -231,12 +231,13 @@ public class UserGroupServiceBean implements UserGroupService {
                 userGroupService.getUserGroupsForUserWithRoles(userId),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
-    
+
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN" })
-    public List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(String userId) {
-        return POUserGroupAssembler.toPOUserGroups(
-                userGroupService.getUserGroupsForUserWithRolesWithoutDefault(userId),
+    public List<POUserGroup> getUserGroupListForUserWithRolesWithoutDefault(
+            String userId) {
+        return POUserGroupAssembler.toPOUserGroups(userGroupService
+                .getUserGroupsForUserWithRolesWithoutDefault(userId),
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
     }
 
@@ -272,6 +273,14 @@ public class UserGroupServiceBean implements UserGroupService {
         return userGroupService.getInvisibleProductKeysForGroup(groupKey);
     }
 
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
+    public Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(
+            long userGroupKey) {
+        return userGroupService
+                .getInvisibleProductKeysWithUsersFlag(userGroupKey);
+    }
+
     private List<Product> verifyProducts(List<POService> services)
             throws ObjectNotFoundException, ConcurrentModificationException {
         List<Product> products = new ArrayList<>();
@@ -291,6 +300,7 @@ public class UserGroupServiceBean implements UserGroupService {
         return storedGroup;
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public List<POUserGroup> getUserGroupsForUserWithRole(long userKey,
             long userRoleKey) {
@@ -298,17 +308,20 @@ public class UserGroupServiceBean implements UserGroupService {
                 .getUserGroupsForUserWithRole(userKey, userRoleKey));
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
-    public List<POUserGroup> getUserGroupsForUserWithRoleWithoutDefault(long userKey,
-            long userRoleKey) {
+    public List<POUserGroup> getUserGroupsForUserWithRoleWithoutDefault(
+            long userKey, long userRoleKey) {
         return POUserGroupAssembler.toPOUserGroups(userGroupService
-                .getUserGroupsForUserWithRoleWithoutDefault(userKey, userRoleKey));
+                .getUserGroupsForUserWithRoleWithoutDefault(userKey,
+                        userRoleKey));
     }
 
     @Override
     public Response getUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) throws OrganizationAuthoritiesException {
-        List<PlatformUser> users = userGroupService.getUsersForGroup(pagination, selectedGroupId);
+        List<PlatformUser> users = userGroupService.getUsersForGroup(
+                pagination, selectedGroupId);
         List<POUserInUnit> poUsers = new ArrayList<POUserInUnit>();
         for (PlatformUser user : users) {
             POUserInUnit poUser = dc.toPoUserInUnit(user, selectedGroupId);
@@ -320,7 +333,8 @@ public class UserGroupServiceBean implements UserGroupService {
     @Override
     public Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) throws OrganizationAuthoritiesException {
-        return userGroupService.getCountUsersForGroup(pagination, selectedGroupId);
+        return userGroupService.getCountUsersForGroup(pagination,
+                selectedGroupId);
     }
 
 }

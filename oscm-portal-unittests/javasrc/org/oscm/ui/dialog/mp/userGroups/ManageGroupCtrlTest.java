@@ -21,11 +21,16 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import javax.faces.component.UIViewRoot;
 import javax.faces.context.ExternalContext;
@@ -36,6 +41,7 @@ import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.SearchServiceInternal;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -49,8 +55,10 @@ import org.oscm.internal.usermanagement.POUserInUnit;
 import org.oscm.internal.vo.ListCriteria;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceListResult;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UserBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.stubs.FacesContextStub;
@@ -71,6 +79,7 @@ public class ManageGroupCtrlTest {
     private IdentityService identityService;
     private ExternalContext exContext;
     private TableState tableStatus;
+    private UserBean userBean;
 
     private POUserGroup selectedGroup;
     private SearchServiceInternal searchServiceInternal;
@@ -90,6 +99,7 @@ public class ManageGroupCtrlTest {
         exContext = mock(ExternalContext.class);
         identityService = mock(IdentityService.class);
         searchServiceInternal = mock(SearchServiceInternal.class);
+        userBean = mock(UserBean.class);
         ctrl = new ManageGroupCtrl() {
             @Override
             protected void redirectToGroupListPage() {
@@ -143,7 +153,9 @@ public class ManageGroupCtrlTest {
                         any(ListCriteria.class), any(PerformanceHint.class));
         doReturn(tableStatus).when(ctrl.getUi()).findBean(
                 eq(TableState.BEAN_NAME));
-
+        when(userBean.getUserFromSessionWithoutException()).thenReturn(
+                initOrgAdmin());
+        doReturn(userBean).when(ctrl.getUi()).findUserBean();
         initModelData();
     }
 
@@ -174,8 +186,8 @@ public class ManageGroupCtrlTest {
                 .getUserGroupDetailsForList(anyLong());
 
         ctrl.getManageGroupModel().setSelectedGroup(selectedGroup);
-        doReturn(new ArrayList<Long>()).when(userGroupService)
-                .getInvisibleProductKeysForGroup(anyLong());
+        doReturn(new HashMap<Long, Boolean>()).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(anyLong());
         ctrl.getInitialize();
 
         // when
@@ -279,7 +291,6 @@ public class ManageGroupCtrlTest {
     @Test
     public void toSortedServiceRows_B11124() throws Exception {
         // given
-
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
 
@@ -291,10 +302,96 @@ public class ManageGroupCtrlTest {
     @Test
     public void initServiceRows() throws Exception {
         // given
-        doReturn(Arrays.asList(Long.valueOf(2))).when(userGroupService)
-                .getInvisibleProductKeysForGroup(
+        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        doReturn(invisibleProducts).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(
                         model.getSelectedGroup().getKey());
 
+        // when
+        List<ServiceRow> result = ctrl.initServiceRows();
+
+        // then
+        assertListIsSorted(result);
+        assertEquals(2, result.size());
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(1).isSelected()));
+    }
+
+    @Test
+    public void initServiceRows_OrgAdmin() throws Exception {
+        // given
+        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        invisibleProducts.put(1L, true);
+        invisibleProducts.put(2L, false);
+        doReturn(invisibleProducts).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(
+                        model.getSelectedGroup().getKey());
+
+        // when
+        List<ServiceRow> result = ctrl.initServiceRows();
+
+        // then
+        assertListIsSorted(result);
+        assertEquals(2, result.size());
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
+        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(1).isSelected()));
+    }
+
+    @Test
+    public void initServiceRows_UnitAdminWithTwoInvisibleProducts()
+            throws Exception {
+        // given
+        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        invisibleProducts.put(1L, true);
+        invisibleProducts.put(2L, false);
+        doReturn(invisibleProducts).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(
+                        model.getSelectedGroup().getKey());
+
+        when(userBean.getUserFromSessionWithoutException()).thenReturn(
+                initUnitAdmin());
+        // when
+        List<ServiceRow> result = ctrl.initServiceRows();
+
+        // then
+        assertListIsSorted(result);
+        assertEquals(1, result.size());
+        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(0).isSelected()));
+    }
+
+    @Test
+    public void initServiceRows_UnitAdminWithOneInvisibleProductForAllUsers()
+            throws Exception {
+        // given
+        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        invisibleProducts.put(1L, true);
+        doReturn(invisibleProducts).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(
+                        model.getSelectedGroup().getKey());
+
+        when(userBean.getUserFromSessionWithoutException()).thenReturn(
+                initUnitAdmin());
+        // when
+        List<ServiceRow> result = ctrl.initServiceRows();
+
+        // then
+        assertListIsSorted(result);
+        assertEquals(1, result.size());
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
+    }
+
+    @Test
+    public void initServiceRows_UnitAdminWithOneInvisibleProduct()
+            throws Exception {
+        // given
+        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        invisibleProducts.put(1L, false);
+        doReturn(invisibleProducts).when(userGroupService)
+                .getInvisibleProductKeysWithUsersFlag(
+                        model.getSelectedGroup().getKey());
+
+        when(userBean.getUserFromSessionWithoutException()).thenReturn(
+                initUnitAdmin());
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
 
@@ -412,7 +509,6 @@ public class ManageGroupCtrlTest {
         POUserGroup group = new POUserGroup();
         doReturn(group).when(userGroupService).getUserGroupDetailsForList(
                 anyLong());
-
         // when
         ctrl.initSelectedGroup();
 
@@ -563,5 +659,23 @@ public class ManageGroupCtrlTest {
         String result = ctrl.confirmIfUnitExists();
         // then
         assertEquals(BaseBean.OUTCOME_REFRESH, result);
+    }
+
+    private VOUserDetails initOrgAdmin() {
+        VOUserDetails voUserDetails = new VOUserDetails();
+        voUserDetails.setKey(1000L);
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.ORGANIZATION_ADMIN);
+        voUserDetails.setUserRoles(userRoles);
+        return voUserDetails;
+    }
+
+    private VOUserDetails initUnitAdmin() {
+        VOUserDetails voUserDetails = new VOUserDetails();
+        voUserDetails.setKey(2000L);
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
+        voUserDetails.setUserRoles(userRoles);
+        return voUserDetails;
     }
 }
