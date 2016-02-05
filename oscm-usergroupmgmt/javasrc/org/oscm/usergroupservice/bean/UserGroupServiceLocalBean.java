@@ -452,10 +452,17 @@ public class UserGroupServiceLocalBean {
         for (Entry<Long, UserGroupToInvisibleProduct> existingInvisibility : existingInvisibilities
                 .entrySet()) {
             Product product = existingInvisibility.getValue().getProduct();
-            if (newVisibleProductKeys.contains(Long.valueOf(product.getKey()))) {
-                newVisibleProds.add(product);
-                dm.remove(existingInvisibility.getValue());
+            if (!newVisibleProductKeys.contains(Long.valueOf(product.getKey()))) {
+                continue;
             }
+            PlatformUser currentUser = dm.getCurrentUser();
+            if (currentUser.isOrganizationAdmin()) {
+                if (!existingInvisibility.getValue().isForallusers()) {
+                    continue;
+                }
+            }
+            newVisibleProds.add(product);
+            dm.remove(existingInvisibility.getValue());
         }
         return newVisibleProds;
     }
