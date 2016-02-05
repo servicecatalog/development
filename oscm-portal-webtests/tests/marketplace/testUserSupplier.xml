@@ -505,6 +505,52 @@
       <mpl_login.logout />
     </webtest>
 
+    <webtest name="testBug11939_assignUsersButton_concurrency">
+
+      <!--Go to the account > subscriptions with the first client-->
+      <selectWebClient name="Client1" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+
+      <!--Add a new user with the second client-->
+      <selectWebClient name="Client2" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="aNewUser" createUniqueUserId="true" submit="true" />
+
+      <!--Check with the first client if this new user
+          is visible on the assign users pop-up, without refreshing the page-->
+      <selectWebClient name="Client1" />
+      <clickElement htmlId="usersForm:assignUsers" />
+      <verifyXPath xpath="//*[contains(text(),'aNewUser')]" />
+    </webtest>
+
+    <webtest name="testBug11939_assignSubscriptionOwner_concurrency">
+
+      <!--Go to edit subscription > "Configuration" tab with the first client-->
+      <selectWebClient name="Client1" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <clickElement htmlId="tabConfiguration:header" />
+
+      <!--Add a new subscription manager with the second client-->
+      <selectWebClient name="Client2" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="aNewOwner" createUniqueUserId="true" isSubMgr="true" submit="true" />
+
+      <!--Check with the first client if this new subscription manager
+          is visible on the select subscription owner pop-up, without refreshing the page-->
+      <selectWebClient name="Client1" />
+      <clickElement htmlId="configurationForm:assignSubOwner" />
+      <verifyXPath xpath="//*[contains(text(),'aNewOwner')]" />
+
+    </webtest>
+
     <webtest name="testMPL_UserSupplier_finalCleanup">
       <scenario.cleanUpLeftServicesIfAny url="${supplierUrl}" uId="${supplierUserId}" />
       <mail.cleanInbox />

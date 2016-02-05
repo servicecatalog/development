@@ -88,7 +88,7 @@
 
             <h:inputHidden id="configDirty" value="#{manageGroupCtrl.manageGroupModel.dirty}" />
             <mp:outputStep id="outputStep" value="#{msg['group.users.assigned.users.title']}" />
-            
+
             <rich:dataTable rows="10" id="usersInGroup" value="#{manageGroupCtrl.usersLazyDataModel}" var="user"
               headerClass="rowTitle sortable serviceTableTitle" columnHeaderClass="rowTitle sortable"
               rowClasses="rowOdd,rowEven"
@@ -116,7 +116,7 @@
                 </f:facet>
                 <h:selectBooleanCheckbox id="assignCheckbox" value="#{user.selected}"
                   styleClass="user-group-select-user"
-                  onchange="setDirty(true);manageRolesListVisibility($(this));saveSelection('#{user.userId}', $(this)[0].checked);">
+                  onchange="setDirty(true);AdmUtils.handleSelectAllWithPaging('assign-panel');manageRolesListVisibility($(this));saveSelection('#{user.userId}', $(this)[0].checked);">
                 </h:selectBooleanCheckbox>
 
                 <a4j:jsFunction name="saveSelection" action="#{manageGroupCtrl.selectUser}">
@@ -195,13 +195,13 @@
                     if (!$(this)[0].checked) {
                       var tr = $(this).parent().parent();
                       var dropDown = tr.find('.roles-list');
-                      dropDown.hide(); 
+                      dropDown.hide();
                   } })
                 }
 
                 initRolesLists();
                 AdmUtils.handleSelectAllWithPaging('assign-panel');
-                
+
                 function manageRolesListVisibility(checkBoxHandler) {
                 var tr = checkBoxHandler.parent().parent();
                 var dropDown = tr.find('.roles-list');

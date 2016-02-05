@@ -19,6 +19,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.internal.subscriptions.OperationModel;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.string.Strings;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -98,10 +102,38 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
                 subscription.setAccessUrl(getAccessUrl(subscription));
                 subscription.setTarget(isOpenNewTab(subscription) ? "_blank" : "");
             }
+            refreshSelectedSubscription();
         } catch (OrganizationAuthoritiesException e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return resultList;
+    }
+
+    private void refreshSelectedSubscription() {
+        if (selectedSubscription != null) {
+            OperationModel selectedOperation = selectedSubscription.getSelectedOperation();
+            selectedSubscription = subscriptionsService.getMySubscriptionDetails(selectedSubscription.getKey());
+            if (selectedSubscription == null) {
+                selectedSubscriptionId = null;
+            } else {
+                selectedSubscription.setAccessUrl(getAccessUrl(selectedSubscription));
+                selectedSubscription.setTarget(isOpenNewTab(selectedSubscription) ? "_blank" : "");
+                operationChanged(selectedOperation);
+            }
+        }
+    }
+
+    private void operationChanged(OperationModel selectedOperation) {
+        if (selectedOperation == null) {
+            selectedSubscription.setSelectedOperation(null);
+            selectedSubscription.setSelectedOperationId(null);
+            selectedSubscription.setExecuteDisabled(true);
+        } else {
+            String operationId = selectedOperation.getOperation().getOperationId();
+            selectedSubscription.setSelectedOperation(selectedOperation);
+            selectedSubscription.setSelectedOperationId(operationId);
+            selectedSubscription.setExecuteDisabled(false);
+        }
     }
 
     @Override
