@@ -136,7 +136,7 @@ public enum ConfigurationKey {
             "configured, reporting will not be available.",
             "It supports http and https to show report.",
             "But your server name must use fully qualified domain name when using https to show report." })
-    @Example("http://<your server>:<your port>/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your port>/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure&wsport=ReportSecurePort")
+    @Example("http://<your server>:<your port>/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=Report&wsport=ReportPort or https://<your server>:<your port>/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}&wsname=ReportSecure&wsport=ReportSecurePort")
     REPORT_ENGINEURL(false, "", "url"),
 
     @Doc({
