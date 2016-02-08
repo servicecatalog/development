@@ -17,6 +17,7 @@ import org.oscm.types.exceptions.DeletionConstraintException;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -158,7 +159,7 @@ public class OrganizationalUnitServiceWSTest {
         Assert.assertEquals(expectedGroups, units.size());
     }
 
-    @Test
+    @Ignore
     @Order(order = 4)
     public void getOrganizationalUnitsWithPaging()
             throws OperationNotPermittedException {

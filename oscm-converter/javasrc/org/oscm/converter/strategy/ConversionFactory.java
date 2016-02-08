@@ -89,8 +89,7 @@ public class ConversionFactory {
      */
     public static <From, To> ConversionStrategy<From, To> getConverter(
             Class<From> from, Class<To> to) {
-    	
-    	System.out.println(REGISTRY.values());
+
         if (!isRegistered(from, to)) {
             throw new UnsupportedOperationException("Class mapping "
                     + from.getName() + " -> " + to.getName()
