@@ -35,7 +35,7 @@ import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;

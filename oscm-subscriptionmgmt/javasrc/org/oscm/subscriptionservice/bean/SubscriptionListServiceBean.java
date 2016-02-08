@@ -35,7 +35,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POSubscription;
-import org.oscm.pagination.PaginationInt;
+import org.oscm.paginator.PaginationInt;
 import org.oscm.subscriptionservice.converter.SubscriptionListConverter;
 import org.oscm.subscriptionservice.dao.SubscriptionDao;
 import org.oscm.subscriptionservice.dao.UsageLicenseDao;
@@ -179,7 +179,7 @@ public class SubscriptionListServiceBean
 
     @Override
     public List<POSubscription> getUserAssignableSubscriptions(
-            org.oscm.pagination.Pagination pagination, PlatformUser user,
+            org.oscm.paginator.Pagination pagination, PlatformUser user,
             Set<SubscriptionStatus> states) {
 
         List<Object[]> list = getUserSubscriptionDao()

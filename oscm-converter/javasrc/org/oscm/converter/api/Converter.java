@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.converter.strategy.ConversionFactory;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.converter.strategy.api.ToExtPaginationStrategy;
@@ -50,9 +50,9 @@ public class Converter {
                 new ToDomUserStrategy());
 
         ConversionFactory.register(Pagination.class,
-                org.oscm.pagination.Pagination.class,
+                org.oscm.paginator.Pagination.class,
                 new ToExtPaginationStrategy());
-        ConversionFactory.register(org.oscm.pagination.Pagination.class,
+        ConversionFactory.register(org.oscm.paginator.Pagination.class,
                 Pagination.class, new ToCommonPaginationStrategy());
     }
 

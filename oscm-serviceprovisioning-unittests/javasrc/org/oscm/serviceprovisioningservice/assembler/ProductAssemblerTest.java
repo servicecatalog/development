@@ -15,6 +15,9 @@ package org.oscm.serviceprovisioningservice.assembler;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -27,7 +30,10 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Matchers;
+import org.mockito.MockitoAnnotations;
 import org.oscm.domobjects.Event;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRole;
@@ -47,7 +53,6 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductTag;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.PriceModelType;
@@ -60,6 +65,7 @@ import org.oscm.internal.vo.VOParameter;
 import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.test.stubs.LocalizerServiceStub;
 
 /**
  * @author weiser
@@ -78,17 +84,24 @@ public class ProductAssemblerTest {
     private PlatformUser user;
     private VOService voService;
     private VOService voCustomerService;
+    @Captor
+    ArgumentCaptor<List<Long>> objectKeyCaptor;
 
     @Before
     public void setup() throws Exception {
+
         facade = new LocalizerFacade(new LocalizerServiceStub() {
 
             @Override
             public String getLocalizedTextFromDatabase(String localeString,
                     long objectKey, LocalizedObjectTypes objectType) {
+
                 return objectType.name();
             }
         }, "en");
+
+        MockitoAnnotations.initMocks(this);
+
         technicalProduct = new TechnicalProduct();
         technicalProduct.setAccessType(ServiceAccessType.DIRECT);
         technicalProduct.setBaseURL("baseURL");
@@ -822,4 +835,51 @@ public class ProductAssemblerTest {
                 Boolean.valueOf(voService.isAutoAssignUserEnabled()));
     }
 
+    @Test
+    public void prefetchData_withoutTemplates_bug12479() {
+        // given
+        List<Product> products = new ArrayList<Product>();
+        products.add(product);
+        products.add(customerProduct);
+        LocalizerFacade facadeMock = spy(facade);
+
+        // when
+        ProductAssembler.prefetchData(products, facadeMock,
+                PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
+
+        // then
+        verify(facadeMock, times(1)).prefetch(objectKeyCaptor.capture(),
+                Matchers.anyListOf(LocalizedObjectTypes.class));
+        List<Long> objectkeys = objectKeyCaptor.getValue();
+        assertEquals(2, objectkeys.size());
+        assertEquals(Long.valueOf(product.getKey()), objectkeys.get(0));
+        assertEquals(Long.valueOf(customerProduct.getKey()), objectkeys.get(1));
+    }
+
+    @Test
+    public void prefetchData_withTemplates_bug12479() {
+        // given
+        List<Product> products = new ArrayList<Product>();
+        products.add(product);
+        Product anotherProduct = new Product();
+        anotherProduct.setType(ServiceType.PARTNER_TEMPLATE);
+        anotherProduct.setConfiguratorUrl("some value");
+        anotherProduct.setTemplate(template);
+        products.add(anotherProduct);
+        products.add(customerProduct);
+        LocalizerFacade facadeMock = spy(facade);
+
+        // when
+        ProductAssembler.prefetchData(products, facadeMock,
+                PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
+
+        // then
+        verify(facadeMock, times(1)).prefetch(objectKeyCaptor.capture(),
+                Matchers.anyListOf(LocalizedObjectTypes.class));
+        List<Long> objectkeys = objectKeyCaptor.getValue();
+        assertEquals(3, objectkeys.size());
+        assertEquals(Long.valueOf(product.getKey()), objectkeys.get(0));
+        assertEquals(Long.valueOf(template.getKey()), objectkeys.get(1));
+        assertEquals(Long.valueOf(customerProduct.getKey()), objectkeys.get(2));
+    }
 }

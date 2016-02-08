@@ -5,7 +5,7 @@
  *  Creation Date: 18.11.15 16:44
  *
  *******************************************************************************/
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.util.Set;
 

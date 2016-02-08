@@ -14,6 +14,7 @@ import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
 import org.oscm.logging.LoggerFactory;
+import org.oscm.pagination.Pagination;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
@@ -24,7 +25,6 @@ import org.oscm.converter.api.EnumConverter;
 import org.oscm.converter.api.ExceptionConverter;
 import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
 import org.oscm.intf.OrganizationalUnitService;
-import org.oscm.pagination.Pagination;
 import org.oscm.types.enumtypes.UnitRoleType;
 import org.oscm.types.exceptions.DeletionConstraintException;
 import org.oscm.types.exceptions.DomainObjectException;
@@ -109,7 +109,7 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
 
         List<UserGroup> units = localService.getOrganizationalUnits(Converter
                 .convert(pagination, Pagination.class,
-                        org.oscm.pagination.Pagination.class));
+                        org.oscm.paginator.Pagination.class));
 
         return Converter.convertList(units, UserGroup.class,
                 VOOrganizationalUnit.class);
