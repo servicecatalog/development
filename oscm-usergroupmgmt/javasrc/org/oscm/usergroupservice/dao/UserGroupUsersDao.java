@@ -14,9 +14,9 @@ import javax.persistence.Query;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.PaginationUsersInUnit;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.PaginationUsersInUnit;
+import org.oscm.paginator.TableColumns;
 
 @Stateless
 @LocalBean

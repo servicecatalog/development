@@ -49,7 +49,7 @@ import org.oscm.internal.usermanagement.POUserAndSubscriptions;
 import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.string.Strings;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;

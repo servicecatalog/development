@@ -20,6 +20,8 @@ import javax.persistence.Query;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.TableColumns;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -32,8 +34,6 @@ import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.TableColumns;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
@@ -226,7 +226,7 @@ public class SubscriptionDao {
      * @param pagination
      * @param query
      */
-    private void setPaginationParameters(org.oscm.pagination.Pagination pagination, Query query) {
+    private void setPaginationParameters(org.oscm.paginator.Pagination pagination, Query query) {
         setSortingParameter(query, pagination);
         setFilterParameters(query, pagination);
 
@@ -234,13 +234,13 @@ public class SubscriptionDao {
         query.setMaxResults(pagination.getLimit());
     }
 
-    private void setSortingParameter(Query query, org.oscm.pagination.Pagination pagination) {
+    private void setSortingParameter(Query query, org.oscm.paginator.Pagination pagination) {
         if (pagination.getSorting() != null) {
             query.setParameter("sortColumn", pagination.getSorting().getColumn().name());
         }
     }
 
-    private void setFilterParameters(Query query, org.oscm.pagination.Pagination pagination) {
+    private void setFilterParameters(Query query, org.oscm.paginator.Pagination pagination) {
         if (pagination.getFilterSet() != null) {
             for (Filter filter : pagination.getFilterSet()) {
                 setFilterParameter(query, filter);

@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.io.Serializable;
 

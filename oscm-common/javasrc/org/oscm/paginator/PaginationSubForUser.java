@@ -1,4 +1,4 @@
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -22,10 +22,10 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.PaginationInt;
-import org.oscm.pagination.PaginationSubForUser;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.PaginationInt;
+import org.oscm.paginator.PaginationSubForUser;
+import org.oscm.paginator.TableColumns;
 
 @Interceptors({ ExceptionMapper.class })
 public class UserSubscriptionDao {
