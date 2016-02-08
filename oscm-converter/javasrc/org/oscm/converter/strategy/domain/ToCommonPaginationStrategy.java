@@ -9,7 +9,7 @@
 package org.oscm.converter.strategy.domain;
 
 import org.oscm.converter.strategy.ConversionStrategy;
-import org.oscm.paginator.Pagination;
+import org.oscm.pagination.Pagination;
 
 public class ToCommonPaginationStrategy
         implements

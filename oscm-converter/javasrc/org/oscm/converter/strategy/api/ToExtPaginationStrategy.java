@@ -9,18 +9,18 @@
 package org.oscm.converter.strategy.api;
 
 import org.oscm.converter.strategy.ConversionStrategy;
-import org.oscm.paginator.Pagination;
+import org.oscm.pagination.Pagination;
 
 public class ToExtPaginationStrategy implements
-        ConversionStrategy<Pagination, org.oscm.paginator.Pagination> {
+        ConversionStrategy<org.oscm.paginator.Pagination, Pagination> {
 
     @Override
-    public org.oscm.paginator.Pagination convert(Pagination pagination) {
+    public Pagination convert(org.oscm.paginator.Pagination pagination) {
         if (pagination == null) {
             return null;
         }
 
-        org.oscm.paginator.Pagination result = new org.oscm.paginator.Pagination();
+        Pagination result = new Pagination();
 
         result.setLimit(pagination.getLimit());
         result.setOffset(pagination.getOffset());

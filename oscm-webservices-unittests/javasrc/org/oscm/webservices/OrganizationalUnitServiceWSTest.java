@@ -26,9 +26,6 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceContext;
 
-import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
-import org.oscm.types.exceptions.DeletionConstraintException;
-import org.oscm.types.exceptions.MailOperationException;
 import junit.framework.Assert;
 
 import org.junit.Before;
