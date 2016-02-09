@@ -15,12 +15,14 @@ import java.util.Map;
 
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
@@ -107,8 +109,15 @@ public class POUserGroupAssembler extends BasePOAssembler {
                 UnitRoleAssignment unitRoleAssignment = userGroupToUser.getUnitRoleAssignments().get(0);
                 poUserInUnit.setRoleInUnit(unitRoleAssignment.getUnitUserRole().getRoleName().name());
             }
+            List<UserRoleType> assignedRoles = new ArrayList<UserRoleType>();
+            for (RoleAssignment roleAssignment : userGroupToUser
+                    .getPlatformuser().getAssignedRoles()) {
+                assignedRoles.add(roleAssignment.getRole().getRoleName());
+            }
+            poUserInUnit.setAssignedRoles(assignedRoles);
             assignedUsers.add(poUserInUnit);
         }
+
         poUserGroup.setUsersAssignedToUnit(assignedUsers);
         return poUserGroup;
     }
