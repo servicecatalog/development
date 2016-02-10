@@ -26,9 +26,6 @@ import java.util.List;
 
 import javax.xml.ws.WebServiceContext;
 
-import org.oscm.internal.types.exception.DeletingUnitWithSubscriptionsNotPermittedException;
-import org.oscm.types.exceptions.DeletionConstraintException;
-import org.oscm.types.exceptions.MailOperationException;
 import junit.framework.Assert;
 
 import org.junit.Before;
@@ -73,8 +70,8 @@ public class OrganizationalUnitServiceWSTest {
         // then
         Assert.assertNotNull(units);
         Assert.assertEquals(1, units.size());
-        Assert.assertEquals(createdUnits.get(0).getName(), units.get(0)
-                .getName());
+        Assert.assertEquals(createdUnits.get(0).getName(),
+                units.get(0).getName());
     }
 
     @Test
@@ -94,9 +91,8 @@ public class OrganizationalUnitServiceWSTest {
         userGroup.setReferenceId(unitRefId);
         userGroup.setOrganization(new Organization());
 
-        when(
-                service.localService.createUserGroup(unitName, unitDesc,
-                        unitRefId)).thenReturn(userGroup);
+        when(service.localService.createUserGroup(unitName, unitDesc,
+                unitRefId)).thenReturn(userGroup);
 
         // when
         VOOrganizationalUnit unit = service.createUnit(unitName, unitDesc,
@@ -124,16 +120,15 @@ public class OrganizationalUnitServiceWSTest {
                 group);
 
         // when
-        service.grantUserRoles(
-                toVOUser(user),
-                Collections
-                        .singletonList(
-                                org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR),
+        service.grantUserRoles(toVOUser(user),
+                Collections.singletonList(
+                        org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR),
                 toVOOrganizationalUnit(group));
 
         // then
-        verify(service.localService, times(1)).grantUserRolesWithHandleUnitAdminRole(
-                any(PlatformUser.class), eq(roleTypes), any(UserGroup.class));
+        verify(service.localService, times(1))
+                .grantUserRolesWithHandleUnitAdminRole(any(PlatformUser.class),
+                        eq(roleTypes), any(UserGroup.class));
     }
 
     @Test
@@ -151,28 +146,26 @@ public class OrganizationalUnitServiceWSTest {
                 group);
 
         // when
-        service.revokeUserRoles(
-                toVOUser(user),
-                Collections
-                        .singletonList(
-                                org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR),
+        service.revokeUserRoles(toVOUser(user),
+                Collections.singletonList(
+                        org.oscm.types.enumtypes.UnitRoleType.ADMINISTRATOR),
                 toVOOrganizationalUnit(group));
 
         // then
         verify(service.localService, times(1)).revokeUserRoles(
                 any(PlatformUser.class), eq(roleTypes), any(UserGroup.class));
     }
-    
+
     @Test
     public void deleteUnit() throws Exception {
         // given
         UserGroup group = getUnitsMock(1).get(0);
-        
+
         doNothing().when(service.localService).deleteUserGroup(group.getName());
-        
+
         // when
         service.deleteUnit(group.getName());
-        
+
         // then
         verify(service.localService, times(1)).deleteUserGroup(group.getName());
     }

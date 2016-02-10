@@ -13,7 +13,7 @@ import java.util.List;
 
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
-import org.oscm.paginator.Pagination;
+import org.oscm.pagination.Pagination;
 import org.oscm.converter.strategy.ConversionFactory;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.converter.strategy.api.ToExtPaginationStrategy;
