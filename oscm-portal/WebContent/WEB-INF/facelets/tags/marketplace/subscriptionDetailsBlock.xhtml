@@ -37,6 +37,11 @@
       </a4j:outputPanel>
       <h:outputText value="#{msg['subscription.service']}" style="margin-right: 20px;" />
       <h:outputText id="#{fieldId}Service" value="#{service.nameToDisplay}" styleClass="subscriptionServiceDetailsBlock"/>
+
+      <h:outputText id="#{fieldId}AccessInfo" value="#{subscription.serviceAccessInfo}"
+                    rendered="#{subscription.accessViaAccessInfo}" escape="false" style="white-space:pre-wrap;" />
+      <h:outputText id="AccessInfoFormPart" value="#{subscription.serviceAccessInfoFormPart}"
+                    rendered="#{not empty subscription.serviceAccessInfoFormPart}" escape="false" />
     </t:panelGrid>
     <br />
     <mp:serviceLicense service="#{service}" style="margin-right: 20px; vertical-align:bottom;" />
