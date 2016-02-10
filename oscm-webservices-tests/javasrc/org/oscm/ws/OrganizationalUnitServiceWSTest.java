@@ -159,7 +159,7 @@ public class OrganizationalUnitServiceWSTest {
         Assert.assertEquals(expectedGroups, units.size());
     }
 
-    @Ignore
+    @Test
     @Order(order = 4)
     public void getOrganizationalUnitsWithPaging()
             throws OperationNotPermittedException {

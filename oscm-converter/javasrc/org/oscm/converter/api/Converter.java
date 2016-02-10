@@ -49,11 +49,11 @@ public class Converter {
         ConversionFactory.register(VOUser.class, PlatformUser.class,
                 new ToDomUserStrategy());
 
+        ConversionFactory.register(org.oscm.paginator.Pagination.class,
+                Pagination.class, new ToExtPaginationStrategy());
         ConversionFactory.register(Pagination.class,
                 org.oscm.paginator.Pagination.class,
-                new ToExtPaginationStrategy());
-        ConversionFactory.register(org.oscm.paginator.Pagination.class,
-                Pagination.class, new ToCommonPaginationStrategy());
+                new ToCommonPaginationStrategy());
     }
 
     private Converter() {
