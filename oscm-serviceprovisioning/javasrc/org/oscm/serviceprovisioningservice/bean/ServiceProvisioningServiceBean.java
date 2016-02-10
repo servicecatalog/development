@@ -2552,7 +2552,7 @@ public class ServiceProvisioningServiceBean implements
                 localizer.storeLocalizedResource(currentUser.getLocale(),
                         priceModelToStore.getKey(),
                         LocalizedObjectTypes.PRICEMODEL_DESCRIPTION,
-                        priceModel.getDescription());
+                        newDescription);
             } else {
                 localizer.removeLocalizedValues(priceModel.getKey(),
                         LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
@@ -2580,57 +2580,39 @@ public class ServiceProvisioningServiceBean implements
     }
 
     boolean saveLicenseInformationForPriceModel(long productKey,
-            long priceModelKey, VOPriceModel priceModel,
-            PlatformUser currentUser, boolean isCreateNewPriceModel) {
+                                                long priceModelKey, VOPriceModel priceModel,
+                                                PlatformUser currentUser, boolean isCreateNewPriceModel) {
         final String userLocale = currentUser.getLocale();
 
         List<VOLocalizedText> oldLicenses;
-        if (isCreateNewPriceModel) {
-            oldLicenses = localizer.getLocalizedValues(productKey,
-                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
-        } else {
-            oldLicenses = localizer.getLocalizedValues(priceModel.getKey(),
-                    LocalizedObjectTypes.PRICEMODEL_LICENSE);
-        }
-        boolean licenseInforChanged = false;
+        oldLicenses = getOldLicenses(productKey, priceModel.getKey(), isCreateNewPriceModel);
         String newLicense = priceModel.getLicense();
         if (newLicense == null) {
             newLicense = "";
         }
-        if (oldLicenses != null && !oldLicenses.isEmpty()) {
-            boolean licenseForUserLocaleExists = false;
-            for (VOLocalizedText localizedText : oldLicenses) {
-                String oldLicense = localizedText.getText();
-                String locale = localizedText.getLocale();
-                if (locale.equals(userLocale)) {
-                    licenseForUserLocaleExists = true;
-                    // write input value from price model input page
-                    localizer
-                            .storeLocalizedResource(userLocale, priceModelKey,
-                                    LocalizedObjectTypes.PRICEMODEL_LICENSE,
-                                    newLicense);
-                    if (!newLicense.equals(oldLicense)) {
-                        licenseInforChanged = true;
-                    }
-                } else {
-                    // copy old value
-                    localizer
-                            .storeLocalizedResource(locale, priceModelKey,
-                                    LocalizedObjectTypes.PRICEMODEL_LICENSE,
-                                    oldLicense);
-                }
+        for (VOLocalizedText localizedText : oldLicenses) {
+            String oldLicense = localizedText.getText();
+            String locale = localizedText.getLocale();
+            if (locale.equals(userLocale)) {
+                continue;
             }
-            if (!licenseForUserLocaleExists) {
-                localizer.storeLocalizedResource(userLocale, priceModelKey,
-                        LocalizedObjectTypes.PRICEMODEL_LICENSE, newLicense);
-                licenseInforChanged = !newLicense.isEmpty();
-            }
-        } else {
-            localizer.storeLocalizedResource(userLocale, priceModelKey,
-                    LocalizedObjectTypes.PRICEMODEL_LICENSE, newLicense);
-            licenseInforChanged = !newLicense.isEmpty();
+            localizer
+                    .storeLocalizedResource(locale, priceModelKey,
+                            LocalizedObjectTypes.PRICEMODEL_LICENSE,
+                            oldLicense);
         }
-        return licenseInforChanged;
+        localizer.storeLocalizedResource(userLocale, priceModelKey,
+                LocalizedObjectTypes.PRICEMODEL_LICENSE, newLicense);
+        return !newLicense.isEmpty();
+    }
+
+    private List<VOLocalizedText> getOldLicenses(long productKey, long priceModelKey, boolean isCreateNewPriceModel) {
+        if (isCreateNewPriceModel) {
+            return localizer.getLocalizedValues(productKey,
+                    LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
+        }
+        return localizer.getLocalizedValues(priceModelKey,
+                LocalizedObjectTypes.PRICEMODEL_LICENSE);
     }
 
     /**

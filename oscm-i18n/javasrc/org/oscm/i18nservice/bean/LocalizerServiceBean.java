@@ -399,8 +399,7 @@ public class LocalizerServiceBean implements LocalizerServiceLocal {
 
         boolean isUpdate = false;
 
-        if (objectType.getSource() != InformationSource.DATABASE
-                && objectType.getSource() != InformationSource.DATABASE_AND_RESOURCE_BUNDLE) {
+        if (!objectType.getSource().canBeModified()) {
             IllegalArgumentException iae = new IllegalArgumentException(
                     "Only localized information in the database can be modified");
             logger.logError(Log4jLogger.SYSTEM_LOG, iae,

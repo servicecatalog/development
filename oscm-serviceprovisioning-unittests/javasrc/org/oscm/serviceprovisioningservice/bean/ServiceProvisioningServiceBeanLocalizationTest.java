@@ -1133,4 +1133,29 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         verify(localizer, times(1)).storeLocalizedResource(eq("en"), eq(1L),
                 eq(LocalizedObjectTypes.RESELLER_PRICEMODEL_LICENSE), eq(""));
     }
+
+    @Test
+    public void saveLicenseInformationForPriceModelOldLicensesAndNewOne() {
+        // given
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense("license");
+        List<VOLocalizedText> oldLicenses = Arrays.asList(new VOLocalizedText[]{givenLocalizedText("engText")});
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("de");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(productKey), eq(LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, true);
+
+        // then
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(priceModel.getLicense()));
+    }
 }
