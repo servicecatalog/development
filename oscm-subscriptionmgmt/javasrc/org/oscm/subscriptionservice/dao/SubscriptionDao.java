@@ -27,10 +27,6 @@ import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.TableColumns;
 
 /**
  * @author Mao
