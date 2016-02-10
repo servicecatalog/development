@@ -7,9 +7,13 @@
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
   <a4j:outputPanel id="pagerPanel" styleClass="pager clearfix">
 
+    <c:if test="#{empty pagerExecute}">
+      <c:set var="pagerExecute" value="@region" />
+    </c:if>
+
     <rich:dataScroller id="#{pagerId}" renderIfSinglePage="false" render="#{render}" oncomplete="#{oncomplete}"
       fastControls="hide" scrollerListener="#{tableState.actionListener}" page="#{tableState.activePages[rich:clientId(pagerId)]}"
-      maxPages="5">
+      maxPages="5" execute="#{pagerExecute}">
       <f:facet name="first">
         <h:graphicImage value="/img/transparentPixel.png" styleClass="arrow_start" />
       </f:facet>

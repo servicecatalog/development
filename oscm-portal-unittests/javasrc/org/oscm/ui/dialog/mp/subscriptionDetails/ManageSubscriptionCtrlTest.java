@@ -1806,27 +1806,8 @@ public class ManageSubscriptionCtrlTest {
         assertEquals("dontOpenModalDialog", result);
     }
 
-    private User prepareSubOwnerWithRole(String userId, boolean isSelected,
-            UserRoleType userRole) {
-        VOUserDetails userDetails = new VOUserDetails();
-        userDetails.setUserId(userId);
-        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
-        userRoles.add(userRole);
-        userDetails.setUserRoles(userRoles);
-        User owner = new User(userDetails);
-        owner.setFirstName("FirstName");
-        owner.setLastName("LastName");
-        owner.setOwnerSelected(isSelected);
-        return owner;
-    }
-
-    private POUserGroup prepareUserGroup(long groupKey, String groupName) {
-        POUserGroup poUserGroup = new POUserGroup();
-        poUserGroup.setKey(1L);
-        poUserGroup.setGroupName("unit1");
-        return poUserGroup;
-    }
-    public void testInitializeUnassignedUsers() {
+    @Test
+    public void testSetPopupTargetAssignUsers_initializeUnassignedUsers() {
         // given
         model = spy(model);
         VOUserDetails details = new VOUserDetails(123456L, 654321);
@@ -1851,7 +1832,7 @@ public class ManageSubscriptionCtrlTest {
         when(operatorService.getUnassignedUsersByOrg(anyLong(), anyLong()))
                 .thenReturn(voList);
         // when
-        ctrl.initializeUnassignedUsers();
+        ctrl.setPopupTargetAssignUsers();
         // then
 
         boolean check = false;
@@ -1864,8 +1845,29 @@ public class ManageSubscriptionCtrlTest {
 
         assertTrue(check);
         assertFalse(model.getUnassignedUsers().contains(user2));
-
     }
+
+    private User prepareSubOwnerWithRole(String userId, boolean isSelected,
+            UserRoleType userRole) {
+        VOUserDetails userDetails = new VOUserDetails();
+        userDetails.setUserId(userId);
+        Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+        userRoles.add(userRole);
+        userDetails.setUserRoles(userRoles);
+        User owner = new User(userDetails);
+        owner.setFirstName("FirstName");
+        owner.setLastName("LastName");
+        owner.setOwnerSelected(isSelected);
+        return owner;
+    }
+
+    private POUserGroup prepareUserGroup(long groupKey, String groupName) {
+        POUserGroup poUserGroup = new POUserGroup();
+        poUserGroup.setKey(1L);
+        poUserGroup.setGroupName("unit1");
+        return poUserGroup;
+    }
+
 
 
 }

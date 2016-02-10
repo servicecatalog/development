@@ -10,8 +10,12 @@
       <c:set var="progress" value="true" />
     </c:if>
 
+    <c:if test="#{empty buttonStyleClass}">
+      <c:set var="buttonStyleClass" value="no-button-style-class" />
+    </c:if>
+
     <a4j:outputPanel rendered="#{disabled}" ajaxRendered="true">
-      <h:outputLink rendered="#{disabled}" styleClass="buttonDisabled" style="#{style}" disabled="true"
+      <h:outputLink rendered="#{disabled}" styleClass="buttonDisabled #{buttonStyleClass}" style="#{style}" disabled="true"
         id="#{id}Disabled" >
         <a4j:outputPanel rendered="#{disabled}">
           <h:graphicImage url="/img/transparentPixel.png" styleClass="buttonImg #{buttonType}"
@@ -22,7 +26,7 @@
     </a4j:outputPanel>
 
     <a4j:outputPanel rendered="#{not disabled}" ajaxRendered="true">
-      <h:outputLink styleClass="button" style="#{style}" rendered="#{not disabled}" id="#{id}" value="#"
+      <h:outputLink styleClass="button #{buttonStyleClass}" style="#{style}" rendered="#{not disabled}" id="#{id}" value="#"
         onclick="#{onclick}">
         <a4j:outputPanel>
           <h:graphicImage url="/img/transparentPixel.png" styleClass="buttonImg #{buttonType}"

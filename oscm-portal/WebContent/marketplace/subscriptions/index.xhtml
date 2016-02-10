@@ -11,6 +11,7 @@
   <ui:define name="pageId">
     <c:set var="pageId" value="marketplace.subscriptions" />
     <c:set var="imgUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace/img" />
+    <c:set var="bodyClass" value="body5span" />
   </ui:define>
 
   <ui:define name="breadcrumbs">
@@ -20,7 +21,7 @@
   </ui:define>
 
   <ui:define name="contentstitle">
-    <a4j:outputPanel layout="block" styleClass="contentstitle indent1col clearfix" style="margin-left:-195px;width:125%">
+    <a4j:outputPanel layout="block" styleClass="contentstitle indent1col clearfix">
       <h:outputText value="#{msg['marketplace.subscriptions.title']}" />
     </a4j:outputPanel>
   </ui:define>
@@ -33,7 +34,7 @@
     <c:set var="sortIconAscending" value="/marketplace/img/transparentPixel.png?id=sortAscending" />
     <c:set var="sortIconDescending" value="/marketplace/img/transparentPixel.png?id=sortDescending" />
 
-    <a4j:outputPanel layout="block" styleClass="grid4span clearfix" style="margin-left:-195px;width:125%">
+    <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
       <a4j:outputPanel layout="block" styleClass="box">
 
         <h:form id="triggerSubListForm" rendered="#{not empty mySubscriptionsCtrl.myTriggerProcessesModel.waitingForApprovalSubs}">
@@ -45,23 +46,11 @@
         <h:form id="subListForm">
           <a4j:jsFunction name="validateSubscriptionStatus"
                           action="#{mySubscriptionsCtrl.validateSubscriptionStatus}"
-                          render=":hiddenErrorPanel subListForm"
-                          oncomplete="selectSubscription()">
+                          render=":hiddenErrorPanel subListForm :subscriptionDetailsPanel"
+                          oncomplete="jumpToSubscriptionDetails(); AdmUtils.showProgress(false); ">
             <a4j:param name="param1" assignTo="#{mySubscriptionsCtrl.model.selectedSubscriptionId}" />
           </a4j:jsFunction>
-          
-          <a4j:jsFunction name="validateSubscription"
-                          action="#{mySubscriptionsCtrl.checkSubscriptionsNotEmpty}"
-                          render=":subscriptionDetailsPanel">
-          </a4j:jsFunction>
-          
-          <a4j:jsFunction name="selectSubscription"
-            action="#{mySubscriptionsCtrl.selectSubscription}"
-            render=":subscriptionDetailsPanel"
-            onbegin="AdmUtils.showProgress(true);"
-            oncomplete="AdmUtils.showProgress(false); jumpToSubscriptionDetails();">
-          </a4j:jsFunction>
-          
+
           <mp:outputStep id="pageHeader" value="#{msg['subscriptions.table.availableForUsage']}" />
           <h:link fragment="anchor" styleClass="invisible-jumper" />
           <rich:dataTable rows="10" id="subscriptionsList" value="#{mySubscriptionsCtrl.model}" var="sub"
@@ -69,11 +58,11 @@
             styleClass="sortable table-with-selectable-rows"
             headerCellClass="rowTitle sortable" columnClasses="wrapColumns" rowClasses="rowOdd,rowEven"
             onRowMouseOver="AdmUtils.mouseOverRowCell(this);" onRowMouseOut="AdmUtils.mouseOutRowCell(this)"
-            noDataLabel=" " style="width:100%" onrowclick="validateSubscriptionStatus('#{sub.subscriptionId}')">
+            noDataLabel=" " style="width:100%" onrowclick="AdmUtils.showProgress(true); validateSubscriptionStatus('#{sub.key}')">
 
             <f:facet name="header">
               <a4j:outputPanel>
-                <adm:pager pagerId="subListPager" render=":subscriptionDetailsPanel" oncomplete="validateSubscription();"/>
+                <adm:pager pagerId="subListPager" render=":subscriptionDetailsPanel"/>
               </a4j:outputPanel>
             </f:facet>
             <rich:column width="#{iconWidth}" styleClass="tableColumnCheckBox">

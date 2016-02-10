@@ -5331,4 +5331,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
         sub.setOwner(null);
         dataManager.merge(sub);
     }
+
+    @Override
+    public Subscription getMySubscriptionDetails(long key) {
+        return getSubscriptionDao().getMySubscriptionDetails(key);
+    }
 }

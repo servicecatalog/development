@@ -6,11 +6,15 @@
   xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
   xmlns:t="http://myfaces.apache.org/tomahawk">
-  
+
+  <c:if test="#{empty filterInputExecute}">
+    <c:set var="filterInputExecute" value="@this" />
+  </c:if>
+
   <a4j:outputPanel styleClass="div-for-input">
     <h:inputText id="#{inputId}" value="#{inputValue}" styleClass="rich-filter-input"
       onkeyup="#{onkeyup}" onclick="event.cancelBubble = true;">
-      <a4j:ajax render="#{render}" event="keyup">
+      <a4j:ajax render="#{render}" event="keyup" execute="#{filterInputExecute}">
         <a4j:attachQueue name="#{queueName}" />
       </a4j:ajax>
     </h:inputText>

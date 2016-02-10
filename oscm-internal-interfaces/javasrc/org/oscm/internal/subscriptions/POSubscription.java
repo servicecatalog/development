@@ -379,7 +379,7 @@ public class POSubscription implements Serializable {
 
     public boolean isShowUseServiceButton() {
         return (isStatusActive() || isStatusPendingUpd())
-                && !getAccessUrl().isEmpty();
+                && getAccessUrl() != null && !getAccessUrl().isEmpty();
     }
 
     public boolean isStatusWaitingForApproval() {

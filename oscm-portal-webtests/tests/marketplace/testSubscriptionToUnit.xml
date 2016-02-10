@@ -193,9 +193,61 @@
       <clickElement htmlId="organizationUnitPanelForm:organizationUnitPanelokButtonLink" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink"/>
       <mpl_verify.success label="ServiceX1" />
-      
       <mpl_login.logout />
 
+    </webtest>
+
+    <webtest name="testSubscriptionToUnit_checkRadioButtons">
+      <!-- Login as unit administrator and subscribe to service -->
+      <mpl_login.user userId="${supplierUserId}" mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" setCustomName="true" customName="ServiceRadioX1"/>
+      <clickElement htmlId="tabConfiguration:header" />
+
+      <!-- Check if unit administrator is set as subscription owner -->
+      <verifyXPath xpath="//*[@id='configurationForm:selectedOwnerText']/span[contains (text(), '${supplierUserId}')]" />
+
+      <!-- Edit unit -->
+      <verifyXPath xpath="//*[@id='configurationForm:selectedUnitName']/span[text()]" />
+      <clickElement xpath="//*[contains(@id, 'editUnit')]"/>
+
+      <!-- Select unit -->
+      <setRadioButton xpath="//*[@id='organizationUnitPanelForm:groupListTable:1:selectOneRadio:0']" />
+
+      <!-- Insert value in filter -->
+      <setInputField htmlId="organizationUnitPanelForm:groupListTable:filterGroupName" value="something" />
+      <common.waitForJavaScript />
+
+      <!-- Remove filter value -->
+      <setInputField htmlId="organizationUnitPanelForm:groupListTable:filterGroupName" value="" />
+      <common.waitForJavaScript />
+
+      <!-- Save and check if unit is selected -->
+      <clickElement htmlId="organizationUnitPanelForm:organizationUnitPanelokButtonLink" />
+      <verifyXPath xpath="//*[@id='configurationForm:selectedUnitName']/span[@title='Group1']" />
+
+      <!-- Edit subscription owner -->
+      <clickElement xpath="//*[contains(@id, 'configurationForm:assignSubOwner')]"/>
+      <setRadioButton xpath="//*[@id='selectOwnerPanelForm:selectOneRadio:0']" />
+      <clickElement htmlId="selectOwnerPanelForm:saveButton" />
+
+      <!-- Select owner -->
+      <clickElement xpath="//*[contains(@id, 'configurationForm:assignSubOwner')]"/>
+      <setRadioButton xpath="//*[@id='selectOwnerPanelForm:userTable:0:selectOneRadio:0']" />
+
+      <!-- Insert value in filter -->
+      <setInputField htmlId="selectOwnerPanelForm:userTable:filterUserId" value="something" />
+      <common.waitForJavaScript />
+
+      <!-- Remove filter value -->
+      <setInputField htmlId="selectOwnerPanelForm:userTable:filterUserId" value="" />
+      <common.waitForJavaScript />
+
+      <!-- Save and check if owner is selected -->
+      <clickElement htmlId="selectOwnerPanelForm:saveButton" />
+      <not>
+        <verifyXPath xpath="//*[@id='configurationForm:selectedOwnerText']/span[@title='This subscription does not have a dedicated owner']" />
+      </not>
+      <mpl_login.logout />
     </webtest>
 
     <webtest name="testSubscriptionToUnit_testNavigationMenu">
@@ -231,7 +283,7 @@
       <mpl_login.logout />
 
     </webtest>
-    
+
     <webtest name="testSubscriptionToUnit_SubscriptionOwnerRemoval">
       <!-- Login as org admin and create a new user -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
@@ -244,11 +296,11 @@
       <mail.readPasswordAndUrlFromMail/>
       <storeProperty name="unitAdminName2" value="#{userId}" propertyType="ant" />
       <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
-      
+
       <!-- Subscribe to service -->
       <mpl_service.subscribe mid="${mId}" index="0" setCustomName="true" customName="ServiceX3"/>
       <clickElement htmlId="tabConfiguration:header" />
-      
+
       <!-- Check owner -->
       <verifyXPath xpath="//*[@id='configurationForm:selectedOwnerText']/span[contains (text(), '${unitAdminName2}')]" />
 
@@ -257,17 +309,17 @@
 
       <!-- Login as admin -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      
+
       <!-- Edit unit and deassign user -->
       <mpl_goto.account.users/>
       <clickElement htmlId="tabGroups:header"/>
       <clickElement xpath="//tbody[@id='groupsListForm:groupListTable:tb']//span[contains (text(), 'TestUnit')]//..//..//..//a"/>
-      
+
       <!-- deassign user -->
       <verifyCheckbox xpath="//*[@id='editGroupForm:usersInGroup']//*[contains(@id,'${unitAdminName2}')]/input" checked="true" />
       <setCheckbox xpath="//*[@id='editGroupForm:usersInGroup']//*[contains(@id,'${unitAdminName2}')]/input" checked="false" />
       <clickElement htmlId="editGroupForm:createButtonLink"/>
-      
+
       <!-- Check if admin is still owner -->
       <mpl_goto.account.subscriptions/>
 
@@ -278,9 +330,9 @@
       <!-- Check if unit administrator is set as subscription owner -->
       <verifyXPath xpath="//*[@id='configurationForm:selectedOwnerText']/span[not (contains (text(), '${unitAdminName2}'))]" />
       <mpl_login.logout/>
-      
+
     </webtest>
-    
+
     <webtest name="testSubscriptionToUnit_testUnitAdminSubscriptionOwnerEdit">
       <!-- Login as supplier and create temp org admin -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
@@ -293,25 +345,25 @@
 
       <mail.readPasswordAndUrlFromMail/>
       <storeProperty name="unitAdminName3" value="#{userId}" propertyType="ant" />
-      
+
       <!-- Login as supplier unit admin -->
       <mpl_login.loginWithChangePassword mid="${mId}" userId="#{userId}" oldPassword="#{userPwd}" />
       <mpl_service.subscribe mid="${mId}" index="0" setCustomName="true" customName="ServiceX4"/>
-      
+
       <mpl_login.logout/>
-      
+
       <!-- Login as supplier -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      
+
       <!-- Set supplier unit admin as unit admin only-->
       <mpl_goto.account.users/>
       <mpl_user.display userId="${unitAdminName3}"/>
-      
+
       <mpl_user.selectUserGroup groupIndex="0" groupRole="Administrator"/>
       <setCheckbox xpath="//*[@id='editUserForm:userRolesTable:tb']//*[contains (text(), 'Administrator')]//..//input" checked="false"/>
 
       <clickButton label="${button.save}" />
-      
+
       <mpl_login.logout/>
 
       <!-- Login as unit administrator and subscribe to service -->
@@ -343,16 +395,16 @@
 
       <!-- Uncheck the checkbox -->
       <setCheckbox xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']" checked="false"/>
-      
+
       <!-- Check visibility - should be hidden -->
       <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole' and contains (@style, 'visibility: hidden')]" />
-      
+
       <!-- Check the checkbox -->
       <setCheckbox xpath="//*[@id='editUserForm:userGroupsTable:0:groupsCheckbox']" checked="true"/>
 
       <!-- Check visibility - should be visible -->
       <verifyXPath xpath="//*[@id='editUserForm:userGroupsTable:0:unitRole' and contains (@style, 'visibility: visible')]" />
-      
+
       <mpl_login.logout />
     </webtest>
 

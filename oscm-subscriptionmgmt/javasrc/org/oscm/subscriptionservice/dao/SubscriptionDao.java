@@ -8,12 +8,7 @@
 
 package org.oscm.subscriptionservice.dao;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
@@ -24,13 +19,7 @@ import org.oscm.paginator.Filter;
 import org.oscm.paginator.TableColumns;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.UsageLicense;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.interceptor.ExceptionMapper;
@@ -38,6 +27,10 @@ import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.pagination.Filter;
+import org.oscm.pagination.TableColumns;
 
 /**
  * @author Mao
@@ -45,7 +38,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
  */
 @Interceptors({ ExceptionMapper.class })
 public class SubscriptionDao {
-    
+
     private final DataService dataManager;
     private Log4jLogger logger = LoggerFactory.getLogger(SubscriptionDao.class);
 
@@ -247,7 +240,7 @@ public class SubscriptionDao {
             }
         }
     }
- 
+
     private void setPaginationParameters(Pagination pagination, Query query) {
         setSortingParameter(query, pagination);
         setFilterParameters(query, pagination);
@@ -1007,4 +1000,18 @@ public class SubscriptionDao {
         return ParameterizedTypes.list(q.getResultList(), RoleDefinition.class);
     }
 
+    public Subscription getMySubscriptionDetails(long key) {
+        PlatformUser user = dataManager.getCurrentUser();
+        Query query = dataManager.createNativeQuery("SELECT s.*"
+                + " FROM Subscription s " +
+                "LEFT JOIN product p ON (s.product_tkey = p.tkey) " +
+                        "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey " +
+                "WHERE s.tkey=:subKey and s.status IN (:status) AND EXISTS " +
+                "(SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey=:userKey AND lic.subscription_tkey=:subKey)",
+                Subscription.class);
+        query.setParameter("userKey", Long.valueOf(user.getKey()));
+        query.setParameter("subKey", Long.valueOf(key));
+        query.setParameter("status", getSubscriptionStatesAsString(new HashSet<>(Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
+        return (Subscription) query.getSingleResult();
+    }
 }
