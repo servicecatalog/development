@@ -356,5 +356,41 @@
       <mpl_login.logout />
     </webtest>
 
+    <webtest name="testSubscriptionToUnit_testAssignUserToUnit_bug12495">
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <!-- Create Subscription Manager -->
+      <mpl_user.create userId="SubscriptionMan" isSubMgr="true" />
+      <property name="user_id" value="#{userId}" />
+      <login.logout />
+      <!-- Login as Subscription Manager and subscribe to the service -->
+      <mail.readPasswordAndUrlFromMail />
+      <property name="user_pwd" value="#{userPwd}" />
+      <storeProperty name="u4Key" value="#{userKey}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword userId="${user_id}" oldPassword="${user_pwd}" mid="${mId}" />
+      <mpl_service.subscribe mid="${mId}" index="0" setCustomName="true" customName="SubManSubscription"/>
+      <!-- Go to the subscriptions table and check if he can see his subscription -->
+      <mpl_goto.account.subscriptions/>
+      <verifyXPath xpath="//tr[@id='subListForm:subscriptionsList:0']/td/div/span[text()='SubManSubscription']"/>
+      <login.logout />
+      <!-- Login as supplier -->
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <!-- Create unit with all services selected -->
+      <mpl_user.createGroup groupId="GroupForSubManCheck" groupDescription="Group For Sub Man description" hasService="true" />
+      <mpl_goto.account.users />
+      <!-- Assign Subscription Manager to the newly created unit -->
+      <clickElement xpath="//*[@id='tabGroups:header']" />
+      <clickElement xpath="//table[@id='groupsListForm:groupListTable']/tbody/tr/td/div/span[text()='GroupForSubManCheck']/../../../td/a" />
+      <setCheckbox xpath="//input[contains(@id, 'editGroupForm:usersInGroup:SubscriptionMan')]" checked="true"/>
+      <clickElement htmlId="editGroupForm:createButtonLink" />
+      <login.logout />
+      <!-- Login as Subscription manager and check if he still can see his subscription -->
+      <mpl_login.user mid="${mId}" userId="${user_id}" />
+      <mpl_goto.account.subscriptions/>
+      <verifyXPath xpath="//tr[@id='subListForm:subscriptionsList:0']/td/div/span[text()='SubManSubscription']"/>
+      <login.logout />
+    </webtest>
+
   </target>
 </project>
