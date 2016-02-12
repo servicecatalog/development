@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -395,6 +396,9 @@ public class UserGroupServiceBeanTest {
         poUserInUnit.setLocale("en");
         poUserInUnit.getPoUser().setUserId("123456");
         poUserInUnit.getPoUser().setEmail("bes.ma@test.fnst.cn.fujitsu.com");
+        List<UserRoleType> assignedRoles = new ArrayList<UserRoleType>();
+        assignedRoles.add(UserRoleType.ORGANIZATION_ADMIN);
+        poUserInUnit.setAssignedRoles(assignedRoles);
         return poUserInUnit;
     }
 
