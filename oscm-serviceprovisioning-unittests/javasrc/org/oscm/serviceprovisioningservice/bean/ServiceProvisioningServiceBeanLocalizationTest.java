@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.dataservice.local.DataService;
@@ -756,7 +757,7 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         long priceModelKey = 1L;
         PlatformUser currentUser = new PlatformUser();
         currentUser.setLocale("en");
-        doReturn(null).when(localizer).getLocalizedValues(eq(productKey),
+        doReturn(Collections.emptyList()).when(localizer).getLocalizedValues(eq(productKey),
                 eq(LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
 
         // when
@@ -905,7 +906,7 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
                 priceModelKey, priceModel, currentUser, false);
 
         // then
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
         verify(localizer, times(1)).storeLocalizedResource(
                 eq(currentUser.getLocale()), eq(productKey),
                 eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
