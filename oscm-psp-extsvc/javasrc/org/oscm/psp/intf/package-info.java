@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015
+ *  Copyright FUJITSU LIMITED 2016
  */
 /**
  * Specifies the interface which must be implemented by a PSP integration

@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  */ 
 var minPasswordLength = 6;
 var fairPasswordLength = 8;
