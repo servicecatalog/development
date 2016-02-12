@@ -101,7 +101,7 @@
             <a4j:outputPanel layout="block" styleClass="tablePanel user-groups-table-panel">
               <a4j:region>
                 <a4j:queue requestDelay="500" ignoreDupResponses="true" />
-                
+
                 <rich:dataTable value="#{updateUserModel.userGroups}" id="userGroupsTable" var="rowItem" width="100%"
                   headerClass="rowTitle groupTableTitle" rowClasses="rowOdd,rowEven" columnsWidth="4%,50%,46%"
                   style="width: 100%" sortMode="single" rows="10">
@@ -115,7 +115,7 @@
                       onchange="setDirty(true);AdmUtils.updateRoleComboBox(event, 'unitRole');" />
                   </rich:column>
 
-                  <rich:column id="colUserGroupName" sortBy="#{rowItem.name}" 
+                  <rich:column id="colUserGroupName" sortBy="#{rowItem.name}"
                     sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}"
                     sortIconDescending="#{sortIconDescending}"
                     filterType="custom"
@@ -162,7 +162,7 @@
           <a4j:outputPanel id="userAssignableSubscriptions" rendered="#{updateUserCtrl.subTableRendered and not triggerProcessBean.suspendAddRevokeUsers}"
             styleClass="assign-panel">
             <mp:outputStep id="assignUserTitle" value="#{msg['marketplace.account.edituser.assignUser.title']}" />
-            
+
             <rich:dataTable rows="10" id="subscriptionTable" value="#{updateUserCtrl.userSubscriptionsLazyDataModel}" var="subscription"
               headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable"
               styleClass="sortable table-with-selectable-row" headerCellClass="rowTitle sortable"
@@ -178,8 +178,8 @@
 
               <rich:column styleClass="tableColumnCheckBox">
                 <h:selectBooleanCheckbox id="assignCheckbox" value="#{subscription.selected}" onchange="setDirty(true);AdmUtils.updateSubRoleComboBox(event, 'role');showConfirm=true;" >
-                  <a4j:ajax event="change" listener="#{updateUserCtrl.selectSubscription}" execute="@this"/>
-    			  <f:attribute name="subscriptionId" value="#{subscription.id}" /> 
+                  <a4j:ajax event="change" listener="#{updateUserCtrl.selectSubscription}" execute="subscriptionTable"/>
+    			  <f:attribute name="subscriptionId" value="#{subscription.id}" />
     			  <f:attribute name="selected" value="#{subscription.selected}" />
     			  <f:attribute name="items" value="#{subscription.roles}"/>
                 </h:selectBooleanCheckbox>
@@ -209,21 +209,21 @@
                 <ui:param name="queueName" value="userSubscriptionsQueue"/>
                 <ui:param name="items" value="#{subscription.roles}"/>
                 <ui:param name="itemsRendered" value="#{subscription.rolesRendered}"/>
-                <ui:param name="selectorId" value="role"/>   
-                <ui:param name="onchange" value="setDirty(true);showConfirm=true;"/>        
+                <ui:param name="selectorId" value="role"/>
+                <ui:param name="onchange" value="setDirty(true);showConfirm=true;"/>
               </ui:include>
 
             </rich:dataTable>
-            
+
             <a4j:outputPanel id="subscriptionTableScripts">
-              <script type="text/javascript">     
+              <script type="text/javascript">
                 AdmUtils.initSubRoleFieldSetup('role', 'assignCheckbox');
               </script>
-            </a4j:outputPanel>   
+            </a4j:outputPanel>
           </a4j:outputPanel>
-                   
+
           <mp:pixelline marginTop="10" />
-          
+
           <h:commandButton style="display:none;" id="confirmedDeleteButton" onclick="setDirty(false);"
             value="#{msg['button.delete']}" action="#{updateUserCtrl.delete}" />
           <a4j:commandButton style="display:none;" id="confirmedBackBt"

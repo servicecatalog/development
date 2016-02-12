@@ -9,15 +9,13 @@
 package org.oscm.converter.strategy.domain;
 
 import org.oscm.converter.strategy.ConversionStrategy;
-import org.oscm.paginator.Pagination;
+import org.oscm.pagination.Pagination;
 
-public class ToCommonPaginationStrategy
-        implements
+public class ToCommonPaginationStrategy implements
         ConversionStrategy<Pagination, org.oscm.paginator.Pagination> {
 
     @Override
-    public org.oscm.paginator.Pagination convert(
-            Pagination pagination) {
+    public org.oscm.paginator.Pagination convert(Pagination pagination) {
 
         if (pagination == null) {
             return null;

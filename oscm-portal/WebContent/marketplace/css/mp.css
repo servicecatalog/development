@@ -2936,8 +2936,12 @@ div.pagingOptions p{
 	width: 550px; 
 }
 
-.visibleServiceTablePager td{  
+.visibleServiceTablePager td{
 	padding-top: 0px;
+}
+
+.visibleServiceTablePager span a.button {
+    width: inherit !important;
 }
 
 .serviceTableColumnCheckBox{

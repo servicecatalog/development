@@ -66,7 +66,6 @@
       <setSelectField xpath="//*[@id='marketplaceSelectForm:selectMarketplaceId']/option[contains(.,'${MP_ID_OF_SUPP1}')]" />
       <!-- (2) when a marketplace is selected: organization field + add-button enabled -->
       <this.addButtonEnabled />
-
       <!-- enabled input for supplier id -->
       <verifyXPath xpath="//input[@id='addSupplierForm:supplierId']" />
       <!-- (3) marketplace -deselection returns to initial state -->
@@ -398,20 +397,20 @@
 
   <macrodef name="this.addButtonEnabled">
     <sequential>
-      <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton' and @class='button']" />
+      <verifyXPath xpath="//*[@id='addSupplierForm:addSupplierButton' and contains (@class, 'button')]" />
     </sequential>
   </macrodef>
 
   <macrodef name="this.deleteButtonDisabled">
     <sequential>
       <!-- disabled delete button -->
-      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButtonDisabled' and @class='buttonDisabled']" />
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButtonDisabled' and contains (@class, 'buttonDisabled')]" />
     </sequential>
   </macrodef>
 
   <macrodef name="this.deleteButtonEnabled">
     <sequential>
-      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButton' and @class='button']" />
+      <verifyXPath xpath="//*[@id='removeSuppliersForm:deleteButton' and contains (@class, 'button')]" />
     </sequential>
   </macrodef>
 

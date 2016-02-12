@@ -12,15 +12,15 @@
       <verifySelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="0" />
       <verifySelectField htmlId="categoriesForm:locale" value="en" />
       <verifyXPath xpath="//*[@id='categoriesForm:addNewCategoryDisabled']/@class='buttonDisabled'" />
-      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled']/@class='buttonDisabled'" />
+      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled' and contains(@class, 'buttonDisabled')]" />
 
       <setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" value="@{marketplaceId}" />
       <verifyXPath xpath="//*[@id='categoriesForm:addNewCategoryLink']/@class='button'" />
-      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled']/@class='buttonDisabled'" />
+      <verifyXPath xpath="//*[@id='categoriesForm:saveButtonDisabled' and contains(@class, 'buttonDisabled')]" />
 
       <repeat startCount="0" count="@{count}" countername="i">
         <clickLink htmlId="categoriesForm:addNewCategoryLink" />
-        <verifyXPath xpath="//*[@id='categoriesForm:saveButton']/@class='button'" />
+        <verifyXPath xpath="//*[@id='categoriesForm:saveButton' and contains(@class, 'button')]" />
         <setInputField htmlId="categoriesForm:categoriesTable:#{i}:categoryId" value="@{categoryPrefix}#{i}" />
         <setInputField htmlId="categoriesForm:categoriesTable:#{i}:localizedValue" value="@{categoryPrefix}#{i} @{locale}" />
       </repeat>

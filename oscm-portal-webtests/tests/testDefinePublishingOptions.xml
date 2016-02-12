@@ -140,7 +140,8 @@
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
       <invoke url="${supplierUrl}/service/publish.jsf" />
       <setSelectField htmlId="editForm:selectedServiceId" text="Service2" />
-      <common.isButtonDisabled buttonId="editForm:saveButton" />
+		<storeElementAttribute htmlid="editForm:saveButtonDisabled" property="isBtnDisabled" attributeName="class" />
+		<verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
       <login.logout />
     </webtest>
 

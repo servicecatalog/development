@@ -18,6 +18,7 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.persistence.NoResultException;
 
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -31,6 +32,8 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
@@ -45,6 +48,7 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * @author tokoda
@@ -54,6 +58,9 @@ import org.oscm.internal.vo.VOUserSubscription;
 @Remote(SubscriptionsService.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class SubscriptionsServiceBean implements SubscriptionsService {
+
+    private static final Log4jLogger logger = LoggerFactory
+            .getLogger(SubscriptionsServiceBean.class);
 
     @EJB(beanInterface = DataService.class)
     DataService dm;
@@ -286,4 +293,17 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
 				.getSubscriptionUsageLicense(dm.getCurrentUser(), Long.valueOf(subscriptionKey));
 		return usageLicense != null;
 	}
+
+    @Override
+    public POSubscription getMySubscriptionDetails(long key) {
+        POSubscription poSubscription = null;
+        try {
+            Subscription subscription = subscriptionServiceLocal.getMySubscriptionDetails(key);
+            poSubscription = toPOSubscription(SubscriptionAssembler.toVOSubscriptionDetails(subscription,
+                    getLocalizerFacade()));
+        } catch (Exception exc) {
+            logger.logDebug("Object not found, but it's ok.");
+        }
+        return poSubscription;
+    }
 }
