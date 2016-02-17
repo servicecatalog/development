@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015
+ *  Copyright FUJITSU LIMITED 2016
  */
 /**
  * Provides the data objects referred to by the methods of 
