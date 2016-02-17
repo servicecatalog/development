@@ -1,8 +1,10 @@
 package org.oscm.internal.usermanagement;
 
 import java.io.Serializable;
+import java.util.List;
 
 import org.oscm.internal.types.enumtypes.Salutation;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 
 public class POUserInUnit implements Serializable {
 
@@ -12,6 +14,7 @@ public class POUserInUnit implements Serializable {
     private String roleInUnit;
     private Salutation salutation;
     private String locale;
+    private List<UserRoleType> assignedRoles;
 
     public boolean isSelected() {
         return selected;
@@ -63,6 +66,14 @@ public class POUserInUnit implements Serializable {
 
     public void setLocale(String locale) {
         this.locale = locale;
+    }
+
+    public List<UserRoleType> getAssignedRoles() {
+        return assignedRoles;
+    }
+
+    public void setAssignedRoles(List<UserRoleType> assignedRoles) {
+        this.assignedRoles = assignedRoles;
     }
 
 }
