@@ -5311,11 +5311,24 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionDao().getSubscriptionsForUser(user, pagination);
     }
 
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
+                                                          org.oscm.paginator.Pagination pagination, String filterValue) {
+        return getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, Collections.<Long>emptySet());
+    }
+
     @Override
     public List<Subscription> getSubscriptionsForCurrentUser(
             Pagination pagination) {
         PlatformUser user = dataManager.getCurrentUser();
         return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination, String filterValue) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination, filterValue);
     }
 
     @Override

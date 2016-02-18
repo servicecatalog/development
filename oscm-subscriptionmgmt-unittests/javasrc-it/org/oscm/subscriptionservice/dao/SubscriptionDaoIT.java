@@ -9,6 +9,7 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -100,7 +101,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());
-        container.addBean(Mockito.mock(IdentityService.class));
+        container.addBean(mock(IdentityService.class));
 
         final Organization org = new Organization();
         org.setKey(0);
@@ -315,10 +316,11 @@ public class SubscriptionDaoIT extends EJBTestBase {
     public void getSubscriptionsForUserWithKeysEmptySet() throws Exception {
         // when
         final Set<Long> keys = Collections.emptySet();
+        final PlatformUser user = createUser(randomString(), supplierCustomer);
         List<Subscription> result = runTX(new Callable<List<Subscription>>() {
             @Override
             public List<Subscription> call() throws Exception {
-                return dao.getSubscriptionsForUser(ds.getCurrentUser(), keys);
+                return dao.getSubscriptionsForUserWithSubscriptionKeys(user, mock(org.oscm.paginator.Pagination.class), keys);
             }
         });
 
@@ -344,7 +346,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
         List<Subscription> result = runTX(new Callable<List<Subscription>>() {
             @Override
             public List<Subscription> call() throws Exception {
-                return dao.getSubscriptionsForUser(user, keys);
+                return dao.getSubscriptionsForUserWithSubscriptionKeys(user, mock(org.oscm.paginator.Pagination.class), keys);
             }
         });
 
