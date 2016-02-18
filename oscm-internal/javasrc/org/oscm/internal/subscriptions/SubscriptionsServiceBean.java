@@ -236,10 +236,16 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
                 states, pagination).size());
     }
 
-
     @Override
     public Response getMySubscriptions(Pagination pagination) throws OrganizationAuthoritiesException {
         List<Subscription> mySubscriptions = subscriptionServiceLocal.getSubscriptionsForCurrentUser(pagination);
+        List<POSubscription> result = toPOUserSubscriptionList(mySubscriptions);
+        return new Response(result);
+    }
+
+    @Override
+    public Response getMySubscriptionsWithFiltering(org.oscm.paginator.Pagination pagination, String filterValue) throws OrganizationAuthoritiesException {
+        List<Subscription> mySubscriptions = subscriptionServiceLocal.getSubscriptionsForCurrentUserWithFiltering(pagination, filterValue);
         List<POSubscription> result = toPOUserSubscriptionList(mySubscriptions);
         return new Response(result);
     }

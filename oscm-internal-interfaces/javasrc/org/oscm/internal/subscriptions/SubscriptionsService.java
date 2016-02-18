@@ -76,6 +76,14 @@ public interface SubscriptionsService {
     Integer getSubscriptionsForOrgSize(Set<SubscriptionStatus> states, Pagination pagination)
             throws OrganizationAuthoritiesException;
 
+    /**
+     * Returns
+     * @param pagination
+     * @return
+     * @throws OrganizationAuthoritiesException
+     */
+    public Response getMySubscriptionsWithFiltering(org.oscm.paginator.Pagination pagination, String filterValue) throws OrganizationAuthoritiesException;
+
     Integer getMySubscriptionsSize(Pagination pagination) throws OrganizationAuthoritiesException;
     
     boolean isSubscriptionVisible(long subscriptionKey);

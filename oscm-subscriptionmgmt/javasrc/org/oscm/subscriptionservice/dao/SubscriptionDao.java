@@ -103,20 +103,6 @@ public class SubscriptionDao {
                 query.getResultList(), Subscription.class);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Subscription> getSubscriptionsForUser(PlatformUser user, Set<Long> subscriptionKeys) {
-        if (subscriptionKeys == null || subscriptionKeys.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Query query = dataManager
-                .createNamedQuery("Subscription.getCurrentUserSubscriptionsByKeys");
-        query.setParameter("userKey", Long.valueOf(user.getKey()));
-        query.setParameter("status", Subscription.VISIBLE_SUBSCRIPTION_STATUS);
-        query.setParameter("keys", subscriptionKeys);
-        return ParameterizedTypes.list(
-                query.getResultList(), Subscription.class);
-    }
-
     public Long hasSubscriptionsBasedOnOnBehalfServicesForTp(
             Subscription subscription) {
         Query query = dataManager
@@ -514,13 +500,27 @@ public class SubscriptionDao {
     private String marketplacePaginatedQuery(String selectWhereQuery, Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryOrderByString(pagination);
+            queryOrderBy = createMarketplaceQueryOrderByString(pagination.getSorting().getOrder().name(), pagination.getLocalizedStatusesMap());
         }
 
         String queryFilter = "";
         if (pagination.getFilterSet() != null) {
-            queryFilter = createMarketplaceQueryFilterString(pagination,
-                    queryFilter);
+            queryFilter = createMarketplaceQueryFilterString(
+                    queryFilter, pagination.getFilterSet(), pagination.getDateFormat(), pagination.getLocalizedStatusesMap());
+        }
+        return selectWhereQuery + queryFilter + queryOrderBy;
+    }
+
+    private String marketplacePaginatedQuery(String selectWhereQuery, org.oscm.paginator.Pagination pagination) {
+        String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
+        if (pagination.getSorting() != null) {
+            queryOrderBy = createMarketplaceQueryOrderByString(pagination.getSorting().getOrder().name(), pagination.getLocalizedStatusesMap());
+        }
+
+        String queryFilter = "";
+        if (pagination.getFilterSet() != null) {
+            queryFilter = createMarketplaceQueryFilterString(
+                    queryFilter, pagination.getFilterSet(), pagination.getDateFormat(), pagination.getLocalizedStatusesMap());
         }
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
@@ -560,7 +560,7 @@ public class SubscriptionDao {
                 + TableColumns.PURCHASE_ORDER_NUMBER.name()
                 + "' THEN s.purchaseordernumber ";
         String whenStatus = "WHEN '" + TableColumns.STATUS.name() + "' THEN "
-                + createStatusesAndQueryPart(pagination) + " ";
+                + createStatusesAndQueryPart(pagination.getLocalizedStatusesMap()) + " ";
         String whenUnit = "WHEN '" + TableColumns.UNIT.name()
                 + "' THEN ug.name ";
         queryOrderBy = "ORDER BY (CASE :sortColumn " + whenSubscriptionId
@@ -571,7 +571,7 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
-    private String createMarketplaceQueryOrderByString(Pagination pagination) {
+    private String createMarketplaceQueryOrderByString(String orderByColumnName, Map<SubscriptionStatus, String> localizedStatusesMap) {
         String queryOrderBy;
         String whenSubscriptionId = "WHEN '"
                 + TableColumns.SUBSCRIPTION_ID.name()
@@ -589,12 +589,12 @@ public class SubscriptionDao {
         String whenReferenceNumber = "WHEN '" + TableColumns.PURCHASE_ORDER_NUMBER.name()
                 + "' THEN s.purchaseordernumber ";
         String whenStatus = "WHEN '" + TableColumns.STATUS.name() + "' THEN "
-                + createStatusesAndQueryPart(pagination) + " ";
+                + createStatusesAndQueryPart(localizedStatusesMap) + " ";
         queryOrderBy = "ORDER BY (CASE :sortColumn " + whenSubscriptionId
                 + whenActivation + whenCustomerId + whenCustomerName
                 + whenServiceId + whenServiceName + whenReferenceNumber
                 + whenStatus + " END) "
-                + pagination.getSorting().getOrder().name();
+                + orderByColumnName;
         return queryOrderBy;
     }
 
@@ -628,7 +628,7 @@ public class SubscriptionDao {
                 queryFilter += "AND s.purchaseordernumber ILIKE :filterExpressionReferenceNumber ";
                 break;
             case STATUS:
-                queryFilter += "AND " + createStatusesAndQueryPart(pagination)
+                queryFilter += "AND " + createStatusesAndQueryPart(pagination.getLocalizedStatusesMap())
                         + " ILIKE :filterExpressionStatus ";
                 break;
             case UNIT:
@@ -639,9 +639,9 @@ public class SubscriptionDao {
         return queryFilter;
     }
 
-    private String createMarketplaceQueryFilterString(Pagination pagination,
-                                                               String queryFilter) {
-        Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
+    private String createMarketplaceQueryFilterString(String queryFilter, Set<Filter> filterSet, String dateFormat,
+                                                      Map<SubscriptionStatus, String> localizedStatusesMap) {
+        Iterator<Filter> filterIterator = filterSet.iterator();
         while (filterIterator.hasNext()) {
             Filter filter = filterIterator.next();
             switch (filter.getColumn()) {
@@ -656,7 +656,7 @@ public class SubscriptionDao {
                     break;
                 case ACTIVATION_TIME:
                     queryFilter += "AND trim(to_char(to_timestamp(s.activationdate / 1000), '"
-                            + pagination.getDateFormat()
+                            + dateFormat
                             + "')) ILIKE :filterExpressionActivation ";
                     break;
                 case SERVICE_ID:
@@ -671,7 +671,7 @@ public class SubscriptionDao {
                     queryFilter += "AND s.purchaseordernumber ILIKE :filterExpressionReferenceNumber ";
                     break;
                 case STATUS:
-                    queryFilter += "AND " + createStatusesAndQueryPart(pagination)
+                    queryFilter += "AND " + createStatusesAndQueryPart(localizedStatusesMap)
                             + " ILIKE :filterExpressionStatus ";
                     break;
             }
@@ -679,13 +679,12 @@ public class SubscriptionDao {
         return queryFilter;
     }
 
-    //TODO: Bug 11714 may be caused by the code
     private String createLocalizedServiceNameSubQuery(String tableAlias) {
         return " SELECT localize.value FROM localizedresource localize WHERE localize.objectkey="+tableAlias+".template_tkey AND localize.locale=:locale AND localize.objecttype=:objecttype ";
     }
 
-    private String createStatusesAndQueryPart(Pagination pagination) {
-        Set<Map.Entry<SubscriptionStatus, String>> statusesEntry = pagination.getLocalizedStatusesMap().entrySet();
+    private String createStatusesAndQueryPart(Map<SubscriptionStatus, String> localizedStatusesMap) {
+        Set<Map.Entry<SubscriptionStatus, String>> statusesEntry = localizedStatusesMap.entrySet();
         String query = "case ";
         for(Map.Entry<SubscriptionStatus, String> entry : statusesEntry) {
             query += " when s.status='" + entry.getKey().name()
@@ -888,7 +887,7 @@ public class SubscriptionDao {
                     .append("' THEN s.purchaseordernumber ");
             orderByBuilder.append("WHEN '").append(TableColumns.STATUS.name())
                     .append("' THEN ")
-                    .append(createStatusesAndQueryPart(pagination)).append(" ");
+                    .append(createStatusesAndQueryPart(pagination.getLocalizedStatusesMap())).append(" ");
             orderByBuilder.append("WHEN '").append(TableColumns.UNIT.name())
                     .append("' THEN s.unit_name ");
             orderByBuilder.append(" END) ").append(
@@ -967,6 +966,12 @@ public class SubscriptionDao {
         return getSubscriptionsForUser(user, pagination, queryString);
     }
 
+    public List<Subscription> getSubscriptionsForUserWithSubscriptionKeys(PlatformUser user, org.oscm.paginator.Pagination pagination,
+                                                      Set<Long> subscriptionKeys) {
+        String queryString = getQuerySubscriptionsForUser(pagination, subscriptionKeys);
+        return getSubscriptionsForUser(user, pagination, queryString);
+    }
+
     private String getQuerySubscriptionsForUser(Pagination pagination) {
         return marketplacePaginatedQuery(
                 "SELECT s.*"
@@ -974,8 +979,26 @@ public class SubscriptionDao {
                 pagination);
     }
 
+    private String getQuerySubscriptionsForUser(org.oscm.paginator.Pagination pagination, Set<Long> subscriptionKeys) {
+        return marketplacePaginatedQuery(
+                "SELECT s.*"
+                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) " +
+                        "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey " +
+                        "WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey " +
+                        "AND lic.subscription_tkey = s.tkey) ",
+                pagination);
+    }
+
     private List<Subscription> getSubscriptionsForUser(PlatformUser user, Pagination pagination, String queryString) {
 
+        Query query = getSubscriptionsForUserNativeQuery(user, queryString);
+
+        setPaginationParameters(pagination, query);
+
+        return ParameterizedTypes.list(query.getResultList(), Subscription.class);
+    }
+
+    private Query getSubscriptionsForUserNativeQuery(PlatformUser user, String queryString) {
         Query query = dataManager.createNativeQuery(queryString, Subscription.class);
         try {
             query.setParameter("locale", user.getLocale());
@@ -985,6 +1008,12 @@ public class SubscriptionDao {
         }
         query.setParameter("userKey", Long.valueOf(user.getKey()));
         query.setParameter("status", getSubscriptionStatesAsString(new HashSet<>(Subscription.VISIBLE_SUBSCRIPTION_STATUS)));
+        return query;
+    }
+
+    private List<Subscription> getSubscriptionsForUser(PlatformUser user, org.oscm.paginator.Pagination pagination, String queryString) {
+
+        Query query = getSubscriptionsForUserNativeQuery(user, queryString);
 
         setPaginationParameters(pagination, query);
 
