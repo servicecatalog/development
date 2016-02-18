@@ -103,6 +103,20 @@ public class SubscriptionDao {
                 query.getResultList(), Subscription.class);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<Subscription> getSubscriptionsForUser(PlatformUser user, Set<Long> subscriptionKeys) {
+        if (subscriptionKeys == null || subscriptionKeys.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Query query = dataManager
+                .createNamedQuery("Subscription.getCurrentUserSubscriptionsByKeys");
+        query.setParameter("userKey", Long.valueOf(user.getKey()));
+        query.setParameter("status", Subscription.VISIBLE_SUBSCRIPTION_STATUS);
+        query.setParameter("keys", subscriptionKeys);
+        return ParameterizedTypes.list(
+                query.getResultList(), Subscription.class);
+    }
+
     public Long hasSubscriptionsBasedOnOnBehalfServicesForTp(
             Subscription subscription) {
         Query query = dataManager

@@ -312,6 +312,47 @@ public class SubscriptionDaoIT extends EJBTestBase {
     }
 
     @Test
+    public void getSubscriptionsForUserWithKeysEmptySet() throws Exception {
+        // when
+        final Set<Long> keys = Collections.emptySet();
+        List<Subscription> result = runTX(new Callable<List<Subscription>>() {
+            @Override
+            public List<Subscription> call() throws Exception {
+                return dao.getSubscriptionsForUser(ds.getCurrentUser(), keys);
+            }
+        });
+
+        // then
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getSubscriptionsForUserWithKeys() throws Exception {
+        final Product subscription = createSubscription();
+        final PlatformUser user = createUser(randomString(), supplierCustomer);
+        final Subscription[] subscription1 = new Subscription[1];
+        // when
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                subscription1[0] = Subscriptions.createSubscription(ds, supplierCustomer.getOrganizationId(), subscription);
+                Subscriptions.createUsageLicense(ds, user, subscription1[0]);
+                return null;
+            }
+        });
+        final Set<Long> keys = Collections.singleton(subscription1[0].getKey());
+        List<Subscription> result = runTX(new Callable<List<Subscription>>() {
+            @Override
+            public List<Subscription> call() throws Exception {
+                return dao.getSubscriptionsForUser(user, keys);
+            }
+        });
+
+        // then
+        assertEquals(1, result.size());
+    }
+
+    @Test
     public void hasSubscriptionsBasedOnOnBehalfServicesForTp() throws Exception {
         createSubscription();
         // when
@@ -625,26 +666,26 @@ public class SubscriptionDaoIT extends EJBTestBase {
         });
     }
 
-    private void createSubscription() throws Exception {
+    private Product createSubscription() throws Exception {
         TechnicalProduct tProduct = createTechnicalProduct("serviceId",
                 ServiceAccessType.LOGIN);
-        createSubscriptionForOfferer(tProduct, supplier, supplierCustomer,
+        return createSubscriptionForOfferer(tProduct, supplier, supplierCustomer,
                 "supplierCommonProduct", COMMON_SUB_ID);
     }
 
-    private void createSubscriptionForOfferer(final TechnicalProduct tProduct,
-            final Organization offerer, final Organization customer,
-            final String productId, final String subscriptionId)
+    private Product createSubscriptionForOfferer(final TechnicalProduct tProduct,
+                                                 final Organization offerer, final Organization customer,
+                                                 final String productId, final String subscriptionId)
             throws Exception {
-        runTX(new Callable<Void>() {
+        return runTX(new Callable<Product>() {
             @Override
-            public Void call() throws Exception {
+            public Product call() throws Exception {
                 Product product = Products.createProduct(offerer, tProduct,
                         false, productId, null, ds);
                 commonSubscription = Subscriptions.createSubscription(ds,
                         customer.getOrganizationId(), product.getProductId(),
                         subscriptionId, offerer);
-                return null;
+                return product;
             }
         });
     }

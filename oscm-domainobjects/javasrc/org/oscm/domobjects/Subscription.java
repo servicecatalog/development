@@ -69,6 +69,12 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
         @NamedQuery(name = "Subscription.numberOfSubscriptionsForProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product=:product"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptionsForTechnicalProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptions", query = "SELECT sub FROM Subscription sub WHERE sub.dataContainer.status IN (:status) AND EXISTS (SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub)"),
+        @NamedQuery(name = "Subscription.getCurrentUserSubscriptionsByKeys", query = "" +
+                "SELECT sub FROM Subscription sub " +
+                "WHERE sub.dataContainer.status IN (:status) " +
+                    "AND EXISTS " +
+                    "(SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub) " +
+                    "AND sub.key in :keys"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
