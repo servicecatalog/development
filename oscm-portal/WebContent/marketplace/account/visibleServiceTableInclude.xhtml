@@ -24,7 +24,7 @@
 
           <f:facet name="header">
             <a4j:outputPanel styleClass="visibleServiceTablePager">
-              <adm:pager pagerId="#{pagerId}" pagerButtonRendered="#{size gt pageCount}" oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');"/>
+              <adm:pager pagerId="#{pagerId}" oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');"/>
             </a4j:outputPanel>
           </f:facet>
 
@@ -87,8 +87,8 @@
     	}
 	  </script>
       <script type="application/javascript">
-        $("[id='groupForm']").on("DOMSubtreeModified propertychange", function() {
-          AdmUtils.updateSelectAllCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', "groupForm:servicesTable:allServiceCheckbox");
+        $("[id='#{formName}']").on("DOMSubtreeModified propertychange", function() {
+          AdmUtils.updateSelectAllCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', "#{formName}:servicesTable:allServiceCheckbox");
         });
       </script>
 	</a4j:outputPanel>

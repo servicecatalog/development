@@ -21,7 +21,7 @@
     <h3 id="#{fieldId}Supplier" class="supplier shortenedText" title="#{service.sellerName}"><h:outputFormat value="#{msg['service.by']}">
       <f:param value="#{service.sellerName}" />
     </h:outputFormat></h3>
-    <t:panelGrid columns="2" border="0" cellspacing="0" cellpadding="0">
+    <t:panelGrid columns="2" border="0" cellspacing="0" cellpadding="0" columnClasses="labelAndValuePanelCol1">
       <h:outputText value="#{msg['subscription.activationDate']}" style="margin-right: 20px;" />
       <h:outputText id="#{fieldId}Activation" value="#{subscription.activationDate}">
         <f:convertDateTime />
@@ -38,6 +38,11 @@
       <h:outputText value="#{msg['subscription.service']}" style="margin-right: 20px;" />
       <h:outputText id="#{fieldId}Service" value="#{service.nameToDisplay}" styleClass="subscriptionServiceDetailsBlock"/>
     </t:panelGrid>
+
+    <h:outputText id="#{fieldId}AccessInfo" value="#{subscription.serviceAccessInfo}"
+                  rendered="#{subscription.accessViaAccessInfo}" escape="false" style="white-space:pre-wrap;" />
+    <h:outputText id="AccessInfoFormPart" value="#{subscription.serviceAccessInfoFormPart}"
+                  rendered="#{not empty subscription.serviceAccessInfoFormPart}" escape="false" />
     <br />
     <mp:serviceLicense service="#{service}" style="margin-right: 20px; vertical-align:bottom;" />
   </a4j:outputPanel>

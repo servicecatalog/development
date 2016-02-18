@@ -9,7 +9,7 @@ CREATE TABLE billingadapter  (
 ALTER TABLE billingadapter ADD CONSTRAINT billingadapter_pk PRIMARY KEY (tkey);
 ALTER TABLE billingadapter ADD CONSTRAINT billingadapter_uniq UNIQUE (billingidentifier);
 
-INSERT INTO billingadapter (tkey, billingidentifier, name, defaultadapter, version) VALUES (1, 'NATIVE_BILLING', 'Native OSCM Billing', TRUE, 0);
+INSERT INTO billingadapter (tkey, billingidentifier, name, defaultadapter, version) VALUES (1, 'NATIVE_BILLING', 'Native CT-MG Billing', TRUE, 0);
 insert into "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") select 'BillingAdapter', COALESCE((MAX(tkey)/1000),0)+10 from billingadapter;
 
 ALTER TABLE technicalproduct ADD COLUMN "billingidentifier" character varying(255) NOT NULL DEFAULT 'NATIVE_BILLING';

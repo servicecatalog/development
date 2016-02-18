@@ -7,10 +7,7 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.mp.usesubscriptions;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -293,6 +290,47 @@ public class MySubscriptionsLazyDataModelTest {
         //then
         assertArrayEquals(expectedList.toArray(), result.toArray());
         assertEquals(model.getTotalCount(), totalCount);
+    }
+
+    @Test
+    public void testGetDataListNullSelected() throws Exception {
+        //given
+        int firstRow = 0;
+        int numRows = 10;
+        int totalCount = 1;
+        List<POSubscription> expectedList = prepareList();
+        Response resp = new Response(expectedList);
+        POSubscription selectedSubscription = mock(POSubscription.class);
+        when(selectedSubscription.getKey()).thenReturn(-1L);
+        when(subscriptionsService.getMySubscriptions(any(Pagination.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSize(any(Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getMySubscriptionDetails(-1L)).thenReturn(null);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+
+        //when
+        List<POSubscription> result = model.getDataList(firstRow, numRows,
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), new Object());
+        //then
+        assertArrayEquals(expectedList.toArray(), result.toArray());
+        assertEquals(model.getTotalCount(), totalCount);
+        assertNull(model.getSelectedSubscription());
+        assertNull(model.getSelectedSubscriptionId());
     }
 
     private List<POSubscription> prepareList() {

@@ -2230,3 +2230,8 @@ form .formHighlight div.div-for-input {
 #billingAdapters *.rf-ac-itm-hdr-act {
 	cursor:default;
 }
+
+.short-button {
+    width: inherit !important;
+}
+

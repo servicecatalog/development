@@ -534,4 +534,11 @@ public interface SubscriptionServiceLocal {
      * @param sub - subscription which should be modified
      */
     public void removeSubscriptionOwner(Subscription sub);
+
+    /**
+     * Method which returns subscription with details, but only assigned to currently logged in user. Null otherwise.
+     * @param key Subscription tkey
+     * @return subscription with details, but only assigned to currently logged in user. Null otherwise.
+     */
+    public Subscription getMySubscriptionDetails(long key);
 }

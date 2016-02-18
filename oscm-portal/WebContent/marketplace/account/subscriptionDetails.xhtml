@@ -116,8 +116,7 @@
                   disabled="#{manageSubscriptionCtrl.model.usersTabDisabled}"
                   oncomplete="AdmUtils.showProgress(false);RichFaces.$('editRolesPanel').show();" />
                 <h:commandButton id="assignUsers" value="#{msg['button.assignUsers']}" type="button"
-                  onclick="AdmUtils.showProgress(true); updateUnassignedUsersContent(); return false;" styleClass="button"
-                   oncomplete="AdmUtils.showProgress(false);"
+                  onclick="AdmUtils.showProgress(true);updateUnassignedUsersContent();" styleClass="button"
                   disabled="#{manageSubscriptionCtrl.model.usersTabDisabled}"/>
               <a4j:jsFunction name="updateUnassignedUsersContent" 
               action="#{manageSubscriptionCtrl.setPopupTargetAssignUsers}"
@@ -222,7 +221,7 @@
                 <t:panelGrid columns="2" styleClass="label-with-pencil"
                   rendered="#{userBean.isOrganizationAdmin or userBean.isUnitAdmin}">
                   <adm:outputLabel textId="subscriptionOwnerId" value="#{msg['subscription.owner']}" />
-                  <h:commandButton rendered="#{not manageSubscriptionModel.cfgTabDisabled}"
+                  <h:commandButton id="assignSubOwner" rendered="#{not manageSubscriptionModel.cfgTabDisabled}"
                                    type="button" styleClass="editPen"
                                    disabled="#{manageSubscriptionModel.cfgTabDisabled}" render="configurationForm"
                     onclick="if(getDirty()==true){setPageDirty();};initializeSubscriptionOwners();">

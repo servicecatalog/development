@@ -184,6 +184,10 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                 poUser.setKey(voUserDetails.getKey());
                 poUser.setUserId(userId);
                 poUserInUnit.setPoUser(poUser);
+
+                List<UserRoleType> assignedRoles = new ArrayList<UserRoleType>();
+                assignedRoles.addAll(voUserDetails.getUserRoles());
+                poUserInUnit.setAssignedRoles(assignedRoles);
                 return poUserInUnit;
             }
         }

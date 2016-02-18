@@ -384,6 +384,11 @@ public class SubscriptionServiceStub implements SubscriptionService,
     }
 
     @Override
+    public Subscription getMySubscriptionDetails(long key) {
+        return null;
+    }
+
+    @Override
     public void completeAsyncModifySubscription(String subscriptionId,
             String organizationId, VOInstanceInfo instanceId)
             throws TechnicalServiceNotAliveException,
