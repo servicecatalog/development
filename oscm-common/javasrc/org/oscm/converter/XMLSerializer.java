@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 public class XMLSerializer {
 
@@ -60,6 +61,45 @@ public class XMLSerializer {
         }
     }
 
+    public static class ByteArrayPersistenceDelegate extends DefaultPersistenceDelegate {
+        @Override
+        protected Expression instantiate(Object oldInstance, Encoder out) {
+            byte[] e = (byte[]) oldInstance;
+            return new Expression(e, ByteArrayPersistenceDelegate.class,
+                    "decode",
+                    new Object[] { ByteArrayPersistenceDelegate.encode(e) });
+        }
+
+        @Override
+        protected boolean mutatesTo(Object oldInstance, Object newInstance) {
+            return Arrays.equals((byte[])oldInstance, (byte[])newInstance);
+        }
+
+        public static byte[] decode(String encoded) {
+            return org.apache.commons.codec.binary.Base64.decodeBase64(encoded);
+        }
+
+        public static String encode(byte[] data) {
+            return org.apache.commons.codec.binary.Base64
+                    .encodeBase64String(data);
+        }
+    }
+
+    private static class UUIDDelegate
+            extends DefaultPersistenceDelegate {
+        @Override
+        protected boolean mutatesTo(Object oldInstance, Object newInstance) {
+            return oldInstance.equals(newInstance);
+        }
+
+        @Override
+        protected Expression instantiate(Object oldInstance, Encoder out) {
+            UUID bd = (UUID) oldInstance;
+            return new Expression(bd, bd.getClass(), "fromString",
+                    new Object[] { bd.toString() });
+        }
+    }
+
     public static String toXml(Object source) {
         return toXml(source, null);
     }
@@ -75,7 +115,7 @@ public class XMLSerializer {
     public static synchronized String toXml(Object source, Class<?>[] types) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
-            XMLEncoder encoder = new XMLEncoder(out);
+            XMLEncoder encoder = new XMLEncoder(out);;
 
             setPersistenceDelegates(encoder, types);
 
@@ -121,7 +161,11 @@ public class XMLSerializer {
         // Handle "BiGDecimal" manually (has no default constructor)
         encoder.setPersistenceDelegate(BigDecimal.class,
                 new BigDecimalPersistenceDelegate());
+        
+        encoder.setPersistenceDelegate(byte[].class, new ByteArrayPersistenceDelegate());
+        encoder.setPersistenceDelegate(UUID.class, new UUIDDelegate());
     }
+
 
     /**
      * Close the closeable if it is not null.
