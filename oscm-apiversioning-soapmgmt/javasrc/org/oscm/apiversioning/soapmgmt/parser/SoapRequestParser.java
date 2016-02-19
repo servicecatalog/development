@@ -27,7 +27,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 public class SoapRequestParser {
 
     private static final String VERSION = "ctmg.service.version";
-    private static final String MESSAGEBODYTAG = "S:Body";
     private static final int OPERATIONNAMEINDEX = 4;
 
     public static String parseApiVersion(SOAPMessageContext context)
@@ -55,9 +54,8 @@ public class SoapRequestParser {
     public static String parseOperationName(SOAPMessageContext context)
             throws SOAPException {
         String operationName = context.getMessage().getSOAPBody()
-                .getOwnerDocument().getElementsByTagName(MESSAGEBODYTAG).item(0)
-                .getChildNodes().item(0).getNodeName()
-                .substring(OPERATIONNAMEINDEX);
+                .getOwnerDocument().getDocumentElement().getChildNodes()
+                .item(0).getNodeName().substring(OPERATIONNAMEINDEX);
 
         return operationName;
     }
@@ -65,8 +63,8 @@ public class SoapRequestParser {
     public static String parseServiceName(SOAPMessageContext context) {
         String serviceNameLine = context.get(MessageContext.WSDL_SERVICE)
                 .toString();
-        String serviceName = serviceNameLine
-                .substring(serviceNameLine.lastIndexOf("}") + 1);
+        String serviceName = serviceNameLine.substring(serviceNameLine
+                .lastIndexOf("}") + 1);
         return serviceName;
     }
 
@@ -98,7 +96,7 @@ public class SoapRequestParser {
             }
         }
 
-        throw new SOAPException(
-                "Soap message param " + paramName + " not found.");
+        throw new SOAPException("Soap message param " + paramName
+                + " not found.");
     }
 }
