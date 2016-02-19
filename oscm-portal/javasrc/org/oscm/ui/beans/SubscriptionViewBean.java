@@ -85,12 +85,12 @@ public class SubscriptionViewBean implements Serializable {
 
 
     @PostConstruct
-	public void getInitialize() {
-		initialDefaultUdaRows();
+    public void getInitialize() {
+        initialDefaultUdaRows();
         if (model.getSelectedSubscriptionAndCustomer() != null) {
             loadSelectedSubscriptionDetails();
         }
-	}
+    }
 
     public String selectSubscriptionIdAndCustomerId() {
         return loadSelectedSubscription();

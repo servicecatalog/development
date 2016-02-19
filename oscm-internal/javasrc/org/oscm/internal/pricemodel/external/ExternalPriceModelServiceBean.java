@@ -40,7 +40,9 @@ import org.oscm.internal.base.ContextBuilder;
 import org.oscm.internal.types.exception.BillingApplicationException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.operatorservice.bean.OperatorServiceLocalBean;
 
 /**
@@ -175,7 +177,7 @@ public class ExternalPriceModelServiceBean
     public PriceModel getExternalPriceModelForService(VOServiceDetails service)
             throws ExternalPriceModelException {
 
-        PriceModel priceModel = getExternalPriceModel(service, null);
+        PriceModel priceModel = getExternalPriceModel(service);
         return priceModel;
     }
 
@@ -187,17 +189,19 @@ public class ExternalPriceModelServiceBean
         PriceModel priceModel = getExternalPriceModel(service, customer);
         return priceModel;
     }
+    
+    @Override
+    @RolesAllowed("SERVICE_MANAGER")
+    public PriceModel getExternalPriceModelForSubscription(VOSubscriptionDetails subscription)
+                    throws ExternalPriceModelException {
 
-    private PriceModel getExternalPriceModel(VOServiceDetails service,
-            VOOrganization customer) throws ExternalPriceModelException {
+        PriceModel priceModel = getExternalPriceModel(subscription.getSubscribedService(), subscription);
+        return priceModel;
+    }
 
-        List<SupportedLanguage> languageList = operatorService
-                .getLanguages(false);
-        Set<Locale> locales = getLocales(languageList);
-
+    private ContextBuilder prepareContextBuilderParameters(
+            VOService service) {
         List<VOParameter> parameters = service.getParameters();
-        String billingId = service.getBillingIdentifier();
-
         Map<String, String> parameterMap = new HashMap<String, String>();
 
         for (VOParameter param : parameters) {
@@ -206,21 +210,60 @@ public class ExternalPriceModelServiceBean
         }
 
         ContextBuilder contextBuilder = new ContextBuilder();
-
         contextBuilder.addServiceParameters(parameterMap);
-        if (customer != null) {
-            contextBuilder.addCustomer(customer);
-        }
+        return contextBuilder;
+    }
 
+    private PriceModel getExternalPriceModel(VOService service,
+            VOSubscriptionDetails subscription)
+                    throws ExternalPriceModelException {
+        ContextBuilder contextBuilder = prepareContextBuilderParameters(
+                service);
+        if (subscription != null) {
+            contextBuilder.addSubscription(subscription);
+        }
         try {
-            return priceModelPluginBean.getPriceModel(billingId, locales,
+            return priceModelPluginBean.getPriceModel(
+                    service.getBillingIdentifier(), getLocales(),
+                    contextBuilder.build());
+        } catch (BillingApplicationException e) {
+            throw new ExternalPriceModelException(e);
+        }
+    }
+    
+    private PriceModel getExternalPriceModel(VOServiceDetails service)
+                    throws ExternalPriceModelException {
+        ContextBuilder contextBuilder = prepareContextBuilderParameters(
+                service);
+        try {
+            return priceModelPluginBean.getPriceModel(
+                    service.getBillingIdentifier(), getLocales(),
                     contextBuilder.build());
         } catch (BillingApplicationException e) {
             throw new ExternalPriceModelException(e);
         }
     }
 
-    private Set<Locale> getLocales(List<SupportedLanguage> languageList) {
+    private PriceModel getExternalPriceModel(VOServiceDetails service,
+            VOOrganization customer) throws ExternalPriceModelException {
+
+        ContextBuilder contextBuilder = prepareContextBuilderParameters(
+                service);
+        if (customer != null) {
+            contextBuilder.addCustomer(customer);
+        }
+        try {
+            return priceModelPluginBean.getPriceModel(
+                    service.getBillingIdentifier(), getLocales(),
+                    contextBuilder.build());
+        } catch (BillingApplicationException e) {
+            throw new ExternalPriceModelException(e);
+        }
+    }
+
+    private Set<Locale> getLocales() {
+        List<SupportedLanguage> languageList = operatorService
+                .getLanguages(false);
         Set<Locale> locales = new HashSet<Locale>();
 
         if (languageList != null) {

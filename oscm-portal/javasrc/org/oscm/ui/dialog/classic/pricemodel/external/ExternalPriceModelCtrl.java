@@ -8,9 +8,11 @@
 
 package org.oscm.ui.dialog.classic.pricemodel.external;
 
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedProperty;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
@@ -78,6 +80,8 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         this.sessionBean = sessionBean;
     }
 
+    public abstract void upload();
+
     @PostConstruct
     public void initialize() {
 
@@ -141,6 +145,25 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
                     .get(getAppBean().getDefaultLocale());
         }
         return priceModelContent;
+    }
+
+    public String display() throws IOException {
+
+        PriceModelContent priceModelContent = getModel()
+                .getSelectedPriceModelContent();
+
+        if (priceModelContent == null) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
+            return "";
+
+        }
+        ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
+        displayHandler.setContent(priceModelContent.getContent());
+        displayHandler.setContentType(priceModelContent.getContentType());
+        displayHandler.setFilename(priceModelContent.getFilename());
+        displayHandler.display();
+        return null;
     }
 
 }

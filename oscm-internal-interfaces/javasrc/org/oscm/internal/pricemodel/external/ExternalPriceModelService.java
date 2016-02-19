@@ -16,7 +16,9 @@ import javax.ejb.Remote;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 
 /**
  * External price model service for the CT-MG UI.
@@ -77,7 +79,7 @@ public interface ExternalPriceModelService {
             throws ExternalPriceModelException;
 
     /**
-     * Retrieves the external price model form related billing adapter based on
+     * Retrieves the external price model from related billing adapter based on
      * selected service and customer
      * 
      * @param service
@@ -89,4 +91,18 @@ public interface ExternalPriceModelService {
      */
     public PriceModel getExternalPriceModelForCustomer(VOServiceDetails service,
             VOOrganization customer) throws ExternalPriceModelException;
+
+    /**
+     * Retrieves the external price model from related billing adapter based on
+     * selected service and subscription
+     *
+     * @param subscription
+     *            selected subscription
+     * @return external price model
+     * @throws ExternalPriceModelException
+     */
+
+    public PriceModel getExternalPriceModelForSubscription(
+            VOSubscriptionDetails subscription)
+                    throws ExternalPriceModelException;
 }

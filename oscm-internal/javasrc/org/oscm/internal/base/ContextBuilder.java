@@ -17,6 +17,7 @@ import org.oscm.billing.external.context.ContextValueParameterMap;
 import org.oscm.billing.external.context.ContextValueString;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 
 
 /**
@@ -62,5 +63,11 @@ public class ContextBuilder {
 
     public Map<ContextKey, ContextValue<?>> build() {
         return context;
+    }
+
+    public ContextBuilder addSubscription(VOSubscriptionDetails subscription) {
+        context.put(ContextKey.SUBSCRIPTION_ID,
+                new ContextValueString(subscription.getSubscriptionId()));
+        return this;
     }
 }

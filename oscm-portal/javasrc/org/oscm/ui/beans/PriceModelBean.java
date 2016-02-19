@@ -22,20 +22,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.ui.common.DataTableHandler;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.LocaleUtils;
-import org.oscm.ui.common.SteppedPriceComparator;
-import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
-import org.oscm.ui.model.BPLazyDataModel;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.PricedEventRow;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.ServiceDetails;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.partnerservice.PartnerService;
@@ -68,7 +54,22 @@ import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSteppedPrice;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.ui.common.DataTableHandler;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.LocaleUtils;
+import org.oscm.ui.common.SteppedPriceComparator;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
+import org.oscm.ui.model.BPLazyDataModel;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.PricedEventRow;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.ServiceDetails;
 
 /**
  * @author pravi
@@ -317,6 +318,13 @@ public class PriceModelBean extends BaseBean implements Serializable {
     }
 
     /**
+     * @return selected subscription
+     */
+    public VOSubscriptionDetails getSelectedSubscription() {
+        return model.getSelectedSubscription();
+    }
+
+    /**
      * @return the customerID
      */
     public String getCustomerID() {
@@ -462,14 +470,15 @@ public class PriceModelBean extends BaseBean implements Serializable {
      */
     private Service getService() {
         Long key = getSelectedServiceKey();
-        if (key != null) {
-            for (Service s : getServices()) {
-                if (s.getKey() == key.longValue()) {
-                    return s;
-                }
-            }
-
+        if (key == null) {
+            return null;
         }
+        for (Service s : getServices()) {
+            if (s.getKey() == key.longValue()) {
+                return s;
+            }
+        }
+
         return null;
     }
 
@@ -754,6 +763,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                     model.getSelectedSubscriptionAndCustomer().getCustomerId());
             sessionBean.setSelectedSubscriptionId(model
                     .getSelectedSubscriptionAndCustomer().getSubscriptionId());
+            model.setSelectedSubscription(getSubscriptionService()
+                    .getSubscriptionForCustomer(model.getCustomerId(), model.getSubscriptionId()));
             result = OUTCOME_SUCCESS;
         } catch (ObjectNotFoundException | OperationNotPermittedException e) {
             model.setSelectedSubscriptionAndCustomer(null);
@@ -768,15 +779,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     public boolean isExternalServiceSelected() {
         Service service = getService();
-        if (service != null) {
-            try {
-                return getProvisioningService()
-                        .getServiceDetails(service.getVO())
-                        .getTechnicalService().isExternalBilling();
-            } catch (SaaSApplicationException e) {
-                ui.handleException(e);
-
-            }
+        if (service == null) {
+            return false;
+        }
+        try {
+            return getProvisioningService().getServiceDetails(service.getVO())
+                    .getTechnicalService().isExternalBilling();
+        } catch (SaaSApplicationException e) {
+            ui.handleException(e);
         }
         return false;
     }

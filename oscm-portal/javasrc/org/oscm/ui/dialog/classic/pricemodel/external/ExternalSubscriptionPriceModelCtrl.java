@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                    
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 24.02.2015                                                      
+ *  Creation Date: 19 lut 2016                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -14,39 +14,43 @@ import javax.faces.bean.ViewScoped;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 
 /**
- * @author iversen
+ * This class is used to handle actions related to the subscription external price model.
+ *
+ * @author BadziakP
  *
  */
 @ManagedBean
 @ViewScoped
-public class ExternalCustomerPriceModelCtrl extends ExternalPriceModelCtrl {
+public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
 
-    /* (non-Javadoc)
-     * @see org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelCtrl#upload()
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelCtrl#
+     * upload()
      */
     @Override
     public void upload() {
 
-        if (!getPriceModelBean().isExternalServiceSelected()) {
+        VOSubscriptionDetails subscription = getPriceModelBean()
+                .getSelectedSubscription();
+        if (subscription.getPriceModel() == null) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
             return;
         }
-
-        VOServiceDetails service = getPriceModelBean().getSelectedService();
-        VOOrganization customer = getPriceModelBean().getCustomer()
-                .getVOOrganization();
-
+        if (!subscription.getPriceModel().isExternal()) {
+            return;
+        }
         try {
             PriceModel priceModel = getExternalPriceModelService()
-                    .getExternalPriceModelForCustomer(service, customer);
-
-            if (priceModel == null) {
-                throw new ExternalPriceModelException();
-            }
+                    .getExternalPriceModelForSubscription(subscription);
             loadPriceModelContent(priceModel);
+
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
         } catch (ExternalPriceModelException e) {
