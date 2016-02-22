@@ -7,18 +7,8 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -5313,8 +5303,18 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-                                                          org.oscm.paginator.Pagination pagination, String filterValue) {
-        return getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, Collections.<Long>emptySet());
+                                                          org.oscm.paginator.Pagination pagination) {
+        Set<Long> subscriptionKeys = getFilteredOutSubscriptionKeys(pagination.getFullTextFilterValue());
+        return getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+    }
+//TODO: method should provide set of keys which is returned from full text filtering
+    private Set<Long> getFilteredOutSubscriptionKeys(String filterValue) {
+        List<Subscription> activeSubscriptions = getSubscriptionDao().getActiveSubscriptions();
+        Set<Long> keys = new HashSet<>();
+        for (Subscription activeSubscription : activeSubscriptions) {
+            keys.add(activeSubscription.getKey());
+        }
+        return keys;
     }
 
     @Override
@@ -5326,9 +5326,16 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @Override
     public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
-            org.oscm.paginator.Pagination pagination, String filterValue) {
+            org.oscm.paginator.Pagination pagination) {
         PlatformUser user = dataManager.getCurrentUser();
-        return getSubscriptionsForUserInt(user, pagination, filterValue);
+        return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination).size();
     }
 
     @Override

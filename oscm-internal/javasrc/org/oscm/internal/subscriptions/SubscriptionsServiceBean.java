@@ -18,7 +18,6 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.persistence.NoResultException;
 
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -48,7 +47,6 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUserSubscription;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * @author tokoda
@@ -244,10 +242,15 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
     }
 
     @Override
-    public Response getMySubscriptionsWithFiltering(org.oscm.paginator.Pagination pagination, String filterValue) throws OrganizationAuthoritiesException {
-        List<Subscription> mySubscriptions = subscriptionServiceLocal.getSubscriptionsForCurrentUserWithFiltering(pagination, filterValue);
+    public Response getMySubscriptionsWithFiltering(org.oscm.paginator.Pagination pagination) throws OrganizationAuthoritiesException {
+        List<Subscription> mySubscriptions = subscriptionServiceLocal.getSubscriptionsForCurrentUserWithFiltering(pagination);
         List<POSubscription> result = toPOUserSubscriptionList(mySubscriptions);
         return new Response(result);
+    }
+
+    @Override
+    public Integer getMySubscriptionsSizeWithFiltering(org.oscm.paginator.Pagination pagination) throws OrganizationAuthoritiesException {
+        return subscriptionServiceLocal.getSubscriptionsForCurrentUserWithFiltering(pagination).size();
     }
 
     private List<POSubscription> toPOUserSubscriptionList(List<Subscription> subs) {
