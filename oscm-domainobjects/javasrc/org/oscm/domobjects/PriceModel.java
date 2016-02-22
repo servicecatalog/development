@@ -106,6 +106,7 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
         setPricePerUserAssignment(src.getPricePerUserAssignment());
         setOneTimeFee(src.getOneTimeFee());
         setExternal(src.isExternal());
+        setUuid(src.getUuid());
     }
 
     public List<PricedEvent> getConsideredEvents() {

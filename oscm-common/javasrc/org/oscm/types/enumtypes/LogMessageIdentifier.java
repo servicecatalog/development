@@ -703,6 +703,7 @@ public enum LogMessageIdentifier {
     ERROR_SOAP_GET_VERSION_FROM_HEADER("70304"), //
     ERROR_INVALID_JSON("70305"), //
     ERROR_IO_VALIDITY_EXTERNAL_JSON("70306"), //
+    ERROR_RETRIEVAL_EXTERNAL_PRICE_MODEL_FAILED("70307"), //
     ERROR("-00001"), DEBUG("00000"); /* Debug Log */
 
     String msgId;

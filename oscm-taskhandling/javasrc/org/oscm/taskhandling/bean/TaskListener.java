@@ -24,6 +24,7 @@ import javax.jms.ObjectMessage;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
+import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -34,9 +35,12 @@ import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.facade.ServiceFacade;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.ExternalPriceModelHandler;
 import org.oscm.taskhandling.operations.TaskHandler;
 import org.oscm.taskhandling.operations.TaskHandlerFactory;
+import org.oscm.taskhandling.payloads.ExternalPriceModelPayload;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.TaskErrorHandlingException;
 
@@ -79,6 +83,9 @@ public class TaskListener {
 
     @EJB(beanInterface = SubscriptionServiceLocal.class)
     protected SubscriptionServiceLocal ss;
+    
+    @EJB(beanInterface = ExternalPriceModelService.class)
+    protected ExternalPriceModelService eps;
 
     /**
      * Message driven bean to handle the task objects sent by the business
@@ -100,9 +107,16 @@ public class TaskListener {
             // obtain the task message object
             om = (ObjectMessage) message;
             Serializable messageObject = om.getObject();
-            if (!(messageObject instanceof TaskMessage)) {
+            if (!(messageObject instanceof TaskMessage) && !(messageObject instanceof PriceModel)) {
                 throw new IllegalArgumentException(
                         "JMS message did not contain a valid task message");
+            }
+            
+            if (messageObject instanceof PriceModel) {
+                ExternalPriceModelPayload payload = new ExternalPriceModelPayload();
+                payload.setPriceModel((PriceModel) messageObject);
+
+                messageObject = new TaskMessage(ExternalPriceModelHandler.class, payload); 
             }
 
             handler = TaskHandlerFactory.getInstance().getTaskHandler(
@@ -171,6 +185,7 @@ public class TaskListener {
         facade.setTaskQueueService(tqs);
         facade.setConfigurationService(cfg);
         facade.setSubscriptionService(ss);
+        facade.setExternalPriceModelService(eps);
         return facade;
     }
 }
