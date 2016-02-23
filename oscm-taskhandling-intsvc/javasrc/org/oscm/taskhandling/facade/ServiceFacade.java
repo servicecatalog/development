@@ -18,6 +18,7 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 
@@ -43,6 +44,8 @@ public class ServiceFacade {
     private DataService dataService;
 
     private SubscriptionServiceLocal subscriptionService;
+    
+    private ExternalPriceModelService externalPriceModelService;
 
     public SubscriptionServiceLocal getSubscriptionService() {
         return subscriptionService;
@@ -109,5 +112,14 @@ public class ServiceFacade {
 
     public void setTaskQueueService(TaskQueueServiceLocal taskQueueService) {
         this.taskQueueService = taskQueueService;
+    }
+
+    public ExternalPriceModelService getExternalPriceModelService() {
+        return externalPriceModelService;
+    }
+
+    public void setExternalPriceModelService(
+            ExternalPriceModelService externalPriceModelService) {
+        this.externalPriceModelService = externalPriceModelService;
     }
 }

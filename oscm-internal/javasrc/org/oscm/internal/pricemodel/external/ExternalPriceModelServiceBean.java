@@ -69,7 +69,6 @@ public class ExternalPriceModelServiceBean
     private static final int MAX_PRICE_LENGTH = 30;
 
     @Override
-    @RolesAllowed("SERVICE_MANAGER")
     public void updateCache(PriceModel externalPriceModel)
             throws ExternalPriceModelException {
         if (externalPriceModel != null) {

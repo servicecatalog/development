@@ -16,7 +16,6 @@ import javax.ejb.Remote;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 
