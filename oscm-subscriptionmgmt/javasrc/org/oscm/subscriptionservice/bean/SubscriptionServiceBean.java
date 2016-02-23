@@ -22,6 +22,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -5304,15 +5305,33 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
                                                           org.oscm.paginator.Pagination pagination) {
-        Set<Long> subscriptionKeys = getFilteredOutSubscriptionKeys(pagination.getFullTextFilterValue());
-        return getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+        String fullTextFilterValue = pagination.getFullTextFilterValue();
+        List<Subscription> subscriptions = Collections.emptyList();
+        if (StringUtils.isNotEmpty(fullTextFilterValue)) {
+            Set<Long> subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+            if(!subscriptionKeys.isEmpty()) {
+                subscriptions = getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+            }
+        } else {
+            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user, pagination);
+        }
+        return subscriptions;
     }
-//TODO: method should provide set of keys which is returned from full text filtering
+
+    /**
+     * Implementation of method which should return set of Long object, which represents subscriptions retunred
+     * in full text search process
+     * @param filterValue Text enetered by user to filter subscriptions by
+     * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
+     */
     private Set<Long> getFilteredOutSubscriptionKeys(String filterValue) {
-        List<Subscription> activeSubscriptions = getSubscriptionDao().getActiveSubscriptions();
         Set<Long> keys = new HashSet<>();
-        for (Subscription activeSubscription : activeSubscriptions) {
-            keys.add(activeSubscription.getKey());
+        if (StringUtils.isNotEmpty(filterValue)) {
+            List<Subscription> activeSubscriptions = getSubscriptionDao().getActiveSubscriptions();
+            keys = new HashSet<>();
+            for (Subscription activeSubscription : activeSubscriptions) {
+                keys.add(activeSubscription.getKey());
+            }
         }
         return keys;
     }

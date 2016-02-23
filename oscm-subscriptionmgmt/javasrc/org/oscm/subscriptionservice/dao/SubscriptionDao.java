@@ -961,15 +961,21 @@ public class SubscriptionDao {
                 pagination);
     }
 
+    @Deprecated
     public List<Subscription> getSubscriptionsForUser(PlatformUser user, Pagination pagination) {
+        String queryString = getQuerySubscriptionsForUser(pagination);
+        return getSubscriptionsForUser(user, pagination, queryString);
+    }
+
+    public List<Subscription> getSubscriptionsForUser(PlatformUser user, org.oscm.paginator.Pagination pagination) {
         String queryString = getQuerySubscriptionsForUser(pagination);
         return getSubscriptionsForUser(user, pagination, queryString);
     }
 
     public List<Subscription> getSubscriptionsForUserWithSubscriptionKeys(PlatformUser user, org.oscm.paginator.Pagination pagination,
                                                       Set<Long> subscriptionKeys) {
-        String queryString = getQuerySubscriptionsForUser(pagination, subscriptionKeys);
-        return getSubscriptionsForUser(user, pagination, queryString);
+        String queryString = getQuerySubscriptionsForUserWithKeys(pagination);
+        return getSubscriptionsForUser(user, pagination, queryString, subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
     }
 
     private String getQuerySubscriptionsForUser(Pagination pagination) {
@@ -979,13 +985,20 @@ public class SubscriptionDao {
                 pagination);
     }
 
-    private String getQuerySubscriptionsForUser(org.oscm.paginator.Pagination pagination, Set<Long> subscriptionKeys) {
+    private String getQuerySubscriptionsForUser(org.oscm.paginator.Pagination pagination) {
+        return marketplacePaginatedQuery(
+                "SELECT s.*"
+                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey AND lic.subscription_tkey = s.tkey) ",
+                pagination);
+    }
+
+    private String getQuerySubscriptionsForUserWithKeys(org.oscm.paginator.Pagination pagination) {
         return marketplacePaginatedQuery(
                 "SELECT s.*"
                         + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) " +
                         "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey " +
                         "WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey " +
-                        "AND lic.subscription_tkey = s.tkey) ",
+                        "AND lic.subscription_tkey = s.tkey) AND s.tkey in (:keys) ",
                 pagination);
     }
 
@@ -1011,12 +1024,15 @@ public class SubscriptionDao {
         return query;
     }
 
-    private List<Subscription> getSubscriptionsForUser(PlatformUser user, org.oscm.paginator.Pagination pagination, String queryString) {
+    private List<Subscription> getSubscriptionsForUser(PlatformUser user, org.oscm.paginator.Pagination pagination,
+                                                       String queryString, Long... subscriptionKeys) {
 
         Query query = getSubscriptionsForUserNativeQuery(user, queryString);
 
         setPaginationParameters(pagination, query);
-
+        if (subscriptionKeys != null && subscriptionKeys.length > 0) {
+            query.setParameter("keys", subscriptionKeys);
+        }
         return ParameterizedTypes.list(query.getResultList(), Subscription.class);
     }
 
