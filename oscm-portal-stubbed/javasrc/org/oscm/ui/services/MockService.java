@@ -2649,4 +2649,11 @@ public class MockService implements IdentityService, SubscriptionService,
             PerformanceHint performanceHint) throws ObjectNotFoundException {
         return new VOServiceListResult();
     }
+
+    @Override
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException {
+        return new VOSubscriptionDetails();
+    }
 }

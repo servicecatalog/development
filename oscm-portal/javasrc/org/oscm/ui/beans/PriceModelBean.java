@@ -170,6 +170,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     private String storedServiceId = null;
 
+    private boolean isExternalPriceModelUploaded;
+
     @PostConstruct
     protected void init() {
         String url = getRequest().getServletPath();
@@ -705,8 +707,10 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     String setSelectedSubscription(String subscriptionId, String customerId,
             boolean isInitPage) {
-        if (subscriptionId == null || customerId == null)
+        if (subscriptionId == null || customerId == null) {
             return OUTCOME_SUBSCRIPTION_LIST;
+        }
+        isExternalPriceModelUploaded = false;
         POSubscriptionAndCustomer subscriptionAndCustomer = getSubscriptionAndCustomer(
                 subscriptionId, customerId);
         if (subscriptionAndCustomer != null) {
@@ -1119,6 +1123,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws SaaSApplicationException {
+        return getProvisioningService().validateSubscription(service);
+    }
+
     String saveExternalPriceModel(VOServiceDetails voServiceDetails,
             VOPriceModel voPriceModel) throws SaaSApplicationException {
 
@@ -1173,7 +1182,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
                                 getCustomer().getNameWithOrganizationId(),
                                 voServiceDetails.getServiceId() });
                 break;
-
+            case PRICEMODEL_FOR_SUBSCRIPTION:
+                voServiceDetails = getProvisioningService().savePriceModelForSubscription(voServiceDetails, voPriceModel);
+                saveLocalization(voServiceDetails);
+                addMessage(null, FacesMessage.SEVERITY_INFO,
+                        INFO_PRICEMODEL_FOR_SUBSCRIPTION_SAVED,
+                        new String[] { getSubscriptionID(),
+                                getCustomer().getNameWithOrganizationId() });
+                break;
             default:
                 throw new IllegalStateException(
                         "PRICEMODEL OF UNKNOWN TYPE" + getCurrentPMPage());
@@ -2180,5 +2196,20 @@ public class PriceModelBean extends BaseBean implements Serializable {
     public void setSubscriptionViewBean(
             SubscriptionViewBean subscriptionViewBean) {
         this.subscriptionViewBean = subscriptionViewBean;
+    }
+
+    /**
+     * @return the isExternalPriceModelUploaded
+     */
+    public boolean isExternalPriceModelUploaded() {
+        return isExternalPriceModelUploaded;
+    }
+
+    /**
+     * @param isExternalPriceModelUploaded the isExternalPriceModelUploaded to set
+     */
+    public void setExternalPriceModelUploaded(
+            boolean isExternalPriceModelUploaded) {
+        this.isExternalPriceModelUploaded = isExternalPriceModelUploaded;
     }
 }

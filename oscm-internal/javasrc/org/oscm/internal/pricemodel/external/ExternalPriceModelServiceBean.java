@@ -217,8 +217,7 @@ public class ExternalPriceModelServiceBean
     private PriceModel getExternalPriceModel(VOService service,
             VOSubscriptionDetails subscription)
                     throws ExternalPriceModelException {
-        ContextBuilder contextBuilder = prepareContextBuilderParameters(
-                service);
+        ContextBuilder contextBuilder = new ContextBuilder();
         if (subscription != null) {
             contextBuilder.addSubscription(subscription);
         }

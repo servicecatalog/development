@@ -11,6 +11,9 @@
 	xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
 	xmlns:t="http://myfaces.apache.org/tomahawk">
 
+  <c:if test="#{empty subscriptionMode}">
+    <c:set var="subscriptionMode" value="false" />
+  </c:if>
 
   <adm:buttonPanel id="externalPriceModelActions">
     <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
@@ -18,12 +21,11 @@
       type="submit" buttonType="upload" />
 
     <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
-      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);"
-      action="#{priceModelCtrl.upload}" />
+      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelCtrl.upload}" />
 
     <ui:include src="showExternalPriceModel.xhtml">
       <ui:param name="controller" value="#{priceModelCtrl}" />
-      <ui:param name="disabled" value="#{empty priceModelCtrl.model.selectedPriceModelContent}" />
+      <ui:param name="disabled" value="#{empty priceModelCtrl.model.selectedPriceModelContent and not subscriptionMode}" />
       <ui:param name="buttonType" value="preview" />
     </ui:include>
   </adm:buttonPanel>

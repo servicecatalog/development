@@ -18,7 +18,9 @@ import javax.faces.bean.ManagedProperty;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPriceModel;
+import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
@@ -80,7 +82,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         this.sessionBean = sessionBean;
     }
 
-    public abstract void upload();
+    public abstract void upload() throws SaaSApplicationException;
 
     @PostConstruct
     public void initialize() {
@@ -122,7 +124,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
     }
 
 
-    public void showPersistedPriceModel(VOServiceDetails selectedService) {
+    public void showPersistedPriceModel(VOService selectedService) {
         
         VOPriceModel priceModel = selectedService.getPriceModel();
 
@@ -147,7 +149,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         return priceModelContent;
     }
 
-    public String display() throws IOException {
+    public void display() throws IOException, SaaSApplicationException {
 
         PriceModelContent priceModelContent = getModel()
                 .getSelectedPriceModelContent();
@@ -155,7 +157,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         if (priceModelContent == null) {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
-            return "";
+            return;
 
         }
         ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
@@ -163,7 +165,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         displayHandler.setContentType(priceModelContent.getContentType());
         displayHandler.setFilename(priceModelContent.getFilename());
         displayHandler.display();
-        return null;
+        return;
     }
 
 }

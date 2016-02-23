@@ -26,6 +26,7 @@ import org.oscm.internal.types.exception.ServiceCompatibilityException;
 import org.oscm.internal.types.exception.ServiceNotPublishedException;
 import org.oscm.internal.types.exception.ServiceOperationException;
 import org.oscm.internal.types.exception.ServiceStateException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.types.exception.TechnicalServiceActiveException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.UpdateConstraintException;
@@ -42,6 +43,7 @@ import org.oscm.internal.vo.VOServiceActivation;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOServiceLocalization;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 
 public class ServiceProvisioningServiceStub implements
@@ -411,6 +413,13 @@ public class ServiceProvisioningServiceStub implements
     @Override
     public List<Product> getCustomerSpecificCopyProducts(Product template)
             throws OperationNotPermittedException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
 }

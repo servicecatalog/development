@@ -35,7 +35,6 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.apache.commons.validator.GenericValidator;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
@@ -88,6 +87,7 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.ImageType.ImageOwnerType;
@@ -157,6 +157,7 @@ import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOSteppedPrice;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
@@ -243,6 +244,9 @@ public class ServiceProvisioningServiceBean implements
 
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     private MarketingPermissionServiceLocal ms;
+
+    @EJB(beanInterface = SubscriptionService.class)
+    SubscriptionService subscriptionService;
 
     @EJB
     CommunicationServiceLocal commService;
@@ -3570,17 +3574,28 @@ public class ServiceProvisioningServiceBean implements
     private void validateExternalServiceMustBeFree(VOPriceModel priceModel,
             VOServiceDetails serviceDetails) throws ValidationException {
 
-        if (priceModel.isChargeable()) {
-            if (serviceDetails.getAccessType() == ServiceAccessType.EXTERNAL) {
-                throw new ValidationException(
-                        ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE,
-                        null, null);
-            }
+        if (priceModel.isChargeable() && serviceDetails
+                .getAccessType() == ServiceAccessType.EXTERNAL) {
+            throw new ValidationException(
+                    ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE, null,
+                    null);
 
         }
     }
 
-    private Subscription validateSubscription(VOServiceDetails service,
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException {
+        PlatformUser currentUser = dm.getCurrentUser();
+        Product product = dm.getReference(Product.class, service.getKey());
+        Subscription subscription = validateSubscription(service, currentUser,
+                product);
+        VOSubscriptionDetails voSubscriptionDetails = subscriptionService
+                .getSubscriptionDetails(subscription.getSubscriptionId());
+        return voSubscriptionDetails;
+    }
+
+    private Subscription validateSubscription(VOService service,
             PlatformUser currentUser, Product product)
             throws OperationNotPermittedException, SubscriptionStateException {
         Subscription sub = product.getOwningSubscription();
