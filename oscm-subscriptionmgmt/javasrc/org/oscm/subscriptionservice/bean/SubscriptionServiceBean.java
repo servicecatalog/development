@@ -5333,7 +5333,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 keys.add(activeSubscription.getKey());
             }
         }
-        return keys;
+        return Collections.emptySet();
     }
 
     @Override

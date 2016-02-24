@@ -994,11 +994,14 @@ public class SubscriptionDao {
 
     private String getQuerySubscriptionsForUserWithKeys(org.oscm.paginator.Pagination pagination) {
         return marketplacePaginatedQuery(
-                "SELECT s.*"
-                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) " +
+                "SELECT s.* "
+                        + "FROM Subscription s " +
+                        "LEFT JOIN product p ON (s.product_tkey = p.tkey) " +
                         "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey " +
-                        "WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey " +
-                        "AND lic.subscription_tkey = s.tkey) AND s.tkey in (:keys) ",
+                        "WHERE s.tkey IN (:keys) " +
+                        "AND s.status IN (:status) " +
+                        "AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey " +
+                        "AND lic.subscription_tkey = s.tkey) ",
                 pagination);
     }
 
