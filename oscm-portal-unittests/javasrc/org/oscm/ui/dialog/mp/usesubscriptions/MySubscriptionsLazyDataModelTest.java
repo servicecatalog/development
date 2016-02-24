@@ -23,6 +23,7 @@ import javax.faces.context.ExternalContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.paginator.PaginationInt;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.ArrangeableState;
 import org.richfaces.model.FilterField;
@@ -61,6 +62,15 @@ public class MySubscriptionsLazyDataModelTest {
 
             @Override
             protected void decorateWithLocalizedStatuses(Pagination pagination) {
+            }
+
+            @Override
+            protected void applyFilters(List<FilterField> filterFields, PaginationInt pagination) {
+
+            }
+
+            @Override
+            protected void decorateWithLocalizedStatuses(org.oscm.paginator.Pagination pagination) {
             }
         };
         model = spy(realObject);
@@ -263,8 +273,8 @@ public class MySubscriptionsLazyDataModelTest {
         int totalCount = 1;
         List<POSubscription> expectedList = prepareList();
         Response resp = new Response(expectedList);
-        when(subscriptionsService.getMySubscriptions(any(Pagination.class))).thenReturn(resp);
-        when(subscriptionsService.getMySubscriptionsSize(any(Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(totalCount);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
             public List<FilterField> getFilterFields() {
@@ -302,8 +312,8 @@ public class MySubscriptionsLazyDataModelTest {
         Response resp = new Response(expectedList);
         POSubscription selectedSubscription = mock(POSubscription.class);
         when(selectedSubscription.getKey()).thenReturn(-1L);
-        when(subscriptionsService.getMySubscriptions(any(Pagination.class))).thenReturn(resp);
-        when(subscriptionsService.getMySubscriptionsSize(any(Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(totalCount);
         when(subscriptionsService.getMySubscriptionDetails(-1L)).thenReturn(null);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
