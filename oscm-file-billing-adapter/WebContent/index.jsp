@@ -18,6 +18,12 @@
         <tr>
           <td>Subscription ID:</td>
           <td><input type="text" name="subscriptionId" size="25"></td>
+        </tr>
+        <tr>
+          <td>Organization ID:</td>
+          <td><input type="text" name="tenantId" size="25"></td>
+        </tr>
+        <tr>  
           <td><input type="submit" value="Show subscription PM" name="buttonShowSubPm"></td>
           <td><input type="submit" value="Push subscription PM" name="buttonPushSubPm"></td>
         </tr>

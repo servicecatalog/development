@@ -35,6 +35,7 @@ public class SubscriptionServlet extends BillingAdapterServlet {
     private static final long serialVersionUID = -4689541009012302089L;
 
     private static final String REQUEST_PARAM_SUBSCRIPTION_ID = "subscriptionId";
+    private static final String REQUEST_PARAM_TENANT_ID = "tenantId";
     private static final String REQUEST_PARAM_BUTTON_SHOW_SUB_PM = "buttonShowSubPm";
     private static final List<String> BILLING_APPLICATION_LOCALES = Arrays
             .asList(new String[] { "en", "de" });
@@ -64,12 +65,15 @@ public class SubscriptionServlet extends BillingAdapterServlet {
                 "no-cache, no-store, must-revalidate");
         response.setHeader("Pragma", "no-cache");
 
-        final String subscriptionId = request.getParameter(
-                REQUEST_PARAM_SUBSCRIPTION_ID).trim();
-        final boolean showSubscriptionPm = !emptyString(request
-                .getParameter(REQUEST_PARAM_BUTTON_SHOW_SUB_PM));
+        final String subscriptionId = request
+                .getParameter(REQUEST_PARAM_SUBSCRIPTION_ID).trim();
+        final String tenantId = request.getParameter(REQUEST_PARAM_TENANT_ID)
+                .trim();
+        final boolean showSubscriptionPm = !emptyString(
+                request.getParameter(REQUEST_PARAM_BUTTON_SHOW_SUB_PM));
 
-        Map<ContextKey, ContextValue<?>> context = createSubscriptionPmContext(subscriptionId);
+        Map<ContextKey, ContextValue<?>> context = createSubscriptionPmContext(
+                subscriptionId, tenantId);
 
         if (context != null) {
 
@@ -110,13 +114,14 @@ public class SubscriptionServlet extends BillingAdapterServlet {
      * @return context
      */
     private Map<ContextKey, ContextValue<?>> createSubscriptionPmContext(
-            String subscriptionId) {
+            String subscriptionId, String tenantId) {
 
-        if (!emptyString(subscriptionId)) {
+        if (!emptyString(subscriptionId) && !emptyString(tenantId)) {
 
             Map<ContextKey, ContextValue<?>> context = new HashMap<ContextKey, ContextValue<?>>();
-            context.put(ContextKey.SUBSCRIPTION_ID, new ContextValueString(
-                    subscriptionId));
+            context.put(ContextKey.SUBSCRIPTION_ID,
+                    new ContextValueString(subscriptionId));
+            context.put(ContextKey.TENANT_ID, new ContextValueString(tenantId));
             return context;
         }
 
@@ -128,7 +133,7 @@ public class SubscriptionServlet extends BillingAdapterServlet {
      */
     private void pushPriceModel(PriceModel pm, String subscriptionId,
             HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+                    throws ServletException, IOException {
 
         if (subAgent.pushPriceModel(pm)) {
             successForward(request, response,
