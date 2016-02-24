@@ -320,7 +320,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
         List<Subscription> result = runTX(new Callable<List<Subscription>>() {
             @Override
             public List<Subscription> call() throws Exception {
-                return dao.getSubscriptionsForUserWithSubscriptionKeys(user, mock(org.oscm.paginator.Pagination.class), keys);
+                return dao.getSubscriptionsForUser(user, mock(org.oscm.paginator.Pagination.class));
             }
         });
 

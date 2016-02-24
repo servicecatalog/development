@@ -8,6 +8,7 @@
 
 package org.oscm.subscriptionservice.dao;
 
+import java.math.BigInteger;
 import java.util.*;
 
 import javax.interceptor.Interceptors;
@@ -1033,10 +1034,18 @@ public class SubscriptionDao {
         Query query = getSubscriptionsForUserNativeQuery(user, queryString);
 
         setPaginationParameters(pagination, query);
-        if (subscriptionKeys != null && subscriptionKeys.length > 0) {
-            query.setParameter("keys", subscriptionKeys);
-        }
+        setSubscriptionKeysParameter(query, subscriptionKeys);
         return ParameterizedTypes.list(query.getResultList(), Subscription.class);
+    }
+
+    private void setSubscriptionKeysParameter(Query query, Long... subscriptionKeys) {
+        if (subscriptionKeys != null && subscriptionKeys.length > 0) {
+            Set<BigInteger> subscriptionKeysStrings = new HashSet<>();
+            for (Long subscriptionKey : subscriptionKeys) {
+                subscriptionKeysStrings.add(BigInteger.valueOf(subscriptionKey));
+            }
+            query.setParameter("keys", subscriptionKeysStrings);
+        }
     }
 
     public UsageLicense getUserLicense(PlatformUser user, long subKey) {
