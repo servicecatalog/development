@@ -43,7 +43,7 @@ import org.oscm.ui.stubs.FacesContextStub;
  * @author iversen
  * 
  */
-public class ExternalPriceModelCtrlTest {
+public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
 
     private ExternalPriceModelCtrl ctrl;
     private ExternalPriceModelModel model;
@@ -215,24 +215,4 @@ public class ExternalPriceModelCtrlTest {
 
     }
 
-    private PriceModel createExternalPriceModel(UUID id, Locale locale) {
-        PriceModelContent priceModelContent = createPriceModelContent();
-        return createPriceModel(priceModelContent, id, locale);
-    }
-
-    private PriceModel createPriceModel(PriceModelContent priceModelContent,
-            UUID priceModelUUID, Locale locale) {
-        PriceModel priceModel = new PriceModel(priceModelUUID);
-        priceModel.put(locale, priceModelContent);
-        return priceModel;
-    }
-
-    private PriceModelContent createPriceModelContent() {
-        String contentType = MediaType.APPLICATION_JSON;
-        String priceModelJson = "PRICES:15";
-        String priceTag = "15EUR";
-        PriceModelContent priceModelContent = new PriceModelContent(contentType,
-                priceModelJson.getBytes(), priceTag);
-        return priceModelContent;
-    }
 }

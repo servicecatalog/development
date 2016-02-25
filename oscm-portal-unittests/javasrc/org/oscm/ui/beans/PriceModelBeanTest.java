@@ -43,17 +43,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
-import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceInternalBean;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.model.BPLazyDataModel;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.HttpServletRequestStub;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.MarketplaceService;
@@ -88,7 +77,18 @@ import org.oscm.internal.vo.VOPricedRole;
 import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
+import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceInternalBean;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.model.BPLazyDataModel;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.HttpServletRequestStub;
 
 /**
  * Unit tests for the PriceModelBean.
@@ -688,6 +688,18 @@ public class PriceModelBeanTest {
         assertEquals(orgs.size(), result.size());
         assertEquals(orgs.get(0).getName(), result.get(0).getName());
         assertEquals(orgs.get(0).getOrganizationId(), result.get(0).getOrganizationId());
+    }
+
+    @Test
+    public void testValidateSubscription() throws SaaSApplicationException {
+        //given
+        doReturn(new VOSubscriptionDetails()).when(provisioningService).validateSubscription(any(VOService.class));
+
+        //when
+        bean.validateSubscription(any(VOService.class));
+
+        //then
+        verify(provisioningService, times(1)).validateSubscription(any(VOService.class));
     }
 
     private ValueChangeEvent prepareForReloadPriceModel() {

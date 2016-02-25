@@ -8,7 +8,6 @@
 
 package org.oscm.ui.dialog.classic.pricemodel.external;
 
-import static org.junit.Assert.assertNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -21,7 +20,6 @@ import java.util.Locale;
 import java.util.UUID;
 
 import javax.faces.component.UIViewRoot;
-import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -30,6 +28,7 @@ import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.PriceModelBean;
@@ -41,7 +40,7 @@ import org.oscm.ui.stubs.FacesContextStub;
  * @author iversen
  * 
  */
-public class ExternalServicePriceModelCtrlTest {
+public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
 
     private ExternalServicePriceModelCtrl ctrl;
     private ExternalPriceModelModel model;
@@ -98,38 +97,15 @@ public class ExternalServicePriceModelCtrlTest {
     }
     
     @Test
-    public void testDisplay() throws IOException {
+    public void testDisplay() throws IOException, SaaSApplicationException {
 
         // given
         PriceModelContent createPriceModelContent = createPriceModelContent();
         doReturn(createPriceModelContent).when(model).getSelectedPriceModelContent();
       
         // when
-        String result = ctrl.display();
-
-        // then
-        assertNull(result);
+        ctrl.display();
 
     }
 
-    private PriceModel createExternalPriceModel(UUID id, Locale locale) {
-        PriceModelContent priceModelContent = createPriceModelContent();
-        return createPriceModel(priceModelContent, id, locale);
-    }
-
-    private PriceModel createPriceModel(PriceModelContent priceModelContent,
-            UUID priceModelUUID, Locale locale) {
-        PriceModel priceModel = new PriceModel(priceModelUUID);
-        priceModel.put(locale, priceModelContent);
-        return priceModel;
-    }
-
-    private PriceModelContent createPriceModelContent() {
-        String contentType = MediaType.APPLICATION_JSON;
-        String priceModelJson = "PRICES:15";
-        String priceTag = "15EUR";
-        PriceModelContent priceModelContent = new PriceModelContent(contentType,
-                priceModelJson.getBytes(), priceTag);
-        return priceModelContent;
-    }
 }

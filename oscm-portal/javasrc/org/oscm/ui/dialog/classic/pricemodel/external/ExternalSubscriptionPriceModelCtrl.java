@@ -76,7 +76,7 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
         super.display();
     }
 
-    private VOSubscriptionDetails validateSubscription(VOSubscriptionDetails subscription)
+    public VOSubscriptionDetails validateSubscription(VOSubscriptionDetails subscription)
             throws SaaSApplicationException {
         if (subscription == null || subscription.getPriceModel() == null) {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
@@ -94,6 +94,7 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
                 addMessage(null, FacesMessage.SEVERITY_ERROR,
                         ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
                         new String[] { subscription.getSubscriptionId() });
+                getPriceModelBean().setDirty(false);
                 return null;
             }
             throw e;
