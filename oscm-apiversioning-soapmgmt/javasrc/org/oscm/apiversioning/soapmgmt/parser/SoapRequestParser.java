@@ -10,6 +10,7 @@ package org.oscm.apiversioning.soapmgmt.parser;
 
 import java.util.Iterator;
 
+import javax.xml.namespace.QName;
 import javax.xml.soap.Node;
 import javax.xml.soap.SOAPBody;
 import javax.xml.soap.SOAPBodyElement;
@@ -27,8 +28,6 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
 public class SoapRequestParser {
 
     private static final String VERSION = "ctmg.service.version";
-    private static final String MESSAGEBODYTAG = "S:Body";
-    private static final int OPERATIONNAMEINDEX = 4;
 
     public static String parseApiVersion(SOAPMessageContext context)
             throws SOAPException {
@@ -52,21 +51,37 @@ public class SoapRequestParser {
         return value;
     }
 
+    /**
+     * The SOAP message has a soap envelope element and soap body element which
+     * are mandatory. The soap header is optional. The soap envelope and body
+     * use the soap envelope namespace which can vary from framework to
+     * framework. By Glassfish Metro it is "S", but other framework may be "s".
+     * The parser identifies the body element independent of the namespace. The
+     * actual message which contains the necessary information for the method
+     * call can have its own namespace e.g. the default "ns2" by Glassfish
+     * Metro.
+     * 
+     * @param context
+     * @return
+     * @throws SOAPException
+     */
     public static String parseOperationName(SOAPMessageContext context)
             throws SOAPException {
-        String operationName = context.getMessage().getSOAPBody()
-                .getOwnerDocument().getElementsByTagName(MESSAGEBODYTAG).item(0)
-                .getChildNodes().item(0).getNodeName()
-                .substring(OPERATIONNAMEINDEX);
-
+        String operationName = "";
+        org.w3c.dom.Node operationNode = context.getMessage().getSOAPBody()
+                .getFirstChild();
+        if (operationNode != null) {
+            operationName = operationNode.getLocalName();
+        }
         return operationName;
     }
 
     public static String parseServiceName(SOAPMessageContext context) {
-        String serviceNameLine = context.get(MessageContext.WSDL_SERVICE)
-                .toString();
-        String serviceName = serviceNameLine
-                .substring(serviceNameLine.lastIndexOf("}") + 1);
+        String serviceName = "";
+        QName serviceQName = (QName) context.get(MessageContext.WSDL_SERVICE);
+        if (serviceQName != null) {
+            serviceName = serviceQName.getLocalPart();
+        }
         return serviceName;
     }
 
@@ -98,7 +113,7 @@ public class SoapRequestParser {
             }
         }
 
-        throw new SOAPException(
-                "Soap message param " + paramName + " not found.");
+        throw new SOAPException("Soap message param " + paramName
+                + " not found.");
     }
 }
