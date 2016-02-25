@@ -170,4 +170,8 @@
     <tag-name>conversationKeepAlive</tag-name>
     <source>conversationKeepAlive.xhtml</source>
   </tag>
+  <tag>
+    <tag-name>subscriptionFinder</tag-name>
+    <source>subscriptionFinder.xhtml</source>
+  </tag>
 </facelet-taglib>

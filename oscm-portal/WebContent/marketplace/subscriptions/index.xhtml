@@ -53,23 +53,8 @@
 
           <mp:outputStep id="pageHeader" value="#{msg['subscriptions.table.availableForUsage']}" />
           <h:link fragment="anchor" styleClass="invisible-jumper" />
-          <a4j:outputPanel layout="block" id="subscriptionSearch">
-            <a4j:outputPanel>
-                <a4j:outputPanel layout="block">
-                  <h:inputHidden id="searchPhrase" value="#{mySubscriptionsCtrl.model.fullTextSearchFilterValue}" />
-                    <input id="subListForm:search" value="#{mySubscriptionsCtrl.model.fullTextSearchFilterValue}"
-                           placeholder="#{msg['marketplace.searchSubscriptions']}" size="30"
-                           maxlength="#{servicePagingBean.maxLengthSearchPhrase}"
-                           onkeydown="AdmUtils.clickOnReturn(event,'subListForm:submitLink');" onfocus="this.value = '';" />
-                  <a4j:commandLink id="submitLink" value=" "
-                     onclick="AdmUtils.showProgress(true);AdmUtils.copyElementValues('subListForm:search','subListForm:searchPhrase');return true;"
-                     oncomplete="AdmUtils.showProgress(false);"
-                     execute="@form" styleClass="searchButton"
-                     render="subscriptionsList@body subListPager subListPagerScripts :pagerPanel :subscriptionsListScripts"/>
-                  <h:inputHidden value="UTF-8" name="ie" />
-                </a4j:outputPanel>
-            </a4j:outputPanel>
-          </a4j:outputPanel>
+          <mp:subscriptionFinder formId="subListForm" searchPhraseProperty="#{mySubscriptionsCtrl.model.fullTextSearchFilterValue}"
+                                 renderElementList="subscriptionsList@body subListPager subListPagerScripts :pagerPanel :subscriptionsListScripts"/>
           <rich:dataTable rows="10" id="subscriptionsList" value="#{mySubscriptionsCtrl.model}" var="sub"
             headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable" 
             styleClass="sortable table-with-selectable-rows"

@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.paginator.Filter;
+import org.oscm.paginator.Sorting;
 import org.oscm.paginator.TableColumns;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
@@ -159,6 +160,7 @@ public class SubscriptionDao {
         return query.getResultList();
     }
 
+    @Deprecated
     @SuppressWarnings("unchecked")
     List<Subscription> getSubscriptionsForVendor(PlatformUser user,
             Set<SubscriptionStatus> states, Pagination pagination,
@@ -176,6 +178,28 @@ public class SubscriptionDao {
         query.setParameter("states", statesAsString);
 
         setPaginationParameters(pagination, query);
+
+        return query.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    List<Subscription> getSubscriptionsForVendor(PlatformUser user,
+            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination,
+            String queryString, Long... keys) {
+
+        Set<String> statesAsString = getSubscriptionStatesAsString(states);
+        Query query = dataManager.createNativeQuery(queryString, Subscription.class);
+        try {
+            query.setParameter("locale", user.getLocale());
+            query.setParameter("objecttype", LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
+        } catch (IllegalArgumentException exc) {
+            logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
+        }
+        query.setParameter("offerer", Long.valueOf(user.getOrganization().getKey()));
+        query.setParameter("states", statesAsString);
+
+        setPaginationParameters(pagination, query);
+        setSubscriptionKeysParameter(query, keys);
 
         return query.getResultList();
     }
@@ -526,22 +550,64 @@ public class SubscriptionDao {
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
 
+    @Deprecated
     private String marketplacePaginatedQueryWithUnits(String selectWhereQuery, Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(
-                    pagination);
+            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(pagination);
         }
 
         String queryFilter = "";
         if (pagination.getFilterSet() != null) {
-            queryFilter = createMarketplaceQueryWithUnitsFilterString(
-                    pagination, queryFilter);
+            queryFilter = createMarketplaceQueryWithUnitsFilterString(pagination, queryFilter);
         }
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
 
+    private String marketplacePaginatedQueryWithUnits(String selectWhereQuery, org.oscm.paginator.Pagination pagination) {
+        String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
+        if (pagination.getSorting() != null) {
+            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(pagination);
+        }
+
+        String queryFilter = "";
+        if (pagination.getFilterSet() != null) {
+            queryFilter = createMarketplaceQueryWithUnitsFilterString(pagination, queryFilter);
+        }
+        return selectWhereQuery + queryFilter + queryOrderBy;
+    }
+
+    private String marketplacePaginatedQueryWithUnitsWithFiltering(String selectWhereQuery, org.oscm.paginator.Pagination pagination) {
+        String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
+        if (pagination.getSorting() != null) {
+            queryOrderBy = createMarketplaceQueryWithUnitsOrderByStringWithFiltering(pagination);
+        }
+
+        String queryFilter = "";
+        if (pagination.getFilterSet() != null) {
+            queryFilter = createMarketplaceQueryWithUnitsFilterStringWithFiltering(pagination, queryFilter);
+        }
+        return selectWhereQuery + queryFilter + queryOrderBy;
+    }
+
+    @Deprecated
     private String createMarketplaceQueryWithUnitsOrderByString(Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        String orderByName = pagination.getSorting().getOrder().name();
+
+        String queryOrderBy = buildQueryOrderBy(localizedStatusesMap, orderByName);
+        return queryOrderBy;
+    }
+
+    private String createMarketplaceQueryWithUnitsOrderByString(org.oscm.paginator.Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        String orderByName = pagination.getSorting().getOrder().name();
+
+        String queryOrderBy = buildQueryOrderBy(localizedStatusesMap, orderByName);
+        return queryOrderBy;
+    }
+
+    private String buildQueryOrderBy(Map<SubscriptionStatus, String> localizedStatusesMap, String orderByName) {
         String queryOrderBy;
         String whenSubscriptionId = "WHEN '"
                 + TableColumns.SUBSCRIPTION_ID.name()
@@ -561,14 +627,22 @@ public class SubscriptionDao {
                 + TableColumns.PURCHASE_ORDER_NUMBER.name()
                 + "' THEN s.purchaseordernumber ";
         String whenStatus = "WHEN '" + TableColumns.STATUS.name() + "' THEN "
-                + createStatusesAndQueryPart(pagination.getLocalizedStatusesMap()) + " ";
+                + createStatusesAndQueryPart(localizedStatusesMap) + " ";
         String whenUnit = "WHEN '" + TableColumns.UNIT.name()
                 + "' THEN ug.name ";
         queryOrderBy = "ORDER BY (CASE :sortColumn " + whenSubscriptionId
                 + whenActivation + whenCustomerId + whenCustomerName
                 + whenServiceId + whenServiceName + whenReferenceNumber
                 + whenStatus + whenUnit + " END) "
-                + pagination.getSorting().getOrder().name();
+                + orderByName;
+        return queryOrderBy;
+    }
+
+    private String createMarketplaceQueryWithUnitsOrderByStringWithFiltering(org.oscm.paginator.Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        String orderByName = pagination.getSorting().getOrder().name();
+
+        String queryOrderBy = buildQueryOrderBy(localizedStatusesMap, orderByName);
         return queryOrderBy;
     }
 
@@ -599,9 +673,26 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
+    @Deprecated
     private String createMarketplaceQueryWithUnitsFilterString(
             Pagination pagination, String queryFilter) {
+        String dateFormat = pagination.getDateFormat();
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
         Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
+        queryFilter = buildFilteredQueryWithUnits(queryFilter, dateFormat, localizedStatusesMap, filterIterator);
+        return queryFilter;
+    }
+
+    private String createMarketplaceQueryWithUnitsFilterString(
+            org.oscm.paginator.Pagination pagination, String queryFilter) {
+        String dateFormat = pagination.getDateFormat();
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
+        queryFilter = buildFilteredQueryWithUnits(queryFilter, dateFormat, localizedStatusesMap, filterIterator);
+        return queryFilter;
+    }
+
+    private String buildFilteredQueryWithUnits(String queryFilter, String dateFormat, Map<SubscriptionStatus, String> localizedStatusesMap, Iterator<Filter> filterIterator) {
         while (filterIterator.hasNext()) {
             Filter filter = filterIterator.next();
             switch (filter.getColumn()) {
@@ -616,7 +707,7 @@ public class SubscriptionDao {
                 break;
             case ACTIVATION_TIME:
                 queryFilter += "AND trim(to_char(to_timestamp(s.activationdate / 1000), '"
-                        + pagination.getDateFormat()
+                        + dateFormat
                         + "')) ILIKE :filterExpressionActivation ";
                 break;
             case SERVICE_ID:
@@ -629,7 +720,7 @@ public class SubscriptionDao {
                 queryFilter += "AND s.purchaseordernumber ILIKE :filterExpressionReferenceNumber ";
                 break;
             case STATUS:
-                queryFilter += "AND " + createStatusesAndQueryPart(pagination.getLocalizedStatusesMap())
+                queryFilter += "AND " + createStatusesAndQueryPart(localizedStatusesMap)
                         + " ILIKE :filterExpressionStatus ";
                 break;
             case UNIT:
@@ -637,6 +728,15 @@ public class SubscriptionDao {
             }
 
         }
+        return queryFilter;
+    }
+
+    private String createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+            org.oscm.paginator.Pagination pagination, String queryFilter) {
+        String dateFormat = pagination.getDateFormat();
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
+        buildFilteredQueryWithUnits(queryFilter, dateFormat, localizedStatusesMap, filterIterator);
         return queryFilter;
     }
 
@@ -781,9 +881,22 @@ public class SubscriptionDao {
         return result > 0;
     }
 
+    @Deprecated
     public List<Subscription> getSubscriptionsForOrg(PlatformUser user, Pagination pagination,
             Set<SubscriptionStatus> states) {
         String queryString = getQuerySubscriptionsForOrg(pagination);
+        return getSubscriptionsForVendor(user, states, pagination, queryString);
+    }
+
+    public List<Subscription> getSubscriptionsForOrg(PlatformUser user, org.oscm.paginator.Pagination pagination,
+            Set<SubscriptionStatus> states) {
+        String queryString = getQuerySubscriptionsForOrg(pagination);
+        return getSubscriptionsForVendor(user, states, pagination, queryString);
+    }
+
+    public List<Subscription> getSubscriptionsForOrgWithFiltering(PlatformUser user, org.oscm.paginator.Pagination pagination,
+                                                                  Set<SubscriptionStatus> states) {
+        String queryString = getQuerySubscriptionsForOrgWithFiltering(pagination);
         return getSubscriptionsForVendor(user, states, pagination, queryString);
     }
 
@@ -794,7 +907,8 @@ public class SubscriptionDao {
         String queryString = getQuerySubscriptionsForOwnerWithStates(pagination);
         return getSubscriptionsForOwner(owner, states, pagination, queryString);
     }
-    
+
+    @Deprecated
     public List<Subscription> getSubscriptionsForUserWithRoles(
             Set<UserRoleType> userRoleTypes, PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
@@ -805,6 +919,27 @@ public class SubscriptionDao {
                 .createNativeQuery(
                         getSubscriptionsForUserWithRolesQuery(userRoleTypes,
                                 pagination), Subscription.class);
+        setSubscriptionsForUserWithRolesQueryParams(user, states, query);
+        setPaginationParameters(pagination, query);
+        return query.getResultList();
+    }
+
+    public List<Subscription> getSubscriptionsForUserWithRoles(
+            Set<UserRoleType> userRoleTypes, PlatformUser user,
+            org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+        if (userRoleTypes.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        Query query = dataManager
+                .createNativeQuery(
+                        getSubscriptionsForUserWithRolesQuery(userRoleTypes,
+                                pagination), Subscription.class);
+        setSubscriptionsForUserWithRolesQueryParams(user, states, query);
+        setPaginationParameters(pagination, query);
+        return query.getResultList();
+    }
+
+    private void setSubscriptionsForUserWithRolesQueryParams(PlatformUser user, Set<SubscriptionStatus> states, Query query) {
         setQueryParameter(query, "locale", user.getLocale());
         setQueryParameter(query, "objecttype",
                 LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
@@ -815,10 +950,24 @@ public class SubscriptionDao {
         setQueryParameter(query, "ownerKey", Long.valueOf(user.getKey()));
         setQueryParameter(query, "orgKey",
                 Long.valueOf(user.getOrganization().getKey()));
+    }
+
+    public List<Subscription> getSubscriptionsForUserWithRolesWithFiltering(
+            Set<UserRoleType> userRoleTypes, PlatformUser user,
+            org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+        if (userRoleTypes.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+        Query query = dataManager
+                .createNativeQuery(
+                        getSubscriptionsForUserWithRolesQueryWithFiltering(userRoleTypes,
+                                pagination), Subscription.class);
+        setSubscriptionsForUserWithRolesQueryParams(user, states, query);
         setPaginationParameters(pagination, query);
         return query.getResultList();
     }
-    
+
+    @Deprecated
     private String getSubscriptionsForUserWithRolesQuery(
             Set<UserRoleType> userRoleTypes, Pagination pagination) {
         StringBuilder queryBuilder = new StringBuilder();
@@ -858,9 +1007,103 @@ public class SubscriptionDao {
         return queryBuilder.toString();
     }
 
+    private String getSubscriptionsForUserWithRolesQuery(
+            Set<UserRoleType> userRoleTypes, org.oscm.paginator.Pagination pagination) {
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT * FROM ((");
+        boolean isAdded;
+        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i.hasNext();) {
+            UserRoleType userRoleType = i.next();
+            isAdded = false;
+            if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
+                queryBuilder.append(getQueryForUnitAdmin());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterString(
+                                pagination, " "));
+
+                // Bug 11958 allow subscr owner to manage his subscription
+                queryBuilder.append(" ) UNION ( ");
+                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterString(
+                                pagination, " "));
+                isAdded = true;
+            }
+            if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
+                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterString(
+                                pagination, " "));
+                isAdded = true;
+            }
+            if (isAdded && i.hasNext()) {
+                queryBuilder.append(" ) UNION ( ");
+            }
+        }
+
+        queryBuilder.append(" )) AS s ");
+        queryBuilder.append(getOrderBy(pagination));
+        return queryBuilder.toString();
+    }
+
+    private String getSubscriptionsForUserWithRolesQueryWithFiltering(
+            Set<UserRoleType> userRoleTypes, org.oscm.paginator.Pagination pagination) {
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT * FROM ((");
+        boolean isAdded;
+        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i.hasNext();) {
+            UserRoleType userRoleType = i.next();
+            isAdded = false;
+            if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
+                queryBuilder.append(getQueryForUnitAdmin());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                                pagination, " "));
+
+                // Bug 11958 allow subscr owner to manage his subscription
+                queryBuilder.append(" ) UNION ( ");
+                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                                pagination, " "));
+                isAdded = true;
+            }
+            if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
+                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder
+                        .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
+                                pagination, " "));
+                isAdded = true;
+            }
+            if (isAdded && i.hasNext()) {
+                queryBuilder.append(" ) UNION ( ");
+            }
+        }
+
+        queryBuilder.append(" )) AS s ");
+        queryBuilder.append(getOrderBy(pagination));
+        return queryBuilder.toString();
+    }
+
+    @Deprecated
     private String getOrderBy(Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
         StringBuilder orderByBuilder = new StringBuilder();
-        if (pagination.getSorting() != null) {
+        String orderByName = pagination.getSorting().getOrder().name();
+        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder, orderByName);
+        return orderByBuilder.toString();
+    }
+
+    private String getOrderBy(org.oscm.paginator.Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
+        StringBuilder orderByBuilder = new StringBuilder();
+        String orderByName = pagination.getSorting().getOrder().name();
+        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder, orderByName);
+        return orderByBuilder.toString();
+    }
+
+    private void getOrderByQueryWithUnit(Sorting sorting, Map<SubscriptionStatus, String> localizedStatusesMap, StringBuilder orderByBuilder, String orderByName) {
+        if (sorting != null) {
             orderByBuilder.append("ORDER BY (CASE :sortColumn ");
             orderByBuilder.append("WHEN '")
                     .append(TableColumns.SUBSCRIPTION_ID.name())
@@ -888,13 +1131,12 @@ public class SubscriptionDao {
                     .append("' THEN s.purchaseordernumber ");
             orderByBuilder.append("WHEN '").append(TableColumns.STATUS.name())
                     .append("' THEN ")
-                    .append(createStatusesAndQueryPart(pagination.getLocalizedStatusesMap())).append(" ");
+                    .append(createStatusesAndQueryPart(localizedStatusesMap)).append(" ");
             orderByBuilder.append("WHEN '").append(TableColumns.UNIT.name())
                     .append("' THEN s.unit_name ");
             orderByBuilder.append(" END) ").append(
-                    pagination.getSorting().getOrder().name());
+                    orderByName);
         }
-        return orderByBuilder.toString();
     }
 
     private void setQueryParameter(Query query, String parameter, Object value) {
@@ -933,6 +1175,7 @@ public class SubscriptionDao {
         return getSubscriptionsForOwner(owner, pagination, queryString);
     }
 
+    @Deprecated
     private String getQuerySubscriptionsForOrg(Pagination pagination) {
         return marketplacePaginatedQueryWithUnits(
                 "SELECT s.* "
@@ -941,6 +1184,29 @@ public class SubscriptionDao {
                         + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
                         + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
                         + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ",
+                pagination);
+    }
+
+    private String getQuerySubscriptionsForOrg(org.oscm.paginator.Pagination pagination) {
+        return marketplacePaginatedQueryWithUnits(
+                "SELECT s.* "
+                        + "FROM Subscription s "
+                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+                        + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ",
+                pagination);
+    }
+
+    private String getQuerySubscriptionsForOrgWithFiltering(org.oscm.paginator.Pagination pagination) {
+        return marketplacePaginatedQueryWithUnitsWithFiltering(
+                "SELECT s.* "
+                        + "FROM Subscription s "
+                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+                        + "WHERE s.status IN (:states) AND s.organizationkey=:offerer " +
+                        "AND s.tkey IN (:keys) ",
                 pagination);
     }
 
