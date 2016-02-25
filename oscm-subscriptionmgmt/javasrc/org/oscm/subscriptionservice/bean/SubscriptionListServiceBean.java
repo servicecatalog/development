@@ -127,6 +127,7 @@ public class SubscriptionListServiceBean
         return new UsageLicenseDao(ds);
     }
 
+    @Deprecated
     @Override
     public List<Subscription> getSubscriptionsForOrganization(
             Set<SubscriptionStatus> states, Pagination pagination)
@@ -170,6 +171,7 @@ public class SubscriptionListServiceBean
         return validRoleTypes;
     }
 
+    @Deprecated
     private List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
         return getSubscriptionDao().getSubscriptionsForOrg(user, pagination,
