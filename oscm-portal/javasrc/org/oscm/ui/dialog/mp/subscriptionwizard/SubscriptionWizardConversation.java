@@ -64,6 +64,7 @@ import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.RolePriceHandler;
 import org.oscm.ui.common.SteppedPriceHandler;
 import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
 import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
 import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
 import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
@@ -646,6 +647,22 @@ public class SubscriptionWizardConversation implements Serializable {
         }
         model.getSubscription().setUnitKey(0);
         model.getSubscription().setUnitName("");
+    }
+    
+    /**
+     * Method is used in UI to show external price model details.
+     */
+    public void display() throws IOException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            OrganizationAuthoritiesException {
+
+        VOPriceModel priceModel = model.getService().getPriceModel().getVo();
+
+        ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
+
+        displayHandler.setContent(priceModel.getPresentation());
+        displayHandler.setContentType(priceModel.getPresentationDataType());
+        displayHandler.display();
     }
 
     /**

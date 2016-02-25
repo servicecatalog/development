@@ -144,6 +144,26 @@
                             <br/><br/>         
                         </h:form>
                     </rich:tab>
+                    
+                    <!-- External price model tab -->
+                    <rich:tab header="#{msg['service.priceModel']}"
+                              rendered="#{subscriptionWizardConversation.model.service.priceModel.external}">
+                       <h:form>
+			               <ui:include src="../../../priceModel/showExternalPriceModel.xhtml">
+			                 <ui:param name="controller" value="#{subscriptionWizardConversation}" />
+			                 <ui:param name="disabled" value="#{empty subscriptionWizardConversation.model.service.priceModel.vo.presentation}" />
+			              </ui:include>
+			           </h:form>
+                       <br/>
+                       <mp:pixelline/>
+                       <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
+                                  bean="#{subscriptionWizardConversation}" action="previous"
+                                  style="float: left;" keepDirty="false"/>
+                       <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
+                                  action="selectService"
+                                  style="float: right;" keepDirty="true"/>
+                    </rich:tab>
+                    
                 </rich:tabPanel>
             </mp:subscriptionProcess>
 
