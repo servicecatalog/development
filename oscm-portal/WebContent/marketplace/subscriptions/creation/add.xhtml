@@ -141,7 +141,7 @@
           </rich:tab>
 
           <!-- External price model tab -->
-          <rich:tab header="#{msg['service.priceModel']}"
+          <rich:tab id="tabExternalPriceModel" header="#{msg['service.priceModel']}"
             rendered="#{subscriptionWizardConversation.model.service.priceModel.external}">
             <h:form>
               <ui:include src="../../../priceModel/showExternalPriceModel.xhtml">

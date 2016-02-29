@@ -201,6 +201,37 @@
       <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
       <login.logout />
     </webtest>
+  	
+  	<webtest name="testBillingPlugin - subscriptionProccess">
+  	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+  	  <mpl_goto.marketplace mid="${mId}" />				
+  	  <!-- Go to Browse all services -->
+      <clickElement xpath="//a[@id='linkBrowseAll']" />	
+      <!-- Go to Service Details -->
+  	  <common.ignorePageScriptError />	
+      <clickElement xpath="//a[@id='showDetails0']" />
+  	  <!-- Start subscription proccess -->	
+  	  <common.ignorePageScriptError />
+      <clickLink htmlId="buyme" />
+  	  <clickElement htmlId="getItForLoggedUser" />		
+  	  <!-- Check if Tab with external price model details is shown -->
+      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+      <!-- Check if [Display] button is shown -->
+      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />	
+  	  <!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
+  	  <clickButton name="configurationForm:next" />	
+  	  <mpl_verify.subscriptionProgress currentStep="Confirmation" />
+  	  <!-- Verify acceptance of external price model -->
+  	  <verifyXPath xpath="//span[@id='confirmForm:pmAccept']" />
+  	  <!-- Finish the subscription process -->	
+  	  <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+  	  <clickButton name="confirmForm:confirm" />	
+  	  <!-- Check if Tab with external price model details is shown -->
+      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+      <!-- Check if [Display] button is shown -->
+      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+      <login.logout />
+    </webtest>
 
     <webtest name="testBillingPlugin - cleanup">
       <operatorPortal.login />
