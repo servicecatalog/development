@@ -15,13 +15,19 @@
     <c:set var="subscriptionMode" value="false" />
   </c:if>
 
-  <adm:buttonPanel id="externalPriceModelActions">
-    <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
-      onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click();" value="#{msg['button.upload']}"
-      type="submit" buttonType="upload" />
+  <c:if test="#{empty hideUpload}">
+    <c:set var="hideUpload" value="false" />
+  </c:if>
 
-    <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
-      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelCtrl.upload}" />
+  <adm:buttonPanel id="externalPriceModelActions">
+    <a4j:outputPanel rendered="#{not hideUpload}">
+      <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
+        onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click();" value="#{msg['button.upload']}"
+        type="submit" buttonType="upload" />
+
+      <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
+        onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelCtrl.upload}" />
+    </a4j:outputPanel>
 
     <ui:include src="showExternalPriceModel.xhtml">
       <ui:param name="controller" value="#{priceModelCtrl}" />
