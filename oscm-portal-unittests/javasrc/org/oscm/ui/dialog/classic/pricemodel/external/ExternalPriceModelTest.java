@@ -13,6 +13,7 @@ import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 
+import org.junit.Ignore;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 
@@ -21,6 +22,7 @@ import org.oscm.billing.external.pricemodel.service.PriceModelContent;
  *
  * Provides actions for testing external price models.
  */
+@Ignore
 public class ExternalPriceModelTest {
 
 
