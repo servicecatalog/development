@@ -621,7 +621,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         theProduct.setOwningSubscription(null);
         // subscription copies do not have/need a CatalogEntry
         theProduct.setCatalogEntries(new ArrayList<CatalogEntry>());
-        theProduct.getPriceModel().setUuid(productTemplate.getPriceModel().getUuid());
+
         try {
             dataManager.persist(theProduct);
         } catch (NonUniqueBusinessKeyException e) {
