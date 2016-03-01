@@ -8,9 +8,7 @@
 
 package org.oscm.usergroupservice.dao;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.ejb.EJB;
@@ -25,6 +23,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
@@ -105,18 +104,12 @@ public class UserGroupDao {
         return ParameterizedTypes.list(query.getResultList(), Long.class);
     }
 
-    public Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(
+    public List<UserGroupToInvisibleProduct> getInvisibleProducts(
             long userGroupKey) {
-        Query query = dm
-                .createNamedQuery("UserGroup.findInvisibleProductKeysWithUsersFlag");
+        Query query = dm.createNamedQuery("UserGroup.getInvisibleProducts");
         query.setParameter("usergroup_tkey", Long.valueOf(userGroupKey));
-        List<Object[]> invisibleProducts = ParameterizedTypes.list(
-                query.getResultList(), Object[].class);
-        Map<Long, Boolean> invisibleProductsWithFlag = new HashMap<Long, Boolean>();
-        for (Object[] obj : invisibleProducts) {
-            invisibleProductsWithFlag.put((Long) obj[0], (Boolean) obj[1]);
-        }
-        return invisibleProductsWithFlag;
+        return ParameterizedTypes.list(query.getResultList(),
+                UserGroupToInvisibleProduct.class);
     }
 
     public List<Long> getInvisibleProductKeysForGroup(long userGroupKey) {

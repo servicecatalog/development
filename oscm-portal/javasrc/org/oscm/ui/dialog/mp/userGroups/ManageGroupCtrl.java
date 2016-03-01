@@ -10,7 +10,6 @@ package org.oscm.ui.dialog.mp.userGroups;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
@@ -32,6 +31,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
+import org.oscm.internal.usergroupmgmt.POUserGroupToInvisibleProduct;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.POUserInUnit;
@@ -364,12 +364,14 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             throws ObjectNotFoundException {
         List<ServiceRow> serviceRows = new ArrayList<>();
 
-        Map<Long, Boolean> invisibleServiceKeys = getUserGroupService()
-                .getInvisibleProductKeysWithUsersFlag(
+        List<POUserGroupToInvisibleProduct> invisibleProducts = getUserGroupService()
+                .getInvisibleProducts(
                         getManageGroupModel().getSelectedGroup().getKey());
 
+        getManageGroupModel().getSelectedGroup().setInvisibleProducts(invisibleProducts);
+
         for (POService service : initServiceList()) {
-            if (isServiceVisibleOnlyForOrgAdmin(invisibleServiceKeys,
+            if (isServiceVisibleOnlyForOrgAdmin(invisibleProducts,
                     service.getKey())) {
                 serviceRows.add(new ServiceRow(service, false));
                 continue;
@@ -384,17 +386,17 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
             throws ObjectNotFoundException {
         List<ServiceRow> serviceRows = new ArrayList<>();
 
-        Map<Long, Boolean> invisibleServiceKeys = getUserGroupService()
-                .getInvisibleProductKeysWithUsersFlag(
+        List<POUserGroupToInvisibleProduct> invisibleProducts = getUserGroupService()
+                .getInvisibleProducts(
                         getManageGroupModel().getSelectedGroup().getKey());
-
+        getManageGroupModel().getSelectedGroup().setInvisibleProducts(invisibleProducts);
         for (POService service : initServiceList()) {
-            if (isServiceVisibleForAllUsers(invisibleServiceKeys,
+            if (isServiceVisibleForAllUsers(invisibleProducts,
                     service.getKey())) {
                 serviceRows.add(new ServiceRow(service, true));
                 continue;
             }
-            if (isServiceVisibleForUnitAdmin(invisibleServiceKeys,
+            if (isServiceVisibleForUnitAdmin(invisibleProducts,
                     service.getKey())) {
                 serviceRows.add(new ServiceRow(service, false));
             }
@@ -404,20 +406,34 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
     }
 
     private boolean isServiceVisibleForAllUsers(
-            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
-        return !invisibleServiceKeys.containsKey(Long.valueOf(serviceKey));
+            List<POUserGroupToInvisibleProduct> invisibleServices, long serviceKey) {
+        
+        for (POUserGroupToInvisibleProduct invisibleProduct : invisibleServices) {
+            if (invisibleProduct.getServiceKey() == serviceKey) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isServiceVisibleForUnitAdmin(
-            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
-        return invisibleServiceKeys.containsKey(Long.valueOf(serviceKey))
-                && !invisibleServiceKeys.get(Long.valueOf(serviceKey));
+            List<POUserGroupToInvisibleProduct> invisibleServices, long serviceKey) {
+        for (POUserGroupToInvisibleProduct invisibleProduct : invisibleServices) {
+            if (invisibleProduct.getServiceKey() == serviceKey) {
+                return !invisibleProduct.isForAllUsers();
+            }
+        }
+        return true;
     }
 
     private boolean isServiceVisibleOnlyForOrgAdmin(
-            Map<Long, Boolean> invisibleServiceKeys, long serviceKey) {
-        return invisibleServiceKeys.containsKey(Long.valueOf(serviceKey))
-                && invisibleServiceKeys.get(Long.valueOf(serviceKey));
+            List<POUserGroupToInvisibleProduct> invisibleServices, long serviceKey) {
+        for (POUserGroupToInvisibleProduct invisibleProduct : invisibleServices) {
+            if (invisibleProduct.getServiceKey() == serviceKey) {
+                return invisibleProduct.isForAllUsers();
+            }
+        }
+        return false;
     }
 
     List<ServiceRow> initServiceRows() throws ObjectNotFoundException {

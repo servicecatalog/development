@@ -47,7 +47,7 @@ import org.oscm.domobjects.annotations.BusinessKey;
         @NamedQuery(name = "UserGroup.findInvisibleProductKeysForGroup", query = "SELECT u2p.product_tkey FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey"),
         @NamedQuery(name = "UserGroup.findByUserWithRole", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey"),
         @NamedQuery(name = "UserGroup.findByUserWithRoleWithoutDefault", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey AND ug.dataContainer.isDefault = FALSE"),
-        @NamedQuery(name = "UserGroup.findInvisibleProductKeysWithUsersFlag", query = "SELECT u2p.product_tkey, u2p.forallusers FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey") })
+        @NamedQuery(name = "UserGroup.getInvisibleProducts", query = "SELECT u2p FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey") })
 @BusinessKey(attributes = { "name", "organization_tkey" })
 public class UserGroup extends DomainObjectWithHistory<UserGroupData> {
 

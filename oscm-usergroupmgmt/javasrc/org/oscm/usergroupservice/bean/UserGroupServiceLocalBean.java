@@ -849,9 +849,9 @@ public class UserGroupServiceLocalBean {
     }
 
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
-    public Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(
+    public List<UserGroupToInvisibleProduct> getInvisibleProducts(
             long userGroupKey) {
-        return userGroupDao.getInvisibleProductKeysWithUsersFlag(userGroupKey);
+        return userGroupDao.getInvisibleProducts(userGroupKey);
     }
 
     public List<Long> getInvisibleProductKeysForGroup(long groupKey) {

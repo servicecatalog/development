@@ -24,6 +24,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.assembler.BasePOAssembler;
@@ -97,6 +98,8 @@ public class UserGroupServiceBean implements UserGroupService {
                 .getInvisibleServices());
         List<Product> visibleProducts = verifyProducts(group
                 .getVisibleServices());
+
+        verifyInvisibleProducts(group.getInvisibleProducts(), group.getKey());
         Map<PlatformUser, String> usersToAssignWithRole = convertToPlatformUsersWithRole(usersToAssign);
         Map<PlatformUser, String> usersToUpdateWithRole = convertToPlatformUsersWithRole(usersToRoleUpdate);
 
@@ -275,10 +278,20 @@ public class UserGroupServiceBean implements UserGroupService {
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
-    public Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(
+    public List<POUserGroupToInvisibleProduct> getInvisibleProducts(
             long userGroupKey) {
-        return userGroupService
-                .getInvisibleProductKeysWithUsersFlag(userGroupKey);
+        List<UserGroupToInvisibleProduct> invisibleProducts = userGroupService
+                .getInvisibleProducts(userGroupKey);
+        List<POUserGroupToInvisibleProduct> invisibleProductsPO = new ArrayList<POUserGroupToInvisibleProduct>();
+        for (UserGroupToInvisibleProduct userGroupToInvisibleProduct : invisibleProducts) {
+            POUserGroupToInvisibleProduct poUserGroupToInvisibleProduct = new POUserGroupToInvisibleProduct();
+            poUserGroupToInvisibleProduct.setKey(userGroupToInvisibleProduct.getKey());
+            poUserGroupToInvisibleProduct.setVersion(userGroupToInvisibleProduct.getVersion());
+            poUserGroupToInvisibleProduct.setForAllUsers(userGroupToInvisibleProduct.isForallusers());
+            poUserGroupToInvisibleProduct.setServiceKey(userGroupToInvisibleProduct.getProduct_tkey());
+            invisibleProductsPO.add(poUserGroupToInvisibleProduct);
+        }
+        return invisibleProductsPO;
     }
 
     private List<Product> verifyProducts(List<POService> services)
@@ -290,6 +303,36 @@ public class UserGroupServiceBean implements UserGroupService {
             products.add(product);
         }
         return products;
+    }
+
+    private void verifyInvisibleProducts(List<POUserGroupToInvisibleProduct> invisibleProducts, long userGroupKey)
+            throws ConcurrentModificationException {
+        for (POUserGroupToInvisibleProduct invisibleProduct : invisibleProducts) {
+            UserGroupToInvisibleProduct product;
+            try {
+                product = dm.getReference(UserGroupToInvisibleProduct.class, invisibleProduct.getKey());
+            } catch (ObjectNotFoundException e) {
+                throw new ConcurrentModificationException();
+            }
+            BasePOAssembler.verifyVersionAndKey(product, invisibleProduct);
+        }
+        List<POUserGroupToInvisibleProduct> currentlyStoredInvisibilities = getInvisibleProducts(userGroupKey);
+        boolean entryFound = false;
+        for (POUserGroupToInvisibleProduct existingInDb : currentlyStoredInvisibilities) {
+            entryFound = false;
+            for (POUserGroupToInvisibleProduct invisibleProduct : invisibleProducts) {
+                if (existingInDb.getKey() != invisibleProduct.getKey()) {
+                    continue;
+                }
+                entryFound = true;
+                if (existingInDb.getVersion() != invisibleProduct.getVersion()) {
+                    throw new ConcurrentModificationException();
+                }
+            }
+            if (!entryFound) {
+                throw new ConcurrentModificationException();
+            }
+        }
     }
 
     private UserGroup verifyGroupVersionAndKey(POUserGroup group)

@@ -25,11 +25,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import javax.faces.component.UIViewRoot;
@@ -49,6 +47,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.POService;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
+import org.oscm.internal.usergroupmgmt.POUserGroupToInvisibleProduct;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.POUserInUnit;
@@ -151,10 +150,10 @@ public class ManageGroupCtrlTest {
         doReturn(voServiceListResult).when(searchServiceInternal)
                 .getAccesibleServices(anyString(), anyString(),
                         any(ListCriteria.class), any(PerformanceHint.class));
-        doReturn(tableStatus).when(ctrl.getUi()).findBean(
-                eq(TableState.BEAN_NAME));
-        when(userBean.getUserFromSessionWithoutException()).thenReturn(
-                initOrgAdmin());
+        doReturn(tableStatus).when(ctrl.getUi())
+                .findBean(eq(TableState.BEAN_NAME));
+        when(userBean.getUserFromSessionWithoutException())
+                .thenReturn(initOrgAdmin());
         doReturn(userBean).when(ctrl.getUi()).findUserBean();
         initModelData();
     }
@@ -186,8 +185,8 @@ public class ManageGroupCtrlTest {
                 .getUserGroupDetailsForList(anyLong());
 
         ctrl.getManageGroupModel().setSelectedGroup(selectedGroup);
-        doReturn(new HashMap<Long, Boolean>()).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(anyLong());
+        doReturn(new ArrayList<POUserGroupToInvisibleProduct>())
+                .when(userGroupService).getInvisibleProducts(anyLong());
         ctrl.getInitialize();
 
         // when
@@ -302,10 +301,9 @@ public class ManageGroupCtrlTest {
     @Test
     public void initServiceRows() throws Exception {
         // given
-        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
+        List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<POUserGroupToInvisibleProduct>();
         doReturn(invisibleProducts).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(
-                        model.getSelectedGroup().getKey());
+                .getInvisibleProducts(model.getSelectedGroup().getKey());
 
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
@@ -320,12 +318,11 @@ public class ManageGroupCtrlTest {
     @Test
     public void initServiceRows_OrgAdmin() throws Exception {
         // given
-        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
-        invisibleProducts.put(1L, true);
-        invisibleProducts.put(2L, false);
+        List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<>();
+        invisibleProducts.add(prepareInvisibleProduct(1L, true));
+        invisibleProducts.add(prepareInvisibleProduct(2L, false));
         doReturn(invisibleProducts).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(
-                        model.getSelectedGroup().getKey());
+                .getInvisibleProducts(model.getSelectedGroup().getKey());
 
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
@@ -334,43 +331,43 @@ public class ManageGroupCtrlTest {
         assertListIsSorted(result);
         assertEquals(2, result.size());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(1).isSelected()));
+        assertEquals(Boolean.FALSE,
+                Boolean.valueOf(result.get(1).isSelected()));
     }
 
     @Test
     public void initServiceRows_UnitAdminWithTwoInvisibleProducts()
             throws Exception {
         // given
-        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
-        invisibleProducts.put(1L, true);
-        invisibleProducts.put(2L, false);
+        List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<>();
+        invisibleProducts.add(prepareInvisibleProduct(1L, true));
+        invisibleProducts.add(prepareInvisibleProduct(2L, false));
         doReturn(invisibleProducts).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(
-                        model.getSelectedGroup().getKey());
+                .getInvisibleProducts(model.getSelectedGroup().getKey());
 
-        when(userBean.getUserFromSessionWithoutException()).thenReturn(
-                initUnitAdmin());
+        when(userBean.getUserFromSessionWithoutException())
+                .thenReturn(initUnitAdmin());
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
 
         // then
         assertListIsSorted(result);
         assertEquals(1, result.size());
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(0).isSelected()));
+        assertEquals(Boolean.FALSE,
+                Boolean.valueOf(result.get(0).isSelected()));
     }
 
     @Test
     public void initServiceRows_UnitAdminWithOneInvisibleProductForAllUsers()
             throws Exception {
         // given
-        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
-        invisibleProducts.put(1L, true);
+        List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<>();
+        invisibleProducts.add(prepareInvisibleProduct(1L, true));
         doReturn(invisibleProducts).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(
-                        model.getSelectedGroup().getKey());
+                .getInvisibleProducts(model.getSelectedGroup().getKey());
 
-        when(userBean.getUserFromSessionWithoutException()).thenReturn(
-                initUnitAdmin());
+        when(userBean.getUserFromSessionWithoutException())
+                .thenReturn(initUnitAdmin());
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
 
@@ -384,14 +381,13 @@ public class ManageGroupCtrlTest {
     public void initServiceRows_UnitAdminWithOneInvisibleProduct()
             throws Exception {
         // given
-        Map<Long, Boolean> invisibleProducts = new HashMap<Long, Boolean>();
-        invisibleProducts.put(1L, false);
+        List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<>();
+        invisibleProducts.add(prepareInvisibleProduct(1L, false));
         doReturn(invisibleProducts).when(userGroupService)
-                .getInvisibleProductKeysWithUsersFlag(
-                        model.getSelectedGroup().getKey());
+                .getInvisibleProducts(model.getSelectedGroup().getKey());
 
-        when(userBean.getUserFromSessionWithoutException()).thenReturn(
-                initUnitAdmin());
+        when(userBean.getUserFromSessionWithoutException())
+                .thenReturn(initUnitAdmin());
         // when
         List<ServiceRow> result = ctrl.initServiceRows();
 
@@ -399,7 +395,8 @@ public class ManageGroupCtrlTest {
         assertListIsSorted(result);
         assertEquals(2, result.size());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.get(0).isSelected()));
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result.get(1).isSelected()));
+        assertEquals(Boolean.FALSE,
+                Boolean.valueOf(result.get(1).isSelected()));
     }
 
     @Test
@@ -507,8 +504,8 @@ public class ManageGroupCtrlTest {
     public void initSelectedGroup() throws Exception {
         // given
         POUserGroup group = new POUserGroup();
-        doReturn(group).when(userGroupService).getUserGroupDetailsForList(
-                anyLong());
+        doReturn(group).when(userGroupService)
+                .getUserGroupDetailsForList(anyLong());
         // when
         ctrl.initSelectedGroup();
 
@@ -566,8 +563,8 @@ public class ManageGroupCtrlTest {
             if (prev != null) {
                 if ((row.isSelected() && prevSelected)
                         || (!row.isSelected() && !prevSelected)) {
-                    assertEquals(Boolean.TRUE, Boolean.valueOf(prev
-                            .compareTo(row.getService().getServiceName()) <= 0));
+                    assertEquals(Boolean.TRUE, Boolean.valueOf(prev.compareTo(
+                            row.getService().getServiceName()) <= 0));
                 } else if (row.isSelected() && !prevSelected) {
                     assertEquals(1, 0);
                 } else {
@@ -677,5 +674,13 @@ public class ManageGroupCtrlTest {
         userRoles.add(UserRoleType.UNIT_ADMINISTRATOR);
         voUserDetails.setUserRoles(userRoles);
         return voUserDetails;
+    }
+
+    private POUserGroupToInvisibleProduct prepareInvisibleProduct(
+            long servicekey, boolean forAllUsers) {
+        POUserGroupToInvisibleProduct poUserGroupToInvisibleProduct = new POUserGroupToInvisibleProduct();
+        poUserGroupToInvisibleProduct.setServiceKey(servicekey);
+        poUserGroupToInvisibleProduct.setForAllUsers(forAllUsers);
+        return poUserGroupToInvisibleProduct;
     }
 }

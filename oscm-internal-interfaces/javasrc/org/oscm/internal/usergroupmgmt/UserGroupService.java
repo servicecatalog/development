@@ -9,7 +9,6 @@
 package org.oscm.internal.usergroupmgmt;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.ejb.Remote;
 
@@ -307,10 +306,7 @@ public interface UserGroupService {
      * specified user group.
      * 
      * @param groupKey
-     * @return the map of invisible product keys and visibility flag. If entry
-     *         value is true - product can be seen and managed only by
-     *         organization administrator. Otherwise - product can be seen and
-     *         managed also by user group administrator.
+     * @return the list of invisible products for the given user group.
      */
-    Map<Long, Boolean> getInvisibleProductKeysWithUsersFlag(long userGroupKey);
+    List<POUserGroupToInvisibleProduct> getInvisibleProducts(long userGroupKey);
 }

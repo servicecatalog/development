@@ -333,11 +333,11 @@ public class UserGroupServiceBeanTest {
     public void getInvisibleProductKeysWithUsersFlag() throws Exception {
 
         // when
-        userGroupService.getInvisibleProductKeysWithUsersFlag(1L);
+        userGroupService.getInvisibleProducts(1L);
 
         // then
         verify(userGroupServiceLocal, times(1))
-                .getInvisibleProductKeysWithUsersFlag(eq(1L));
+                .getInvisibleProducts(eq(1L));
     }
 
     @Test

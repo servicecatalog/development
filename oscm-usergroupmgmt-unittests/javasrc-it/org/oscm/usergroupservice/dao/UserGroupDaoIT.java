@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNotNull;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
 import javax.persistence.Query;
@@ -204,14 +203,14 @@ public class UserGroupDaoIT extends EJBTestBase {
         container.login(user.getKey(), ROLE_TECHNOLOGY_MANAGER);
         prepareInvisibleProducts();
 
-        Map<Long, Boolean> result = runTX(new Callable<Map<Long, Boolean>>() {
-            @Override
-            public Map<Long, Boolean> call() throws Exception {
-                return dao
-                        .getInvisibleProductKeysWithUsersFlag(group1
-                        .getKey());
-            }
-        });
+        List<UserGroupToInvisibleProduct> result = runTX(
+                new Callable<List<UserGroupToInvisibleProduct>>() {
+                    @Override
+                    public List<UserGroupToInvisibleProduct> call()
+                            throws Exception {
+                        return dao.getInvisibleProducts(group1.getKey());
+                    }
+                });
 
         // then
         assertEquals(3, result.size());
