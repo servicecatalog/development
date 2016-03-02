@@ -13,6 +13,7 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 
+import org.oscm.serviceprovisioningservice.bean.ProductSearch;
 import org.oscm.types.exceptions.DeletionConstraintException;
 import junit.framework.Assert;
 
@@ -21,6 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import org.oscm.domobjects.UserGroup;
+import org.oscm.vo.VOService;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.VOFactory;
 import org.oscm.ws.base.WebserviceTestBase;
@@ -58,8 +60,12 @@ public class OrganizationalUnitServiceWSTest {
     private static final List<UserRoleType> ROLE_TYPES = Collections
             .singletonList(UserRoleType.ORGANIZATION_ADMIN);
     private static VOUserDetails USER;
+    private static VOService VISIBLE_SERVICE;
+    private static VOService ACCESSIBLE_SERVICE;
+    private static VOService INVISIBLE_SERVICE;
 
     @BeforeClass
+
     public static void setUp() throws Exception {
         // clean the mails
         WebserviceTestBase.getMailReader().deleteMails();
@@ -104,6 +110,8 @@ public class OrganizationalUnitServiceWSTest {
 
         USER = identityService.createUser(createUser(), ROLE_TYPES,
                 mpLocal.getMarketplaceId());
+
+
     }
 
     @Test
@@ -182,8 +190,8 @@ public class OrganizationalUnitServiceWSTest {
 
         // given
         identityService.addRevokeUserUnitAssignment(userGroup.getName(),
-                Collections.<VOUser> singletonList(USER),
-                Collections.<VOUser> emptyList());
+                Collections.<VOUser>singletonList(USER),
+                Collections.<VOUser>emptyList());
 
         // when and then
         VOOrganizationalUnit unit = getUnitWithName(userGroup.getName());
@@ -208,7 +216,7 @@ public class OrganizationalUnitServiceWSTest {
         unitService.revokeUserRoles(USER,
                 Collections.singletonList(UnitRoleType.ADMINISTRATOR), unit);
     }
-    
+
     @Test
     @Order(order = 7)
     public void deleteUnit() throws NonUniqueBusinessKeyException,
@@ -227,7 +235,7 @@ public class OrganizationalUnitServiceWSTest {
         VOOrganizationalUnit unit = getUnitWithName(unitName);
         Assert.assertNull(unit);
     }
-    
+
     @Test(expected = ObjectNotFoundException.class)
     @Order(order = 8)
     public void deleteUnitNotExist()
@@ -235,12 +243,13 @@ public class OrganizationalUnitServiceWSTest {
             MailOperationException, ObjectNotFoundException {
         // given
         final String unitName = randomString("TestUnit");
-    
+
         // when
         unitService.deleteUnit(unitName);
-        
+
         // then exception
     }
+
 
     private static String randomString(String prefix) {
         return prefix + new BigInteger(130, new SecureRandom()).toString(32);

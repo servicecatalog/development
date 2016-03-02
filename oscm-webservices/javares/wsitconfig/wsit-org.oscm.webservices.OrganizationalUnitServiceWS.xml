@@ -19,6 +19,10 @@
     <message name="createUnitResponse" />
     <message name="deleteUnit" />
     <message name="deleteUnitResponse" />
+    <message name="getVisibleServices" />
+    <message name="getVisibleServicesResponse" />
+    <message name="getAccessibleServices" />
+    <message name="getAccessibleServicesResponse" />
     <portType name="OrganizationalUnitService">
         <operation name="grantUserRoles">
             <input message="tns:grantUserRoles" />
@@ -39,6 +43,14 @@
         <operation name="deleteUnit">
             <input message="tns:deleteUnit" />
             <output message="tns:deleteUnitResponse" />
+        </operation>
+        <operation name="getVisibleServices">
+            <input message="tns:getVisibleServices" />
+            <output message="tns:getVisibleServicesResponse" />
+        </operation>
+        <operation name="getAccessibleServices">
+            <input message="tns:getAccessibleServices" />
+            <output message="tns:getAccessibleServicesResponse" />
         </operation>
     </portType>
     <binding name="OrganizationalUnitServicePortSTSBinding" type="tns:OrganizationalUnitService">
@@ -76,6 +88,22 @@
             </output>
         </operation>
         <operation name="deleteUnit">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="getVisibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="getAccessibleServices">
             <input>
                 <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
             </input>

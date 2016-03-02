@@ -1,8 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                                           
- *                                                                                                                                  
- *  Creation Date: 20.07.15 14:05
+ *  Copyright FUJITSU LIMITED 2016
  *
  *******************************************************************************/
 
@@ -10,14 +8,17 @@ package org.oscm.webservices;
 
 import java.util.List;
 
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.xml.ws.WebServiceContext;
 
+import org.oscm.domobjects.Product;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.vo.VOService;
 import org.oscm.webservices.logger.WebServiceLogger;
 import org.oscm.converter.api.Converter;
 import org.oscm.converter.api.EnumConverter;
@@ -51,7 +52,8 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
     @Override
     public void grantUserRoles(VOUser user, List<UnitRoleType> roles,
             VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, dataService);
 
         PlatformUser pUser = Converter.convert(user, VOUser.class,
@@ -60,14 +62,10 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
                 VOOrganizationalUnit.class, UserGroup.class);
 
         try {
-            localService
-                    .grantUserRolesWithHandleUnitAdminRole(
-                            pUser,
-                            EnumConverter
-                                    .convertList(
-                                            roles,
-                                            org.oscm.internal.types.enumtypes.UnitRoleType.class),
-                            group);
+            localService.grantUserRolesWithHandleUnitAdminRole(pUser,
+                    EnumConverter.convertList(roles,
+                            org.oscm.internal.types.enumtypes.UnitRoleType.class),
+                    group);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
@@ -78,7 +76,8 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
     @Override
     public void revokeUserRoles(VOUser user, List<UnitRoleType> roles,
             VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException {
         WS_LOGGER.logAccess(wsContext, dataService);
 
         PlatformUser pUser = Converter.convert(user, VOUser.class,
@@ -87,14 +86,10 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
                 VOOrganizationalUnit.class, UserGroup.class);
 
         try {
-            localService
-                    .revokeUserRoles(
-                            pUser,
-                            EnumConverter
-                                    .convertList(
-                                            roles,
-                                            org.oscm.internal.types.enumtypes.UnitRoleType.class),
-                            group);
+            localService.revokeUserRoles(pUser,
+                    EnumConverter.convertList(roles,
+                            org.oscm.internal.types.enumtypes.UnitRoleType.class),
+                    group);
         } catch (org.oscm.internal.types.exception.ObjectNotFoundException e) {
             throw ExceptionConverter.convertToApi(e);
         } catch (org.oscm.internal.types.exception.OperationNotPermittedException e) {
@@ -107,8 +102,8 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
             Pagination pagination) {
         WS_LOGGER.logAccess(wsContext, dataService);
 
-        List<UserGroup> units = localService.getOrganizationalUnits(Converter
-                .convert(pagination, Pagination.class,
+        List<UserGroup> units = localService.getOrganizationalUnits(
+                Converter.convert(pagination, Pagination.class,
                         org.oscm.pagination.Pagination.class));
 
         return Converter.convertList(units, UserGroup.class,
@@ -121,8 +116,8 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
         WS_LOGGER.logAccess(wsContext, dataService);
 
         try {
-            UserGroup unit = localService.createUserGroup(unitName,
-                    description, referenceId);
+            UserGroup unit = localService.createUserGroup(unitName, description,
+                    referenceId);
 
             return Converter.convert(unit, UserGroup.class,
                     VOOrganizationalUnit.class);
@@ -151,5 +146,44 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
         } catch (org.oscm.internal.types.exception.MailOperationException e) {
             throw ExceptionConverter.convertToApi(e);
         }
+    }
+
+    @Override
+    public List<VOService> getVisibleServices(String unitId,
+            Pagination pagination, String marketplaceId) {
+        List<Product> visibleServices = localService.getVisibleServices(unitId,
+                pagination, marketplaceId);
+        return Converter.convertList(visibleServices, Product.class,
+                VOService.class);
+    }
+
+    @Override
+    public List<VOService> getAccessibleServices(String unitId,
+            Pagination pagination, String marketplaceId) {
+        List<Product> accessibleServices = localService
+                .getAccessibleServices(unitId, pagination, marketplaceId);
+        return Converter.convertList(accessibleServices, Product.class,
+                VOService.class);
+
+    }
+
+    @Override
+    public void addVisibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> visibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
+
+    }
+
+    @Override
+    public void revokeVisibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> visibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
+
+    }
+
+    @Override
+    public void addAccessibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> accessibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
+
+    }
+
+    @Override
+    public void revokeAccessibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> accessibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
+
     }
 }

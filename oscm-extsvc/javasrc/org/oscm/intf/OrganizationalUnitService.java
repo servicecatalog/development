@@ -1,8 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015??????????????????????????????????????????????????????????????????????????????????????
- * ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
- *  Creation Date: 20.07.15 16:09
+ *  Copyright FUJITSU LIMITED 2016
  *
  *******************************************************************************/
 
@@ -25,6 +23,7 @@ import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
 import org.oscm.vo.VOOrganizationalUnit;
+import org.oscm.vo.VOService;
 import org.oscm.vo.VOUser;
 
 /**
@@ -53,11 +52,11 @@ public interface OrganizationalUnitService {
     @WebMethod(operationName = "grantUserRolesInUnit")
     @RequestWrapper(className = "grantUserRolesRequest")
     @ResponseWrapper(className = "grantUserRolesResponse")
-    void grantUserRoles(
-            @WebParam(name = "user") VOUser user,
+    void grantUserRoles(@WebParam(name = "user") VOUser user,
             @WebParam(name = "roles") List<UnitRoleType> roles,
             @WebParam(name = "organizationalUnit") VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException;
 
     /**
      * Revokes roles from user in unit. If user does not have roles, nothing
@@ -78,11 +77,11 @@ public interface OrganizationalUnitService {
     @WebMethod(operationName = "revokeUserRolesInUnit")
     @RequestWrapper(className = "revokeUserRolesRequest")
     @ResponseWrapper(className = "revokeUserRolesResponse")
-    void revokeUserRoles(
-            @WebParam(name = "user") VOUser user,
+    void revokeUserRoles(@WebParam(name = "user") VOUser user,
             @WebParam(name = "roles") List<UnitRoleType> roles,
             @WebParam(name = "organizationalUnit") VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException;
 
     /**
      * Returns organizational units existing in the organization of the calling
@@ -119,7 +118,7 @@ public interface OrganizationalUnitService {
             @WebParam(name = "unitName") String unitName,
             @WebParam(name = "description") String description,
             @WebParam(name = "referenceId") String referenceId)
-            throws NonUniqueBusinessKeyException;
+                    throws NonUniqueBusinessKeyException;
 
     /**
      * Deletes organizational unit in organization of the calling user.
@@ -138,6 +137,59 @@ public interface OrganizationalUnitService {
     @WebMethod
     void deleteUnit(
             @WebParam(name = "organizationalUnitName") String organizationalUnitName)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            DeletionConstraintException, MailOperationException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException, DeletionConstraintException,
+                    MailOperationException;
+
+    /**
+     * Returns list of visible services. Visible services can be seen by
+     * organization admin as well as unit admin.
+     *
+     * @param unitId
+     *            - Id of the unit from which we get the services
+     * @param pagination
+     *            - Sorting, filtering, paging details
+     * @return - List of visible services
+     */
+    @WebMethod
+    List<VOService> getVisibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "pagination") Pagination pagination,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    /**
+     * Returns list of accessible services. Accessible services can be seen by
+     * organization admin only and not by unit admin.
+     *
+     * @param unitId
+     *            - Id of the unit from which we get the services
+     * @param pagination
+     *            - Sorting, filtering, paging details
+     * @return - List of accessible services
+     */
+    @WebMethod
+    List<VOService> getAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "pagination") Pagination pagination,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    @WebMethod
+    void addVisibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<VOService> visibleServices,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    @WebMethod
+    void revokeVisibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<VOService> visibleServices,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    @WebMethod
+    void addAccessibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<VOService> accessibleServices,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    @WebMethod
+    void revokeAccessibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<VOService> accessibleServices,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
 }

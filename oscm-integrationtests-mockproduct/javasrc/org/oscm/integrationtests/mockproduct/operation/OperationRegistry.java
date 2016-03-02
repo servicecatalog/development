@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016
  *******************************************************************************/
 
 package org.oscm.integrationtests.mockproduct.operation;
@@ -48,6 +48,8 @@ public class OperationRegistry {
         register(new TriggerService_getActionParameter());
         register(new TriggerService_updateActionParameters());
         register(new OrganizationalUnitService_createUnit());
+        register(new OrganizationalUnitService_getVisibleServices());
+        register(new OrganizationalUnitService_getAccessibleServices());
         register(new OrganizationalUnitService_getOrganizationalUnits());
         register(new OrganizationalUnitService_grantUserRoles());
         register(new OrganizationalUnitService_revokeUserRoles());

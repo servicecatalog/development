@@ -1188,6 +1188,16 @@ public class UserGroupServiceLocalBean {
                 userRoleKey);
     }
 
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
+    public List<Product> getVisibleServices(String unitId, Pagination pagination, String marketplaceId) {
+        return userGroupDao.getVisibleServices(unitId, pagination, marketplaceId);
+    }
+
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
+    public List<Product> getAccessibleServices(String unitId, Pagination pagination, String marketplaceId) {
+        return userGroupDao.getAccessibleServices(unitId, pagination, marketplaceId);
+    }
+
     public DataService getDm() {
         return dm;
     }
@@ -1259,4 +1269,5 @@ public class UserGroupServiceLocalBean {
     public void setTqs(TaskQueueServiceLocal tqs) {
         this.tqs = tqs;
     }
+
 }
