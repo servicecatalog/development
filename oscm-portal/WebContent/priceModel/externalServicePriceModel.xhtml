@@ -36,42 +36,4 @@
     </ui:include>
   </adm:buttonPanel>
 
-  <script type="text/javascript">
-      syncFreePeriod = function() {
-        if(#{rich:element('freePeriod')}) {
-          // synchronize the hidden field, as the validation of freePeriod might fail
-          #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
-        }
-      }
-      toggleFreePeriod = function() {
-        if(#{rich:element('freePeriod')}) {
-          var isFreePeriodAvailable = #{rich:element('freePeriodAvailable')}.checked;
-          
-         switch(isFreePeriodAvailable) {
-	         case false:
-	        	  jQuery( #{rich:element('freePeriodPanel')}).css('display','none');
-	        	  break;
-	         case true:
-	        	 // remove display on element. using block or inline introduces unwanted padding
-	        	 jQuery( #{rich:element('freePeriodPanel')}).css('display','');
-	        	 break;
-          }
-
-          if(isFreePeriodAvailable) {
-            // restore the freePeriod from hidden, as it might have been reseted
-            #{rich:element('freePeriod')}.value=#{rich:element('freePeriodHidden')}.value;
-          } else {
-            // store the freePeriod in hidden and reset it, as it might be invalid
-            #{rich:element('freePeriodHidden')}.value=#{rich:element('freePeriod')}.value;
-            #{rich:element('freePeriod')}.value=0;
-          }
-        }
-        AdmUtils.setUIElements();
-      }
-      // initialize the freePeriodHidden field after page load, to avoid being resetted by JSF on validation errors
-      syncFreePeriod();
-      // initialize the freePeriod visibility
-      toggleFreePeriod();
-    </script>
-
 </ui:composition>
