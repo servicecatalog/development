@@ -84,6 +84,7 @@ import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceIntern
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Organization;
 import org.oscm.ui.model.Service;
@@ -651,7 +652,9 @@ public class PriceModelBeanTest {
         // given
         ValueChangeEvent event = prepareForReloadPriceModel();
         doReturn(null).when(event).getNewValue();
-
+        ExternalCustomerPriceModelCtrl ex = mock(ExternalCustomerPriceModelCtrl.class);
+        doReturn(ex).when(bean).getExternalCustomerPriceModelCtrl();
+        doNothing().when(ex).reloadPriceModel();
         // when
         bean.reloadPriceModel(event);
 
@@ -664,7 +667,9 @@ public class PriceModelBeanTest {
     public void reloadPriceModel() throws Exception {
         // given
         ValueChangeEvent event = prepareForReloadPriceModel();
-
+        ExternalCustomerPriceModelCtrl ex = mock(ExternalCustomerPriceModelCtrl.class);
+        doReturn(ex).when(bean).getExternalCustomerPriceModelCtrl();
+        doNothing().when(ex).reloadPriceModel();
         // when
         bean.reloadPriceModel(event);
 

@@ -2047,7 +2047,7 @@ public class PriceModelBean extends BaseBean implements Serializable {
         getExternalCustomerPriceModelCtrl().reloadPriceModel();
     }
 
-    ExternalCustomerPriceModelCtrl getExternalCustomerPriceModelCtrl() {
+    public ExternalCustomerPriceModelCtrl getExternalCustomerPriceModelCtrl() {
 
         if (extCustBean == null) {
             extCustBean = ui.findBean("externalCustomerPriceModelCtrl");

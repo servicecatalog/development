@@ -3420,3 +3420,7 @@ form .formHighlight div.div-for-input {
 .button-panel-with-padding {
 	padding-bottom: 25px;
 }
+
+#tabExternalPriceModel > div > form.form-in-tab {
+	padding-bottom: 25px;
+}
