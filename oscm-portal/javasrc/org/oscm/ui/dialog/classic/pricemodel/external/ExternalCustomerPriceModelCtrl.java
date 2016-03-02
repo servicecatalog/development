@@ -47,12 +47,18 @@ public class ExternalCustomerPriceModelCtrl extends ExternalPriceModelCtrl {
                 throw new ExternalPriceModelException();
             }
             loadPriceModelContent(priceModel);
+            getPriceModelBean().setDirty(true);
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
         } catch (ExternalPriceModelException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
         }
+    }
+
+    public void reloadPriceModel() {
+        VOServiceDetails service = getPriceModelBean().getSelectedService();
+        showPersistedPriceModel(service);
     }
 
 }

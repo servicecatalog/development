@@ -136,6 +136,10 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
             getModel().setSelectedPriceModel(selectedPriceModel);
             getModel().setSelectedPriceModelContent(selectedPriceModelContent);
             getModel().setSelectedPriceModelId(priceModel.getUuid().toString());
+        } else {
+            getModel().setSelectedPriceModel(null);
+            getModel().setSelectedPriceModelContent(null);
+            getModel().setSelectedPriceModelId("");
         }
     }
 

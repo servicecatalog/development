@@ -63,6 +63,8 @@ import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.LocaleUtils;
 import org.oscm.ui.common.SteppedPriceComparator;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelModel;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Organization;
@@ -120,6 +122,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     @ManagedProperty(value = "#{bPLazyDataModel}")
     private BPLazyDataModel model;
+    
+    private ExternalCustomerPriceModelCtrl extCustBean;
 
     private String initUrl;
     private boolean dirty;
@@ -1131,12 +1135,17 @@ public class PriceModelBean extends BaseBean implements Serializable {
     String saveExternalPriceModel(VOServiceDetails voServiceDetails,
             VOPriceModel voPriceModel) throws SaaSApplicationException {
 
-        ExternalServicePriceModelCtrl externalPriceModelCtrl = ui
-                .findBean("externalServicePriceModelCtrl");
+        ExternalPriceModelModel externalPriceModelModel = null;
+        if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            ExternalCustomerPriceModelCtrl externalPriceModelCtrl = getExternalCustomerPriceModelCtrl();
+            externalPriceModelModel = externalPriceModelCtrl.getModel();
+        } else {
+            ExternalServicePriceModelCtrl externalPriceModelCtrl = ui
+                    .findBean("externalServicePriceModelCtrl");
+            externalPriceModelModel = externalPriceModelCtrl.getModel();;
+        }
 
-        PriceModel priceModel = externalPriceModelCtrl.getModel()
-                .getSelectedPriceModel();
-
+        PriceModel priceModel  = externalPriceModelModel.getSelectedPriceModel();
         if (priceModel == null) {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
@@ -1203,7 +1212,7 @@ public class PriceModelBean extends BaseBean implements Serializable {
             throw ex;
         }
 
-        externalPriceModelCtrl.getModel().setSavedByUser(true);
+        externalPriceModelModel.setSavedByUser(true);
         setSelectedService(voServiceDetails);
         updatePriceModel();
         getLocalization();
@@ -2035,8 +2044,17 @@ public class PriceModelBean extends BaseBean implements Serializable {
         this.selectedServiceKey = Long.class.cast(event.getNewValue());
         sessionBean.setSelectedServiceKeyForSupplier(this.selectedServiceKey);
         updatePriceModel();
+        getExternalCustomerPriceModelCtrl().reloadPriceModel();
     }
 
+    ExternalCustomerPriceModelCtrl getExternalCustomerPriceModelCtrl() {
+
+        if (extCustBean == null) {
+            extCustBean = ui.findBean("externalCustomerPriceModelCtrl");
+        }
+
+        return extCustBean;
+    }
     /**
      * Resets the price model with the values fetched from the server and sets
      * it to non-chargeable.
