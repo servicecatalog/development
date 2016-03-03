@@ -40,27 +40,30 @@ import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.backend.impl.jms.AbstractJMSHibernateSearchController;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Category;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.PriceModel;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductTag;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.domobjects.index.IndexRequestMessage;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * Message driven bean to handle the index request objects sent by the business
@@ -82,6 +85,7 @@ public class IndexRequestMasterListener extends
     @EJB(beanInterface = DataService.class)
     public DataService dm;
 
+    @Override
     @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public void onMessage(Message message) {
         if (!(message instanceof ObjectMessage)) {
@@ -193,7 +197,30 @@ public class IndexRequestMasterListener extends
                     servicesQuery.getResultList(), Product.class));
             return;
         }
-
+        if (object instanceof Subscription) {
+            Subscription subscription = (Subscription) object;
+            if (subscription.getStatus() != SubscriptionStatus.DEACTIVATED
+                    && subscription.getStatus() != SubscriptionStatus.INVALID) {
+                handleSubscriptionIndexing(subscription);
+            }
+            return;
+        }
+        if (object instanceof Parameter) {
+            Parameter parameter = (Parameter) object;
+            if (parameter.getParameterDefinition().getValueType() == ParameterValueType.STRING) {
+                Product product = parameter.getParameterSet().getProduct();
+                if (product != null) {
+                    Subscription subscription = product.getOwningSubscription();
+                    if (subscription != null) {
+                        if (subscription.getStatus() != SubscriptionStatus.DEACTIVATED
+                                && subscription.getStatus() != SubscriptionStatus.INVALID) {
+                            handleParameterIndexing(parameter);
+                        }
+                    }
+                }
+                return;
+            }
+        }
     }
 
     private void handleProductIndexing(Product product) {
@@ -208,6 +235,26 @@ public class IndexRequestMasterListener extends
                 if (p != null) {
                     fts.index(p);
                 }
+            }
+        }
+    }
+
+    private void handleSubscriptionIndexing(Subscription subscription) {
+        Session session = getSession();
+        if (session != null) {
+            FullTextSession fts = Search.getFullTextSession(session);
+            if (subscription != null) {
+                fts.index(subscription);
+            }
+        }
+    }
+
+    private void handleParameterIndexing(Parameter parameter) {
+        Session session = getSession();
+        if (session != null) {
+            FullTextSession fts = Search.getFullTextSession(session);
+            if (parameter != null) {
+                fts.index(parameter);
             }
         }
     }
@@ -293,7 +340,46 @@ public class IndexRequestMasterListener extends
             results.close();
 
         }
+        indexSubscriptions(fullTextSession);
+        indexParameters(fullTextSession);
         tx.commit(); // index is written at commit time
+    }
+
+    protected void indexSubscriptions(FullTextSession fullTextSession) {
+        org.hibernate.Query objectQuery = fullTextSession
+                .createQuery("SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN ('"
+                        + SubscriptionStatus.DEACTIVATED.name()
+                        + "','"
+                        + SubscriptionStatus.INVALID.name() + "')");
+        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
+        indexObject(fullTextSession, results);
+        results.close();
+    }
+
+    protected void indexParameters(FullTextSession fullTextSession) {
+        org.hibernate.Query objectQuery = fullTextSession
+                .createQuery("SELECT parameter FROM Parameter parameter, ParameterSet ps, Product product, Subscription s WHERE parameter.parameterDefinition.dataContainer.valueType = '"
+                        + ParameterValueType.STRING.name()
+                        + "' AND parameter.parameterSet.key = ps.key AND product.key = ps.product.key AND s.product.key = product.key AND s.dataContainer.status NOT IN ('"
+                        + SubscriptionStatus.DEACTIVATED.name()
+                        + "','"
+                        + SubscriptionStatus.INVALID.name() + "')");
+        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
+        indexObject(fullTextSession, results);
+        results.close();
+    }
+
+    private void indexObject(FullTextSession fullTextSession,
+            ScrollableResults results) {
+        int index = 0;
+        while (results.next()) {
+            index++;
+            fullTextSession.index(results.get(0));
+            if (index % BATCH_SIZE == 0) {
+                fullTextSession.flushToIndexes();
+                fullTextSession.clear();
+            }
+        }
     }
 
 }

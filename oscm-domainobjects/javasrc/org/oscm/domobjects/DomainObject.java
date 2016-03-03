@@ -27,7 +27,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
 import org.hibernate.proxy.HibernateProxyHelper;
-
+import org.hibernate.search.annotations.IndexedEmbedded;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 
 /**
@@ -59,6 +59,7 @@ public abstract class DomainObject<D extends DomainDataContainer> implements
      * ("data containers"), which are embedded into the domain object class.
      * This allows reuse of these attributes in History objects.
      */
+    @IndexedEmbedded
     @Embedded
     protected D dataContainer;
 
@@ -183,6 +184,7 @@ public abstract class DomainObject<D extends DomainDataContainer> implements
         this.historyModificationTime = historyModificationTime;
     }
 
+    @Override
     public final String toString() {
         String result = String.format("%s [key='%s', version='%s'%s]",
                 getDomainClass(this).getSimpleName(), Long.valueOf(getKey()),

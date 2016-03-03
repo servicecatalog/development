@@ -19,6 +19,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import org.hibernate.search.annotations.Indexed;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
@@ -32,6 +33,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * @author Peter Pock
  * 
  */
+@Indexed
 @Entity
 public class Parameter extends DomainObjectWithHistory<ParameterData> {
 

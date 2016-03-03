@@ -20,6 +20,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
+import org.hibernate.search.annotations.Field;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 
 /**
@@ -38,6 +39,7 @@ public class SubscriptionData extends DomainDataContainer implements
     /**
      * Unique identifier (within organization domain) for the subscription
      */
+    @Field
     @Column(nullable = false)
     private String subscriptionId;
 
@@ -83,6 +85,7 @@ public class SubscriptionData extends DomainDataContainer implements
      * Has no relevance to the BES at all, but is only stored for customer's
      * convenience.
      */
+    @Field
     private String purchaseOrderNumber;
 
     /**
@@ -103,11 +106,11 @@ public class SubscriptionData extends DomainDataContainer implements
     /**
      * The billing cut-off day for this subscription.
      */
-    //@Column(nullable = false)
+    // @Column(nullable = false)
     private int cutOffDay;
-    
+
     /**
-     * The message from succesfull provisioning result 
+     * The message from succesfull provisioning result
      */
     @Transient
     private String successMessage;

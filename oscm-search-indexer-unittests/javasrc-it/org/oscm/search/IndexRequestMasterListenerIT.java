@@ -41,7 +41,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -50,9 +49,13 @@ import org.oscm.domobjects.Category;
 import org.oscm.domobjects.CategoryToCatalogEntry;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.ParameterDefinition;
+import org.oscm.domobjects.ParameterSet;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.PriceModel;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Tag;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductTag;
@@ -62,6 +65,14 @@ import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexRequestMessage;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.vo.VOCategory;
 import org.oscm.marketplace.bean.CategorizationServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.serviceprovisioningservice.bean.SearchServiceInternalBean;
@@ -73,16 +84,12 @@ import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Scenario;
+import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.exceptions.InvalidUserSession;
-import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.vo.VOCategory;
 
 public class IndexRequestMasterListenerIT extends EJBTestBase {
 
@@ -125,6 +132,11 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     ProductClassBridge.CATEGORY_NAME
                             + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
                     ProductClassBridge.MP_ID);
+    private static final List<String> expectedIndexedAttributesForSubscription = Arrays
+            .asList("dataContainer.purchaseOrderNumber",
+                    "dataContainer.subscriptionId");
+    private static final List<String> expectedIndexedAttributesForParameter = Arrays
+            .asList("dataContainer.value");
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -935,6 +947,433 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
+    }
+
+    @Test
+    public void testIndexSubscriptions_validStatus() throws Throwable {
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
+        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
+        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
+        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
+        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
+        emptySubscriptionIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexSubscriptions(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertSubscriptionDocsInIndex(
+                "Index must contain 7 document due to automatic indexing", 7,
+                expectedIndexedAttributesForSubscription.size(),
+                expectedIndexedAttributesForSubscription);
+    }
+
+    @Test
+    public void testIndexSubscriptions_invalidStatus() throws Throwable {
+        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
+        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
+        emptySubscriptionIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexSubscriptions(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertSubscriptionDocsInIndex(
+                "Index must contain 1 document due to automatic indexing", 1,
+                expectedIndexedAttributesForSubscription.size(),
+                expectedIndexedAttributesForSubscription);
+    }
+
+    @Test
+    public void testIndexSubscriptions_variousStatus() throws Throwable {
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
+        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
+        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
+        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
+        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
+        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
+        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
+        emptySubscriptionIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexSubscriptions(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertSubscriptionDocsInIndex(
+                "Index must contain 7 document due to automatic indexing", 7,
+                expectedIndexedAttributesForSubscription.size(),
+                expectedIndexedAttributesForSubscription);
+    }
+
+    private void addSubscriptionToDatabase(final SubscriptionStatus status)
+            throws Exception {
+
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Organization seller = Organizations.createOrganization(dm,
+                        OrganizationRoleType.SUPPLIER);
+                Product product = Products.createProduct(
+                        seller.getOrganizationId(), "prodId", "techProd", dm);
+                Subscription sub = Subscriptions.createSubscription(dm,
+                        seller.getOrganizationId(), product);
+                sub.setStatus(status);
+                dm.persist(sub);
+                dm.flush();
+
+                return null;
+            }
+        });
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                flushQueue(indexerQueue, irl, 1000);
+                return null;
+            }
+        });
+    }
+
+    private void emptySubscriptionIndex() throws Exception {
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    fullTextSession.purgeAll(Subscription.class);
+                }
+
+                return null;
+            }
+        });
+
+    }
+
+    private void assertSubscriptionDocsInIndex(final String comment,
+            final int expectedNumDocs, final int expectedNumIndexedAttributes,
+            final List<String> expectedAttributes) throws Exception {
+        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+
+            @Override
+            public Boolean call() throws Exception {
+                boolean evaluatedIndex = false;
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    SearchFactory searchFactory = fullTextSession
+                            .getSearchFactory();
+                    IndexReader reader = searchFactory.getIndexReaderAccessor()
+                            .open(Subscription.class);
+
+                    try {
+                        assertEquals(comment, expectedNumDocs, reader.numDocs());
+                        if (expectedNumDocs > 0) {
+                            final FieldInfos indexedFieldNames = ReaderUtil
+                                    .getMergedFieldInfos(reader);
+                            for (String expectedAttr : expectedAttributes) {
+                                assertNotNull("attribute " + expectedAttr
+                                        + " does not exist in index: "
+                                        + indexedFieldNames,
+                                        indexedFieldNames
+                                                .fieldInfo(expectedAttr));
+                            }
+                            assertNotNull(
+                                    "attribute \"key\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames.fieldInfo("key"));
+                            assertNotNull(
+                                    "attribute \"_hibernate_class\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames
+                                            .fieldInfo("_hibernate_class"));
+                            assertEquals(
+                                    "More or less attributes indexed than expected, attributes retrieved from index: "
+                                            + indexedFieldNames,
+                                    expectedNumIndexedAttributes + 2,
+                                    indexedFieldNames.size());
+                            evaluatedIndex = true;
+                        }
+                    } finally {
+                        searchFactory.getIndexReaderAccessor().close(reader);
+                    }
+                }
+
+                return Boolean.valueOf(evaluatedIndex);
+            }
+        });
+
+        if (expectedNumDocs > 0) {
+            Assert.assertTrue("Index not found, no evaluation took place",
+                    evaluationTookPlace.booleanValue());
+        }
+    }
+
+    @Test
+    public void testIndexParameters_ParameterDefinitionValueType()
+            throws Throwable {
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.BOOLEAN, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.DURATION, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.ENUMERATION, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.INTEGER, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.LONG, true,
+                SubscriptionStatus.ACTIVE);
+        emptyParameterIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexParameters(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertParameterDocsInIndex(
+                "Index must contain 2 document due to automatic indexing", 2,
+                expectedIndexedAttributesForParameter.size(),
+                expectedIndexedAttributesForParameter);
+    }
+
+    @Test
+    public void testIndexParameters_SubscriptionStatus() throws Throwable {
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.DEACTIVATED);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.EXPIRED);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.INVALID);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.PENDING);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.PENDING_UPD);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.SUSPENDED);
+        createParameter(ParameterValueType.STRING, true,
+                SubscriptionStatus.SUSPENDED_UPD);
+        emptyParameterIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexParameters(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertParameterDocsInIndex(
+                "Index must contain 7 document due to automatic indexing", 7,
+                expectedIndexedAttributesForParameter.size(),
+                expectedIndexedAttributesForParameter);
+    }
+
+    @Test
+    public void testIndexParameters_withoutSubscription() throws Throwable {
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.ACTIVE);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.DEACTIVATED);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.EXPIRED);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.INVALID);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.PENDING);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.PENDING_UPD);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.SUSPENDED);
+        createParameter(ParameterValueType.STRING, false,
+                SubscriptionStatus.SUSPENDED_UPD);
+        emptyParameterIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexParameters(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertParameterDocsInIndex(
+                "Index must contain 7 document due to automatic indexing", 1,
+                expectedIndexedAttributesForParameter.size(),
+                expectedIndexedAttributesForParameter);
+    }
+
+    private void emptyParameterIndex() throws Exception {
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    fullTextSession.purgeAll(Parameter.class);
+                }
+
+                return null;
+            }
+        });
+
+    }
+
+    private Parameter createParameter(
+            final ParameterValueType parameterValueType,
+            final boolean createSubscription,
+            final SubscriptionStatus subscriptionStatus) throws Exception {
+        final Parameter parameter = runTX(new Callable<Parameter>() {
+            @Override
+            public Parameter call() throws Exception {
+
+                Organization tp = Organizations.createOrganization(dm,
+                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
+                ParameterDefinition pd = new ParameterDefinition();
+                pd.setParameterId("parameterIndexingTest");
+                pd.setParameterType(ParameterType.PLATFORM_PARAMETER);
+                pd.setValueType(parameterValueType);
+
+                Parameter parameter = new Parameter();
+                parameter.setValue("parameterIndexingTest");
+
+                ParameterSet parameterSet = new ParameterSet();
+                parameter.setParameterDefinition(pd);
+                parameter.setParameterSet(parameterSet);
+                dm.persist(pd);
+                Product product = Products.createProduct(
+                        tp.getOrganizationId(), "parameterIndexingTest",
+                        "techProd", dm);
+                if (createSubscription) {
+                    Subscription subscription = Subscriptions
+                            .createSubscription(dm, tp.getOrganizationId(),
+                                    product.getProductId(),
+                                    "parameterIndexingTest", tp);
+                    subscription.setStatus(subscriptionStatus);
+                    Product subscriptionProduct = subscription.getProduct();
+                    parameterSet.setProduct(subscriptionProduct);
+                    subscriptionProduct.setParameterSet(parameterSet);
+                    dm.persist(subscriptionProduct);
+                    dm.persist(subscription);
+                }
+                dm.persist(parameterSet);
+                dm.persist(parameter);
+                dm.flush();
+                return parameter;
+            }
+        });
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                flushQueue(indexerQueue, irl, 1000);
+                return null;
+            }
+        });
+        return parameter;
+    }
+
+    private void assertParameterDocsInIndex(final String comment,
+            final int expectedNumDocs, final int expectedNumIndexedAttributes,
+            final List<String> expectedAttributes) throws Exception {
+        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+
+            @Override
+            public Boolean call() throws Exception {
+                boolean evaluatedIndex = false;
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    SearchFactory searchFactory = fullTextSession
+                            .getSearchFactory();
+                    IndexReader reader = searchFactory.getIndexReaderAccessor()
+                            .open(Parameter.class);
+
+                    try {
+                        assertEquals(comment, expectedNumDocs, reader.numDocs());
+                        if (expectedNumDocs > 0) {
+                            final FieldInfos indexedFieldNames = ReaderUtil
+                                    .getMergedFieldInfos(reader);
+                            for (String expectedAttr : expectedAttributes) {
+                                assertNotNull("attribute " + expectedAttr
+                                        + " does not exist in index: "
+                                        + indexedFieldNames,
+                                        indexedFieldNames
+                                                .fieldInfo(expectedAttr));
+                            }
+                            assertNotNull(
+                                    "attribute \"key\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames.fieldInfo("key"));
+                            assertNotNull(
+                                    "attribute \"_hibernate_class\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames
+                                            .fieldInfo("_hibernate_class"));
+                            assertEquals(
+                                    "More or less attributes indexed than expected, attributes retrieved from index: "
+                                            + indexedFieldNames,
+                                    expectedNumIndexedAttributes + 2,
+                                    indexedFieldNames.size());
+                            evaluatedIndex = true;
+                        }
+                    } finally {
+                        searchFactory.getIndexReaderAccessor().close(reader);
+                    }
+                }
+
+                return Boolean.valueOf(evaluatedIndex);
+            }
+        });
+
+        if (expectedNumDocs > 0) {
+            Assert.assertTrue("Index not found, no evaluation took place",
+                    evaluationTookPlace.booleanValue());
+        }
     }
 
 }
