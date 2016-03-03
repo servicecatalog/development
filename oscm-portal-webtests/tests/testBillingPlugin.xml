@@ -201,35 +201,59 @@
       <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
       <login.logout />
     </webtest>
-  	
-  	<webtest name="testBillingPlugin - subscriptionProccess">
-  	  <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-  	  <mpl_goto.marketplace mid="${mId}" />				
-  	  <!-- Go to Browse all services -->
-      <clickElement xpath="//a[@id='linkBrowseAll']" />	
+
+    <webtest name="testBillingPlugin - subscriptionProccess">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.marketplace mid="${mId}" />
+      <!-- Go to Browse all services -->
+      <clickElement xpath="//a[@id='linkBrowseAll']" />
       <!-- Go to Service Details -->
-  	  <common.ignorePageScriptError />	
+      <common.ignorePageScriptError />
       <clickElement xpath="//a[@id='showDetails0']" />
-  	  <!-- Start subscription proccess -->	
-  	  <common.ignorePageScriptError />
+      <!-- Start subscription proccess -->
+      <common.ignorePageScriptError />
       <clickLink htmlId="buyme" />
-  	  <clickElement htmlId="getItForLoggedUser" />		
-  	  <!-- Check if Tab with external price model details is shown -->
-      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
-      <!-- Check if [Display] button is shown -->
-      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />	
-  	  <!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
-  	  <clickButton name="configurationForm:next" />	
-  	  <mpl_verify.subscriptionProgress currentStep="Confirmation" />
-  	  <!-- Verify acceptance of external price model -->
-  	  <verifyXPath xpath="//span[@id='confirmForm:pmAccept']" />
-  	  <!-- Finish the subscription process -->	
-  	  <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
-  	  <clickButton name="confirmForm:confirm" />	
-  	  <!-- Check if Tab with external price model details is shown -->
+      <clickElement htmlId="getItForLoggedUser" />
+      <setInputField htmlId="configurationForm:subscriptionIdText" value="Trial Subscription" />
+      <!-- Check if Tab with external price model details is shown -->
       <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
       <!-- Check if [Display] button is shown -->
       <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+      <!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
+      <clickButton name="configurationForm:next" />
+      <mpl_verify.subscriptionProgress currentStep="Confirmation" />
+      <!-- Verify acceptance of external price model -->
+      <verifyXPath xpath="//span[@id='confirmForm:pmAccept']" />
+      <!-- Finish the subscription process -->
+      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+      <clickButton name="confirmForm:confirm" />
+      <!-- Check if Tab with external price model details is shown -->
+      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+      <!-- Check if [Display] button is shown -->
+      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+      <login.logout />
+    </webtest>
+
+    <!-- Login as supplier and verify if for subscription with external price model the display button is shown -->
+    <webtest name="testBillingPlugin - view Subscription">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/subscription/view.jsf" />
+      <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
+      <verifyXPath xpath="//a[@id='viewForm:displayExternalPriceModelButton']" />
+      <login.logout />
+    </webtest>
+
+    <!-- Chec if the external price model for the subscription can be successfully uploaded -->
+    <webtest name="testBillingPlugin - upload price model for subscription">
+      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+      <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
+      <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
+      <verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
+      <verifyXPath xpath="//a[@id='editForm:displayExternalPriceModelButton']" />
+      <clickElement htmlId="editForm:uploadExternalPriceModelButton" />
+      <verifyText text="External price model has been successfully uploaded." />
+      <clickElement htmlId="editForm:saveButton" />
+      <verifyText text="has been successfully saved." />
       <login.logout />
     </webtest>
 
@@ -240,6 +264,7 @@
       <clickElement htmlId="configurationSettings:saveButton" />
       <common.verifySuccess label="${info.configuration.saved}" />
       <login.logout />
+      <mail.cleanInbox />
     </webtest>
 
   </target>
