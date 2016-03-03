@@ -1,7 +1,7 @@
 /*******************************************************************************
  *                                                                              
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *  Author: Aleh Khomich.                                                      
  *                                                                              
  *  Creation Date: 22.07.2010.                                                      

@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015
+ *  Copyright FUJITSU LIMITED 2016
  */
 /**
  * Provides the beans for JAX-WS exception serialization
