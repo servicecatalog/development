@@ -637,4 +637,12 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     public String getSuccessMessage() {
         return dataContainer.getSuccessMessage();
     }
+
+    public void setExternal(boolean external) {
+        dataContainer.setExternal(external);
+    }
+
+    public boolean isExternal() {
+        return dataContainer.isExternal();
+    }
 }
