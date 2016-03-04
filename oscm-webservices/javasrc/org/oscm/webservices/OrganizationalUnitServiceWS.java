@@ -168,22 +168,26 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
     }
 
     @Override
-    public void addVisibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> visibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
-
+    public void addVisibleServices(String unitId, List<VOService> visibleServices, String marketplaceId) {
+        List<Product> products = Converter.convertList(visibleServices, VOService.class, Product.class);
+        localService.addVisibleServices(unitId, products, marketplaceId);
     }
 
     @Override
-    public void revokeVisibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> visibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
-
+    public void revokeVisibleServices(String unitId, List<VOService> visibleServices, String marketplaceId) {
+        List<Product> products = Converter.convertList(visibleServices, VOService.class, Product.class);
+        localService.revokeVisibleServices(unitId, products, marketplaceId);
     }
 
     @Override
-    public void addAccessibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> accessibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
-
+    public void addAccessibleServices(String unitId, List<VOService> accessibleServices, String marketplaceId) {
+        List<Product> products = Converter.convertList(accessibleServices, VOService.class, Product.class);
+        localService.addAccessibleServices(unitId, products, marketplaceId);
     }
 
     @Override
-    public void revokeAccessibleServices(@WebParam(name = "unitId") String unitId, @WebParam(name = "services") List<VOService> accessibleServices, @WebParam(name = "marketplaceId") String marketplaceId) {
-
+    public void revokeAccessibleServices(String unitId, List<VOService> accessibleServices, String marketplaceId) {
+        List<Product> products = Converter.convertList(accessibleServices, VOService.class, Product.class);
+        localService.revokeAccessibleServices(unitId, products, marketplaceId);
     }
 }

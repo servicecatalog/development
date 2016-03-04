@@ -48,15 +48,20 @@ import org.oscm.domobjects.annotations.BusinessKey;
         @NamedQuery(name = "UserGroup.findByUserWithRole", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey"),
         @NamedQuery(name = "UserGroup.findByUserWithRoleWithoutDefault", query = "SELECT ug FROM UserGroup ug, UserGroupToUser ugtu, UnitRoleAssignment ura WHERE ug=ugtu.userGroup AND ugtu = ura.userGroupToUser AND ugtu.platformuser_tkey = :platformuser_tkey AND ura.unituserrole_tkey = :unituserrole_tkey AND ug.dataContainer.isDefault = FALSE"),
         @NamedQuery(name = "UserGroup.getInvisibleProducts", query = "SELECT u2p FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :usergroup_tkey"),
-        @NamedQuery(name = "UserGroup.findVisibleServices", query = "SELECT p FROM Product p, UserGroupToInvisibleProduct u2i, CatalogEntry ce " +
-        "WHERE u2i.forallusers='FALSE' AND ce.product.key = p.key AND p.key=u2i.product.key " +
-        "AND (u2i.usergroup_tkey=:userGroupKey " +
-        "AND p.dataContainer.status = 'SUSPENDED' OR p.dataContainer.status = 'ACTIVE' " +
-        "AND ce.marketplace.key=:marketplaceKey)"),
-        @NamedQuery(name = "UserGroup.findAccessibleServices", query = "SELECT p FROM Product p, UserGroupToInvisibleProduct u2i, CatalogEntry ce " +
-        "WHERE ce.marketplace.key=:marketplaceKey " +
-        "AND p.dataContainer.status = 'SUSPENDED' OR p.dataContainer.status = 'ACTIVE' " +
-        "AND p.key NOT IN (SELECT u2p.product_tkey FROM UserGroupToInvisibleProduct u2p WHERE u2p.usergroup_tkey = :userGroupKey)")
+        @NamedQuery(name = "UserGroup.findVisibleServices", query =
+                "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
+                "WHERE ce.marketplace.key=:marketplaceKey " +
+                "AND ce.product.key = p.key " +
+                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
+                "AND EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key AND u2i.forallusers='false') " +
+                "AND ug.key=:userGroupKey"),
+        @NamedQuery(name = "UserGroup.findAccessibleServices", query =
+                "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
+                "WHERE ce.marketplace.key=:marketplaceKey " +
+                "AND ce.product.key = p.key " +
+                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
+                "AND NOT EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key )" +
+                "AND ug.key=:userGroupKey")
 })
 @BusinessKey(attributes = { "name", "organization_tkey" })
 public class UserGroup extends DomainObjectWithHistory<UserGroupData> {

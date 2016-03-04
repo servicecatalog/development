@@ -50,6 +50,10 @@ public class OperationRegistry {
         register(new OrganizationalUnitService_createUnit());
         register(new OrganizationalUnitService_getVisibleServices());
         register(new OrganizationalUnitService_getAccessibleServices());
+        register(new OrganizationalUnitService_addAccessibleServices());
+        register(new OrganizationalUnitService_addVisibleServices());
+        register(new OrganizationalUnitService_revokeAccessibleServices());
+        register(new OrganizationalUnitService_revokeVisibleServices());
         register(new OrganizationalUnitService_getOrganizationalUnits());
         register(new OrganizationalUnitService_grantUserRoles());
         register(new OrganizationalUnitService_revokeUserRoles());

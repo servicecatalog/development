@@ -142,14 +142,23 @@ public interface OrganizationalUnitService {
                     MailOperationException;
 
     /**
-     * Returns list of visible services. Visible services can be seen by
-     * organization admin as well as unit admin.
+     * Returns list of visible services for the specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * Returned services have status ACTIVE or SUSPENDED.
      *
      * @param unitId
      *            - Id of the unit from which we get the services
      * @param pagination
      *            - Sorting, filtering, paging details
+     * @param marketplaceId
+     *            - Id of the marketplace to which the services are registered
+     *            - If left empty, takes default value of 0,0 (offset, limit)
      * @return - List of visible services
+     *         - Empty list if the values of unitId or marketplaceId do not exists
+     *           in the underlying database
      */
     @WebMethod
     List<VOService> getVisibleServices(@WebParam(name = "unitId") String unitId,
@@ -157,14 +166,23 @@ public interface OrganizationalUnitService {
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     /**
-     * Returns list of accessible services. Accessible services can be seen by
-     * organization admin only and not by unit admin.
+     * Returns list of accessible services for the specified organizational unit.
+     *
+     * Accessible services are these which are visible for all members of the unit.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * Returned services have status ACTIVE or SUSPENDED.
      *
      * @param unitId
      *            - Id of the unit from which we get the services
      * @param pagination
      *            - Sorting, filtering, paging details
+     *            - If left empty, takes default value of 0,0 (offset, limit)
+     * @param marketplaceId
+     *            - Id of the marketplace to which the services are registered
      * @return - List of accessible services
+     *         - Empty list if the values of unitId or marketplaceId do not exists
+     *           in the underlying database
      */
     @WebMethod
     List<VOService> getAccessibleServices(
@@ -173,22 +191,26 @@ public interface OrganizationalUnitService {
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     @WebMethod
-    void addVisibleServices(@WebParam(name = "unitId") String unitId,
+    void addVisibleServices(
+            @WebParam(name = "unitId") String unitId,
             @WebParam(name = "services") List<VOService> visibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     @WebMethod
-    void revokeVisibleServices(@WebParam(name = "unitId") String unitId,
+    void revokeVisibleServices(
+            @WebParam(name = "unitId") String unitId,
             @WebParam(name = "services") List<VOService> visibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     @WebMethod
-    void addAccessibleServices(@WebParam(name = "unitId") String unitId,
+    void addAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
             @WebParam(name = "services") List<VOService> accessibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     @WebMethod
-    void revokeAccessibleServices(@WebParam(name = "unitId") String unitId,
+    void revokeAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
             @WebParam(name = "services") List<VOService> accessibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
