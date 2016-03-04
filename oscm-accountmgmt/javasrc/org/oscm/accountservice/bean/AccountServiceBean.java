@@ -259,7 +259,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
      * 
      * @return the organization for the caller principal name.
      */
-    private Organization getOrganization() {
+    Organization getOrganization() {
 
         // determine the correlating organization
         Organization result = dm.getCurrentUser().getOrganization();
@@ -884,6 +884,16 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         // If the organization has never held any subscription, its data
         // (including its users data and its payment info) are irrevocably
         // deleted.
+
+        if (organization.hasAtLeastOneRole(OrganizationRoleType.SUPPLIER,
+                OrganizationRoleType.RESELLER, OrganizationRoleType.BROKER,
+                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                OrganizationRoleType.PLATFORM_OPERATOR,
+                OrganizationRoleType.MARKETPLACE_OWNER)) {
+            throw new DeletionConstraintException(
+                    "Only deregistration of customer organizations is allowed!");
+        }
+        
         List<Subscription> subscriptionList = organization.getSubscriptions();
         if (subscriptionList == null || subscriptionList.isEmpty()) {
             long userKey = 0;

@@ -71,14 +71,15 @@ public interface AccountService {
     public VOImageResource loadImageOfOrganization(long organizationKey);
 
     /**
-     * Marks the organization of the calling user as deleted. An organization
-     * can only be deregistered if it does not have any active subscriptions.
-     * All users of the organization are deleted.
+     * Marks the organization of the calling user as deleted. Only a customer
+     * organization can be deregistered, if it does not have any active
+     * subscriptions. All users of the organization are deleted.
      * <p>
      * Required role: administrator of the organization
      * 
      * @throws DeletionConstraintException
-     *             if the organization has active subscriptions
+     *             if the organization has active subscriptions, or has other
+     *             roles beside the customer role
      * @throws TechnicalServiceNotAliveException
      *             if the underlying technical service cannot be reached
      * @throws TechnicalServiceOperationException

@@ -77,7 +77,7 @@ public class OrganizationReference extends
     @OneToOne(mappedBy = "organizationReference", cascade = CascadeType.ALL, optional = true, fetch = FetchType.LAZY)
     private Discount discount;
 
-    @OneToMany(mappedBy = "organizationReference", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "organizationReference", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     private List<OrganizationRefToPaymentType> paymentTypes = new ArrayList<OrganizationRefToPaymentType>();
 
     protected OrganizationReference() {
