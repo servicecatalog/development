@@ -22,21 +22,17 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.types.enumtypes.UdaTargetType;
-import org.oscm.ws.base.ServiceFactory;
-import org.oscm.ws.base.VOFactory;
-import org.oscm.ws.base.WebserviceTestBase;
-import org.oscm.ws.base.WebserviceTestSetup;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.intf.AccountService;
 import org.oscm.intf.MarketplaceService;
 import org.oscm.intf.SubscriptionService;
+import org.oscm.test.BaseAdmUmTest;
 import org.oscm.types.enumtypes.PriceModelType;
 import org.oscm.types.enumtypes.TriggerType;
 import org.oscm.types.enumtypes.UdaConfigurationType;
+import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.types.exceptions.ConcurrentModificationException;
+import org.oscm.types.exceptions.DeletionConstraintException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
@@ -47,15 +43,21 @@ import org.oscm.types.exceptions.RegistrationException.Reason;
 import org.oscm.types.exceptions.ValidationException;
 import org.oscm.vo.VOMarketplace;
 import org.oscm.vo.VOOrganization;
+import org.oscm.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.vo.VOPaymentType;
 import org.oscm.vo.VOPriceModel;
 import org.oscm.vo.VOService;
+import org.oscm.vo.VOServicePaymentConfiguration;
 import org.oscm.vo.VOSubscription;
 import org.oscm.vo.VOTriggerDefinition;
 import org.oscm.vo.VOUda;
 import org.oscm.vo.VOUdaDefinition;
 import org.oscm.vo.VOUsageLicense;
 import org.oscm.vo.VOUserDetails;
+import org.oscm.ws.base.ServiceFactory;
+import org.oscm.ws.base.VOFactory;
+import org.oscm.ws.base.WebserviceTestBase;
+import org.oscm.ws.base.WebserviceTestSetup;
 
 /**
  * @author barzu
@@ -825,4 +827,55 @@ public class AccountServiceWSTest {
                 createdSubscription, freeService, usageLicences, null, null,
                 voUdas_Customer);
     }
+
+    @Test
+    public void deregisterOrganization_Customer() throws Exception {
+
+        Set<VOPaymentType> defaultPaymentTypes = accountService_Supplier
+                .getDefaultPaymentConfiguration();
+        Set<VOPaymentType> defaultServicePaymentTypes = accountService_Supplier
+                .getDefaultServicePaymentConfiguration();
+        List<VOOrganizationPaymentConfiguration> customerConfigList = accountService_Supplier
+                .getCustomerPaymentConfiguration();
+        List<VOServicePaymentConfiguration> serviceConfigList = accountService_Supplier
+                .getServicePaymentConfiguration();
+
+        // set payment type for a customer organization (Bugzilla #12615)
+        for (VOOrganizationPaymentConfiguration customerConfig : customerConfigList) {
+            if (customerConfig.getOrganization().getName()
+                    .contains(customerOrg.getName())) {
+                customerConfig.getEnabledPaymentTypes().addAll(
+                        defaultPaymentTypes);
+                break;
+            }
+        }
+
+        accountService_Supplier.savePaymentConfiguration(defaultPaymentTypes,
+                customerConfigList, defaultServicePaymentTypes,
+                serviceConfigList);
+
+        List<VOOrganization> customersBeforeDeregister = accountService_Supplier
+                .getMyCustomers();
+
+        accountService_Customer.deregisterOrganization();
+
+        List<VOOrganization> customersAfterDeregister = accountService_Supplier
+                .getMyCustomers();
+
+        assertTrue(customersBeforeDeregister.size() - 1 == customersAfterDeregister
+                .size());
+
+        try {
+            accountService_Customer.getOrganizationData();
+            fail();
+        } catch (com.sun.xml.ws.client.ClientTransportException e) {
+            assertTrue(e.getMessage().contains("401"));
+        }
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_Supplier() throws Exception {
+        accountService_Supplier.deregisterOrganization();
+    }
+
 }
