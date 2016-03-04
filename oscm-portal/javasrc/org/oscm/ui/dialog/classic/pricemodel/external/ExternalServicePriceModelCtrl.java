@@ -37,6 +37,7 @@ public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
                     .getExternalPriceModelForService(service);
             loadPriceModelContent(priceModel);
 
+            getPriceModelBean().setDirty(true);
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
         } catch (ExternalPriceModelException e) {
