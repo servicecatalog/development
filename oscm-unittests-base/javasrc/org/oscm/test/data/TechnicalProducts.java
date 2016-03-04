@@ -33,11 +33,13 @@ import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 public class TechnicalProducts {
-
+    
+    private static final String EXTERNAL_BILLING_ID = "External Billing System";
+    
     private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     public static final String PROVISIONING_VERSION = "1.0";
-
+    
     public static TechnicalProduct createTechnicalProduct(DataService mgr,
             Organization organization, String id, boolean asyncProvisioning,
             ServiceAccessType accessType) throws NonUniqueBusinessKeyException {
@@ -48,6 +50,19 @@ public class TechnicalProducts {
     public static TechnicalProduct createTechnicalProduct(DataService mgr,
             Organization organization, String id, boolean asyncProvisioning,
             ServiceAccessType accessType, boolean onBehalfEnabled) throws NonUniqueBusinessKeyException {
+        return createTechnicalProduct(mgr, organization, id, asyncProvisioning,
+                accessType, BillingAdapterIdentifier.NATIVE_BILLING.toString(), onBehalfEnabled);
+    }
+    
+    public static TechnicalProduct createTechnicalProduct(DataService mgr,
+            Organization organization, String id, boolean asyncProvisioning,
+            ServiceAccessType accessType, boolean onBehalfEnabled, boolean externalBillinSystem) throws NonUniqueBusinessKeyException {
+        
+        if(Boolean.TRUE.equals(externalBillinSystem)){
+            return createTechnicalProduct(mgr, organization, id, asyncProvisioning,
+                    accessType, EXTERNAL_BILLING_ID, onBehalfEnabled);
+        }
+        
         return createTechnicalProduct(mgr, organization, id, asyncProvisioning,
                 accessType, BillingAdapterIdentifier.NATIVE_BILLING.toString(), onBehalfEnabled);
     }

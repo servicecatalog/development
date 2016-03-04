@@ -602,7 +602,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
         newSub.setOwner(owner);
 
         verifyUnitAndRoles(currentUser, unit, newSub);
-
+        
+        if(product.getPriceModel().isExternal()){
+            newSub.setExternal(true);
+        }
+        
         Product theProduct = productTemplate.copyForSubscription(
                 productTemplate.getTargetCustomer(), newSub);
 
