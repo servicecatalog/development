@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.junit.Test;
+import org.oscm.paginator.PaginationInt;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.ArrangeableState;
 import org.richfaces.model.FilterField;
@@ -76,8 +77,8 @@ public class SubscriptionListsLazyDataModelTest {
         int totalCount = 1;
         List<POSubscriptionForList> expectedList = prepareList();
         Response resp = new Response(expectedList);
-        when(subscriptionsService.getSubscriptionsForOrg(anySet(), any(Pagination.class))).thenReturn(resp);
-        when(subscriptionsService.getSubscriptionsForOrgSize(anySet(), any(Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getSubscriptionsForOrgWithFiltering(anySet(), any(org.oscm.paginator.Pagination.class))).thenReturn(resp);
+        when(subscriptionsService.getSubscriptionsForOrgSizeWithFiltering(anySet(), any(org.oscm.paginator.Pagination.class))).thenReturn(totalCount);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
             public List<FilterField> getFilterFields() {
@@ -97,6 +98,8 @@ public class SubscriptionListsLazyDataModelTest {
         when(beanUnderTheTest.getArrangeable()).thenReturn(arrangeable);
         doNothing().when(beanUnderTheTest).applyFilters(anyList(), any(Pagination.class));
         doNothing().when(beanUnderTheTest).decorateWithLocalizedStatuses(any(Pagination.class));
+        doNothing().when(beanUnderTheTest).applyFilters(anyList(), any(PaginationInt.class));
+        doNothing().when(beanUnderTheTest).decorateWithLocalizedStatuses(any(org.oscm.paginator.Pagination.class));
         beanUnderTheTest.setSubscriptionsService(subscriptionsService);
 
         //when
@@ -112,7 +115,7 @@ public class SubscriptionListsLazyDataModelTest {
         //given
         beanUnderTheTest.setTotalCount(-1);
         beanUnderTheTest.setSubscriptionsService(subscriptionsService);
-        when(subscriptionsService.getSubscriptionsForOrgSize(anySet(), any(Pagination.class))).thenReturn(2);
+        when(subscriptionsService.getSubscriptionsForOrgSizeWithFiltering(anySet(), any(org.oscm.paginator.Pagination.class))).thenReturn(2);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
             public List<FilterField> getFilterFields() {
@@ -130,6 +133,8 @@ public class SubscriptionListsLazyDataModelTest {
             }
         };
         doNothing().when(beanUnderTheTest).applyFilters(anyList(), any(Pagination.class));
+        doNothing().when(beanUnderTheTest).applyFilters(anyList(), any(PaginationInt.class));
+        doNothing().when(beanUnderTheTest).decorateWithLocalizedStatuses(any(org.oscm.paginator.Pagination.class));
         doNothing().when(beanUnderTheTest).decorateWithLocalizedStatuses(any(Pagination.class));
         when(beanUnderTheTest.getArrangeable()).thenReturn(arrangeable);
         beanUnderTheTest.setSubscriptionsService(subscriptionsService);
@@ -137,7 +142,7 @@ public class SubscriptionListsLazyDataModelTest {
         int totalCount = beanUnderTheTest.getTotalCount();
         //then
         assertEquals(2, totalCount);
-        verify(subscriptionsService, atLeastOnce()).getSubscriptionsForOrgSize(anySet(), any(Pagination.class));
+        verify(subscriptionsService, atLeastOnce()).getSubscriptionsForOrgSizeWithFiltering(anySet(), any(org.oscm.paginator.Pagination.class));
     }
 
     private List<POSubscriptionForList> prepareList() {

@@ -1089,20 +1089,18 @@ public class SubscriptionDao {
     private String getOrderBy(Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
         StringBuilder orderByBuilder = new StringBuilder();
-        String orderByName = pagination.getSorting().getOrder().name();
-        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder, orderByName);
+        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder);
         return orderByBuilder.toString();
     }
 
     private String getOrderBy(org.oscm.paginator.Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
         StringBuilder orderByBuilder = new StringBuilder();
-        String orderByName = pagination.getSorting().getOrder().name();
-        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder, orderByName);
+        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap, orderByBuilder);
         return orderByBuilder.toString();
     }
 
-    private void getOrderByQueryWithUnit(Sorting sorting, Map<SubscriptionStatus, String> localizedStatusesMap, StringBuilder orderByBuilder, String orderByName) {
+    private void getOrderByQueryWithUnit(Sorting sorting, Map<SubscriptionStatus, String> localizedStatusesMap, StringBuilder orderByBuilder) {
         if (sorting != null) {
             orderByBuilder.append("ORDER BY (CASE :sortColumn ");
             orderByBuilder.append("WHEN '")
@@ -1135,7 +1133,7 @@ public class SubscriptionDao {
             orderByBuilder.append("WHEN '").append(TableColumns.UNIT.name())
                     .append("' THEN s.unit_name ");
             orderByBuilder.append(" END) ").append(
-                    orderByName);
+                    sorting.getOrder().name());
         }
     }
 

@@ -25,7 +25,6 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -490,8 +489,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
         List<Subscription> result = runTX(new Callable<List<Subscription>>() {
             @Override
             public List<Subscription> call() throws Exception {
-                return dao.getSubscriptionsForUserWithRoles(userRoleTypes,
-                        user, givenPagination(),
+                return dao.getSubscriptionsForUserWithRolesWithFiltering(userRoleTypes,
+                        user, givenNewPagination(),
                         Collections.singleton(SubscriptionStatus.ACTIVE));
             }
         });
@@ -514,6 +513,12 @@ public class SubscriptionDaoIT extends EJBTestBase {
 
     private Pagination givenPagination() {
         Pagination pagination = new Pagination();
+        pagination.setFilterSet(Collections.EMPTY_SET);
+        return pagination;
+    }
+
+    private org.oscm.paginator.Pagination givenNewPagination() {
+        org.oscm.paginator.Pagination pagination = new org.oscm.paginator.Pagination();
         pagination.setFilterSet(Collections.EMPTY_SET);
         return pagination;
     }
