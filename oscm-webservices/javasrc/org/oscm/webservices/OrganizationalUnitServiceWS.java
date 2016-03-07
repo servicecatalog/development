@@ -168,26 +168,22 @@ public class OrganizationalUnitServiceWS implements OrganizationalUnitService {
     }
 
     @Override
-    public void addVisibleServices(String unitId, List<VOService> visibleServices, String marketplaceId) {
-        List<Product> products = Converter.convertList(visibleServices, VOService.class, Product.class);
-        localService.addVisibleServices(unitId, products, marketplaceId);
+    public void addVisibleServices(String unitId, List<String> visibleServices, String marketplaceId) {
+        localService.addVisibleServices(unitId, visibleServices, marketplaceId);
     }
 
     @Override
-    public void revokeVisibleServices(String unitId, List<VOService> visibleServices, String marketplaceId) {
-        List<Product> products = Converter.convertList(visibleServices, VOService.class, Product.class);
-        localService.revokeVisibleServices(unitId, products, marketplaceId);
+    public void revokeVisibleServices(String unitId, List<String> visibleServices, String marketplaceId) {
+        localService.revokeVisibleServices(unitId, visibleServices, marketplaceId);
     }
 
     @Override
-    public void addAccessibleServices(String unitId, List<VOService> accessibleServices, String marketplaceId) {
-        List<Product> products = Converter.convertList(accessibleServices, VOService.class, Product.class);
-        localService.addAccessibleServices(unitId, products, marketplaceId);
+    public void addAccessibleServices(String unitId, List<String> accessibleServices, String marketplaceId) {
+        localService.addAccessibleServices(unitId, accessibleServices, marketplaceId);
     }
 
     @Override
-    public void revokeAccessibleServices(String unitId, List<VOService> accessibleServices, String marketplaceId) {
-        List<Product> products = Converter.convertList(accessibleServices, VOService.class, Product.class);
-        localService.revokeAccessibleServices(unitId, products, marketplaceId);
+    public void revokeAccessibleServices(String unitId, List<String> accessibleServices, String marketplaceId) {
+        localService.revokeAccessibleServices(unitId, accessibleServices, marketplaceId);
     }
 }

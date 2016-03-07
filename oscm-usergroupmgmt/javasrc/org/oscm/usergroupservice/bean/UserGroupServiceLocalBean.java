@@ -1208,25 +1208,25 @@ public class UserGroupServiceLocalBean {
                 marketplaceId);
     }
 
-    public void addVisibleServices(String unitId, List<Product> visibleServices,
+    public void addVisibleServices(String unitId, List<String> visibleServices,
             String marketplaceId) {
         changeServiceVisibility(unitId, visibleServices, marketplaceId, false);
     }
 
     public void revokeVisibleServices(String unitId,
-            List<Product> visibleServices, String marketplaceId) {
+            List<String> visibleServices, String marketplaceId) {
         changeServiceVisibility(unitId, visibleServices, marketplaceId, true);
     }
 
     public void addAccessibleServices(String unitId,
-            List<Product> accessibleServices, String marketplaceId) {
+            List<String> accessibleServices, String marketplaceId) {
         List<Long> existingInvisibleProductKeys = getExistingInvisibleProductKeys(
                 unitId);
 
-        for (Product product : accessibleServices) {
-            if (existingInvisibleProductKeys.contains(product.getKey())) {
+        for (String product : accessibleServices) {
+            if (existingInvisibleProductKeys.contains(Long.valueOf(product))) {
                 UserGroupToInvisibleProduct ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(product.getKey());
+                ug2ip.setProduct_tkey(Long.valueOf(product));
                 ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
                 dm.remove(ug2ip);
             }
@@ -1234,14 +1234,14 @@ public class UserGroupServiceLocalBean {
     }
 
     public void revokeAccessibleServices(String unitId,
-            List<Product> accessibleServices, String marketplaceId) {
+            List<String> accessibleServices, String marketplaceId) {
         List<Long> existingInvisibleProductKeys = getExistingInvisibleProductKeys(
                 unitId);
 
-        for (Product product : accessibleServices) {
-            if (!existingInvisibleProductKeys.contains(product.getKey())) {
+        for (String product : accessibleServices) {
+            if (!existingInvisibleProductKeys.contains(Long.valueOf(product))) {
                 UserGroupToInvisibleProduct ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(product.getKey());
+                ug2ip.setProduct_tkey(Long.valueOf(product));
                 ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
                 ug2ip.setForallusers(true);
                 try {
@@ -1271,16 +1271,16 @@ public class UserGroupServiceLocalBean {
     }
 
     private void changeServiceVisibility(String unitId,
-            List<Product> visibleServices, String marketplaceId,
+            List<String> visibleServices, String marketplaceId,
             boolean forallusers) {
         List<Long> existingVisibleProductKeys = getExistingVisibleProductKeys(
                 unitId, marketplaceId);
 
         UserGroupToInvisibleProduct ug2ip;
-        for (Product product : visibleServices) {
-            if (!existingVisibleProductKeys.contains(product.getKey())) {
+        for (String product : visibleServices) {
+            if (!existingVisibleProductKeys.contains(Long.valueOf(product))) {
                 ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(product.getKey());
+                ug2ip.setProduct_tkey(Long.valueOf(product));
                 ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
                 ug2ip.setForallusers(forallusers);
 

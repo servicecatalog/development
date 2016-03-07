@@ -190,28 +190,56 @@ public interface OrganizationalUnitService {
             @WebParam(name = "pagination") Pagination pagination,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
+    /**
+     * Desc
+     *
+     * @param unitId
+     * @param visibleServices
+     * @param marketplaceId
+     */
     @WebMethod
     void addVisibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<VOService> visibleServices,
+            @WebParam(name = "services") List<String> visibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
+    /**
+     * Desc
+     *
+     * @param unitId
+     * @param visibleServices
+     * @param marketplaceId
+     */
     @WebMethod
     void revokeVisibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<VOService> visibleServices,
+            @WebParam(name = "services") List<String> visibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
+    /**
+     * Desc
+     *
+     * @param unitId
+     * @param accessibleServices
+     * @param marketplaceId
+     */
     @WebMethod
     void addAccessibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<VOService> accessibleServices,
+            @WebParam(name = "services") List<String> accessibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
+    /**
+     * Desc
+     *
+     * @param unitId
+     * @param accessibleServices
+     * @param marketplaceId
+     */
     @WebMethod
     void revokeAccessibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<VOService> accessibleServices,
+            @WebParam(name = "services") List<String> accessibleServices,
             @WebParam(name = "marketplaceId") String marketplaceId);
 
 }

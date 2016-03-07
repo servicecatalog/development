@@ -8,6 +8,7 @@
 
 package org.oscm.integrationtests.mockproduct.operation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class OrganizationalUnitService_revokeVisibleServices implements
 
     private static final String PARAM_UNIT_ID = "unitId";
     private static final String PARAM_MARKETPLACE_ID = "marketplaceId";
-    private static final String PARAM_SERVICES = "servicesId";
+    private static final String PARAM_SERVICES = "services";
 
 
     @Override
@@ -50,13 +51,15 @@ public class OrganizationalUnitService_revokeVisibleServices implements
                      RequestLogEntry logEntry, Map<String, String> parameters)
             throws Exception {
 
-        List<VOService> visibleServices = null;
+        List<VOService> visibleServices = new ArrayList<>();
 
         String unitId = parameters.get(PARAM_UNIT_ID);
         unitId = unitId.isEmpty() ? null : unitId;
         String marketplaceId = parameters.get(PARAM_MARKETPLACE_ID);
 
-        service.revokeVisibleServices(unitId, visibleServices, marketplaceId);
+        String[] ids = parameters.get(PARAM_SERVICES).split(",");
+
+        service.revokeVisibleServices(unitId, Arrays.asList(ids), marketplaceId);
 
         logEntry.setResult(visibleServices);
     }

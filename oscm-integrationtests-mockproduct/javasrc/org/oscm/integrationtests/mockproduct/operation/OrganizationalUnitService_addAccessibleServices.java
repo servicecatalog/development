@@ -8,6 +8,7 @@
 
 package org.oscm.integrationtests.mockproduct.operation;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +23,7 @@ public class OrganizationalUnitService_addAccessibleServices implements
 
     private static final String PARAM_UNIT_ID = "unitId";
     private static final String PARAM_MARKETPLACE_ID = "marketplaceId";
-    private static final String PARAM_SERVICES = "servicesId";
+    private static final String PARAM_SERVICES = "services";
 
 
     @Override
@@ -50,14 +51,16 @@ public class OrganizationalUnitService_addAccessibleServices implements
             RequestLogEntry logEntry, Map<String, String> parameters)
             throws Exception {
 
-        List<VOService> accessibleServices = null;
+        List<VOService> visibleServices = new ArrayList<>();
 
         String unitId = parameters.get(PARAM_UNIT_ID);
         unitId = unitId.isEmpty() ? null : unitId;
         String marketplaceId = parameters.get(PARAM_MARKETPLACE_ID);
 
-        service.addAccessibleServices(unitId, accessibleServices, marketplaceId);
+        final String[] ids = parameters.get(PARAM_SERVICES).split(",");
 
-        logEntry.setResult(accessibleServices);
+        service.addAccessibleServices(unitId, Arrays.asList(ids), marketplaceId);
+
+        logEntry.setResult(visibleServices);
     }
 }
