@@ -73,7 +73,7 @@ public interface UserGroupService {
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
      * @throws MailOperationException
-     * @throws UserRoleAssignmentException 
+     * @throws UserRoleAssignmentException
      */
     public POUserGroup updateGroup(POUserGroup group, String marketplaceId,
             List<POUserInUnit> usersToAssign,
@@ -210,7 +210,8 @@ public interface UserGroupService {
     public List<Long> getInvisibleProductKeysForGroup(long groupKey);
 
     /**
-     * get all user groups to which user is assigned and role that user has in particular group
+     * get all user groups to which user is assigned and role that user has in
+     * particular group
      *
      * @param userId
      * @return the list of user groups
@@ -218,38 +219,44 @@ public interface UserGroupService {
     public List<POUserGroup> getUserGroupListForUserWithRoles(String userId);
 
     /**
-     * Get all Units, which are assigned to user with specific role
-     * (for example User or Administrator).
+     * Get all Units, which are assigned to user with specific role (for example
+     * User or Administrator).
      *
-     * @param userKey user key
-     * @param userRoleKey user role key
+     * @param userKey
+     *            user key
+     * @param userRoleKey
+     *            user role key
      * @return list of units matching criteria
      */
     public List<POUserGroup> getUserGroupsForUserWithRole(long userKey,
             long userRoleKey);
 
     /**
-     * Get all Units without default one, which are assigned to user with specific role
-     * (for example User or Administrator).
+     * Get all Units without default one, which are assigned to user with
+     * specific role (for example User or Administrator).
      *
-     * @param userKey user key
-     * @param userRoleKey user role key
+     * @param userKey
+     *            user key
+     * @param userRoleKey
+     *            user role key
      * @return list of units matching criteria
      */
     public List<POUserGroup> getUserGroupsForUserWithRoleWithoutDefault(
             long userKey, long userRoleKey);
 
     /**
-     * This method is used to removing UNIT_ADMINISTRATOR role from the current user when he loses user group.
-     * If user no longer can be subscription owner, this method removes owner from his subscriptions.
+     * This method is used to removing UNIT_ADMINISTRATOR role from the current
+     * user when he loses user group. If user no longer can be subscription
+     * owner, this method removes owner from his subscriptions.
      *
-     * @return true - if UNIT_ADMINISTRATOR role has been removed, false - otherwise
+     * @return true - if UNIT_ADMINISTRATOR role has been removed, false -
+     *         otherwise
      */
     public boolean handleRemovingCurrentUserFromGroup();
 
     /**
-     * get all user groups to which user is assigned and role that user has in particular group
-     * without default group
+     * get all user groups to which user is assigned and role that user has in
+     * particular group without default group
      *
      * @param userId
      * @return the list of user groups
@@ -271,8 +278,10 @@ public interface UserGroupService {
 
     /**
      * 
-     * @param pagination - sorting, filtering, paging details
-     * @param selectedGroupId - the key of user group
+     * @param pagination
+     *            - sorting, filtering, paging details
+     * @param selectedGroupId
+     *            - the key of user group
      * @return sorted and filtered list of users
      * @throws OrganizationAuthoritiesException
      */
@@ -282,11 +291,22 @@ public interface UserGroupService {
     /**
      * get number of users assigned to this user group.
      *
-     * @param selectedGroupId - the key of user group
-     * @param pagination - sorting, filtering, paging details
+     * @param selectedGroupId
+     *            - the key of user group
+     * @param pagination
+     *            - sorting, filtering, paging details
      * @return number of users
      * @throws OrganizationAuthoritiesException
      */
     Integer getCountUsersForGroup(PaginationUsersInUnit pagination,
             String selectedGroupId) throws OrganizationAuthoritiesException;
+
+    /**
+     * get all invisible product keys with information about visibility for
+     * specified user group.
+     * 
+     * @param groupKey
+     * @return the list of invisible products for the given user group.
+     */
+    List<POUserGroupToInvisibleProduct> getInvisibleProducts(long userGroupKey);
 }

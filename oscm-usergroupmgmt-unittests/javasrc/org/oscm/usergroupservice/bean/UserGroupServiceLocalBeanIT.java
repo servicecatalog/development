@@ -71,13 +71,12 @@ public class UserGroupServiceLocalBeanIT extends EJBTestBase {
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(Mockito.mock(SubscriptionListServiceLocal.class));
-        
+
         mgr = container.get(DataService.class);
         
         localService = container.get(UserGroupServiceLocalBean.class);
         localDao = container.get(UserGroupDao.class);
-        
-    
+
         container.login("setup", ROLE_ORGANIZATION_ADMIN);
         runTX(new Callable<Void>() {
             @Override
@@ -101,7 +100,7 @@ public class UserGroupServiceLocalBeanIT extends EJBTestBase {
             }
         });
     }
-    
+
     private void insertUnitRole(Long key, Long version, String roleName) {
         Query query = mgr.createNativeQuery(INSERT_UNIT_ROLE_SQL);
         query.setParameter(1, key);
