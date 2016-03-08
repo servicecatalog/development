@@ -82,7 +82,8 @@ public class BillingServiceBeanStartBillingRunIT extends EJBTestBase {
     Organization customerOrg;
 
     Product product;
-
+    Product productWithExtBilling;
+    
     @Override
     protected void setup(TestContainer container) throws Exception {
         setupContainer(container);
@@ -154,6 +155,8 @@ public class BillingServiceBeanStartBillingRunIT extends EJBTestBase {
     private void createProducts() throws Exception {
         createProduct("prodWithProRata", PricingPeriod.HOUR,
                 PriceModelType.PRO_RATA, ONE_TIME_FEE, PRICE_PER_HOUR);
+        
+        createProductWithExternalBilling("prodWithExt1");
     }
 
     private Product createProduct(String prodId, PricingPeriod period,
@@ -176,6 +179,21 @@ public class BillingServiceBeanStartBillingRunIT extends EJBTestBase {
         product = Products.setStatusForProduct(ds, product,
                 ServiceStatus.ACTIVE);
         return product;
+    }
+    
+    private Product createProductWithExternalBilling(String prodId) throws NonUniqueBusinessKeyException, ObjectNotFoundException{
+        
+        productWithExtBilling = Products.createProduct(supplierOrg.getOrganizationId(),
+                prodId, "techProductIdWithExtBill", ds);
+
+        PriceModel priceModel = new PriceModel();
+        priceModel.setExternal(true);
+        priceModel.setType(PriceModelType.UNKNOWN);
+
+        productWithExtBilling.setPriceModel(priceModel);
+        productWithExtBilling = Products.setStatusForProduct(ds, productWithExtBilling,
+                ServiceStatus.ACTIVE);
+        return productWithExtBilling;
     }
 
     private SupportedCurrency createSupportedCurrency() throws Exception {
@@ -378,6 +396,10 @@ public class BillingServiceBeanStartBillingRunIT extends EJBTestBase {
         final int cutOffDay2 = 1;// period end
         Subscription subscription2 = createSubscription("2012-11-15 9:00:00",
                 cutOffDay2, product);
+        
+        /*final int cutOffDay3 = 1;// period end
+        Subscription subscription3 = createSubscription("2012-11-14 8:00:00",
+                cutOffDay3, productWithExtBilling);*/
 
         // when
         boolean result = startBillingRun(invocationTime);
@@ -728,6 +750,66 @@ public class BillingServiceBeanStartBillingRunIT extends EJBTestBase {
         // periods of expected billing results for the first subscription
         // 2010-05-20 00:00:00 - 2010-06-20 00:00:00
         assertEquals(1, secondSubscriptionResults.size());
+
+        List<BillingResult> thirdSubscriptionResults = loadExistingBillingResults(
+                thirdSubscription.getKey(),
+                calculateMillis("2010-01-20 00:00:00"),
+                calculateMillis("2010-12-20 00:00:00"));
+
+        // no billing results expected for the third subscription
+        assertTrue(thirdSubscriptionResults.isEmpty());
+    }
+    
+    /**
+     * Billing run is called after first and second subscription activation but
+     * before third subscription activation. In this case billing results are
+     * created only for first and second subscription.
+     * 
+     * 1st subscription activation .......: 2010-03-13 12:00:00<br>
+     * 2nd subscription activation .......: 2010-05-21 12:00:00<br>
+     * 3rd subscription activation .......: 2010-06-01 12:00:00<br>
+     * invocation time (with offset).: 2010-07-15 14:00:00<br>
+     */
+    @Test
+    public void startBillingRun_includesSubscriptionWithExternalBilling()
+            throws Exception {
+
+        // given
+        final int cutOffDay = 20;
+
+        Subscription firstSubscription = createSubscription(
+                "2010-03-13 12:00:00", cutOffDay, product);
+        Subscription secondSubscription = createSubscription(
+                "2010-05-21 12:00:00", cutOffDay, productWithExtBilling);
+        Subscription thirdSubscription = createSubscription(
+                "2010-06-01 12:00:00", cutOffDay, productWithExtBilling);
+
+        setBillingRunOffset(1);
+        long invocationTime = defineInvocationTime("2010-07-16 14:00:00");
+
+        // when
+        startBillingRun(invocationTime);
+
+        // then
+        List<BillingResult> firstSubscriptionResults = loadExistingBillingResults(
+                firstSubscription.getKey(),
+                calculateMillis("2010-01-20 00:00:00"),
+                calculateMillis("2010-12-20 00:00:00"));
+
+        // periods of expected billing results for the first subscription
+        // 2010-02-20 00:00:00 - 2010-03-20 00:00:00
+        // 2010-03-20 00:00:00 - 2010-04-20 00:00:00
+        // 2010-04-20 00:00:00 - 2010-05-20 00:00:00
+        // 2010-05-20 00:00:00 - 2010-06-20 00:00:00
+        assertEquals(4, firstSubscriptionResults.size());
+
+        List<BillingResult> secondSubscriptionResults = loadExistingBillingResults(
+                secondSubscription.getKey(),
+                calculateMillis("2010-01-20 00:00:00"),
+                calculateMillis("2010-12-20 00:00:00"));
+
+        // no billing results expected for the second subscription
+        assertTrue(secondSubscriptionResults.isEmpty());
 
         List<BillingResult> thirdSubscriptionResults = loadExistingBillingResults(
                 thirdSubscription.getKey(),
