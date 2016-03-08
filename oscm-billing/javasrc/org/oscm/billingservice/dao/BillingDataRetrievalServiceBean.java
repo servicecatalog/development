@@ -1014,6 +1014,7 @@ public class BillingDataRetrievalServiceBean implements
         query.setParameter("startDate", new Date(startDate));
         query.setParameter("endDate", new Date(endDate));
         query.setParameter("cutOffDay", Integer.valueOf(cutOffDay));
+        query.setParameter("external", true);
         @SuppressWarnings("unchecked")
         List<SubscriptionHistory> result = query.getResultList();
         return result;
@@ -1028,7 +1029,7 @@ public class BillingDataRetrievalServiceBean implements
         query.setParameter("startDate", new Date(startDate));
         query.setParameter("endDate", new Date(endDate));
         query.setParameter("subscriptionKeys", subscriptionKeys);
-
+        query.setParameter("external", true);
         return ParameterizedTypes.list(query.getResultList(),
                 SubscriptionHistory.class);
     }
