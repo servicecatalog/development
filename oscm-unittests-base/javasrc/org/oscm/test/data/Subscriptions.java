@@ -291,8 +291,10 @@ public class Subscriptions {
 
         Subscription newSub = new Subscription();
         
-        if(product.getPriceModel().isExternal()){
-            newSub.setExternal(true);
+        PriceModel priceModel = product.getPriceModel();
+        
+        if(priceModel != null){
+            newSub.setExternal(priceModel.isExternal());
         }
         newSub.setCreationDate(Long.valueOf(creationDate));
         newSub.setStatus(SubscriptionStatus.ACTIVE);
