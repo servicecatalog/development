@@ -53,6 +53,7 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.Uda;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.domobjects.index.IndexRequestMessage;
@@ -199,8 +200,7 @@ public class IndexRequestMasterListener extends
         }
         if (object instanceof Subscription) {
             Subscription subscription = (Subscription) object;
-            if (subscription.getStatus() != SubscriptionStatus.DEACTIVATED
-                    && subscription.getStatus() != SubscriptionStatus.INVALID) {
+            if (isSubscriptionDeactivatedOrInvalid(subscription)) {
                 handleSubscriptionIndexing(subscription);
             }
             return;
@@ -211,16 +211,24 @@ public class IndexRequestMasterListener extends
                 Product product = parameter.getParameterSet().getProduct();
                 if (product != null) {
                     Subscription subscription = product.getOwningSubscription();
-                    if (subscription != null) {
-                        if (subscription.getStatus() != SubscriptionStatus.DEACTIVATED
-                                && subscription.getStatus() != SubscriptionStatus.INVALID) {
-                            handleParameterIndexing(parameter);
-                        }
+                    if (subscription != null
+                            && isSubscriptionDeactivatedOrInvalid(subscription)) {
+                        handleParameterIndexing(parameter);
                     }
                 }
                 return;
             }
         }
+        if (object instanceof Uda) {
+            Uda uda = (Uda) object;
+            handleUdaIndexing(uda);
+            return;
+        }
+    }
+
+    private boolean isSubscriptionDeactivatedOrInvalid(Subscription subscription) {
+        return subscription.getStatus() != SubscriptionStatus.DEACTIVATED
+                && subscription.getStatus() != SubscriptionStatus.INVALID;
     }
 
     private void handleProductIndexing(Product product) {
@@ -255,6 +263,16 @@ public class IndexRequestMasterListener extends
             FullTextSession fts = Search.getFullTextSession(session);
             if (parameter != null) {
                 fts.index(parameter);
+            }
+        }
+    }
+
+    private void handleUdaIndexing(Uda uda) {
+        Session session = getSession();
+        if (session != null) {
+            FullTextSession fts = Search.getFullTextSession(session);
+            if (uda != null) {
+                fts.index(uda);
             }
         }
     }
@@ -342,6 +360,7 @@ public class IndexRequestMasterListener extends
         }
         indexSubscriptions(fullTextSession);
         indexParameters(fullTextSession);
+        indexUdas(fullTextSession);
         tx.commit(); // index is written at commit time
     }
 
@@ -364,6 +383,14 @@ public class IndexRequestMasterListener extends
                         + SubscriptionStatus.DEACTIVATED.name()
                         + "','"
                         + SubscriptionStatus.INVALID.name() + "')");
+        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
+        indexObject(fullTextSession, results);
+        results.close();
+    }
+
+    protected void indexUdas(FullTextSession fullTextSession) {
+        org.hibernate.Query objectQuery = fullTextSession
+                .createQuery("SELECT uda FROM Uda uda");
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
         indexObject(fullTextSession, results);
         results.close();
