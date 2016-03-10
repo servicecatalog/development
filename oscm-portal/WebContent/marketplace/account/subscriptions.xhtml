@@ -45,7 +45,8 @@
         <mp:outputStep id="pageHeader" value="#{msg['subscriptions.table.availableToAdministrate']}" />
 
         <h:form id="subListForm">
-
+          <mp:subscriptionFinder formId="subListForm" searchPhraseProperty="#{subscriptionsCtrl.model.fullTextSearchFilterValue}"
+                                 renderElementList="subscriptionsList@body subListPager subListPagerScripts :pagerPanel :subscriptionsListScripts"/>
           <rich:dataTable rows="10" id="subscriptionsList" value="#{subscriptionsCtrl.model}" var="sub"
             headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable" styleClass="sortable"
             headerCellClass="rowTitle sortable" columnClasses="wrapColumns" rowClasses="rowOdd,rowEven"
