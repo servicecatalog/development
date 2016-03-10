@@ -10,6 +10,7 @@ package org.oscm.internal.subscriptions;
 
 import java.util.Set;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 
 import org.oscm.internal.components.response.Response;
@@ -69,12 +70,24 @@ public interface SubscriptionsService {
     Response getSubscriptionsForOrg(Set<SubscriptionStatus> states, Pagination pagination)
             throws OrganizationAuthoritiesException;
 
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    Integer getSubscriptionsForOrgSizeWithFiltering(Set<SubscriptionStatus> states,
+                                                    org.oscm.paginator.Pagination pagination) throws OrganizationAuthoritiesException;
+
     Response getMySubscriptions(Pagination pagination) throws OrganizationAuthoritiesException;
 
     Integer getSubscriptionsAndCustomersForManagersSize(Pagination pagination) throws OrganizationAuthoritiesException;
 
+    Response getSubscriptionsForOrgWithFiltering(Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination)
+            throws OrganizationAuthoritiesException;
+
     Integer getSubscriptionsForOrgSize(Set<SubscriptionStatus> states, Pagination pagination)
             throws OrganizationAuthoritiesException;
+
+    public Response getMySubscriptionsWithFiltering(org.oscm.paginator.Pagination pagination) throws OrganizationAuthoritiesException;
+
+    Integer getMySubscriptionsSizeWithFiltering(org.oscm.paginator.Pagination pagination) throws OrganizationAuthoritiesException;
 
     Integer getMySubscriptionsSize(Pagination pagination) throws OrganizationAuthoritiesException;
     
