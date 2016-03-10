@@ -139,11 +139,12 @@ public class SubscriptionListServiceBean
         return new UsageLicenseDao(ds);
     }
 
+    @Deprecated
     @Override
     public List<Subscription> getSubscriptionsForOrganization(
             Set<SubscriptionStatus> states, Pagination pagination)
                     throws OrganizationAuthoritiesException {
-        List<Subscription> result = new ArrayList<>();
+        List<Subscription> result;
         PlatformUser currentUser = ds.getCurrentUser();
         if (currentUser.isOrganizationAdmin()) {
             result = getSubscriptionsForOrg(currentUser, pagination, states);
@@ -157,6 +158,42 @@ public class SubscriptionListServiceBean
         return result;
     }
 
+    @Override
+    public List<Subscription> getSubscriptionsForOrganization(
+            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination)
+                    throws OrganizationAuthoritiesException {
+        List<Subscription> result;
+        PlatformUser currentUser = ds.getCurrentUser();
+        if (currentUser.isOrganizationAdmin()) {
+            result = getSubscriptionsForOrg(currentUser, pagination, states);
+        } else {
+            Set<UserRoleType> userRoleTypes = currentUser
+                    .getAssignedRoleTypes();
+            userRoleTypes.retainAll(getValidRoleTypes());
+            result = getSubscriptionDao().getSubscriptionsForUserWithRoles(
+                    userRoleTypes, currentUser, pagination, states);
+        }
+        return result;
+    }
+
+    @Override
+    public List<Subscription> getSubscriptionsForOrganizationWithFiltering(
+            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Set<Long> subscriptionKeys)
+                    throws OrganizationAuthoritiesException {
+        List<Subscription> result;
+        PlatformUser currentUser = ds.getCurrentUser();
+        if (currentUser.isOrganizationAdmin()) {
+            result = getSubscriptionsForOrgWithFiltering(currentUser, pagination, states);
+        } else {
+            Set<UserRoleType> userRoleTypes = currentUser
+                    .getAssignedRoleTypes();
+            userRoleTypes.retainAll(getValidRoleTypes());
+            result = getSubscriptionDao().getSubscriptionsForUserWithRolesWithFiltering(
+                    userRoleTypes, currentUser, pagination, states);
+        }
+        return result;
+    }
+
     private Set<UserRoleType> getValidRoleTypes() {
         Set<UserRoleType> validRoleTypes = new HashSet<>();
         validRoleTypes.add(UserRoleType.SUBSCRIPTION_MANAGER);
@@ -164,9 +201,24 @@ public class SubscriptionListServiceBean
         return validRoleTypes;
     }
 
+    @Deprecated
     private List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
         return getSubscriptionDao().getSubscriptionsForOrg(user, pagination,
+                states);
+
+    }
+
+    private List<Subscription> getSubscriptionsForOrg(PlatformUser user,
+                                                      org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+        return getSubscriptionDao().getSubscriptionsForOrg(user, pagination,
+                states);
+
+    }
+
+    private List<Subscription> getSubscriptionsForOrgWithFiltering(PlatformUser user,
+        org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+        return getSubscriptionDao().getSubscriptionsForOrgWithFiltering(user, pagination,
                 states);
 
     }

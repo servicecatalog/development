@@ -21,6 +21,7 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.paginator.Pagination;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -33,7 +34,6 @@ import org.oscm.ui.model.RichLazyDataModel;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscriptionForList;
 import org.oscm.internal.subscriptions.SubscriptionsService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 
@@ -52,6 +52,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
     private POSubscriptionForList selectedSubscription;
     private String selectedSubscriptionId;
     private long selectedSubscriptionKey;
+    private String fullTextSearchFilterValue;
 
     @EJB
     private SubscriptionsService subscriptionsService;
@@ -91,9 +92,9 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedStatuses(pagination);
         List<POSubscriptionForList> resultList = Collections.emptyList();
-
+        pagination.setFullTextFilterValue(fullTextSearchFilterValue);
         try {
-            Response response = subscriptionsService.getSubscriptionsForOrg(states, pagination);
+            Response response = subscriptionsService.getSubscriptionsForOrgWithFiltering(states, pagination);
             resultList = response.getResultList(POSubscriptionForList.class);
         } catch (OrganizationAuthoritiesException e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
@@ -112,7 +113,8 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
             Pagination pagination = new Pagination();
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithLocalizedStatuses(pagination);
-            setTotalCount(subscriptionsService.getSubscriptionsForOrgSize(
+            pagination.setFullTextFilterValue(fullTextSearchFilterValue);
+            setTotalCount(subscriptionsService.getSubscriptionsForOrgSizeWithFiltering(
                     states, pagination).intValue());
         } catch (OrganizationAuthoritiesException e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
@@ -176,5 +178,13 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
     
     public void setSelectedSubscriptionKey(long selectedSubscriptionKey) {
         this.selectedSubscriptionKey = selectedSubscriptionKey;
+    }
+
+    public String getFullTextSearchFilterValue() {
+        return fullTextSearchFilterValue;
+    }
+
+    public void setFullTextSearchFilterValue(String fullTextSearchFilterValue) {
+        this.fullTextSearchFilterValue = fullTextSearchFilterValue;
     }
 }

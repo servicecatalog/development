@@ -7,18 +7,8 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -32,6 +22,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
@@ -5311,11 +5302,59 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionDao().getSubscriptionsForUser(user, pagination);
     }
 
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
+                                                          org.oscm.paginator.Pagination pagination) {
+        String fullTextFilterValue = pagination.getFullTextFilterValue();
+        List<Subscription> subscriptions = Collections.emptyList();
+        if (StringUtils.isNotEmpty(fullTextFilterValue)) {
+            Set<Long> subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+            if(!subscriptionKeys.isEmpty()) {
+                subscriptions = getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+            }
+        } else {
+            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user, pagination);
+        }
+        return subscriptions;
+    }
+
+    /**
+     * Implementation of method which should return set of Long object, which represents subscriptions retunred
+     * in full text search process
+     * @param filterValue Text enetered by user to filter subscriptions by
+     * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
+     */
+    private Set<Long> getFilteredOutSubscriptionKeys(String filterValue) {
+        Set<Long> keys = new HashSet<>();
+        if (StringUtils.isNotEmpty(filterValue)) {
+            List<Subscription> activeSubscriptions = getSubscriptionDao().getActiveSubscriptions();
+            keys = new HashSet<>();
+            for (Subscription activeSubscription : activeSubscriptions) {
+                keys.add(activeSubscription.getKey());
+            }
+        }
+        return Collections.emptySet();
+    }
+
     @Override
     public List<Subscription> getSubscriptionsForCurrentUser(
             Pagination pagination) {
         PlatformUser user = dataManager.getCurrentUser();
         return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination).size();
     }
 
     @Override
