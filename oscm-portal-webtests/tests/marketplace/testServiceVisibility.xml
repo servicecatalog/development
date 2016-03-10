@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="testServiceVisibility" xmlns:setup="antlib:org.oscm.webtest.setup">
   <import file="../../macros/marketplace/all.xml" />
@@ -234,6 +234,74 @@
       <clickLink htmlId="showDetails0" />
       <verifyXPath xpath="//*[@id='hiddenErrorPanel'][not (contains(., 'Only administrators and subscription managers can subscribe to a service.'))]" />
 
+    </webtest>
+
+    <webtest name="testMPL_serviceVisibility_UnitAdministrator">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_user.createGroup groupId="unitA4" groupDescription="unit A desc" hasService="true" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="UnitAdmin" />
+      <clickElement xpath="//*[contains(@id, 'userListForm:userListTable:2')]/a" />
+      <setCheckbox htmlId="editUserForm:userGroupsTable:0:groupsCheckbox" checked="true"/>
+      <setSelectField xpath="//*[contains (@id, 'userGroupsTable:0:unitRole')]" text="Administrator" />
+      <clickElement xpath="//*[@id='editUserForm:saveButtonLink']" />
+      <clickElement xpath="//*[@id='navigation1']/../../a" />
+      <clickElement xpath="//*[@id='categorySelectionForm:buttonBrowseAllLink']" />
+      <verifyElementText htmlId="serviceCount" text="4" />
+      
+      <property name="user1_id" value="#{userId}" />
+      <login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <property name="user1_pwd" value="#{userPwd}" />
+      <storeProperty name="u4Key" value="#{userKey}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword userId="${user1_id}" oldPassword="${user1_pwd}" mid="${mId}" />
+      <!-- Check if unit administrator can see 4 services -->
+      <clickElement xpath="//*[@id='categorySelectionForm:buttonBrowseAllLink']" />
+      <verifyElementText htmlId="serviceCount" text="4" />
+      
+      <mpl_goto.account.units />
+      <clickElement xpath="//*[contains(@id, 'groupsListForm:groupListTable:0:colEditGroup')]/a" />
+      <!-- Check if all services can be managed by unit administrator -->
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:2:serviceCheckbox']" />
+
+      <!-- Make the first service invisible to all users assigned to the edited unit -->
+      <setCheckbox htmlId="editGroupForm:servicesTable:0:serviceCheckbox" checked="false"/>
+      <clickElement xpath="//*[@id='editGroupForm:createButtonLink']" />
+      <clickElement xpath="//*[@id='navigation1']/../../a" />
+      <clickElement xpath="//*[@id='categorySelectionForm:buttonBrowseAllLink']" />
+      
+      <!-- Check if unit admin can see only 3 services now -->
+      <verifyElementText htmlId="serviceCount" text="3" />
+      <login.logout />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+      <mpl_goto.account.users />
+      <clickElement xpath="//*[@id='tabGroups:header']" />
+      <clickElement xpath="//*[@id='groupsListForm:groupListTable:1:colEditGroup']/a" />
+      <!-- verify if all services are checked -->
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:0:serviceCheckbox' and @checked='checked']" />
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:1:serviceCheckbox' and @checked='checked']" />
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:2:serviceCheckbox' and @checked='checked']" />
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:3:serviceCheckbox' and @checked='checked']" />
+      <!-- Set the first service invisible for all users except organization administrator -->
+      <setCheckbox htmlId="editGroupForm:servicesTable:1:serviceCheckbox" checked="false"/>
+      <clickElement xpath="//*[@id='editGroupForm:createButtonLink']" />
+      <clickElement xpath="//*[@id='navigation1']/../../a" />
+      <clickElement xpath="//*[@id='categorySelectionForm:buttonBrowseAllLink']" />
+      <!-- Check if organization admin can see all services -->
+      <verifyElementText htmlId="serviceCount" text="4" />
+      <login.logout />
+      <mpl_login.user userId="${user1_id}" password="secret" mid="${mId}" />
+      <clickElement xpath="//*[@id='categorySelectionForm:buttonBrowseAllLink']" />
+      <!-- Check if unit admin can see only 2 services now -->
+      <verifyElementText htmlId="serviceCount" text="2" />
+  
+      <mpl_goto.account.units />
+      <clickElement xpath="//*[contains(@id, 'groupsListForm:groupListTable:0:colEditGroup')]/a" />
+      <!-- Check if unit admin can see 3 services. One of them should be checked -->
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:0:serviceCheckbox' and @checked='checked']" />
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:1:serviceCheckbox' and @checked='checked']" />
+      <verifyXPath xpath="//*[@id='editGroupForm:servicesTable:2:serviceCheckbox' and not(contains(@checked, 'checked'))]" />
+      <login.logout />
     </webtest>
 
     <webtest name="testMPL_serviceVisibility_tearDown">

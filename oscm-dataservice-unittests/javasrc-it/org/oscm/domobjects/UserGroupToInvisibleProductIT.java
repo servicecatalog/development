@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-25                                                      
  *                                                                              
@@ -18,12 +18,11 @@ import javax.ejb.EJBException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
 
 /**
  * Tests for the domain object relationship user group to product
@@ -115,7 +114,7 @@ public class UserGroupToInvisibleProductIT extends DomainObjectTestBase {
         UserGroupToInvisibleProduct uip = new UserGroupToInvisibleProduct();
         uip.setUserGroup(userGroup);
         uip.setProduct(p);
-
+        uip.setForallusers(true);
         mgr.persist(uip);
     }
 

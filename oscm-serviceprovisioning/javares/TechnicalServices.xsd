@@ -19,9 +19,9 @@
 				<xsd:element name="AccessInfo" type="tns:LocalizedDescriptionType"
 					maxOccurs="unbounded" minOccurs="0" />
 				<xsd:element name="LocalizedDescription" type="tns:LocalizedDescriptionType"
-					maxOccurs="unbounded" minOccurs="1" />
+					maxOccurs="unbounded" minOccurs="0" />
 				<xsd:element name="LocalizedLicense" type="tns:LocalizedDescriptionType"
-					maxOccurs="unbounded" minOccurs="1" />
+					maxOccurs="unbounded" minOccurs="0" />
 				<xsd:element name="LocalizedTag" type="tns:LocalizedDescriptionType"
 					maxOccurs="unbounded" minOccurs="0" />
 				<xsd:element name="ParameterDefinition" type="tns:ParameterDefinitionType"

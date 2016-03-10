@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  */ 
 jQuery.fn.maxlength = function(elementId, maxlength){
 	// escape : which denotes a pseudo-class in jQuery

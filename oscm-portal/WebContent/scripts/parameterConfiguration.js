@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  **
  * Javascript prototype representing the Parconf class. Handles the
  * communication with the external parameter configuration tool and the behavior
@@ -169,7 +169,7 @@ Parconf.prototype.adjustMplModalDialogPositionSize = function(dialogId, contentE
 	var intHeight = parseInt(height);
 	var intWidth = parseInt(width);
 
-	var selectorIdDialog = dialogId + 'CDiv';
+	var selectorIdDialog = dialogId + '_content';
 	var divDialogElement = jQuery("div[id$=" + selectorIdDialog + "]");
 
 	var selectorIdRerenderPanel = 'configuratorRerenderPanel';
@@ -222,18 +222,6 @@ Parconf.prototype.adjustMplModalDialogPositionSize = function(dialogId, contentE
 
 			divRerenderPanelElement.css("width", newRerenderPanelWidth + "px");
 			divRerenderPanelElement.css("height", newRerenderPanelHeight+ "px");
-
-			divDialogElement.css("height", newDialogHeight + "px");
-			divDialogElement.css("width", newDialogWidth + "px");
-
-			divDialogElement.css("position", "relative");
-			var heightSetting = divDialogElement.height() / 2;
-
-			if (windowHeight > heightSetting) {
-				divDialogElement.css("margin-top", -heightSetting);
-			} else {
-				divDialogElement.css("margin-top", -windowHeight);
-			}
 		}
 	}
 }

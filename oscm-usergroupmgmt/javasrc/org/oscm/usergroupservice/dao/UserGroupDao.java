@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-25                                                      
  *                                                                              
@@ -8,7 +8,6 @@
 
 package org.oscm.usergroupservice.dao;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -18,24 +17,22 @@ import javax.ejb.Stateless;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.paginator.Filter;
-import org.oscm.paginator.Pagination;
-import org.oscm.paginator.TableColumns;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paginator.Pagination;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * @author yuyin
@@ -107,6 +104,14 @@ public class UserGroupDao {
         return ParameterizedTypes.list(query.getResultList(), Long.class);
     }
 
+    public List<UserGroupToInvisibleProduct> getInvisibleProducts(
+            long userGroupKey) {
+        Query query = dm.createNamedQuery("UserGroup.getInvisibleProducts");
+        query.setParameter("usergroup_tkey", Long.valueOf(userGroupKey));
+        return ParameterizedTypes.list(query.getResultList(),
+                UserGroupToInvisibleProduct.class);
+    }
+
     public List<Long> getInvisibleProductKeysForGroup(long userGroupKey) {
         Query query = dm
                 .createNamedQuery("UserGroup.findInvisibleProductKeysForGroup");
@@ -158,6 +163,7 @@ public class UserGroupDao {
 
     /**
      * Method is used to get all user unit roles from the database.
+     * 
      * @return list of user unit roles
      */
     public List<UnitUserRole> getRolesAvailableForUnit() {
@@ -166,20 +172,20 @@ public class UserGroupDao {
                 query.getResultList(), UnitUserRole.class);
         return unitUserRoles;
     }
-    
+
     public UnitUserRole getUnitRoleByName(String roleName) {
         Query query = dm.createNamedQuery("UnitUserRole.findByBusinessKey");
         query.setParameter("roleName", UnitRoleType.valueOf(roleName));
         return (UnitUserRole) query.getSingleResult();
     }
-    
-    public UserGroupToUser getUserGroupAssignment(UserGroup userGroup, PlatformUser platformUser)
-            throws ObjectNotFoundException {
+
+    public UserGroupToUser getUserGroupAssignment(UserGroup userGroup,
+            PlatformUser platformUser) throws ObjectNotFoundException {
         UserGroupToUser findTemplate = new UserGroupToUser();
-        
+
         findTemplate.setUserGroup(userGroup);
         findTemplate.setPlatformuser(platformUser);
-        
+
         return (UserGroupToUser) dm.getReferenceByBusinessKey(findTemplate);
     }
 
@@ -200,8 +206,7 @@ public class UserGroupDao {
 
     public List<UserGroup> getUserGroupsForUserWithRole(long userKey,
             long userRoleKey) {
-        Query query = dm
-                .createNamedQuery("UserGroup.findByUserWithRole");
+        Query query = dm.createNamedQuery("UserGroup.findByUserWithRole");
         query.setParameter("platformuser_tkey", Long.valueOf(userKey));
         query.setParameter("unituserrole_tkey", Long.valueOf(userRoleKey));
         return ParameterizedTypes.list(query.getResultList(), UserGroup.class);
@@ -216,28 +221,32 @@ public class UserGroupDao {
         return ParameterizedTypes.list(query.getResultList(), UserGroup.class);
     }
 
-    public UnitRoleAssignment modifyUnitRoleTypeForUserGroup(Entry<UserGroup, UnitUserRole> groupWithRoles,
-                                                             PlatformUser platformUser) throws ObjectNotFoundException {
-        UnitRoleAssignment unitRoleAssignment =
-                getRoleAssignmentByUserAndGroupOrNew(groupWithRoles, platformUser);
+    public UnitRoleAssignment modifyUnitRoleTypeForUserGroup(
+            Entry<UserGroup, UnitUserRole> groupWithRoles,
+            PlatformUser platformUser) throws ObjectNotFoundException {
+        UnitRoleAssignment unitRoleAssignment = getRoleAssignmentByUserAndGroupOrNew(
+                groupWithRoles, platformUser);
 
         unitRoleAssignment.setUnitUserRole(groupWithRoles.getValue());
         return (UnitRoleAssignment) dm.merge(unitRoleAssignment);
     }
 
-    private UnitRoleAssignment getRoleAssignmentByUserAndGroupOrNew(Entry<UserGroup, UnitUserRole> groupWithRoles,
-                                                                    PlatformUser platformUser) {
+    private UnitRoleAssignment getRoleAssignmentByUserAndGroupOrNew(
+            Entry<UserGroup, UnitUserRole> groupWithRoles,
+            PlatformUser platformUser) {
         UnitRoleAssignment roleAssignmentByUserAndGroup = getRoleAssignmentByUserAndGroup(
                 groupWithRoles.getKey().getKey(), platformUser.getUserId());
         if (roleAssignmentByUserAndGroup == null) {
             roleAssignmentByUserAndGroup = new UnitRoleAssignment();
-            UserGroupToUser usgtu = getUserGroupToUserOrNew(platformUser, groupWithRoles.getKey());
+            UserGroupToUser usgtu = getUserGroupToUserOrNew(platformUser,
+                    groupWithRoles.getKey());
             roleAssignmentByUserAndGroup.setUserGroupToUser(usgtu);
         }
         return roleAssignmentByUserAndGroup;
     }
 
-    private UserGroupToUser getUserGroupToUserOrNew(PlatformUser platformUser, UserGroup key) {
+    private UserGroupToUser getUserGroupToUserOrNew(PlatformUser platformUser,
+            UserGroup key) {
         UserGroupToUser usgtu = new UserGroupToUser();
         usgtu.setPlatformuser(platformUser);
         usgtu.setUserGroup(key);
@@ -252,7 +261,8 @@ public class UserGroupDao {
                 dm.persist(usgtu);
             } catch (NonUniqueBusinessKeyException e) {
                 // It should never happen, as we can't find object above.
-                logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+                logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                        LogMessageIdentifier.ERROR);
             }
         } else {
             usgtu = foundUgtu;

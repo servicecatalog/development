@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 03.09.2012                                                      
  *                                                                              
@@ -10,6 +10,7 @@ package org.oscm.internal.usermanagement;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +23,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -246,6 +248,11 @@ public class DataConverter {
                 break;
             }
         }
+        List<UserRoleType> assignedRoles = new ArrayList<UserRoleType>();
+        for (RoleAssignment roleAssignment : user.getAssignedRoles()) {
+            assignedRoles.add(roleAssignment.getRole().getRoleName());
+        }
+        poUserInUnit.setAssignedRoles(assignedRoles);
         return poUserInUnit;
     }
 
@@ -258,7 +265,6 @@ public class DataConverter {
         return updatePlatformUser(poUserInUnit, pu);
     }
 
-    @SuppressWarnings("unused")
     public PlatformUser updatePlatformUser(POUserInUnit user, PlatformUser pu)
             throws ValidationException {
         pu.setEmail(user.getPoUser().getEmail());
@@ -268,7 +274,15 @@ public class DataConverter {
         pu.setSalutation(user.getSalutation());
         pu.setLocale(user.getLocale());
         pu.setKey(user.getPoUser().getKey());
+        Set<RoleAssignment> grantedRoles = new HashSet<RoleAssignment>();
+        for (UserRoleType userRoleType : user.getAssignedRoles()) {
+            RoleAssignment roleAssignment = new RoleAssignment();
+            UserRole userRole = new UserRole();
+            userRole.setRoleName(userRoleType);
+            roleAssignment.setRole(userRole);
+            grantedRoles.add(roleAssignment);
+        }
+        pu.setAssignedRoles(grantedRoles);
         return pu;
     }
-
 }

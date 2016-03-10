@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: Jul 10, 2012                                                      
  *                                                                              
@@ -25,11 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -756,7 +752,7 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         long priceModelKey = 1L;
         PlatformUser currentUser = new PlatformUser();
         currentUser.setLocale("en");
-        doReturn(null).when(localizer).getLocalizedValues(eq(productKey),
+        doReturn(Collections.emptyList()).when(localizer).getLocalizedValues(eq(productKey),
                 eq(LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
 
         // when
@@ -905,7 +901,7 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
                 priceModelKey, priceModel, currentUser, false);
 
         // then
-        assertEquals(Boolean.FALSE, Boolean.valueOf(result));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
         verify(localizer, times(1)).storeLocalizedResource(
                 eq(currentUser.getLocale()), eq(productKey),
                 eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
@@ -1132,5 +1128,30 @@ public class ServiceProvisioningServiceBeanLocalizationTest {
         // then
         verify(localizer, times(1)).storeLocalizedResource(eq("en"), eq(1L),
                 eq(LocalizedObjectTypes.RESELLER_PRICEMODEL_LICENSE), eq(""));
+    }
+
+    @Test
+    public void saveLicenseInformationForPriceModelOldLicensesAndNewOne() {
+        // given
+        VOPriceModel priceModel = new VOPriceModel();
+        priceModel.setLicense("license");
+        List<VOLocalizedText> oldLicenses = Arrays.asList(new VOLocalizedText[]{givenLocalizedText("engText")});
+        long productKey = 1L;
+        long priceModelKey = 1L;
+        PlatformUser currentUser = new PlatformUser();
+        currentUser.setLocale("de");
+        doReturn(oldLicenses).when(localizer).getLocalizedValues(
+                eq(productKey), eq(LocalizedObjectTypes.PRODUCT_LICENSE_DESC));
+
+        // when
+        boolean result = sps.saveLicenseInformationForPriceModel(productKey,
+                priceModelKey, priceModel, currentUser, true);
+
+        // then
+        assertEquals(Boolean.TRUE, Boolean.valueOf(result));
+        verify(localizer, times(1)).storeLocalizedResource(
+                eq(currentUser.getLocale()), eq(productKey),
+                eq(LocalizedObjectTypes.PRICEMODEL_LICENSE),
+                eq(priceModel.getLicense()));
     }
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-24                                                      
  *                                                                              
@@ -20,13 +20,12 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.data.Organizations;
-import org.oscm.validator.ADMValidator;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.data.Organizations;
+import org.oscm.validator.ADMValidator;
 
 /**
  * Test of the UserGroup domain object.
@@ -368,6 +367,7 @@ public class UserGroupIT extends DomainObjectTestBase {
             String id) {
         UserGroupToInvisibleProduct userGroupToInvisibleProduct = new UserGroupToInvisibleProduct();
         userGroupToInvisibleProduct.setProduct(prepareProduct(id));
+        userGroupToInvisibleProduct.setForallusers(false);
         return userGroupToInvisibleProduct;
     }
 
