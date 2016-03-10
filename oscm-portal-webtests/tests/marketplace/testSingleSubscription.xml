@@ -220,5 +220,14 @@
       <mail.cleanInbox />
     </webtest>
 
+    <!--<webtest name="testMPL_singleSubscription_finalCleanUp">-->
+      <!--<login.login url="${supplierUrl}" userId="${supplierUserId}" />-->
+      <!--<setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />-->
+      <!--<setup:store.settings userkey="${supplierUserKey}" password="secret" />-->
+      <!--<setup:service.delete serviceIds="*" deactivate="true" />-->
+      <!--<login.logout />-->
+      <!--<mail.cleanInbox />-->
+    <!--</webtest>-->
+
   </target>
 </project>
