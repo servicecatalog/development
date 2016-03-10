@@ -160,11 +160,11 @@
     </webtest>
 
     <webtest name="testMPL_singleSubscription_finalCleanUp">
-      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
       <setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />
       <setup:store.settings userkey="${supplierUserKey}" password="secret" />
       <setup:service.delete serviceIds="*" deactivate="true" />
-      <login.logout />
+      <mpl_login.logout/>
       <mail.cleanInbox />
     </webtest>
 
