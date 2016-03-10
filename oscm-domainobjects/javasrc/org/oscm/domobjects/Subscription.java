@@ -34,12 +34,13 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.hibernate.search.annotations.Indexed;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.types.exceptions.UserAlreadyAssignedException;
 import org.oscm.types.exceptions.UserNotAssignedException;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 
 /**
  * The Subscription is the representation for the usage of a product by a
@@ -52,6 +53,7 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
  * @author schmid
  */
 @Entity
+@Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))
 @NamedQueries({
@@ -69,6 +71,12 @@ import org.oscm.internal.types.enumtypes.SubscriptionStatus;
         @NamedQuery(name = "Subscription.numberOfSubscriptionsForProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product=:product"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptionsForTechnicalProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptions", query = "SELECT sub FROM Subscription sub WHERE sub.dataContainer.status IN (:status) AND EXISTS (SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub)"),
+        @NamedQuery(name = "Subscription.getCurrentUserSubscriptionsByKeys", query = ""
+                + "SELECT sub FROM Subscription sub "
+                + "WHERE sub.dataContainer.status IN (:status) "
+                + "AND EXISTS "
+                + "(SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub) "
+                + "AND sub.key in :keys"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
@@ -629,7 +637,7 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     public int getCutOffDay() {
         return dataContainer.getCutOffDay();
     }
-    
+
     public void setSuccessMessage(String successMessage) {
         dataContainer.setSuccessMessage(successMessage);
     }

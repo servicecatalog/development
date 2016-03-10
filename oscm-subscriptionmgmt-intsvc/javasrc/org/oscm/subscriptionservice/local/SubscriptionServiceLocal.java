@@ -5,6 +5,7 @@
 package org.oscm.subscriptionservice.local;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.ejb.Local;
 import javax.ejb.TransactionAttributeType;
@@ -513,6 +514,40 @@ public interface SubscriptionServiceLocal {
      */
 
     public List<Subscription> getSubscriptionsForCurrentUser(Pagination pagination);
+
+    /**
+     * Retrieves the subscriptions the calling user is assigned to. The list
+     * includes subscriptions whose status is <code>ACTIVE</code>,
+     * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
+     * <p>
+     * Required role: any user role in an organization
+     * Results are filtered by the value given as parameter.
+     *
+     * @param pagination
+     *            the parameters which describe the range of result data and the
+     *            sort order
+     *
+     * @return the list of subscriptions
+     */
+    public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination);
+
+    /**
+     * Retrieves the size of subscriptions the calling user is assigned to. The list
+     * includes subscriptions whose status is <code>ACTIVE</code>,
+     * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
+     * <p>
+     * Required role: any user role in an organization
+     * Results are filtered by the value given as parameter.
+     *
+     * @param pagination
+     *            the parameters which describe the range of result data and the
+     *            sort order
+     *
+     * @return the list of subscriptions
+     */
+    public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination);
 
     /**
      * Returns the usage license referenced by subscription key and user.
