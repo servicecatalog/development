@@ -127,20 +127,19 @@
     </webtest>
 
     <webtest name="testMPL_SingleSubscription_filteringMySubscriptions">
-      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
 
       <common.ignorePageScriptError />
       <common.waitForJavaScript />
-      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" />
-      <setup:pricemodel.define serviceId="Highlander" isFree="true" />
-      <setup:service.activate serviceIds="Highlander" />
-      <login.logout />
+      <setup:service.define serviceId="Highlander1" techServiceId="Example 1.10" name="Highlander1"
+                            description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" svcKeyProperty="svcKey1"/>
+      <setup:pricemodel.define serviceId="Highlander1" isFree="true" />
+      <setup:service.activate serviceIds="Highlander1" />
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${mId}" serviceKey="${svcKey1}" userIds="${supplierUserId}"/>
 
-      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
-      <mpl_service.subscribe mid="${mId}" index="0" />
       <mpl_goto.subscriptions />
       <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
-      <attribute name="subListForm:search" default="Missing" />
+      <setInputField htmlId="subListForm:search" value="Missing" />
       <clickLink htmlId="subListForm:submitLink" />
       <not>
         <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
@@ -151,9 +150,8 @@
     <webtest name="testMPL_SingleSubscription_filteringAccountSubscriptions">
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
       <mpl_goto.account.subscriptions />
-      <attribute name="subListForm:search" default="Missing" />
       <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
-      <attribute name="subListForm:search" default="Missing" />
+      <setInputField htmlId="subListForm:search" value="Missing" />
       <clickLink htmlId="subListForm:submitLink" />
       <not>
         <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
@@ -161,14 +159,14 @@
       <mpl_login.logout/>
     </webtest>
 
-    <!--<webtest name="testMPL_singleSubscription_finalCleanUp">-->
-      <!--<login.login url="${supplierUrl}" userId="${supplierUserId}" />-->
-      <!--<setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />-->
-      <!--<setup:store.settings userkey="${supplierUserKey}" password="secret" />-->
-      <!--<setup:service.delete serviceIds="*" deactivate="true" />-->
-      <!--<login.logout />-->
-      <!--<mail.cleanInbox />-->
-    <!--</webtest>-->
+    <webtest name="testMPL_singleSubscription_finalCleanUp">
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />
+      <setup:store.settings userkey="${supplierUserKey}" password="secret" />
+      <setup:service.delete serviceIds="*" deactivate="true" />
+      <login.logout />
+      <mail.cleanInbox />
+    </webtest>
 
   </target>
 </project>
