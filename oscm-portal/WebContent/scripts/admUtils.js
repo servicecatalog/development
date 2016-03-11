@@ -2178,7 +2178,7 @@ AdmUtils.handlePagerActionsWithPopup = function(panelClass, pagerComponent, page
 }
 
 AdmUtils.adjustDialogHeight = function(dialogId) {
-	var topPos = $("#" + dialogId + "_container").position().top;
+	var topPos = $("#" + dialogId + "_container").offset().top - 650;
 	var dialH = $("#" + dialogId + "_container").height();
 	var dialogBottomYposition = topPos + dialH;
 
