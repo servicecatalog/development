@@ -8,6 +8,7 @@
 
 package org.oscm.subscriptionservice.local;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -92,7 +93,7 @@ public interface SubscriptionListServiceLocal {
     /**
      * Returns a list of Subscriptions which are owned by the defined
      * PlatformUser.
-     * 
+     *
      * @param owner
      *            The PlatformUser whose subscriptions will be retrieved
      * @return the list of {@link Subscription}s owned by the user
@@ -113,18 +114,18 @@ public interface SubscriptionListServiceLocal {
      * @return the list of {@link Subscription}s owned by the user
      */
     List<Subscription> getSubscriptionsForOrganizationWithFiltering(
-            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Set<Long> subscriptionKeys)
+            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Collection<Long> subscriptionKeys)
                     throws OrganizationAuthoritiesException;
 
     /**
      * Returns a list of Subscriptions which are owned by the defined
      * PlatformUser.
-     * 
+     *
      * @param owner
      *            The PlatformUser whose subscriptions will be retrieved
      * @param pagination
      *            the pagination, sorting, and filtering parameters
-     * 
+     *
      * @return the list of {@link Subscription}s owned by the user
      */
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner, Pagination pagination)
@@ -147,24 +148,24 @@ public interface SubscriptionListServiceLocal {
      * @return the list of {@link Subscription}s
      */
     public List<Subscription> getAllSubscriptionsForOrganization();
-    
+
     /**
      * Retrieves the list of user's assignable subscriptions
-     * 
+     *
      * @param pagination
      *          the pagination, sorting, and filtering parameters
      * @param user
      *          user for which subscription will be retrieved
      * @param states
      *          subscription's assignable states
-     * 
+     *
      * @return the list of {@link POSubscription}s which are assignable to user
      */
     public List<POSubscription> getUserAssignableSubscriptions(org.oscm.paginator.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
-    
+
     /**
      * Retrieves the number of user's assignable subscriptions
-     * 
+     *
      * @param pagination
      *          the pagination, sorting, and filtering parameters
      * @param user

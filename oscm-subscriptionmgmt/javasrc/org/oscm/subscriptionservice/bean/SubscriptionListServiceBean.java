@@ -8,10 +8,7 @@
 
 package org.oscm.subscriptionservice.bean;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -178,7 +175,7 @@ public class SubscriptionListServiceBean
 
     @Override
     public List<Subscription> getSubscriptionsForOrganizationWithFiltering(
-            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Set<Long> subscriptionKeys)
+            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Collection<Long> subscriptionKeys)
                     throws OrganizationAuthoritiesException {
         List<Subscription> result;
         PlatformUser currentUser = ds.getCurrentUser();

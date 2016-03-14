@@ -14,11 +14,6 @@ import java.util.*;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.paginator.Filter;
-import org.oscm.paginator.Sorting;
-import org.oscm.paginator.TableColumns;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
@@ -29,6 +24,11 @@ import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.Sorting;
+import org.oscm.paginator.TableColumns;
 
 /**
  * @author Mao
@@ -1238,7 +1238,7 @@ public class SubscriptionDao {
     }
 
     public List<Subscription> getSubscriptionsForUserWithSubscriptionKeys(PlatformUser user, org.oscm.paginator.Pagination pagination,
-                                                      Set<Long> subscriptionKeys) {
+                                                      Collection<Long> subscriptionKeys) {
         String queryString = getQuerySubscriptionsForUserWithKeys(pagination);
         return getSubscriptionsForUser(user, pagination, queryString, subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
     }

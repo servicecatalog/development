@@ -29,6 +29,8 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.SubscriptionSearchService;
+import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
@@ -45,6 +47,7 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * @author tokoda
@@ -72,6 +75,9 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
 
     @EJB(beanInterface = SubscriptionServiceLocal.class)
     SubscriptionServiceLocal subscriptionServiceLocal;
+
+    @EJB
+    public SubscriptionSearchService subscriptionSearchService;
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER" })
@@ -224,8 +230,8 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
      * @param filterValue Text enetered by user to filter subscriptions by
      * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
      */
-    private Set<Long> getFilteredOutSubscriptionKeys(String filterValue) {
-        return Collections.emptySet();
+    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue) throws InvalidPhraseException, ObjectNotFoundException {
+        return subscriptionSearchService.searchSubscriptions(filterValue);
     }
 
     /**
@@ -263,7 +269,14 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
         List<Subscription> subscriptions = Collections.emptyList();
         if (StringUtils.isNotEmpty(pagination.getFullTextFilterValue())) {
             String fullTextFilterValue = pagination.getFullTextFilterValue();
-            Set<Long> subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+            Collection<Long> subscriptionKeys = null;
+            try {
+                subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+            } catch (InvalidPhraseException e) {
+                logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+            } catch (ObjectNotFoundException e) {
+                logger.logDebug("No subscription keys found");
+            }
             if (!subscriptionKeys.isEmpty()) {
                 subscriptions = slService.getSubscriptionsForOrganizationWithFiltering(states, pagination, subscriptionKeys);
             }
@@ -353,5 +366,9 @@ public class SubscriptionsServiceBean implements SubscriptionsService {
             logger.logDebug("Object not found, but it's ok.");
         }
         return poSubscription;
+    }
+
+    public void setSubscriptionSearchService(SubscriptionSearchService subscriptionSearchService) {
+        this.subscriptionSearchService = subscriptionSearchService;
     }
 }
