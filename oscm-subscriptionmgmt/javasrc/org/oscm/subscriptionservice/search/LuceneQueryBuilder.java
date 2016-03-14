@@ -24,11 +24,8 @@ import org.oscm.internal.types.exception.IllegalArgumentException;
 public class LuceneQueryBuilder {
 
     /**
-     * Builds the search query for searching the given search phrase on a
-     * certain marketplace.
+     * Builds the search query for searching the given search phrase.
      * 
-     * @param marketplaceId
-     *            the id of the marketplace
      * @param locale
      *            the user locale
      * @param searchPhrase
@@ -75,7 +72,6 @@ public class LuceneQueryBuilder {
      *            the field to search in
      * @param searchPhrase
      *            the search term
-     * @param defaultLocaleMode
      *            if <code>false</code>, check if search term is found in field
      *            for current locale, otherwise check if field in current locale
      *            is not specified but in default locale instead
