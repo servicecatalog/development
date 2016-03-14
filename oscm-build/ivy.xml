@@ -92,7 +92,6 @@
         <dependency org="commons-io" name="commons-io" rev="1.4" transitive="false"/>
         <dependency org="org.apache.sling" name="org.apache.sling.commons.json" rev="2.0.6" transitive="false"/>
         <dependency org="commons-lang" name="commons-lang" rev="2.6" transitive="false"/>
-        <dependency org="org.apache.commons" name="commons-lang3" rev="3.1" transitive="false"/>
         <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
         <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false"/>
         <dependency org="org.apache.lucene" name="lucene-analyzers" rev="3.6.2" transitive="false"/>
