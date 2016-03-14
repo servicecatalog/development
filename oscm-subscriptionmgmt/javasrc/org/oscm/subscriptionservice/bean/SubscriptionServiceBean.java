@@ -5290,7 +5290,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         String fullTextFilterValue = pagination.getFullTextFilterValue();
         List<Subscription> subscriptions = Collections.emptyList();
         if (StringUtils.isNotEmpty(fullTextFilterValue)) {
-            Collection<Long> subscriptionKeys = null;
+            Collection<Long> subscriptionKeys = Collections.emptySet();
             try {
                 subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
             } catch (InvalidPhraseException e) {
