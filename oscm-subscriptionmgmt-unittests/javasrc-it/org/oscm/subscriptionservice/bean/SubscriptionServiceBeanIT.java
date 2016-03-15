@@ -9632,6 +9632,49 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         assertTrue(((String) receivedSendMailPayload.get(0).getMailObjects()
                 .get(0).getParams()[1]).startsWith(BASE_URL_BES_HTTPS));
     }
+    
+    @Test
+    public void testSubscribeToProductWithExternalBilling() throws Throwable {
+        assertNotNull(subMgmt);
+
+        Product prod = runTX(new Callable<Product>() {
+            @Override
+            public Product call() throws Exception {
+                TechnicalProduct tProd = TechnicalProducts
+                        .createTechnicalProduct(mgr, tpAndSupplier,
+                                "TP_PLATFORM_EXT_BILLING", false,
+                                ServiceAccessType.LOGIN, false, true);
+                tProd.setBaseURL(BASE_URL_SERVICE_HTTPS);
+
+                Product p1 = Products.createProduct(tpAndSupplier, tProd,
+                        false, "extBillProd", null, mgr);
+                p1.setStatus(ServiceStatus.ACTIVE);
+                return p1;
+            }
+        });
+
+        VOService product = getProductToSubscribe(prod.getKey());
+        
+        VOUser[] users = new VOUser[2];
+        VOUser[] admins = new VOUser[1];
+        setUsers(users, admins);
+        VOSubscription sub = Subscriptions
+                .createVOSubscription("testSubscribeToProductWithExtlBilling");
+        sub.setPurchaseOrderNumber("3434-54545");
+        messagesOfTaskQueue = new ArrayList<TaskMessage>();
+        final VOSubscription newSub = subMgmt.subscribeToService(sub, product,
+                getUsersToAdd(admins, users), null, null,
+                new ArrayList<VOUda>());
+        
+        Subscription createdSub = runTX(new Callable<Subscription>() {
+            @Override
+            public Subscription call() throws ObjectNotFoundException {
+                return mgr.find(Subscription.class, newSub.getKey());
+            }
+        });
+
+        assertEquals(true, createdSub.isExternal()); 
+    }
 
     @Test
     public void checkIPAddressChangedAndSendMailToUsers_sendMail()

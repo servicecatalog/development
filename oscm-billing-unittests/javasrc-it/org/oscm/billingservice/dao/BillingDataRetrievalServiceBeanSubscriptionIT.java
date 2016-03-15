@@ -53,7 +53,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         bdr = container.get(BillingDataRetrievalServiceLocal.class);
 
         createSubscriptionHistory(0L, 1001L, "2012-09-01 08:00:00", 0,
-                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0);
+                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, false);
     }
 
     private SubscriptionHistory createSubscriptionHistory(
@@ -62,7 +62,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             final SubscriptionStatus subscriptionStatus) throws Exception {
         return createSubscriptionHistory(subscriptionObjKey,
                 CUSTOMER_ORGANIZTION_KEY, modificationDate, version,
-                modificationType, subscriptionStatus, 0);
+                modificationType, subscriptionStatus, 0, false);
     }
 
     private SubscriptionHistory createSubscriptionHistory(
@@ -70,7 +70,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
             final String modificationDate, final int version,
             final ModificationType modificationType,
             final SubscriptionStatus subscriptionStatus,
-            final long productObjKey) throws Exception {
+            final long productObjKey, final boolean external) throws Exception {
         return runTX(new Callable<SubscriptionHistory>() {
             @Override
             public SubscriptionHistory call() throws Exception {
@@ -205,9 +205,9 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
         final List<Long> list = new ArrayList<>();
         list.add(Long.valueOf(13061984L));
         createSubscriptionHistory(13061984L, 1001L, "2011-12-02 08:00:00", 0,
-                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0);
+                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, false);
         createSubscriptionHistory(13061984L, 1001L, "2011-12-02 09:00:00", 0,
-                ModificationType.MODIFY, SubscriptionStatus.DEACTIVATED, 0);
+                ModificationType.MODIFY, SubscriptionStatus.DEACTIVATED, 0, false);
 
         final List<SubscriptionHistory> subscriptionHistories = new ArrayList<>();
         runTX(new Callable<Void>() {
@@ -419,6 +419,47 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                         .get(1).getObjVersion());
 
     }
+    
+    /**
+     * Two subscriptions, one of them with external billing system
+     */
+    @Test
+    public void getSubscriptionsForCustomeroneSubscriptionWithExtBillingIncluded()
+            throws Exception {
+        // given
+        createSubscriptionHistory(10L, "2012-09-01 15:10:42", 0,
+                ModificationType.ADD, SubscriptionStatus.ACTIVE);
+        
+        createSubscriptionHistory(11L, 1001L, "2012-09-02 12:00:00", 0,
+                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, true);
+        
+        createSubscriptionHistory(12L, 1001L, "2012-09-03 12:00:00", 0,
+                ModificationType.ADD, SubscriptionStatus.ACTIVE, 0, true);
+        
+        // when
+        CustomerData billingInput = runTX(new Callable<CustomerData>() {
+
+            @Override
+            public CustomerData call() throws Exception {
+                return new CustomerData(bdr.loadSubscriptionsForCustomer(
+                        CUSTOMER_ORGANIZTION_KEY, new SimpleDateFormat(
+                                DATE_PATTERN).parse("2012-10-01 00:00:00")
+                                .getTime(), new SimpleDateFormat(DATE_PATTERN)
+                                .parse("2012-11-01 00:00:00").getTime(), -1));
+            }
+        });
+
+        // then
+        assertEquals(1, billingInput.getSubscriptionKeys().size());
+        long subscriptionKey = billingInput.getSubscriptionKeys().get(0)
+                .longValue();
+        assertEquals(1,
+                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
+                        .size());
+        assertEquals(SUBPRX + "10",
+                billingInput.getSubscriptionHistoryEntries(subscriptionKey)
+                        .get(0).getDataContainer().getSubscriptionId());
+    }
 
     private void givenModifiedSubscriptionFromCurrentPeriod() throws Exception {
         createSubscriptionHistory(14L, "2012-10-15 15:10:42", 0,
@@ -524,7 +565,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                 SubscriptionHistory subscriptionHistory = createSubscriptionHistory(
                         subscriptionObjKey, 4, endDate, 0,
                         ModificationType.ADD, SubscriptionStatus.ACTIVE,
-                        productObjKey);
+                        productObjKey, false);
                 ds.flush();
 
                 return subscriptionHistory;
@@ -568,7 +609,7 @@ public class BillingDataRetrievalServiceBeanSubscriptionIT extends EJBTestBase {
                         subscriptionObjKey, 4, new SimpleDateFormat(
                                 PriceModels.DATE_PATTERN).format(new Date(
                                 baseTime)), 0, ModificationType.MODIFY,
-                        SubscriptionStatus.ACTIVE, productObjKey);
+                        SubscriptionStatus.ACTIVE, productObjKey, false);
                 ds.flush();
 
                 return subscriptionHistory;

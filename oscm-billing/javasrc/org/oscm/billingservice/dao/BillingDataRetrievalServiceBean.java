@@ -993,6 +993,7 @@ public class BillingDataRetrievalServiceBean implements
         query.setParameter("startDate", new Date(startDate));
         query.setParameter("endDate", new Date(endDate));
         query.setParameter("cutOffDay", Integer.valueOf(cutOffDay));
+        query.setParameter("external", true);
         @SuppressWarnings("unchecked")
         List<SubscriptionHistory> result = query.getResultList();
         return result;
@@ -1013,6 +1014,7 @@ public class BillingDataRetrievalServiceBean implements
         query.setParameter("startDate", new Date(startDate));
         query.setParameter("endDate", new Date(endDate));
         query.setParameter("cutOffDay", Integer.valueOf(cutOffDay));
+        query.setParameter("external", true);
         @SuppressWarnings("unchecked")
         List<SubscriptionHistory> result = query.getResultList();
         return result;
@@ -1027,7 +1029,7 @@ public class BillingDataRetrievalServiceBean implements
         query.setParameter("startDate", new Date(startDate));
         query.setParameter("endDate", new Date(endDate));
         query.setParameter("subscriptionKeys", subscriptionKeys);
-
+        query.setParameter("external", true);
         return ParameterizedTypes.list(query.getResultList(),
                 SubscriptionHistory.class);
     }
@@ -1379,7 +1381,7 @@ public class BillingDataRetrievalServiceBean implements
         final String queryString = "SELECT s.objkey, s.activationdate, s.cutoffday, bs.endoflastbilledPeriod "
                 + "FROM subscriptionhistory s LEFT JOIN billingsubscriptionstatus bs ON (s.objkey=bs.subscriptionkey) "
                 + "WHERE (s.objversion = (SELECT MAX(objversion) FROM subscriptionhistory sh WHERE sh.objkey=s.objkey)) "
-                + "AND (s.activationdate IS NOT NULL) AND (s.activationdate <= :effectiveBillingEndDate) "
+                + "AND (s.activationdate IS NOT NULL) AND (s.activationdate <= :effectiveBillingEndDate) AND (s.external<> :external) "
                 + "AND ((bs IS NULL) OR ((bs.endOfLastBilledPeriod <= :cutoffBillingEndDate) "
                 + "AND ((s.deactivationdate IS NULL) OR (s.deactivationdate >= :cutoffDeactivationDate)))) "
                 + "ORDER by s.tkey ASC";
@@ -1391,6 +1393,7 @@ public class BillingDataRetrievalServiceBean implements
                 Long.valueOf(cutoffBillingEndDate));
         query.setParameter("cutoffDeactivationDate",
                 Long.valueOf(cutoffDeactivationDate));
+        query.setParameter("external", true);
 
         List<Object[]> result = ParameterizedTypes.list(query.getResultList(),
                 Object[].class);

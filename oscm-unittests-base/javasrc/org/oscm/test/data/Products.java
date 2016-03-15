@@ -178,7 +178,11 @@ public class Products {
         prod.setStatus(ServiceStatus.ACTIVE);
 
         PriceModel pm = new PriceModel();
-        if (chargeable) {
+        if(tProd.isExternalBilling()){
+            pm.setType(PriceModelType.UNKNOWN);
+            pm.setExternal(true);
+        }
+        else if (chargeable) {
             pm.setType(PriceModelType.PRO_RATA);
             pm.setPeriod(PricingPeriod.DAY);
             pm.setPricePerPeriod(new BigDecimal(1));

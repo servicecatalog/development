@@ -612,8 +612,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // is still in PENDING, but must be fitered for billing. Set the
             // indicating flag before persisting.
             theProduct.getPriceModel().setProvisioningCompleted(false);
+            if(theProduct.getPriceModel().isExternal()){
+                newSub.setExternal(true);
+            }
         }
-
+        
         // to avoid id conflicts in high load scenarios add customer
         // organization hash
         theProduct.setProductId(theProduct.getProductId()
