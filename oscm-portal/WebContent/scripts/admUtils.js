@@ -2178,21 +2178,26 @@ AdmUtils.handlePagerActionsWithPopup = function(panelClass, pagerComponent, page
 }
 
 AdmUtils.adjustDialogHeight = function(dialogId) {
-	var topPos = $("#" + dialogId + "_container").offset().top - 650;
-	var dialH = $("#" + dialogId + "_container").height();
-	var dialogBottomYposition = topPos + dialH;
+	try {
+		var topPos = $("#" + dialogId + "_container").position().top;
+		var dialH = $("#" + dialogId + "_container").height();
+		var dialogBottomYposition = topPos + dialH;
 
-	if (dialogBottomYposition > $(window).height()) {
-		var dialogHeight = $(window).height() - topPos - 20;
-		$("#" + dialogId + "Grid").height(dialogHeight);
-		var tablePanelHeight = dialogHeight - 50;
-		$("#" + dialogId + "Form .responsive-table-panel").height(
-				tablePanelHeight);
-		$("#" + dialogId + "_content").height(dialogHeight + 100);
-	} else {
-		$("#" + dialogId + "Grid").height($(this)[0].height);
-		$("#" + dialogId + "Form .responsive-table-panel").height($(this)[0].height);
-		$("#" + dialogId + "_content").height($(this)[0].height);
+		if (dialogBottomYposition > $(window).height()) {
+			var dialogHeight = $(window).height() - topPos - 20;
+			$("#" + dialogId + "Grid").height(dialogHeight);
+			var tablePanelHeight = dialogHeight - 50;
+			$("#" + dialogId + "Form .responsive-table-panel").height(
+					tablePanelHeight);
+			$("#" + dialogId + "_content").height(dialogHeight + 100);
+		} else {
+			$("#" + dialogId + "Grid").height($(this)[0].height);
+			$("#" + dialogId + "Form .responsive-table-panel").height(
+					$(this)[0].height);
+			$("#" + dialogId + "_content").height($(this)[0].height);
+		}
+	} catch (err) {
+		console.log(err);
 	}
 }
 
