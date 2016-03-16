@@ -13,12 +13,7 @@ import static org.mockito.Mockito.mock;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.persistence.NoResultException;
@@ -27,16 +22,11 @@ import javax.persistence.Query;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.tables.Pagination;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.Numbers;
@@ -52,13 +42,6 @@ import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.tables.Pagination;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
 
 /**
  * Unit tests for {@link SubscriptionDao} using the test EJB container.
@@ -489,8 +472,8 @@ public class SubscriptionDaoIT extends EJBTestBase {
         List<Subscription> result = runTX(new Callable<List<Subscription>>() {
             @Override
             public List<Subscription> call() throws Exception {
-                return dao.getSubscriptionsForUserWithRolesWithFiltering(userRoleTypes,
-                        user, givenNewPagination(),
+                return dao.getSubscriptionsForUserWithRoles(userRoleTypes,
+                        user, givenPagination(),
                         Collections.singleton(SubscriptionStatus.ACTIVE));
             }
         });
