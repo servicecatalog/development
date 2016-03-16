@@ -895,9 +895,9 @@ public class SubscriptionDao {
     }
 
     public List<Subscription> getSubscriptionsForOrgWithFiltering(PlatformUser user, org.oscm.paginator.Pagination pagination,
-                                                                  Set<SubscriptionStatus> states) {
+                                                                  Set<SubscriptionStatus> states, Collection<Long> subscriptionKeys) {
         String queryString = getQuerySubscriptionsForOrgWithFiltering(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString);
+        return getSubscriptionsForVendor(user, states, pagination, queryString, subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
     }
 
 
@@ -954,7 +954,7 @@ public class SubscriptionDao {
 
     public List<Subscription> getSubscriptionsForUserWithRolesWithFiltering(
             Set<UserRoleType> userRoleTypes, PlatformUser user,
-            org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+            org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states, Collection<Long> subscriptionKeys) {
         if (userRoleTypes.isEmpty()) {
             return Collections.EMPTY_LIST;
         }
@@ -964,6 +964,7 @@ public class SubscriptionDao {
                                 pagination), Subscription.class);
         setSubscriptionsForUserWithRolesQueryParams(user, states, query);
         setPaginationParameters(pagination, query);
+        setSubscriptionKeysParameter(query, subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
         return query.getResultList();
     }
 

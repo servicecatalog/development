@@ -6,28 +6,22 @@ import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.util.Version;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.hibernate.search.SearchException;
+import org.hibernate.search.query.dsl.QueryBuilder;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Product;
+import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.Uda;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.subscriptionservice.search.LuceneQueryBuilder;
 import org.oscm.validation.ArgumentValidator;
 
 /**
@@ -43,35 +37,24 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     @EJB
     private DataService dm;
 
-    private static String DEFAULT_LOCALE = "en";
-
     @Override
     public Collection<Long> searchSubscriptions(String searchPhrase)
             throws InvalidPhraseException, ObjectNotFoundException {
 
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
-
-        String locale = dm.getCurrentUser().getLocale();
         List<Long> voList = new ArrayList<>(100);
 
         try {
             Session session = getDm().getSession();
             if (session != null) {
                 FullTextSession fts = Search.getFullTextSession(session);
-
-                // (1) search in actual locale
-                org.apache.lucene.search.Query query = getLuceneQuery(
-                        LuceneQueryBuilder.getSubscriptionQuery(searchPhrase,
-                                locale, DEFAULT_LOCALE, false), locale, fts);
-                voList.addAll(searchViaLucene(query, fts));
-
-                if (!DEFAULT_LOCALE.equals(locale)) {
-                    // (2) search in default locale
-                    query = getLuceneQuery(
-                            LuceneQueryBuilder.getSubscriptionQuery(searchPhrase,
-                                locale, DEFAULT_LOCALE, true), DEFAULT_LOCALE, fts);
-                    voList.addAll(searchViaLucene(query, fts));
-                }
+                org.apache.lucene.search.Query query = getLuceneQueryForSubscription(
+                        searchPhrase, fts);
+                voList.addAll(searchSubscriptionViaLucene(query, fts));
+                query = getLuceneQueryForParameter(searchPhrase, fts);
+                voList.addAll(searchParametersViaLucene(query, fts));
+                query = getLuceneQueryForUda(searchPhrase, fts);
+                voList.addAll(searchUdasViaLucene(query, fts));
             }
         } catch (ParseException e) {
             InvalidPhraseException ipe = new InvalidPhraseException(e,
@@ -86,43 +69,29 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return dm;
     }
 
-    private org.apache.lucene.search.Query getLuceneQuery(String searchString,
-                                                          String locale, FullTextSession fts)
+    private org.apache.lucene.search.Query getLuceneQueryForSubscription(String searchString, FullTextSession fts)
             throws ParseException {
-        Analyzer analyzer = fts.getSearchFactory().getAnalyzer(Product.class);
-        try {
-            // try to find the correct analyzer for the locale
-            analyzer = fts.getSearchFactory().getAnalyzer(locale);
-        } catch (SearchException e) {
-            // default will hold
-        }
-
-        // use analyzer for actual text part of query
-        org.apache.lucene.search.Query purchaseOrderNumber;
-        org.apache.lucene.search.Query subIdQuery;
-
-
-        purchaseOrderNumber = getQuery(searchString, locale, analyzer, "dataContainer.purchaseOrderNumber");
-
-        subIdQuery = getQuery(searchString, locale, analyzer, "dataContainer.subscriptionId");
-
-
-        // now construct final query
-        BooleanQuery query = new BooleanQuery();
-        query.add(purchaseOrderNumber, BooleanClause.Occur.MUST);
-        query.add(subIdQuery, BooleanClause.Occur.MUST);
-        return query;
+        QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(Subscription.class).get();
+        return qb.keyword().onFields(getSearchFieldsForSubscription()).
+                matching(searchString).createQuery();
     }
 
-    private Query getQuery(String searchString, String locale, Analyzer analyzer, String field) throws ParseException {
-        Query purchaseOrderNumber;QueryParser parser = new QueryParser(Version.LUCENE_31,
-                field + locale, analyzer);
-        purchaseOrderNumber = parser.parse(searchString);
-        return purchaseOrderNumber;
+    private org.apache.lucene.search.Query getLuceneQueryForParameter(String searchString, FullTextSession fts)
+            throws ParseException {
+        QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(Parameter.class).get();
+        return qb.keyword().onFields(getSearchFieldsForParameter()).
+                matching(searchString).createQuery();
     }
 
-    private Set<Long> searchViaLucene(org.apache.lucene.search.Query query,
-                                 FullTextSession fts)
+    private org.apache.lucene.search.Query getLuceneQueryForUda(String searchString, FullTextSession fts)
+            throws ParseException {
+        QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(Uda.class).get();
+        return qb.keyword().onFields(getSearchFieldsForUda()).
+                matching(searchString).createQuery();
+    }
+
+    private Set<Long> searchSubscriptionViaLucene(org.apache.lucene.search.Query query,
+                                                  FullTextSession fts)
             throws HibernateException {
         Set<Long> set = new LinkedHashSet<>();
         FullTextQuery ftQuery = fts.createFullTextQuery(query, Subscription.class);
@@ -134,5 +103,41 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
             }
         }
         return set;
+    }
+
+    private Set<Long> searchParametersViaLucene(org.apache.lucene.search.Query query,
+                                      FullTextSession fts)
+            throws HibernateException {
+        Set<Long> set = new LinkedHashSet<>();
+        FullTextQuery ftQuery = fts.createFullTextQuery(query, Parameter.class);
+        List<Parameter> result = ftQuery.list();
+        for (Parameter item : result) {
+            set.add(item.getParameterSet().getProduct().getOwningSubscription().getKey());
+        }
+        return set;
+    }
+
+    private Set<Long> searchUdasViaLucene(org.apache.lucene.search.Query query,
+                                      FullTextSession fts)
+            throws HibernateException {
+        Set<Long> set = new LinkedHashSet<>();
+        FullTextQuery ftQuery = fts.createFullTextQuery(query, Uda.class);
+        List<Uda> result = ftQuery.list();
+        for (Uda item : result) {
+            set.add(item.getTargetObjectKey());
+        }
+        return set;
+    }
+
+    private String[] getSearchFieldsForSubscription() {
+        return new String[]{"dataContainer.purchaseOrderNumber", "dataContainer.subscriptionId"};
+    }
+
+    private String[] getSearchFieldsForUda() {
+        return new String[]{"dataContainer.udaValue"};
+    }
+
+    private String[] getSearchFieldsForParameter() {
+        return new String[]{"dataContainer.value"};
     }
 }

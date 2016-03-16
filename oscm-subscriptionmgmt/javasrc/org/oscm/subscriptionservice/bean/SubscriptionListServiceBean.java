@@ -10,20 +10,11 @@ package org.oscm.subscriptionservice.bean;
 
 import java.util.*;
 
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UsageLicense;
+import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
@@ -114,7 +105,7 @@ public class SubscriptionListServiceBean
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Subscription> getAllSubscriptionsForOrganization() {
         PlatformUser currentUser = ds.getCurrentUser();
-        return new ArrayList<Subscription>(
+        return new ArrayList<>(
                 currentUser.getOrganization().getSubscriptions());
     }
 
@@ -180,13 +171,13 @@ public class SubscriptionListServiceBean
         List<Subscription> result;
         PlatformUser currentUser = ds.getCurrentUser();
         if (currentUser.isOrganizationAdmin()) {
-            result = getSubscriptionsForOrgWithFiltering(currentUser, pagination, states);
+            result = getSubscriptionsForOrgWithFiltering(currentUser, pagination, states, subscriptionKeys);
         } else {
             Set<UserRoleType> userRoleTypes = currentUser
                     .getAssignedRoleTypes();
             userRoleTypes.retainAll(getValidRoleTypes());
             result = getSubscriptionDao().getSubscriptionsForUserWithRolesWithFiltering(
-                    userRoleTypes, currentUser, pagination, states);
+                    userRoleTypes, currentUser, pagination, states, subscriptionKeys);
         }
         return result;
     }
@@ -214,9 +205,9 @@ public class SubscriptionListServiceBean
     }
 
     private List<Subscription> getSubscriptionsForOrgWithFiltering(PlatformUser user,
-        org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
+                                                                   org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states, Collection<Long> subscriptionKeys) {
         return getSubscriptionDao().getSubscriptionsForOrgWithFiltering(user, pagination,
-                states);
+                states, subscriptionKeys);
 
     }
 
