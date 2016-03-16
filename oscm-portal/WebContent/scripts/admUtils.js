@@ -2197,7 +2197,7 @@ AdmUtils.adjustDialogHeight = function(dialogId) {
 			$("#" + dialogId + "_content").height($(this)[0].height);
 		}
 	} catch (err) {
-		console.log(err);
+		// catch only for webtests
 	}
 }
 
