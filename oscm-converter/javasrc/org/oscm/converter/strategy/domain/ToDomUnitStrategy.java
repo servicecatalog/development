@@ -8,12 +8,15 @@
 
 package org.oscm.converter.strategy.domain;
 
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.vo.VOOrganizationalUnit;
 
 public class ToDomUnitStrategy implements
         ConversionStrategy<VOOrganizationalUnit, UserGroup> {
+
+    private DataService dataService;
 
     /**
      * Only keys should be set on (@link VOOrganizationalUnit) current object
@@ -35,5 +38,15 @@ public class ToDomUnitStrategy implements
         userGroup.setReferenceId(organizationalUnit.getReferenceId());
         userGroup.setKey(organizationalUnit.getKey());
         return userGroup;
+    }
+
+    @Override
+    public void setDataService(DataService dataService) {
+        this.dataService = dataService;
+    }
+
+    @Override
+    public DataService getDataService() {
+        return dataService;
     }
 }

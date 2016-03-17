@@ -32,13 +32,16 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ejb.SessionContext;
+import javax.persistence.Query;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
+import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Marketplace;
@@ -68,6 +71,7 @@ import org.oscm.internal.vo.VOUser;
 import org.oscm.pagination.Pagination;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.test.stubs.QueryStub;
 import org.oscm.types.enumtypes.EmailType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.dao.UserGroupDao;
@@ -595,13 +599,6 @@ public class UserGroupServiceLocalBeanTest {
         // given
         group.setIsDefault(false);
         group.setOrganization(org);
-
-//        UserGroupDao userGroupDao = userGroupService.getUserGroupDao();
-
-//        userGroupDao = spy(userGroupDao);
-
-        List<UnitRoleType> roleTypes = Collections
-                .singletonList(UnitRoleType.ADMINISTRATOR);
 
         doReturn(user).when(userGroupService.getDm()).find(any(PlatformUser.class));
         doReturn(user).when(userGroupService.getDm()).getReference(PlatformUser.class, 1L);
@@ -1201,6 +1198,28 @@ public class UserGroupServiceLocalBeanTest {
 
         // then
         assertTrue(!user.getAssignedRoles().contains(UserRoleType.UNIT_ADMINISTRATOR));
+    }
+
+    @Test
+    public void getAccessibleServices() {
+        //given
+        Pagination pagination = new Pagination(0, 0);
+        //when
+        userGroupService.getAccessibleServices(String.valueOf(group.getKey()), pagination, MARKETPLACEID);
+        //then
+        verify(userGroupService.getUserGroupDao(), times(1))
+                .getAccessibleServices(String.valueOf(group.getKey()), pagination, MARKETPLACEID);
+    }
+
+    @Test
+    public void getVisibleServices() {
+        //given
+        Pagination pagination = new Pagination(0, 0);
+        //when
+        userGroupService.getVisibleServices(String.valueOf(group.getKey()), pagination, MARKETPLACEID);
+        //then
+        verify(userGroupService.getUserGroupDao(), times(1))
+                .getVisibleServices(String.valueOf(group.getKey()), pagination, MARKETPLACEID);
     }
 
     private PlatformUser prepareUserWithRoleForTest(UserRoleType userRoleType) {

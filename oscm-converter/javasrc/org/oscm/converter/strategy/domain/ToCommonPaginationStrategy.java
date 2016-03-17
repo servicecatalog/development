@@ -9,10 +9,11 @@
 package org.oscm.converter.strategy.domain;
 
 import org.oscm.converter.strategy.ConversionStrategy;
+import org.oscm.converter.strategy.api.AbstractConversionStrategy;
 import org.oscm.pagination.Pagination;
 
 public class ToCommonPaginationStrategy
-        implements
+        extends AbstractConversionStrategy implements
         ConversionStrategy<Pagination, org.oscm.pagination.Pagination> {
 
     @Override

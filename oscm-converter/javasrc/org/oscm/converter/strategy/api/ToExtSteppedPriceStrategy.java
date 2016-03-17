@@ -2,8 +2,6 @@
  *
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- *  Creation Date: 22.02.2016 14:01
- *
  *******************************************************************************/
 
 package org.oscm.converter.strategy.api;
@@ -12,7 +10,7 @@ import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.domobjects.SteppedPrice;
 import org.oscm.vo.VOSteppedPrice;
 
-public class ToExtSteppedPriceStrategy implements ConversionStrategy<SteppedPrice, VOSteppedPrice> {
+public class ToExtSteppedPriceStrategy extends AbstractConversionStrategy implements ConversionStrategy<SteppedPrice, VOSteppedPrice> {
 
     @Override
     public VOSteppedPrice convert(SteppedPrice steppedPrice) {

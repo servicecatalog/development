@@ -73,22 +73,22 @@ public class OrganizationalUnitServiceImpl implements OrganizationalUnitService 
     }
 
     @Override
-    public void addVisibleServices(String unitId, List<String> visibleServices, String marketplaceId) {
+    public void addVisibleServices(String unitId, List<String> visibleServices) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void revokeVisibleServices(String unitId, List<String> visibleServices, String marketplaceId) {
+    public void revokeVisibleServices(String unitId, List<String> visibleServices) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void addAccessibleServices(String unitId, List<String> accessibleServices, String marketplaceId) {
+    public void addAccessibleServices(String unitId, List<String> accessibleServices) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void revokeAccessibleServices(String unitId, List<String> accessibleServices, String marketplaceId) {
+    public void revokeAccessibleServices(String unitId, List<String> accessibleServices) {
         throw new UnsupportedOperationException();
     }
 

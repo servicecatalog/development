@@ -9,10 +9,11 @@
 package org.oscm.converter.strategy;
 
 import org.oscm.converter.api.VOConverter;
+import org.oscm.converter.strategy.api.AbstractConversionStrategy;
 import org.oscm.converter.utils.JaxbConverter;
 import org.oscm.internal.vo.VOService;
 
-public class ToIntServiceParameterStrategy implements
+public class ToIntServiceParameterStrategy extends AbstractConversionStrategy implements
         ConversionStrategy<String, VOService> {
 
     @Override

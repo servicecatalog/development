@@ -150,7 +150,7 @@ public interface OrganizationalUnitService {
      * Returned services have status ACTIVE or SUSPENDED.
      *
      * @param unitId
-     *            - Id of the unit from which we get the services
+     *            - Id of the unit for which we get the services
      * @param pagination
      *            - Sorting, filtering, paging details
      * @param marketplaceId
@@ -168,13 +168,14 @@ public interface OrganizationalUnitService {
     /**
      * Returns list of accessible services for the specified organizational unit.
      *
-     * Accessible services are these which are visible for all members of the unit.
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
      * They are not hidden by either organization admin or unit admin.
      *
      * Returned services have status ACTIVE or SUSPENDED.
      *
      * @param unitId
-     *            - Id of the unit from which we get the services
+     *            - Id of the unit for which we get the services
      * @param pagination
      *            - Sorting, filtering, paging details
      *            - If left empty, takes default value of 0,0 (offset, limit)
@@ -191,55 +192,87 @@ public interface OrganizationalUnitService {
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     /**
-     * Desc
+     * Sets the services as visible for the administrators of the
+     * specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * If any of the provided service IDs does not exist as invisible in the underlying
+     * database, it is ignored.
      *
      * @param unitId
+      *           - Id of the unit for which the services will be set
+     *              as visible
      * @param visibleServices
-     * @param marketplaceId
+     *            - Keys of the services which will be set as visible
      */
     @WebMethod
     void addVisibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<String> visibleServices,
-            @WebParam(name = "marketplaceId") String marketplaceId);
+            @WebParam(name = "services") List<String> visibleServices);
 
     /**
-     * Desc
+     * Sets the services as not visible for the administrators of the
+     * specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * If any of the provided service IDs does not exist as visible in the underlying
+     * database, it is ignored.
      *
      * @param unitId
+     *           - Id of the unit for which the services will be set
+     *             as not visible
      * @param visibleServices
-     * @param marketplaceId
+     *           - Keys of the services which will be set as not visible
      */
     @WebMethod
     void revokeVisibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<String> visibleServices,
-            @WebParam(name = "marketplaceId") String marketplaceId);
+            @WebParam(name = "services") List<String> visibleServices);
 
     /**
-     * Desc
+     * Sets the services as accessible for the specified organizational unit users.
+     *
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * If any of the provided service IDs does not exist as inaccessible in the underlying
+     * database, it is ignored.
      *
      * @param unitId
+     *           - Id of the unit for which the services will be set
+     *             as not accessible
      * @param accessibleServices
-     * @param marketplaceId
+     *           - Keys of the services which will be set as accessible
      */
     @WebMethod
     void addAccessibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<String> accessibleServices,
-            @WebParam(name = "marketplaceId") String marketplaceId);
+            @WebParam(name = "services") List<String> accessibleServices);
 
     /**
-     * Desc
+     * Sets the services as not accessible for the specified organizational unit users.
+     *
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * If any of the provided service IDs does not exist as accessible in the underlying
+     * database, it is ignored.
      *
      * @param unitId
+     *           - Id of the unit for which the services will be set
+     *              as not visible
      * @param accessibleServices
-     * @param marketplaceId
+     *           - Keys of the services which will be set as not accessible
      */
     @WebMethod
     void revokeAccessibleServices(
             @WebParam(name = "unitId") String unitId,
-            @WebParam(name = "services") List<String> accessibleServices,
-            @WebParam(name = "marketplaceId") String marketplaceId);
+            @WebParam(name = "services") List<String> accessibleServices);
 
 }

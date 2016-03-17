@@ -24,6 +24,7 @@ import javax.ejb.LocalBean;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
+import javax.persistence.Query;
 
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.data.SendMailStatus.SendMailStatusItem;
@@ -1208,41 +1209,64 @@ public class UserGroupServiceLocalBean {
                 marketplaceId);
     }
 
-    public void addVisibleServices(String unitId, List<String> visibleServices,
-            String marketplaceId) {
-        changeServiceVisibility(unitId, visibleServices, marketplaceId, false);
+    public void addVisibleServices(String unitId, List<String> visibleServices) {
+        changeServiceVisibilityForUnit(unitId, visibleServices, false);
     }
 
     public void revokeVisibleServices(String unitId,
-            List<String> visibleServices, String marketplaceId) {
-        changeServiceVisibility(unitId, visibleServices, marketplaceId, true);
+            List<String> visibleServices) {
+        changeServiceVisibilityForUnit(unitId, visibleServices, true);
+    }
+
+    private void changeServiceVisibilityForUnit(String unitId, List<String> visibleServices, boolean forAllUsers){
+        List<Long> existingInvisibleProductKeys = getExistingInvisibleProductKeys(
+                unitId);
+
+        for (String product : visibleServices) {
+            if (existingInvisibleProductKeys.contains(Long.valueOf(product))) {
+                String queryString = "UPDATE UserGroupToInvisibleProduct as ug2ip " +
+                        "SET forallusers=:forallusers " +
+                        "WHERE ug2ip.usergroup_tkey=:unitId AND ug2ip.product_tkey=:productId";
+                Query query = dm.createNativeQuery(queryString);
+                query.setParameter("productId",
+                        Long.valueOf(product));
+                query.setParameter("unitId",
+                        Long.valueOf(unitId));
+                query.setParameter("forallusers", forAllUsers);
+                query.executeUpdate();
+            }
+        }
     }
 
     public void addAccessibleServices(String unitId,
-            List<String> accessibleServices, String marketplaceId) {
+            List<String> accessibleServices) {
         List<Long> existingInvisibleProductKeys = getExistingInvisibleProductKeys(
                 unitId);
 
         for (String product : accessibleServices) {
             if (existingInvisibleProductKeys.contains(Long.valueOf(product))) {
-                UserGroupToInvisibleProduct ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(Long.valueOf(product));
-                ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
-                dm.remove(ug2ip);
+                String queryString = "DELETE FROM UserGroupToInvisibleProduct as ug2ip " +
+                        "WHERE ug2ip.usergroup_tkey=:unitId AND ug2ip.product_tkey=:productId";
+                Query query = dm.createNativeQuery(queryString);
+                query.setParameter("productId",
+                        Long.valueOf(product));
+                query.setParameter("unitId",
+                        Long.valueOf(unitId));
+                query.executeUpdate();
             }
         }
     }
 
     public void revokeAccessibleServices(String unitId,
-            List<String> accessibleServices, String marketplaceId) {
+            List<String> accessibleServices) {
         List<Long> existingInvisibleProductKeys = getExistingInvisibleProductKeys(
                 unitId);
 
         for (String product : accessibleServices) {
             if (!existingInvisibleProductKeys.contains(Long.valueOf(product))) {
                 UserGroupToInvisibleProduct ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(Long.valueOf(product));
-                ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
+                ug2ip.setProduct(dm.find(Product.class, Long.valueOf(product)));
+                ug2ip.setUserGroup(dm.find(UserGroup.class, Long.valueOf(unitId)));
                 ug2ip.setForallusers(true);
                 try {
                     dm.persist(ug2ip);
@@ -1268,42 +1292,6 @@ public class UserGroupServiceLocalBean {
         }
 
         return existingKeys;
-    }
-
-    private void changeServiceVisibility(String unitId,
-            List<String> visibleServices, String marketplaceId,
-            boolean forallusers) {
-        List<Long> existingVisibleProductKeys = getExistingVisibleProductKeys(
-                unitId, marketplaceId);
-
-        UserGroupToInvisibleProduct ug2ip;
-        for (String product : visibleServices) {
-            if (!existingVisibleProductKeys.contains(Long.valueOf(product))) {
-                ug2ip = new UserGroupToInvisibleProduct();
-                ug2ip.setProduct_tkey(Long.valueOf(product));
-                ug2ip.setUsergroup_tkey(Long.valueOf(unitId));
-                ug2ip.setForallusers(forallusers);
-
-                try {
-                    dm.persist(ug2ip);
-                    dm.flush();
-                } catch (NonUniqueBusinessKeyException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    private List<Long> getExistingVisibleProductKeys(String unitId,
-            String marketplaceId) {
-        List<Product> currentServices = userGroupDao.getVisibleServices(unitId,
-                new Pagination(0, 0), marketplaceId);
-        List<Long> currentServiceKeys = new ArrayList<>();
-
-        for (Product product : currentServices) {
-            currentServiceKeys.add((Long) product.getKey());
-        }
-        return currentServiceKeys;
     }
 
     public DataService getDm() {

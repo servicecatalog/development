@@ -2,8 +2,6 @@
  *
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- *  Creation Date: 22.02.2016 14:58
- *
  *******************************************************************************/
 
 package org.oscm.converter.strategy.api;
@@ -21,7 +19,7 @@ import org.oscm.vo.VOPricedOption;
 import org.oscm.vo.VOPricedParameter;
 import org.oscm.vo.VOPricedRole;
 
-public class ToExtPricedParameterStrategy implements ConversionStrategy<PricedParameter, VOPricedParameter> {
+public class ToExtPricedParameterStrategy extends AbstractConversionStrategy implements ConversionStrategy<PricedParameter, VOPricedParameter> {
 
     @Override
     public VOPricedParameter convert(PricedParameter pricedParameter) {
@@ -37,15 +35,15 @@ public class ToExtPricedParameterStrategy implements ConversionStrategy<PricedPa
             voPricedParameter.setParameterKey(pricedParameter.getParameter().getKey());
         }
         List<PricedOption> pricedOptionList = pricedParameter.getPricedOptionList();
-        List<VOPricedOption> voPricedOptions = Converter.convertList(pricedOptionList, PricedOption.class, VOPricedOption.class);
+        List<VOPricedOption> voPricedOptions = Converter.convertList(pricedOptionList, PricedOption.class, VOPricedOption.class, getDataService());
         voPricedParameter.setPricedOptions(voPricedOptions);
         voPricedParameter.setPricePerSubscription(pricedParameter.getPricePerSubscription());
         voPricedParameter.setPricePerUser(pricedParameter.getPricePerUser());
         List<PricedProductRole> roleSpecificUserPrices = pricedParameter.getRoleSpecificUserPrices();
-        List<VOPricedRole> voRoleSpecificUserPrices = Converter.convertList(roleSpecificUserPrices, PricedProductRole.class, VOPricedRole.class);
+        List<VOPricedRole> voRoleSpecificUserPrices = Converter.convertList(roleSpecificUserPrices, PricedProductRole.class, VOPricedRole.class, getDataService());
         voPricedParameter.setRoleSpecificUserPrices(voRoleSpecificUserPrices);
         ParameterDefinition parameterDefinition = pricedParameter.getParameter().getParameterDefinition();
-        VOParameterDefinition voParameterDefinition = Converter.convert(parameterDefinition, ParameterDefinition.class, VOParameterDefinition.class);
+        VOParameterDefinition voParameterDefinition = Converter.convert(parameterDefinition, ParameterDefinition.class, VOParameterDefinition.class, getDataService());
         voPricedParameter.setVoParameterDef(voParameterDefinition);
         return voPricedParameter;
     }

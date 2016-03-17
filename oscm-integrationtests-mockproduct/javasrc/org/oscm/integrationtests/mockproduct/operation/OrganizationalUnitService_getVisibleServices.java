@@ -1,9 +1,7 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                                           
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- *  Creation Date: 21.07.15 11:45
- *
  *******************************************************************************/
 
 package org.oscm.integrationtests.mockproduct.operation;

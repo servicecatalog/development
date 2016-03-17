@@ -2,8 +2,6 @@
  *
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- *  Creation Date: 22.02.2016 13:52
- *
  *******************************************************************************/
 
 package org.oscm.converter.strategy.api;
@@ -15,7 +13,7 @@ import org.oscm.domobjects.RoleDefinition;
 import org.oscm.vo.VOPricedRole;
 import org.oscm.vo.VORoleDefinition;
 
-public class ToExtPricedProductRoleStrategy implements ConversionStrategy<PricedProductRole, VOPricedRole> {
+public class ToExtPricedProductRoleStrategy extends AbstractConversionStrategy implements ConversionStrategy<PricedProductRole, VOPricedRole> {
 
     @Override
     public VOPricedRole convert(PricedProductRole pricedProductRole) {
@@ -29,7 +27,7 @@ public class ToExtPricedProductRoleStrategy implements ConversionStrategy<Priced
         voPricedRole.setVersion(pricedProductRole.getVersion());
         voPricedRole.setPricePerUser(pricedProductRole.getPricePerUser());
         RoleDefinition roleDefinition = pricedProductRole.getRoleDefinition();
-        VORoleDefinition voRoleDefinition = Converter.convert(roleDefinition, RoleDefinition.class, VORoleDefinition.class);
+        VORoleDefinition voRoleDefinition = Converter.convert(roleDefinition, RoleDefinition.class, VORoleDefinition.class, getDataService());
         voPricedRole.setRole(voRoleDefinition);
 
 
