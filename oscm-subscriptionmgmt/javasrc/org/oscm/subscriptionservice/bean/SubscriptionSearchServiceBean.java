@@ -65,7 +65,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return voList;
     }
 
-    private DataService getDm() {
+    public DataService getDm() {
         return dm;
     }
 
