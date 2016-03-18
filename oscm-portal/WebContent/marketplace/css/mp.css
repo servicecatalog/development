@@ -3416,3 +3416,12 @@ form .formHighlight div.div-for-input {
 		url("/oscm-portal/org.richfaces.resources/rfRes/colHdrGrad.png?v=4.5.0.Final&db=eAFjZJBjZDBiZBBhYGBgAgADawBq&ln=org.richfaces.images")
 		!important;
 }
+
+div.responsive-table-panel {
+	overflow-y: auto;
+	margin-top: 10px;
+}
+
+#organizationUnitPanelGrid {
+	padding:10px;
+}
