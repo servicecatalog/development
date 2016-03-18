@@ -7,7 +7,7 @@
 	<tns:TechnicalService accessType="LOGIN"
 		allowingOnBehalfActing="false"
 		baseUrl="https://<host>:<port>/oscm-integrationtests-mockproduct"
-		billingIdentifier="FileBilling" build="23.10.2009"
+		billingIdentifier="FILE_BILLING" build="23.10.2009"
 		id="MockService with external billing" loginPath="/login"
 		onlyOneSubscriptionPerUser="false" provisioningPassword="adminadmin"
 		provisioningType="SYNCHRONOUS"

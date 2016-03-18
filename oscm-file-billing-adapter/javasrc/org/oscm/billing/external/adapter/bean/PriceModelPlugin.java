@@ -34,7 +34,7 @@ import com.sun.jersey.api.client.WebResource;
 @Remote({ PriceModelPluginService.class })
 public class PriceModelPlugin implements PriceModelPluginService {
 
-    public static final String ID = "FileBilling";
+    public static final String ID = "FILE_BILLING";
     public static final String PRICEMODEL_URL = "priceModelURL";
     public static final String PRICEMODEL_FILE_URL = "priceModelFileURL";
     public static final String FILENAME_PARAMETER = "FILENAME";

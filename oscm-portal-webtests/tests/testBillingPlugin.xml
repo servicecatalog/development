@@ -116,7 +116,7 @@
       <clickLink href="/operator/manageBillingAdapters.jsf" />
       <common.ignorePageScriptError />
       <clickButton label="Add" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="FileBilling" />
+      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="FILE_BILLING" />
       <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="File Billing" />
       <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:connectionPropertyValue']" value="java:global/oscm-file-adapter/oscm-file-adapter" />
 
