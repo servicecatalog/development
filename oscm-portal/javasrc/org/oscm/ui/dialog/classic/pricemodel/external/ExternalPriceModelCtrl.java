@@ -18,6 +18,7 @@ import javax.faces.bean.ManagedProperty;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
+import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
@@ -86,16 +87,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
 
     @PostConstruct
     public void initialize() {
-
         initBeans();
-
-        if (getPriceModelBean().isExternalServiceSelected()) {
-
-            VOServiceDetails selectedService = getPriceModelBean()
-                    .getSelectedService();
-
-            showPersistedPriceModel(selectedService);
-        }
     }
 
     public void loadPriceModelContent(PriceModel priceModel)
@@ -136,11 +128,15 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
             getModel().setSelectedPriceModel(selectedPriceModel);
             getModel().setSelectedPriceModelContent(selectedPriceModelContent);
             getModel().setSelectedPriceModelId(priceModel.getUuid().toString());
-        } else {
-            getModel().setSelectedPriceModel(null);
-            getModel().setSelectedPriceModelContent(null);
-            getModel().setSelectedPriceModelId("");
+            return;
         }
+        resetPriceModel();
+    }
+    
+    public void resetPriceModel() {
+        getModel().setSelectedPriceModel(null);
+        getModel().setSelectedPriceModelContent(null);
+        getModel().setSelectedPriceModelId("");
     }
 
     private PriceModelContent getLocalizedPriceModelContent(Locale locale,
@@ -162,7 +158,6 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
             return;
-
         }
         ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
         displayHandler.setContent(priceModelContent.getContent());
@@ -170,6 +165,26 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         displayHandler.setFilename(priceModelContent.getFilename());
         displayHandler.display();
         return;
+    }
+    
+    public void reloadPriceModel(ServiceType serviceType) {
+        VOServiceDetails service = getPriceModelBean().getSelectedService();
+        if (service.getServiceType() == serviceType) {
+            showPersistedPriceModel(service);
+            return;
+        }
+        resetPriceModel();
+    }
+    
+    public void initPersistedPriceModel(ServiceType serviceType) {
+        VOServiceDetails selectedService = getPriceModelBean()
+                .getSelectedService();
+        if (selectedService == null) {
+            return;
+        }
+        if (selectedService.getServiceType() == serviceType) {
+            showPersistedPriceModel(selectedService);
+        }
     }
 
 }

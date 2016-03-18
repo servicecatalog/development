@@ -10,7 +10,6 @@ package org.oscm.ui.dialog.classic.pricemodel.external;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -30,6 +29,7 @@ import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
+import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOTechnicalService;
@@ -84,28 +84,6 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
     }
 
     @Test
-    public void initializeShowPersistedPriceModel()
-            throws ExternalPriceModelException {
-        // given
-        doReturn(new Boolean(true)).when(priceModelBean)
-                .isExternalServiceSelected();
-        doNothing().when(priceModelBean).updatePriceModel();
-        VOServiceDetails selectedService = createVOServiceDetails();
-        doReturn(selectedService).when(priceModelBean).getSelectedService();
-        VOPriceModel priceModel = new VOPriceModel();
-        doReturn(priceModel).when(priceModelBean).getPriceModel();
-        doReturn(createExternalPriceModel(PRICE_MODEL_UUID1, new Locale("de")))
-                .when(sessionBean).getSelectedExternalPriceModel();
-
-        // when
-        ctrl.initialize();
-
-        // then
-        verify(ctrl, times(1))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
-    }
-
-    @Test
     public void initializeNativeBilling() throws ExternalPriceModelException {
         // given
         doReturn(new Boolean(false)).when(priceModelBean)
@@ -115,7 +93,8 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         ctrl.initialize();
 
         // then
-        verify(ctrl, times(0)).showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(0))
+                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
     }
 
     @Test
@@ -204,13 +183,74 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
 
     }
 
-    private VOServiceDetails createVOServiceDetails() {
+    @Test
+    public void reloadPriceModelTest_forService() {
+        // given
+        VOServiceDetails voServiceDetails = createVOServiceDetails(
+                ServiceType.TEMPLATE);
+        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
+
+        // when
+        ctrl.reloadPriceModel(ServiceType.TEMPLATE);
+
+        // then
+        verify(ctrl, times(1))
+                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+    }
+
+    @Test
+    public void reloadPriceModelTest_forSubscription() {
+        // given
+        VOServiceDetails voServiceDetails = createVOServiceDetails(
+                ServiceType.SUBSCRIPTION);
+        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
+
+        // when
+        ctrl.reloadPriceModel(ServiceType.SUBSCRIPTION);
+
+        // then
+        verify(ctrl, times(1))
+                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+    }
+
+    @Test
+    public void reloadPriceModelTest_forCustSubscription() {
+        // given
+        VOServiceDetails voServiceDetails = createVOServiceDetails(
+                ServiceType.CUSTOMER_SUBSCRIPTION);
+        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
+
+        // when
+        ctrl.reloadPriceModel(ServiceType.CUSTOMER_SUBSCRIPTION);
+
+        // then
+        verify(ctrl, times(1))
+                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+    }
+
+    @Test
+    public void reloadPriceModelTest_forCustomer() {
+        // given
+        VOServiceDetails voServiceDetails = createVOServiceDetails(
+                ServiceType.CUSTOMER_TEMPLATE);
+        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
+
+        // when
+        ctrl.reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE);
+
+        // then
+        verify(ctrl, times(1))
+                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+    }
+
+    private VOServiceDetails createVOServiceDetails(ServiceType serviceType) {
         VOServiceDetails selectedService = new VOServiceDetails();
         selectedService.setBillingIdentifier(BILLING_ID);
         VOTechnicalService technicalService = new VOTechnicalService();
         technicalService.setExternalBilling(true);
         technicalService.setBillingIdentifier(BILLING_ID);
         selectedService.setTechnicalService(technicalService);
+        selectedService.setServiceType(serviceType);
         return selectedService;
 
     }

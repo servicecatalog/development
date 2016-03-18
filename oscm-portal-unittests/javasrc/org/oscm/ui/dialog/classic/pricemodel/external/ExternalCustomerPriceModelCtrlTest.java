@@ -28,6 +28,7 @@ import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
+import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOServiceDetails;
@@ -51,6 +52,7 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
     private ApplicationBean appbean;
     private SessionBean sessionBean;
     private ExternalPriceModelService externalPriceModelService;
+    private ExternalPriceModelCtrl externalPriceModelCtrl;
     private static final UUID PRICE_MODEL_UUID1 = UUID
             .fromString("392b159e-e60a-41c4-8495-4fd4b6252ed9");
 
@@ -67,6 +69,7 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
         doReturn(sessionBean).when(ctrl).getSessionBean();
 
         externalPriceModelService = mock(ExternalPriceModelService.class);
+        externalPriceModelCtrl = mock(ExternalPriceModelCtrl.class);
 
         doReturn(locale).when(appbean).getDefaultLocale();
         doReturn(priceModelBean).when(ctrl).getPriceModelBean();
@@ -90,7 +93,7 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
                         Mockito.any(VOOrganization.class));
         doReturn(true).when(priceModelBean).isExternalServiceSelected();
         doReturn(createCustomer()).when(priceModelBean).getCustomer();
-        
+
         // when
         ctrl.upload();
 
@@ -113,6 +116,20 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
         // when
         ctrl.display();
 
+    }
+
+    @Test
+    public void testReloadPriceModel_withCustomerTemplate() {
+        // given
+        VOServiceDetails voServiceDetails = new VOServiceDetails();
+        voServiceDetails.setServiceType(ServiceType.CUSTOMER_TEMPLATE);
+        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
+
+        // when
+        ctrl.reloadPriceModel();
+
+        // then
+        verify(externalPriceModelCtrl, times(0)).resetPriceModel();
     }
 
     private Organization createCustomer() {

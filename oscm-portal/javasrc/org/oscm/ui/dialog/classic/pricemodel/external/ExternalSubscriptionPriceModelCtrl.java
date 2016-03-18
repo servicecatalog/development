@@ -10,15 +10,18 @@ package org.oscm.ui.dialog.classic.pricemodel.external;
 
 import java.io.IOException;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
+import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 
 /**
@@ -32,6 +35,20 @@ import org.oscm.internal.vo.VOSubscriptionDetails;
 @ViewScoped
 public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
 
+    @PostConstruct
+    public void initBean() {
+        VOServiceDetails selectedService = getPriceModelBean()
+                .getSelectedService();
+        if (selectedService == null) {
+            return;
+        }
+        if (selectedService.getServiceType() == ServiceType.SUBSCRIPTION
+                || selectedService
+                        .getServiceType() == ServiceType.CUSTOMER_SUBSCRIPTION) {
+            showPersistedPriceModel(selectedService);
+        }
+    }
+    
     @Override
     public void upload() throws SaaSApplicationException {
 
@@ -99,6 +116,16 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
             }
             throw e;
         }
+    }
+    
+    public void reloadPriceModel() {
+        VOServiceDetails service = getPriceModelBean().getSelectedService();
+        if (service.getServiceType() == ServiceType.SUBSCRIPTION || service
+                .getServiceType() == ServiceType.CUSTOMER_SUBSCRIPTION) {
+            showPersistedPriceModel(service);
+            return;
+        }
+        resetPriceModel();
     }
 
 }

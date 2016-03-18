@@ -85,6 +85,7 @@ import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalSubscriptionPriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Organization;
 import org.oscm.ui.model.Service;
@@ -592,6 +593,8 @@ public class PriceModelBeanTest {
     public void selectSubscriptionIdAndCustomerId() throws Exception {
         subscriptionAndCustomers = givenPOSubscriptionAndCustomersList();
         doReturn(subscriptionAndCustomers).when(model).getCachedList();
+        ExternalSubscriptionPriceModelCtrl ex = mock(ExternalSubscriptionPriceModelCtrl.class);
+        doReturn(ex).when(bean).getExternalSubscriptionPriceModelCtrl();
 
         bean.setSubscriptionId(SUB_ID_1);
         bean.setCustomerId(CUST_ID);
@@ -604,10 +607,13 @@ public class PriceModelBeanTest {
 
     @Test
     public void selectSubscriptionIdAndCustomerId_Null() throws Exception {
+        ExternalSubscriptionPriceModelCtrl ex = mock(ExternalSubscriptionPriceModelCtrl.class);
+        doReturn(ex).when(bean).getExternalSubscriptionPriceModelCtrl();
+
         bean.setSubscriptionId(null);
         bean.setCustomerId(null);
         bean.selectSubscriptionIdAndCustomerId();
-
+        
         verify(bean, never()).setSelectedSubscription(any(POSubscriptionAndCustomer.class));
     }
 

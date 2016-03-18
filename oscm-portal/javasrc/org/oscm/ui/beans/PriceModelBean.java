@@ -64,8 +64,10 @@ import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.LocaleUtils;
 import org.oscm.ui.common.SteppedPriceComparator;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelCtrl;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelModel;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalSubscriptionPriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Organization;
 import org.oscm.ui.model.PricedEventRow;
@@ -124,6 +126,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
     private BPLazyDataModel model;
     
     private ExternalCustomerPriceModelCtrl extCustBean;
+    private ExternalServicePriceModelCtrl extServiceBean;
+    private ExternalSubscriptionPriceModelCtrl extSubBean;
 
     private String initUrl;
     private boolean dirty;
@@ -542,18 +546,33 @@ public class PriceModelBean extends BaseBean implements Serializable {
     public boolean isDisableSave() {
         switch (getCurrentPMPage()) {
         case PRICEMODEL_FOR_SERVICE:
-            return getServices() == null || getServices().isEmpty();
+            return getServices() == null || getServices().isEmpty()
+                    || isDisableSaveForExternalPriceModel(
+                            getExternalServicePriceModelCtrl());
 
         case PRICEMODEL_FOR_CUSTOMER:
             return getServices() == null || getServices().isEmpty()
-                    || getCustomers() == null && getCustomers().isEmpty();
+                    || getCustomers() == null || getCustomers().isEmpty()
+                    || isDisableSaveForExternalPriceModel(
+                            getExternalCustomerPriceModelCtrl());
 
         case PRICEMODEL_FOR_SUBSCRIPTION:
             return model.getCachedList() == null
-                    || model.getCachedList().isEmpty();
+                    || model.getCachedList().isEmpty() || isDisableSaveForExternalPriceModel(getExternalSubscriptionPriceModelCtrl());
         }
         return false;
     }
+
+    private boolean isDisableSaveForExternalPriceModel(ExternalPriceModelCtrl externalPriceModelCtrl) {
+        if (selectedService == null || selectedService.getPriceModel() == null) {
+            return false;
+        }
+        if (!selectedService.getPriceModel().isExternal() && !selectedService.getTechnicalService().isExternalBilling()) {
+            return false;
+        }
+        return externalPriceModelCtrl.getModel().getSelectedPriceModelContent() == null;
+    }
+
 
     public void setEditDisabled(boolean value) {
         editDisabled = value;
@@ -705,6 +724,7 @@ public class PriceModelBean extends BaseBean implements Serializable {
         String result = setSelectedSubscription(subscriptionId, customerId,
                 false);
         updatePriceModel();
+        getExternalSubscriptionPriceModelCtrl().reloadPriceModel();
         setDirty(false);
         return result;
     }
@@ -2044,17 +2064,34 @@ public class PriceModelBean extends BaseBean implements Serializable {
         this.selectedServiceKey = Long.class.cast(event.getNewValue());
         sessionBean.setSelectedServiceKeyForSupplier(this.selectedServiceKey);
         updatePriceModel();
-        getExternalCustomerPriceModelCtrl().reloadPriceModel();
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            getExternalServicePriceModelCtrl().reloadPriceModel();
+        } else if(getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            getExternalCustomerPriceModelCtrl().reloadPriceModel();
+        }
     }
 
     public ExternalCustomerPriceModelCtrl getExternalCustomerPriceModelCtrl() {
-
         if (extCustBean == null) {
             extCustBean = ui.findBean("externalCustomerPriceModelCtrl");
         }
-
         return extCustBean;
     }
+
+    public ExternalServicePriceModelCtrl getExternalServicePriceModelCtrl() {
+        if (extServiceBean == null) {
+            extServiceBean = ui.findBean("externalServicePriceModelCtrl");
+        }
+        return extServiceBean;
+    }
+
+    public ExternalSubscriptionPriceModelCtrl getExternalSubscriptionPriceModelCtrl() {
+        if (extSubBean == null) {
+            extSubBean = ui.findBean("externalSubscriptionPriceModelCtrl");
+        }
+        return extSubBean;
+    }
+
     /**
      * Resets the price model with the values fetched from the server and sets
      * it to non-chargeable.

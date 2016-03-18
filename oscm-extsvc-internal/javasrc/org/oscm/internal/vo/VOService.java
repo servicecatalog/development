@@ -16,6 +16,7 @@ import java.util.List;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
 
 /**
  * Represents a marketable service based on a technical service.
@@ -139,6 +140,8 @@ public class VOService extends BaseVO implements Serializable {
      */
     private String billingIdentifier;
     
+    private ServiceType serviceType;
+
     /**
      * Retrieves the service Id to display.
      * 
@@ -597,5 +600,19 @@ public class VOService extends BaseVO implements Serializable {
      */
     public void setBillingIdentifier(String billingIdentifier) {
         this.billingIdentifier = billingIdentifier;
+    }
+
+    /**
+     * @return the serviceType
+     */
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    /**
+     * @param serviceType the serviceType to set
+     */
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 }

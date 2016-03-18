@@ -8,12 +8,14 @@
 
 package org.oscm.ui.dialog.classic.pricemodel.external;
 
+import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
+import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.vo.VOServiceDetails;
 
 /**
@@ -23,7 +25,12 @@ import org.oscm.internal.vo.VOServiceDetails;
 @ManagedBean
 @ViewScoped
 public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
-
+    
+    @PostConstruct
+    public void initBean() {
+        initPersistedPriceModel(ServiceType.TEMPLATE);
+    }
+    
     @Override
     public void upload() {
         if (!getPriceModelBean().isExternalServiceSelected()) {
@@ -45,4 +52,9 @@ public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
         }
     }
+    
+    public void reloadPriceModel() {
+        reloadPriceModel(ServiceType.TEMPLATE);
+    }
+    
 }

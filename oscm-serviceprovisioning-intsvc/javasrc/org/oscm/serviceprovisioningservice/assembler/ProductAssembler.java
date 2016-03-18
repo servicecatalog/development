@@ -258,6 +258,7 @@ public class ProductAssembler extends BaseAssembler {
             voPM.setLicense(licenseDescription);
             voProduct.setPriceModel(voPM);
         }
+        voProduct.setServiceType(product.getType());
     }
 
     /**
