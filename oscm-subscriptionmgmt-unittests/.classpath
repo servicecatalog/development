@@ -56,5 +56,6 @@
     <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar" />
     <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar" />
     <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar" />
+    <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-4.3.0.Final.jar" />
 	<classpathentry kind="output" path="bin"/>
 </classpath>
