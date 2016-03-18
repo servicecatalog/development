@@ -18,8 +18,8 @@
   <adm:buttonPanel id="externalPriceModelActions">
     <a4j:outputPanel rendered="#{not hideUpload}">
       <adm:buttonCustomizedOnClick id="uploadExternalPriceModelButton"
-        onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click();" value="#{msg['button.upload']}"
-        type="submit" buttonType="upload" disabled="#{priceModelBean.editDisabled}" />
+        onclick="#{rich:element('hiddenUploadExternalPriceModelButton')}.click();" value="#{msg['button.import']}"
+        type="submit" buttonType="confirm" disabled="#{priceModelBean.editDisabled}" />
 
       <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
         onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelCtrl.upload}" />
