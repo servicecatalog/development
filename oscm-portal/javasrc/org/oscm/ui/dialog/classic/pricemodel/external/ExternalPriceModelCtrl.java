@@ -22,10 +22,8 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.PriceModelBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
@@ -40,8 +38,6 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
 
     @ManagedProperty(value = "#{externalPriceModelModel}")
     private ExternalPriceModelModel model;
-
-    private PriceModelBean priceModelBean;
 
     private ApplicationBean appBean;
 
@@ -67,14 +63,6 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         return appBean;
     }
 
-    public PriceModelBean getPriceModelBean() {
-        return priceModelBean;
-    }
-
-    public void setPriceModelBean(PriceModelBean priceModelBean) {
-        this.priceModelBean = priceModelBean;
-    }
-
     public SessionBean getSessionBean() {
         return sessionBean;
     }
@@ -82,8 +70,6 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
     public void setSessionBean(SessionBean sessionBean) {
         this.sessionBean = sessionBean;
     }
-
-    public abstract void upload() throws SaaSApplicationException;
 
     @PostConstruct
     public void initialize() {
@@ -103,10 +89,6 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
     }
 
     protected void initBeans() {
-        if (getPriceModelBean() == null) {
-            this.setPriceModelBean(
-                    (PriceModelBean) ui.findBean(PRICEMODELBEAN));
-        }
         if (getAppBean() == null) {
             this.setAppBean((ApplicationBean) ui.findBean(APPBEAN));
         }
@@ -167,8 +149,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         return;
     }
     
-    public void reloadPriceModel(ServiceType serviceType) {
-        VOServiceDetails service = getPriceModelBean().getSelectedService();
+    public void reloadPriceModel(ServiceType serviceType, VOService service) {
         if (service.getServiceType() == serviceType) {
             showPersistedPriceModel(service);
             return;
@@ -176,14 +157,14 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         resetPriceModel();
     }
     
-    public void initPersistedPriceModel(ServiceType serviceType) {
-        VOServiceDetails selectedService = getPriceModelBean()
-                .getSelectedService();
+    public void initPersistedPriceModel(ServiceType serviceType, VOService selectedService) {
         if (selectedService == null) {
             return;
         }
         if (selectedService.getServiceType() == serviceType) {
             showPersistedPriceModel(selectedService);
+        } else {
+            resetPriceModel();
         }
     }
 

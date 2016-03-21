@@ -34,7 +34,6 @@ import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.PriceModelBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.stubs.FacesContextStub;
@@ -47,7 +46,6 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
 
     private ExternalPriceModelCtrl ctrl;
     private ExternalPriceModelModel model;
-    private PriceModelBean priceModelBean;
     private ExternalPriceModelService externalPriceModelService;
     private final String BILLING_ID = "KILLBILL";
     private static final UUID PRICE_MODEL_UUID1 = UUID
@@ -63,9 +61,6 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         model = spy(new ExternalPriceModelModel());
         ctrl.setModel(model);
         ctrl.ui = mock(UiDelegate.class);
-
-        priceModelBean = mock(PriceModelBean.class);
-        doReturn(priceModelBean).when(ctrl).getPriceModelBean();
 
         appbean = mock(ApplicationBean.class);
         doReturn(appbean).when(ctrl).getAppBean();
@@ -86,8 +81,6 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
     @Test
     public void initializeNativeBilling() throws ExternalPriceModelException {
         // given
-        doReturn(new Boolean(false)).when(priceModelBean)
-                .isExternalServiceSelected();
 
         // when
         ctrl.initialize();
@@ -101,15 +94,12 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
     public void initBeans() throws ExternalPriceModelException {
         // given
         doReturn(null).when(ctrl).getAppBean();
-        doReturn(null).when(ctrl).getPriceModelBean();
         doReturn(appbean).when(ctrl.ui).findBean(ctrl.APPBEAN);
-        doReturn(priceModelBean).when(ctrl.ui).findBean(ctrl.PRICEMODELBEAN);
 
         // when
         ctrl.initBeans();
 
         // then
-        verify(ctrl.ui, times(1)).findBean(ctrl.PRICEMODELBEAN);
         verify(ctrl.ui, times(1)).findBean(ctrl.APPBEAN);
     }
 
@@ -123,7 +113,6 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         ctrl.initBeans();
 
         // then
-        verify(ctrl.ui, times(0)).findBean(ctrl.PRICEMODELBEAN);
         verify(ctrl.ui, times(1)).findBean(ctrl.APPBEAN);
     }
 
@@ -131,14 +120,11 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
     public void initBeansPriceModelBeanIsNull()
             throws ExternalPriceModelException {
         // given
-        doReturn(null).when(ctrl).getPriceModelBean();
-        doReturn(priceModelBean).when(ctrl.ui).findBean(ctrl.PRICEMODELBEAN);
 
         // when
         ctrl.initBeans();
 
         // then
-        verify(ctrl.ui, times(1)).findBean(ctrl.PRICEMODELBEAN);
         verify(ctrl.ui, times(0)).findBean(ctrl.APPBEAN);
     }
 
@@ -188,10 +174,9 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         // given
         VOServiceDetails voServiceDetails = createVOServiceDetails(
                 ServiceType.TEMPLATE);
-        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
 
         // when
-        ctrl.reloadPriceModel(ServiceType.TEMPLATE);
+        ctrl.reloadPriceModel(ServiceType.TEMPLATE, voServiceDetails);
 
         // then
         verify(ctrl, times(1))
@@ -203,10 +188,9 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         // given
         VOServiceDetails voServiceDetails = createVOServiceDetails(
                 ServiceType.SUBSCRIPTION);
-        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
 
         // when
-        ctrl.reloadPriceModel(ServiceType.SUBSCRIPTION);
+        ctrl.reloadPriceModel(ServiceType.SUBSCRIPTION, voServiceDetails);
 
         // then
         verify(ctrl, times(1))
@@ -218,10 +202,9 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         // given
         VOServiceDetails voServiceDetails = createVOServiceDetails(
                 ServiceType.CUSTOMER_SUBSCRIPTION);
-        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
 
         // when
-        ctrl.reloadPriceModel(ServiceType.CUSTOMER_SUBSCRIPTION);
+        ctrl.reloadPriceModel(ServiceType.CUSTOMER_SUBSCRIPTION, voServiceDetails);
 
         // then
         verify(ctrl, times(1))
@@ -233,10 +216,9 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         // given
         VOServiceDetails voServiceDetails = createVOServiceDetails(
                 ServiceType.CUSTOMER_TEMPLATE);
-        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
 
         // when
-        ctrl.reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE);
+        ctrl.reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE, voServiceDetails);
 
         // then
         verify(ctrl, times(1))

@@ -8,7 +8,6 @@
 
 package org.oscm.ui.dialog.classic.pricemodel.external;
 
-import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -26,25 +25,16 @@ import org.oscm.internal.vo.VOServiceDetails;
 @ViewScoped
 public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
     
-    @PostConstruct
-    public void initBean() {
-        initPersistedPriceModel(ServiceType.TEMPLATE);
+    public void initBean(VOServiceDetails selectedService) {
+        initPersistedPriceModel(ServiceType.TEMPLATE, selectedService);
     }
     
-    @Override
-    public void upload() {
-        if (!getPriceModelBean().isExternalServiceSelected()) {
-            return;
-        }
-
-        VOServiceDetails service = getPriceModelBean().getSelectedService();
-
+    public void upload(VOServiceDetails service) {
         try {
             PriceModel priceModel = getExternalPriceModelService()
                     .getExternalPriceModelForService(service);
             loadPriceModelContent(priceModel);
 
-            getPriceModelBean().setDirty(true);
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
         } catch (ExternalPriceModelException e) {
@@ -53,8 +43,8 @@ public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
         }
     }
     
-    public void reloadPriceModel() {
-        reloadPriceModel(ServiceType.TEMPLATE);
+    public void reloadPriceModel(VOServiceDetails selectedService) {
+        reloadPriceModel(ServiceType.TEMPLATE, selectedService);
     }
     
 }

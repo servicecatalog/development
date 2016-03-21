@@ -31,6 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,6 +86,7 @@ import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
 import org.oscm.ui.dialog.classic.pricemodel.external.ExternalSubscriptionPriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Organization;
@@ -125,6 +127,9 @@ public class PriceModelBeanTest {
     private PartnerService parterService;
     private UiDelegate uiMock;
     private AccountService accountService;
+    private ExternalServicePriceModelCtrl externalServicePriceModelCtrl;
+    private ExternalCustomerPriceModelCtrl externalCustomerPriceModelCtrl;
+    private ExternalSubscriptionPriceModelCtrl externalSubscriptionPriceModelCtrl;
 
     private List<POSubscriptionAndCustomer> subscriptionAndCustomers = new ArrayList<POSubscriptionAndCustomer>();
     private VOPriceModel voPriceModel;
@@ -241,6 +246,13 @@ public class PriceModelBeanTest {
 
         model = spy(new BPLazyDataModel());
         bean.setModel(model);
+        
+        externalServicePriceModelCtrl = mock(ExternalServicePriceModelCtrl.class);
+        externalCustomerPriceModelCtrl = mock(ExternalCustomerPriceModelCtrl.class);
+        externalSubscriptionPriceModelCtrl = mock(ExternalSubscriptionPriceModelCtrl.class);
+        bean.setExtServiceBean(externalServicePriceModelCtrl);
+        bean.setExtCustBean(externalCustomerPriceModelCtrl);
+        bean.setExtSubBean(externalSubscriptionPriceModelCtrl);
 
         parterService = mock(PartnerService.class);
         doReturn(parterService).when(bean).getParterService();
@@ -593,8 +605,6 @@ public class PriceModelBeanTest {
     public void selectSubscriptionIdAndCustomerId() throws Exception {
         subscriptionAndCustomers = givenPOSubscriptionAndCustomersList();
         doReturn(subscriptionAndCustomers).when(model).getCachedList();
-        ExternalSubscriptionPriceModelCtrl ex = mock(ExternalSubscriptionPriceModelCtrl.class);
-        doReturn(ex).when(bean).getExternalSubscriptionPriceModelCtrl();
 
         bean.setSubscriptionId(SUB_ID_1);
         bean.setCustomerId(CUST_ID);
@@ -607,8 +617,6 @@ public class PriceModelBeanTest {
 
     @Test
     public void selectSubscriptionIdAndCustomerId_Null() throws Exception {
-        ExternalSubscriptionPriceModelCtrl ex = mock(ExternalSubscriptionPriceModelCtrl.class);
-        doReturn(ex).when(bean).getExternalSubscriptionPriceModelCtrl();
 
         bean.setSubscriptionId(null);
         bean.setCustomerId(null);
@@ -658,9 +666,7 @@ public class PriceModelBeanTest {
         // given
         ValueChangeEvent event = prepareForReloadPriceModel();
         doReturn(null).when(event).getNewValue();
-        ExternalCustomerPriceModelCtrl ex = mock(ExternalCustomerPriceModelCtrl.class);
-        doReturn(ex).when(bean).getExternalCustomerPriceModelCtrl();
-        doNothing().when(ex).reloadPriceModel();
+        doNothing().when(externalCustomerPriceModelCtrl).reloadPriceModel(any(VOServiceDetails.class));
         // when
         bean.reloadPriceModel(event);
 
@@ -673,9 +679,7 @@ public class PriceModelBeanTest {
     public void reloadPriceModel() throws Exception {
         // given
         ValueChangeEvent event = prepareForReloadPriceModel();
-        ExternalCustomerPriceModelCtrl ex = mock(ExternalCustomerPriceModelCtrl.class);
-        doReturn(ex).when(bean).getExternalCustomerPriceModelCtrl();
-        doNothing().when(ex).reloadPriceModel();
+        doNothing().when(externalCustomerPriceModelCtrl).reloadPriceModel(any(VOServiceDetails.class));
         // when
         bean.reloadPriceModel(event);
 
@@ -711,6 +715,117 @@ public class PriceModelBeanTest {
 
         //then
         verify(provisioningService, times(1)).validateSubscription(any(VOService.class));
+    }
+    
+    @Test
+    public void testUpload_forServicePage() throws SaaSApplicationException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_SERVICE);
+        
+        // when
+        bean.upload();
+        
+        // then
+        verify(externalServicePriceModelCtrl).upload(any(VOServiceDetails.class));
+        assertTrue(bean.isDirty());
+    }
+    
+    @Test
+    public void testUpload_forSubscriptionPage() throws SaaSApplicationException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_SUBSCRIPTION);
+        
+        // when
+        bean.upload();
+        
+        // then
+        verify(externalSubscriptionPriceModelCtrl).upload(any(VOSubscriptionDetails.class));
+        assertTrue(bean.isDirty());
+    }
+    
+    @Test
+    public void testUpload_forCustomerPage() throws SaaSApplicationException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_CUSTOMER);
+        
+        // when
+        bean.upload();
+        
+        // then
+        verify(externalCustomerPriceModelCtrl).upload(any(VOServiceDetails.class), any(VOOrganization.class));
+        assertTrue(bean.isDirty());
+    }
+    
+    @Test
+    public void testDisplay_forServicePage() throws SaaSApplicationException, IOException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_SERVICE);
+        
+        // when
+        bean.display();
+        
+        // then
+        verify(externalServicePriceModelCtrl).display();
+    }
+    
+    @Test
+    public void testDisplay_forSubscriptionPage() throws SaaSApplicationException, IOException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_SUBSCRIPTION);
+        // when
+        bean.display();
+        
+        // then
+        assertFalse(bean.isDirty());
+    }
+    
+    @Test
+    public void testDisplay_forCustomerPage() throws SaaSApplicationException, IOException {
+        // given
+        bean.setCurrentPMPage(PriceModelBean.PRICEMODEL_FOR_CUSTOMER);
+        
+        // when
+        bean.display();
+        
+        // then
+        verify(externalCustomerPriceModelCtrl).display();
+    }
+
+    @Test
+    public void testValidateSubscriptionWithExternalPriceMdel_nullSubscription()
+            throws SaaSApplicationException {
+        // given
+        VOSubscriptionDetails subscription = null;
+        // when
+        VOSubscriptionDetails result = bean.validateSubscription(subscription);
+        // then
+        assertTrue(result == null);
+    }
+
+    @Test
+    public void testValidateSubscriptionWithExternalPriceMdel_nullPriceModel()
+            throws SaaSApplicationException {
+        // given
+        VOSubscriptionDetails subscription = new VOSubscriptionDetails();
+        subscription.setPriceModel(null);
+        // when
+        VOSubscriptionDetails result = bean.validateSubscription(subscription);
+        // then
+        assertTrue(result == null);
+    }
+
+    @Test
+    public void testValidateSubscriptionWithExternalPriceMdel_notExtPriceModel()
+            throws SaaSApplicationException {
+        // given
+        VOSubscriptionDetails subscription = new VOSubscriptionDetails();
+        VOPriceModel voPriceModel = new VOPriceModel();
+        voPriceModel.setExternal(false);
+        subscription.setPriceModel(voPriceModel);
+        // when
+        VOSubscriptionDetails result = bean.validateSubscription(subscription);
+        // then
+        assertTrue(result == null);
     }
 
     private ValueChangeEvent prepareForReloadPriceModel() {

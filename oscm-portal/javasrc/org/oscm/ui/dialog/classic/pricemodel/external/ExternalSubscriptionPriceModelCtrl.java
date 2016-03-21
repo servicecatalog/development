@@ -10,7 +10,6 @@ package org.oscm.ui.dialog.classic.pricemodel.external;
 
 import java.io.IOException;
 
-import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -19,7 +18,6 @@ import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscriptionDetails;
@@ -35,10 +33,7 @@ import org.oscm.internal.vo.VOSubscriptionDetails;
 @ViewScoped
 public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
 
-    @PostConstruct
-    public void initBean() {
-        VOServiceDetails selectedService = getPriceModelBean()
-                .getSelectedService();
+    public void initBean(VOServiceDetails selectedService) {
         if (selectedService == null) {
             return;
         }
@@ -48,12 +43,8 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
             showPersistedPriceModel(selectedService);
         }
     }
-    
-    @Override
-    public void upload() throws SaaSApplicationException {
 
-        VOSubscriptionDetails subscription = validateSubscription(getPriceModelBean()
-                .getSelectedSubscription());
+    public void upload(VOSubscriptionDetails subscription) throws SaaSApplicationException {
 
         if (subscription == null) {
             return;
@@ -68,61 +59,25 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
             loadPriceModelContent(priceModel);
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
-            getPriceModelBean().setExternalPriceModelUploaded(true);
-            getPriceModelBean().setDirty(true);
         } catch (ExternalPriceModelException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR,
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
         }
     }
 
-    public void display() throws IOException, SaaSApplicationException {
-        
-        VOSubscriptionDetails subscription = validateSubscription(getPriceModelBean()
-                .getSelectedSubscription());
-
-        if (subscription == null) {
-            return;
-        }
-        VOService selectedService = subscription.getSubscribedService();
+    public void display(boolean isExternalPriceModelUploade, VOService selectedService) throws IOException, SaaSApplicationException {
         // if an external price model has not been just uploaded then show the
         // price model stored in the database.
-        if (!getPriceModelBean().isExternalPriceModelUploaded()) {
+        if (!isExternalPriceModelUploade) {
             showPersistedPriceModel(selectedService);
         }
         super.display();
     }
 
-    public VOSubscriptionDetails validateSubscription(VOSubscriptionDetails subscription)
-            throws SaaSApplicationException {
-        if (subscription == null || subscription.getPriceModel() == null) {
-            addMessage(null, FacesMessage.SEVERITY_ERROR,
-                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
-            return null;
-        }
-        if (!subscription.getPriceModel().isExternal()) {
-            return null;
-        }
-        try {
-            return getPriceModelBean()
-                    .validateSubscription(subscription.getSubscribedService());
-        } catch (SaaSApplicationException e) {
-            if (e instanceof SubscriptionStateException) {
-                addMessage(null, FacesMessage.SEVERITY_ERROR,
-                        ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
-                        new String[] { subscription.getSubscriptionId() });
-                getPriceModelBean().setDirty(false);
-                return null;
-            }
-            throw e;
-        }
-    }
-    
-    public void reloadPriceModel() {
-        VOServiceDetails service = getPriceModelBean().getSelectedService();
-        if (service.getServiceType() == ServiceType.SUBSCRIPTION || service
+    public void reloadPriceModel(VOService voService) {
+        if (voService.getServiceType() == ServiceType.SUBSCRIPTION || voService
                 .getServiceType() == ServiceType.CUSTOMER_SUBSCRIPTION) {
-            showPersistedPriceModel(service);
+            showPersistedPriceModel(voService);
             return;
         }
         resetPriceModel();

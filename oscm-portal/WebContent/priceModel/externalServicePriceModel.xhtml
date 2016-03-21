@@ -22,11 +22,11 @@
         type="submit" buttonType="confirm" disabled="#{priceModelBean.editDisabled}" />
 
       <h:commandButton style="display:none;" id="hiddenUploadExternalPriceModelButton" value="#{msg['button.upload']}"
-        onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelCtrl.upload}" />
+        onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);" action="#{priceModelBean.upload}" />
     </a4j:outputPanel>
 
     <ui:include src="showExternalPriceModel.xhtml">
-      <ui:param name="controller" value="#{priceModelCtrl}" />
+      <ui:param name="controller" value="#{priceModelBean}" />
       <ui:param name="disabled" value="#{empty priceModelCtrl.model.selectedPriceModelContent}" />
       <ui:param name="buttonType" value="preview" />
     </ui:include>

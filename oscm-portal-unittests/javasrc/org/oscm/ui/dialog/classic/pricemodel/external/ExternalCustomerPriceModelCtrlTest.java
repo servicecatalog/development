@@ -33,10 +33,8 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.PriceModelBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.model.Organization;
 import org.oscm.ui.stubs.FacesContextStub;
 
 /**
@@ -47,7 +45,6 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
 
     private ExternalCustomerPriceModelCtrl ctrl;
     private ExternalPriceModelModel model;
-    private PriceModelBean priceModelBean;
     private Locale locale = Locale.ENGLISH;
     private ApplicationBean appbean;
     private SessionBean sessionBean;
@@ -60,7 +57,6 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
     public void beforeClass() {
         ctrl = spy(new ExternalCustomerPriceModelCtrl());
         model = spy(new ExternalPriceModelModel());
-        priceModelBean = mock(PriceModelBean.class);
         ctrl.setModel(model);
         ctrl.ui = mock(UiDelegate.class);
 
@@ -72,7 +68,6 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
         externalPriceModelCtrl = mock(ExternalPriceModelCtrl.class);
 
         doReturn(locale).when(appbean).getDefaultLocale();
-        doReturn(priceModelBean).when(ctrl).getPriceModelBean();
         doReturn(externalPriceModelService).when(ctrl)
                 .getExternalPriceModelService();
 
@@ -91,11 +86,12 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
                 .getExternalPriceModelForCustomer(
                         Mockito.any(VOServiceDetails.class),
                         Mockito.any(VOOrganization.class));
-        doReturn(true).when(priceModelBean).isExternalServiceSelected();
-        doReturn(createCustomer()).when(priceModelBean).getCustomer();
-
+        
+        VOServiceDetails service = new VOServiceDetails();
+        
+        VOOrganization customer = new VOOrganization();
         // when
-        ctrl.upload();
+        ctrl.upload(service, customer);
 
         // then
         verify(externalPriceModelService, times(1))
@@ -123,19 +119,12 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
         // given
         VOServiceDetails voServiceDetails = new VOServiceDetails();
         voServiceDetails.setServiceType(ServiceType.CUSTOMER_TEMPLATE);
-        doReturn(voServiceDetails).when(priceModelBean).getSelectedService();
 
         // when
-        ctrl.reloadPriceModel();
+        ctrl.reloadPriceModel(voServiceDetails);
 
         // then
         verify(externalPriceModelCtrl, times(0)).resetPriceModel();
-    }
-
-    private Organization createCustomer() {
-        VOOrganization customerVOOrg = new VOOrganization();
-        Organization customer = new Organization(customerVOOrg);
-        return customer;
     }
 
 }

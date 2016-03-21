@@ -8,6 +8,7 @@
 
 package org.oscm.ui.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.internal.vo.VOMarketplace;
@@ -125,8 +127,13 @@ public class PriceModelBean extends BaseBean implements Serializable {
     @ManagedProperty(value = "#{bPLazyDataModel}")
     private BPLazyDataModel model;
     
+    @ManagedProperty(value = "#{externalCustomerPriceModelCtrl}")
     private ExternalCustomerPriceModelCtrl extCustBean;
+
+    @ManagedProperty(value = "#{externalServicePriceModelCtrl}")
     private ExternalServicePriceModelCtrl extServiceBean;
+    
+    @ManagedProperty(value = "#{externalSubscriptionPriceModelCtrl}")
     private ExternalSubscriptionPriceModelCtrl extSubBean;
 
     private String initUrl;
@@ -200,6 +207,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
             initSubscriptions();
         } else {
             initServices();
+        }
+
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.initBean(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.initBean(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            extSubBean.initBean(getSelectedService());
         }
     }
 
@@ -547,18 +562,16 @@ public class PriceModelBean extends BaseBean implements Serializable {
         switch (getCurrentPMPage()) {
         case PRICEMODEL_FOR_SERVICE:
             return getServices() == null || getServices().isEmpty()
-                    || isDisableSaveForExternalPriceModel(
-                            getExternalServicePriceModelCtrl());
+                    || isDisableSaveForExternalPriceModel(extServiceBean);
 
         case PRICEMODEL_FOR_CUSTOMER:
             return getServices() == null || getServices().isEmpty()
                     || getCustomers() == null || getCustomers().isEmpty()
-                    || isDisableSaveForExternalPriceModel(
-                            getExternalCustomerPriceModelCtrl());
+                    || isDisableSaveForExternalPriceModel(extCustBean);
 
         case PRICEMODEL_FOR_SUBSCRIPTION:
             return model.getCachedList() == null
-                    || model.getCachedList().isEmpty() || isDisableSaveForExternalPriceModel(getExternalSubscriptionPriceModelCtrl());
+                    || model.getCachedList().isEmpty() || isDisableSaveForExternalPriceModel(extSubBean);
         }
         return false;
     }
@@ -716,6 +729,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
             return;
         }
         this.selectedService = new ServiceDetails(selectedService);
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.initBean(selectedService);
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.initBean(selectedService);
+        }
     }
 
     public String selectSubscriptionIdAndCustomerId() {
@@ -724,7 +742,7 @@ public class PriceModelBean extends BaseBean implements Serializable {
         String result = setSelectedSubscription(subscriptionId, customerId,
                 false);
         updatePriceModel();
-        getExternalSubscriptionPriceModelCtrl().reloadPriceModel();
+        extSubBean.reloadPriceModel(getSelectedService());
         setDirty(false);
         return result;
     }
@@ -1157,12 +1175,9 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
         ExternalPriceModelModel externalPriceModelModel = null;
         if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
-            ExternalCustomerPriceModelCtrl externalPriceModelCtrl = getExternalCustomerPriceModelCtrl();
-            externalPriceModelModel = externalPriceModelCtrl.getModel();
+            externalPriceModelModel = extCustBean.getModel();
         } else {
-            ExternalServicePriceModelCtrl externalPriceModelCtrl = ui
-                    .findBean("externalServicePriceModelCtrl");
-            externalPriceModelModel = externalPriceModelCtrl.getModel();;
+            externalPriceModelModel = extServiceBean.getModel();
         }
 
         PriceModel priceModel  = externalPriceModelModel.getSelectedPriceModel();
@@ -2065,31 +2080,10 @@ public class PriceModelBean extends BaseBean implements Serializable {
         sessionBean.setSelectedServiceKeyForSupplier(this.selectedServiceKey);
         updatePriceModel();
         if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
-            getExternalServicePriceModelCtrl().reloadPriceModel();
+            extServiceBean.reloadPriceModel(getSelectedService());
         } else if(getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
-            getExternalCustomerPriceModelCtrl().reloadPriceModel();
+            extCustBean.reloadPriceModel(getSelectedService());
         }
-    }
-
-    public ExternalCustomerPriceModelCtrl getExternalCustomerPriceModelCtrl() {
-        if (extCustBean == null) {
-            extCustBean = ui.findBean("externalCustomerPriceModelCtrl");
-        }
-        return extCustBean;
-    }
-
-    public ExternalServicePriceModelCtrl getExternalServicePriceModelCtrl() {
-        if (extServiceBean == null) {
-            extServiceBean = ui.findBean("externalServicePriceModelCtrl");
-        }
-        return extServiceBean;
-    }
-
-    public ExternalSubscriptionPriceModelCtrl getExternalSubscriptionPriceModelCtrl() {
-        if (extSubBean == null) {
-            extSubBean = ui.findBean("externalSubscriptionPriceModelCtrl");
-        }
-        return extSubBean;
     }
 
     /**
@@ -2266,5 +2260,99 @@ public class PriceModelBean extends BaseBean implements Serializable {
     public void setExternalPriceModelUploaded(
             boolean isExternalPriceModelUploaded) {
         this.isExternalPriceModelUploaded = isExternalPriceModelUploaded;
+    }
+
+    /**
+     * @return the extCustBean
+     */
+    public ExternalCustomerPriceModelCtrl getExtCustBean() {
+        return extCustBean;
+    }
+
+    /**
+     * @param extCustBean the extCustBean to set
+     */
+    public void setExtCustBean(ExternalCustomerPriceModelCtrl extCustBean) {
+        this.extCustBean = extCustBean;
+    }
+
+    /**
+     * @return the extServiceBean
+     */
+    public ExternalServicePriceModelCtrl getExtServiceBean() {
+        return extServiceBean;
+    }
+
+    /**
+     * @param extServiceBean the extServiceBean to set
+     */
+    public void setExtServiceBean(ExternalServicePriceModelCtrl extServiceBean) {
+        this.extServiceBean = extServiceBean;
+    }
+
+    /**
+     * @return the extSubBean
+     */
+    public ExternalSubscriptionPriceModelCtrl getExtSubBean() {
+        return extSubBean;
+    }
+
+    /**
+     * @param extSubBean the extSubBean to set
+     */
+    public void setExtSubBean(ExternalSubscriptionPriceModelCtrl extSubBean) {
+        this.extSubBean = extSubBean;
+    }
+
+    public void upload() throws SaaSApplicationException {
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.upload(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.upload(getSelectedService(),
+                    getCustomer().getVOOrganization());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            extSubBean.upload(validateSubscription(getSelectedSubscription()));
+            setExternalPriceModelUploaded(true);
+        }
+        setDirty(true);
+    }
+
+    public void display() throws SaaSApplicationException, IOException {
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.display();
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.display();
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            if (getSelectedSubscription() == null) {
+                return;
+            }
+            extSubBean.display(isExternalPriceModelUploaded,
+                    getSelectedSubscription().getSubscribedService());
+        }
+    }
+
+    public VOSubscriptionDetails validateSubscription(
+            VOSubscriptionDetails subscription)
+                    throws SaaSApplicationException {
+        if (subscription == null || subscription.getPriceModel() == null) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
+            return null;
+        }
+        if (!subscription.getPriceModel().isExternal()) {
+            return null;
+        }
+        try {
+            return validateSubscription(subscription.getSubscribedService());
+        } catch (SaaSApplicationException e) {
+            if (e instanceof SubscriptionStateException) {
+                addMessage(null, FacesMessage.SEVERITY_ERROR,
+                        ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                        new String[] { subscription.getSubscriptionId() });
+                setDirty(false);
+                return null;
+            }
+            throw e;
+        }
     }
 }

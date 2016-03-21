@@ -11,7 +11,6 @@ package org.oscm.ui.dialog.classic.pricemodel.external;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -23,13 +22,11 @@ import java.util.Locale;
 
 import javax.faces.component.UIViewRoot;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscriptionDetails;
@@ -66,7 +63,6 @@ public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
         doReturn(sessionBean).when(ctrl).getSessionBean();
 
         doReturn(locale).when(appbean).getDefaultLocale();
-        doReturn(priceModelBean).when(ctrl).getPriceModelBean();
         doReturn(externalPriceModelService).when(ctrl)
                 .getExternalPriceModelService();
 
@@ -84,95 +80,18 @@ public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
         VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
         voSubscriptionDetails.setPriceModel(voPriceModel);
 
-        when(mock(ExternalPriceModelCtrl.class).getPriceModelBean())
-                .thenReturn(priceModelBean);
-
         when(priceModelBean.getSelectedSubscription())
                 .thenReturn(voSubscriptionDetails);
         when(priceModelBean.validateSubscription(any(VOService.class)))
                 .thenReturn(voSubscriptionDetails);
 
         // when
-        ctrl.upload();
+        ctrl.upload(voSubscriptionDetails);
 
         // then
         verify(externalPriceModelService, times(1))
                 .getExternalPriceModelForSubscription(
                         any(VOSubscriptionDetails.class));
-    }
-
-    @Test
-    public void testValidateSubscription() throws SaaSApplicationException {
-        // given
-        VOPriceModel voPriceModel = new VOPriceModel();
-        voPriceModel.setExternal(true);
-        VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
-        voSubscriptionDetails.setPriceModel(voPriceModel);
-        doReturn(voSubscriptionDetails).when(priceModelBean)
-                .validateSubscription(any(VOService.class));
-        // when
-        VOSubscriptionDetails result = ctrl
-                .validateSubscription(voSubscriptionDetails);
-        // then
-        Assert.assertNotNull(result);
-    }
-
-    @Test
-    public void testValidateSubscriptionWithEmptySubscription()
-            throws SaaSApplicationException {
-        // given
-
-        // when
-        VOSubscriptionDetails result = ctrl.validateSubscription(null);
-        // then
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testValidateSubscriptionWithEmptyPriceModel()
-            throws SaaSApplicationException {
-        // given
-        VOPriceModel voPriceModel = new VOPriceModel();
-        voPriceModel.setExternal(true);
-        VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
-        voSubscriptionDetails.setPriceModel(null);
-        // when
-        VOSubscriptionDetails result = ctrl
-                .validateSubscription(voSubscriptionDetails);
-        // then
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testValidateSubscriptionWithNotExternalPriceModel()
-            throws SaaSApplicationException {
-        // given
-        VOPriceModel voPriceModel = new VOPriceModel();
-        voPriceModel.setExternal(false);
-        VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
-        voSubscriptionDetails.setPriceModel(null);
-        // when
-        VOSubscriptionDetails result = ctrl
-                .validateSubscription(voSubscriptionDetails);
-        // then
-        Assert.assertNull(result);
-    }
-
-    @Test
-    public void testValidateSubscriptionWithException()
-            throws SaaSApplicationException {
-        // given
-        VOPriceModel voPriceModel = new VOPriceModel();
-        voPriceModel.setExternal(false);
-        VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
-        voSubscriptionDetails.setPriceModel(null);
-        doThrow(new SubscriptionStateException()).when(priceModelBean)
-                .validateSubscription(any(VOService.class));
-        // when
-        VOSubscriptionDetails result = ctrl
-                .validateSubscription(voSubscriptionDetails);
-        // then
-        Assert.assertNull(result);
     }
 
     @Test

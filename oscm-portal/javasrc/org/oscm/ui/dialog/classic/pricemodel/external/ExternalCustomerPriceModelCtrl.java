@@ -8,7 +8,6 @@
 
 package org.oscm.ui.dialog.classic.pricemodel.external;
 
-import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -27,21 +26,11 @@ import org.oscm.internal.vo.VOServiceDetails;
 @ViewScoped
 public class ExternalCustomerPriceModelCtrl extends ExternalPriceModelCtrl {
 
-    @PostConstruct
-    public void initBean() {
-        initPersistedPriceModel(ServiceType.CUSTOMER_TEMPLATE);
+    public void initBean(VOServiceDetails selectedService) {
+        initPersistedPriceModel(ServiceType.CUSTOMER_TEMPLATE, selectedService);
     }
 
-    @Override
-    public void upload() {
-
-        if (!getPriceModelBean().isExternalServiceSelected()) {
-            return;
-        }
-
-        VOServiceDetails service = getPriceModelBean().getSelectedService();
-        VOOrganization customer = getPriceModelBean().getCustomer()
-                .getVOOrganization();
+    public void upload(VOServiceDetails service, VOOrganization customer) {
 
         try {
             PriceModel priceModel = getExternalPriceModelService()
@@ -51,7 +40,6 @@ public class ExternalCustomerPriceModelCtrl extends ExternalPriceModelCtrl {
                 throw new ExternalPriceModelException();
             }
             loadPriceModelContent(priceModel);
-            getPriceModelBean().setDirty(true);
             addMessage(null, FacesMessage.SEVERITY_INFO,
                     INFO_EXTERNAL_PRICE_UPLOADED);
         } catch (ExternalPriceModelException e) {
@@ -60,8 +48,8 @@ public class ExternalCustomerPriceModelCtrl extends ExternalPriceModelCtrl {
         }
     }
 
-    public void reloadPriceModel() {
-        reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE);
+    public void reloadPriceModel(VOServiceDetails selectedService) {
+        reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE, selectedService);
     }
 
 }

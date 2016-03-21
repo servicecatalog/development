@@ -31,7 +31,6 @@ import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.PriceModelBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.stubs.FacesContextStub;
@@ -44,7 +43,6 @@ public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
 
     private ExternalServicePriceModelCtrl ctrl;
     private ExternalPriceModelModel model;
-    private PriceModelBean priceModelBean;
     private Locale locale = Locale.ENGLISH;
     private ApplicationBean appbean;
     private SessionBean sessionBean;
@@ -56,7 +54,6 @@ public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
     public void beforeClass() {
         ctrl = spy(new ExternalServicePriceModelCtrl());
         model = spy(new ExternalPriceModelModel());
-        priceModelBean = mock(PriceModelBean.class);
         ctrl.setModel(model);
         ctrl.ui = mock(UiDelegate.class);
 
@@ -66,7 +63,6 @@ public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
         doReturn(sessionBean).when(ctrl).getSessionBean();
 
         doReturn(locale).when(appbean).getDefaultLocale();
-        doReturn(priceModelBean).when(ctrl).getPriceModelBean();
         doReturn(externalPriceModelService).when(ctrl)
                 .getExternalPriceModelService();
 
@@ -84,10 +80,9 @@ public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
         doReturn(priceModel).when(externalPriceModelService)
                 .getExternalPriceModelForService(
                         Mockito.any(VOServiceDetails.class));
-        doReturn(true).when(priceModelBean).isExternalServiceSelected();
 
         // when
-        ctrl.upload();
+        ctrl.upload(new VOServiceDetails());
 
         // then
         verify(externalPriceModelService, times(1))
