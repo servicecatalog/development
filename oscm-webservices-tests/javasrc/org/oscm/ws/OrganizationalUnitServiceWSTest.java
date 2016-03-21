@@ -13,23 +13,14 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.List;
 
-import org.oscm.serviceprovisioningservice.bean.ProductSearch;
-import org.oscm.types.exceptions.DeletionConstraintException;
 import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import org.oscm.domobjects.UserGroup;
-import org.oscm.vo.VOService;
-import org.oscm.ws.base.ServiceFactory;
-import org.oscm.ws.base.VOFactory;
-import org.oscm.ws.base.WebserviceTestBase;
-import org.oscm.ws.base.WebserviceTestSetup;
-import org.oscm.ws.unitrule.Order;
-import org.oscm.ws.unitrule.OrderedRunner;
 import org.oscm.converter.api.Converter;
+import org.oscm.domobjects.UserGroup;
 import org.oscm.intf.IdentityService;
 import org.oscm.intf.MarketplaceService;
 import org.oscm.intf.OrganizationalUnitService;
@@ -37,6 +28,7 @@ import org.oscm.pagination.Pagination;
 import org.oscm.types.enumtypes.Salutation;
 import org.oscm.types.enumtypes.UnitRoleType;
 import org.oscm.types.enumtypes.UserRoleType;
+import org.oscm.types.exceptions.DeletionConstraintException;
 import org.oscm.types.exceptions.MailOperationException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
@@ -44,8 +36,15 @@ import org.oscm.types.exceptions.OperationNotPermittedException;
 import org.oscm.vo.VOMarketplace;
 import org.oscm.vo.VOOrganization;
 import org.oscm.vo.VOOrganizationalUnit;
+import org.oscm.vo.VOService;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
+import org.oscm.ws.base.ServiceFactory;
+import org.oscm.ws.base.VOFactory;
+import org.oscm.ws.base.WebserviceTestBase;
+import org.oscm.ws.base.WebserviceTestSetup;
+import org.oscm.ws.unitrule.Order;
+import org.oscm.ws.unitrule.OrderedRunner;
 
 @RunWith(OrderedRunner.class)
 public class OrganizationalUnitServiceWSTest {

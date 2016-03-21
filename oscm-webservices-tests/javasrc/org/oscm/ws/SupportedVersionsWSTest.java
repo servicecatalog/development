@@ -9,6 +9,7 @@
 package org.oscm.ws;
 
 import org.junit.Test;
+
 import org.oscm.intf.AccountService;
 import org.oscm.intf.BillingService;
 import org.oscm.intf.CategorizationService;
@@ -28,7 +29,6 @@ import org.oscm.intf.TagService;
 import org.oscm.intf.TriggerDefinitionService;
 import org.oscm.intf.TriggerService;
 import org.oscm.intf.VatService;
-import org.oscm.psp.intf.PaymentRegistrationService;
 import org.oscm.ws.base.ServiceFactory;
 import org.oscm.ws.base.WebserviceTestBase;
 
