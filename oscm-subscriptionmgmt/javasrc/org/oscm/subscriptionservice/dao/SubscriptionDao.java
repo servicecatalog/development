@@ -736,7 +736,7 @@ public class SubscriptionDao {
         String dateFormat = pagination.getDateFormat();
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination.getLocalizedStatusesMap();
         Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
-        buildFilteredQueryWithUnits(queryFilter, dateFormat, localizedStatusesMap, filterIterator);
+        queryFilter = buildFilteredQueryWithUnits(queryFilter, dateFormat, localizedStatusesMap, filterIterator);
         return queryFilter;
     }
 
