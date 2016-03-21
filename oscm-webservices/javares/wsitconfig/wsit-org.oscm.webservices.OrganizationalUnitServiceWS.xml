@@ -24,9 +24,13 @@
     <message name="getAccessibleServices" />
     <message name="getAccessibleServicesResponse" />
     <message name="addVisibleServices" />
+    <message name="addVisibleServicesResponse" />
     <message name="addAccessibleServices" />
+    <message name="addAccessibleServicesResponse" />
     <message name="revokeVisibleServices" />
+    <message name="revokeVisibleServicesResponse" />
     <message name="revokeAccessibleServices" />
+    <message name="revokeAccessibleServicesResponse" />
     <portType name="OrganizationalUnitService">
         <operation name="grantUserRoles">
             <input message="tns:grantUserRoles" />
