@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                              
  *  Author: Mike J&auml;ger                                                      
  *                                                                              
@@ -33,19 +33,24 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.OrganizationRole;
+import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.i18nservice.local.ImageResourceServiceLocal;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.DeletionConstraintException;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.RegistrationException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUserDetails;
 
@@ -63,7 +68,7 @@ public class AccountServiceBeanNoDbTest {
 
     @Before
     public void setup() throws Exception {
-        ab = new AccountServiceBean();
+        ab = spy(new AccountServiceBean());
         sessionMock = mock(SessionContext.class);
         ab.sessionCtx = sessionMock;
         dataServiceMock = mock(DataService.class);
@@ -79,6 +84,7 @@ public class AccountServiceBeanNoDbTest {
                 .thenReturn(Boolean.TRUE);
         doAnswer(new Answer<DomainObject<?>>() {
 
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 return (DomainObject<?>) invocation.getArguments()[0];
@@ -86,6 +92,7 @@ public class AccountServiceBeanNoDbTest {
         }).when(dataServiceMock).find(Matchers.any(DomainObject.class));
         doAnswer(new Answer<DomainObject<?>>() {
 
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 return (DomainObject<?>) invocation.getArguments()[0];
@@ -150,7 +157,6 @@ public class AccountServiceBeanNoDbTest {
     public void getOrganizationDataFallback_En() throws Exception {
         // when
         VOOrganization org = new VOOrganization();
-        ab = spy(ab);
         org.setLocale("en");
         org.setKey(1);
         org.setDescription("en");
@@ -166,7 +172,6 @@ public class AccountServiceBeanNoDbTest {
     public void getOrganizationDataFallback_DE() throws Exception {
         // when
         VOOrganization voOrg = new VOOrganization();
-        ab = spy(ab);
         voOrg.setLocale("de");
         voOrg.setKey(1);
         voOrg.setDescription("");
@@ -199,5 +204,126 @@ public class AccountServiceBeanNoDbTest {
         assertEquals(1, result.getOrganization_tkey());
         assertEquals(Boolean.TRUE, Boolean.valueOf(result.isDefault()));
         assertEquals("default", result.getName());
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_Supplier()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(OrganizationRoleType.SUPPLIER,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_TechnologyProvider()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(
+                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_PlatformOperator()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(
+                OrganizationRoleType.PLATFORM_OPERATOR,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_Reseller()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(OrganizationRoleType.RESELLER,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_Broker()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(OrganizationRoleType.BROKER,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test(expected = DeletionConstraintException.class)
+    public void deregisterOrganization_MarketplaceOwner()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(
+                OrganizationRoleType.MARKETPLACE_OWNER,
+                OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    @Test
+    public void deregisterOrganization_Customer()
+            throws DeletionConstraintException,
+            TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
+        // given
+        Organization org = createOrganization(OrganizationRoleType.CUSTOMER);
+
+        doReturn(org).when(ab).getOrganization();
+
+        // when
+        ab.deregisterOrganization();
+    }
+
+    private Organization createOrganization(OrganizationRoleType... roles) {
+        Organization org = new Organization();
+        org.setOrganizationId("id");
+        for (OrganizationRoleType role : roles) {
+            OrganizationRole orgRole = new OrganizationRole();
+            orgRole.setRoleName(role);
+            OrganizationToRole orgToRole = new OrganizationToRole();
+            orgToRole.setOrganization(org);
+            orgToRole.setOrganizationRole(orgRole);
+            org.getGrantedRoles().add(orgToRole);
+        }
+        return org;
     }
 }

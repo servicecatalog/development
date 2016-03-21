@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                            
+ *  Copyright FUJITSU LIMITED 2016                            
  *
  *   Creation Date: 28.04.15 10:00
  *
@@ -27,7 +27,7 @@ import org.richfaces.model.SortField;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.model.RichLazyDataModel;
 import org.oscm.internal.components.response.Response;

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 12.03.2013                                                      
  *                                                                              
@@ -92,14 +92,14 @@ public class MySubscriptionsCtrlTest {
 
     @Test
     public void executeOperation_NoSubscription() throws Exception {
-        assertEquals(MySubscriptionsCtrl.OUTCOME_ERROR, ctrl.executeOperation());
+        ctrl.executeOperation();
     }
 
     @Test
     public void executeOperation_NoOperation() throws Exception {
         initSubscription(model);
 
-        assertEquals(MySubscriptionsCtrl.OUTCOME_ERROR, ctrl.executeOperation());
+        ctrl.executeOperation();
     }
 
     @Test
@@ -107,8 +107,7 @@ public class MySubscriptionsCtrlTest {
         POSubscription sub = initSubscription(model);
         OperationModel om = initOperation(sub);
 
-        assertEquals(MySubscriptionsCtrl.OUTCOME_SUCCESS,
-                ctrl.executeOperation());
+        ctrl.executeOperation();
 
         verify(subSvc).executeServiceOperation(same(sub.getVOSubscription()),
                 same(om.getOperation()));
@@ -124,9 +123,8 @@ public class MySubscriptionsCtrlTest {
                 .executeServiceOperation(any(VOSubscription.class),
                         any(VOTechnicalServiceOperation.class));
 
-        String result = ctrl.executeOperation();
+        ctrl.executeOperation();
 
-        assertEquals(MySubscriptionsCtrl.OUTCOME_ERROR, result);
         verify(subSvc).executeServiceOperation(same(sub.getVOSubscription()),
                 same(om.getOperation()));
         verify(ctrl.ui).handleError(anyString(),
@@ -138,9 +136,7 @@ public class MySubscriptionsCtrlTest {
         POSubscription sub = initSubscription(model);
         initOperation(sub);
         sub.setSelectedOperationId("");
-
-        assertEquals(MySubscriptionsCtrl.OUTCOME_SUCCESS,
-                ctrl.operationChanged());
+        ctrl.operationChanged();
 
         assertTrue(sub.isExecuteDisabled());
         assertNull(sub.getSelectedOperation());
@@ -150,12 +146,11 @@ public class MySubscriptionsCtrlTest {
                 any(VOTechnicalServiceOperation.class));
     }
 
+    @Test
     public void operationChanged_NoParameter() throws Exception {
         POSubscription sub = initSubscription(model);
         OperationModel om = initOperation(sub);
-
-        assertEquals(MySubscriptionsCtrl.OUTCOME_SUCCESS,
-                ctrl.operationChanged());
+        ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
         assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
@@ -169,9 +164,7 @@ public class MySubscriptionsCtrlTest {
         POSubscription sub = initSubscription(model);
         OperationModel om = initOperation(sub);
         initOperationParameter(om, OperationParameterType.INPUT_STRING);
-
-        assertEquals(MySubscriptionsCtrl.OUTCOME_SUCCESS,
-                ctrl.operationChanged());
+        ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
         assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
@@ -186,9 +179,7 @@ public class MySubscriptionsCtrlTest {
         OperationModel om = initOperation(sub);
         initOperationParameter(om, OperationParameterType.REQUEST_SELECT);
         List<String> list = initValues(subSvc, sub, om);
-
-        assertEquals(MySubscriptionsCtrl.OUTCOME_SUCCESS,
-                ctrl.operationChanged());
+        ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
         assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
@@ -201,58 +192,6 @@ public class MySubscriptionsCtrlTest {
             assertEquals(list.get(i), values.get(i).getValue());
             assertEquals(list.get(i), values.get(i).getLabel());
         }
-    }
-
-    @Test
-    public void bug11696_checkSubscriptionsNotEmpty_success() throws Exception {
-
-        // given
-        POSubscription mockedSub = mock(POSubscription.class);
-        VOSubscriptionDetails mockSubDetail = mock(VOSubscriptionDetails.class);
-        SubscriptionsService mockedServ = ctrl.subscriptionsService;
-        model.setSelectedSubscription(mockedSub);
-        when(mockedSub.getStatus()).thenReturn(SubscriptionStatus.ACTIVE);
-        when(mockSubDetail.getStatus()).thenReturn(SubscriptionStatus.ACTIVE);
-        when(mockedSub.getKey()).thenReturn(1L);
-        when(mockedServ.getSubscriptionDetails(1L)).thenReturn(mockSubDetail);
-        when(mockedServ.isSubscriptionVisible(1L)).thenReturn(true);
-        when(mockedServ.isCurrentUserAssignedToSubscription(1L)).thenReturn(
-                true);
-        // when
-        ctrl.checkSubscriptionsNotEmpty();
-        // then
-        verify(mockedSub).getStatus();
-        verify(mockSubDetail).getStatus();
-        verify(mockedSub, atLeastOnce()).getKey();
-        verify(mockedServ).getSubscriptionDetails(1L);
-        verify(mockedServ).isSubscriptionVisible(1L);
-        verify(mockedServ).isCurrentUserAssignedToSubscription(1L);
-        assertNotNull(model.getSelectedSubscription());
-    }
-
-    @Test
-    public void bug11696_checkSubscriptionsNotEmpty_fail() throws Exception {
-
-        // given
-        POSubscription mockedSub = mock(POSubscription.class);
-        VOSubscriptionDetails mockSubDetail = mock(VOSubscriptionDetails.class);
-        SubscriptionsService mockedServ = ctrl.subscriptionsService;
-
-        model.setSelectedSubscription(mockedSub);
-        when(mockedSub.getStatus()).thenReturn(SubscriptionStatus.ACTIVE);
-        when(mockSubDetail.getStatus()).thenReturn(SubscriptionStatus.ACTIVE);
-        when(mockedSub.getKey()).thenReturn(1L);
-        when(mockedServ.getSubscriptionDetails(1L)).thenReturn(mockSubDetail);
-        when(mockedServ.isSubscriptionVisible(1L)).thenReturn(true);
-        when(mockedServ.isCurrentUserAssignedToSubscription(1L)).thenReturn(
-                false);
-        // when
-        ctrl.checkSubscriptionsNotEmpty();
-        // then
-        verify(mockedSub, atLeastOnce()).getKey();
-        verify(mockedServ).isSubscriptionVisible(1L);
-        verify(mockedServ).isCurrentUserAssignedToSubscription(1L);
-        assertNull(model.getSelectedSubscription());
     }
 
     private static final List<String> initValues(SubscriptionService subSvc,
@@ -292,6 +231,7 @@ public class MySubscriptionsCtrlTest {
         om.setOperation(tso);
         sub.setTechnicalServiceOperations(Arrays.asList(tso));
         sub.setSelectedOperationId(tso.getOperationId());
+        sub.setSelectedOperation(om);
         return om;
     }
 

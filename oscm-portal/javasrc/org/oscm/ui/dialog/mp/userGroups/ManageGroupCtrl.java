@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: Jun 25, 2014                                                      
  *                                                                              
@@ -202,6 +202,10 @@ public class ManageGroupCtrl extends UserGroupBaseCtrl {
                 poUser.setKey(voUserDetails.getKey());
                 poUser.setUserId(userId);
                 poUserInUnit.setPoUser(poUser);
+
+                List<UserRoleType> assignedRoles = new ArrayList<UserRoleType>();
+                assignedRoles.addAll(voUserDetails.getUserRoles());
+                poUserInUnit.setAssignedRoles(assignedRoles);
                 return poUserInUnit;
             }
         }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
  
 <project name="Build all ADM UM Projects" basedir=".">
 
@@ -50,10 +50,11 @@
   <property name="artifacts.delivery.dir" location="${artifacts.dir}/delivery" />
   <property name="artifacts.optional.dir" location="${artifacts.dir}/optional" />
   <property name="artifacts.testing.dir" location="${artifacts.dir}/testing" />
+  <property name="artifacts.others.dir" location="${artifacts.dir}/others" />
   <property name="artifacts.testing.results.dir" location="${artifacts.testing.dir}/results" />
   <property name="artifacts.testing.coverage.dir" location="${artifacts.testing.dir}/coverage" />
-  <property name="artifacts.testing.jmx-internal.dir" location="${artifacts.testing.dir}/jmx-internal" />
-  <property name="artifacts.testing.glassfish-logs.dir" location="${artifacts.testing.dir}/glassfish-logs" />
+  <property name="artifacts.testing.jmx-internal.dir" location="${artifacts.others.dir}/jmx-internal" />
+  <property name="artifacts.testing.glassfish-logs.dir" location="${artifacts.others.dir}/glassfish-logs" />
   <property name="artifacts.testing.ant-logs.dir" location="${artifacts.testing.dir}/ant-logs" />
   <property name="buildid.prefix" value="private-build-on-${hostname}" />
 
@@ -485,7 +486,7 @@
     </copy>
 
     <!-- testing -->
-    <copy failonerror="false" todir="${artifacts.testing.dir}" file="${result.package.dir}/oscm-integrationtests-pack/oscm-integrationtests-pack.zip" />
+    <copy failonerror="false" todir="${artifacts.others.dir}" file="${result.package.dir}/oscm-integrationtests-pack/oscm-integrationtests-pack.zip" />
 
     <!-- test results -->
     <copy failonerror="false" todir="${artifacts.testing.results.dir}/web">
@@ -520,6 +521,8 @@
     <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/combined">
       <fileset dir="${result.reports.dir}/coverage-combined" />
     </copy>
+    
+    <zip destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
 
     <!-- JMX internal -->
     <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">

@@ -1,5 +1,5 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
-<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
                 xmlns:h="http://java.sun.com/jsf/html"
@@ -40,10 +40,10 @@
       sortMode="single">
 
       <f:facet name="header">
-        <adm:pager pagerId="#{statePrefix}UserListPager" />
+        <adm:pager pagerId="#{statePrefix}UserListPager" pagerExecute="@form" />
       </f:facet>
 
-      <rich:column 
+      <rich:column
         id="#{colSelect}"
         width="#{iconWidth}"
         styleClass="tableColumnCheckBox"
@@ -56,9 +56,9 @@
           valueChangeListener="#{manageSubscriptionCtrl.selectedOwnerChanged}">
           <f:selectItem itemValue="true" />
           <h:inputHidden value="#{user.userId}" />
-          <!-- 
+          <!--
           <a4j:ajax render="userTablePanel,#{dialogId}Form:saveButton"
-            onbeforesubmit="setDirty(true);AdmUtils.dataTableSelectOneRadio(this);" 
+            onbeforesubmit="setDirty(true);AdmUtils.dataTableSelectOneRadio(this);"
             bypassUpdates="true" event="click" />
              -->
         </h:selectOneRadio>
@@ -76,10 +76,10 @@
         <f:facet name="header">
           <h:outputText value="#{msg['user.userId']}" />
           <adm:filterInput inputId="filterUserId" inputValue="#{tableState.filterValues[colUserId]}" 
-              render="userTable@body, pagerPanel"
+              render="userTable@body, pagerPanel" filterInputExecute="@form"
               onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
         </f:facet>
-        <h:outputText id="userId" value="#{user.userId}" styleClass="preserveWhitespaces" />
+        <h:outputText id="userId" value="#{user.userId}" styleClass="stringInMultiLine preserveWhitespaces" />
       </rich:column>
 
       <rich:column
@@ -95,10 +95,10 @@
         <f:facet name="header">
           <h:outputText value="#{msg['user.firstName']}" />
           <adm:filterInput inputId="filterFirstName" inputValue="#{tableState.filterValues[colFirstName]}" 
-              render="userTable@body, pagerPanel"
+              render="userTable@body, pagerPanel" filterInputExecute="@form"
               onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
         </f:facet>
-        <h:outputText id="firstName" value="#{user.firstName}" styleClass="preserveWhitespaces"/>
+        <h:outputText id="firstName" value="#{user.firstName}" styleClass="stringInMultiLine preserveWhitespaces"/>
       </rich:column>
 
       <rich:column
@@ -113,13 +113,13 @@
         <f:facet name="header">
           <h:outputText value="#{msg['user.lastName']}" />
           <adm:filterInput inputId="filterLastName" inputValue="#{tableState.filterValues[colLastName]}" 
-              render="userTable@body, pagerPanel"
+              render="userTable@body, pagerPanel" filterInputExecute="@form"
               onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
         </f:facet>
-        <h:outputText id="lastName" value="#{user.lastName}" styleClass="preserveWhitespaces"/>
+        <h:outputText id="lastName" value="#{user.lastName}" styleClass="stringInMultiLine preserveWhitespaces"/>
       </rich:column>
 
-      <rich:column 
+      <rich:column
         id="#{colFirstName1}"
         sortBy="#{user.firstName}"
         sortOrder="#{tableState.sortOrders[colFirstName1]}"
@@ -132,10 +132,10 @@
         <f:facet name="header">
           <h:outputText value="#{msg['user.firstName']}" />
           <adm:filterInput inputId="filterFirstName1" inputValue="#{tableState.filterValues[colFirstName1]}" 
-              render="userTable@body, pagerPanel"
+              render="userTable@body, pagerPanel" filterInputExecute="@form"
               onkeyup="AdmUtils.setFirstPage(#{rich:element('#{statePrefix}UserListPager')});" />
         </f:facet>
-        <h:outputText id="firstName1" value="#{user.firstName}" styleClass="preserveWhitespaces"/>
+        <h:outputText id="firstName1" value="#{user.firstName}" styleClass="stringInMultiLine preserveWhitespaces"/>
       </rich:column>
     </rich:dataTable>
   </a4j:outputPanel>

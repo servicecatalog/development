@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: Nov 12, 2012                                                      
  *                                                                              
@@ -83,4 +83,6 @@ public interface SubscriptionsService {
     VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey) throws ObjectNotFoundException;
 
     boolean isCurrentUserAssignedToSubscription(long subscriptionKey);
+
+    POSubscription getMySubscriptionDetails(long key);
 }

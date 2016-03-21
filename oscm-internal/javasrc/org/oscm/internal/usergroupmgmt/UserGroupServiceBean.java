@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-24                                                      
  *                                                                              
@@ -42,7 +42,7 @@ import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.DataConverter;
 import org.oscm.internal.usermanagement.POUserInUnit;
-import org.oscm.pagination.PaginationUsersInUnit;
+import org.oscm.paginator.PaginationUsersInUnit;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;

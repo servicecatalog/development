@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="run_tests" xmlns:setup="antlib:org.oscm.webtest.setup">
 
@@ -631,6 +631,38 @@
       <login.logout />
     </webtest>
 
+    <webtest name="testMPL_Bug8791_ManageSubscription_Assign_Concurrency">
+      <selectWebClient name="client_A">
+        <!-- Login as customer -->
+        <mpl_login.user mid="${mId}" userId="${customerUserA}" />
+        <mpl_goto.account.subscriptions />
+        <clickElement xpath="//img[contains(@id, 'ServiceB')]" />
+
+        <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
+
+        <!-- Switch to account / users page -->
+        <mpl_goto.account.users />
+        <mpl_user.display userId="${customerUserA}" />
+        <clickElement htmlId="editUserForm:subscriptionTable:ServiceB:assignCheckbox"/>
+        <!-- not yet press save -->
+      </selectWebClient>
+
+      <selectWebClient name="client_B">
+        <terminateSubscriptionByXpath subsXpath="//img[contains(@id, 'ServiceB')]" />
+      </selectWebClient>
+
+      <selectWebClient name="client_A">
+        <clickButton label="${button.save}" />
+        <not>
+          <mpl_verify.success label="${info.user.saved}" matchWithWildCard="false" />
+        </not>
+        <verifyXPath xpath="//*[@id='editUserForm']" />
+        <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.SUBSCRIPTION}" att0="#{givenSubscriptionId}" />
+        <common.verifyError label="#{errorMsg}" regex="false" />
+        <login.logout />
+      </selectWebClient>
+    </webtest>
+
     <webtest name="testMPL_Bug8791_ManageSubscription_DeAssign_Concurrency">
       <selectWebClient name="client_A">
         <!-- Login as customer -->
@@ -671,41 +703,7 @@
       <mail.cleanInbox />
     </webtest>
   </target>
-  
-  <target name="ignored_tests">
-  	<webtest name="testMPL_Bug8791_ManageSubscription_Assign_Concurrency">
-      <selectWebClient name="client_A">
-        <!-- Login as customer -->
-        <mpl_login.user mid="${mId}" userId="${customerUserA}" />
-        <mpl_goto.account.subscriptions />
-        <clickElement xpath="//img[contains(@id, 'ServiceB')]" />
 
-        <storeXPath property="givenSubscriptionId" xpath="//*[@id='serviceDetailName']/text()" />
-
-        <!-- Switch to account / users page -->
-        <mpl_goto.account.users />
-        <mpl_user.display userId="${customerUserB}" />
-        <setCheckbox xpath="//input[contains(@id,'#{givenSubscriptionId}:assignCheckbox')]" checked="true" />
-        <!-- not yet press save -->
-      </selectWebClient>
-
-      <selectWebClient name="client_B">
-        <terminateSubscriptionByXpath subsXpath="//img[contains(@id, 'ServiceB')]" />
-      </selectWebClient>
-      <sleep description="Wait for subscription to terminate" seconds="5"/>
-      <selectWebClient name="client_A">
-        <clickButton label="${button.save}" />
-        <not>
-          <mpl_verify.success label="${info.user.saved}" matchWithWildCard="false" />
-        </not>
-        <verifyXPath xpath="//*[@id='editUserForm']" />
-        <common.handleMessageParameters property="errorMsg" value="${ex.ObjectNotFoundException.SUBSCRIPTION}" att0="#{givenSubscriptionId}" />
-        <common.verifyError label="#{errorMsg}" regex="false" />
-        <login.logout />
-      </selectWebClient>
-    </webtest>
-  </target>	
-	
   <macrodef name="createServiceWithTimeSlices">
     <sequential>
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />

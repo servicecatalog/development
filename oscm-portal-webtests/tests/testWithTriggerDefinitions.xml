@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <project default="testWithTriggerDefinitions" xmlns:setup="antlib:org.oscm.webtest.setup">
   <import file="../macros/all.xml" />
   <import file="../macros/marketplace/all.xml" />
@@ -279,7 +279,8 @@
       <verifySelectField htmlId="editForm:targetType" value="WEB_SERVICE" />
       <verifyInputField htmlId="editForm:target" value="" />
       <!-- check if delete button is disabled -->
-      <common.isButtonDisabled buttonId="editForm:deleteButton" />
+      <storeElementAttribute htmlid="editForm:deleteButtonDisabled" property="isBtnDisabled" attributeName="class" />
+      <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
       <setInputField htmlId="editForm:target" value="http://test1.de" />
       <setInputField htmlId="editForm:triggerName" value="Triggername" />
       <setSelectField name="editForm:type" text="Subscribe to service" />
@@ -305,7 +306,8 @@
       <setInputField htmlId="editForm:target" value="http://updated.de" />
       <setInputField htmlId="editForm:triggerName" value="updated" />
       <not description="delete button should be enabled">
-        <common.isButtonDisabled buttonId="editForm:deleteButton" />
+        <storeElementAttribute htmlid="editForm:deleteButtonDisabled" property="isBtnDisabled" attributeName="class" />
+        <verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
       </not>
       <clickElement htmlId="editForm:saveButton" />
       <common.verifySuccess label="${info.triggerDefinition.saved}" />

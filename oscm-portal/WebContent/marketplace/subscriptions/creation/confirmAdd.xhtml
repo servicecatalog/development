@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!--
   ~ *******************************************************************************
   ~ *
@@ -55,14 +55,20 @@
                                               styleClass="label"/>
                                 <h:outputText
                                         value="#{subscriptionWizardConversation.model.subscription.subscriptionId}"
-                                        id="subscriptionIdValue"/>
+                                        id="subscriptionIdValue" styleClass="stringInMultiLine"/>
 
                                 <h:outputText value="#{msg['subscription.purchaseOrderNumber']}"
                                               id="purchaseOrderNumberLabel"
                                               styleClass="label"/>
                                 <h:outputText
                                         value="#{subscriptionWizardConversation.model.subscription.purchaseOrderNumber}"
-                                        id="purchaseOrderNumberValue"/>
+                                        id="purchaseOrderNumberValue" styleClass="stringInMultiLine"/>
+
+                                <h:outputText value="#{msg['unit.organizationalUnit']}" id="unitIdLabel"
+                                              styleClass="label"/>
+                                <h:outputText
+                                        value="#{subscriptionWizardConversation.subscriptionUnitCtrl.model.selectedUnitName}"
+                                        id="unitIdValue" styleClass="stringInMultiLine"/>
 
                                 <c:forEach items="#{subscriptionWizardConversation.model.subscriptionUdaRows}"
                                            var="subUda" varStatus="v">

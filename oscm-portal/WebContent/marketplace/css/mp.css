@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  */ 
 @charset "utf-8";
 
@@ -2936,8 +2936,12 @@ div.pagingOptions p{
 	width: 550px; 
 }
 
-.visibleServiceTablePager td{  
+.visibleServiceTablePager td{
 	padding-top: 0px;
+}
+
+.visibleServiceTablePager span a.button {
+    width: inherit !important;
 }
 
 .serviceTableColumnCheckBox{
@@ -3411,4 +3415,13 @@ form .formHighlight div.div-for-input {
 	background-image:
 		url("/oscm-portal/org.richfaces.resources/rfRes/colHdrGrad.png?v=4.5.0.Final&db=eAFjZJBjZDBiZBBhYGBgAgADawBq&ln=org.richfaces.images")
 		!important;
+}
+
+div.responsive-table-panel {
+	overflow-y: auto;
+	margin-top: 10px;
+}
+
+#organizationUnitPanelGrid {
+	padding:10px;
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-23                                                      
  *                                                                              
@@ -23,7 +23,7 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.POUserInUnit;
-import org.oscm.pagination.PaginationUsersInUnit;
+import org.oscm.paginator.PaginationUsersInUnit;
 
 /**
  * Service providing the functionality to manage user group.

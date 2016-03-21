@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                                           
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
  *  Creation Date: 23.07.15 14:32
  *
@@ -14,17 +14,16 @@ import org.oscm.pagination.Pagination;
 
 public class ToCommonPaginationStrategy
         extends AbstractConversionStrategy implements
-        ConversionStrategy<Pagination, org.oscm.pagination.Pagination> {
+        ConversionStrategy<Pagination, org.oscm.paginator.Pagination> {
 
     @Override
-    public org.oscm.pagination.Pagination convert(
-            Pagination pagination) {
+    public org.oscm.paginator.Pagination convert(Pagination pagination) {
 
         if (pagination == null) {
             return null;
         }
 
-        org.oscm.pagination.Pagination result = new org.oscm.pagination.Pagination();
+        org.oscm.paginator.Pagination result = new org.oscm.paginator.Pagination();
 
         result.setLimit(pagination.getLimit());
         result.setOffset(pagination.getOffset());

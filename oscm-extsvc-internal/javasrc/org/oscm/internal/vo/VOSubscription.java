@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                        
+ *  Copyright FUJITSU LIMITED 2016                                        
  *       
  *  Creation Date: 2009-09-17                                                      
  *                                                                              
@@ -143,6 +143,11 @@ public class VOSubscription extends BaseVO implements Serializable {
                             serviceAccessInfo.length());
         }
         return serviceAccessInfo;
+    }
+
+    public boolean isAccessViaAccessInfo(){
+        return getServiceAccessType() == ServiceAccessType.DIRECT
+                || getServiceAccessType() == ServiceAccessType.USER;
     }
 
     /**

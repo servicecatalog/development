@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                              
  *  Creation Date: 19.02.2010                                                      
  *                                                                              
@@ -928,7 +928,7 @@ public class ReportingServiceBeanTest {
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(new FileInputStream(file));
             return XMLConverter.convertToString(doc, false).replace(
-                    "<!-- Copyright FUJITSU LIMITED 2015-->", "");
+                    "<!-- Copyright FUJITSU LIMITED 2016-->", "");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 04.10.2012                                                      
  *                                                                              
@@ -70,7 +70,7 @@ import org.oscm.internal.usermanagement.POUserAndSubscriptions;
 import org.oscm.internal.usermanagement.POUserDetails;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.Constants;

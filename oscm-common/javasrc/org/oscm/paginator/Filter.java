@@ -1,28 +1,29 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 01.04.2015                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.io.Serializable;
 
 /**
- * This class describes the sorting of a table, which column and which sorting
- * order.
- * 
+ * This class describes the filter of the table. Based on column name and filter
+ * expression filters data.
  */
-public class Sorting implements Serializable {
+public class Filter implements Serializable {
 
+    private static final long serialVersionUID = 1699591001139459732L;
     private TableColumns column;
-    private SortOrder order = SortOrder.UNSORTED;
+    private String expression;
+    static final String EMPTY = "";
 
-    public Sorting(TableColumns column, SortOrder order) {
+    public Filter(TableColumns column, String expression) {
         this.column = column;
-        this.order = order;
+        this.expression = expression;
     }
 
     public TableColumns getColumn() {
@@ -33,12 +34,12 @@ public class Sorting implements Serializable {
         this.column = column;
     }
 
-    public SortOrder getOrder() {
-        return order;
+    public String getExpression() {
+        return expression == null ? EMPTY : expression;
     }
 
-    public void setOrder(SortOrder order) {
-        this.order = order;
+    public void setExpression(String expression) {
+        this.expression = expression;
     }
 
 }

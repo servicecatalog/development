@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                        
+ *  Copyright FUJITSU LIMITED 2016                                        
  *       
  *  Creation Date: 2009-02-05                                                       
  *                                                                              
@@ -5330,5 +5330,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public void removeSubscriptionOwner(Subscription sub) {
         sub.setOwner(null);
         dataManager.merge(sub);
+    }
+
+    @Override
+    public Subscription getMySubscriptionDetails(long key) {
+        return getSubscriptionDao().getMySubscriptionDetails(key);
     }
 }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                              
+ *  Copyright FUJITSU LIMITED 2016                                              
  *                                                                              
  *  Creation Date: 2015.10.22                                                   
  *                                                                              
@@ -22,9 +22,9 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.PaginationUsersInUnit;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.PaginationUsersInUnit;
+import org.oscm.paginator.TableColumns;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.UserGroups;

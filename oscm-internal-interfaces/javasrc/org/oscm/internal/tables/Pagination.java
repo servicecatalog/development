@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 27.03.2015                                                      
  *                                                                              
@@ -13,13 +13,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.Sorting;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.Sorting;
 
 /**
  * Contains the pagination parameters.
- * @deprecated Use Pagination class from common module. {@link org.oscm.pagination.Pagination}
+ * @deprecated Use Pagination class from common module. {@link org.oscm.paginator.Pagination}
  */
 @Deprecated
 public class Pagination implements Serializable {

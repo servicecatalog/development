@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 01.04.2015                                                      
  *                                                                              
@@ -15,12 +15,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.SortOrder;
-import org.oscm.pagination.Sorting;
-import org.oscm.pagination.TableColumns;
 import org.oscm.internal.tables.Pagination;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.SortOrder;
+import org.oscm.paginator.Sorting;
+import org.oscm.paginator.TableColumns;
 
 /**
  * @author stavreva

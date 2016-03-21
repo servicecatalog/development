@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 21.09.2012                                                      
  *                                                                              
@@ -22,7 +22,7 @@ import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POSubscription;
-import org.oscm.pagination.PaginationInt;
+import org.oscm.paginator.PaginationInt;
 
 /**
  * @author weiser
@@ -143,7 +143,7 @@ public interface SubscriptionListServiceLocal {
      * 
      * @return the list of {@link POSubscription}s which are assignable to user
      */
-    public List<POSubscription> getUserAssignableSubscriptions(org.oscm.pagination.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
+    public List<POSubscription> getUserAssignableSubscriptions(org.oscm.paginator.Pagination pagination, PlatformUser user, Set<SubscriptionStatus> states);
     
     /**
      * Retrieves the number of user's assignable subscriptions

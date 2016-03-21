@@ -1,12 +1,12 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 30.03.2015                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 /**
  * Sort order ascending, descending, unsorted

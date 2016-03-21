@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                            
+ *  Copyright FUJITSU LIMITED 2016                            
  *
  *   Creation Date: 24.04.15 16:21
  *
@@ -26,11 +26,11 @@ import org.ajax4jsf.model.Range;
 import org.ajax4jsf.model.SequenceRange;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.pagination.Filter;
-import org.oscm.pagination.PaginationInt;
-import org.oscm.pagination.SortOrder;
-import org.oscm.pagination.Sorting;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.PaginationInt;
+import org.oscm.paginator.SortOrder;
+import org.oscm.paginator.Sorting;
+import org.oscm.paginator.TableColumns;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;

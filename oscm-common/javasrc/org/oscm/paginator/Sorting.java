@@ -1,29 +1,28 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 01.04.2015                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.io.Serializable;
 
 /**
- * This class describes the filter of the table. Based on column name and filter
- * expression filters data.
+ * This class describes the sorting of a table, which column and which sorting
+ * order.
+ * 
  */
-public class Filter implements Serializable {
+public class Sorting implements Serializable {
 
-    private static final long serialVersionUID = 1699591001139459732L;
     private TableColumns column;
-    private String expression;
-    static final String EMPTY = "";
+    private SortOrder order = SortOrder.UNSORTED;
 
-    public Filter(TableColumns column, String expression) {
+    public Sorting(TableColumns column, SortOrder order) {
         this.column = column;
-        this.expression = expression;
+        this.order = order;
     }
 
     public TableColumns getColumn() {
@@ -34,12 +33,12 @@ public class Filter implements Serializable {
         this.column = column;
     }
 
-    public String getExpression() {
-        return expression == null ? EMPTY : expression;
+    public SortOrder getOrder() {
+        return order;
     }
 
-    public void setExpression(String expression) {
-        this.expression = expression;
+    public void setOrder(SortOrder order) {
+        this.order = order;
     }
 
 }

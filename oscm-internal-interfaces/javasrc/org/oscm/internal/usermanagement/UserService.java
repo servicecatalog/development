@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 03.09.2012                                                      
  *                                                                              
@@ -15,8 +15,8 @@ import org.oscm.internal.components.response.ReturnCode;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.usergroupmgmt.POUserGroup;
-import org.oscm.pagination.Pagination;
-import org.oscm.pagination.PaginationInt;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationInt;
 
 /**
  * @author weiser

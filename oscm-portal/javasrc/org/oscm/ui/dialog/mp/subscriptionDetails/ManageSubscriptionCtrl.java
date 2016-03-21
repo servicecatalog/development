@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
 package org.oscm.ui.dialog.mp.subscriptionDetails;
@@ -591,6 +591,7 @@ public class ManageSubscriptionCtrl implements Serializable {
      * created.
      */
     public String setPopupTargetAssignUsers() {
+        initializeUnassignedUsers();
         model.setModalTitle(ui.getText(EDIT_ROLES_MODAL_TITLE, model
                 .getSubscription().getSubscriptionId()));
         boolean dontOpenModalDialog = false;
@@ -616,7 +617,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         }
     }
 
-    public String initializeUnassignedUsers() {
+    private String initializeUnassignedUsers() {
 
         Long orgKey = userBean.getOrganizationBean().getOrganization().getKey();
         Long subKey = model.getCurrentSubscriptionKey();
@@ -763,26 +764,32 @@ public class ManageSubscriptionCtrl implements Serializable {
     public void selectedOwnerChanged(ValueChangeEvent event) {
 
         UIComponent uiComponent = event.getComponent();
+        if (!(uiComponent instanceof HtmlSelectOneRadio)) {
+            return;
+        }
 
-        if (uiComponent instanceof HtmlSelectOneRadio) {
+        HtmlSelectOneRadio radioBtn = (HtmlSelectOneRadio) uiComponent;
+        List<UIComponent> uiComponents = radioBtn.getChildren();
 
-            HtmlSelectOneRadio radioBtn = (HtmlSelectOneRadio) uiComponent;
-            List<UIComponent> uiComponents = radioBtn.getChildren();
+        for (UIComponent component : uiComponents) {
 
+            if (!(component instanceof HtmlInputHidden)) {
+                continue;
+            }
+
+            HtmlInputHidden hiddenInput = (HtmlInputHidden) component;
+            String ownerId = (String) hiddenInput.getValue();
             if (Boolean.valueOf((String) event.getNewValue()).booleanValue()) {
-
-                for (UIComponent component : uiComponents) {
-
-                    if (component instanceof HtmlInputHidden) {
-
-                        HtmlInputHidden hiddenInput = (HtmlInputHidden) component;
-                        String ownerId = (String) hiddenInput.getValue();
-                        if (ownerId.trim().isEmpty()) {
-                            deassignOwner();
-                            return;
-                        }
-                        setOwnerSelectedStatus(ownerId);
-                    }
+                if (ownerId.trim().isEmpty()) {
+                    deassignOwner();
+                    return;
+                }
+                setOwnerSelectedStatus(ownerId);
+                return;
+            }
+            for (User owner : model.getSubscriptionOwners()) {
+                if (owner.getUserId().equals(ownerId)) {
+                    owner.setOwnerSelected(false);
                 }
             }
         }

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015
+ *  Copyright FUJITSU LIMITED 2016
  *
  *  Creation Date: 18.11.2015
  *
@@ -24,8 +24,8 @@ import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.usermanagement.POUserInUnit;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.PaginationUsersInUnit;
-import org.oscm.pagination.TableColumns;
+import org.oscm.paginator.PaginationUsersInUnit;
+import org.oscm.paginator.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.dialog.mp.usesubscriptions.MySubscriptionsLazyDataModel;

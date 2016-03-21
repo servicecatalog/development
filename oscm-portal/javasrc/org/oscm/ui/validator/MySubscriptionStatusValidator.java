@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2015
+ *  Copyright FUJITSU LIMITED 2016
  *  <p/>
  *  Creation Date: 2015-06-02
  *******************************************************************************/
@@ -24,14 +24,12 @@ public class MySubscriptionStatusValidator implements Validator {
         POSubscription poSubscription = (POSubscription) param;
         long subId = poSubscription.getKey();
 
+        VOSubscriptionDetails sub;
         try {
-            VOSubscriptionDetails sub = service.getSubscriptionDetails(subId);
-            if (!sub.getStatus().equals(poSubscription.getStatus())) {
-                return false;
-            }
+            sub = service.getSubscriptionDetails(subId);
         } catch (ObjectNotFoundException e) {
             return false;
         }
-        return true;
+        return poSubscription.getStatus().equals(sub.getStatus());
     }
 }

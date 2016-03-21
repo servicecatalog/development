@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-27                                                      
  *                                                                              
@@ -68,7 +68,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.vo.VOUser;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.test.stubs.QueryStub;

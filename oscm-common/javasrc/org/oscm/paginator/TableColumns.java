@@ -1,12 +1,12 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 31.03.2015                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 /**
  * Enumeration representing the subscription table columns.

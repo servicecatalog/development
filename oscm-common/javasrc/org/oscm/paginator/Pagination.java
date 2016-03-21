@@ -1,12 +1,12 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                                           
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
  *  Creation Date: 20.07.15 16:44
  *
  *******************************************************************************/
 
-package org.oscm.pagination;
+package org.oscm.paginator;
 
 import java.io.Serializable;
 import java.util.Set;

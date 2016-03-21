@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                              
+ *  Copyright FUJITSU LIMITED 2016                                              
  *                                                                                                                                 
  *  Creation Date: 2015年4月30日                                                      
  *                                                                              
@@ -95,7 +95,7 @@ public class HeadersTest {
                             || fileName.contains("import_en.css")) {
                         continue;
                     }
-                    checkFile(fileName, "*  Copyright FUJITSU LIMITED 2015");
+                    checkFile(fileName, "*  Copyright FUJITSU LIMITED 2016");
                 } else if (fileName.toLowerCase().endsWith(".xml")
                         || fileName.toLowerCase().endsWith(".xhtml")) {
                     if (fileName
@@ -103,7 +103,7 @@ public class HeadersTest {
                         continue;
                     }
                     checkFile(fileName,
-                            "<!-- Copyright FUJITSU LIMITED 2015-->");
+                            "<!-- Copyright FUJITSU LIMITED 2016-->");
                 } else if (fileName.toLowerCase().endsWith(".properties")) {
                     if (fileName.toLowerCase().contains(
                             "oscm-common-unittests"
@@ -111,7 +111,7 @@ public class HeadersTest {
                             || fileName.contains("wt.testInWork.properties")) {
                         continue;
                     }
-                    checkFile(fileName, "# Copyright FUJITSU LIMITED 2015");
+                    checkFile(fileName, "# Copyright FUJITSU LIMITED 2016");
                 }
             }
         }

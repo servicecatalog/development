@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                           
  *  Sample controller implementation for the 
  *  BSS Asynchronous Provisioning Proxy (APP)

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 2014-6-25                                                      
  *                                                                              
@@ -32,7 +32,7 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**

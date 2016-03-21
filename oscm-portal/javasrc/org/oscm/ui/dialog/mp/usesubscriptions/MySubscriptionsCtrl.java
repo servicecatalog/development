@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: 14.03.2013                                                     
  *                                                                              
@@ -84,47 +84,13 @@ public class MySubscriptionsCtrl implements Serializable {
 
     @PostConstruct
     public void initialize(){
-    	checkSubscription();
     	initializeTriggerSubscriptions();
-        checkSubscriptionsNotEmpty();
-    }
-
-    public void checkSubscriptionsNotEmpty() {
-        POSubscription selectedSub = this.model.getSelectedSubscription();
-        SubscriptionsService selectedSubServ = subscriptionsService;
-        if (selectedSub != null) {
-            long subKey = selectedSub.getKey();
-
-            if (!selectedSubServ.isSubscriptionVisible(subKey)
-                    || !selectedSubServ
-                            .isCurrentUserAssignedToSubscription(subKey)
-                    || !ValidationPerformer.validate(
-                            MySubscriptionStatusValidator.class,
-                            selectedSubServ,
-                            this.model.getSelectedSubscription())) {
-                model.setSelectedSubscription(null);
-            }
-        }
     }
 
     public void initializeTriggerSubscriptions() {
     	myTriggerProcessesModel.setWaitingForApprovalSubs(triggerProcessService
                 .getMyWaitingForApprovalSubscriptions().getResultList(
                         POSubscription.class));
-    }
-
-    public void checkSubscription(){
-    	POSubscription selectedSubscription = model.getSelectedSubscription();
-    	
-    	if(selectedSubscription!=null){
-    		long subKey = selectedSubscription.getKey();
-    		
-    		if(!subscriptionsService.isSubscriptionVisible(subKey) 
-    				|| !subscriptionsService.isCurrentUserAssignedToSubscription(subKey) 
-    				|| !ValidationPerformer.validate(MySubscriptionStatusValidator.class, subscriptionsService, selectedSubscription)){
-    			model.setSelectedSubscription(null);
-    		}
-    	}
     }
 
     @EJB
@@ -152,25 +118,24 @@ public class MySubscriptionsCtrl implements Serializable {
      *             Thrown from the business logic.
      * @return the logical outcome.
      */
-    public String executeOperation() throws SaaSApplicationException {
-        POSubscription sub = model.getSelectedSubscription();//findSelectedSubscription();
+    public void executeOperation() throws SaaSApplicationException {
+        POSubscription sub = model.getSelectedSubscription();
         if (sub == null) {
-            return OUTCOME_ERROR;
+            return;
         }
-        VOTechnicalServiceOperation operation = findSelectedOperation(
-                sub.getVOSubscription(), sub.getSelectedOperationId());
-        if (operation == null) {
-            return OUTCOME_ERROR;
+        OperationModel selectedOperation = sub.getSelectedOperation();
+        if (selectedOperation == null || selectedOperation.getOperation() == null) {
+            return;
         }
+        VOTechnicalServiceOperation operation = selectedOperation.getOperation();
         try {
             subscriptionService.executeServiceOperation(
                     sub.getVOSubscription(), operation);
         } catch (ConcurrentModificationException e) {
             ui.handleError(null, ERROR_SUBSCRIPTION_CONCURRENTMODIFY);
-            return OUTCOME_ERROR;
+            return;
         }
         ui.handle(INFO_OPERATION_EXECUTED, operation.getOperationName());
-        return OUTCOME_SUCCESS;
     }
 
     VOTechnicalServiceOperation findSelectedOperation(VOSubscription sub,
@@ -185,8 +150,8 @@ public class MySubscriptionsCtrl implements Serializable {
         return null;
     }
 
-    public String operationChanged() {
-        POSubscription subscription = model.getSelectedSubscription();//findSelectedSubscription();
+    public void operationChanged() {
+        POSubscription subscription = model.getSelectedSubscription();
         String operationId = subscription.getSelectedOperationId();
         if (Strings.isEmpty(operationId)) {
             subscription.setSelectedOperation(null);
@@ -208,7 +173,6 @@ public class MySubscriptionsCtrl implements Serializable {
             subscription.setSelectedOperation(operationModel);
             subscription.setExecuteDisabled(false);
         }
-        return OUTCOME_SUCCESS;
     }
 
     List<OperationParameterModel> convert(VOTechnicalServiceOperation op,
@@ -270,21 +234,10 @@ public class MySubscriptionsCtrl implements Serializable {
 		this.myTriggerProcessesModel = myTriggerProcessesModel;
 	}
 
-	public void selectSubscription() {
-        for (POSubscription poSubscription : model.getMySubscriptions()) {
-            if (poSubscription.getSubscriptionId().equals(
-                    model.getSelectedSubscriptionId())) {
-                model.setSelectedSubscription(poSubscription);
-                return;
-            }
-        }
-	}
-
     public void validateSubscriptionStatus() {
-        final Long id = model.getSelectedSubscription() != null ? Long.valueOf(model.getSelectedSubscription().getKey()) : null;
-
-        if (id != null && !ValidationPerformer.validate(
-                MySubscriptionActivationValidator.class, subscriptionsService, id)) {
+        String subKey = model.getSelectedSubscriptionId();
+        POSubscription mySubscriptionDetails = subscriptionsService.getMySubscriptionDetails(Long.parseLong(subKey));
+        if (mySubscriptionDetails == null) {
             JSFUtils.addMessage(
                     null,
                     FacesMessage.SEVERITY_ERROR,
@@ -292,6 +245,8 @@ public class MySubscriptionsCtrl implements Serializable {
                     null);
             model.setSelectedSubscription(null);
             model.setSelectedSubscriptionId(null);
-       }
+        } else {
+            model.setSelectedSubscription(mySubscriptionDetails);
+        }
     }
 }

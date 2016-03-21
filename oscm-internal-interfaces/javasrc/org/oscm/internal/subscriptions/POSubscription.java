@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                              
  *  Creation Date: 18.02.2009                                                      
  *                                                                              
@@ -379,7 +379,7 @@ public class POSubscription implements Serializable {
 
     public boolean isShowUseServiceButton() {
         return (isStatusActive() || isStatusPendingUpd())
-                && !getAccessUrl().isEmpty();
+                && getAccessUrl() != null && !getAccessUrl().isEmpty();
     }
 
     public boolean isStatusWaitingForApproval() {

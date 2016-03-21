@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
 package org.oscm.build.ant;
@@ -21,6 +21,12 @@ public class DependencyPropertiesTask extends Task {
     private static final String REF_COMPILEPATH = "dependencies.compile.path";
     private static final String REF_RUNTIMEPATH = "dependencies.runtime.path";
 
+    private static final String ESS_PREFIX = "ess-";
+    private static final String OSCM_PREFIX = "oscm-";
+    private static final String SEPARATOR = File.separator;
+    private static final String OSCM_BUILD = "oscm-build";
+    private static final String ESS_BUILD = "ess-oscm-build";
+
     private File workspacedir;
     private File workdir;
     private File packagedir;
@@ -39,6 +45,7 @@ public class DependencyPropertiesTask extends Task {
         this.projectdir = projectdir;
     }
 
+    @Override
     public void execute() throws BuildException {
         if (workspacedir == null) {
             throw new BuildException("No workspace location set.");
@@ -74,6 +81,30 @@ public class DependencyPropertiesTask extends Task {
                     getWorkDir(name).toString());
             p.setProperty(PROP_PACKAGE_PREFIX + name + PROP_DIR_SUFFIX,
                     getPackageDir(name).toString());
+
+            name = ESS_PREFIX + name;
+
+            p.setProperty(
+                    PROP_PROJECT_PREFIX + name + PROP_DIR_SUFFIX,
+                    d.getLocation()
+                            .toString()
+                            .replace(SEPARATOR + OSCM_PREFIX,
+                                    SEPARATOR + ESS_PREFIX + OSCM_PREFIX)
+                            .replace(ESS_BUILD, OSCM_BUILD));
+            p.setProperty(
+                    PROP_WORK_PREFIX + name + PROP_DIR_SUFFIX,
+                    getWorkDir(name)
+                            .toString()
+                            .replace(SEPARATOR + OSCM_PREFIX,
+                                    SEPARATOR + ESS_PREFIX + OSCM_PREFIX)
+                            .replace(ESS_BUILD, OSCM_BUILD));
+            p.setProperty(
+                    PROP_PACKAGE_PREFIX + name + PROP_DIR_SUFFIX,
+                    getPackageDir(name)
+                            .toString()
+                            .replace(SEPARATOR + OSCM_PREFIX,
+                                    SEPARATOR + ESS_PREFIX + OSCM_PREFIX)
+                            .replace(ESS_BUILD, OSCM_BUILD));
         }
     }
 

@@ -1,7 +1,9 @@
 /*******************************************************************************
- * Copyright FUJITSU LIMITED 2015                                           
+ *
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- * Creation Date: 24.07.15 13:52
+ *  Creation Date: 24.07.15 13:52
+ *
  *******************************************************************************/
 
 package org.oscm.usergroupservice.bean;
@@ -42,7 +44,7 @@ import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.pagination.Pagination;
+import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;

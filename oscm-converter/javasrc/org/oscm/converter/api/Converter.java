@@ -1,6 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                                           
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
  *  Creation Date: 20.07.15 17:30
  *
@@ -93,11 +93,11 @@ public class Converter {
         ConversionFactory.register(PricedProductRole.class, VOPricedRole.class, new ToPricedRoleStrategy());
         ConversionFactory.register(Parameter.class, VOParameter.class, new ToExtParameterStrategy());
 
+        ConversionFactory.register(org.oscm.paginator.Pagination.class,
+                Pagination.class, new ToExtPaginationStrategy());
         ConversionFactory.register(Pagination.class,
-                org.oscm.pagination.Pagination.class,
-                new ToExtPaginationStrategy());
-        ConversionFactory.register(org.oscm.pagination.Pagination.class,
-                Pagination.class, new ToCommonPaginationStrategy());
+                org.oscm.paginator.Pagination.class,
+                new ToCommonPaginationStrategy());
     }
 
     private Converter() {

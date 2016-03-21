@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
 package org.oscm.test.stubs;
@@ -381,6 +381,11 @@ public class SubscriptionServiceStub implements SubscriptionService,
     @Override
     public void removeSubscriptionOwner(Subscription sub) {
 
+    }
+
+    @Override
+    public Subscription getMySubscriptionDetails(long key) {
+        return null;
     }
 
     @Override

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                              
  *  Author: Mike J&auml;ger                                                     
  *                                                                              
@@ -257,6 +257,10 @@ public enum LocalizedObjectTypes {
      */
     public enum InformationSource {
         DATABASE, RESOURCE_BUNDLE, DATABASE_AND_RESOURCE_BUNDLE;
+
+        public boolean canBeModified() {
+            return this != RESOURCE_BUNDLE;
+        }
     }
 
     /**

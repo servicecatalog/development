@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE project SYSTEM "../dtd/Project.dtd">
 <project default="definePublishingOptionsTest" xmlns:setup="antlib:org.oscm.webtest.setup">
 	<import file="../macros/all.xml" />
@@ -140,7 +140,8 @@
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
       <invoke url="${supplierUrl}/service/publish.jsf" />
       <setSelectField htmlId="editForm:selectedServiceId" text="Service2" />
-      <common.isButtonDisabled buttonId="editForm:saveButton" />
+		<storeElementAttribute htmlid="editForm:saveButtonDisabled" property="isBtnDisabled" attributeName="class" />
+		<verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
       <login.logout />
     </webtest>
 

@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
@@ -7,9 +7,13 @@
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
   <a4j:outputPanel id="pagerPanel" styleClass="pager clearfix">
 
+    <c:if test="#{empty pagerExecute}">
+      <c:set var="pagerExecute" value="@region" />
+    </c:if>
+
     <rich:dataScroller id="#{pagerId}" renderIfSinglePage="false" render="#{render}" oncomplete="#{oncomplete}"
       fastControls="hide" scrollerListener="#{tableState.actionListener}" page="#{tableState.activePages[rich:clientId(pagerId)]}"
-      maxPages="5">
+      maxPages="5" execute="#{pagerExecute}">
       <f:facet name="first">
         <h:graphicImage value="/img/transparentPixel.png" styleClass="arrow_start" />
       </f:facet>

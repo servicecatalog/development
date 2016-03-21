@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
 <project default="testMPL_accessInfoAcceptForm" xmlns:setup="antlib:org.oscm.webtest.setup">
   <import file="../../macros/marketplace/all.xml" />
@@ -40,6 +40,11 @@
 
       <mpl_goto.page relpath="/subscriptions/index.jsf" mid="${mId}" />
       <clickElement htmlId="subListForm:subscriptionsList:0" />
+      <verifyXPath xpath="//*[@id='1441015496534']" />
+
+      <!-- Issue cb 5389 - also verify if the access info appears in account/subscriptionDetails -->
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
       <verifyXPath xpath="//*[@id='1441015496534']" />
     </webtest>
   </target>

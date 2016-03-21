@@ -1,7 +1,7 @@
 /*
  * ******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2015                            
+ *  Copyright FUJITSU LIMITED 2016                            
  *
  *   Creation Date: 08.07.15 09:52
  *
@@ -129,9 +129,6 @@ public class SubscriptionUnitCtrl implements Serializable {
         }
         HtmlSelectOneRadio radioBtn = (HtmlSelectOneRadio) uiComponent;
         List<UIComponent> uiComponents = radioBtn.getChildren();
-        if (!Boolean.valueOf((String) event.getNewValue()).booleanValue()) {
-            return;
-        }
         for (UIComponent component : uiComponents) {
             if (!(component instanceof HtmlInputHidden)) {
                 continue;
@@ -142,7 +139,17 @@ public class SubscriptionUnitCtrl implements Serializable {
                 deassignUnit();
                 return;
             }
-            assignToSelectedUnit(unitId);
+            if (Boolean.valueOf((String) event.getNewValue()).booleanValue()) {
+                assignToSelectedUnit(unitId);
+                return;
+            }
+            for (POUserGroup unit : model.getUnits()) {
+                if (unit.getKey() == unitId) {
+                    unit.setUnitSelected(false);
+                    unit.setUnitChecked(null);
+                }
+            }
+
         }
     }
     

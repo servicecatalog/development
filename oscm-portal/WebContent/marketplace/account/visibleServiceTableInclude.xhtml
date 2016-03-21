@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml"
@@ -24,7 +24,7 @@
 
           <f:facet name="header">
             <a4j:outputPanel styleClass="visibleServiceTablePager">
-              <adm:pager pagerId="#{pagerId}" pagerButtonRendered="#{size gt pageCount}" oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');"/>
+              <adm:pager pagerId="#{pagerId}" oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', 'allServiceCheckbox');"/>
             </a4j:outputPanel>
           </f:facet>
 
@@ -87,8 +87,8 @@
     	}
 	  </script>
       <script type="application/javascript">
-        $("[id='groupForm']").on("DOMSubtreeModified propertychange", function() {
-          AdmUtils.updateSelectAllCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', "groupForm:servicesTable:allServiceCheckbox");
+        $("[id='#{formName}']").on("DOMSubtreeModified propertychange", function() {
+          AdmUtils.updateSelectAllCheckbox('#{formName}:servicesTable', 'serviceCheckbox', '#{size}', "#{formName}:servicesTable:allServiceCheckbox");
         });
       </script>
 	</a4j:outputPanel>

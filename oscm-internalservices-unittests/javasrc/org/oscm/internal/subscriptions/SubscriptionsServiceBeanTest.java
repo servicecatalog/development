@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
+ *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                                                                                 
  *  Creation Date: Nov 14, 2012                                                      
  *                                                                              
@@ -21,6 +21,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.validation.Invariants.assertNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +29,8 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.UsageLicense;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
@@ -289,18 +287,17 @@ public class SubscriptionsServiceBeanTest {
     @Test
     public void getSubscriptionsAndCustomersForManagersWithPagination()
             throws Exception {
+        bean = spy(bean);
+        LocalizerFacade facade = getLocalizerFacadeMock();
+        doReturn(facade).when(bean).getLocalizerFacade();
         // given
-        /*Pagination pagination = new Pagination();
+        Pagination pagination = new Pagination();
         pagination.setOffset(20);
         pagination.setLimit(10);
         List<Subscription> expectedSubscriptions = new ArrayList<Subscription>();
         expectedSubscriptions.addAll(givenSubscriptions());
         when(subscriptionServiceLocal.getSubscriptionsForManagers(pagination))
                 .thenReturn(expectedSubscriptions);
-        
-        when(bean.getLocalizerFacade()).thenReturn(any(LocalizerFacade.class));
-        LocalizerFacade facade = getLocalizerFacadeMock();
-        doReturn(facade).when(bean).getLocalizerFacade();
         
         // when
         Response response = bean
@@ -316,7 +313,7 @@ public class SubscriptionsServiceBeanTest {
                 Long.valueOf(result.get(0).getActivation()));
         assertEquals(CUSTOMER_NAME, result.get(0).getCustomerName());
         assertEquals(PRODUCT_ID, result.get(1).getServiceId());
-        assertEquals(SUBSCRIPTION_ID, result.get(1).getSubscriptionId());*/
+        assertEquals(SUBSCRIPTION_ID, result.get(1).getSubscriptionId());
     }
 
     @Test(expected = OrganizationAuthoritiesException.class)
@@ -353,11 +350,17 @@ public class SubscriptionsServiceBeanTest {
     }
 
     private List<Subscription> givenSubscriptions() {
-        List<Subscription> subscriptionList = new ArrayList<Subscription>();
+        List<Subscription> subscriptionList = new ArrayList<>();
+        subscriptionList.add(createSubscription());
+        subscriptionList.add(createSubscription());
+        return subscriptionList;
+    }
+
+    private Subscription createSubscription() {
         Subscription subscription1 = new Subscription();
-        Subscription subscription2 = new Subscription();
         Organization customer = new Organization();
         Product product = new Product();
+        product.setTechnicalProduct(new TechnicalProduct());
         customer.setOrganizationId(CUSTOMER_ORGID);
         customer.setName(CUSTOMER_NAME);
         product.setProductId(PRODUCT_ID);
@@ -365,13 +368,24 @@ public class SubscriptionsServiceBeanTest {
         subscription1.setOrganization(customer);
         subscription1.setProduct(product);
         subscription1.setActivationDate(Long.valueOf(ACTIVATION_DATE));
-        subscription2.setSubscriptionId(SUBSCRIPTION_ID);
-        subscription2.setOrganization(customer);
-        subscription2.setProduct(product);
-        subscription2.setActivationDate(Long.valueOf(ACTIVATION_DATE));
-        subscriptionList.add(subscription1);
-        subscriptionList.add(subscription2);
-        return subscriptionList;
+        subscription1.setStatus(SubscriptionStatus.ACTIVE);
+        return subscription1;
     }
 
+    @Test
+    public void getMySubscriptionDetailsTest() {
+        bean = spy(bean);
+        LocalizerFacade facade = getLocalizerFacadeMock();
+        doReturn(facade).when(bean).getLocalizerFacade();
+
+        Subscription sub = createSubscription();
+        sub = spy(sub);
+        when(subscriptionServiceLocal.getMySubscriptionDetails(1L)).thenReturn(sub);
+        bean.dm = mock(DataService.class);
+        when(bean.dm.getCurrentUser()).thenReturn(new PlatformUser());
+
+        POSubscription mySubscriptionDetails = bean.getMySubscriptionDetails(1L);
+
+        assertNotNull(mySubscriptionDetails);
+    }
 }

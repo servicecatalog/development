@@ -1,4 +1,4 @@
-<!-- Copyright FUJITSU LIMITED 2015-->
+<!-- Copyright FUJITSU LIMITED 2016-->
 <!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
                              "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
@@ -62,10 +62,10 @@
       <rich:column styleClass="fieldXS"
         rendered="#{priceModelBean.priceModel.chargeable and not priceModelBean.editDisabled}">
         <t:div id="focusButtons" style="display:none;">
-          <adm:buttonCustomizedOnClick id="addButton" value="" buttonType="add"
+          <adm:buttonCustomizedOnClick id="addButton" value="" buttonType="add" buttonStyleClass="short-button"
             onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedEvent}', #{rowKey}, true);"
             rendered="#{not rowItem.lastSteppedPrice}" />
-          <adm:buttonCustomizedOnClick id="removeButton" value="" buttonType="minus"
+          <adm:buttonCustomizedOnClick id="removeButton" value="" buttonType="minus" buttonStyleClass="short-button"
             onclick="addRemoveSteppedPrice(this, '#{steppedPriceBean.typePricedEvent}', #{rowKey}, false);"
             rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}" />
         </t:div>

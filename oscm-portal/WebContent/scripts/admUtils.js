@@ -1,5 +1,5 @@
 /* 
- *  Copyright FUJITSU LIMITED 2015 
+ *  Copyright FUJITSU LIMITED 2016 
  */ 
 var AdmUtils = {
 	storedForm: []
@@ -2175,4 +2175,40 @@ AdmUtils.handlePagerActionsWithPopup = function(panelClass, pagerComponent, page
     		pagerComponent.switchToPage(pageNr);
     	}
     });
+}
+
+AdmUtils.adjustDialogHeight = function(dialogId) {
+	try {
+		var topPos = $("#" + dialogId + "_container").position().top;
+		var dialH = $("#" + dialogId + "_container").height();
+		var dialogBottomYposition = topPos + dialH;
+
+		if (dialogBottomYposition > $(window).height()) {
+			var dialogHeight = $(window).height() - topPos - 20;
+			$("#" + dialogId + "Grid").height(dialogHeight);
+			var tablePanelHeight = dialogHeight - 50;
+			$("#" + dialogId + "Form .responsive-table-panel").height(
+					tablePanelHeight);
+			$("#" + dialogId + "_content").height(dialogHeight + 100);
+		} else {
+			$("#" + dialogId + "Grid").height($(this)[0].height);
+			$("#" + dialogId + "Form .responsive-table-panel").height(
+					$(this)[0].height);
+			$("#" + dialogId + "_content").height($(this)[0].height);
+		}
+	} catch (err) {
+		// catch only for webtests
+	}
+}
+
+AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
+	var topPos = $("#" + dialogId + "_container").position().top;
+	var dialH = $("#" + dialogId + "_container").height();
+	var dialogBottomYposition = topPos + dialH;
+	var dialogHeight = $(window).height() - topPos - 150;
+	$("#" + dialogId + "Grid").height(dialogHeight);
+	var tablePanelHeight = dialogHeight - 50;
+	$("#" + dialogId + "Form .responsive-table-panel").height(
+			tablePanelHeight);
+	$("#" + dialogId + "_content").height(dialogHeight + 100);
 }
