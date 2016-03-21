@@ -521,6 +521,8 @@
     <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/combined">
       <fileset dir="${result.reports.dir}/coverage-combined" />
     </copy>
+    
+    <zip destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
 
     <!-- JMX internal -->
     <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">
