@@ -8,12 +8,15 @@
 
 package org.oscm.converter.strategy.domain;
 
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.vo.VOUser;
 
 public class ToDomUserStrategy implements
         ConversionStrategy<VOUser, PlatformUser> {
+
+    private DataService dataService;
 
     @Override
     public PlatformUser convert(VOUser voUser) {
@@ -27,5 +30,15 @@ public class ToDomUserStrategy implements
         user.setUserId(voUser.getUserId());
 
         return user;
+    }
+
+    @Override
+    public void setDataService(DataService dataService) {
+        this.dataService = dataService;
+    }
+
+    @Override
+    public DataService getDataService() {
+        return dataService;
     }
 }

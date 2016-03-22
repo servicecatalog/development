@@ -2,29 +2,29 @@
  *
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                  
- *  Creation Date: 23.07.15 14:32
- *
  *******************************************************************************/
 
 package org.oscm.converter.strategy.api;
 
 import org.oscm.converter.strategy.ConversionStrategy;
-import org.oscm.pagination.Pagination;
+import org.oscm.domobjects.SteppedPrice;
+import org.oscm.vo.VOSteppedPrice;
 
-public class ToExtPaginationStrategy extends AbstractConversionStrategy implements
-        ConversionStrategy<org.oscm.paginator.Pagination, Pagination> {
+public class ToExtSteppedPriceStrategy extends AbstractConversionStrategy implements ConversionStrategy<SteppedPrice, VOSteppedPrice> {
 
     @Override
-    public Pagination convert(org.oscm.paginator.Pagination pagination) {
-        if (pagination == null) {
+    public VOSteppedPrice convert(SteppedPrice steppedPrice) {
+        if (steppedPrice == null) {
             return null;
         }
+        VOSteppedPrice voSteppedPrice = new VOSteppedPrice();
 
-        Pagination result = new Pagination();
+        voSteppedPrice.setKey(steppedPrice.getKey());
+        voSteppedPrice.setVersion(steppedPrice.getVersion());
+        voSteppedPrice.setLimit(steppedPrice.getLimit());
+        voSteppedPrice.setPrice(steppedPrice.getPrice());
 
-        result.setLimit(pagination.getLimit());
-        result.setOffset(pagination.getOffset());
-
-        return result;
+        return voSteppedPrice;
     }
+
 }

@@ -8,13 +8,15 @@
 
 package org.oscm.converter.strategy;
 
+import org.oscm.converter.api.DataServiceHolder;
+
 /**
  * Interface used for conversion between different objects From -> To
  * 
  * @param <From>
  * @param <To>
  */
-public interface ConversionStrategy<From, To> {
+public interface ConversionStrategy<From, To> extends DataServiceHolder {
 
     /**
      * Converts object 'To' expected type object.

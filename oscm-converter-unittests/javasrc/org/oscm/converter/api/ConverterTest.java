@@ -13,6 +13,7 @@ import junit.framework.Assert;
 import org.junit.AfterClass;
 import org.junit.Test;
 
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
@@ -27,6 +28,16 @@ public class ConverterTest {
     private static final String VALID_ID = "0";
     
     private static ConversionStrategy<?, ?> conversionMock = new ConversionStrategy() {
+        @Override
+        public void setDataService(DataService dataService) {
+
+        }
+
+        @Override
+        public DataService getDataService() {
+            return null;
+        }
+
         @Override
         public Object convert(Object o) {
             return null;
