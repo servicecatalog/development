@@ -521,8 +521,16 @@
     <copy failonerror="false" todir="${artifacts.testing.coverage.dir}/combined">
       <fileset dir="${result.reports.dir}/coverage-combined" />
     </copy>
-    
-    <zip destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
+
+    <condition property="artifacts.testing.exists">
+      <available file="${artifacts.testing.dir}" type="dir"/>
+    </condition>
+    <if>
+      <equals arg1="${artifacts.testing.exists}" arg2="true" />
+      <then>
+        <zip destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
+      </then>
+    </if>
 
     <!-- JMX internal -->
     <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">
