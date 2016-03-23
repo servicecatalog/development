@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
- 
-<project name="Build all ADM UM Projects" basedir=".">
+
+<project name="Build all ADM UM Projects" basedir="." xmlns:if="ant:if">
 
   <description>
     Main build file for all ADM UM projects. It triggers the build of a given
@@ -141,7 +141,7 @@
   <target name="_dependencies">
     <dependencyresolver workspacedir="${workspace.dir}" projects="${projects}" />
   </target>
-  
+
   <target name="_copyDocument">
     <copy todir="${workspace.dir}/oscm-app-aws/doc">
       <fileset dir="../../document/Development/oscm-app-aws/doc">
@@ -525,12 +525,7 @@
     <condition property="artifacts.testing.exists">
       <available file="${artifacts.testing.dir}" type="dir"/>
     </condition>
-    <if>
-      <equals arg1="${artifacts.testing.exists}" arg2="true" />
-      <then>
-        <zip destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
-      </then>
-    </if>
+    <zip if:set="${artifacts.testing.exists}" destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
 
     <!-- JMX internal -->
     <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">
