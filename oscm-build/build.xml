@@ -525,7 +525,7 @@
     <condition property="artifacts.testing.exists">
       <available file="${artifacts.testing.dir}" type="dir"/>
     </condition>
-    <zip if:set="${artifacts.testing.exists}" destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
+    <zip if:true="${artifacts.testing.exists}" destfile="${artifacts.dir}/testReports.zip" basedir="${artifacts.testing.dir}" />
 
     <!-- JMX internal -->
     <copy failonerror="false" todir="${artifacts.testing.jmx-internal.dir}">
