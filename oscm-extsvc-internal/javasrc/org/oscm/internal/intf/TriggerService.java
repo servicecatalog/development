@@ -222,4 +222,14 @@ public interface TriggerService {
 
     public List<VOTriggerProcess> getAllActionsForOrganization();
 
+    /**
+     * Returns all trigger processes for actions which were initiated by a user
+     * of the calling user's organization and which are related to the subscription.
+     * <p>
+     * Required role: administrator of the organization
+     *
+     * @return the trigger processes
+     */
+    public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription();
+
 }
