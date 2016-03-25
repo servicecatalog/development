@@ -699,9 +699,6 @@ public class TriggerServiceBeanIT extends EJBTestBase {
         List<VOTriggerProcess> list = triggerService
                 .getAllActionsForOrganizationRelatedSubscription();
         Assert.assertEquals(3, list.size());
-
-        String orgId = list.get(1).getUser().getOrganizationId();
-        Assert.assertEquals("user_" + orgId, list.get(0).getUser().getUserId());
     }
 
     @Test
