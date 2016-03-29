@@ -206,6 +206,15 @@
   
   <script type="text/javascript">
     AdmUtils.selectRadioButtons(selectedRadioOptions);
+    $(document).ready(function() {
+    	$.each($('.rf-dt-c span'), function() {
+    		  var priceValue = $(this).html();
+    		  if (typeof priceValue !== 'undefined') {
+    			  priceValue = priceValue.replace(/,/g, ',&#8203;');
+    		      $(this).html(priceValue);
+    		  }
+    	});
+    });
   </script>
 
   <c:forEach items="#{inputList}" var="row" varStatus="v">
