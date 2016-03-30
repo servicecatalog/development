@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.naming.Context;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import org.oscm.domobjects.ConfigurationSetting;
@@ -24,6 +25,7 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOUserDetails;
 
+@Ignore
 public class LdapTest {
 
     @Test
