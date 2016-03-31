@@ -10,6 +10,7 @@ package org.oscm.integrationhelper;
 
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -176,7 +177,7 @@ public class WsProxyInfo {
      * @return
      */
     String getAndLogTokenHandlerProperty(String property) {
-        String value = tokenHandlerProp.getProperty(property).trim();
+        String value = StringUtils.trim(tokenHandlerProp.getProperty(property));
         return value;
     }
 
