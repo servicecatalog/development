@@ -119,7 +119,7 @@
           <!-- TAB: PRICE MODEL -->
           <rich:tab header="#{msg['service.priceModel']}"
                     rendered="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
-                    ontabenter="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
+                    onheaderclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
             <h:form id="configurationForm2">
               <ui:include src="../priceModelDetails.xhtml">
                 <ui:param name="priceModel" value="#{upgradeWizardConversation.model.service.priceModel}" />

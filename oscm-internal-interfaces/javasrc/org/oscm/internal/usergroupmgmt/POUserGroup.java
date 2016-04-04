@@ -36,6 +36,7 @@ public class POUserGroup extends BasePO {
     private String unitChecked;
     private boolean unitSelected;
     private List<POUserInUnit> usersAssignedToUnit = new ArrayList<POUserInUnit>();
+    private List<POUserGroupToInvisibleProduct> invisibleProducts = new ArrayList<POUserGroupToInvisibleProduct>();
 
     public List<POService> getVisibleServices() {
         return visibleServices;
@@ -145,5 +146,19 @@ public class POUserGroup extends BasePO {
 
     public void setUsersAssignedToUnit(List<POUserInUnit> usersAssignedToUnit) {
         this.usersAssignedToUnit = usersAssignedToUnit;
+    }
+
+    /**
+     * @return the invisibleProducts
+     */
+    public List<POUserGroupToInvisibleProduct> getInvisibleProducts() {
+        return invisibleProducts;
+    }
+
+    /**
+     * @param invisibleProducts the invisibleProducts to set
+     */
+    public void setInvisibleProducts(List<POUserGroupToInvisibleProduct> invisibleProducts) {
+        this.invisibleProducts = invisibleProducts;
     }
 }

@@ -19,7 +19,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -31,15 +30,15 @@ import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToInvisibleProduct;
 import org.oscm.domobjects.UserGroupToUser;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UnitRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.UserGroups;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 /**
  * @author zhaoh.fnst
@@ -196,6 +195,25 @@ public class UserGroupDaoIT extends EJBTestBase {
 
         // then
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void getInvisibleProductKeysWithUsersFlag() throws Exception {
+        // when
+        container.login(user.getKey(), ROLE_TECHNOLOGY_MANAGER);
+        prepareInvisibleProducts();
+
+        List<UserGroupToInvisibleProduct> result = runTX(
+                new Callable<List<UserGroupToInvisibleProduct>>() {
+                    @Override
+                    public List<UserGroupToInvisibleProduct> call()
+                            throws Exception {
+                        return dao.getInvisibleProducts(group1.getKey());
+                    }
+                });
+
+        // then
+        assertEquals(3, result.size());
     }
 
     @Test
@@ -404,13 +422,15 @@ public class UserGroupDaoIT extends EJBTestBase {
     }
 
     private void setInvisbleProductToUserGroup(final UserGroup userGroup,
-            final Product product) throws Exception {
+            final Product product, final boolean invisibleForAllUsers)
+            throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
                 UserGroupToInvisibleProduct grpToProd = new UserGroupToInvisibleProduct();
                 grpToProd.setProduct(product);
                 grpToProd.setUserGroup(userGroup);
+                grpToProd.setForallusers(invisibleForAllUsers);
                 ds.persist(grpToProd);
                 return null;
             }
@@ -444,26 +464,26 @@ public class UserGroupDaoIT extends EJBTestBase {
         UserGroup group5 = createUserGroup("group5", admin, false, "", "", user);
 
         // group1 is default group
-        setInvisbleProductToUserGroup(group1, prod1);
-        setInvisbleProductToUserGroup(group1, prod2);
-        setInvisbleProductToUserGroup(group1, prod3);
+        setInvisbleProductToUserGroup(group1, prod1, false);
+        setInvisbleProductToUserGroup(group1, prod2, false);
+        setInvisbleProductToUserGroup(group1, prod3, false);
 
-        setInvisbleProductToUserGroup(group2, prod2);
-        setInvisbleProductToUserGroup(group2, prod3);
-        setInvisbleProductToUserGroup(group2, prod6);
+        setInvisbleProductToUserGroup(group2, prod2, false);
+        setInvisbleProductToUserGroup(group2, prod3, false);
+        setInvisbleProductToUserGroup(group2, prod6, false);
 
-        setInvisbleProductToUserGroup(group3, prod2);
-        setInvisbleProductToUserGroup(group3, prod3);
-        setInvisbleProductToUserGroup(group3, prod4);
-        setInvisbleProductToUserGroup(group3, prod5);
+        setInvisbleProductToUserGroup(group3, prod2, false);
+        setInvisbleProductToUserGroup(group3, prod3, false);
+        setInvisbleProductToUserGroup(group3, prod4, false);
+        setInvisbleProductToUserGroup(group3, prod5, false);
 
-        setInvisbleProductToUserGroup(group4, prod2);
-        setInvisbleProductToUserGroup(group4, prod3);
-        setInvisbleProductToUserGroup(group4, prod4);
+        setInvisbleProductToUserGroup(group4, prod2, true);
+        setInvisbleProductToUserGroup(group4, prod3, true);
+        setInvisbleProductToUserGroup(group4, prod4, true);
 
-        setInvisbleProductToUserGroup(group5, prod2);
-        setInvisbleProductToUserGroup(group5, prod3);
-        setInvisbleProductToUserGroup(group5, prod5);
+        setInvisbleProductToUserGroup(group5, prod2, true);
+        setInvisbleProductToUserGroup(group5, prod3, true);
+        setInvisbleProductToUserGroup(group5, prod5, true);
 
         PlatformUser user1 = createUser(admin, false, "user1");
 
@@ -479,11 +499,11 @@ public class UserGroupDaoIT extends EJBTestBase {
         Product prod5 = createProduct(admin, "prod5");
 
         // group1 is default group
-        setInvisbleProductToUserGroup(defaultGroup, prod1);
-        setInvisbleProductToUserGroup(defaultGroup, prod2);
-        setInvisbleProductToUserGroup(defaultGroup, prod3);
-        setInvisbleProductToUserGroup(defaultGroup, prod4);
-        setInvisbleProductToUserGroup(defaultGroup, prod5);
+        setInvisbleProductToUserGroup(defaultGroup, prod1, false);
+        setInvisbleProductToUserGroup(defaultGroup, prod2, false);
+        setInvisbleProductToUserGroup(defaultGroup, prod3, false);
+        setInvisbleProductToUserGroup(defaultGroup, prod4, false);
+        setInvisbleProductToUserGroup(defaultGroup, prod5, false);
 
     }
 

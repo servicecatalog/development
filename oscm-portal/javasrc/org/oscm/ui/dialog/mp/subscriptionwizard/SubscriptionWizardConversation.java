@@ -591,6 +591,7 @@ public class SubscriptionWizardConversation implements Serializable {
      * @return
      */
     public String next() {
+        model.setReadOnlyParams(true);
         return BaseBean.OUTCOME_SERVICE_SUBSCRIBE;
     }
 

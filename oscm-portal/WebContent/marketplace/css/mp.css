@@ -3424,3 +3424,12 @@ form .formHighlight div.div-for-input {
 #tabExternalPriceModel > div > form.form-in-tab {
 	padding-bottom: 25px;
 }
+
+div.responsive-table-panel {
+	overflow-y: auto;
+	margin-top: 10px;
+}
+
+#organizationUnitPanelGrid {
+	padding:10px;
+}

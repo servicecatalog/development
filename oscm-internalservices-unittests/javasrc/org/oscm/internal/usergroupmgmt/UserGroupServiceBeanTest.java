@@ -331,6 +331,17 @@ public class UserGroupServiceBeanTest {
     }
 
     @Test
+    public void getInvisibleProductKeysWithUsersFlag() throws Exception {
+
+        // when
+        userGroupService.getInvisibleProducts(1L);
+
+        // then
+        verify(userGroupServiceLocal, times(1))
+                .getInvisibleProducts(eq(1L));
+    }
+
+    @Test
     public void handleRemovingCurrentUserFromGroup() {
         // given
         when(userGroupServiceLocal.handleRemovingCurrentUserFromGroup())

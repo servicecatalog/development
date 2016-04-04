@@ -12,7 +12,7 @@ import org.oscm.domobjects.UserGroup;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.vo.VOOrganizationalUnit;
 
-public class ToExtUnitStrategy implements
+public class ToExtUnitStrategy extends AbstractConversionStrategy implements
         ConversionStrategy<UserGroup, VOOrganizationalUnit> {
 
     @Override

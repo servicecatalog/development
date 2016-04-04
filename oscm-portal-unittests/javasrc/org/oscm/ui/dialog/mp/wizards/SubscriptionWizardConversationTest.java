@@ -299,6 +299,16 @@ public class SubscriptionWizardConversationTest {
     }
 
     @Test
+    public void testNext() {
+        // given
+        model.setReadOnlyParams(false);
+        // when
+        bean.next();
+        // then
+        assertTrue(model.isReadOnlyParams());
+    }
+
+    @Test
     public void selectServiceByUnitAdministrator_WithoutUnit() {
         // given
         Set<UserRoleType> userRoles = new HashSet<UserRoleType>();

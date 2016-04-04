@@ -75,14 +75,16 @@ public interface AccountService {
             @WebParam(name = "organizationKey") long organizationKey);
 
     /**
-     * Marks the organization of the calling user as deleted. An organization
-     * can only be deregistered if it does not have any active subscriptions.
-     * All users of the organization are deleted.
+     * Marks the organization of the calling user as deleted. Only a customer
+     * organization can be deregistered, if it does not have any active
+     * subscriptions. All users of the organization are deleted.
      * <p>
      * Required role: administrator of the organization
      * 
      * @throws DeletionConstraintException
-     *             if the organization has active subscriptions
+     *             if the organization has active subscriptions, or has other
+     *             roles beside the <code>OrganizationRoleType.CUSTOMER</code>
+     *             role
      */
     @WebMethod
     public void deregisterOrganization() throws DeletionConstraintException;
@@ -129,8 +131,7 @@ public interface AccountService {
      * If the method is successful, a new organization with the given
      * administrator and payment information is created. The organization is
      * assigned the
-     * {@link org.oscm.types.enumtypes.OrganizationRoleType#CUSTOMER}
-     * role.
+     * {@link org.oscm.types.enumtypes.OrganizationRoleType#CUSTOMER} role.
      * <p>
      * Required role: none
      * 
@@ -184,8 +185,8 @@ public interface AccountService {
      * the calling user is a member of. The calling user's organization is set
      * as the supplier, broker, or reseller for the new organization. The new
      * organization is assigned the
-     * {@link org.oscm.types.enumtypes.OrganizationRoleType#CUSTOMER}
-     * role and an organization ID is generated.
+     * {@link org.oscm.types.enumtypes.OrganizationRoleType#CUSTOMER} role and
+     * an organization ID is generated.
      * <p>
      * Required role: service manager of a supplier organization, reseller of a
      * reseller organization, or broker of a broker organization
