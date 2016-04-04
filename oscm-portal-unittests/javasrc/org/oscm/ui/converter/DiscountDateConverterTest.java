@@ -36,6 +36,7 @@ public class DiscountDateConverterTest {
 
     private FacesContextStub context;
     private DiscountDateConverter converter;
+    private long timestampInTimeZone;
 
     /**
      * Setup method.
@@ -53,30 +54,24 @@ public class DiscountDateConverterTest {
      */
     @Test
     public void testGetAsObject() throws ConverterException, ParseException {
-        // LG: The DiscountDateConverter uses the default timezone to convert
-        // strings in dates and
-        // vice versa. Therefore the test case must also use this timezone.
-        // "05/2010" is different from "1272664800000" for other timezones,
-        // .f.e. GMT+8 at FNST.
         String expectedString = "05/2010";
         SimpleDateFormat sdf = new SimpleDateFormat("MM/yyyy");
         Date expectedDate = sdf.parse("05/2010");
+        timestampInTimeZone = expectedDate.getTime();
         UIComponent component = ConverterTestHelper.getComponent(false, null,
                 null, "discountDate");
-        Long expected = new Long(expectedDate.getTime());
 
         Long actual = (Long) converter.getAsObject(context, component,
                 expectedString);
-
-        Assert.assertEquals(expected, actual);
+        Assert.assertEquals((Long) timestampInTimeZone, actual);
+        testGetAsString();
     }
 
     /**
      * Test for getting string of the value.
      */
-    @Test
     public void testGetAsString() {
-        Long expectedLong = Long.valueOf(1272664800000L); // "05/2010"
+        Long expectedLong = timestampInTimeZone; // "05/2010"
         String expected = "05/2010";
 
         UIComponent component = ConverterTestHelper.getComponent(false, null,

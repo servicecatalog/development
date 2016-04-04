@@ -364,12 +364,27 @@
     </antcall>
   </target>
 
+  <target name="unittestsWithoutCoverage" depends="_log, _dependencies" description="Resolves dependencies, runs unittests">
+    <buildproject target="unittestsWithoutCoverage" />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.dir}" />
+    </antcall>
+  </target>
 
-  <target name="integrationtests" depends="_log, _dependencies" description="Resolves dependencies, runs unittests">
+
+  <target name="integrationtests" depends="_log, _dependencies" description="Resolves dependencies, runs integrationtests">
     <buildproject target="integrationtests" />
     <createittestreport />
     <antcall target="checkUnitResult">
       <param name="unit.result.dir" location="${result.reports.test.it.dir}" />
+    </antcall>
+  </target>
+
+
+  <target name="integrationtestsWithoutCoverage" depends="_log, _dependencies" description="Resolves dependencies, runs integrationtests">
+    <buildproject target="integrationtestsWithoutCoverage" />
+    <antcall target="checkUnitResult">
+      <param name="unit.result.dir" location="${result.reports.test.dir}" />
     </antcall>
   </target>
 
