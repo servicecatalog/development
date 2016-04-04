@@ -2086,12 +2086,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         Subscription subscription = manageBean.checkSubscriptionOwner(null,
                 subscriptionKey);
 
+        return getSubscriptionDetails(subscription);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException {
+        Subscription subscription = manageBean.loadSubscription(null, subscriptionKey);
         return getSubscriptionDetails(subscription);
     }
 

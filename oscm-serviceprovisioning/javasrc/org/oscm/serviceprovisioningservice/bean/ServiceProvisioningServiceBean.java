@@ -3591,7 +3591,7 @@ public class ServiceProvisioningServiceBean implements
         Subscription subscription = validateSubscription(service, currentUser,
                 product);
         VOSubscriptionDetails voSubscriptionDetails = subscriptionService
-                .getSubscriptionDetails(subscription.getSubscriptionId());
+                .getSubscriptionDetailsWithoutOwnerCheck(subscription.getKey());
         return voSubscriptionDetails;
     }
 
