@@ -2656,4 +2656,10 @@ public class MockService implements IdentityService, SubscriptionService,
             ObjectNotFoundException {
         return new VOSubscriptionDetails();
     }
+
+    @Override
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
+        return new VOSubscriptionDetails();
+    }
 }
