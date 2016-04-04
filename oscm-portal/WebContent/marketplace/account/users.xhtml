@@ -144,7 +144,7 @@
 	                      sortOrder="#{tableState.sortOrders['mpColFirstName1']}"
                         filterType="custom"
 	                      filterValue="#{tableState.filterValues['mpColFirstName1']}"
-                        filterExpression="#{adm:matchBegin(user.lastName,  tableState.filterValues['mpColFirstName1'], false)}">
+                        filterExpression="#{adm:matchBegin(user.firstName,  tableState.filterValues['mpColFirstName1'], false)}">
 	                      <f:facet name="header">
 	                        <h:outputText value="#{msg['user.firstName']}" />
                             <adm:filterInput inputId="filterFirstName1" inputValue="#{tableState.filterValues['mpColFirstName1']}" 
