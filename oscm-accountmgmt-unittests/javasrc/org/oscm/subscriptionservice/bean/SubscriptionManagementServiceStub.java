@@ -532,4 +532,13 @@ public class SubscriptionManagementServiceStub implements
             throws ObjectNotFoundException {
     }
 
+    /* (non-Javadoc)
+     * @see org.oscm.internal.intf.SubscriptionService#getSubscriptionDetailsWithoutOwnerCheck(long)
+     */
+    @Override
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
+        return null;
+    }
+
 }
