@@ -32,7 +32,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class VersionHandler implements SOAPHandler<SOAPMessageContext> {
 
-    private static final String VERSION = "ctmg.service.version";
+    private static final String VERSION = "cm.service.version";
     private static final String PROPERTY_FILE_NAME = "webserviceclient.properties";
     private static final ApiVersionInfo apiVersionInfo = new ApiVersionInfo(
             PROPERTY_FILE_NAME);

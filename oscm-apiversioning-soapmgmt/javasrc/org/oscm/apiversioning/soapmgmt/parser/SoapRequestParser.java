@@ -27,7 +27,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class SoapRequestParser {
 
-    private static final String VERSION = "ctmg.service.version";
+    private static final String VERSION = "cm.service.version";
 
     public static String parseApiVersion(SOAPMessageContext context)
             throws SOAPException {
