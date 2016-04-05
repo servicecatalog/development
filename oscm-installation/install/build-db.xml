@@ -23,6 +23,11 @@
     <create.db />
   </target>
 
+  <target name="CREATE.dbForDocker">
+    <create.user failonerror="false" />
+    <create.db.docker />
+  </target>
+
   <target name="_DROP.dbAndUser">
     <delete.db failonerror="false" />
     <delete.user failonerror="false" />

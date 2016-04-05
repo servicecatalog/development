@@ -307,6 +307,9 @@ public class UserGroupServiceBean implements UserGroupService {
 
     private void verifyInvisibleProducts(List<POUserGroupToInvisibleProduct> invisibleProducts, long userGroupKey)
             throws ConcurrentModificationException {
+        if (invisibleProducts == null) {
+            return;
+        }
         for (POUserGroupToInvisibleProduct invisibleProduct : invisibleProducts) {
             UserGroupToInvisibleProduct product;
             try {
@@ -315,7 +318,8 @@ public class UserGroupServiceBean implements UserGroupService {
                 throw new ConcurrentModificationException();
             }
             BasePOAssembler.verifyVersionAndKey(product, invisibleProduct);
-        }
+            }
+
         List<POUserGroupToInvisibleProduct> currentlyStoredInvisibilities = getInvisibleProducts(userGroupKey);
         boolean entryFound = false;
         for (POUserGroupToInvisibleProduct existingInDb : currentlyStoredInvisibilities) {

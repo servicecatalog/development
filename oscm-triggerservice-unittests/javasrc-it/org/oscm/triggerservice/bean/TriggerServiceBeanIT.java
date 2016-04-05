@@ -691,6 +691,15 @@ public class TriggerServiceBeanIT extends EJBTestBase {
                 .getAllActionsForOrganization();
         Assert.assertEquals(3, list.size());
     }
+    
+    @Test
+    public void testGetAllActionsForOrganizationRelatedSubscription() throws Exception {
+        container.login(adminKey, ROLE_ORGANIZATION_ADMIN);
+
+        List<VOTriggerProcess> list = triggerService
+                .getAllActionsForOrganizationRelatedSubscription();
+        Assert.assertEquals(3, list.size());
+    }
 
     @Test
     public void testGetAllSubscriptionActionsForOrganizationBySubId()

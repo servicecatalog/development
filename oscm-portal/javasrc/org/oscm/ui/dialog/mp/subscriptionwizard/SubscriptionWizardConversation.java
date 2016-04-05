@@ -77,6 +77,7 @@ import org.oscm.ui.model.UdaRow;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
+import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.subscriptiondetails.POServiceForSubscription;
 import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
@@ -97,6 +98,7 @@ import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
@@ -133,9 +135,11 @@ public class SubscriptionWizardConversation implements Serializable {
     private SubscriptionUnitCtrl subscriptionUnitCtrl;
     @Inject
     private PaymentAndBillingVisibleBean paymentAndBillingVisibleBean;
+    @EJB
+    private TriggerService triggerService;
 
     /**
-     * Has to be found frou JSF context, rather than injected through CDI
+     * Has to be found through JSF context, rather than injected through CDI
      */
     private SessionBean sessionBean;
 
@@ -281,12 +285,15 @@ public class SubscriptionWizardConversation implements Serializable {
                         && !model.isDirectAccess());
 
                 model.setSubscription(new VOSubscriptionDetails());
+                List<VOSubscription> existingSubscriptions = new ArrayList<>();
+                existingSubscriptions.addAll(service.getSubscriptions());
+                existingSubscriptions.addAll(getTriggeredSubscriptionsIds());
                 model.getSubscription().setSubscriptionId(
-                        new IdGenerator("", model.getService(), service
-                                .getSubscriptions()).generateNewId());
+                        new IdGenerator("", model.getService(), existingSubscriptions)
+                                .generateNewId());
                 List<PricedParameterRow> serviceParameters = PricedParameterRow
-                        .createPricedParameterRowListForService(model
-                                .getService().getVO());
+                        .createPricedParameterRowListForService(
+                                model.getService().getVO());
                 model.setServiceParameters(serviceParameters);
 
                 model.setDiscount(service.getDiscount() == null ? null
@@ -314,6 +321,20 @@ public class SubscriptionWizardConversation implements Serializable {
         }
         getSubscriptionUnitCtrl().initializeUnitListForCreateSubscription();
         return result;
+    }
+
+    private List<VOSubscription> getTriggeredSubscriptionsIds() {
+        List<VOSubscription> triggeredSubscriptions = new ArrayList<>();
+        List<VOTriggerProcess> triggers = triggerService.getAllActionsForOrganizationRelatedSubscription();
+        for(VOTriggerProcess voTriggerProcess : triggers) {
+            if (voTriggerProcess.getService() == null) {
+                continue;
+            }
+            if (voTriggerProcess.getService().getKey() == model.getService().getKey()) {
+                triggeredSubscriptions.add(voTriggerProcess.getSubscription());
+            }
+        }
+        return triggeredSubscriptions;
     }
 
     private long getKeyOf(Service selectedService) {

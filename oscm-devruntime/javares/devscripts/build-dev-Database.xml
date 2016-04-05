@@ -245,6 +245,10 @@
     <create.db dbname="${db.name}" dbuser="${db.user}" dbschema="${db.user}" />
   </target>
 
+  <target name="bes.CreateForDocker" description="">
+    <create.db dbname="bss" dbuser="postgres" dbschema="bssuser" />
+  </target>
+
   <target name="bes.CreateUser" description="">
     <create.user dbuser="${db.user}" dbuserpwd="${db.pwd}" />
   </target>

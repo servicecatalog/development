@@ -25,6 +25,10 @@
     <property name="result.log.dir" location="${result.dir}/log/projects" />
     <property file="${workspace.dir}/oscm-devruntime/javares/local/${env.HOSTNAME}/integration.properties" />
     <available file="${bss.java.home}/jre/lib/rt.jar" property="bss.java.home.dir" value="${bss.java.home}/jre" />
+    <property environment="env"/>
+    <condition property="bss.java.home.dir" value="${bss.java.home}/jre" else="${env.JAVA_HOME}/jre">
+      <isset property="bss.java.home" />
+    </condition>
     <!-- Read properties from Eclipse project files -->
     <dependencyproperties workspacedir="${workspace.dir}" resultdir="${result.dir}" projectdir="${project.dir}" />
 
@@ -248,6 +252,26 @@
     </jacoco:coverage>
   </target>
 
+  <target name="unittestsWithoutCoverage" if="rununittests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.dir}" />
+    <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <!-- Run unit tests without Hibernate Search indexing -->
+      <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+      <!-- Uncomment these two lines to be able to debug the tests -->
+      <!--jvmarg value="-Xdebug" />
+      <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+      <classpath refid="dependencies.runtime.path" />
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.dir}">
+        <fileset dir="${javasrc.dir}">
+          <include name="**/*Test.java" />
+          <include name="**/*Test?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
   <target name="integrationtests" if="integrationtests" depends="_init, package">
     <mkdir dir="${result.work.testreport.it.dir}" />
     <jacoco:coverage destfile="${result.work.testreport.it.dir}/jacoco.exec" includes="org.oscm.*" sessionid="${project.name}">
@@ -268,6 +292,26 @@
         </batchtest>
       </junit>
     </jacoco:coverage>
+  </target>
+
+  <target name="integrationtestsWithoutCoverage" if="integrationtests" depends="_init, package">
+    <mkdir dir="${result.work.testreport.it.dir}" />
+    <junit fork="yes" forkmode="once" dir="${project.dir}" failureproperty="unittests.failure" maxmemory="1024m">
+      <jvmarg value="-Dfile.encoding=UTF8" />
+      <!-- Run unit tests without Hibernate Search indexing -->
+      <jvmarg value="-Dhibernate.search.autoregister_listeners=false" />
+      <!-- Uncomment these two lines to be able to debug the tests -->
+      <!--jvmarg value="-Xdebug" />
+      <jvmarg value="-agentlib:jdwp=transport=dt_socket,server=y,address=8038,suspend=y" /-->
+      <classpath refid="dependencies.runtime.path" />
+      <formatter type="xml" />
+      <batchtest todir="${result.work.testreport.it.dir}">
+        <fileset dir="${javasrc.it.dir}" erroronmissingdir="no">
+          <include name="**/*IT.java" />
+          <include name="**/*IT?.java" />
+        </fileset>
+      </batchtest>
+    </junit>
   </target>
 
 

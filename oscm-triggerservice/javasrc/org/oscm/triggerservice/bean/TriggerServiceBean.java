@@ -443,6 +443,12 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
         return list;
     }
 
+    @Override
+    public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
+        String namedQuery = "TriggerProcess.getAllForOrganizationRelatedSubscription";
+        return getActionsForQuery(namedQuery);
+    }
+
     private boolean checkTriggerProcessBySubscriptionId(
             TriggerProcess triggerProcess, String targetSubscriptionId) {
         if (triggerProcess == null) {

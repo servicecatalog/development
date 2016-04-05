@@ -48,6 +48,20 @@
     </sequential>
   </macrodef>
 
+  <macrodef name="create.db.docker">
+    <attribute name="failonerror" default="true" />
+    <sequential>
+      <echo message="Creating database bss " />
+      <runDbScript failonerror="@{failonerror}">
+  			\set ON_ERROR_STOP
+  			CREATE DATABASE "bss" WITH OWNER="postgres" TEMPLATE=template0 ENCODING='UTF8';
+  			\c "bss"
+  			CREATE SCHEMA "bssuser";
+  			GRANT ALL PRIVILEGES ON SCHEMA "bssuser" TO "postgres";
+      </runDbScript>
+    </sequential>
+  </macrodef>
+
   <macrodef name="create.user">
     <attribute name="failonerror" default="true" />
     <sequential>

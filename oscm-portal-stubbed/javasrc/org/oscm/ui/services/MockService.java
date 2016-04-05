@@ -2662,4 +2662,17 @@ public class MockService implements IdentityService, SubscriptionService,
             long subscriptionKey) throws ObjectNotFoundException {
         return new VOSubscriptionDetails();
     }
+ 
+    @Override
+    public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
+        List<VOTriggerDefinition> list = getAllDefinitions();
+
+        VOTriggerProcess vo = new VOTriggerProcess();
+        vo.setKey(4711l);
+        vo.setActivationDate(System.currentTimeMillis());
+        vo.setStatus(TriggerProcessStatus.WAITING_FOR_APPROVAL);
+        vo.setTriggerDefinition(list.get(0));
+        vo.setUser(voUserDetails);
+        return Collections.singletonList(vo);
+    }
 }

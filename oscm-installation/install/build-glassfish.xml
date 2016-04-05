@@ -86,7 +86,9 @@
   </target>
 
   <target name="SETUP.configure" depends="PrintJavaVersion,setParam,importProperties,verifySettings,configSteps" if="settings.complete">
-
+	
+  	<antcall target="modifyJspServlet"/>
+  	
     <!--copy required glassfish resources -->
     <antcall target="copyRequiredGlassfishResources" />
 
@@ -148,7 +150,13 @@
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" />
     </antcall>
   </target>
-
+	
+  <target name="modifyJspServlet" if="defaultWeb.exists">	
+  	<replaceregexp file="${glassfish.domain.dir}/config/default-web.xml" byline="false"
+  	  match="^[\s]*&lt;param-name&gt;xpoweredBy&lt;/param-name&gt;[${line.separator}]^[\s]*&lt;param-value&gt;true&lt;/param-value&gt;"
+      replace="      &lt;param-name&gt;xpoweredBy&lt;/param-name&gt;${line.separator}      &lt;param-value&gt;false&lt;/param-value&gt;" flags="gmi"/>
+  </target>
+	
   <target name="copyLibraries" if="lib.exists">
     <antcall target="copyFiles" inheritall="true">
       <param name="src.file" value="${domains.dir}/${domain.dir}/installer/lib.properties" />
@@ -383,6 +391,7 @@
     <available file="${domains.dir}/${domain.dir}/installer/jmsResources" type="dir" property="jmsresources.exists"/>
     <available file="${domains.dir}/${domain.dir}/installer/jmsResources/updateProp.properties" property="updatePropForJms.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/requiredGlassfishResources.properties" property="requiredGlassfishResources.exists" />
+  	<available file="${glassfish.domain.dir}/config/default-web.xml" property="defaultWeb.exists" />
   </target>
 
   <target name="checkParam">
