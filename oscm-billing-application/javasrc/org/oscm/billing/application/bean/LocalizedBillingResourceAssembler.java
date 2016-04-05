@@ -19,6 +19,8 @@ import javax.ws.rs.core.MediaType;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import org.oscm.billing.external.context.ContextKey;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.domobjects.LocalizedBillingResource;
@@ -44,10 +46,18 @@ public class LocalizedBillingResourceAssembler {
             PriceModel localizedPriceModel) throws BillingApplicationException {
         List<LocalizedBillingResource> localizedBillingresources = new ArrayList<LocalizedBillingResource>();
 
+        LocalizedBillingResourceType lrt = null;
+        if (localizedPriceModel.getContext().containsKey(ContextKey.SUBSCRIPTION_ID)) {
+            lrt = LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION;
+        } else if (localizedPriceModel.getContext().containsKey(ContextKey.CUSTOMER_ID)) {
+            lrt = LocalizedBillingResourceType.PRICEMODEL_CUSTOMER;
+        } else {
+            lrt = LocalizedBillingResourceType.PRICEMODEL_SERVICE;
+        }
         for (Locale locale : localizedPriceModel.getLocales()) {
             PriceModelContent pmc = localizedPriceModel.get(locale);
             localizedBillingresources.add(createPriceModel(
-                    localizedPriceModel.getId(), locale, pmc));
+                    localizedPriceModel.getId(), locale, pmc, lrt));
             localizedBillingresources.add(createPriceModelTag(locale,
                     localizedPriceModel.getId(), pmc.getTag()));
 
@@ -57,14 +67,14 @@ public class LocalizedBillingResourceAssembler {
     }
 
     public static LocalizedBillingResource createPriceModel(UUID objectID,
-            Locale locale, PriceModelContent priceModelDescription)
+            Locale locale, PriceModelContent priceModelDescription, LocalizedBillingResourceType localizedBillingResourceType)
             throws BillingApplicationException {
 
         validatePriceModelContent(priceModelDescription);
 
         LocalizedBillingResource localizedBillingresource = new LocalizedBillingResource(
                 objectID, locale.getLanguage(),
-                LocalizedBillingResourceType.PRICEMODEL);
+                localizedBillingResourceType);
         localizedBillingresource.setDataType(priceModelDescription
                 .getContentType());
         localizedBillingresource.setValue(priceModelDescription.getContent());

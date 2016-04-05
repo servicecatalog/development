@@ -241,5 +241,9 @@ public class LocalizerFacade {
         return localizer.getLocalizedBillingResource(getLocale(), objectID,
                 resourceType);
     }
+    
+    public LocalizedBillingResource getLocalizedPriceModelResource(UUID objectID) {
+        return localizer.getLocalizedPriceModelResource(getLocale(), objectID);
+    }
 
 }

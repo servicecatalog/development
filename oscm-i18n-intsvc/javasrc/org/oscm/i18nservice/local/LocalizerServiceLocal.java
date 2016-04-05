@@ -261,4 +261,13 @@ public interface LocalizerServiceLocal {
     public LocalizedBillingResource getLocalizedBillingResource(
             String localeString, UUID objectID,
             LocalizedBillingResourceType resourceType);
+
+    /**
+     * @param localeString - the locale to be used.
+     * @param objectId - the object UUID
+     * @return the localized price model resource if one was found for the specified
+     *         locale or the default locale; otherwise <null>
+     */
+    public LocalizedBillingResource getLocalizedPriceModelResource(String localeString,
+            UUID objectId);
 }

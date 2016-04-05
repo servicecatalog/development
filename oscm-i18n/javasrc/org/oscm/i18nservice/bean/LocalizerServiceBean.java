@@ -912,6 +912,29 @@ public class LocalizerServiceBean implements LocalizerServiceLocal {
         }
     }
     
+    
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public LocalizedBillingResource getLocalizedPriceModelResource(
+            String localeString, UUID objectId) {
+
+        Locale locale = LocaleHandler.getLocaleFromString(localeString);
+        LocalizedBillingResource billingResource = getLocalizedPriceModelResourceFromDatabase(
+                objectId, locale.getLanguage());
+        if (billingResource == null) {
+            billingResource = getLocalizedPriceModelResourceFromDatabase(objectId,
+                    defaultLocale.getLanguage());
+        }
+
+        if (billingResource != null) {
+            return billingResource;
+        } else {
+            logger.logDebug("Localized price model of object with id '" + objectId
+                    + "' could not be found.", Log4jLogger.SYSTEM_LOG);
+            return null;
+        }
+    }
+    
     protected LocalizedBillingResource getLocalizedBillingResourceFromDatabase(
             UUID objectId, String locale,
             LocalizedBillingResourceType resourceType) {
@@ -932,4 +955,22 @@ public class LocalizerServiceBean implements LocalizerServiceLocal {
         }
     }
 
+    
+    protected LocalizedBillingResource getLocalizedPriceModelResourceFromDatabase(
+            UUID objectId, String locale) {
+
+        // query
+        Query query = dm
+                .createNamedQuery("LocalizedBillingResource.findPriceModelByBusinessKey");
+        query.setParameter("objectId", objectId);
+        query.setParameter("locale", locale);
+        List<LocalizedBillingResource> queryResult = ParameterizedTypes.list(
+                query.getResultList(), LocalizedBillingResource.class);
+
+        if (!queryResult.isEmpty()) {
+            return queryResult.get(0);
+        } else {
+            return null;
+        }
+    }
 }

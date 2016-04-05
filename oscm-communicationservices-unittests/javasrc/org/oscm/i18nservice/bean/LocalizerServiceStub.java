@@ -116,4 +116,10 @@ public class LocalizerServiceStub implements LocalizerServiceLocal {
             LocalizedBillingResourceType resourceType) {
         return null;
     }
+
+    @Override
+    public LocalizedBillingResource getLocalizedPriceModelResource(
+            String localeString, UUID objectId) {
+        return null;
+    }
 }

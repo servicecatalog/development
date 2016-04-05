@@ -55,7 +55,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
             byte[] billingResourceValue) throws Exception {
 
         LocalizedBillingResource billingResource = new LocalizedBillingResource(
-                objID, locale, LocalizedBillingResourceType.PRICEMODEL);
+                objID, locale, LocalizedBillingResourceType.PRICEMODEL_SERVICE);
         billingResource.setValue(billingResourceValue);
         billingResource.setDataType(billingResourceDataType);
         return billingResource;
@@ -121,7 +121,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 newResource);
         assertEquals("Wrong version", 0, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
-        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL,
+        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL_SERVICE,
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());
@@ -184,7 +184,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 newResource);
         assertEquals("Wrong version", 1, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
-        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL,
+        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL_SERVICE,
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());

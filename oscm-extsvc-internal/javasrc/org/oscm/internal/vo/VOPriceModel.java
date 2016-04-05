@@ -84,6 +84,8 @@ public class VOPriceModel extends BaseVO {
      * per time unit).
      */
     private PriceModelType type = PriceModelType.FREE_OF_CHARGE;
+    
+    private boolean relatedSubscription;
 
     /**
      * Retrieves the priced events to be considered in the price model.
@@ -491,5 +493,19 @@ public class VOPriceModel extends BaseVO {
 
     public boolean isOneTimeFeeSet() {
         return this.oneTimeFee.compareTo(BigDecimal.ZERO) > 0;
+    }
+
+    /**
+     * @return the relatedSubscription
+     */
+    public boolean isRelatedSubscription() {
+        return relatedSubscription;
+    }
+
+    /**
+     * @param relatedSubscription the relatedSubscription to set
+     */
+    public void setRelatedSubscription(boolean relatedSubscription) {
+        this.relatedSubscription = relatedSubscription;
     }
 }

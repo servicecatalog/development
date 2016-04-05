@@ -140,9 +140,9 @@ public class PriceModelAssembler extends BaseAssembler {
         // presentation data of the price model
         if (priceModel.isExternal()) {
             LocalizedBillingResource localizedPriceModelPresentation = facade
-                    .getLocalizedBillingResource(priceModel.getUuid(),
-                            LocalizedBillingResourceType.PRICEMODEL);
+                    .getLocalizedPriceModelResource(priceModel.getUuid());
             if (localizedPriceModelPresentation != null) {
+                voPM.setRelatedSubscription(localizedPriceModelPresentation.getResourceType() == LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION);
                 voPM.setPresentation(
                         localizedPriceModelPresentation.getValue());
                 voPM.setPresentationDataType(

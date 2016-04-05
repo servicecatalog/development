@@ -29,7 +29,8 @@ import org.oscm.domobjects.enums.LocalizedBillingResourceType;
  * 
  */
 @Entity
-@NamedQueries({ @NamedQuery(name = "LocalizedBillingResource.findByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType = :resourceType") })
+@NamedQueries({ @NamedQuery(name = "LocalizedBillingResource.findByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType = :resourceType"),
+    @NamedQuery(name = "LocalizedBillingResource.findPriceModelByBusinessKey", query = "SELECT lbr FROM LocalizedBillingResource lbr WHERE lbr.objectId = :objectId AND lbr.locale = :locale AND lbr.resourceType IN ('PRICEMODEL_SERVICE', 'PRICEMODEL_CUSTOMER', 'PRICEMODEL_SUBSCRIPTION')")})
 @BusinessKey(attributes = { "objectId", "locale", "resourceType" })
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "objectId",
         "locale", "resourceType" }))

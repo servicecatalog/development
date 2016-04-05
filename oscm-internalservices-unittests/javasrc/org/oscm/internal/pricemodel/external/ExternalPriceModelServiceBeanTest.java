@@ -18,6 +18,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -31,6 +32,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.billing.application.bean.LocalizedBillingResourceDAO;
 import org.oscm.billing.application.bean.PriceModelPluginBean;
+import org.oscm.billing.external.context.ContextKey;
+import org.oscm.billing.external.context.ContextValue;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.domobjects.LocalizedBillingResource;
@@ -142,11 +145,11 @@ public class ExternalPriceModelServiceBeanTest {
     private List<LocalizedBillingResource> getLocalizedResources() {
         List<LocalizedBillingResource> resources = new ArrayList<LocalizedBillingResource>();
         LocalizedBillingResource resourceEn = new LocalizedBillingResource();
-        resourceEn.setResourceType(LocalizedBillingResourceType.PRICEMODEL);
+        resourceEn.setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
         resourceEn.setLocale("en");
         resources.add(resourceEn);
         LocalizedBillingResource resourceDe = new LocalizedBillingResource();
-        resourceDe.setResourceType(LocalizedBillingResourceType.PRICEMODEL);
+        resourceDe.setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
         resourceDe.setLocale("de");
         resources.add(resourceEn);
         return resources;
@@ -288,6 +291,9 @@ public class ExternalPriceModelServiceBeanTest {
                 MediaType.APPLICATION_JSON, content2.getBytes(), tag2);
         externalPriceModel.put(new Locale("en"), priceModelContent1);
         externalPriceModel.put(new Locale("de"), priceModelContent2);
+        
+        Map<ContextKey, ContextValue<?>> contextMap = new HashMap<>();
+        externalPriceModel.setContext(contextMap);
         return externalPriceModel;
     }
 

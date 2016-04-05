@@ -13,14 +13,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.billing.external.context.ContextKey;
+import org.oscm.billing.external.context.ContextValue;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.domobjects.LocalizedBillingResource;
@@ -81,11 +85,11 @@ public class LocalizedBillingResourceAssemblerTest {
         // when
         LocalizedBillingResource result = LocalizedBillingResourceAssembler
                 .createPriceModel(PRICEMODLELUUID1, new Locale("en"),
-                        priceModelContent);
+                        priceModelContent, LocalizedBillingResourceType.PRICEMODEL_SERVICE);
 
         // then
         assertEquals(MediaType.APPLICATION_JSON, result.getDataType());
-        assertEquals(LocalizedBillingResourceType.PRICEMODEL,
+        assertEquals(LocalizedBillingResourceType.PRICEMODEL_SERVICE,
                 result.getResourceType());
         assertEquals(VALID_JSON, new String(result.getValue()));
     }
@@ -117,6 +121,8 @@ public class LocalizedBillingResourceAssemblerTest {
                 MediaType.APPLICATION_JSON, content2.getBytes(), tag2);
         externalPriceModel.put(new Locale("en"), priceModelContent1);
         externalPriceModel.put(new Locale("de"), priceModelContent2);
+        Map<ContextKey, ContextValue<?>> context = new HashMap<>();
+        externalPriceModel.setContext(context);
         return externalPriceModel;
     }
 

@@ -16,7 +16,6 @@ import javax.faces.bean.ViewScoped;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
-import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
@@ -37,9 +36,7 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
         if (selectedService == null) {
             return;
         }
-        if (selectedService.getServiceType() == ServiceType.SUBSCRIPTION
-                || selectedService
-                        .getServiceType() == ServiceType.CUSTOMER_SUBSCRIPTION) {
+        if (selectedService.getPriceModel().isRelatedSubscription()) {
             showPersistedPriceModel(selectedService);
         }
     }
@@ -75,8 +72,7 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
     }
 
     public void reloadPriceModel(VOService voService) {
-        if (voService.getServiceType() == ServiceType.SUBSCRIPTION || voService
-                .getServiceType() == ServiceType.CUSTOMER_SUBSCRIPTION) {
+        if (voService.getPriceModel().isRelatedSubscription()) {
             showPersistedPriceModel(voService);
             return;
         }

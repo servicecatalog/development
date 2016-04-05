@@ -13,5 +13,5 @@ package org.oscm.domobjects.enums;
  * 
  */
 public enum LocalizedBillingResourceType {
-    PRICEMODEL, PRICEMODEL_TAG;
+    PRICEMODEL_SERVICE, PRICEMODEL_CUSTOMER, PRICEMODEL_SUBSCRIPTION, PRICEMODEL_TAG;
 }

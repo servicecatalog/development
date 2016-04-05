@@ -116,8 +116,6 @@ public class ExternalPriceModelServiceBean
     LocalizedBillingResource getPriceModelContentFromCache(Locale locale,
             UUID priceModelId) {
         LocalizedBillingResource priceModelFromCache = new LocalizedBillingResource();
-        priceModelFromCache
-                .setResourceType(LocalizedBillingResourceType.PRICEMODEL);
         priceModelFromCache.setLocale(locale.getLanguage());
         priceModelFromCache.setObjectId(priceModelId);
         priceModelFromCache = billingResourceDAO.get(priceModelFromCache);
