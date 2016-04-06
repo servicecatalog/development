@@ -102,7 +102,7 @@ public class LocalizedBillingResourceAssemblerTest {
 
         // when
         List<LocalizedBillingResource> resultList = LocalizedBillingResourceAssembler
-                .createLocalizedBillingResources(priceModel);
+                .createLocalizedBillingResources(priceModel, null);
 
         // then
         assertEquals(4, resultList.size());

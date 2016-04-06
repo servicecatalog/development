@@ -43,17 +43,20 @@ public class LocalizedBillingResourceAssembler {
             .getLogger(LocalizedBillingResourceAssembler.class);
 
     public static List<LocalizedBillingResource> createLocalizedBillingResources(
-            PriceModel localizedPriceModel) throws BillingApplicationException {
+            PriceModel localizedPriceModel, LocalizedBillingResourceType localizedBillingResourceType) throws BillingApplicationException {
         List<LocalizedBillingResource> localizedBillingresources = new ArrayList<LocalizedBillingResource>();
 
-        LocalizedBillingResourceType lrt = null;
-        if (localizedPriceModel.getContext().containsKey(ContextKey.SUBSCRIPTION_ID)) {
-            lrt = LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION;
-        } else if (localizedPriceModel.getContext().containsKey(ContextKey.CUSTOMER_ID)) {
-            lrt = LocalizedBillingResourceType.PRICEMODEL_CUSTOMER;
-        } else {
-            lrt = LocalizedBillingResourceType.PRICEMODEL_SERVICE;
+        LocalizedBillingResourceType lrt = localizedBillingResourceType;
+        if (localizedPriceModel.getContext() != null) {
+            if (localizedPriceModel.getContext().containsKey(ContextKey.SUBSCRIPTION_ID)) {
+                lrt = LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION;
+            } else if (localizedPriceModel.getContext().containsKey(ContextKey.CUSTOMER_ID)) {
+                lrt = LocalizedBillingResourceType.PRICEMODEL_CUSTOMER;
+            } else {
+                lrt = LocalizedBillingResourceType.PRICEMODEL_SERVICE;
+            }
         }
+
         for (Locale locale : localizedPriceModel.getLocales()) {
             PriceModelContent pmc = localizedPriceModel.get(locale);
             localizedBillingresources.add(createPriceModel(

@@ -30,9 +30,11 @@ import org.oscm.billing.application.bean.PriceModelPluginBean;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.converter.LocaleHandler;
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.SupportedLanguage;
 import org.oscm.domobjects.enums.LocalizedBillingResourceType;
+import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
@@ -66,6 +68,9 @@ public class ExternalPriceModelServiceBean
     @Inject
     OperatorServiceLocalBean operatorService;
     
+    @EJB
+    private DataService dm;
+    
     private static final int MAX_PRICE_LENGTH = 30;
 
     @Override
@@ -73,8 +78,17 @@ public class ExternalPriceModelServiceBean
             throws ExternalPriceModelException {
         if (externalPriceModel != null) {
             try {
+                LocalizedBillingResourceType localizedBillingResourceType = null;
+                if (externalPriceModel.getContext() == null
+                        && externalPriceModel.getId() != null) {
+                    localizedBillingResourceType = localizerService
+                            .getLocalizedPriceModelResource(
+                                    getDm().getCurrentUser().getLocale(),
+                                    externalPriceModel.getId())
+                            .getResourceType();
+                }
                 List<LocalizedBillingResource> billingResources = convertToLocalizedBillingResource(
-                        externalPriceModel);
+                        externalPriceModel, localizedBillingResourceType);
 
                 billingResources = billingResourceDAO.update(billingResources);
             } catch (BillingApplicationException e) {
@@ -85,9 +99,9 @@ public class ExternalPriceModelServiceBean
 
 
     List<LocalizedBillingResource> convertToLocalizedBillingResource(
-            PriceModel externalPriceModel) throws BillingApplicationException {
+            PriceModel externalPriceModel, LocalizedBillingResourceType localizedBillingResourceType) throws BillingApplicationException {
         List<LocalizedBillingResource> billingResource = LocalizedBillingResourceAssembler
-                .createLocalizedBillingResources(externalPriceModel);
+                .createLocalizedBillingResources(externalPriceModel, localizedBillingResourceType);
         return billingResource;
     }
 
@@ -269,5 +283,21 @@ public class ExternalPriceModelServiceBean
             }
         }
         return locales;
+    }
+
+
+    /**
+     * @return the dm
+     */
+    public DataService getDm() {
+        return dm;
+    }
+
+
+    /**
+     * @param dm the dm to set
+     */
+    public void setDm(DataService dm) {
+        this.dm = dm;
     }
 }
