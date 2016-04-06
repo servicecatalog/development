@@ -239,7 +239,7 @@
       <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
       <clickLink href="/subscription/view.jsf" />
       <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
-      <verifyXPath xpath="//a[@id='viewForm:displayExternalPriceModelButton']" />
+      <verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
       <login.logout />
     </webtest>
 
@@ -249,7 +249,7 @@
       <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
       <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
       <verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
-      <verifyXPath xpath="//a[@id='editForm:displayExternalPriceModelButton']" />
+      <verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
       <clickElement htmlId="editForm:uploadExternalPriceModelButton" />
       <verifyText text="External price model has been successfully uploaded." />
       <clickElement htmlId="editForm:saveButton" />
