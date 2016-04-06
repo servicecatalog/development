@@ -176,7 +176,9 @@ public class VOConverterGeneratorTest {
         expectedList.add("isPricePerPeriodSet");
         expectedList.add("isPricePerUserAssignmentSet");
         expectedList.add("isOneTimeFeeSet");
-        
+        expectedList.add("setRelatedSubscription");
+        expectedList.add("isRelatedSubscription");
+
         Collections.sort(expectedList);
 
         List<String> actualList = generator.getVOMethods("VOPriceModel");
