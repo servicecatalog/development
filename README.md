@@ -1,6 +1,12 @@
 <p align="center"><h1><img height="52" src="https://avatars0.githubusercontent.com/u/14330878" alt="Open Service Catalog Manager"/>&nbsp;Open Service Catalog Manager</h1></p> 
 
-Open Service Catalog Manager is an open source application. More details can be found on its [homepage](http://openservicecatalogmanager.org/).
+Open Service Catalog Manager (OSCM) is an open source application with enterprise quality level. It supports bright spectrum of use cases, from SaaS Marketplace to Enterprise IaaS Store. It offers ready-to-use service provisioning adapters for IaaS providers like Amazon AWS and OpenStack, but is open for integrating other platforms.
+
+The Service Providers can define their services with flexible price plans and publish them to the OSCM Marketplaces. The Service Provider can decide on using the OSCM Billing Engine for the service usage cost calculation or integrate external one. The End-Users can subscribe and use the services.
+
+OSCM supports configurable authentication. It can use own user store, but also existing LDAP systems. OSCM can be participant in an identity federation using SAML2 profiles for SSO (Single-Sign On) and integrated with any SAML2-enabled authentication server (e.g OpenAM, ADFS)
+
+More details on [OSCM homepage](http://openservicecatalogmanager.org/).
 
 ## Contributions
 All contributions are welcome - Open Service Catalog Manager uses the Apache 2.0 license and requires the contributor to agree with the [OSCM Individual CLA (ICLA)](https://github.com/servicecatalog/development/blob/master/ICLA.txt). If the contributor submits patches on behalf of a company, then additionally the [OSCM Corporate CLA (CCLA)](https://github.com/servicecatalog/development/blob/master/CCLA.txt) must be agreed. Even if the contributor is included in such CCLA, she/he is still required to agree with the ICLA. To submit the CLAs please:
