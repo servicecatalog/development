@@ -26,7 +26,7 @@
     <!-- The selectedServiceForDetails is empty if the passed serviceKey is not set, invalid or the service is not active -->
     <c:if test="#{serviceDetailsCtrl.serviceNotAvailable}">
       <script type="text/javascript">
-        #{rich:element('btnRedirect')}.click();        
+        #{rich:element('btnRedirect')}.click();
       </script>
     </c:if>
     <mp:breadcrumbs>
@@ -154,6 +154,17 @@
                 <ui:param name="priceModel" value="#{serviceDetailsModel.selectedService.priceModel}" />
                 <ui:param name="model" value="#{serviceDetailsModel}" />
               </ui:include>
+            </rich:tab>
+
+            <!-- external price model tab -->
+            <rich:tab id="tabExternalPriceModel" header="#{msg['service.priceModel']}"
+              rendered="#{serviceDetailsModel.selectedService.priceModel.external}">
+              <h:form>
+                <ui:include src="../priceModel/showExternalPriceModel.xhtml">
+                  <ui:param name="controller" value="#{serviceDetailsCtrl}" />
+                  <ui:param name="disabled" value="#{empty serviceDetailsCtrl.model.priceModelContent}" />
+                </ui:include>
+              </h:form>
             </rich:tab>
 
             <!-- supplier detail tab -->

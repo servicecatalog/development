@@ -13,8 +13,6 @@ import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.types.exceptions.UserNotAssignedException;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.OperationStatus;
@@ -55,6 +53,8 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.types.exceptions.UserNotAssignedException;
 
 public class SubscriptionServiceStub implements SubscriptionService,
         SubscriptionServiceLocal {
@@ -461,6 +461,15 @@ public class SubscriptionServiceStub implements SubscriptionService,
     public void updateAsyncSubscriptionStatus(String subscriptionId,
             String organizationId, VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException {
+        throw new UnsupportedOperationException();
+    }
+
+    /* (non-Javadoc)
+     * @see org.oscm.internal.intf.SubscriptionService#getSubscriptionDetailsWithoutOwnerCheck(long)
+     */
+    @Override
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
 

@@ -460,6 +460,17 @@
               <ui:param name="model" value="#{manageSubscriptionModel}" />
             </ui:include>
           </rich:tab>
+          
+          <!-- external price model tab -->
+          <rich:tab id="tabExternalPriceModel" header="#{msg['service.priceModel']}"
+            onheaderclick="setSelectedTab('tabExternalPriceModel');" rendered="#{manageSubscriptionModel.priceModel.external}">
+            <h:form>
+              <ui:include src="../../priceModel/showExternalPriceModel.xhtml">
+                <ui:param name="controller" value="#{manageSubscriptionCtrl}" />
+                <ui:param name="disabled" value="#{empty manageSubscriptionModel.priceModel.vo.presentation}" />
+              </ui:include>
+            </h:form>
+          </rich:tab>
 
           <!-- TAB: SUPPLIER -->
           <rich:tab id="tabSupplier" header="#{msg['service.supplier']}" onheaderclick="setSelectedTab('tabSupplier');">

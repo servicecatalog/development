@@ -4,20 +4,26 @@
 
 package org.oscm.ui.dialog.classic.partnerservice;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
+import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.PriceModelBean;
 import org.oscm.ui.beans.ServiceBean;
+import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.RolePriceHandler;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
 import org.oscm.ui.model.RoleSpecificPrice;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.partnerservice.POPartnerServiceDetails;
@@ -27,30 +33,22 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPriceModel;
 
-@RequestScoped
-@ManagedBean(name="partnerServiceViewCtrl")
+@ViewScoped
+@ManagedBean(name = "partnerServiceViewCtrl")
 public class PartnerServiceViewCtrl implements Serializable {
 
     private static final long serialVersionUID = 725185082688691574L;
-    
-    @ManagedProperty(value="#{partnerServiceViewModel}")
+
+    @ManagedProperty(value = "#{partnerServiceViewModel}")
     PartnerServiceViewModel model;
 
     PartnerService partnerServices;
     UiDelegate ui = new UiDelegate();
 
-    /**
-     * initializer method called by <adm:initialize />
-     * 
-     * @return empty string (due to value jsf binding )
-     * 
-     *         workaround: to be refactored under jsf 2.0
-     * 
-     */
-    public String getInitializePartnerServiceView() {
+    @PostConstruct
+    public void initializePartnerServiceView() {
         initializeModel();
         initializePriceModel();
-        return "";
     }
 
     private PartnerService getPartnerService() {
@@ -96,8 +94,8 @@ public class PartnerServiceViewCtrl implements Serializable {
             boolean isError = false;
             if (selectedServiceKey > 0) {
                 try {
-                    Response response = getPartnerService().getServiceDetails(
-                            selectedServiceKey);
+                    Response response = getPartnerService()
+                            .getServiceDetails(selectedServiceKey);
                     service = response.getResult(POPartnerServiceDetails.class);
                 } catch (SaaSApplicationException e) {
                     ui.handleException(e);
@@ -116,6 +114,27 @@ public class PartnerServiceViewCtrl implements Serializable {
         }
     }
 
+    public String display() throws IOException {
+
+        VOPriceModel priceModel = model.getPartnerServiceDetails()
+                .getPriceModel();
+
+        if (priceModel.getPresentation() == null) {
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    BaseBean.ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE, null);
+        }
+        
+        ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
+        displayHandler.setContent(priceModel.getPresentation());
+        displayHandler.setContentType(priceModel.getPresentationDataType());
+        //TODO: filename generation
+        displayHandler.setFilename("ext_price_model.pdf");
+
+        displayHandler.display();
+
+        return null;
+    }
+
     /**
      * action method for save button
      * 
@@ -123,11 +142,10 @@ public class PartnerServiceViewCtrl implements Serializable {
      */
     public String save() {
         try {
-            Response response = getPartnerService()
-                    .updatePartnerServiceDetails(
-                            model.getPartnerServiceDetails());
-            ui.handle(response, "info.service.saved", model
-                    .getPartnerServiceDetails().getServiceName());
+            Response response = getPartnerService().updatePartnerServiceDetails(
+                    model.getPartnerServiceDetails());
+            ui.handle(response, "info.service.saved",
+                    model.getPartnerServiceDetails().getServiceName());
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -145,8 +163,8 @@ public class PartnerServiceViewCtrl implements Serializable {
     boolean isDisabled() {
         return model.getSelectedServiceKey() <= 0
                 || model.getPartnerServiceDetails() != null
-                && ServiceStatus.ACTIVE.equals(model.getPartnerServiceDetails()
-                        .getStatus())
+                        && ServiceStatus.ACTIVE.equals(
+                                model.getPartnerServiceDetails().getStatus())
                 || !ui.findUserBean().getUserFromSessionWithoutException()
                         .getUserRoles().contains(UserRoleType.RESELLER_MANAGER);
     }

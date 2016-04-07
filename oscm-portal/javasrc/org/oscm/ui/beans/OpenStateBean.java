@@ -117,5 +117,11 @@ public class OpenStateBean implements Serializable {
         boolean oldState = Boolean.parseBoolean(states.get(key));
         states.put(key, Boolean.toString(!oldState));
     }
+    
+    public void setInitState(String key, boolean value) {
+        if (!states.containsKey(key)) {
+            states.put(key, Boolean.toString(value));
+        }
+    }
 
 }

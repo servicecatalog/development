@@ -1222,4 +1222,12 @@ public interface SubscriptionService {
     void updateAsyncSubscriptionStatus(String subscriptionId,
             String organizationId, VOInstanceInfo instanceInfo)
             throws ObjectNotFoundException;
+
+    /**
+     * @param subscriptionKey - the subscription key
+     * @return Subscription details
+     * @throws ObjectNotFoundException
+     */
+    VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException;
 }

@@ -49,6 +49,7 @@ import org.oscm.internal.vo.VOServiceActivation;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOServiceLocalization;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 
 /**
@@ -1357,4 +1358,22 @@ public interface ServiceProvisioningService {
      */
     VOOrganization getServiceSellerFallback(long serviceKey, String locale)
             throws ObjectNotFoundException;
+
+    /**
+     * Validates if subscription can be processed.
+     *
+     * @param service details
+     * @return subscription details (stored in the database)
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not allowed to access
+     *             the subscription
+     * @throws SubscriptionStateException
+     *             if the subscription is EXPIRED, INVALID or DEACTIVATED
+     * @throws ObjectNotFoundException
+     *             if the product is not found
+     */
+    VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException;
+
 }

@@ -6,96 +6,112 @@
   xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
   xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
+
   <ui:define name="pageId">
     <c:set var="localizeVisible" value="#{priceModelBean.localizeVisible}" />
-    <c:set var="pageId" value="${localizeVisible ? 'priceModel.localize' : 'priceModel.customer'}"  />
+    <c:set var="pageId" value="${localizeVisible ? 'priceModel.localize' : 'priceModel.customer'}" />
     <c:set var="focusElement" value="customerSelection" />
   </ui:define>
   <ui:define name="body">
-    
+
     <a4j:outputPanel id="mainSection" rendered="#{!priceModelBean.localizeVisible}">
-	    <adm:outputStep value="#{msg['priceModel.serviceCustomer.select']}" />
-	    <h:form id="serviceSelectForm">
-	      <adm:panelGrid>
-	        <adm:outputLabel value="#{msg['priceModel.checkbox.customer.label']}" id="customerDropdown" />
-	        <a4j:outputPanel styleClass="jqSelect" layout="block">
-	          <a4j:outputPanel styleClass="select">
-	            <a4j:outputPanel styleClass="option" />
-	          </a4j:outputPanel>
-	          <h:selectOneMenu id="customerSelection" styleClass="select" onclick="AdmUtils.storeValue(this);"
-	            value="#{priceModelBean.customerID}" disabled="#{empty priceModelBean.customers}">
-	            <c:forEach items="#{priceModelBean.customers}" var="cust">
-	              <f:selectItem itemLabel="#{cust.nameWithOrganizationId}" itemValue="#{cust.organizationId}" />
-	            </c:forEach>
-	            <a4j:ajax event="change" listener="#{priceModelBean.updatePriceModel}"
-	              onbeforesubmit="if(!isConfirmed(this)){return false;}"
-	              oncomplete="AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();"
-	              render="editForm,localizePanel,roleForm" />
-	          </h:selectOneMenu>
-	        </a4j:outputPanel>
-	        <adm:message for="customerSelection" />
-	
-	        <adm:outputLabel value="#{msg['service.serviceId']}" for="serviceSelection" />
-	        <a4j:outputPanel styleClass="jqSelect" layout="block">
-	          <a4j:outputPanel styleClass="select">
-	            <a4j:outputPanel styleClass="option" />
-	          </a4j:outputPanel>
-	          <h:selectOneMenu id="serviceSelection" styleClass="select" immediate="true"
-	            value="#{priceModelBean.selectedServiceKey}" disabled="#{empty priceModelBean.customers}"
-	            valueChangeListener="#{priceModelBean.reloadPriceModel}"
-	            onchange="if(AdmUtils.isNotDirtyOrConfirmed()){ #{rich:element('serviceSelectForm')}.submit(); } else{ AdmUtils.restoreValue(this); }"
-	            onclick="AdmUtils.storeValue(this);AdmUtils.initFocus();">
-	            <adm:selectItemPleaseSelect itemValue="" />
-	            <c:forEach items="#{priceModelBean.services}" var="service">
-	              <f:selectItem itemLabel="#{service.serviceId}" itemValue="#{service.key}" />
-	            </c:forEach>
-	          </h:selectOneMenu>
-	        </a4j:outputPanel>
-	        <adm:message for="serviceSelection" />
-	      </adm:panelGrid>
-	    </h:form>
-	    
-	    <h:form id="editForm">
-	      <adm:panelGrid> 
-	        <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
-	        <h:outputText id="serviceName" value="#{priceModelBean.selectedServiceNameToDisplay}" styleClass="label" />
-	        <h:outputText value="" />
-	
-	        <adm:labelAndOutputLarge label="#{msg['service.shortDescription']}" inline="false"
-	          value="#{priceModelBean.selectedService.shortDescription}" />
-	      </adm:panelGrid>
-	      <script type="text/javascript">
-	        isConfirmed = function(element) {
-	          if(!AdmUtils.isNotDirtyOrConfirmed()) {
-	            AdmUtils.restoreValue(element);
-	            return false;
-	          }
-	          return true;
-	        }
-	      </script>
-	
-	      <adm:outputStep value="#{msg['priceModel.subscription.customer.define.title']}" />
-	
-	      <ui:include src="priceModelDescription.xhtml" />
-	
-	      <adm:outputStep value="#{msg['priceModel.step5.license.define']}" />
-	
-	      <adm:labelAndRichEditor id="license" label="#{msg['priceModel.service.license']}"
-	        value="#{priceModelBean.license}" disabled="#{priceModelBean.editDisabled}" />
-	
-	      <h:inputHidden id="steppedPriceIndex" value="#{steppedPriceBean.index}" />
-	      <h:inputHidden id="steppedPriceType" value="#{steppedPriceBean.type}" />
-	      <h:inputHidden id="dirty" value="#{priceModelBean.dirty}" />
-	      <h:commandButton style="display:none;" id="localizeButtonHidden" value="#{msg['button.localize']}"
-	        action="#{priceModelBean.localize}" />
-	
-	      <ui:include src="priceModelButtonPanelInclude.xhtml">
-	        <ui:param name="disabeledforCustomer" value="#{empty priceModelBean.customerID}" />
-	      </ui:include>
-	
-	    </h:form>
-	
-	    <script type="text/javascript">
+      <adm:outputStep value="#{msg['priceModel.serviceCustomer.select']}" />
+      <h:form id="serviceSelectForm">
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['priceModel.checkbox.customer.label']}" id="customerDropdown" />
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu id="customerSelection" styleClass="select" onclick="AdmUtils.storeValue(this);"
+              value="#{priceModelBean.customerID}" disabled="#{empty priceModelBean.customers}">
+              <c:forEach items="#{priceModelBean.customers}" var="cust">
+                <f:selectItem itemLabel="#{cust.nameWithOrganizationId}" itemValue="#{cust.organizationId}" />
+              </c:forEach>
+              <a4j:ajax event="change" listener="#{priceModelBean.updatePriceModel}"
+                onbeforesubmit="if(!isConfirmed(this)){return false;}"
+                oncomplete="AdmUtils.hideMessages();AdmUtils.initFocus();AdmUtils.setUIElements();"
+                render="editForm,localizePanel,roleForm" />
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+          <adm:message for="customerSelection" />
+
+          <adm:outputLabel value="#{msg['service.serviceId']}" for="serviceSelection" />
+          <a4j:outputPanel styleClass="jqSelect" layout="block">
+            <a4j:outputPanel styleClass="select">
+              <a4j:outputPanel styleClass="option" />
+            </a4j:outputPanel>
+            <h:selectOneMenu id="serviceSelection" styleClass="select" immediate="true"
+              value="#{priceModelBean.selectedServiceKey}" disabled="#{empty priceModelBean.customers}"
+              valueChangeListener="#{priceModelBean.reloadPriceModel}"
+              onchange="if(AdmUtils.isNotDirtyOrConfirmed()){ #{rich:element('serviceSelectForm')}.submit(); } else{ AdmUtils.restoreValue(this); }"
+              onclick="AdmUtils.storeValue(this);AdmUtils.initFocus();">
+              <adm:selectItemPleaseSelect itemValue="" />
+              <c:forEach items="#{priceModelBean.services}" var="service">
+                <f:selectItem itemLabel="#{service.serviceId}" itemValue="#{service.key}" />
+              </c:forEach>
+            </h:selectOneMenu>
+          </a4j:outputPanel>
+          <adm:message for="serviceSelection" />
+        </adm:panelGrid>
+      </h:form>
+
+      <h:form id="editForm">
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['service.nameForCustomer']}" />
+          <h:outputText id="serviceName" value="#{priceModelBean.selectedServiceNameToDisplay}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:labelAndOutputLarge label="#{msg['service.shortDescription']}" inline="false"
+            value="#{priceModelBean.selectedService.shortDescription}" />
+        </adm:panelGrid>
+        <script type="text/javascript">
+			        isConfirmed = function(element) {
+			          if(!AdmUtils.isNotDirtyOrConfirmed()) {
+			            AdmUtils.restoreValue(element);
+			            return false;
+			          }
+			          return true;
+			        }
+	      		</script>
+
+        <adm:outputStep value="#{msg['priceModel.subscription.customer.define.title']}" />
+
+        <a4j:outputPanel id="priceModelList" rendered="true">
+
+          <a4j:outputPanel id="internalPriceModel" layout="block"
+            rendered="#{not priceModelBean.selectedService.technicalService.externalBilling}">
+            <ui:include src="priceModelDescription.xhtml" />
+          </a4j:outputPanel>
+
+          <a4j:outputPanel id="externalPriceModel" layout="block"
+            rendered="#{priceModelBean.selectedService !=null and priceModelBean.selectedService.technicalService.externalBilling}">
+
+            <ui:include src="externalServicePriceModel.xhtml">
+              <ui:param name="billingId" value="#{priceModelBean.selectedService.technicalService.billingIdentifier}" />
+              <ui:param name="priceModelCtrl" value="#{externalCustomerPriceModelCtrl}" />
+            </ui:include>
+          </a4j:outputPanel>
+        </a4j:outputPanel>
+
+        <adm:outputStep value="#{msg['priceModel.step5.license.define']}" />
+
+        <adm:labelAndRichEditor id="license" label="#{msg['priceModel.service.license']}"
+          value="#{priceModelBean.license}" disabled="#{priceModelBean.editDisabled}" />
+
+        <h:inputHidden id="steppedPriceIndex" value="#{steppedPriceBean.index}" />
+        <h:inputHidden id="steppedPriceType" value="#{steppedPriceBean.type}" />
+        <h:inputHidden id="dirty" value="#{priceModelBean.dirty}" />
+        <h:commandButton style="display:none;" id="localizeButtonHidden" value="#{msg['button.localize']}"
+          action="#{priceModelBean.localize}" />
+
+        <ui:include src="priceModelButtonPanelInclude.xhtml">
+          <ui:param name="disabeledforCustomer" value="#{empty priceModelBean.customerID}" />
+        </ui:include>
+
+      </h:form>
+
+      <script type="text/javascript">
 	      var e1 = #{rich:element('customerSelection')};
 	      var e2 = #{rich:element('serviceSelection')};
 	      if (e1 &amp;&amp; e2) {
@@ -106,17 +122,21 @@
 	        e1.style.width = w + "px";
 	        e2.style.width = w + "px";
 	      }
-	
-	      <c:if test="#{priceModelBean.dirty}">
-	        setDirty(true);
-	      </c:if>
-	    </script>
-	
-	    <ui:include src="roles.xhtml" />
+	  </script>
+
+      <c:if test="#{priceModelBean.dirty}">
+        <script type="text/javascript">
+          $(document).ready(function() {
+              setDirty(true);
+          });
+        </script>
+      </c:if>
+
+      <ui:include src="roles.xhtml" />
     </a4j:outputPanel>
-    
+
     <a4j:outputPanel id="localizeSection" rendered="#{priceModelBean.localizeVisible}">
-        <ui:include src="localize.xhtml" />
+      <ui:include src="localize.xhtml" />
     </a4j:outputPanel>
   </ui:define>
 </ui:composition>

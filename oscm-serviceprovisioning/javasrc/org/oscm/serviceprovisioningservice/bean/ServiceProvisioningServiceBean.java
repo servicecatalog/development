@@ -87,6 +87,7 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.ImageType.ImageOwnerType;
@@ -156,6 +157,7 @@ import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOSteppedPrice;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
@@ -242,6 +244,9 @@ public class ServiceProvisioningServiceBean implements
 
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     private MarketingPermissionServiceLocal ms;
+
+    @EJB(beanInterface = SubscriptionService.class)
+    SubscriptionService subscriptionService;
 
     @EJB
     CommunicationServiceLocal commService;
@@ -2304,7 +2309,14 @@ public class ServiceProvisioningServiceBean implements
                     productType, targetCustomer, subscription,
                     isTemplateExistsForCustomer);
         } else {
-            setPriceModelToFree(voPriceModel, priceModel);
+
+            if (voPriceModel.isExternal()) {
+                setPriceModelToExternal(voPriceModel, priceModel);
+                priceModel.setExternal(true);
+                priceModel.setUuid(voPriceModel.getUuid());
+            } else{
+                setPriceModelToFree(voPriceModel, priceModel);
+            }
         }
 
         product.setPriceModel(priceModel);
@@ -2347,7 +2359,16 @@ public class ServiceProvisioningServiceBean implements
         PriceModelType oldPriceModelType = priceModel.getType();
         PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
                 priceModel, DateFactory.getInstance().getTransactionTime());
-        priceModelHandler.resetToNonChargeable();
+        priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
+        priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
+                voPriceModel.getKey(), oldPriceModelType);
+    }
+    
+    void setPriceModelToExternal(VOPriceModel voPriceModel, PriceModel priceModel) {
+        PriceModelType oldPriceModelType = priceModel.getType();
+        PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
+                priceModel, DateFactory.getInstance().getTransactionTime());
+        priceModelHandler.resetToNonChargeable(PriceModelType.UNKNOWN);
         priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
                 voPriceModel.getKey(), oldPriceModelType);
     }
@@ -3553,17 +3574,28 @@ public class ServiceProvisioningServiceBean implements
     private void validateExternalServiceMustBeFree(VOPriceModel priceModel,
             VOServiceDetails serviceDetails) throws ValidationException {
 
-        if (priceModel.isChargeable()) {
-            if (serviceDetails.getAccessType() == ServiceAccessType.EXTERNAL) {
-                throw new ValidationException(
-                        ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE,
-                        null, null);
-            }
+        if (priceModel.isChargeable() && serviceDetails
+                .getAccessType() == ServiceAccessType.EXTERNAL) {
+            throw new ValidationException(
+                    ReasonEnum.EXTERNAL_SERVICE_MUST_BE_FREE_OF_CHARGE, null,
+                    null);
 
         }
     }
 
-    private Subscription validateSubscription(VOServiceDetails service,
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException {
+        PlatformUser currentUser = dm.getCurrentUser();
+        Product product = dm.getReference(Product.class, service.getKey());
+        Subscription subscription = validateSubscription(service, currentUser,
+                product);
+        VOSubscriptionDetails voSubscriptionDetails = subscriptionService
+                .getSubscriptionDetailsWithoutOwnerCheck(subscription.getKey());
+        return voSubscriptionDetails;
+    }
+
+    private Subscription validateSubscription(VOService service,
             PlatformUser currentUser, Product product)
             throws OperationNotPermittedException, SubscriptionStateException {
         Subscription sub = product.getOwningSubscription();

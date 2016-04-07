@@ -173,6 +173,7 @@ public class ProductAssembler extends BaseAssembler {
         // EXTERNAL ACCESS services
         voProduct.setAccessType(technicalProduct.getAccessType());
         voProduct.setBaseURL(technicalProduct.getBaseURL());
+        voProduct.setBillingIdentifier(technicalProduct.getBillingIdentifier());
     }
 
     private static Organization getSupplier(final Product product) {
@@ -257,6 +258,7 @@ public class ProductAssembler extends BaseAssembler {
             voPM.setLicense(licenseDescription);
             voProduct.setPriceModel(voPM);
         }
+        voProduct.setServiceType(product.getType());
     }
 
     /**

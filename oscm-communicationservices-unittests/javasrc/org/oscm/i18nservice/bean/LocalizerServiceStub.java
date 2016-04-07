@@ -13,11 +13,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.local.LocalizedDomainObject;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
@@ -106,5 +109,17 @@ public class LocalizerServiceStub implements LocalizerServiceLocal {
             List<LocalizedObjectTypes> objectTypes) {
         return Collections.emptyList();
     }
+    
+    @Override
+    public LocalizedBillingResource getLocalizedBillingResource(
+            String localeString, UUID objectID,
+            LocalizedBillingResourceType resourceType) {
+        return null;
+    }
 
+    @Override
+    public LocalizedBillingResource getLocalizedPriceModelResource(
+            String localeString, UUID objectId) {
+        return null;
+    }
 }

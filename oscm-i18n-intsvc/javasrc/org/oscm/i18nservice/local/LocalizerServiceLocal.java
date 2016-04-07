@@ -16,10 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.ejb.Local;
 
+import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.LocalizedObjectTypes.InformationSource;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -242,4 +245,29 @@ public interface LocalizerServiceLocal {
      */
     public void removeLocalizedValue(long objectKey,
             LocalizedObjectTypes objectType, String localeString);
+    
+    /**
+     * Get a localized billing resource
+     * 
+     * @param localeString
+     *            the locale to be used.
+     * @param objectID
+     *            the object UUID
+     * @param objectKey
+     *            the object key
+     * @return the localized billing resource if one was found for the specified
+     *         locale or the default locale; otherwise <null>
+     */
+    public LocalizedBillingResource getLocalizedBillingResource(
+            String localeString, UUID objectID,
+            LocalizedBillingResourceType resourceType);
+
+    /**
+     * @param localeString - the locale to be used.
+     * @param objectId - the object UUID
+     * @return the localized price model resource if one was found for the specified
+     *         locale or the default locale; otherwise <null>
+     */
+    public LocalizedBillingResource getLocalizedPriceModelResource(String localeString,
+            UUID objectId);
 }

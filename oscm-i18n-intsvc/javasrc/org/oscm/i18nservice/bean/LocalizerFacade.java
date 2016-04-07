@@ -13,9 +13,12 @@
 package org.oscm.i18nservice.bean;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.domobjects.LocalizedBillingResource;
+import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.LocalizedObjectTypes.InformationSource;
 import org.oscm.i18nservice.local.LocalizedDomainObject;
@@ -231,6 +234,16 @@ public class LocalizerFacade {
             }
         }
 
+    }
+    
+    public LocalizedBillingResource getLocalizedBillingResource(UUID objectID,
+            LocalizedBillingResourceType resourceType) {
+        return localizer.getLocalizedBillingResource(getLocale(), objectID,
+                resourceType);
+    }
+    
+    public LocalizedBillingResource getLocalizedPriceModelResource(UUID objectID) {
+        return localizer.getLocalizedPriceModelResource(getLocale(), objectID);
     }
 
 }

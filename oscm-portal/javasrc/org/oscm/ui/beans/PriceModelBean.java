@@ -8,6 +8,7 @@
 
 package org.oscm.ui.beans;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -22,21 +23,10 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.ui.common.DataTableHandler;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.LocaleUtils;
-import org.oscm.ui.common.SteppedPriceComparator;
-import org.oscm.ui.model.BPLazyDataModel;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.PricedEventRow;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.ServiceDetails;
+import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.partnerservice.PartnerService;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
 import org.oscm.internal.subscriptions.POSubscriptionAndCustomer;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -51,6 +41,7 @@ import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.internal.vo.VOMarketplace;
@@ -65,7 +56,26 @@ import org.oscm.internal.vo.VORoleDefinition;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSteppedPrice;
+import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.ui.common.DataTableHandler;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.LocaleUtils;
+import org.oscm.ui.common.SteppedPriceComparator;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalCustomerPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelModel;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalServicePriceModelCtrl;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalSubscriptionPriceModelCtrl;
+import org.oscm.ui.model.BPLazyDataModel;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.PricedEventRow;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.ServiceDetails;
 
 /**
  * @author pravi
@@ -102,20 +112,29 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     private boolean publishedInGlobalMarketPlace;
 
-    @ManagedProperty(value="#{menuBean}")
+    @ManagedProperty(value = "#{menuBean}")
     private MenuBean menuBean;
 
-    @ManagedProperty(value="#{subscriptionViewBean}")
+    @ManagedProperty(value = "#{subscriptionViewBean}")
     private SubscriptionViewBean subscriptionViewBean;
 
-    @ManagedProperty(value="#{appBean}")
+    @ManagedProperty(value = "#{appBean}")
     private ApplicationBean appBean;
 
-    @ManagedProperty(value="#{sessionBean}")
+    @ManagedProperty(value = "#{sessionBean}")
     private SessionBean sessionBean;
 
-    @ManagedProperty(value="#{bPLazyDataModel}")
+    @ManagedProperty(value = "#{bPLazyDataModel}")
     private BPLazyDataModel model;
+    
+    @ManagedProperty(value = "#{externalCustomerPriceModelCtrl}")
+    private ExternalCustomerPriceModelCtrl extCustBean;
+
+    @ManagedProperty(value = "#{externalServicePriceModelCtrl}")
+    private ExternalServicePriceModelCtrl extServiceBean;
+    
+    @ManagedProperty(value = "#{externalSubscriptionPriceModelCtrl}")
+    private ExternalSubscriptionPriceModelCtrl extSubBean;
 
     private String initUrl;
     private boolean dirty;
@@ -161,10 +180,12 @@ public class PriceModelBean extends BaseBean implements Serializable {
     private boolean editDisabled = false;
 
     private boolean editDisabledInSubscriptionPage = false;
-    
+
     private boolean localizeVisible = false;
-    
+
     private String storedServiceId = null;
+
+    private boolean isExternalPriceModelUploaded;
 
     @PostConstruct
     protected void init() {
@@ -187,14 +208,21 @@ public class PriceModelBean extends BaseBean implements Serializable {
         } else {
             initServices();
         }
+
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.initBean(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.initBean(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            extSubBean.initBean(getSelectedService());
+        }
     }
 
     public List<String> getDataTableHeaders() {
         if (dataTableHeaders == null || dataTableHeaders.isEmpty()) {
             try {
-                dataTableHeaders = DataTableHandler
-                        .getTableHeaders(POSubscriptionAndCustomer.class
-                                .getName());
+                dataTableHeaders = DataTableHandler.getTableHeaders(
+                        POSubscriptionAndCustomer.class.getName());
             } catch (Exception ex) {
                 throw new SaaSSystemException(ex);
             }
@@ -270,8 +298,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
         switch (getCurrentPMPage()) {
         case PRICEMODEL_FOR_SERVICE:
         case PRICEMODEL_FOR_CUSTOMER:
-            setServices(mapper.map(getProvisioningServiceInternal()
-                    .getSuppliedServices(
+            setServices(mapper
+                    .map(getProvisioningServiceInternal().getSuppliedServices(
                             PerformanceHint.ONLY_FIELDS_FOR_LISTINGS)));
             break;
         }
@@ -305,13 +333,20 @@ public class PriceModelBean extends BaseBean implements Serializable {
     /**
      * @return the value object for the current customerID
      */
-    protected Organization getCustomer() {
+    public Organization getCustomer() {
         for (Organization organization : getCustomers()) {
             if (organization.getOrganizationId().equals(getCustomerID())) {
                 return organization;
             }
         }
         return null;
+    }
+
+    /**
+     * @return selected subscription
+     */
+    public VOSubscriptionDetails getSelectedSubscription() {
+        return model.getSelectedSubscription();
     }
 
     /**
@@ -348,8 +383,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 }
             };
             try {
-                customers = mapper.map(getAccountingService()
-                        .getMyCustomersOptimization());
+                customers = mapper.map(
+                        getAccountingService().getMyCustomersOptimization());
             } catch (OrganizationAuthoritiesException e) {
                 ExceptionHandler.execute(e);
             }
@@ -386,8 +421,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 } else {
                     PartnerService partnerService = getParterService();
                     try {
-                        Response r = partnerService
-                                .getPriceModelLocalization(getSelectedService());
+                        Response r = partnerService.getPriceModelLocalization(
+                                getSelectedService());
                         localization = r
                                 .getResult(VOPriceModelLocalization.class);
                     } catch (SaaSApplicationException e) {
@@ -398,12 +433,12 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 if (!error) {
                     List<Locale> supportedLocales = appBean
                             .getSupportedLocaleList();
-                    localization.setDescriptions(LocaleUtils.trim(
-                            localization.getDescriptions(),
-                            supportedLocales.iterator()));
-                    localization.setLicenses(LocaleUtils.trim(
-                            localization.getLicenses(),
-                            supportedLocales.iterator()));
+                    localization.setDescriptions(
+                            LocaleUtils.trim(localization.getDescriptions(),
+                                    supportedLocales.iterator()));
+                    localization.setLicenses(
+                            LocaleUtils.trim(localization.getLicenses(),
+                                    supportedLocales.iterator()));
                 }
             }
         } catch (SaaSApplicationException e) {
@@ -460,14 +495,15 @@ public class PriceModelBean extends BaseBean implements Serializable {
      */
     private Service getService() {
         Long key = getSelectedServiceKey();
-        if (key != null) {
-            for (Service s : getServices()) {
-                if (s.getKey() == key.longValue()) {
-                    return s;
-                }
-            }
-
+        if (key == null) {
+            return null;
         }
+        for (Service s : getServices()) {
+            if (s.getKey() == key.longValue()) {
+                return s;
+            }
+        }
+
         return null;
     }
 
@@ -525,18 +561,31 @@ public class PriceModelBean extends BaseBean implements Serializable {
     public boolean isDisableSave() {
         switch (getCurrentPMPage()) {
         case PRICEMODEL_FOR_SERVICE:
-            return getServices() == null || getServices().isEmpty();
+            return getServices() == null || getServices().isEmpty()
+                    || isDisableSaveForExternalPriceModel(extServiceBean);
 
         case PRICEMODEL_FOR_CUSTOMER:
             return getServices() == null || getServices().isEmpty()
-                    || getCustomers() == null && getCustomers().isEmpty();
+                    || getCustomers() == null || getCustomers().isEmpty()
+                    || isDisableSaveForExternalPriceModel(extCustBean);
 
         case PRICEMODEL_FOR_SUBSCRIPTION:
             return model.getCachedList() == null
-                    || model.getCachedList().isEmpty();
+                    || model.getCachedList().isEmpty() || isDisableSaveForExternalPriceModel(extSubBean);
         }
         return false;
     }
+
+    private boolean isDisableSaveForExternalPriceModel(ExternalPriceModelCtrl externalPriceModelCtrl) {
+        if (selectedService == null || selectedService.getPriceModel() == null) {
+            return false;
+        }
+        if (!selectedService.getPriceModel().isExternal() && !selectedService.getTechnicalService().isExternalBilling()) {
+            return false;
+        }
+        return externalPriceModelCtrl.getModel().getSelectedPriceModelContent() == null;
+    }
+
 
     public void setEditDisabled(boolean value) {
         editDisabled = value;
@@ -680,6 +729,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
             return;
         }
         this.selectedService = new ServiceDetails(selectedService);
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.initBean(selectedService);
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.initBean(selectedService);
+        }
     }
 
     public String selectSubscriptionIdAndCustomerId() {
@@ -688,14 +742,17 @@ public class PriceModelBean extends BaseBean implements Serializable {
         String result = setSelectedSubscription(subscriptionId, customerId,
                 false);
         updatePriceModel();
+        extSubBean.reloadPriceModel(getSelectedService());
         setDirty(false);
         return result;
     }
 
     String setSelectedSubscription(String subscriptionId, String customerId,
             boolean isInitPage) {
-        if (subscriptionId == null || customerId == null)
+        if (subscriptionId == null || customerId == null) {
             return OUTCOME_SUBSCRIPTION_LIST;
+        }
+        isExternalPriceModelUploaded = false;
         POSubscriptionAndCustomer subscriptionAndCustomer = getSubscriptionAndCustomer(
                 subscriptionId, customerId);
         if (subscriptionAndCustomer != null) {
@@ -716,10 +773,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     private POSubscriptionAndCustomer getSubscriptionAndCustomer(
             String subscriptionId, String customerId) {
-        for (POSubscriptionAndCustomer subscriptionAndCustomer : model.getCachedList()) {
+        for (POSubscriptionAndCustomer subscriptionAndCustomer : model
+                .getCachedList()) {
             if (subscriptionAndCustomer.getCustomerId().equals(customerId)
-                    && subscriptionAndCustomer.getSubscriptionId().equals(
-                            subscriptionId)) {
+                    && subscriptionAndCustomer.getSubscriptionId()
+                            .equals(subscriptionId)) {
                 return subscriptionAndCustomer;
             }
         }
@@ -741,15 +799,18 @@ public class PriceModelBean extends BaseBean implements Serializable {
         try {
             getSubscriptionService().getSubscriptionForCustomer(
                     model.getSelectedSubscriptionAndCustomer().getCustomerId(),
-                    model.getSelectedSubscriptionAndCustomer().getSubscriptionId());
+                    model.getSelectedSubscriptionAndCustomer()
+                            .getSubscriptionId());
             setSubscriptionID(model.getSelectedSubscriptionAndCustomer()
                     .getSubscriptionId());
-            setCustomerID(model.getSelectedSubscriptionAndCustomer().getCustomerId());
-            sessionBean.setSelectedCustomerId(model.getSelectedSubscriptionAndCustomer()
-                    .getCustomerId());
-            sessionBean
-                    .setSelectedSubscriptionId(model.getSelectedSubscriptionAndCustomer()
-                            .getSubscriptionId());
+            setCustomerID(
+                    model.getSelectedSubscriptionAndCustomer().getCustomerId());
+            sessionBean.setSelectedCustomerId(
+                    model.getSelectedSubscriptionAndCustomer().getCustomerId());
+            sessionBean.setSelectedSubscriptionId(model
+                    .getSelectedSubscriptionAndCustomer().getSubscriptionId());
+            model.setSelectedSubscription(getSubscriptionService()
+                    .getSubscriptionForCustomer(model.getCustomerId(), model.getSubscriptionId()));
             result = OUTCOME_SUCCESS;
         } catch (ObjectNotFoundException | OperationNotPermittedException e) {
             model.setSelectedSubscriptionAndCustomer(null);
@@ -760,6 +821,20 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
     public int getSubscriptionsListSize() {
         return model.getSubscriptionsListSize();
+    }
+
+    public boolean isExternalServiceSelected() {
+        Service service = getService();
+        if (service == null) {
+            return false;
+        }
+        try {
+            return getProvisioningService().getServiceDetails(service.getVO())
+                    .getTechnicalService().isExternalBilling();
+        } catch (SaaSApplicationException e) {
+            ui.handleException(e);
+        }
+        return false;
     }
 
     public void updatePriceModel() {
@@ -782,8 +857,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
             sessionBean.setSelectedServiceKeyForSupplier(null);
             return;
         }
-        sessionBean.setSelectedServiceKeyForSupplier(Long
-                .valueOf(selectedService.getKey()));
+        sessionBean.setSelectedServiceKeyForSupplier(
+                Long.valueOf(selectedService.getKey()));
         if (templatePriceModel != null) {
             priceModel = templatePriceModel;
         } else {
@@ -799,14 +874,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
         }
         steppedPrices = priceModel.getSteppedPrices();
         Collections.sort(steppedPrices, new SteppedPriceComparator());
-        pricedEvents = PricedEventRow.createPricedEventRowList(selectedService
-                .getVoServiceDetails());
+        pricedEvents = PricedEventRow.createPricedEventRowList(
+                selectedService.getVoServiceDetails());
         parameters = PricedParameterRow
-                .createPricedParameterRowListForPriceModel(selectedService
-                        .getVoServiceDetails());
+                .createPricedParameterRowListForPriceModel(
+                        selectedService.getVoServiceDetails());
         parametersRoles = PricedParameterRow
-                .createPricedParameterRowListForPriceModelRoles(selectedService
-                        .getVoServiceDetails());
+                .createPricedParameterRowListForPriceModelRoles(
+                        selectedService.getVoServiceDetails());
 
         // bug fix 5928
         if (newPriceModel) {
@@ -863,15 +938,15 @@ public class PriceModelBean extends BaseBean implements Serializable {
                         customerPricemodelCreation = true;
                         // there is no customer specific one yet so use the
                         // global template
-                        vopd = getProvisioningService().getServiceDetails(
-                                service.getVO());
+                        vopd = getProvisioningService()
+                                .getServiceDetails(service.getVO());
                         if (vopd != null) {
                             templatePriceModel = vopd.getPriceModel();
                         }
                     }
                 } else if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
-                    vopd = getProvisioningService().getServiceDetails(
-                            service.getVO());
+                    vopd = getProvisioningService()
+                            .getServiceDetails(service.getVO());
                 }
                 if (vopd == null) {
                     initServices();
@@ -903,10 +978,13 @@ public class PriceModelBean extends BaseBean implements Serializable {
                     && (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER)) {
                 // we create a new price model so edit is enabled
                 editDisabled = getSelectedService() == null ? false
-                        : getSelectedService().getAccessType() == ServiceAccessType.EXTERNAL;
+                        : getSelectedService()
+                                .getAccessType() == ServiceAccessType.EXTERNAL;
             } else if (getSelectedService() != null) {
-                editDisabled = getSelectedService().getStatus() == ServiceStatus.ACTIVE
-                        || getSelectedService().getAccessType() == ServiceAccessType.EXTERNAL;
+                editDisabled = getSelectedService()
+                        .getStatus() == ServiceStatus.ACTIVE
+                        || getSelectedService()
+                                .getAccessType() == ServiceAccessType.EXTERNAL;
             }
         } else if (getSubscriptionID() != null && vopd != null) {
             editDisabled = false;
@@ -947,16 +1025,33 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
         VOServiceDetails voServiceDetails = getSelectedService();
         if (voServiceDetails == null) {
+
             logger.logDebug("save() selectedService is null and "
                     + "hence returning without saving");
-            if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
-                throwObjectNotFoundException(ClassEnum.SUBSCRIPTION,
-                        model.getSubscriptionId());
-            }
-            throwObjectNotFoundException(ClassEnum.SERVICE, storedServiceId);
 
+            dirty = false;
+
+            if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+                throw new ObjectNotFoundException(ClassEnum.SUBSCRIPTION,
+                        model.getSubscriptionId());
+            } else {
+                throw new ObjectNotFoundException(ClassEnum.SERVICE,
+                        storedServiceId);
+            }
+
+        } else {
+            if (voServiceDetails.getTechnicalService().isExternalBilling()) {
+                return saveExternalPriceModel(voServiceDetails,
+                        getPriceModel());
+            } else {
+                return saveNativePriceModel(voServiceDetails, getPriceModel());
+            }
         }
-        VOPriceModel voPriceModel = getPriceModel();
+
+    }
+
+    public String saveNativePriceModel(VOServiceDetails voServiceDetails,
+            VOPriceModel voPriceModel) throws SaaSApplicationException {
 
         if (this.getSupportedCurrencies().isEmpty() && !isPriceModelFree()) {
             return handleErrorMessage(ERROR_NO_CURRENCIES, null);
@@ -987,9 +1082,9 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
         // -- part for saving role specific prices --
         // prepare and set user-role specific prices
-        voPriceModel
-                .setRoleSpecificUserPrices(getRoleSpecificUserPricesForSaving());
-        // ------------------------------------------
+        voPriceModel.setRoleSpecificUserPrices(
+                getRoleSpecificUserPricesForSaving());
+                // ------------------------------------------
 
         // set priced parameters
         List<VOPricedParameter> pricedParameters = new ArrayList<>();
@@ -1027,10 +1122,12 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 customerPricemodelCreation = false;
                 voServiceDetails = getProvisioningService()
                         .savePriceModelForCustomer(voServiceDetails,
-                                voPriceModel, getCustomer().getVOOrganization());
+                                voPriceModel,
+                                getCustomer().getVOOrganization());
                 saveLocalization(voServiceDetails);
                 addMessage(null, FacesMessage.SEVERITY_INFO,
-                        INFO_PRICEMODEL_FOR_CUSTOMER_SAVED, new String[] {
+                        INFO_PRICEMODEL_FOR_CUSTOMER_SAVED,
+                        new String[] {
                                 getCustomer().getNameWithOrganizationId(),
                                 voServiceDetails.getServiceId() });
                 break;
@@ -1042,14 +1139,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
                 saveLocalization(voServiceDetails);
                 addMessage(null, FacesMessage.SEVERITY_INFO,
-                        INFO_PRICEMODEL_FOR_SUBSCRIPTION_SAVED, new String[] {
-                                getSubscriptionID(),
+                        INFO_PRICEMODEL_FOR_SUBSCRIPTION_SAVED,
+                        new String[] { getSubscriptionID(),
                                 getCustomer().getNameWithOrganizationId() });
                 break;
 
             default:
-                throw new IllegalStateException("PRICEMODEL OF UNKNOWN TYPE"
-                        + getCurrentPMPage());
+                throw new IllegalStateException(
+                        "PRICEMODEL OF UNKNOWN TYPE" + getCurrentPMPage());
             }
         } catch (SaaSApplicationException ex) {
             if ((ex instanceof ObjectNotFoundException)
@@ -1065,6 +1162,100 @@ public class PriceModelBean extends BaseBean implements Serializable {
         dirty = false;
         // If the price model is saved successfully, set this boolean to true.
         isSaved = true;
+        return OUTCOME_SUCCESS;
+    }
+
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws SaaSApplicationException {
+        return getProvisioningService().validateSubscription(service);
+    }
+
+    String saveExternalPriceModel(VOServiceDetails voServiceDetails,
+            VOPriceModel voPriceModel) throws SaaSApplicationException {
+
+        ExternalPriceModelModel externalPriceModelModel = null;
+        if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            externalPriceModelModel = extCustBean.getModel();
+        } else {
+            externalPriceModelModel = extServiceBean.getModel();
+        }
+
+        PriceModel priceModel  = externalPriceModelModel.getSelectedPriceModel();
+        if (priceModel == null) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
+            return OUTCOME_ERROR;
+        }
+
+        try {
+            getExternalPriceModelService().updateCache(priceModel);
+        } catch (ExternalPriceModelException e) {
+            return OUTCOME_ERROR;
+        }
+
+        try {
+
+            voPriceModel.setExternal(true);
+            voPriceModel.setUuid(priceModel.getId());
+
+            switch (getCurrentPMPage()) {
+
+            case PRICEMODEL_FOR_SERVICE:
+                voServiceDetails = getProvisioningService()
+                        .savePriceModel(voServiceDetails, voPriceModel);
+                saveLocalization(voServiceDetails);
+                addMessage(null, FacesMessage.SEVERITY_INFO,
+                        INFO_PRICEMODEL_SAVED, voServiceDetails.getServiceId());
+                break;
+
+            case PRICEMODEL_FOR_CUSTOMER:
+                if (customerPricemodelCreation) {
+                    voPriceModel.setKey(0);
+                    voPriceModel.setVersion(0);
+                }
+                customerPricemodelCreation = false;
+
+                voServiceDetails = getProvisioningService()
+                        .savePriceModelForCustomer(voServiceDetails,
+                                voPriceModel,
+                                getCustomer().getVOOrganization());
+                saveLocalization(voServiceDetails);
+                addMessage(null, FacesMessage.SEVERITY_INFO,
+                        INFO_PRICEMODEL_FOR_CUSTOMER_SAVED,
+                        new String[] {
+                                getCustomer().getNameWithOrganizationId(),
+                                voServiceDetails.getServiceId() });
+                break;
+            case PRICEMODEL_FOR_SUBSCRIPTION:
+                voServiceDetails = getProvisioningService().savePriceModelForSubscription(voServiceDetails, voPriceModel);
+                saveLocalization(voServiceDetails);
+                addMessage(null, FacesMessage.SEVERITY_INFO,
+                        INFO_PRICEMODEL_FOR_SUBSCRIPTION_SAVED,
+                        new String[] { getSubscriptionID(),
+                                getCustomer().getNameWithOrganizationId() });
+                break;
+            default:
+                throw new IllegalStateException(
+                        "PRICEMODEL OF UNKNOWN TYPE" + getCurrentPMPage());
+            }
+        } catch (SaaSApplicationException ex) {
+            if ((ex instanceof ObjectNotFoundException)
+                    && ((ObjectNotFoundException) ex)
+                            .getDomainObjectClassEnum() == ClassEnum.SERVICE) {
+                ex.setMessageParams(new String[] { storedServiceId });
+            }
+            throw ex;
+        }
+
+        externalPriceModelModel.setSavedByUser(true);
+        setSelectedService(voServiceDetails);
+        updatePriceModel();
+        getLocalization();
+        dirty = false;
+
+        // If the price model is saved successfully, set this boolean to true.
+        isSaved = true;
+
         return OUTCOME_SUCCESS;
     }
 
@@ -1235,7 +1426,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 // and options for selected role from internal cache
                 int paramNum = pricedParametersOfAllRoles[index].length;
                 for (int i = 0; i < paramNum; i++) {
-                    if ((pricedParametersOfSelectedRole[i].getPricedParameter() != null)
+                    if ((pricedParametersOfSelectedRole[i]
+                            .getPricedParameter() != null)
                             && (pricedParametersOfAllRoles[index][i]
                                     .getPricedParameter() != null)) {
                         pricedParametersOfSelectedRole[i].getPricedParameter()
@@ -1244,7 +1436,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                                                 .getPricedParameter()
                                                 .getPricePerUser());
                     }
-                    if ((pricedParametersOfSelectedRole[i].getPricedOption() != null)
+                    if ((pricedParametersOfSelectedRole[i]
+                            .getPricedOption() != null)
                             && (pricedParametersOfAllRoles[index][i]
                                     .getPricedOption() != null)) {
                         pricedParametersOfSelectedRole[i].getPricedOption()
@@ -1320,23 +1513,21 @@ public class PriceModelBean extends BaseBean implements Serializable {
             // save parameter prices for role
             int paramNum = pricedParametersOfSelectedRole.length;
             for (int i = 0; i < paramNum; i++) {
-                if ((pricedParametersOfSelectedRole[i].getPricedParameter() != null)
+                if ((pricedParametersOfSelectedRole[i]
+                        .getPricedParameter() != null)
                         && (pricedParametersOfAllRoles[index][i]
                                 .getPricedParameter() != null)) {
                     pricedParametersOfAllRoles[index][i].getPricedParameter()
-                            .setPricePerUser(
-                                    pricedParametersOfSelectedRole[i]
-                                            .getPricedParameter()
-                                            .getPricePerUser());
+                            .setPricePerUser(pricedParametersOfSelectedRole[i]
+                                    .getPricedParameter().getPricePerUser());
                 }
-                if ((pricedParametersOfSelectedRole[i].getPricedOption() != null)
+                if ((pricedParametersOfSelectedRole[i]
+                        .getPricedOption() != null)
                         && (pricedParametersOfAllRoles[index][i]
                                 .getPricedOption() != null)) {
                     pricedParametersOfAllRoles[index][i].getPricedOption()
-                            .setPricePerUser(
-                                    pricedParametersOfSelectedRole[i]
-                                            .getPricedOption()
-                                            .getPricePerUser());
+                            .setPricePerUser(pricedParametersOfSelectedRole[i]
+                                    .getPricedOption().getPricePerUser());
                 }
             }
 
@@ -1419,8 +1610,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                     for (int j = 0; j < roleSpecificUserPrice.size(); j++) {
                         VOPricedRole curUserPrice = roleSpecificUserPrice
                                 .get(j);
-                        if (curRole.getRoleId().equals(
-                                curUserPrice.getRole().getRoleId())) {
+                        if (curRole.getRoleId()
+                                .equals(curUserPrice.getRole().getRoleId())) {
                             priceModelPricedRoles[i] = curUserPrice;
                         }
                     }
@@ -1456,22 +1647,22 @@ public class PriceModelBean extends BaseBean implements Serializable {
 
         // initialize parameters for selected role for GUI
         List<PricedParameterRow> paramForSelectedRole = PricedParameterRow
-                .createPricedParameterRowListForPriceModelRoles(selectedService
-                        .getVoServiceDetails());
+                .createPricedParameterRowListForPriceModelRoles(
+                        selectedService.getVoServiceDetails());
         for (int i = 0; i < numParam; i++) {
-            pricedParametersOfSelectedRole[i] = copyParameterRow(paramForSelectedRole
-                    .get(i));
+            pricedParametersOfSelectedRole[i] = copyParameterRow(
+                    paramForSelectedRole.get(i));
         }
 
         // for all roles the same initial values, but different object list
         // create for all parametersRoles and options values with price == 0
         for (int i = 0; i < numRoles; i++) {
             List<PricedParameterRow> paramForRoleInCash = PricedParameterRow
-                    .createPricedParameterRowListForPriceModelRoles(selectedService
-                            .getVoServiceDetails());
+                    .createPricedParameterRowListForPriceModelRoles(
+                            selectedService.getVoServiceDetails());
             for (int j = 0; j < numParam; j++) {
-                pricedParametersOfAllRoles[i][j] = copyParameterRow(paramForRoleInCash
-                        .get(j));
+                pricedParametersOfAllRoles[i][j] = copyParameterRow(
+                        paramForRoleInCash.get(j));
             }
         }
 
@@ -1481,7 +1672,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                     .get(indexForParameters);
             if (!curParameter.isOption()) {
                 // looking for only for parameter entry, not for option
-                if (curParameter.getParameterDefinition().getValueType() != ParameterValueType.ENUMERATION) {
+                if (curParameter.getParameterDefinition()
+                        .getValueType() != ParameterValueType.ENUMERATION) {
                     initNotEnumerationParameter(indexForParameters,
                             curParameter);
 
@@ -1510,16 +1702,18 @@ public class PriceModelBean extends BaseBean implements Serializable {
         List<VOPricedOption> pricedOptionList = curParameter
                 .getPricedParameter().getPricedOptions();
         // for every option looking for role price
-        for (int optionIndex = 0; optionIndex < pricedOptionList.size(); optionIndex++) {
+        for (int optionIndex = 0; optionIndex < pricedOptionList
+                .size(); optionIndex++) {
             VOPricedOption pricedOption = pricedOptionList.get(optionIndex);
             // list of role prices for one current option
             List<VOPricedRole> oldRoleSpecificUserPrices = pricedOption
                     .getRoleSpecificUserPrices();
             // looking for position in displayed parameter-option
             // list for the option
-            for (int indexInCache = 0; indexInCache < parametersRoles.size(); indexInCache++) {
-                VOPricedOption curPricedOption = parametersRoles.get(
-                        indexInCache).getPricedOption();
+            for (int indexInCache = 0; indexInCache < parametersRoles
+                    .size(); indexInCache++) {
+                VOPricedOption curPricedOption = parametersRoles
+                        .get(indexInCache).getPricedOption();
                 if (curPricedOption != null) {
                     // this is option
                     if (pricedOption.getKey() == curPricedOption.getKey()) {
@@ -1533,8 +1727,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
                                     .size(); roleIndex++) {
                                 VORoleDefinition oldCurRole = oldRoleSpecificUserPrices
                                         .get(roleIndex).getRole();
-                                if (oldCurRole.getRoleId().equals(
-                                        role.getRoleId())) {
+                                if (oldCurRole.getRoleId()
+                                        .equals(role.getRoleId())) {
                                     // role is already has price
                                     // just change old price to new
                                     // price
@@ -1571,11 +1765,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 // define, which role is it
                 VORoleDefinition curParamRole = rolePrice.getRole();
                 for (int roleIndex = 0; roleIndex < roles.size(); roleIndex++) {
-                    if (curParamRole.getRoleId().equals(
-                            roles.get(roleIndex).getRoleId())) {
+                    if (curParamRole.getRoleId()
+                            .equals(roles.get(roleIndex).getRoleId())) {
                         pricedParametersOfAllRoles[roleIndex][indexForParameters]
-                                .getPricedParameter().setPricePerUser(
-                                        rolePrice.getPricePerUser());
+                                .getPricedParameter()
+                                .setPricePerUser(rolePrice.getPricePerUser());
                     }
                 }
             }
@@ -1620,7 +1814,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
     private void clearParametersSelectedRole() {
         int paramNum = pricedParametersOfSelectedRole.length;
         for (int i = 0; i < paramNum; i++) {
-            if (pricedParametersOfSelectedRole[i].getPricedParameter() != null) {
+            if (pricedParametersOfSelectedRole[i]
+                    .getPricedParameter() != null) {
                 pricedParametersOfSelectedRole[i].getPricedParameter()
                         .setPricePerUser(BigDecimal.ZERO);
             }
@@ -1647,7 +1842,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
         paramNew.setParameterKey(paramOld.getParameterKey());
         paramNew.setPricedOptions(paramOld.getPricedOptions());
         paramNew.setPricePerUser(paramOld.getPricePerUser());
-        paramNew.setRoleSpecificUserPrices(paramOld.getRoleSpecificUserPrices());
+        paramNew.setRoleSpecificUserPrices(
+                paramOld.getRoleSpecificUserPrices());
         paramNew.setVersion(paramOld.getVersion());
         paramNew.setVoParameterDef(paramOld.getVoParameterDef());
 
@@ -1672,8 +1868,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
         optionNew.setParameterOptionKey(optionOld.getParameterOptionKey());
         optionNew.setPricePerSubscription(optionOld.getPricePerSubscription());
         optionNew.setPricePerUser(optionOld.getPricePerUser());
-        optionNew.setRoleSpecificUserPrices(optionOld
-                .getRoleSpecificUserPrices());
+        optionNew.setRoleSpecificUserPrices(
+                optionOld.getRoleSpecificUserPrices());
         optionNew.setVersion(optionOld.getVersion());
 
         return optionNew;
@@ -1703,12 +1899,14 @@ public class PriceModelBean extends BaseBean implements Serializable {
      */
     void addRoleSpecificPriceToParameters() {
         if (parametersRoles != null) {
-            for (int paramIndex = 0; paramIndex < parametersRoles.size(); paramIndex++) {
+            for (int paramIndex = 0; paramIndex < parametersRoles
+                    .size(); paramIndex++) {
                 PricedParameterRow curParam = parametersRoles.get(paramIndex);
                 // looking for needed parameter in current cache
                 if (!curParam.isOption()) {
                     // looking for only for parameter entry, not for option
-                    if (curParam.getParameterDefinition().getValueType() != ParameterValueType.ENUMERATION) {
+                    if (curParam.getParameterDefinition()
+                            .getValueType() != ParameterValueType.ENUMERATION) {
                         addForNotEnumeration(curParam, paramIndex);
                     } else {
                         addForEnumeration(curParam, paramIndex);
@@ -1727,11 +1925,13 @@ public class PriceModelBean extends BaseBean implements Serializable {
      * @param paramIndex
      *            index in displayed array.
      */
-    private void addForEnumeration(PricedParameterRow curParam, int paramIndex) {
+    private void addForEnumeration(PricedParameterRow curParam,
+            int paramIndex) {
         // get all priced option for the parameter
         List<VOPricedOption> pricedOptionList = curParam.getPricedParameter()
                 .getPricedOptions();
-        for (int optionIndex = 0; optionIndex < pricedOptionList.size(); optionIndex++) {
+        for (int optionIndex = 0; optionIndex < pricedOptionList
+                .size(); optionIndex++) {
             VOPricedOption pricedOption = pricedOptionList.get(optionIndex);
             List<VOPricedRole> oldRoleSpecificUserPrices = pricedOption
                     .getRoleSpecificUserPrices();
@@ -1764,8 +1964,9 @@ public class PriceModelBean extends BaseBean implements Serializable {
                     VOPricedRole price = new VOPricedRole();
                     if (pricedParametersOfAllRoles[j][indexInCache]
                             .getPricedOption() != null) {
-                        price.setPricePerUser(pricedParametersOfAllRoles[j][indexInCache]
-                                .getPricedOption().getPricePerUser());
+                        price.setPricePerUser(
+                                pricedParametersOfAllRoles[j][indexInCache]
+                                        .getPricedOption().getPricePerUser());
                         price.setRole(role);
                     }
                     oldRoleSpecificUserPrices.add(price);
@@ -1796,8 +1997,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
             int numOldRoleWithPrice = oldRoleSpecificUserPrices.size();
             boolean isUpdated = false;
             for (int roleIndex = 0; roleIndex < numOldRoleWithPrice; roleIndex++) {
-                VORoleDefinition oldCurRole = oldRoleSpecificUserPrices.get(
-                        roleIndex).getRole();
+                VORoleDefinition oldCurRole = oldRoleSpecificUserPrices
+                        .get(roleIndex).getRole();
                 if (oldCurRole.getRoleId().equals(role.getRoleId())) {
                     // role is already has price
                     // just change old price to new price
@@ -1813,8 +2014,9 @@ public class PriceModelBean extends BaseBean implements Serializable {
                 VOPricedRole price = new VOPricedRole();
                 if (pricedParametersOfAllRoles[j][paramIndex]
                         .getPricedParameter() != null) {
-                    price.setPricePerUser(pricedParametersOfAllRoles[j][paramIndex]
-                            .getPricedParameter().getPricePerUser());
+                    price.setPricePerUser(
+                            pricedParametersOfAllRoles[j][paramIndex]
+                                    .getPricedParameter().getPricePerUser());
                     price.setRole(role);
                 }
                 oldRoleSpecificUserPrices.add(price);
@@ -1877,6 +2079,11 @@ public class PriceModelBean extends BaseBean implements Serializable {
         this.selectedServiceKey = Long.class.cast(event.getNewValue());
         sessionBean.setSelectedServiceKeyForSupplier(this.selectedServiceKey);
         updatePriceModel();
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.reloadPriceModel(getSelectedService());
+        } else if(getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.reloadPriceModel(getSelectedService());
+        }
     }
 
     /**
@@ -1895,8 +2102,8 @@ public class PriceModelBean extends BaseBean implements Serializable {
             sessionBean.setSelectedServiceKeyForSupplier(null);
             return;
         }
-        sessionBean.setSelectedServiceKeyForSupplier(Long
-                .valueOf(selectedService.getKey()));
+        sessionBean.setSelectedServiceKeyForSupplier(
+                Long.valueOf(selectedService.getKey()));
         if (templatePriceModel != null) {
             priceModel = templatePriceModel;
         } else {
@@ -1909,16 +2116,16 @@ public class PriceModelBean extends BaseBean implements Serializable {
         steppedPrices = priceModel.getSteppedPrices();
         Collections.sort(steppedPrices, new SteppedPriceComparator());
 
-        pricedEvents = PricedEventRow.createPricedEventRowList(selectedService
-                .getVoServiceDetails());
+        pricedEvents = PricedEventRow.createPricedEventRowList(
+                selectedService.getVoServiceDetails());
 
         parameters = PricedParameterRow
-                .createPricedParameterRowListForPriceModel(selectedService
-                        .getVoServiceDetails());
+                .createPricedParameterRowListForPriceModel(
+                        selectedService.getVoServiceDetails());
 
         parametersRoles = PricedParameterRow
-                .createPricedParameterRowListForPriceModelRoles(selectedService
-                        .getVoServiceDetails());
+                .createPricedParameterRowListForPriceModelRoles(
+                        selectedService.getVoServiceDetails());
 
     }
 
@@ -2035,7 +2242,117 @@ public class PriceModelBean extends BaseBean implements Serializable {
         return subscriptionViewBean;
     }
 
-    public void setSubscriptionViewBean(SubscriptionViewBean subscriptionViewBean) {
+    public void setSubscriptionViewBean(
+            SubscriptionViewBean subscriptionViewBean) {
         this.subscriptionViewBean = subscriptionViewBean;
+    }
+
+    /**
+     * @return the isExternalPriceModelUploaded
+     */
+    public boolean isExternalPriceModelUploaded() {
+        return isExternalPriceModelUploaded;
+    }
+
+    /**
+     * @param isExternalPriceModelUploaded the isExternalPriceModelUploaded to set
+     */
+    public void setExternalPriceModelUploaded(
+            boolean isExternalPriceModelUploaded) {
+        this.isExternalPriceModelUploaded = isExternalPriceModelUploaded;
+    }
+
+    /**
+     * @return the extCustBean
+     */
+    public ExternalCustomerPriceModelCtrl getExtCustBean() {
+        return extCustBean;
+    }
+
+    /**
+     * @param extCustBean the extCustBean to set
+     */
+    public void setExtCustBean(ExternalCustomerPriceModelCtrl extCustBean) {
+        this.extCustBean = extCustBean;
+    }
+
+    /**
+     * @return the extServiceBean
+     */
+    public ExternalServicePriceModelCtrl getExtServiceBean() {
+        return extServiceBean;
+    }
+
+    /**
+     * @param extServiceBean the extServiceBean to set
+     */
+    public void setExtServiceBean(ExternalServicePriceModelCtrl extServiceBean) {
+        this.extServiceBean = extServiceBean;
+    }
+
+    /**
+     * @return the extSubBean
+     */
+    public ExternalSubscriptionPriceModelCtrl getExtSubBean() {
+        return extSubBean;
+    }
+
+    /**
+     * @param extSubBean the extSubBean to set
+     */
+    public void setExtSubBean(ExternalSubscriptionPriceModelCtrl extSubBean) {
+        this.extSubBean = extSubBean;
+    }
+
+    public void upload() throws SaaSApplicationException {
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.upload(getSelectedService());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.upload(getSelectedService(),
+                    getCustomer().getVOOrganization());
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            extSubBean.upload(validateSubscription(getSelectedSubscription()));
+            setExternalPriceModelUploaded(true);
+        }
+        setDirty(true);
+    }
+
+    public void display() throws SaaSApplicationException, IOException {
+        if (getCurrentPMPage() == PRICEMODEL_FOR_SERVICE) {
+            extServiceBean.display();
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_CUSTOMER) {
+            extCustBean.display();
+        } else if (getCurrentPMPage() == PRICEMODEL_FOR_SUBSCRIPTION) {
+            if (getSelectedSubscription() == null) {
+                return;
+            }
+            extSubBean.display(isExternalPriceModelUploaded,
+                    getSelectedSubscription().getSubscribedService());
+        }
+    }
+
+    public VOSubscriptionDetails validateSubscription(
+            VOSubscriptionDetails subscription)
+                    throws SaaSApplicationException {
+        if (subscription == null || subscription.getPriceModel() == null) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR,
+                    ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
+            return null;
+        }
+        if (!subscription.getPriceModel().isExternal()) {
+            return null;
+        }
+        try {
+            return validateSubscription(subscription.getSubscribedService());
+        } catch (SaaSApplicationException e) {
+            if (e instanceof SubscriptionStateException) {
+                addMessage(null, FacesMessage.SEVERITY_ERROR,
+                        ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                        new String[] { subscription.getSubscriptionId() });
+                setDirty(false);
+                return null;
+            }
+            throw e;
+        }
     }
 }

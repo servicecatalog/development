@@ -3417,6 +3417,14 @@ form .formHighlight div.div-for-input {
 		!important;
 }
 
+.button-panel-with-padding {
+	padding-bottom: 25px;
+}
+
+#tabExternalPriceModel > div > form.form-in-tab {
+	padding-bottom: 25px;
+}
+
 div.responsive-table-panel {
 	overflow-y: auto;
 	margin-top: 10px;

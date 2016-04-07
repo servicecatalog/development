@@ -23,21 +23,7 @@ import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.BaseBean.Vo2ModelMapper;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.SteppedPriceHandler;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.ServiceReview;
+import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.partnerservice.POVendorAddress;
 import org.oscm.internal.partnerservice.PartnerService;
@@ -51,6 +37,22 @@ import org.oscm.internal.vo.VODiscount;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceEntry;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.constants.marketplace.Marketplace;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.BaseBean.Vo2ModelMapper;
+import org.oscm.ui.common.ADMStringUtils;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.SteppedPriceHandler;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
+import org.oscm.ui.model.Discount;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.ServiceReview;
 
 /**
  * this controller handles display of a service details data in the marketplace
@@ -92,6 +94,12 @@ public class ServiceDetailsCtrl {
             model.setServiceParameters(PricedParameterRow
                     .createPricedParameterRowListForService(model.getService()
                             .getVO()));
+            
+            PriceModelContent selectedPriceModelContent = new PriceModelContent(
+                    model.getSelectedService().getPriceModel().getVo().getPresentationDataType(),
+                    model.getSelectedService().getPriceModel().getVo().getPresentation());
+
+            model.setPriceModelContent(selectedPriceModelContent);
         }
         return "";
     }
@@ -494,5 +502,18 @@ public class ServiceDetailsCtrl {
                     .getInvisibleProductKeysForUser(voUserDetails.getKey());
             model.setInvisibleProductKeys(invisibleProductKeys);
         }
+    }
+
+    /**
+     * Method is used in UI to show external price model details.
+     *
+     * @throws IOException
+     */
+    public void display() throws IOException {
+        ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
+        displayHandler.setContent(model.getPriceModelContent().getContent());
+        displayHandler.setContentType(model.getPriceModelContent().getContentType());
+        displayHandler.setFilename(model.getPriceModelContent().getFilename());
+        displayHandler.display();
     }
 }

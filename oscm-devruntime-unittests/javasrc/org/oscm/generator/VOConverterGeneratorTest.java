@@ -161,8 +161,24 @@ public class VOConverterGeneratorTest {
         expectedList.add("toString");
         expectedList.add("setLicense");
         expectedList.add("getLicense");
-        expectedList.add("setFreePeriod");
         expectedList.add("getFreePeriod");
+        expectedList.add("setFreePeriod");
+        expectedList.add("setPresentationDataType");
+        expectedList.add("getPresentationDataType");  
+        expectedList.add("getPresentation");
+        expectedList.add("setPresentation");
+        expectedList.add("setExternal");
+        expectedList.add("isExternal");
+        expectedList.add("getAsJSON");
+        expectedList.add("getUuid");
+        expectedList.add("setUuid");
+        expectedList.add("isFree");
+        expectedList.add("isPricePerPeriodSet");
+        expectedList.add("isPricePerUserAssignmentSet");
+        expectedList.add("isOneTimeFeeSet");
+        expectedList.add("setRelatedSubscription");
+        expectedList.add("isRelatedSubscription");
+
         Collections.sort(expectedList);
 
         List<String> actualList = generator.getVOMethods("VOPriceModel");

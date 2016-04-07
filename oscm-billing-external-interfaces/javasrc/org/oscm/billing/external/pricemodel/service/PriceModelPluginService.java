@@ -45,5 +45,4 @@ public interface PriceModelPluginService {
      */
     public PriceModel getPriceModel(Map<ContextKey, ContextValue<?>> context,
             Set<Locale> locales) throws BillingException;
-
 }

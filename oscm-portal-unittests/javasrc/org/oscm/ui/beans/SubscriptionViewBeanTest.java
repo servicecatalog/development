@@ -38,14 +38,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-import org.richfaces.model.ArrangeableState;
-import org.richfaces.model.FilterField;
-import org.richfaces.model.SortField;
-
-import org.oscm.ui.model.BPLazyDataModel;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -59,10 +51,18 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.vo.VODiscount;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.ui.model.BPLazyDataModel;
+import org.oscm.ui.model.Discount;
+import org.oscm.ui.model.UdaRow;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.richfaces.model.ArrangeableState;
+import org.richfaces.model.FilterField;
+import org.richfaces.model.SortField;
 
 /**
  * @author weiser
@@ -112,7 +112,13 @@ public class SubscriptionViewBeanTest {
         };
         sd = new VOSubscriptionDetails();
         sd.setPriceModel(new VOPriceModel());
-        sd.setSubscribedService(new VOService());
+        
+        VOServiceDetails voServiceDetails = new VOServiceDetails();
+        VOPriceModel voPriceModel = new VOPriceModel();
+        voPriceModel.setExternal(false);
+        voServiceDetails.setPriceModel(voPriceModel);
+        
+        sd.setSubscribedService(voServiceDetails);
 
         bean = spy(new SubscriptionViewBean());
         sessionBean = new SessionBean();
@@ -366,6 +372,7 @@ public class SubscriptionViewBeanTest {
 
         bean.setCustomerId(CUST_ID);
         bean.setSubscriptionId(SUB_ID);
+        
         bean.selectSubscriptionIdAndCustomerId();
 
         AccountService as = mock(AccountService.class);

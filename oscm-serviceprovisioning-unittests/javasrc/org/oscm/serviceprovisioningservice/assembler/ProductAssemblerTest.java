@@ -108,6 +108,7 @@ public class ProductAssemblerTest {
         technicalProduct.setKey(1234);
         technicalProduct.setLoginPath("loginPath");
         technicalProduct.setTechnicalProductId("technicalProductId");
+        technicalProduct.setBillingIdentifier("some billing id");
 
         // Store tags on product
         List<String> values = new ArrayList<String>();
@@ -154,8 +155,8 @@ public class ProductAssemblerTest {
         customerProduct.setVendor(supplier);
         customerProduct.setTechnicalProduct(technicalProduct);
         customerProduct.setKey(4323);
-        customerProduct.setProductId("customerTemplateId" + "#"
-                + UUID.randomUUID());
+        customerProduct
+                .setProductId("customerTemplateId" + "#" + UUID.randomUUID());
         customerProduct.setStatus(ServiceStatus.ACTIVE);
         customerProduct.setParameterSet(createParameterSet());
         customerProduct.setPriceModel(createPriceModel(product));
@@ -221,8 +222,8 @@ public class ProductAssemblerTest {
         par2.setParameterDefinition(parDef2);
         par2.setValue("Value2");
 
-        parameterSet.setParameters(Arrays
-                .asList(new Parameter[] { par1, par2 }));
+        parameterSet
+                .setParameters(Arrays.asList(new Parameter[] { par1, par2 }));
         return parameterSet;
     }
 
@@ -263,8 +264,8 @@ public class ProductAssemblerTest {
                 facade);
 
         // then
-        verifyBasePropertiesForPartnerService(service, partnerTemplate,
-                product, technicalProduct);
+        verifyBasePropertiesForPartnerService(service, partnerTemplate, product,
+                technicalProduct);
         verifyParametersForPartnerService(service, product);
     }
 
@@ -277,8 +278,8 @@ public class ProductAssemblerTest {
         addRole(reseller, OrganizationRoleType.RESELLER);
 
         Product partnerTemplate = product.copyForResale(reseller);
-        Product partnerSubscrCopy = partnerTemplate.copyForSubscription(
-                new Organization(), new Subscription());
+        Product partnerSubscrCopy = partnerTemplate
+                .copyForSubscription(new Organization(), new Subscription());
         partnerSubscrCopy.setKey(8888);
         partnerSubscrCopy.setType(ServiceType.PARTNER_SUBSCRIPTION);
 
@@ -438,9 +439,8 @@ public class ProductAssemblerTest {
         assertEquals(new BigDecimal(0), service.getAverageRating());
     }
 
-    private static void verifyBaseProperties(VOService service,
-            Product product, Organization supplier,
-            TechnicalProduct technicalProduct) {
+    private static void verifyBaseProperties(VOService service, Product product,
+            Organization supplier, TechnicalProduct technicalProduct) {
         Assert.assertEquals(LocalizedObjectTypes.PRODUCT_MARKETING_DESC.name(),
                 service.getDescription());
         Assert.assertEquals(
@@ -454,7 +454,8 @@ public class ProductAssemblerTest {
         Assert.assertEquals(LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name(),
                 service.getName());
 
-        Assert.assertEquals(supplier.getOrganizationId(), service.getSellerId());
+        Assert.assertEquals(supplier.getOrganizationId(),
+                service.getSellerId());
         Assert.assertEquals(supplier.getName(), service.getSellerName());
 
         Assert.assertEquals(technicalProduct.getTechnicalProductId(),
@@ -462,17 +463,22 @@ public class ProductAssemblerTest {
         Assert.assertEquals(technicalProduct.getAccessType(),
                 service.getAccessType());
         Assert.assertTrue(service.getTags().size() > 0);
-        Assert.assertEquals(TagAssembler.toStrings(product
-                .getTechnicalProduct().getTags(), "en"), service.getTags());
+        Assert.assertEquals(TagAssembler
+                .toStrings(product.getTechnicalProduct().getTags(), "en"),
+                service.getTags());
         Assert.assertEquals(product.getProductFeedback().getAverageRating(),
                 service.getAverageRating());
-        Assert.assertEquals(product.getProductFeedback().getProductReviews()
-                .size(), service.getNumberOfReviews());
+        Assert.assertEquals(
+                product.getProductFeedback().getProductReviews().size(),
+                service.getNumberOfReviews());
+        Assert.assertEquals(
+                product.getTechnicalProduct().getBillingIdentifier(),
+                service.getBillingIdentifier());
     }
 
     @SuppressWarnings("boxing")
-    private static void verifyBasePropertiesForPartnerService(
-            VOService service, Product partnerProduct, Product template,
+    private static void verifyBasePropertiesForPartnerService(VOService service,
+            Product partnerProduct, Product template,
             TechnicalProduct technicalProduct) {
         Assert.assertEquals(
                 LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION.name(),
@@ -496,12 +502,15 @@ public class ProductAssemblerTest {
         Assert.assertEquals(technicalProduct.getAccessType(),
                 service.getAccessType());
         Assert.assertTrue(service.getTags().size() > 0);
-        Assert.assertEquals(TagAssembler.toStrings(partnerProduct
-                .getTechnicalProduct().getTags(), "en"), service.getTags());
+        Assert.assertEquals(
+                TagAssembler.toStrings(
+                        partnerProduct.getTechnicalProduct().getTags(), "en"),
+                service.getTags());
         Assert.assertEquals(template.getProductFeedback().getAverageRating(),
                 service.getAverageRating());
-        Assert.assertEquals(template.getProductFeedback().getProductReviews()
-                .size(), service.getNumberOfReviews());
+        Assert.assertEquals(
+                template.getProductFeedback().getProductReviews().size(),
+                service.getNumberOfReviews());
     }
 
     private void verifyParametersForPartnerService(VOService service,
@@ -514,9 +523,9 @@ public class ProductAssemblerTest {
         for (int i = 0; i < voPars.size(); i++) {
             VOParameter voPar = voPars.get(i);
             Parameter par = pars.get(i);
-            assertEquals("Wrong parameter definition", voPar
-                    .getParameterDefinition().getKey(), par
-                    .getParameterDefinition().getKey());
+            assertEquals("Wrong parameter definition",
+                    voPar.getParameterDefinition().getKey(),
+                    par.getParameterDefinition().getKey());
             assertEquals("Wrong parameter value", voPar.getValue(),
                     par.getValue());
         }
@@ -531,9 +540,9 @@ public class ProductAssemblerTest {
         for (int i = 0; i < voPricedPars.size(); i++) {
             VOPricedParameter voPricedPar = voPricedPars.get(i);
             PricedParameter pricedPar = pricedPars.get(i);
-            assertEquals("Wrong parameter definition", voPricedPar
-                    .getVoParameterDef().getKey(), pricedPar.getParameter()
-                    .getParameterDefinition().getKey());
+            assertEquals("Wrong parameter definition",
+                    voPricedPar.getVoParameterDef().getKey(),
+                    pricedPar.getParameter().getParameterDefinition().getKey());
             assertEquals("Wrong user price", voPricedPar.getPricePerUser(),
                     pricedPar.getPricePerUser());
             assertEquals("Wrong subscription price",
@@ -544,8 +553,8 @@ public class ProductAssemblerTest {
 
     @Test
     public void toVOCompatibleServices_Compatible() throws Exception {
-        HashSet<Long> targetKeys = new HashSet<Long>(Arrays.asList(Long
-                .valueOf(product.getKey())));
+        HashSet<Long> targetKeys = new HashSet<Long>(
+                Arrays.asList(Long.valueOf(product.getKey())));
         VOCompatibleService s = ProductAssembler.toVOCompatibleService(product,
                 targetKeys, facade);
         Assert.assertNotNull(s);
@@ -582,8 +591,8 @@ public class ProductAssemblerTest {
         TechnicalProduct tp = new TechnicalProduct();
         tp.setAccessType(ServiceAccessType.EXTERNAL);
         Organization org = new Organization();
-        Product prod = ProductAssembler
-                .toNewTemplateProduct(voService, tp, org);
+        Product prod = ProductAssembler.toNewTemplateProduct(voService, tp,
+                org);
         assertEquals(ServiceType.TEMPLATE, prod.getType());
         assertEquals(ServiceStatus.INACTIVE, prod.getStatus());
         assertEquals(tp, prod.getTechnicalProduct());
@@ -591,16 +600,16 @@ public class ProductAssemblerTest {
         assertEquals(voService.getServiceId(), prod.getProductId());
         assertEquals(voService.getServiceId(), prod.getProductId());
         assertEquals(voService.getConfiguratorUrl(), prod.getConfiguratorUrl());
-        assertEquals(PriceModelType.FREE_OF_CHARGE, prod.getPriceModel()
-                .getType());
+        assertEquals(PriceModelType.FREE_OF_CHARGE,
+                prod.getPriceModel().getType());
     }
 
     @Test
     public void toNewTemplateProduct_otherAccess() throws Exception {
         TechnicalProduct tp = new TechnicalProduct();
         Organization org = new Organization();
-        Product prod = ProductAssembler
-                .toNewTemplateProduct(voService, tp, org);
+        Product prod = ProductAssembler.toNewTemplateProduct(voService, tp,
+                org);
         assertEquals(ServiceType.TEMPLATE, prod.getType());
         assertEquals(ServiceStatus.INACTIVE, prod.getStatus());
         assertEquals(tp, prod.getTechnicalProduct());
@@ -622,10 +631,8 @@ public class ProductAssemblerTest {
     public void updateCustomerTemplateProduct() throws Exception {
         Product prod = ProductAssembler.updateCustomerTemplateProduct(
                 customerProduct, voCustomerService);
-        assertEquals(
-                Boolean.TRUE,
-                Boolean.valueOf(prod.getProductId().contains(
-                        voCustomerService.getServiceId())));
+        assertEquals(Boolean.TRUE, Boolean.valueOf(prod.getProductId()
+                .contains(voCustomerService.getServiceId())));
         assertEquals(voCustomerService.getConfiguratorUrl(),
                 prod.getConfiguratorUrl());
     }
@@ -650,7 +657,8 @@ public class ProductAssemblerTest {
                 PerformanceHint.ALL_FIELDS);
 
         // then
-        assertEquals(product.getConfiguratorUrl(), service.getConfiguratorUrl());
+        assertEquals(product.getConfiguratorUrl(),
+                service.getConfiguratorUrl());
     }
 
     @Test
@@ -664,7 +672,8 @@ public class ProductAssemblerTest {
                 PerformanceHint.ALL_FIELDS);
 
         // then
-        assertEquals(product.getConfiguratorUrl(), service.getConfiguratorUrl());
+        assertEquals(product.getConfiguratorUrl(),
+                service.getConfiguratorUrl());
     }
 
     @Test
@@ -679,7 +688,8 @@ public class ProductAssemblerTest {
                 PerformanceHint.ALL_FIELDS);
 
         // then
-        assertEquals(product.getConfiguratorUrl(), service.getConfiguratorUrl());
+        assertEquals(product.getConfiguratorUrl(),
+                service.getConfiguratorUrl());
     }
 
     @Test
@@ -695,7 +705,8 @@ public class ProductAssemblerTest {
                 service, PerformanceHint.ALL_FIELDS);
 
         // then
-        assertEquals(product.getConfiguratorUrl(), service.getConfiguratorUrl());
+        assertEquals(product.getConfiguratorUrl(),
+                service.getConfiguratorUrl());
     }
 
     @Test
@@ -710,7 +721,8 @@ public class ProductAssemblerTest {
                 service, PerformanceHint.ALL_FIELDS);
 
         // then
-        assertEquals(product.getConfiguratorUrl(), service.getConfiguratorUrl());
+        assertEquals(product.getConfiguratorUrl(),
+                service.getConfiguratorUrl());
     }
 
     @Test

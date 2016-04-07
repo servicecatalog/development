@@ -21,7 +21,7 @@ import com.sun.jersey.api.client.WebResource;
 @Remote({ BillingPluginService.class })
 public class BillingPlugin implements BillingPluginService {
 
-    public static final String ID = "FileBilling";
+    public static final String ID = "FILE_BILLING";
     public static final String TEST_CONNECTION_URL = "testConnectionURL";
 
     ConfigProperties properties = new ConfigProperties(ID);

@@ -35,5 +35,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-application"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

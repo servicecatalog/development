@@ -26,6 +26,7 @@ import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -41,10 +42,12 @@ import org.oscm.converter.LocaleHandler;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.converter.PropertiesLoader;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.LocalizedResource;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.PriceModel;
 import org.oscm.domobjects.Product;
+import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.LocalizedObjectTypes.InformationSource;
 import org.oscm.i18nservice.local.LocalizedDomainObject;
@@ -885,4 +888,89 @@ public class LocalizerServiceBean implements LocalizerServiceLocal {
 
     }
 
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public LocalizedBillingResource getLocalizedBillingResource(
+            String localeString, UUID objectId,
+            LocalizedBillingResourceType resourceType) {
+
+        Locale locale = LocaleHandler.getLocaleFromString(localeString);
+        LocalizedBillingResource billingResource = getLocalizedBillingResourceFromDatabase(
+                objectId, locale.getLanguage(), resourceType);
+        if (billingResource == null) {
+            billingResource = getLocalizedBillingResourceFromDatabase(objectId,
+                    defaultLocale.getLanguage(), resourceType);
+        }
+
+        if (billingResource != null) {
+            return billingResource;
+        } else {
+            logger.logDebug("Localized billing resource of type '"
+                    + resourceType.name() + "' of object with id '" + objectId
+                    + "' could not be found.", Log4jLogger.SYSTEM_LOG);
+            return null;
+        }
+    }
+    
+    
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public LocalizedBillingResource getLocalizedPriceModelResource(
+            String localeString, UUID objectId) {
+
+        Locale locale = LocaleHandler.getLocaleFromString(localeString);
+        LocalizedBillingResource billingResource = getLocalizedPriceModelResourceFromDatabase(
+                objectId, locale.getLanguage());
+        if (billingResource == null) {
+            billingResource = getLocalizedPriceModelResourceFromDatabase(objectId,
+                    defaultLocale.getLanguage());
+        }
+
+        if (billingResource != null) {
+            return billingResource;
+        } else {
+            logger.logDebug("Localized price model of object with id '" + objectId
+                    + "' could not be found.", Log4jLogger.SYSTEM_LOG);
+            return null;
+        }
+    }
+    
+    protected LocalizedBillingResource getLocalizedBillingResourceFromDatabase(
+            UUID objectId, String locale,
+            LocalizedBillingResourceType resourceType) {
+
+        // query
+        Query query = dm
+                .createNamedQuery("LocalizedBillingResource.findByBusinessKey");
+        query.setParameter("objectId", objectId);
+        query.setParameter("locale", locale);
+        query.setParameter("resourceType", resourceType);
+        List<LocalizedBillingResource> queryResult = ParameterizedTypes.list(
+                query.getResultList(), LocalizedBillingResource.class);
+
+        if (!queryResult.isEmpty()) {
+            return queryResult.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    
+    protected LocalizedBillingResource getLocalizedPriceModelResourceFromDatabase(
+            UUID objectId, String locale) {
+
+        // query
+        Query query = dm
+                .createNamedQuery("LocalizedBillingResource.findPriceModelByBusinessKey");
+        query.setParameter("objectId", objectId);
+        query.setParameter("locale", locale);
+        List<LocalizedBillingResource> queryResult = ParameterizedTypes.list(
+                query.getResultList(), LocalizedBillingResource.class);
+
+        if (!queryResult.isEmpty()) {
+            return queryResult.get(0);
+        } else {
+            return null;
+        }
+    }
 }

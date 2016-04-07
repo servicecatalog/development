@@ -33,6 +33,7 @@ import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlC
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.SUBSCRIPTION_USER_DEASSIGN_MSG_KEY;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.VALIDATION_ERROR;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,6 +107,7 @@ import org.oscm.ui.common.SteppedPriceComparator;
 import org.oscm.ui.common.SteppedPriceHandler;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
 import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionsHelper;
 import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
 import org.oscm.ui.model.Discount;
@@ -121,8 +123,8 @@ import org.oscm.ui.model.User;
 public class ManageSubscriptionCtrl implements Serializable {
 
     /**
-	 * 
-	 */
+     * 
+     */
     private static final long serialVersionUID = -4130706788335062134L;
 
     private static final Log4jLogger LOGGER = LoggerFactory
@@ -164,7 +166,7 @@ public class ManageSubscriptionCtrl implements Serializable {
     @EJB
     private UserGroupService userGroupService;
 
-    @ManagedProperty(value="#{paymentAndBillingVisibleBean}")
+    @ManagedProperty(value = "#{paymentAndBillingVisibleBean}")
     private PaymentAndBillingVisibleBean paymentAndBillingVisibleBean;
 
     UiDelegate ui = new UiDelegate();
@@ -179,8 +181,8 @@ public class ManageSubscriptionCtrl implements Serializable {
     private SubscriptionsHelper subscriptionsHelper;
 
     public ManageSubscriptionCtrl() {
-        LOGGER.logDebug(ManageSubscriptionCtrl.class.getName()
-                + "bean created...");
+        LOGGER.logDebug(
+                ManageSubscriptionCtrl.class.getName() + "bean created...");
         jsonConverter = new JsonConverter();
         jsonValidator = new JsonParameterValidator(jsonConverter);
         subscriptionsHelper = new SubscriptionsHelper();
@@ -206,10 +208,10 @@ public class ManageSubscriptionCtrl implements Serializable {
             ui.handleException(e);
         }
     }
-    
-    void initializeSubscription(long key) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ValidationException {
+
+    void initializeSubscription(long key)
+            throws ObjectNotFoundException, OrganizationAuthoritiesException,
+            OperationNotPermittedException, ValidationException {
         if (model.getSubscription() != null
                 && key == model.getSubscription().getKey()) {
             return;
@@ -222,9 +224,9 @@ public class ManageSubscriptionCtrl implements Serializable {
         initializeSubscription(subscriptionDetails);
     }
 
-    void initializeSubscription(String id) throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            OrganizationAuthoritiesException {
+    void initializeSubscription(String id)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, OrganizationAuthoritiesException {
 
         if (model.getSubscription() != null
                 && id.equals(model.getSubscription().getSubscriptionId())) {
@@ -242,96 +244,98 @@ public class ManageSubscriptionCtrl implements Serializable {
         initializeSubscription(subscriptionDetails);
 
     }
-    
+
     void initializeSubscription(POSubscriptionDetails subscriptionDetails) {
-        
+
         model.setIsReportIssueAllowed(isReportIssueAllowed());
         model.setSubscription(null);
         model.getSubscriptionParameters().clear();
         model.resetUsageLicenseMap();
-        
+
         // get the subscription details
         model.setSubscription(subscriptionDetails.getSubscription());
-        model.setService(new Service(model.getSubscription()
-                .getSubscribedService()));
-        model.setServiceSupplier(new Organization(subscriptionDetails
-                .getSeller()));
-        model.setServicePartner(new Organization(subscriptionDetails
-                .getPartner()));
+        model.setService(
+                new Service(model.getSubscription().getSubscribedService()));
+        model.setServiceSupplier(
+                new Organization(subscriptionDetails.getSeller()));
+        model.setServicePartner(
+                new Organization(subscriptionDetails.getPartner()));
         model.setCompatibleServices(SERVICE_LISTING_VOSERVICE_MAPPER
                 .map(subscriptionDetails.getUpgradeOptions()));
         model.setDiscount(subscriptionDetails.getDiscount() == null ? null
                 : new Discount(subscriptionDetails.getDiscount()));
         model.setServiceRoles(subscriptionDetails.getServiceRoles());
-        model.setServiceEvents(SteppedPriceHandler.buildPricedEvents(model
-                .getSubscription().getPriceModel().getConsideredEvents()));
+        model.setServiceEvents(SteppedPriceHandler.buildPricedEvents(
+                model.getSubscription().getPriceModel().getConsideredEvents()));
         setStateWarningAndTabDisabled(subscriptionDetails);
         model.setReadOnlyParams(model.isCfgTabDisabled());
-        model.setShowSubscriptionPrices(model.getSubscription().getPriceModel() != null
-                && model.getSubscription().getPriceModel().isChargeable()
+        model.setShowSubscriptionPrices(
+                model.getSubscription().getPriceModel() != null && model
+                        .getSubscription().getPriceModel().isChargeable()
                 && !model.isDirectAccess());
         model.setShowServicePrices(model.getSubscription()
                 .getSubscribedService().getPriceModel() != null
                 && model.getSubscription().getSubscribedService()
-                .getPriceModel().isChargeable()
+                        .getPriceModel().isChargeable()
                 && !model.isDirectAccess());
-        
+
         // set warning message,for bug#11075
         if (model.isUnsubscribeButtonDisabled()) {
             ui.handleProgress();
         }
-        
+
         // set the initial value of payment info,for bug#9921
-        
+
         initPaymentInfo();
         refreshSubscriptionParametersInModel(model.getSubscription());
-        
-        Collections.sort(model.getSubscription().getPriceModel()
-                .getSteppedPrices(), new SteppedPriceComparator());
-        
+
+        Collections.sort(
+                model.getSubscription().getPriceModel().getSteppedPrices(),
+                new SteppedPriceComparator());
+
         // List<PricedParameterRow> serviceParameters = PricedParameterRow
         // .createPricedParameterRowList(model.getSubscription()
         // .getSubscribedService(), true, true, true, false, false);
         // setServiceParameters(serviceParameters);
-        
+
         // store the usage licenses in an internal map
         subscriptionsHelper.setUsageLicenses(model.getSubscription(),
                 model.getUsageLicenseMap());
-        
+
         // get the users from the organization and select users
         // which already use the subscription
         setAssignedUsers(subscriptionDetails);
         setUnassignedUsers(subscriptionDetails);
         setSubscriptionOwners(subscriptionDetails);
-        
+
         // on subscription changing we have to change subscription for
         // showing detailed price model
         // selectedSubscriptionForShowingPriceModel =
         // initSubscriptionDetails(selectedSubscription);
-        Integer maxNamedUsers = subscriptionsHelper.setMaximumNamedUsers(model
-                .getSubscription());
+        Integer maxNamedUsers = subscriptionsHelper
+                .setMaximumNamedUsers(model.getSubscription());
         model.setMaximumNamedUsers(maxNamedUsers);
-        
+
         ArrayList<VOUdaDefinition> subUdaDefinitions = new ArrayList<>();
         ArrayList<VOUdaDefinition> orgUdaDefinitions = new ArrayList<>();
-        
+
         subscriptionsHelper.setUdas(subscriptionDetails, subUdaDefinitions,
                 orgUdaDefinitions, model.getSubscription());
-        
+
         model.setOrganizationUdaRows(UdaRow.getUdaRows(orgUdaDefinitions,
                 subscriptionDetails.getUdasOrganisation()));
         model.setSubscriptionUdaRows(UdaRow.getUdaRows(subUdaDefinitions,
                 subscriptionDetails.getUdasSubscription()));
-        
+
         initializePriceModelForSubscription(model.getSubscription());
-        
+
         List<PricedParameterRow> serviceParameters = PricedParameterRow
-                .createPricedParameterRowListForSubscription(model.getService()
-                        .getVO());
+                .createPricedParameterRowListForSubscription(
+                        model.getService().getVO());
         model.setServiceParameters(serviceParameters);
         model.setNotTerminable(model.getSubscription() == null
                 || model.isUnsubscribeButtonDisabled());
-        
+
         setConfirmationData(subscriptionDetails);
         refreshSelectedOwnerName(model.getSelectedOwner());
         initializeUnitAssignment();
@@ -345,14 +349,19 @@ public class ManageSubscriptionCtrl implements Serializable {
         long selectedUnitId = voSubscriptionDetails.getUnitKey();
         String selectedUnitName = voSubscriptionDetails.getUnitName();
         if (selectedUnitId == 0L) {
-            selectedUnitId = subscriptionUnitCtrl.getModel().getSelectedUnitId();
-            selectedUnitName = subscriptionUnitCtrl.getModel().getSelectedUnitName();
+            selectedUnitId = subscriptionUnitCtrl.getModel()
+                    .getSelectedUnitId();
+            selectedUnitName = subscriptionUnitCtrl.getModel()
+                    .getSelectedUnitName();
         }
-        if (userBean.getIsUnitAdmin() && voSubscriptionDetails.getUnitKey() == 0) {
+        if (userBean.getIsUnitAdmin()
+                && voSubscriptionDetails.getUnitKey() == 0) {
             subscriptionUnitCtrl.initializeUnitListForModifySubscription();
         }
-        subscriptionUnitCtrl.setSelectedUnitToModel(selectedUnitId, selectedUnitName);
+        subscriptionUnitCtrl.setSelectedUnitToModel(selectedUnitId,
+                selectedUnitName);
     }
+
     private boolean isReportIssueAllowed() {
         return userBean.isLoggedInAndAdmin()
                 || userBean.isLoggedInAndSubscriptionManager();
@@ -362,24 +371,24 @@ public class ManageSubscriptionCtrl implements Serializable {
             final POSubscriptionDetails subscriptionDetails) {
         SubscriptionStatus status = subscriptionDetails.getStatus();
         if (!model.isInitialized()) {
-            model.setWaitingforApproval(checkTriggerProcessForSubscription(subscriptionDetails
-                    .getSubscription()));
+            model.setWaitingforApproval(checkTriggerProcessForSubscription(
+                    subscriptionDetails.getSubscription()));
         }
-        model.setShowStateWarning(status.isPending()
-                || status.isPendingUpdOrSuspendedUpd());
-        Object[] params = new Object[] { JSFUtils.getText(STATUS_PREFIX
-                + status.name(), null) };
-        model.setStateWarning(JSFUtils.getText(SUBSCRIPTION_STATE_WARNING,
-                params));
-        model.setUsersTabDisabled(!status.isActive()
-                || model.isWaitingforApproval());
-        model.setCfgTabDisabled(!status.isActive()
-                || model.isWaitingforApproval());
-        model.setPayTabDisabled(status.isExpired()
-                || model.isWaitingforApproval());
-        model.setUpgTabDisabled(status.isPending()
-                || status.isPendingUpdOrSuspendedUpd()
-                || model.isWaitingforApproval());
+        model.setShowStateWarning(
+                status.isPending() || status.isPendingUpdOrSuspendedUpd());
+        Object[] params = new Object[] {
+                JSFUtils.getText(STATUS_PREFIX + status.name(), null) };
+        model.setStateWarning(
+                JSFUtils.getText(SUBSCRIPTION_STATE_WARNING, params));
+        model.setUsersTabDisabled(
+                !status.isActive() || model.isWaitingforApproval());
+        model.setCfgTabDisabled(
+                !status.isActive() || model.isWaitingforApproval());
+        model.setPayTabDisabled(
+                status.isExpired() || model.isWaitingforApproval());
+        model.setUpgTabDisabled(
+                status.isPending() || status.isPendingUpdOrSuspendedUpd()
+                        || model.isWaitingforApproval());
         model.setUnsubscribeButtonDisabled(model.isWaitingforApproval());
     }
 
@@ -387,8 +396,8 @@ public class ManageSubscriptionCtrl implements Serializable {
             VOSubscriptionDetails voSubscription) {
         List<VOTriggerProcess> waitingForApprovalTriggerProcesses = getTriggerProcessService()
                 .getAllWaitingForApprovalTriggerProcessesBySubscriptionId(
-                        voSubscription.getSubscriptionId()).getResultList(
-                        VOTriggerProcess.class);
+                        voSubscription.getSubscriptionId())
+                .getResultList(VOTriggerProcess.class);
 
         return !waitingForApprovalTriggerProcesses.isEmpty();
     }
@@ -398,24 +407,25 @@ public class ManageSubscriptionCtrl implements Serializable {
 
         VOBillingContact bc = model.getSubscription().getBillingContact();
         if (bc != null) {
-            billingContactBean.setSelectedBillingContactKey(Long.valueOf(bc
-                    .getKey()));
+            billingContactBean
+                    .setSelectedBillingContactKey(Long.valueOf(bc.getKey()));
         }
 
-        sessionBean.setServiceKeyForPayment(Long.valueOf(model
-                .getSubscription().getServiceKey()));
+        sessionBean.setServiceKeyForPayment(
+                Long.valueOf(model.getSubscription().getServiceKey()));
         paymentInfoBean.getPaymentInfosForSubscription();
 
         VOPaymentInfo pi = model.getSubscription().getPaymentInfo();
         if (pi != null) {
-            paymentInfoBean.setSelectedPaymentInfoForSubscriptionKey(Long
-                    .valueOf(pi.getKey()));
+            paymentInfoBean.setSelectedPaymentInfoForSubscriptionKey(
+                    Long.valueOf(pi.getKey()));
         }
     }
 
-    void refreshSubscriptionParametersInModel(VOSubscriptionDetails subscription) {
-        model.setServiceParameters(PricedParameterRow
-                .createPricedParameterRowList(
+    void refreshSubscriptionParametersInModel(
+            VOSubscriptionDetails subscription) {
+        model.setServiceParameters(
+                PricedParameterRow.createPricedParameterRowList(
                         subscription.getSubscribedService(), true, true, true,
                         false, true));
         model.setSubscriptionParameters(model.getServiceParameters());
@@ -439,8 +449,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         for (VOUserDetails voUserDetails : subscriptionDetails
                 .getUsersForOrganization()) {
             User user = new User(voUserDetails);
-            VOUsageLicense voUsageLicense = model.getUsageLicenseMap().get(
-                    voUserDetails.getUserId());
+            VOUsageLicense voUsageLicense = model.getUsageLicenseMap()
+                    .get(voUserDetails.getUserId());
             if (voUsageLicense == null) {
                 user.setRoleKey(roleKey);
                 model.getUnassignedUsers().add(user);
@@ -460,8 +470,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         for (VOUserDetails voUserDetails : subscriptionDetails
                 .getUsersForOrganization()) {
             User user = new User(voUserDetails);
-            VOUsageLicense voUsageLicense = model.getUsageLicenseMap().get(
-                    voUserDetails.getUserId());
+            VOUsageLicense voUsageLicense = model.getUsageLicenseMap()
+                    .get(voUserDetails.getUserId());
             if (voUsageLicense != null) {
                 VORoleDefinition role = voUsageLicense.getRoleDefinition();
                 if (role != null) {
@@ -476,7 +486,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         model.setAssignedUsers(users);
     }
 
-    void setSubscriptionOwners(final POSubscriptionDetails subscriptionDetails) {
+    void setSubscriptionOwners(
+            final POSubscriptionDetails subscriptionDetails) {
         if (model.getSubscriptionOwners() != null) {
             return;
         }
@@ -494,7 +505,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         for (VOUserDetails voUserDetails : subscriptionDetails
                 .getUsersForOrganization()) {
             User user = new User(voUserDetails);
-            if (user.isSubscriptionManager() || user.isOrganizationAdmin() || user.isUnitAdministrator()) {
+            if (user.isSubscriptionManager() || user.isOrganizationAdmin()
+                    || user.isUnitAdministrator()) {
                 if (user.getUserId().equals(ownerId)) {
                     model.setNoSubscriptionOwner(false);
                     model.setSelectedOwner(user);
@@ -517,7 +529,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                         user.getLastName(), user.getUserId());
             }
         } else {
-            selectedOwnerName = JSFUtils.getText("subscription.noOwner", new Object[]{""});
+            selectedOwnerName = JSFUtils.getText("subscription.noOwner",
+                    new Object[] { "" });
         }
         model.setSelectedOwnerName(selectedOwnerName);
     }
@@ -545,8 +558,8 @@ public class ManageSubscriptionCtrl implements Serializable {
 
     void setConfirmationData(final POSubscriptionDetails subscriptionDetails) {
         if (subscriptionDetails.getNumberOfSessions() > 0) {
-            model.setConfirmMessage(ui
-                    .getText("warning.subscription.delete.stillInUse"));
+            model.setConfirmMessage(
+                    ui.getText("warning.subscription.delete.stillInUse"));
         } else if (model.getUsageLicenseMap().size() > 0) {
             model.setConfirmMessage(ui.getText("warning.subscription.delete"));
         } else {
@@ -592,14 +605,13 @@ public class ManageSubscriptionCtrl implements Serializable {
      */
     public String setPopupTargetAssignUsers() {
         initializeUnassignedUsers();
-        model.setModalTitle(ui.getText(EDIT_ROLES_MODAL_TITLE, model
-                .getSubscription().getSubscriptionId()));
+        model.setModalTitle(ui.getText(EDIT_ROLES_MODAL_TITLE,
+                model.getSubscription().getSubscriptionId()));
         boolean dontOpenModalDialog = false;
-        model.setModalTitle(ui.getText(ASSIGN_USERS_MODAL_TITLE, model
-                .getSubscription().getSubscriptionId()));
-        if (model.getMaximumNamedUsers() != null
-                && model.getMaximumNamedUsers().intValue() <= model
-                        .getUsageLicenseMap().size()) {
+        model.setModalTitle(ui.getText(ASSIGN_USERS_MODAL_TITLE,
+                model.getSubscription().getSubscriptionId()));
+        if (model.getMaximumNamedUsers() != null && model.getMaximumNamedUsers()
+                .intValue() <= model.getUsageLicenseMap().size()) {
             ui.handleError(null, INFO_MAX_USERS_REACHED);
             dontOpenModalDialog = true;
         } else if (model.getUnassignedUsers().size() < 1) {
@@ -645,11 +657,10 @@ public class ManageSubscriptionCtrl implements Serializable {
         User user;
         for (VOUserDetails voUserDetails : usersAvailableForAssignment) {
             user = new User(voUserDetails);
-             list.add(user);
+            list.add(user);
         }
         return setPopupTargetSelectOwners();
     }
-
 
     /**
      * deassign a user from the subscription
@@ -663,8 +674,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         try {
             if (subscriptionsHelper.validateSubscriptionStatus(
                     model.getSubscription(), getSubscriptionDetailsService())) {
-                ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                        .getSubscription().getSubscriptionId());
+                ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                        model.getSubscription().getSubscriptionId());
                 return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
             }
             if (model.getUserToDeassign() != null) {
@@ -675,7 +686,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                 boolean rc = getSubscriptionService().addRevokeUser(
                         subscriptionId, usersToBeAdded, usersToBeRevoked);
                 if (rc) {
-                    ui.handle(INFO_SUBSCRIPTION_USER_DEASSIGNED, subscriptionId);
+                    ui.handle(INFO_SUBSCRIPTION_USER_DEASSIGNED,
+                            subscriptionId);
                 } else {
                     ui.handleProgress();
                 }
@@ -728,8 +740,7 @@ public class ManageSubscriptionCtrl implements Serializable {
             return false;
         }
         if (subscriptionOwner.isSubscriptionManager()) {
-            setOwnerWarningMessage(
-                    BaseBean.WARNING_OWNER_IS_SUB_MAN,
+            setOwnerWarningMessage(BaseBean.WARNING_OWNER_IS_SUB_MAN,
                     new Object[] { model.getSubscription().getUnitName(),
                             model.getSelectedOwnerName() });
             return true;
@@ -742,8 +753,7 @@ public class ManageSubscriptionCtrl implements Serializable {
                 return false;
             }
         }
-        setOwnerWarningMessage(
-                BaseBean.WARNING_OWNER_NOT_A_UNIT_ADMIN,
+        setOwnerWarningMessage(BaseBean.WARNING_OWNER_NOT_A_UNIT_ADMIN,
                 new Object[] { model.getSubscription().getUnitName(),
                         model.getSelectedOwnerName() });
         return true;
@@ -753,6 +763,7 @@ public class ManageSubscriptionCtrl implements Serializable {
         String ownerWarningText = JSFUtils.getText(warningText, params);
         model.setOwnerWarningText(ownerWarningText);
     }
+
     public boolean isOwnerSelected() {
         return model.isOwnerSelected();
     }
@@ -877,17 +888,15 @@ public class ManageSubscriptionCtrl implements Serializable {
 
         if (subscriptionsHelper.validateSubscriptionStatus(
                 model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
-        model.getSubscription().setOwnerId(
-                model.getSelectedOwner() != null ? model.getSelectedOwner()
-                        .getUserId() : null);
+        model.getSubscription().setOwnerId(model.getSelectedOwner() != null
+                ? model.getSelectedOwner().getUserId() : null);
         updateSelectedUnit();
         VOSubscriptionDetails changedSubscription = getSubscriptionService()
-                .modifySubscription(
-                        model.getSubscription(),
+                .modifySubscription(model.getSubscription(),
                         getSubscriptionParameterForModification(),
                         subscriptionsHelper.getVoUdaFromUdaRows(
                                 model.getSubscriptionUdaRows(),
@@ -899,20 +908,20 @@ public class ManageSubscriptionCtrl implements Serializable {
                 model.setUsersTabDisabled(true);
                 model.setCfgTabDisabled(true);
                 model.setUpgTabDisabled(true);
-                Object[] params = new Object[] { JSFUtils.getText(STATUS_PREFIX
-                        + status.name(), null) };
-                model.setStateWarning(JSFUtils.getText(
-                        SUBSCRIPTION_STATE_WARNING, params));
+                Object[] params = new Object[] {
+                        JSFUtils.getText(STATUS_PREFIX + status.name(), null) };
+                model.setStateWarning(
+                        JSFUtils.getText(SUBSCRIPTION_STATE_WARNING, params));
                 model.setReadOnlyParams(true);
                 model.setAsyncModified(true);
                 model.setConfigurationChanged(false);
                 model.setConfigDirty(false);
-                ui.handle(INFO_SUBSCRIPTION_ASYNC_SAVED, model
-                        .getSubscription().getSubscriptionId());
+                ui.handle(INFO_SUBSCRIPTION_ASYNC_SAVED,
+                        model.getSubscription().getSubscriptionId());
             } else {
                 refreshModel(changedSubscription);
-                ui.handle(INFO_SUBSCRIPTION_SAVED, model.getSubscription()
-                        .getSubscriptionId());
+                ui.handle(INFO_SUBSCRIPTION_SAVED,
+                        model.getSubscription().getSubscriptionId());
             }
         } else {
             ui.handleProgress();
@@ -948,16 +957,16 @@ public class ManageSubscriptionCtrl implements Serializable {
 
     void refreshModel(VOSubscriptionDetails changedSubscription)
             throws SaaSApplicationException {
-        sessionBean.setSelectedSubscriptionId(model.getSubscription()
-                .getSubscriptionId());
+        sessionBean.setSelectedSubscriptionId(
+                model.getSubscription().getSubscriptionId());
 
         model.setSubscription(changedSubscription);
         updateVoService(changedSubscription);
         model.setConfigurationChanged(false);
         model.setConfigDirty(false);
         refreshStoredOwner(model.getSelectedOwner());
-        refreshOrgAndSubscriptionUdasInModel(changedSubscription
-                .getSubscriptionId());
+        refreshOrgAndSubscriptionUdasInModel(
+                changedSubscription.getSubscriptionId());
         refreshSubscriptionParametersInModel(changedSubscription);
     }
 
@@ -982,8 +991,8 @@ public class ManageSubscriptionCtrl implements Serializable {
 
         POSubscriptionDetails subscriptionDetails = getSubscriptionDetailsService()
                 .getSubscriptionDetails(subscriptionId,
-                        ui.getViewLocale().getLanguage()).getResult(
-                        POSubscriptionDetails.class);
+                        ui.getViewLocale().getLanguage())
+                .getResult(POSubscriptionDetails.class);
 
         List<VOUdaDefinition> subUdaDefinitions = new ArrayList<>();
         List<VOUdaDefinition> orgUdaDefinitions = new ArrayList<>();
@@ -1012,14 +1021,15 @@ public class ManageSubscriptionCtrl implements Serializable {
     public String savePayment() throws SaaSApplicationException {
         if (subscriptionsHelper.validateSubscriptionStatus(
                 model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
         final VOSubscriptionDetails details = getSubscriptionService()
                 .modifySubscriptionPaymentData(model.getSubscription(),
                         billingContactBean.getSelectedBillingContact(),
-                        paymentInfoBean.getSelectedPaymentInfoForSubscription());
+                        paymentInfoBean
+                                .getSelectedPaymentInfoForSubscription());
         model.setSubscription(details);
         // setDirty(false);
         ui.handle(INFO_PAYMENT_INFO_SAVED);
@@ -1031,7 +1041,8 @@ public class ManageSubscriptionCtrl implements Serializable {
     }
 
     public boolean isPaymentInfoVisible() {
-        return paymentAndBillingVisibleBean.isPaymentVisible(paymentInfoBean.getEnabledPaymentTypes(),
+        return paymentAndBillingVisibleBean.isPaymentVisible(
+                paymentInfoBean.getEnabledPaymentTypes(),
                 paymentInfoBean.getPaymentInfosForSubscription());
     }
 
@@ -1039,8 +1050,8 @@ public class ManageSubscriptionCtrl implements Serializable {
 
         if (subscriptionsHelper.validateSubscriptionStatus(
                 model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
 
@@ -1063,19 +1074,18 @@ public class ManageSubscriptionCtrl implements Serializable {
                     throw new UserRoleAssignmentException();
                 }
             } catch (UserRoleAssignmentException e) {
-                ui.handleError(null, ERROR_USER_NOTASSIGNEDTOSUBSCRIPTION, user
-                        .getUserId(), model.getSubscription()
-                        .getSubscriptionId());
+                ui.handleError(null, ERROR_USER_NOTASSIGNEDTOSUBSCRIPTION,
+                        user.getUserId(),
+                        model.getSubscription().getSubscriptionId());
                 return OUTCOME_MODIFICATION_ERROR;
             }
-            VOUsageLicense usageLicense = model.getUsageLicenseMap().get(
-                    user.getUserId());
+            VOUsageLicense usageLicense = model.getUsageLicenseMap()
+                    .get(user.getUserId());
             VORoleDefinition role = getSelectedRole(user);
             if (usageLicense != null) {
                 VORoleDefinition role1 = usageLicense.getRoleDefinition();
-                if ((role1 == null && user.getRoleKey() != 0)
-                        || (role1 != null && role1.getKey() != user
-                                .getRoleKey())) {
+                if ((role1 == null && user.getRoleKey() != 0) || (role1 != null
+                        && role1.getKey() != user.getRoleKey())) {
                     // the service role has changed
                     usageLicense.setRoleDefinition(role);
 
@@ -1097,7 +1107,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                 ExceptionHandler.execute(e);
                 return OUTCOME_MODIFICATION_ERROR;
             } catch (ObjectNotFoundException e) {
-                if (e.getDomainObjectClassEnum().equals(ClassEnum.SUBSCRIPTION)) {
+                if (e.getDomainObjectClassEnum()
+                        .equals(ClassEnum.SUBSCRIPTION)) {
                     ExceptionHandler
                             .execute(new ConcurrentModificationException());
                     return OUTCOME_MODIFICATION_ERROR;
@@ -1115,8 +1126,8 @@ public class ManageSubscriptionCtrl implements Serializable {
 
         if (subscriptionsHelper.validateSubscriptionStatus(
                 model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
         List<VOUsageLicense> usersToBeAdded = new ArrayList<>();
@@ -1146,8 +1157,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                         model.getSubscription().getSubscriptionId(),
                         usersToBeAdded, usersToBeRevoked);
                 if (rc) {
-                    ui.handle(INFO_SUBSCRIPTION_USER_ASSIGNED, model
-                            .getSubscription().getSubscriptionId());
+                    ui.handle(INFO_SUBSCRIPTION_USER_ASSIGNED,
+                            model.getSubscription().getSubscriptionId());
                 } else {
                     ui.handleProgress();
                 }
@@ -1155,7 +1166,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                 ExceptionHandler.execute(e);
                 return OUTCOME_MODIFICATION_ERROR;
             } catch (ObjectNotFoundException e) {
-                if (ClassEnum.SUBSCRIPTION.equals(e.getDomainObjectClassEnum())) {
+                if (ClassEnum.SUBSCRIPTION
+                        .equals(e.getDomainObjectClassEnum())) {
                     ExceptionHandler
                             .execute(new ConcurrentModificationException());
                     return OUTCOME_MODIFICATION_ERROR;
@@ -1180,18 +1192,18 @@ public class ManageSubscriptionCtrl implements Serializable {
         String idOfUserToDeassign = ui.getExternalContext()
                 .getRequestParameterMap().get(REQUEST_PARAM_USER_TO_DEASSIGN);
         if (idOfUserToDeassign != null) {
-            VOUsageLicense voUsageLicense = model.getUsageLicenseMap().get(
-                    idOfUserToDeassign);
+            VOUsageLicense voUsageLicense = model.getUsageLicenseMap()
+                    .get(idOfUserToDeassign);
             if (voUsageLicense != null) {
                 VOUserDetails voUserDetails = new VOUserDetails();
                 voUserDetails.setKey(voUsageLicense.getUser().getKey());
                 voUserDetails.setUserId(voUsageLicense.getUser().getUserId());
-                voUserDetails.setOrganizationId(voUsageLicense.getUser()
-                        .getOrganizationId());
+                voUserDetails.setOrganizationId(
+                        voUsageLicense.getUser().getOrganizationId());
                 model.setUserToDeassign(voUserDetails);
-                model.setDeassignMessage(ui.getText(
-                        SUBSCRIPTION_USER_DEASSIGN_MSG_KEY, model
-                                .getUserToDeassign().getUserId()));
+                model.setDeassignMessage(
+                        ui.getText(SUBSCRIPTION_USER_DEASSIGN_MSG_KEY,
+                                model.getUserToDeassign().getUserId()));
             }
         }
         return null;
@@ -1199,8 +1211,8 @@ public class ManageSubscriptionCtrl implements Serializable {
 
     public String setPopupTargetSelectOwners() {
         boolean dontOpenModalDialog = false;
-        model.setModalTitle(ui.getText(SELECT_OWNERS_MODAL_TITLE, model
-                .getSubscription().getSubscriptionId()));
+        model.setModalTitle(ui.getText(SELECT_OWNERS_MODAL_TITLE,
+                model.getSubscription().getSubscriptionId()));
         List<User> owners = model.getSubscriptionOwners();
         if (owners == null || owners.isEmpty()) {
             ui.handleError(null, INFO_NO_MORE_USERS);
@@ -1252,8 +1264,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         }
         if (subscriptionsHelper.validateSubscriptionStatus(
                 model.getSubscription(), getSubscriptionDetailsService())) {
-            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE, model
-                    .getSubscription().getSubscriptionId());
+            ui.handleError(null, ERROR_SUBSCRIPTION_NOT_ACCESSIBLE,
+                    model.getSubscription().getSubscriptionId());
             return OUTCOME_SUBSCRIPTION_NOT_AVAILABLE;
         }
         try {
@@ -1268,8 +1280,8 @@ public class ManageSubscriptionCtrl implements Serializable {
                 // the subscription was terminated without suspending the
                 // process
                 sessionBean.setSelectedSubscriptionId(null);
-                ui.handle(INFO_SUBSCRIPTION_DELETED, model.getSubscription()
-                        .getSubscriptionId());
+                ui.handle(INFO_SUBSCRIPTION_DELETED,
+                        model.getSubscription().getSubscriptionId());
             } else {
                 ui.handleProgress();
                 disableTabsForWaitingApproval(true);
@@ -1296,9 +1308,9 @@ public class ManageSubscriptionCtrl implements Serializable {
     }
 
     // for Bug #9958
-    public void reload() throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            OrganizationAuthoritiesException {
+    public void reload()
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            ValidationException, OrganizationAuthoritiesException {
         model.setSubscription(null);
         model.setSubscriptionOwners(null);
         model.setConfigurationChanged(false);
@@ -1313,10 +1325,10 @@ public class ManageSubscriptionCtrl implements Serializable {
         else
             return SubscriptionDetailsCtrlConstants.MESSAGE_NO_PAYMENT_TYPE_AVAILABLE;
     }
-    
-    public void actionFallback() { 
-    	model.setUseFallback(true);
-    	model.setShowTitle(true);	 
+
+    public void actionFallback() {
+        model.setUseFallback(true);
+        model.setShowTitle(true);
     }
 
     /**
@@ -1324,13 +1336,34 @@ public class ManageSubscriptionCtrl implements Serializable {
      */
     public void updateSelectedUnit() {
         if (getSubscriptionUnitCtrl().isUnitSelected()) {
-            model.getSubscription().setUnitKey(getSubscriptionUnitCtrl().getModel().getSelectedUnitId());
-            model.getSubscription().setUnitName(getSubscriptionUnitCtrl().getModel().getSelectedUnitName());
+            model.getSubscription().setUnitKey(
+                    getSubscriptionUnitCtrl().getModel().getSelectedUnitId());
+            model.getSubscription().setUnitName(
+                    getSubscriptionUnitCtrl().getModel().getSelectedUnitName());
         } else {
             model.getSubscription().setUnitKey(0);
-            model.getSubscription().setUnitName("");            
+            model.getSubscription().setUnitName("");
         }
         model.setShowOwnerWarning(shouldOwnerWarningBeShown());
+    }
+
+    /**
+     * Method is used in UI to show external price model details.
+     */
+    public void display() throws IOException, ObjectNotFoundException,
+            OperationNotPermittedException, ValidationException,
+            OrganizationAuthoritiesException {
+
+        VOSubscriptionDetails subscriptionDetails = getSubscriptionService()
+                .getSubscriptionDetails(
+                        model.getSubscription().getSubscriptionId());
+        VOPriceModel priceModel = subscriptionDetails.getPriceModel();
+
+        ExternalPriceModelDisplayHandler displayHandler = new ExternalPriceModelDisplayHandler();
+
+        displayHandler.setContent(priceModel.getPresentation());
+        displayHandler.setContentType(priceModel.getPresentationDataType());
+        displayHandler.display();
     }
 
     public ManageSubscriptionModel getModel() {
@@ -1428,7 +1461,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         return subscriptionDetailsService;
     }
 
-    public void setSubscriptionService(SubscriptionService subscriptionService) {
+    public void setSubscriptionService(
+            SubscriptionService subscriptionService) {
         this.subscriptionService = subscriptionService;
     }
 
@@ -1465,7 +1499,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         return subscriptionsHelper;
     }
 
-    public void setSubscriptionsHelper(SubscriptionsHelper subscriptionsHelper) {
+    public void setSubscriptionsHelper(
+            SubscriptionsHelper subscriptionsHelper) {
         this.subscriptionsHelper = subscriptionsHelper;
     }
 
@@ -1473,7 +1508,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         return subscriptionUnitCtrl;
     }
 
-    public void setSubscriptionUnitCtrl(SubscriptionUnitCtrl subscriptionUnitCtrl) {
+    public void setSubscriptionUnitCtrl(
+            SubscriptionUnitCtrl subscriptionUnitCtrl) {
         this.subscriptionUnitCtrl = subscriptionUnitCtrl;
     }
 
@@ -1489,7 +1525,8 @@ public class ManageSubscriptionCtrl implements Serializable {
         return paymentAndBillingVisibleBean;
     }
 
-    public void setPaymentAndBillingVisibleBean(PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
+    public void setPaymentAndBillingVisibleBean(
+            PaymentAndBillingVisibleBean paymentAndBillingVisibleBean) {
         this.paymentAndBillingVisibleBean = paymentAndBillingVisibleBean;
     }
 

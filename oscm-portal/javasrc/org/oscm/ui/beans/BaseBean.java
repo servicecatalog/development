@@ -56,6 +56,7 @@ import org.oscm.internal.operatorservice.LocalizedDataService;
 import org.oscm.internal.operatorservice.ManageLanguageService;
 import org.oscm.internal.passwordrecovery.PasswordRecoveryService;
 import org.oscm.internal.portallandingpage.LandingpageService;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.review.ReviewInternalService;
 import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
 import org.oscm.internal.subscriptions.SubscriptionsService;
@@ -228,6 +229,7 @@ public class BaseBean {
     public static final String ERROR_LDAPUSER_RESETPASSWORD = "error.ldapuser.resetpassword";
     public static final String ERROR_INVALID_GROUP = "error.group.invalid";
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
+    public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -326,12 +328,22 @@ public class BaseBean {
     public static final String INFO_SUPPORTEDLANGUAGE_SAVED = "info.supportedlanguage.saved";
     public static final String INFO_SUPPORTEDLANGUAGE_ADDED = "info.supportedlanguage.added";
     public static final String INFO_NO_MORE_USERS = "info.subscriptions.noMoreUsersForAssignment";
+    public static final String INFO_EXTERNAL_PRICE_UPLOADED = "info.externalPriceModel.upload";
+    
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";
     public static final String LABEL_PLATFORM_TRANSLARIONS = "label.platform.title";
 
     public static final String LABEL_SHOP_TRANSLARIONS = "shop.translations.title";
     public static final String LABEL_SHOP_TRANSLARIONS_KEY = "shop.translations.key";
+
+    public static final String LABEL_PRICE_MODEL_FREE = "priceModel.text.free";
+    public static final String LABEL_PRICE_MODEL_PRICE = "priceModel.text.price";
+    public static final String LABEL_PRICE_MODEL_PER_SUB = "priceModel.text.perSubscription";
+    public static final String LABEL_PRICE_MODEL_PER_USER = "priceModel.text.perUser";
+    public static final String LABEL_PRICE_MODEL_SEE_DETAILS = "priceModel.text.seeDetails";
+    public static final String LABEL_PRICE_MODEL_PRICE_AND_UNIT = "priceModel.text.combinePriceAndUnit";
+    public static final String LABEL_PRICE_MODEL_EXTERNAL = "priceModel.text.external";
 
     public static final String INFO_ADAPTER_SAVED = "info.billingAdapter.saved";
     public static final String INFO_ADAPTER_DELETED = "info.billingAdapter.deleted";
@@ -438,7 +450,8 @@ public class BaseBean {
     ConfigurationService configurationService;
     ManageLanguageService manageLanguageService;
     LocalizedDataService localizedDataService;
-
+    ExternalPriceModelService externalPriceModelService;
+    
     private String token;
     private String tokenIntern;
     protected ServiceLocator sl = new ServiceLocator();
@@ -576,6 +589,12 @@ public class BaseBean {
                 ServiceProvisioningServiceInternal.class,
                 provisioningServiceInternal);
         return provisioningServiceInternal;
+    }
+    
+    public ExternalPriceModelService getExternalPriceModelService() {
+        externalPriceModelService = getService(ExternalPriceModelService.class,
+                externalPriceModelService);
+        return externalPriceModelService;
     }
 
     /**

@@ -2651,6 +2651,19 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public VOSubscriptionDetails validateSubscription(VOService service)
+            throws OperationNotPermittedException, SubscriptionStateException,
+            ObjectNotFoundException {
+        return new VOSubscriptionDetails();
+    }
+
+    @Override
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
+            long subscriptionKey) throws ObjectNotFoundException {
+        return new VOSubscriptionDetails();
+    }
+ 
+    @Override
     public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
         List<VOTriggerDefinition> list = getAllDefinitions();
 
