@@ -249,7 +249,7 @@
       <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
       <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
       <verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
-      <verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
+      <verifyXPath xpath="//span[@id='editForm:displayExternalPriceModelButtonDisabled']" />
       <clickElement htmlId="editForm:uploadExternalPriceModelButton" />
       <verifyText text="External price model has been successfully uploaded." />
       <clickElement htmlId="editForm:saveButton" />
