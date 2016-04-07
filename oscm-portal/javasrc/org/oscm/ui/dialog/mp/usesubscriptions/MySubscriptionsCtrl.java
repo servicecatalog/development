@@ -85,6 +85,7 @@ public class MySubscriptionsCtrl implements Serializable {
     @PostConstruct
     public void initialize(){
     	initializeTriggerSubscriptions();
+    	checkSelectedSubscription();
     }
 
     public void initializeTriggerSubscriptions() {
@@ -247,6 +248,17 @@ public class MySubscriptionsCtrl implements Serializable {
             model.setSelectedSubscriptionId(null);
         } else {
             model.setSelectedSubscription(mySubscriptionDetails);
+        }
+    }
+    
+    public void checkSelectedSubscription() {
+        String subKey = model.getSelectedSubscriptionId();
+        if(subKey!=null){
+            POSubscription mySubscriptionDetails = subscriptionsService.getMySubscriptionDetails(Long.parseLong(subKey));
+            if (mySubscriptionDetails == null) {
+                model.setSelectedSubscription(null);
+                model.setSelectedSubscriptionId(null);
+            }
         }
     }
 }
