@@ -68,7 +68,7 @@ public class SoapRequestParserTest {
         version.add(node);
         Iterator<?> it = version.iterator();
         doReturn(it).when(soapHeader).extractHeaderElements(
-                eq("ctmg.service.version"));
+                eq("cm.service.version"));
         doReturn(soapHeader).when(envelope).getHeader();
         doReturn(envelope).when(part).getEnvelope();
         doReturn(part).when(message).getSOAPPart();

@@ -153,4 +153,17 @@ public class WsProxyInfoTest {
         assertNotNull(result.getWsInfo());
         assertNotNull(result.getUserCredentials());
     }
+
+    @Test
+    public void getAndLogTokenHandlerPropertyTest() {
+        // given
+        String fileName = "test_basic.properties";
+        String serviceName = "SessionService";
+        WsProxyInfo result = new WsProxyInfo(fileName, serviceName,
+                "tokenhandlerNull.properties");
+        assertNotNull(result.getServicePort());
+        assertNull(result.getForward());
+        assertNotNull(result.getWsInfo());
+        assertNotNull(result.getUserCredentials());
+    }
 }

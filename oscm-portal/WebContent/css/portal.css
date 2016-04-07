@@ -1915,6 +1915,7 @@ div.cke_chrome{
     border-spacing: 1px;
     background: #FFF;
     width: 320px;
+    z-index:1000 !important;
 }
 #mainContainer .rf-cal-tl-btn {
     cursor: pointer;
