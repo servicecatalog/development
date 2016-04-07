@@ -102,6 +102,11 @@ public class VOTechnicalService extends BaseVO {
     private List<VOTechnicalServiceOperation> technicalServiceOperations = new ArrayList<VOTechnicalServiceOperation>();
 
     /**
+     * Flag indicating weather service is using external billing system
+     */
+    private boolean externalBilling;
+
+    /**
      * Retrieves the identifier of the technical service.
      * 
      * @return the service ID
@@ -179,7 +184,8 @@ public class VOTechnicalService extends BaseVO {
      * @param parameters
      *            the list of parameter definitions
      */
-    public void setParameterDefinitions(List<VOParameterDefinition> parameters) {
+    public void setParameterDefinitions(
+            List<VOParameterDefinition> parameters) {
         this.parameterDefinitions = parameters;
     }
 
@@ -239,7 +245,8 @@ public class VOTechnicalService extends BaseVO {
      *            the URL of the application<br>
      *            Be aware that internet domain names must follow the following
      *            rules: <br>
-     *            They must start with a letter and end with a letter or number.<br>
+     *            They must start with a letter and end with a letter or number.
+     *            <br>
      *            They may contain letters, numbers, or hyphens only. Special
      *            characters are not allowed.<br>
      *            They may consist of a maximum of 63 characters.
@@ -430,6 +437,14 @@ public class VOTechnicalService extends BaseVO {
 
     public String getBillingIdentifier() {
         return billingIdentifier;
+    }
+
+    public boolean isExternalBilling() {
+        return externalBilling;
+    }
+
+    public void setExternalBilling(boolean externalBilling) {
+        this.externalBilling = externalBilling;
     }
 
 }

@@ -1158,6 +1158,7 @@ public class VOConverter {
         newVO.setAccessInfo(oldVO.getAccessInfo());
         newVO.setTechnicalServiceOperations(convertToUpVOTechnicalServiceOperation(oldVO
                 .getTechnicalServiceOperations()));
+        newVO.setExternalBilling(oldVO.isExternalBilling());
         return newVO;
     }
 
@@ -1197,6 +1198,7 @@ public class VOConverter {
         newVO.setAccessInfo(oldVO.getAccessInfo());
         newVO.setTechnicalServiceOperations(convertToApiVOTechnicalServiceOperation(oldVO
                 .getTechnicalServiceOperations()));
+        newVO.setExternalBilling(oldVO.isExternalBilling());
         return newVO;
     }
 
@@ -2558,6 +2560,7 @@ public class VOConverter {
         newVO.setFreePeriod(oldVO.getFreePeriod());
         newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.internal.types.enumtypes.PriceModelType.class));
+        newVO.setExternal(oldVO.isExternal());
         return newVO;
     }
 
@@ -2595,6 +2598,7 @@ public class VOConverter {
         newVO.setFreePeriod(oldVO.getFreePeriod());
         newVO.setType(EnumConverter.convert(oldVO.getType(),
                 org.oscm.types.enumtypes.PriceModelType.class));
+        newVO.setExternal(oldVO.isExternal());
         return newVO;
     }
 

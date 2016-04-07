@@ -116,6 +116,7 @@ public class TechnicalProductAssembler extends BaseAssembler {
             result.setTags(TagAssembler.toStrings(tProd.getTags(),
                     facade.getLocale()));
             result.setBillingIdentifier(tProd.getBillingIdentifier());
+            result.setExternalBilling(tProd.isExternalBilling());
             updateValueObject(result, tProd);
         }
         return result;

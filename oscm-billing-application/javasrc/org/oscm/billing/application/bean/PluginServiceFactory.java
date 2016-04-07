@@ -41,8 +41,10 @@ public class PluginServiceFactory {
             InitialContext context = new InitialContext(
                     createJndiProperties(connectionProperties));
 
-            Object lookup = context
-                    .lookup(jndiName + "!" + serviceInterface.getName());
+            String simpleName = serviceInterface.getSimpleName();
+            Object lookup = context.lookup(jndiName + "ejb/"
+                    + simpleName.substring(0, simpleName.indexOf("Service"))
+                    + "!" + serviceInterface.getName());
 
             return serviceInterface.cast(lookup);
         } catch (Exception e) {

@@ -32,8 +32,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.accountservice.dataaccess.UdaAccess;
@@ -86,55 +84,6 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
-import org.oscm.serviceprovisioningservice.assembler.TechServiceOperationParameterAssembler;
-import org.oscm.sessionservice.local.SessionServiceLocal;
-import org.oscm.string.Strings;
-import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
-import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
-import org.oscm.subscriptionservice.dao.MarketplaceDao;
-import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
-import org.oscm.subscriptionservice.dao.OrganizationDao;
-import org.oscm.subscriptionservice.dao.ProductDao;
-import org.oscm.subscriptionservice.dao.SessionDao;
-import org.oscm.subscriptionservice.dao.SubscriptionDao;
-import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
-import org.oscm.subscriptionservice.dao.UsageLicenseDao;
-import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
-import org.oscm.taskhandling.operations.SendMailHandler;
-import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
-import org.oscm.taskhandling.payloads.SendMailPayload;
-import org.oscm.techproductoperation.bean.OperationRecordServiceLocalBean;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
-import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.triggerservice.notification.VONotificationBuilder;
-import org.oscm.triggerservice.validator.TriggerProcessValidator;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
-import org.oscm.types.enumtypes.ProvisioningType;
-import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.types.enumtypes.UdaTargetType;
-import org.oscm.types.exceptions.UserAlreadyAssignedException;
-import org.oscm.types.exceptions.UserNotAssignedException;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validation.PaymentDataValidator;
-import org.oscm.validator.ADMValidator;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -194,10 +143,61 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.notification.vo.VOProperty;
 import org.oscm.operation.data.OperationResult;
+import org.oscm.permission.PermissionCheck;
 import org.oscm.provisioning.data.User;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
+import org.oscm.serviceprovisioningservice.assembler.TechServiceOperationParameterAssembler;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.string.Strings;
+import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
+import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.subscriptionservice.dao.MarketplaceDao;
+import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
+import org.oscm.subscriptionservice.dao.OrganizationDao;
+import org.oscm.subscriptionservice.dao.ProductDao;
+import org.oscm.subscriptionservice.dao.SessionDao;
+import org.oscm.subscriptionservice.dao.SubscriptionDao;
+import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
+import org.oscm.subscriptionservice.dao.UsageLicenseDao;
+import org.oscm.subscriptionservice.local.SubscriptionListServiceLocal;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.NotifyProvisioningServiceHandler;
+import org.oscm.taskhandling.operations.SendMailHandler;
+import org.oscm.taskhandling.payloads.NotifyProvisioningServicePayload;
+import org.oscm.taskhandling.payloads.SendMailPayload;
+import org.oscm.techproductoperation.bean.OperationRecordServiceLocalBean;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
+import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.triggerservice.notification.VONotificationBuilder;
+import org.oscm.triggerservice.validator.TriggerProcessValidator;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.oscm.types.enumtypes.ProvisioningType;
+import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.types.exceptions.UserAlreadyAssignedException;
+import org.oscm.types.exceptions.UserNotAssignedException;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validation.PaymentDataValidator;
+import org.oscm.validator.ADMValidator;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Session Bean implementation class of SubscriptionService (Remote IF) and
@@ -612,8 +612,11 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // is still in PENDING, but must be fitered for billing. Set the
             // indicating flag before persisting.
             theProduct.getPriceModel().setProvisioningCompleted(false);
+            if(theProduct.getPriceModel().isExternal()){
+                newSub.setExternal(true);
+            }
         }
-
+        
         // to avoid id conflicts in high load scenarios add customer
         // organization hash
         theProduct.setProductId(theProduct.getProductId()
@@ -621,6 +624,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         theProduct.setOwningSubscription(null);
         // subscription copies do not have/need a CatalogEntry
         theProduct.setCatalogEntries(new ArrayList<CatalogEntry>());
+
         try {
             dataManager.persist(theProduct);
         } catch (NonUniqueBusinessKeyException e) {
@@ -2082,12 +2086,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         Subscription subscription = manageBean.checkSubscriptionOwner(null,
                 subscriptionKey);
 
+        return getSubscriptionDetails(subscription);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException {
+        Subscription subscription = manageBean.loadSubscription(null, subscriptionKey);
         return getSubscriptionDetails(subscription);
     }
 

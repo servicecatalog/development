@@ -13,7 +13,7 @@
 
   <a4j:outputPanel id="buttonPanel" layout="block">
     <h:commandButton style="display:none;" id="confirmedButton" value="#{msg['button.save']}"
-      onclick="setOnSubmit(true);syncFreePeriod();setDirty(false);AdmUtils.showProgress(true);"
+      onclick="setOnSubmit(true);setDirty(false);AdmUtils.showProgress(true);"
       action="#{priceModelBean.save}" />
     <a4j:commandButton style="display:none;" id="addButtonHidden" value="#{msg['button.plus']}"
       action="#{steppedPriceBean.add}"
@@ -29,7 +29,7 @@
         onclick="#{rich:element('confirmedButton')}.click();"
         disabled="#{priceModelBean.disableSave or priceModelBean.editDisabled or disabledforCustomer}" />
       <adm:buttonCustomizedOnClick id="localizeButton" value="#{msg['button.localize']}" buttonType="edit"
-        onclick="#{rich:element('dirty')}.value=getDirty();setOnSubmit(true);syncFreePeriod();setDirty(false);AdmUtils.showProgress(#{progress});#{rich:element('localizeButtonHidden')}.click();setOnSubmit(false);return false;"
+        onclick="#{rich:element('dirty')}.value=getDirty();setOnSubmit(true);if (typeof syncFreePeriod == 'function') { syncFreePeriod()};setDirty(false);AdmUtils.showProgress(#{progress});#{rich:element('localizeButtonHidden')}.click();setOnSubmit(false);return false;"
         disabled="#{priceModelBean.disableLocalize or priceModelBean.editDisabled or disabledforCustomer}" />
       <adm:buttonCustomizedOnClick id="rolesButton" value="#{msg['button.roles']}" buttonType="roles"
         onclick="#{rich:component('rolesPanel')}.show();#{rich:element('rolesButtonHidden')}.click();"

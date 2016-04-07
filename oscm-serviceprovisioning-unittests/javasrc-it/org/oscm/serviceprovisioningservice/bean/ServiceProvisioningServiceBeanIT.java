@@ -4,10 +4,10 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import static org.oscm.test.Numbers.BD100;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.oscm.test.Numbers.BD100;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,11 +27,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.converter.XMLConverter;
 import org.oscm.domobjects.CatalogEntry;
@@ -53,17 +48,6 @@ import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
-import org.oscm.serviceprovisioningservice.assembler.ParameterDefinitionAssembler;
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.types.enumtypes.PlatformEventIdentifier;
-import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -85,6 +69,7 @@ import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ServiceOperationException;
 import org.oscm.internal.types.exception.ServiceStateException;
+import org.oscm.internal.types.exception.SubscriptionStateException;
 import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
 import org.oscm.internal.types.exception.UpdateConstraintException;
 import org.oscm.internal.types.exception.ValidationException;
@@ -107,6 +92,21 @@ import org.oscm.internal.vo.VOServiceLocalization;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOTechnicalService;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.serviceprovisioningservice.assembler.ParameterDefinitionAssembler;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.types.enumtypes.PlatformEventIdentifier;
+import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 @SuppressWarnings("boxing")
 public class ServiceProvisioningServiceBeanIT
@@ -2934,6 +2934,85 @@ public class ServiceProvisioningServiceBeanIT
         assertEquals("License is wrong. En", priceModelLicenseEnOld,
                 priceModelLicenseActualEn);
 
+    }
+
+    @Test
+    public void testValidateSubscriptionWithoutException() throws Exception {
+        //given
+        
+        VOTechnicalService tp = createTechnicalProduct(svcProv);
+        container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
+        final VOServiceDetails product = createProduct(tp, "testProd", svcProv);
+        final VOPriceModel priceModel_init = createPriceModel();
+        svcProv.savePriceModel(product, priceModel_init);
+        VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
+        String subId = createSubscription(customer, SubscriptionStatus.ACTIVE,
+                product, "testSubscriptionToValidate", null);
+        
+        VOServiceDetails forSubscription = svcProv
+                .getServiceForSubscription(customer, subId);
+        //when
+        svcProv.validateSubscription(forSubscription);
+        
+        //then
+        Assert.assertNotNull(subId);
+    }
+    
+    @Test(expected = SubscriptionStateException.class)
+    public void testValidateSubscriptionInvalidState() throws Exception {
+        //given
+        
+        VOTechnicalService tp = createTechnicalProduct(svcProv);
+        container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
+        final VOServiceDetails product = createProduct(tp, "testProdInvalid", svcProv);
+        final VOPriceModel priceModel_init = createPriceModel();
+        svcProv.savePriceModel(product, priceModel_init);
+        VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
+        String subId = createSubscription(customer, SubscriptionStatus.INVALID,
+                product, "testSubscriptionInvalid", null);
+        
+        VOServiceDetails forSubscription = svcProv
+                .getServiceForSubscription(customer, subId);
+        //when
+        svcProv.validateSubscription(forSubscription);
+    }
+    
+    @Test(expected = SubscriptionStateException.class)
+    public void testValidateSubscriptionExpiredState() throws Exception {
+        //given
+        
+        VOTechnicalService tp = createTechnicalProduct(svcProv);
+        container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
+        final VOServiceDetails product = createProduct(tp, "testProdExpired", svcProv);
+        final VOPriceModel priceModel_init = createPriceModel();
+        svcProv.savePriceModel(product, priceModel_init);
+        VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
+        String subId = createSubscription(customer, SubscriptionStatus.EXPIRED,
+                product, "testSubscriptionExpired", null);
+        
+        VOServiceDetails forSubscription = svcProv
+                .getServiceForSubscription(customer, subId);
+        //when
+        svcProv.validateSubscription(forSubscription);
+    }
+    
+    @Test(expected = SubscriptionStateException.class)
+    public void testValidateSubscriptionDeactivatedState() throws Exception {
+        //given
+        
+        VOTechnicalService tp = createTechnicalProduct(svcProv);
+        container.login(supplierUserKey, ROLE_SERVICE_MANAGER);
+        final VOServiceDetails product = createProduct(tp, "testProdDeactivated", svcProv);
+        final VOPriceModel priceModel_init = createPriceModel();
+        svcProv.savePriceModel(product, priceModel_init);
+        VOOrganization customer = getOrganizationForOrgId(supplierOrgId);
+        String subId = createSubscription(customer, SubscriptionStatus.EXPIRED,
+                product, "testSubscriptionDeactivated", null);
+        
+        VOServiceDetails forSubscription = svcProv
+                .getServiceForSubscription(customer, subId);
+        //when
+        svcProv.validateSubscription(forSubscription);
     }
 
     @Test(expected = OperationNotPermittedException.class)

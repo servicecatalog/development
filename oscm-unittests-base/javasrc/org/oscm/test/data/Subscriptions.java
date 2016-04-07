@@ -290,6 +290,12 @@ public class Subscriptions {
         assertNotNull("No customerId given for the subscription", customer);
 
         Subscription newSub = new Subscription();
+        
+        PriceModel priceModel = product.getPriceModel();
+        
+        if(priceModel != null){
+            newSub.setExternal(priceModel.isExternal());
+        }
         newSub.setCreationDate(Long.valueOf(creationDate));
         newSub.setStatus(SubscriptionStatus.ACTIVE);
         newSub.setActivationDate(Long.valueOf(activationDate));

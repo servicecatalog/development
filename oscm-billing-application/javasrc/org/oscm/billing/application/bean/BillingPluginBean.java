@@ -10,8 +10,6 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import org.oscm.billing.external.billing.service.BillingPluginService;
-import org.oscm.billing.external.exception.BillingException;
 import org.oscm.billingadapterservice.bean.BillingAdapterDAO;
 import org.oscm.domobjects.BillingAdapter;
 import org.oscm.interceptor.ExceptionMapper;
@@ -22,7 +20,7 @@ import org.oscm.internal.types.exception.BillingApplicationException;
 @Stateless
 @LocalBean
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
-public class BillingPluginBean implements BillingPluginService {
+public class BillingPluginBean {
 
     @EJB
     BillingAdapterDAO billingAdapterDAO;
@@ -75,11 +73,4 @@ public class BillingPluginBean implements BillingPluginService {
         }
         return billingAdapter;
     }
-
-    @Override
-    public void testConnection() throws BillingException {
-        // TODO Auto-generated method stub
-
-    }
-
 }

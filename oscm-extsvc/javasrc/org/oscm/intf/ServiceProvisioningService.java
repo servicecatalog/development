@@ -379,7 +379,8 @@ public interface ServiceProvisioningService {
      *             if the service status is not {@link ServiceStatus#INACTIVE}
      * @throws PriceModelException
      *             when trying to change the currency of the price model in a
-     *             way which is not allowed
+     *             way which is not allowed, or when price model is retrieved
+     *             form external billing adapter
      * @throws ConcurrentModificationException
      *             if the stored service or price model is changed by another
      *             user in the time between reading and writing it
@@ -488,7 +489,8 @@ public interface ServiceProvisioningService {
      *             subscription
      * @throws PriceModelException
      *             when trying to change the 'chargeable' property or the
-     *             currency of the price model in a way which is not allowed
+     *             currency of the price model in a way which is not allowed, or
+     *             when price model is retrieved form external billing adapter
      */
     @WebMethod
     public VOServiceDetails savePriceModelForSubscription(
@@ -899,7 +901,8 @@ public interface ServiceProvisioningService {
             throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
-     * Saves the localized texts for a price model.
+     * Saves the localized texts for a price model. If price model is retrieved
+     * form external billing system, its description is ignored and not stored.
      * <p>
      * Required role: service manager of the supplier organization that owns the
      * price model

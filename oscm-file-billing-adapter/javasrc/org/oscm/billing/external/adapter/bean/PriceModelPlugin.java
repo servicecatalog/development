@@ -34,7 +34,7 @@ import com.sun.jersey.api.client.WebResource;
 @Remote({ PriceModelPluginService.class })
 public class PriceModelPlugin implements PriceModelPluginService {
 
-    public static final String ID = "FileBilling";
+    public static final String ID = "FILE_BILLING";
     public static final String PRICEMODEL_URL = "priceModelURL";
     public static final String PRICEMODEL_FILE_URL = "priceModelFileURL";
     public static final String FILENAME_PARAMETER = "FILENAME";
@@ -96,6 +96,7 @@ public class PriceModelPlugin implements PriceModelPluginService {
                     content.setContentType(fileType);
                     content.setTag(tag);
                     content.setContent(priceModelFile);
+                    content.setFilename(fileName);
                     priceModel.put(locale, content);
                 }
             }
@@ -126,5 +127,4 @@ public class PriceModelPlugin implements PriceModelPluginService {
                 properties.getConfigProperty(PRICEMODEL_FILE_URL), queryParams);
         return restDao.getFileResponse(webResource);
     }
-
 }

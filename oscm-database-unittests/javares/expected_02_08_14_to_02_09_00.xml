@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2015-->
+
+<dataset>
+  <!-- FREE OF CHARGE -->
+  <PriceModel tkey="1" type="FREE_OF_CHARGE" onetimefee="1" priceperperiod="1" priceperuserassignment="1"
+    version="1" external="false" uuid="[NULL]" />
+  <PriceModelHistory tkey="2" objkey="1" type="FREE_OF_CHARGE" objversion="1" onetimefee="1"
+    priceperperiod="1" priceperuserassignment="1" invocationdate="2012-01-01 02:00:00" modtype="MODIFY" moduser="A"
+    productobjkey="1" external="false" />
+
+  <!-- PRO RATA -->
+  <PriceModel tkey="3" type="PRO_RATA" onetimefee="2" priceperperiod="2" priceperuserassignment="2" version="0"
+    external="false" uuid="[NULL]" />
+  <PriceModelHistory tkey="4" objkey="3" type="PRO_RATA" objversion="1" onetimefee="1" priceperperiod="1"
+    priceperuserassignment="1" invocationdate="2012-01-01 01:00:00" modtype="ADD" moduser="A" productobjkey="1"
+    external="false" />
+
+</dataset>

@@ -63,15 +63,15 @@
 									for="connectionProperty" rendered="true" />
 							</rich:column>
 							<rich:column style="border-width:0px;width:330px;">
-								<h:inputText value="#{item.value}" styleClass="field"
+								<h:inputText id="connectionPropertyValue" value="#{item.value}" styleClass="field"
 									onchange="setDirty(true);" />
 							</rich:column>
 							<rich:column style="border-width:0px;text-align:left;">
-								<a4j:commandButton value="#{msg['button.plus']}"
+								<a4j:commandButton value="#{msg['button.plus']}" id="addConnectionProperty"
 									rendered="#{key == 0}" action="#{adapter.addItem}"
 									render=":connectionPropertiesTable, :mainTmplMessagesPanel," />
 
-								<a4j:commandButton value="#{msg['button.minus']}"
+								<a4j:commandButton value="#{msg['button.minus']}" id="removeConnectionProperty"
 									rendered="#{key > 0}" action="#{adapter.removeItem(item)}" immediate="true"
 									render=":connectionPropertiesTable, :mainTmplMessagesPanel,">
 								</a4j:commandButton>
@@ -115,7 +115,7 @@
 							</h:commandButton>
               
 							<a4j:commandButton id="hiddenTestConnectionButton"
-								actionListener="#{billingAdapterCtrl.testConnection}"
+								action="#{billingAdapterCtrl.testConnection}"
 								value="#{msg['button.testConnection']}" type="submit"
                                 style="display:none"
 								render=":mainTmplMessagesPanel, :showMessagePanelJs"
@@ -149,7 +149,7 @@
 			</a4j:repeat>
 		</rich:accordion>
 
-		<h:form>
+		<h:form id="addBillingAdapterForm">
 			<a4j:outputPanel>
 				<adm:buttonPanel>
 					<adm:button id="addButton" value="#{msg['button.add']}"

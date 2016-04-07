@@ -8,7 +8,7 @@
   <!-- target for developers -->
   <target name="partCustom">
     <!-- put your own test files e.g. "playground.xml" --> 
-    <ant antfile="playground.xml" />
+    <ant antfile="testBillingPlugin.xml" />
   </target>
 
   <target name="part1">
@@ -26,8 +26,7 @@
     <ant antfile="testStory5.xml" />
     <ant antfile="testStory6.xml" />
     <ant antfile="testStory8.xml" />
-    <!-- Commented out due to requirement that hides billing adapter menu and views by default (Bug 11925) -->
-    <!--<ant antfile="testManageBillingAdapters.xml" />-->
+    <ant antfile="testBillingPlugin.xml" />
     <ant antfile="testMenuVisibility.xml" />
     <ant antfile="testCustomerUdaAndDiscount.xml" />
   	<ant antfile="testServiceOperation.xml" />

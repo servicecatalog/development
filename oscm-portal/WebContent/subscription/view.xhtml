@@ -14,12 +14,11 @@
   </ui:define>
   <ui:define name="body">
     <h:form id="selectForm" onsubmit="AdmUtils.showProgress(true);">
-      <a4j:jsFunction name="selectItem"
-        action="#{subscriptionViewBean.selectSubscriptionIdAndCustomerId}"
-         render="details,mainTmplMessagesPanel"
+      <a4j:jsFunction name="selectItem" action="#{subscriptionViewBean.selectSubscriptionIdAndCustomerId}"
+        render="details,mainTmplMessagesPanel viewForm"
         oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
-          <a4j:param name="param1" assignTo="#{subscriptionViewBean.subscriptionId}" />
-          <a4j:param name="param2" assignTo="#{subscriptionViewBean.customerId}" />
+        <a4j:param name="param1" assignTo="#{subscriptionViewBean.subscriptionId}" />
+        <a4j:param name="param2" assignTo="#{subscriptionViewBean.customerId}" />
       </a4j:jsFunction>
     </h:form>
 
@@ -33,220 +32,240 @@
       <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
         <ui:include src="subscriptionTable.xhtml">
           <ui:param name="lazyModel" value="#{subscriptionViewBean.model}" />
-          <ui:param name="pagerId" value="subListTablePager"/>
+          <ui:param name="pagerId" value="subListTablePager" />
           <ui:param name="sortIcon" value="/img/transparentPixel.png?id=sort" />
           <ui:param name="sortIconAscending" value="/img/transparentPixel.png?id=sortAscending" />
           <ui:param name="sortIconDescending" value="/img/transparentPixel.png?id=sortDescending" />
         </ui:include>
       </a4j:outputPanel>
-    </h:form> 
+    </h:form>
     <a4j:outputPanel id="scriptPanel" layout="block">
       <script type="text/javascript">
-        AdmUtils.highlightTableHeader();
-      </script>
+							AdmUtils.highlightTableHeader();
+						</script>
     </a4j:outputPanel>
-    
-   </ui:define>
-     
-   <ui:define name="body_sub">
-   <h:form id="viewForm">
+
+  </ui:define>
+
+  <ui:define name="body_sub">
+    <h:form id="viewForm">
       <adm:outputStep value="#{msg['subscription.view.step.detail']}" />
       <a4j:outputPanel id="details" layout="block">
-      <adm:panelGrid>
-      
-        <adm:outputLabel value="#{msg['subscription.subscriptionInfo']}" />
-          <h:outputText id="subscriptionText" value="#{subscriptionViewBean.selectedSubscription.subscriptionId}" styleClass="label" />
+        <adm:panelGrid>
+
+          <adm:outputLabel value="#{msg['subscription.subscriptionInfo']}" />
+          <h:outputText id="subscriptionText" value="#{subscriptionViewBean.selectedSubscription.subscriptionId}"
+            styleClass="label" />
           <h:outputText value="" />
 
           <adm:outputLabel value="#{msg['subscription.customerInfo']}" />
           <h:outputText id="customerText" value="#{subscriptionViewBean.selectedCustomerIdAndName}" styleClass="label" />
           <h:outputText value="" />
-        
-        <adm:outputLabel value="#{msg['subscription.activationDate']}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.activationDate}"  styleClass="label" >
-          <f:convertDateTime pattern="#{msg[appBean.datePattern]}" timeZone="#{appBean.timeZoneId}" />
-        </h:outputText>
+
+          <adm:outputLabel value="#{msg['subscription.activationDate']}" />
+          <h:outputText value="#{subscriptionViewBean.selectedSubscription.activationDate}" styleClass="label">
+            <f:convertDateTime pattern="#{msg[appBean.datePattern]}" timeZone="#{appBean.timeZoneId}" />
+          </h:outputText>
+          <h:outputText value="" />
+
+          <adm:outputLabel value="#{msg['subscription.view.numOfAssigendUsers']}" />
+          <h:outputText value="#{subscriptionViewBean.numberOfAssignedUsers}" styleClass="label" />
+          <h:outputText value="" />
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['subscription.view.step.service']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['service.serviceId']}" />
+          <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.serviceId}"
+            styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:outputLabel value="#{msg['service.name']}" />
+          <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.name}" styleClass="label" />
+          <h:outputText value="" />
+
+          <adm:labelAndOutputLarge label="#{msg['service.description']}"
+            value="#{subscriptionViewBean.selectedSubscription.subscribedService.description}" />
+
+          <h:panelGroup />
+          <h:panelGroup />
+
+        </adm:panelGrid>
+
+        <adm:outputStep value="#{msg['subscription.view.step.techService']}" />
+        <adm:panelGrid>
+          <adm:outputLabel value="#{msg['techService.techServiceId']}" />
+          <h:panelGroup>
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.technicalId}"
+              styleClass="label" />
+          </h:panelGroup>
+          <h:outputText value="" />
+        </adm:panelGrid>
+
+        <adm:collapsibleSection sectionId="techServiceLicenseSection" label="#{msg['techService.license']}">
+          <a4j:outputPanel id="licensePanel" layout="block"
+            styleClass="#{empty subscriptionViewBean.selectedSubscription.priceModel.license?'':'license'}">
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.license}" escape="false"
+              styleClass="label" />
+          </a4j:outputPanel>
+        </adm:collapsibleSection>
         <h:outputText value="" />
 
-        <adm:outputLabel value="#{msg['subscription.view.numOfAssigendUsers']}" />
-        <h:outputText value="#{subscriptionViewBean.numberOfAssignedUsers}"  styleClass="label" />
-        <h:outputText value="" />
-      </adm:panelGrid>
+        <adm:outputStep value="#{msg['subscription.view.step.priceModel']}" />
+        <a4j:outputPanel id="internalPriceModel" layout="block"
+          rendered="#{not subscriptionViewBean.selectedSubscription.priceModel.external}">
+          <c:set var="discount" value="#{subscriptionViewBean.discountForSelectedSubscription}" />
+          <c:if test="#{not empty discount}">
+            <a4j:outputPanel id="discount" styleClass="discountViewSubscriptions" rendered="#{chargeable}">
+              <h:outputText value="#{discount.discountToDisplay}" styleClass="margin10px" />
+            </a4j:outputPanel>
+          </c:if>
+          <adm:panelGrid>
+            <adm:labelAndOutputLarge label="#{msg['priceModel.textarea.description']}"
+              value="#{subscriptionViewBean.selectedSubscription.priceModel.description}" rendered="#{chargeable}" />
 
-      <adm:outputStep value="#{msg['subscription.view.step.service']}" />
-      <adm:panelGrid>
-        <adm:outputLabel value="#{msg['service.serviceId']}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.serviceId}" styleClass="label"  />
-        <h:outputText value="" />
+            <c:set var="freePeriodAvailable"
+              value="#{subscriptionViewBean.selectedSubscription.priceModel.freePeriod > 0}" />
+            <adm:outputLabel value="#{msg['priceModel.label.freePeriod']}"
+              rendered="#{chargeable and freePeriodAvailable}" />
+            <h:outputText id="freePeriod" value="#{subscriptionViewBean.selectedSubscription.priceModel.freePeriod}"
+              rendered="#{chargeable and freePeriodAvailable}" styleClass="label" />
+            <h:outputText value="" rendered="#{chargeable and freePeriodAvailable}" styleClass="label" />
 
-        <adm:outputLabel value="#{msg['service.name']}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.name}"  styleClass="label" />
-        <h:outputText value="" />
+            <adm:outputLabel value="#{msg['priceModel.text.currency.label']}" rendered="#{chargeable}" />
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.currencyISOCode}"
+              rendered="#{chargeable}" styleClass="label" />
+            <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
 
-        <adm:labelAndOutputLarge label="#{msg['service.description']}"
-         value="#{subscriptionViewBean.selectedSubscription.subscribedService.description}" />
+            <adm:outputLabel value="#{msg['priceModel.pricingPeriod']}" rendered="#{chargeable}" />
+            <c:set var="key" value="PricingPeriod.#{subscriptionViewBean.selectedSubscription.priceModel.period}" />
+            <h:outputText value="#{msg[key]}" rendered="#{chargeable}" styleClass="label" />
+            <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
 
-        <h:panelGroup />
-        <h:panelGroup />
-
-      </adm:panelGrid>
-
-      <adm:outputStep value="#{msg['subscription.view.step.techService']}" />
-      <adm:panelGrid>
-        <adm:outputLabel value="#{msg['techService.techServiceId']}" />
-        <h:panelGroup>
-          <h:outputText value="#{subscriptionViewBean.selectedSubscription.subscribedService.technicalId}"  styleClass="label" />
-        </h:panelGroup>
-        <h:outputText value="" />
-      </adm:panelGrid>
-
-      <adm:collapsibleSection sectionId="techServiceLicenseSection" label="#{msg['techService.license']}">
-        <a4j:outputPanel id="licensePanel" layout="block"
-          styleClass="#{empty subscriptionViewBean.selectedSubscription.priceModel.license?'':'license'}">
-          <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.license}" escape="false" styleClass="label" />
-        </a4j:outputPanel>
-      </adm:collapsibleSection>
-      <h:outputText value="" />
-
-      <adm:outputStep value="#{msg['subscription.view.step.priceModel']}" />
-      <c:set var="discount" value="#{subscriptionViewBean.discountForSelectedSubscription}" />
-      <c:if test="#{not empty discount}">
-        <a4j:outputPanel id="discount" styleClass="discountViewSubscriptions" rendered="#{chargeable}">
-          <h:outputText value="#{discount.discountToDisplay}" styleClass="margin10px"/>
-        </a4j:outputPanel>
-      </c:if>
-      <adm:panelGrid>
-        <adm:labelAndOutputLarge label="#{msg['priceModel.textarea.description']}"
-          value="#{subscriptionViewBean.selectedSubscription.priceModel.description}" rendered="#{chargeable}" />
-
-        <c:set var="freePeriodAvailable" value="#{subscriptionViewBean.selectedSubscription.priceModel.freePeriod > 0}" />
-        <adm:outputLabel value="#{msg['priceModel.label.freePeriod']}" rendered="#{chargeable and freePeriodAvailable}" />
-        <h:outputText id="freePeriod" value="#{subscriptionViewBean.selectedSubscription.priceModel.freePeriod}"
-          rendered="#{chargeable and freePeriodAvailable}" styleClass="label" />
-        <h:outputText value="" rendered="#{chargeable and freePeriodAvailable}" styleClass="label" />
-
-        <adm:outputLabel value="#{msg['priceModel.text.currency.label']}" rendered="#{chargeable}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.currencyISOCode}"
-          rendered="#{chargeable}" styleClass="label" />
-        <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
-
-        <adm:outputLabel value="#{msg['priceModel.pricingPeriod']}" rendered="#{chargeable}" />
-        <c:set var="key" value="PricingPeriod.#{subscriptionViewBean.selectedSubscription.priceModel.period}" />
-        <h:outputText value="#{msg[key]}" rendered="#{chargeable}" styleClass="label" />
-        <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
-
-        <adm:outputLabel value="#{msg['priceModel.edit.oneTimeFee.label']}" rendered="#{chargeable}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.oneTimeFee}"
-          rendered="#{chargeable}" styleClass="label">
-          <f:converter converterId="currency.converter" />
-        </h:outputText>
-        <h:outputText value="" rendered="#{chargeable}" styleClass="label"/>
-
-        <adm:outputLabel value="#{msg['priceModel.combobox.chargePerSubscription.label']}" rendered="#{chargeable}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.pricePerPeriod}" 
-          rendered="#{chargeable}"  styleClass="label" >
-          <f:converter converterId="currency.converter" />
-        </h:outputText>
-        <h:outputText value="" rendered="#{chargeable}"  styleClass="label" />
-
-        <adm:outputLabel value="#{msg['priceModel.combobox.chargePerUser.label']}"
-          rendered="#{chargeable and not subscriptionViewBean.directAccess}" />
-        <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.pricePerUserAssignment}"  styleClass="label" 
-          rendered="#{chargeable and empty subscriptionViewBean.selectedSubscription.priceModel.steppedPrices and not subscriptionViewBean.directAccess}">
-          <f:converter converterId="currency.converter" />
-        </h:outputText>
-        <rich:dataTable headerClass="rowTitle" rowClasses="rowOdd,rowEven" id="steppedPriceTable"
-          rendered="#{chargeable and not empty subscriptionViewBean.selectedSubscription.priceModel.steppedPrices}"
-          value="#{subscriptionViewBean.selectedSubscription.priceModel.steppedPrices}" var="row" rowKeyVar="rowKey">
-          <rich:column>
-            <f:facet name="header">
-              <h:outputText value="#{msg['priceModel.steppedPrice.price']}" />
-            </f:facet>
-            <h:outputText id="steppedPricePrice" value="#{row.price}"  styleClass="label" >
+            <adm:outputLabel value="#{msg['priceModel.edit.oneTimeFee.label']}" rendered="#{chargeable}" />
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.oneTimeFee}"
+              rendered="#{chargeable}" styleClass="label">
               <f:converter converterId="currency.converter" />
             </h:outputText>
-          </rich:column>
-          <rich:column>
-            <f:facet name="header">
-              <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
-            </f:facet>
-            <h:outputText id="steppedPriceLimit" value="#{row.limit}"
-              rendered="#{fn:length(subscriptionViewBean.selectedSubscription.priceModel.steppedPrices) - 1 != rowKey}" />
-            <h:outputText id="steppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
-              rendered="#{fn:length(subscriptionViewBean.selectedSubscription.priceModel.steppedPrices) - 1 == rowKey}" />
-          </rich:column>
-        </rich:dataTable>
-        <h:panelGroup rendered="#{chargeable and not subscriptionViewBean.directAccess}" />
+            <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
 
-        <adm:outputLabel value="#{msg['service.priceModel']}" rendered="#{free}" />
-        <h:outputText value="#{msg['priceModel.text.free']}" rendered="#{free}"  styleClass="label"  />
-        <h:outputText value="" rendered="#{free}"  styleClass="label" />
-      </adm:panelGrid>
+            <adm:outputLabel value="#{msg['priceModel.combobox.chargePerSubscription.label']}" rendered="#{chargeable}" />
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.pricePerPeriod}"
+              rendered="#{chargeable}" styleClass="label">
+              <f:converter converterId="currency.converter" />
+            </h:outputText>
+            <h:outputText value="" rendered="#{chargeable}" styleClass="label" />
 
-      <ui:fragment rendered="#{chargeable and not empty subscriptionViewBean.pricedEvents}">
-        <adm:outputStep value="#{msg['subscription.view.step.events']}" />
-        <a4j:outputPanel layout="block" styleClass="tablePanel">
-          <adm:dataTable tableId="eventTable" value="#{subscriptionViewBean.pricedEvents}"
-            label="#{msg['subscription.view.events.table.header']}" collapsible="true">
-            <!--  Description -->
-            <rich:column>
-              <f:facet name="header">
-                <h:outputLabel value="#{msg['eventTable.description']}" />
-              </f:facet>
-              <h:outputText id="eventDescription" value="#{rowItem.eventDescription}" />
-            </rich:column>
-            <!--  Price  -->
-            <rich:column>
-              <f:facet name="header">
-                <h:outputLabel value="#{msg['eventTable.price']}" />
-              </f:facet>
-              <h:outputText id="eventPrice" value="#{rowItem.eventPrice}" rendered="#{empty rowItem.steppedPrice}">
-                <f:converter converterId="currency.converter" />
-              </h:outputText>
-              <h:outputText id="eventSteppedPricePrice" value="#{rowItem.steppedPrice.price}"
-                rendered="#{not empty rowItem.steppedPrice}">
-                <f:converter converterId="currency.converter" />
-              </h:outputText>
-            </rich:column>
-            <!--  Limit -->
-            <rich:column rendered="#{subscriptionViewBean.pricedEventsWithSteppedPrices}">
-              <f:facet name="header">
-                <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
-              </f:facet>
-              <h:outputText id="eventSteppedPriceLimit" value="#{rowItem.steppedPrice.limit}"
-                rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}" />
-              <h:outputText id="eventSteppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
-                rendered="#{rowItem.lastSteppedPrice}" />
-            </rich:column>
-          </adm:dataTable>
+            <adm:outputLabel value="#{msg['priceModel.combobox.chargePerUser.label']}"
+              rendered="#{chargeable and not subscriptionViewBean.directAccess}" />
+            <h:outputText value="#{subscriptionViewBean.selectedSubscription.priceModel.pricePerUserAssignment}"
+              styleClass="label"
+              rendered="#{chargeable and empty subscriptionViewBean.selectedSubscription.priceModel.steppedPrices and not subscriptionViewBean.directAccess}">
+              <f:converter converterId="currency.converter" />
+            </h:outputText>
+            <rich:dataTable headerClass="rowTitle" rowClasses="rowOdd,rowEven" id="steppedPriceTable"
+              rendered="#{chargeable and not empty subscriptionViewBean.selectedSubscription.priceModel.steppedPrices}"
+              value="#{subscriptionViewBean.selectedSubscription.priceModel.steppedPrices}" var="row" rowKeyVar="rowKey">
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="#{msg['priceModel.steppedPrice.price']}" />
+                </f:facet>
+                <h:outputText id="steppedPricePrice" value="#{row.price}" styleClass="label">
+                  <f:converter converterId="currency.converter" />
+                </h:outputText>
+              </rich:column>
+              <rich:column>
+                <f:facet name="header">
+                  <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+                </f:facet>
+                <h:outputText id="steppedPriceLimit" value="#{row.limit}"
+                  rendered="#{fn:length(subscriptionViewBean.selectedSubscription.priceModel.steppedPrices) - 1 != rowKey}" />
+                <h:outputText id="steppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+                  rendered="#{fn:length(subscriptionViewBean.selectedSubscription.priceModel.steppedPrices) - 1 == rowKey}" />
+              </rich:column>
+            </rich:dataTable>
+            <h:panelGroup rendered="#{chargeable and not subscriptionViewBean.directAccess}" />
+
+            <adm:outputLabel value="#{msg['service.priceModel']}" rendered="#{free}" />
+            <h:outputText value="#{msg['priceModel.text.free']}" rendered="#{free}" styleClass="label" />
+            <h:outputText value="" rendered="#{free}" styleClass="label" />
+          </adm:panelGrid>
+
+          <ui:fragment rendered="#{chargeable and not empty subscriptionViewBean.pricedEvents}">
+            <adm:outputStep value="#{msg['subscription.view.step.events']}" />
+            <a4j:outputPanel layout="block" styleClass="tablePanel">
+              <adm:dataTable tableId="eventTable" value="#{subscriptionViewBean.pricedEvents}"
+                label="#{msg['subscription.view.events.table.header']}" collapsible="true">
+                <!--  Description -->
+                <rich:column>
+                  <f:facet name="header">
+                    <h:outputLabel value="#{msg['eventTable.description']}" />
+                  </f:facet>
+                  <h:outputText id="eventDescription" value="#{rowItem.eventDescription}" />
+                </rich:column>
+                <!--  Price  -->
+                <rich:column>
+                  <f:facet name="header">
+                    <h:outputLabel value="#{msg['eventTable.price']}" />
+                  </f:facet>
+                  <h:outputText id="eventPrice" value="#{rowItem.eventPrice}" rendered="#{empty rowItem.steppedPrice}">
+                    <f:converter converterId="currency.converter" />
+                  </h:outputText>
+                  <h:outputText id="eventSteppedPricePrice" value="#{rowItem.steppedPrice.price}"
+                    rendered="#{not empty rowItem.steppedPrice}">
+                    <f:converter converterId="currency.converter" />
+                  </h:outputText>
+                </rich:column>
+                <!--  Limit -->
+                <rich:column rendered="#{subscriptionViewBean.pricedEventsWithSteppedPrices}">
+                  <f:facet name="header">
+                    <h:outputText value="#{msg['priceModel.steppedPrice.limit']}" />
+                  </f:facet>
+                  <h:outputText id="eventSteppedPriceLimit" value="#{rowItem.steppedPrice.limit}"
+                    rendered="#{not rowItem.lastSteppedPrice and not empty rowItem.steppedPrice}" />
+                  <h:outputText id="eventSteppedPriceNoLimit" value="#{msg['priceModel.steppedPrice.noLimit']}"
+                    rendered="#{rowItem.lastSteppedPrice}" />
+                </rich:column>
+              </adm:dataTable>
+            </a4j:outputPanel>
+          </ui:fragment>
+
+          <ui:fragment rendered="#{not empty subscriptionViewBean.pricedParameterRows}">
+            <adm:outputStep value="#{msg['subscription.view.step.parameters']}" />
+            <a4j:outputPanel layout="block" styleClass="tablePanel">
+              <ui:include src="../subscription/paramtable.xhtml">
+                <ui:param name="inputList" value="#{subscriptionViewBean.pricedParameterRows}" />
+                <ui:param name="formName" value="viewForm" />
+                <ui:param name="readOnly" value="true" />
+                <ui:param name="showConfigurable" value="true" />
+                <ui:param name="subscriptionExisting" value="true" />
+                <ui:param name="showPrices" value="#{chargeable}" />
+                <ui:param name="showSteppedPrices" value="#{subscriptionViewBean.parametersWithSteppedPrices}" />
+                <ui:param name="hideUserPrices" value="#{subscriptionViewBean.directAccess}" />
+              </ui:include>
+            </a4j:outputPanel>
+          </ui:fragment>
+
+          <!-- Roles table -->
+          <ui:fragment rendered="#{not empty subscriptionViewBean.roleSpecificPrices}">
+            <adm:outputStep value="#{msg['subscription.priceModel.rolePrices.label']}" />
+            <a4j:outputPanel layout="block" styleClass="tablePanel">
+              <ui:include src="../subscription/rolepricetable.xhtml">
+                <ui:param name="inputList" value="#{subscriptionViewBean.roleSpecificPrices}" />
+              </ui:include>
+            </a4j:outputPanel>
+          </ui:fragment>
         </a4j:outputPanel>
-      </ui:fragment>
+      </a4j:outputPanel>
 
-      <ui:fragment rendered="#{not empty subscriptionViewBean.pricedParameterRows}">
-        <adm:outputStep value="#{msg['subscription.view.step.parameters']}" />
-        <a4j:outputPanel layout="block" styleClass="tablePanel">
-          <ui:include src="../subscription/paramtable.xhtml">
-            <ui:param name="inputList" value="#{subscriptionViewBean.pricedParameterRows}" />
-            <ui:param name="formName" value="viewForm" />
-            <ui:param name="readOnly" value="true" />
-            <ui:param name="showConfigurable" value="true" />
-            <ui:param name="subscriptionExisting" value="true" />
-            <ui:param name="showPrices" value="#{chargeable}" />
-            <ui:param name="showSteppedPrices" value="#{subscriptionViewBean.parametersWithSteppedPrices}" />
-            <ui:param name="hideUserPrices" value="#{subscriptionViewBean.directAccess}" />
-          </ui:include>
-        </a4j:outputPanel>
-      </ui:fragment>
-
-      <!-- Roles table -->
-      <ui:fragment rendered="#{not empty subscriptionViewBean.roleSpecificPrices}">
-        <adm:outputStep value="#{msg['subscription.priceModel.rolePrices.label']}" />
-        <a4j:outputPanel layout="block" styleClass="tablePanel">
-          <ui:include src="../subscription/rolepricetable.xhtml">
-            <ui:param name="inputList" value="#{subscriptionViewBean.roleSpecificPrices}" />
-          </ui:include>
-        </a4j:outputPanel>
-      </ui:fragment>
+      <a4j:outputPanel id="externalPriceModel" layout="block"
+        rendered="#{subscriptionViewBean.selectedSubscription !=null and subscriptionViewBean.selectedSubscription.priceModel.external}">
+        <ui:include src="../priceModel/externalServicePriceModel.xhtml">
+          <ui:param name="billingId"
+            value="#{subscriptionViewBean.selectedSubscription.subscribedService.billingIdentifier}" />
+          <ui:param name="priceModelCtrl" value="#{externalSubscriptionPriceModelCtrl}" />
+          <ui:param name="hideUpload" value="true" />
+        </ui:include>
       </a4j:outputPanel>
     </h:form>
 

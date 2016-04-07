@@ -8,6 +8,8 @@
 
 package org.oscm.billing.external.billing.service;
 
+
+
 import javax.ejb.Remote;
 
 import org.oscm.billing.external.exception.BillingException;
