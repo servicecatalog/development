@@ -127,6 +127,7 @@
       <mpl_verify.subscriptionProgress currentStep="${subscription.add.progress.configuration}" />
       <mpl_verify.button id="configurationForm:previousSubscribeLink" />
       <mpl_verify.button id="configurationForm:nextLink" />
+  	  <verifyXPath xpath="//span[contains(text(), 'Parameters and options')]" />
 
       <storeProperty name="givenSubscriptionId" value="WebTestAuto" />
       <setInputField htmlId="configurationForm:subscriptionIdText" value="#{givenSubscriptionId}" />
