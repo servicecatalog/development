@@ -1304,6 +1304,9 @@ public class TechnicalProductImportParser extends ImportParserBase {
             localizer.storeLocalizedResource(locale, techProduct.getKey(),
                     LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC, value);
         } else if (ELEMENT_LOCALIZED_DESCRIPTION.equals(name)) {
+            if (isBlank(text)) {
+                return;
+            }
             long key;
             LocalizedObjectTypes type;
             if (event != null) {
@@ -1551,8 +1554,6 @@ public class TechnicalProductImportParser extends ImportParserBase {
      * 
      * @param id
      *            the product identifier
-     * @param version
-     *            The version of the technical product.
      * @param provisioningType
      *            The provisioning type.
      * @param provisioningUrl

@@ -1001,8 +1001,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         assertEquals("The existing event definition must be deleted.", 2,
                 techProducts.get(0).getEventDefinitions().size());
     }
-
-    @Test(expected = ImportException.class)
+    //Bug-12684 - locale no longer mandatory
+    @Test//(expected = ImportException.class)
     public void testImportTechnicalServicesMissingAccessInfoLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1011,8 +1011,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 new String[] { "", "en", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-
-    @Test(expected = ImportException.class)
+    //Bug-12684 - locale no longer mandatory
+    @Test//(expected = ImportException.class)
     public void testImportTechnicalServicesMissingDescriptionLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1021,8 +1021,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 new String[] { "en", "", "en" });
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-
-    @Test(expected = ImportException.class)
+    //Bug-12684 - locale no longer mandatory
+    @Test//(expected = ImportException.class)
     public void testImportTechnicalServicesMissingLicenseLocale()
             throws Exception {
         String xml = TSXML.createTSXML("test", "1",
@@ -1570,8 +1570,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         String xml = TSXML.createTSXMLWithRoles(roleIds, locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-
-    @Test(expected = ImportException.class)
+//    //Bug-12684 - locale no longer mandatory
+    @Test//(expected = ImportException.class)
     public void testImportTechnicalServicesWithRolesMissingLocale()
             throws Exception {
         String[] roleIds = new String[] { "ADMIN", "GUEST" };
@@ -1661,8 +1661,8 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
                 .createTSXMLWithOperations(opIds, actionUrls, locales);
         svcProv.importTechnicalServices(xml.getBytes("UTF-8"));
     }
-
-    @Test(expected = ImportException.class)
+    //Bug-12684 - locale no longer mandatory
+    @Test//(expected = ImportException.class)
     public void testImportTechnicalServicesWithOperationsMissingLocale()
             throws Exception {
         String[] opIds = new String[] { "ACTION" };
