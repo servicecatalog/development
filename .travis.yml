@@ -1,5 +1,9 @@
 language: java
 sudo: required
+jdk: oraclejdk7
+cache:
+  directories:
+    - $TRAVIS_BUILD_DIR/libraries
 install:
   - wget -P libraries/apache-ant-contrib/javalib/ http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar
   - mkdir ../document
@@ -7,9 +11,11 @@ install:
   - wget https://github.com/servicecatalog/documentation/archive/master.zip
   - unzip master.zip
   - mv documentation-master/* .
-  - cd ../development
 env:
-  global: ANT_OPTS=-Xmx4g
+  global:
+    - ANT_OPTS=-Xmx4g
+    - COMUPTERNAME=travis
+    - HOSTNAME=travis
 script:
   - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisUT
-  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT
+#  - ant -lib $TRAVIS_BUILD_DIR/libraries/apache-ant-contrib/javalib -file $TRAVIS_BUILD_DIR/oscm-build/cruisecontrol.xml runTravisIT

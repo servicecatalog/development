@@ -42,10 +42,10 @@
 	<target name="runJUnitTestsBuild" depends="_libraries, _clean, _package, _unittests, _copyResultArtifacts" />
 
 	<target name="runTravisUT"  depends="_libraries">
-		<ant antfile="build.xml" target="unittestsWithoutCoverage" />
+		<ant antfile="build.xml" target="unittests" />
 	</target>
 	<target name="runTravisIT">
-		<ant antfile="build.xml" target="integrationtestsWithoutCoverage" />
+		<ant antfile="build.xml" target="integrationtests" />
 	</target>
 
 	<!-- Called by cruise control. All targets for cc start with runXYZ, all internal targets start with underscore -->
