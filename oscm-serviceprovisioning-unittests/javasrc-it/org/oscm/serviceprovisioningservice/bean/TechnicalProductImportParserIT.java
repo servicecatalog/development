@@ -2821,7 +2821,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                BillingAdapters.createBillingAdapter(mgr, "FileBilling", true);
+                BillingAdapters.createBillingAdapter(mgr, "FILE_BILLING", true);
                 return null;
             }
         });

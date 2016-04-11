@@ -12,6 +12,7 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.*;
+import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
@@ -36,7 +37,7 @@ import java.util.Map;
  * 
  */
 @SessionScoped
-@ManagedBean(name="sessionBean")
+@ManagedBean(name = "sessionBean")
 public class SessionBean implements Serializable {
 
     private static final Log4jLogger logger = LoggerFactory
@@ -83,7 +84,7 @@ public class SessionBean implements Serializable {
      * (operations on subscriptions).
      */
     private String selectedSubscriptionId;
-    
+
     /**
      * TODO add jdoc
      */
@@ -126,7 +127,7 @@ public class SessionBean implements Serializable {
     private String selectedTab;
 
     /**
-     * The status of check box "Display my operations only" 
+     * The status of check box "Display my operations only"
      */
     private boolean myOperationsOnly = true;
 
@@ -135,6 +136,7 @@ public class SessionBean implements Serializable {
      */
     private boolean myProcessesOnly = true;
 
+    private PriceModel selectedExternalPriceModel;
 
     public boolean isMyOperationsOnly() {
         return myOperationsOnly;
@@ -182,20 +184,20 @@ public class SessionBean implements Serializable {
         // The user-agent string contains information about which
         // browser is used to view the pages
         String useragent = request.getHeader(USER_AGENT_HEADER);
-        if (useragent == null ) {
-        	ie = Boolean.FALSE;
-        	return ie.booleanValue();
+        if (useragent == null) {
+            ie = Boolean.FALSE;
+            return ie.booleanValue();
         }
         if (useragent.toLowerCase().contains("msie")) {
             ie = Boolean.TRUE;
             return ie.booleanValue();
         }
         // Check if browser is IE11
-        if (useragent.toLowerCase().contains("trident") && useragent
-                .toLowerCase().contains("rv:11")) {
-        	ie = Boolean.TRUE;
+        if (useragent.toLowerCase().contains("trident")
+                && useragent.toLowerCase().contains("rv:11")) {
+            ie = Boolean.TRUE;
         } else {
-        	ie = Boolean.FALSE;
+            ie = Boolean.FALSE;
         }
         return ie.booleanValue();
     }
@@ -215,8 +217,8 @@ public class SessionBean implements Serializable {
     }
 
     protected HttpServletRequest getRequest() {
-        return (HttpServletRequest) FacesContext
-                .getCurrentInstance().getExternalContext().getRequest();
+        return (HttpServletRequest) FacesContext.getCurrentInstance()
+                .getExternalContext().getRequest();
     }
 
     public int getNavWidth() {
@@ -239,7 +241,8 @@ public class SessionBean implements Serializable {
         return new TableHeightMap(navHeight, isIe());
     }
 
-    public void setSelectedTechnicalServiceKey(long selectedTechnicalServiceKey) {
+    public void setSelectedTechnicalServiceKey(
+            long selectedTechnicalServiceKey) {
         this.selectedTechnicalServiceKey = selectedTechnicalServiceKey;
     }
 
@@ -347,12 +350,13 @@ public class SessionBean implements Serializable {
                     // store the service key in a temporary cookie in order to
                     // be able to continue a subscription in case of a possible
                     // session timeout
-                    JSFUtils.setCookieValue(JSFUtils.getRequest(),
-                            httpResponse, Constants.REQ_PARAM_SERVICE_KEY,
+                    JSFUtils.setCookieValue(JSFUtils.getRequest(), httpResponse,
+                            Constants.REQ_PARAM_SERVICE_KEY,
                             URLEncoder.encode(
                                     Long.valueOf(selectedServiceKeyForCustomer)
                                             .toString(),
-                                    Constants.CHARACTER_ENCODING_UTF8), -1);
+                                    Constants.CHARACTER_ENCODING_UTF8),
+                            -1);
                 }
             } catch (SaaSSystemException e) {
                 // Faces context is not initialized, just return
@@ -368,8 +372,8 @@ public class SessionBean implements Serializable {
         String marketplaceBrandUrl = brandUrlMidMapping.get(getMarketplaceId());
         if (marketplaceBrandUrl == null) {
             try {
-                marketplaceBrandUrl = getMarketplaceService().getBrandingUrl(
-                        getMarketplaceId());
+                marketplaceBrandUrl = getMarketplaceService()
+                        .getBrandingUrl(getMarketplaceId());
                 if (marketplaceBrandUrl == null) {
                     marketplaceBrandUrl = getWhiteLabelBrandingUrl();
                 }
@@ -386,8 +390,7 @@ public class SessionBean implements Serializable {
     }
 
     public String getMarketplaceTrackingCode() {
-        return trackingCodeMapping
-                .get(getMarketplaceId());
+        return trackingCodeMapping.get(getMarketplaceId());
     }
 
     public void setMarketplaceTrackingCode(String marketplaceTrackingCode) {
@@ -416,12 +419,12 @@ public class SessionBean implements Serializable {
      */
     public boolean isErrorMessageDuplicate() {
         FacesContext fc = FacesContext.getCurrentInstance();
-        String errorKey = (String) getRequest().getAttribute(
-                Constants.REQ_ATTR_ERROR_KEY);
+        String errorKey = (String) getRequest()
+                .getAttribute(Constants.REQ_ATTR_ERROR_KEY);
         List<Object> params = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            Object param = getRequest().getAttribute(
-                    Constants.REQ_ATTR_ERROR_PARAM + i);
+            Object param = getRequest()
+                    .getAttribute(Constants.REQ_ATTR_ERROR_PARAM + i);
             if (param != null) {
                 params.add(param);
             }
@@ -436,9 +439,9 @@ public class SessionBean implements Serializable {
 
     protected MarketplaceService getMarketplaceService() {
         if (marketplaceService == null) {
-            marketplaceService = ServiceAccess.getServiceAcccessFor(
-                    JSFUtils.getRequest().getSession()).getService(
-                    MarketplaceService.class);
+            marketplaceService = ServiceAccess
+                    .getServiceAcccessFor(JSFUtils.getRequest().getSession())
+                    .getService(MarketplaceService.class);
         }
         return marketplaceService;
     }
@@ -518,5 +521,14 @@ public class SessionBean implements Serializable {
 
     public void setSelectedUserIdToEdit(String selectedUserIdToEdit) {
         this.selectedUserIdToEdit = selectedUserIdToEdit;
+    }
+
+    public PriceModel getSelectedExternalPriceModel() {
+        return selectedExternalPriceModel;
+    }
+
+    public void setSelectedExternalPriceModel(
+            PriceModel selectedExternalPriceModel) {
+        this.selectedExternalPriceModel = selectedExternalPriceModel;
     }
 }

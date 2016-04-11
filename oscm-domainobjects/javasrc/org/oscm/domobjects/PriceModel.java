@@ -17,8 +17,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
@@ -29,6 +31,8 @@ import javax.persistence.OrderBy;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.internal.types.enumtypes.PriceModelType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
+
+import org.hibernate.annotations.Type;
 
 /**
  * PriceModel is the base class for the price models provided by the platform.
@@ -75,7 +79,11 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "priceModel", fetch = FetchType.LAZY)
     @OrderBy
     private List<SteppedPrice> steppedPrices = new ArrayList<SteppedPrice>();
-
+    
+    @Column(name = "uuid")
+    @Type(type = "uuid-char")
+    private UUID uuid;
+    
     public PriceModel() {
         super();
         dataContainer = new PriceModelData();
@@ -97,6 +105,8 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
         setPricePerPeriod(src.getPricePerPeriod());
         setPricePerUserAssignment(src.getPricePerUserAssignment());
         setOneTimeFee(src.getOneTimeFee());
+        setExternal(src.isExternal());
+        setUuid(src.getUuid());
     }
 
     public List<PricedEvent> getConsideredEvents() {
@@ -163,7 +173,8 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
     }
 
     public boolean isChargeable() {
-        return dataContainer.getType() != PriceModelType.FREE_OF_CHARGE;
+        PriceModelType pmType = dataContainer.getType();
+        return pmType != PriceModelType.FREE_OF_CHARGE && pmType != PriceModelType.UNKNOWN;
     }
 
     public Product getProduct() {
@@ -224,6 +235,14 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
     public void setOneTimeFee(BigDecimal oneTimeFee) {
         dataContainer.setOneTimeFee(oneTimeFee);
     }
+    
+    public void setExternal(boolean external) {
+        dataContainer.setExternal(external);
+    }
+
+    public boolean isExternal() {
+        return dataContainer.isExternal();
+    }
 
     public SupportedCurrency getCurrency() {
         return currency;
@@ -257,12 +276,21 @@ public class PriceModel extends DomainObjectWithHistory<PriceModelData> {
     public List<SteppedPrice> getSteppedPrices() {
         return steppedPrices;
     }
+    
+    public UUID getUuid() {
+        return this.uuid;
+    }
 
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
+    
     @Override
     String toStringAttributes() {
         return String
-                .format(", isChargeable='%s', currency='%s', oneTimeFee='%s', pricePerPeriod='%s', pricePerUser='%s'",
-                        Boolean.valueOf(getType() != PriceModelType.FREE_OF_CHARGE),
+                .format(", isExternal='%s', isChargeable='%s', currency='%s', oneTimeFee='%s', pricePerPeriod='%s', pricePerUser='%s'",
+                        Boolean.valueOf(isExternal()),
+                        Boolean.valueOf(isChargeable()),
                         getCurrency(), getOneTimeFee(), getPricePerPeriod(),
                         getPricePerUserAssignment());
     }

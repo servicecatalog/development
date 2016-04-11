@@ -81,7 +81,47 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.tables.Pagination;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OperationStatus;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterModificationType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.PerformanceHint;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
+import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VORoleDefinition;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceOperationParameter;
+import org.oscm.internal.vo.VOServiceOperationParameterValues;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
+import org.oscm.internal.vo.VOTechnicalServiceOperation;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.notification.vo.VONotification;
+import org.oscm.notification.vo.VOProperty;
+import org.oscm.operation.data.OperationResult;
 import org.oscm.permission.PermissionCheck;
+import org.oscm.provisioning.data.User;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
 import org.oscm.serviceprovisioningservice.assembler.TechServiceOperationParameterAssembler;
@@ -130,44 +170,6 @@ import org.oscm.validation.PaymentDataValidator;
 import org.oscm.validator.ADMValidator;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.tables.Pagination;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OperationStatus;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterModificationType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.PerformanceHint;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
-import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceOperationParameter;
-import org.oscm.internal.vo.VOServiceOperationParameterValues;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOSubscriptionIdAndOrganizations;
-import org.oscm.internal.vo.VOTechnicalServiceOperation;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserSubscription;
-import org.oscm.notification.vo.VONotification;
-import org.oscm.notification.vo.VOProperty;
-import org.oscm.operation.data.OperationResult;
-import org.oscm.provisioning.data.User;
 
 /**
  * Session Bean implementation class of SubscriptionService (Remote IF) and
@@ -585,6 +587,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
             // is still in PENDING, but must be fitered for billing. Set the
             // indicating flag before persisting.
             theProduct.getPriceModel().setProvisioningCompleted(false);
+            if(theProduct.getPriceModel().isExternal()){
+                newSub.setExternal(true);
+            }
         }
 
         // to avoid id conflicts in high load scenarios add customer
@@ -594,6 +599,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         theProduct.setOwningSubscription(null);
         // subscription copies do not have/need a CatalogEntry
         theProduct.setCatalogEntries(new ArrayList<CatalogEntry>());
+
         try {
             dataManager.persist(theProduct);
         } catch (NonUniqueBusinessKeyException e) {
@@ -2055,12 +2061,22 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public VOSubscriptionDetails getSubscriptionDetails(long subscriptionKey)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         Subscription subscription = manageBean.checkSubscriptionOwner(null,
                 subscriptionKey);
 
+        return getSubscriptionDetails(subscription);
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(long subscriptionKey) throws ObjectNotFoundException {
+        Subscription subscription = manageBean.loadSubscription(null, subscriptionKey);
         return getSubscriptionDetails(subscription);
     }
 

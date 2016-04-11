@@ -12,7 +12,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.converter.strategy.ConversionStrategy;
 import org.oscm.vo.VOUser;
 
-public class ToExtUserStrategy implements
+public class ToExtUserStrategy extends AbstractConversionStrategy implements
         ConversionStrategy<PlatformUser, VOUser> {
 
     @Override

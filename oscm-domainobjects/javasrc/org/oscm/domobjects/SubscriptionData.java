@@ -114,6 +114,9 @@ public class SubscriptionData extends DomainDataContainer implements
      */
     @Transient
     private String successMessage;
+    
+    @Column(nullable = false)
+    private boolean external;
 
     public String getSubscriptionId() {
         return subscriptionId;
@@ -219,4 +222,11 @@ public class SubscriptionData extends DomainDataContainer implements
         this.successMessage = successMessage;
     }
 
+    public void setExternal(boolean external) {
+        this.external = external;
+    }
+
+    public boolean isExternal() {
+        return external;
+    }
 }

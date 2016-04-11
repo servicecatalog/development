@@ -20,6 +20,7 @@ import static org.mockito.Mockito.spy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Query;
 
@@ -59,6 +60,7 @@ import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOUda;
@@ -176,10 +178,12 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
 
         partnerTemplate = productTemplate.copyForResale(resellerOrg);
         partnerTemplate.setKey(PARTNER_TEMPLATE_KEY);
-
+        partnerTemplate.setPriceModel(templatePriceModel);
+        
         service = new VOService();
         service.setKey(PARTNER_TEMPLATE_KEY);
         service.setServiceId("serviceId");
+        
         subscription = new VOSubscription();
         subscription.setSubscriptionId(SUBSCRIPTION_ID);
         subscription.setKey(SUBSCRIPTION_KEY);

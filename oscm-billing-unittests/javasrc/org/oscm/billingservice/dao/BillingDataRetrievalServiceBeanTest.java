@@ -212,6 +212,7 @@ public class BillingDataRetrievalServiceBeanTest {
                 startDate, endDate);
 
         // then
+        verify(query).setParameter(eq("external"), eq(true));
         verify(query).setParameter(eq("startDate"), eq(new Date(startDate)));
         verify(query).setParameter(eq("endDate"), eq(new Date(endDate)));
         verify(query)

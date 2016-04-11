@@ -20,6 +20,7 @@ import javax.persistence.Query;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Product;
 import org.oscm.domobjects.UnitRoleAssignment;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UserGroup;
@@ -229,6 +230,30 @@ public class UserGroupDao {
 
         unitRoleAssignment.setUnitUserRole(groupWithRoles.getValue());
         return (UnitRoleAssignment) dm.merge(unitRoleAssignment);
+    }
+
+    public List<Product> getAccessibleServices(String unitId, Pagination pagination, String marketplaceId) {
+        Query query = dm
+                .createNamedQuery("UserGroup.findAccessibleServices");
+        query.setParameter("userGroupKey", Long.valueOf(unitId));
+        query.setParameter("marketplaceKey", Long.valueOf(marketplaceId));
+        query.setFirstResult(pagination.getOffset());
+        query.setMaxResults(pagination.getLimit());
+        List<Product> accessibleProducts = ParameterizedTypes.list(
+                query.getResultList(), Product.class);
+        return accessibleProducts;
+    }
+
+    public List<Product> getVisibleServices(String unitId, Pagination pagination, String marketplaceId) {
+        Query query = dm
+                .createNamedQuery("UserGroup.findVisibleServices");
+        query.setParameter("userGroupKey", Long.valueOf(unitId));
+        query.setParameter("marketplaceKey", Long.valueOf(marketplaceId));
+        query.setFirstResult(pagination.getOffset());
+        query.setMaxResults(pagination.getLimit());
+        List<Product> visibleProducts = ParameterizedTypes.list(
+                query.getResultList(), Product.class);
+        return visibleProducts;
     }
 
     private UnitRoleAssignment getRoleAssignmentByUserAndGroupOrNew(

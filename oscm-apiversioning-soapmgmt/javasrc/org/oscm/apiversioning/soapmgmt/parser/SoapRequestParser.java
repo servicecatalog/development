@@ -27,7 +27,7 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class SoapRequestParser {
 
-    private static final String VERSION = "ctmg.service.version";
+    private static final String VERSION = "cm.service.version";
 
     public static String parseApiVersion(SOAPMessageContext context)
             throws SOAPException {
@@ -115,5 +115,22 @@ public class SoapRequestParser {
 
         throw new SOAPException("Soap message param " + paramName
                 + " not found.");
+    }
+    
+    public static SOAPBodyElement getChildNode(SOAPBodyElement element, String name) throws SOAPException {
+
+        @SuppressWarnings("unchecked")
+        Iterator<SOAPBodyElement> elements = element.getChildElements();
+
+        while (elements.hasNext()) {
+            SOAPBodyElement childNode = elements.next();
+
+            if (childNode.getNodeName().contains(name)) {
+                return childNode;
+            }
+        }
+
+        throw new SOAPException(
+                "Child element: " + name + " not found.");
     }
 }

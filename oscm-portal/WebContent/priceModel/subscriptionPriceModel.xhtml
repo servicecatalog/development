@@ -62,7 +62,18 @@ subscription.view.step.serviceDetails
 
         <adm:outputStep value="#{msg['priceModel.subscription.define.title']}" />
 
-        <ui:include src="priceModelDescription.xhtml" />
+        <a4j:outputPanel id="internalPriceModel" layout="block"
+          rendered="#{not priceModelBean.selectedService.technicalService.externalBilling}">
+          <ui:include src="priceModelDescription.xhtml" />
+        </a4j:outputPanel>
+
+        <a4j:outputPanel id="externalPriceModel" layout="block"
+          rendered="#{priceModelBean.selectedService !=null and priceModelBean.selectedService.technicalService.externalBilling}">
+          <ui:include src="externalServicePriceModel.xhtml">
+            <ui:param name="billingId" value="#{priceModelBean.selectedService.technicalService.billingIdentifier}" />
+            <ui:param name="priceModelCtrl" value="#{externalSubscriptionPriceModelCtrl}" />
+          </ui:include>
+        </a4j:outputPanel>
 
         <h:inputHidden id="steppedPriceIndex" value="#{steppedPriceBean.index}" />
         <h:inputHidden id="steppedPriceType" value="#{steppedPriceBean.type}" />

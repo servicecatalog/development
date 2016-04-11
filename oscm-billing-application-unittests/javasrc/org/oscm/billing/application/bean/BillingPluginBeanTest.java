@@ -33,7 +33,7 @@ import org.oscm.internal.types.exception.BillingApplicationException;
 
 public class BillingPluginBeanTest {
 
-    private static final String BILLING_ID = "FileBilling";
+    private static final String BILLING_ID = "FILE_BILLING";
 
     private BillingPluginBean billingApplServLocal;
     BillingPluginProxy billingPluginProxy;

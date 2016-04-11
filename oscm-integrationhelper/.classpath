@@ -20,5 +20,6 @@
   <classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-proxy" />
   <classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-client-handler" />
   <classpathentry combineaccessrules="false" kind="src" path="/oscm-common" />
+  <classpathentry kind="lib" path="/libraries/apache-commons-lang/javalib/commons-lang3-3.1.jar"/>
   <classpathentry kind="output" path="bin" />
 </classpath>

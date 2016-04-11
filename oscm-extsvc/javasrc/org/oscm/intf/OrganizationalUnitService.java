@@ -1,8 +1,6 @@
 /*******************************************************************************
  *
- *  Copyright FUJITSU LIMITED 2016??????????????????????????????????????????????????????????????????????????????????????
- * ??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
- *  Creation Date: 20.07.15 16:09
+ *  Copyright FUJITSU LIMITED 2016
  *
  *******************************************************************************/
 
@@ -25,6 +23,7 @@ import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
 import org.oscm.vo.VOOrganizationalUnit;
+import org.oscm.vo.VOService;
 import org.oscm.vo.VOUser;
 
 /**
@@ -53,11 +52,11 @@ public interface OrganizationalUnitService {
     @WebMethod(operationName = "grantUserRolesInUnit")
     @RequestWrapper(className = "grantUserRolesRequest")
     @ResponseWrapper(className = "grantUserRolesResponse")
-    void grantUserRoles(
-            @WebParam(name = "user") VOUser user,
+    void grantUserRoles(@WebParam(name = "user") VOUser user,
             @WebParam(name = "roles") List<UnitRoleType> roles,
             @WebParam(name = "organizationalUnit") VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException;
 
     /**
      * Revokes roles from user in unit. If user does not have roles, nothing
@@ -78,11 +77,11 @@ public interface OrganizationalUnitService {
     @WebMethod(operationName = "revokeUserRolesInUnit")
     @RequestWrapper(className = "revokeUserRolesRequest")
     @ResponseWrapper(className = "revokeUserRolesResponse")
-    void revokeUserRoles(
-            @WebParam(name = "user") VOUser user,
+    void revokeUserRoles(@WebParam(name = "user") VOUser user,
             @WebParam(name = "roles") List<UnitRoleType> roles,
             @WebParam(name = "organizationalUnit") VOOrganizationalUnit organizationalUnit)
-            throws ObjectNotFoundException, OperationNotPermittedException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException;
 
     /**
      * Returns organizational units existing in the organization of the calling
@@ -119,7 +118,7 @@ public interface OrganizationalUnitService {
             @WebParam(name = "unitName") String unitName,
             @WebParam(name = "description") String description,
             @WebParam(name = "referenceId") String referenceId)
-            throws NonUniqueBusinessKeyException;
+                    throws NonUniqueBusinessKeyException;
 
     /**
      * Deletes organizational unit in organization of the calling user.
@@ -138,6 +137,142 @@ public interface OrganizationalUnitService {
     @WebMethod
     void deleteUnit(
             @WebParam(name = "organizationalUnitName") String organizationalUnitName)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            DeletionConstraintException, MailOperationException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException, DeletionConstraintException,
+                    MailOperationException;
+
+    /**
+     * Returns list of visible services for the specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * Returned services have status ACTIVE or SUSPENDED.
+     *
+     * @param unitId
+     *            - Id of the unit for which we get the services
+     * @param pagination
+     *            - Sorting, filtering, paging details
+     * @param marketplaceId
+     *            - Id of the marketplace to which the services are registered
+     *            - If left empty, takes default value of 0,0 (offset, limit)
+     * @return - List of visible services
+     *         - Empty list if the values of unitId or marketplaceId do not exists
+     *           in the underlying database
+     */
+    @WebMethod
+    List<VOService> getVisibleServices(@WebParam(name = "unitId") String unitId,
+            @WebParam(name = "pagination") Pagination pagination,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    /**
+     * Returns list of accessible services for the specified organizational unit.
+     *
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * Returned services have status ACTIVE or SUSPENDED.
+     *
+     * @param unitId
+     *            - Id of the unit for which we get the services
+     * @param pagination
+     *            - Sorting, filtering, paging details
+     *            - If left empty, takes default value of 0,0 (offset, limit)
+     * @param marketplaceId
+     *            - Id of the marketplace to which the services are registered
+     * @return - List of accessible services
+     *         - Empty list if the values of unitId or marketplaceId do not exists
+     *           in the underlying database
+     */
+    @WebMethod
+    List<VOService> getAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "pagination") Pagination pagination,
+            @WebParam(name = "marketplaceId") String marketplaceId);
+
+    /**
+     * Sets the services as visible for the administrators of the
+     * specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * If any of the provided service IDs does not exist as invisible in the underlying
+     * database, it is ignored.
+     *
+     * @param unitId
+      *           - Id of the unit for which the services will be set
+     *              as visible
+     * @param visibleServices
+     *            - Keys of the services which will be set as visible
+     */
+    @WebMethod
+    void addVisibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<String> visibleServices);
+
+    /**
+     * Sets the services as not visible for the administrators of the
+     * specified organizational unit.
+     *
+     * Visible services are these which are visible for organization admin
+     * and unit admin, however they are hidden from regular marketplace users.
+     *
+     * If any of the provided service IDs does not exist as visible in the underlying
+     * database, it is ignored.
+     *
+     * @param unitId
+     *           - Id of the unit for which the services will be set
+     *             as not visible
+     * @param visibleServices
+     *           - Keys of the services which will be set as not visible
+     */
+    @WebMethod
+    void revokeVisibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<String> visibleServices);
+
+    /**
+     * Sets the services as accessible for the specified organizational unit users.
+     *
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * If any of the provided service IDs does not exist as inaccessible in the underlying
+     * database, it is ignored.
+     *
+     * @param unitId
+     *           - Id of the unit for which the services will be set
+     *             as not accessible
+     * @param accessibleServices
+     *           - Keys of the services which will be set as accessible
+     */
+    @WebMethod
+    void addAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<String> accessibleServices);
+
+    /**
+     * Sets the services as not accessible for the specified organizational unit users.
+     *
+     * Accessible services are these which are visible for organization admin
+     * and unit admin, and also for the regular marketplace users.
+     * They are not hidden by either organization admin or unit admin.
+     *
+     * If any of the provided service IDs does not exist as accessible in the underlying
+     * database, it is ignored.
+     *
+     * @param unitId
+     *           - Id of the unit for which the services will be set
+     *              as not visible
+     * @param accessibleServices
+     *           - Keys of the services which will be set as not accessible
+     */
+    @WebMethod
+    void revokeAccessibleServices(
+            @WebParam(name = "unitId") String unitId,
+            @WebParam(name = "services") List<String> accessibleServices);
+
 }

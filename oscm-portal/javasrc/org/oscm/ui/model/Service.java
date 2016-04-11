@@ -2,11 +2,11 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                             
  *                                                                              
- *  Author: pock                                                      
+ *  Author: pock                                                                
  *                                                                              
- *  Creation Date: 18.02.2009                                                      
+ *  Creation Date: 18.02.2009                                                   
  *                                                                              
- *  Completion Time: 18.05.2011                                              
+ *  Completion Time: 18.05.2011                                                 
  *                                                                              
  *******************************************************************************/
 package org.oscm.ui.model;
@@ -16,11 +16,17 @@ import java.math.BigDecimal;
 import java.util.Currency;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+
+import javax.faces.context.FacesContext;
 
 import org.oscm.converter.PriceConverter;
+import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DisplayData;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.RatingCssMapper;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelException;
+import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.types.enumtypes.OfferingType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
@@ -34,7 +40,7 @@ import org.oscm.internal.vo.VOServiceEntry;
  * Wrapper Class for VOService which holds additional view attributes.
  * 
  */
-public class Service implements Serializable {
+public class Service extends BaseBean implements Serializable {
 
     private final static long serialVersionUID = 1L;
     private final static int MAX_LEN_LIMITED_SHORT_DESCRIPTION = 120;
@@ -371,11 +377,12 @@ public class Service implements Serializable {
 
     private void initPriceText() {
         if (vo.getAccessType() == ServiceAccessType.EXTERNAL) {
-            priceText = JSFUtils.getText("priceModel.text.external",
-                    new Object[0]);
-        } else {
-            String[] text = getPriceText(getPriceModel().getVo());
-            priceText = text[0];
+            priceText = JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_EXTERNAL, null);
+            return;
+        }
+        String[] text = getPriceText(getPriceModel().getVo());
+        priceText = text[0];
+        if (text.length > 1) {
             priceUnitText = text[1];
         }
     }
@@ -387,45 +394,66 @@ public class Service implements Serializable {
      *            the price model to get the price
      * @return the price text
      */
-    public static final String[] getPriceText(VOPriceModel priceModel) {
-        String[] result = new String[3];
-        result[0] = JSFUtils.getText("priceModel.text.free", new Object[0]);
-        result[1] = "";
-        result[2] = "";
-        if (priceModel.isChargeable()) {
-            if (priceModel.getPricePerPeriod().compareTo(BigDecimal.ZERO) > 0) {
-                result[0] = JSFUtils
-                        .getText(
-                                "priceModel.text.price",
-                                new Object[] {
-                                        getCurrencySymbol(priceModel),
-                                        getDisplayPrice(priceModel
-                                                .getPricePerPeriod()) });
-                result[1] = JSFUtils.getText("priceModel.text.perSubscription",
-                        new Object[] { getPeriodText(priceModel.getPeriod()) });
-            } else if (priceModel.getPricePerUserAssignment().compareTo(
-                    BigDecimal.ZERO) > 0) {
-                result[0] = JSFUtils.getText(
-                        "priceModel.text.price",
-                        new Object[] {
-                                getCurrencySymbol(priceModel),
-                                getDisplayPrice(priceModel
-                                        .getPricePerUserAssignment()) });
-                result[1] = JSFUtils.getText("priceModel.text.perUser",
-                        new Object[] { getPeriodText(priceModel.getPeriod()) });
-            } else if (priceModel.getOneTimeFee().compareTo(BigDecimal.ZERO) > 0) {
-                result[0] = JSFUtils.getText("priceModel.text.price",
-                        new Object[] { getCurrencySymbol(priceModel),
-                                getDisplayPrice(priceModel.getOneTimeFee()) });
-            } else {
-                result[0] = JSFUtils.getText("priceModel.text.seeDetails",
-                        new Object[0]);
-            }
+    String[] getPriceText(VOPriceModel priceModel) {
+        if (priceModel.isExternal()) {
+            return getPriceTextExternal(priceModel);
+        }
+        return getPriceTextNative(priceModel);
+    }
+
+    String[] getPriceTextExternal(VOPriceModel priceModel) {
+        String[] result = new String[1];
+        ExternalPriceModelService service = getExternalPriceModelService();
+        Locale locale = getLocale();
+        try {
+            result[0] = service.getCachedPriceModelTag(locale, priceModel.getUuid());
+        } catch (ExternalPriceModelException e) {
+            result[0] = "";
+        }
+        return result;
+    }
+
+    Locale getLocale() {
+        return FacesContext.getCurrentInstance().getViewRoot().getLocale();
+    }
+
+    String[] getPriceTextNative(VOPriceModel priceModel) {
+        String[] result = new String[] {
+                JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_FREE, null), "", "" };
+
+        if (priceModel.isFree()) {
+            result[2] = result[0];
+            return result;
+        }
+
+        if (priceModel.isPricePerPeriodSet()) {
+            result[0] = JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_PRICE,
+                    new Object[] { getCurrencySymbol(priceModel),
+                            getDisplayPrice(priceModel.getPricePerPeriod()) });
+            result[1] = JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_PER_SUB,
+                    new Object[] { getPeriodText(priceModel.getPeriod()) });
+        } else if (priceModel.isPricePerUserAssignmentSet()) {
+            result[0] = JSFUtils.getText(
+                    BaseBean.LABEL_PRICE_MODEL_PRICE,
+                    new Object[] {
+                            getCurrencySymbol(priceModel),
+                            getDisplayPrice(priceModel
+                                    .getPricePerUserAssignment()) });
+            result[1] = JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_PER_USER,
+                    new Object[] { getPeriodText(priceModel.getPeriod()) });
+        } else if (priceModel.isOneTimeFeeSet()) {
+            result[0] = JSFUtils.getText(BaseBean.LABEL_PRICE_MODEL_PRICE,
+                    new Object[] { getCurrencySymbol(priceModel),
+                            getDisplayPrice(priceModel.getOneTimeFee()) });
+        } else {
+            result[0] = JSFUtils.getText(
+                    BaseBean.LABEL_PRICE_MODEL_SEE_DETAILS, new Object[0]);
         }
         if (result[1].trim().length() > 0) {
             // when both price and unit are set, provide combined string as well
-            result[2] = JSFUtils.getText("priceModel.text.combinePriceAndUnit",
-                    new Object[] { result[0], result[1] });
+            result[2] = JSFUtils.getText(
+                    BaseBean.LABEL_PRICE_MODEL_PRICE_AND_UNIT, new Object[] {
+                            result[0], result[1] });
         } else {
             result[2] = result[0];
         }
@@ -550,7 +578,7 @@ public class Service implements Serializable {
 
     public boolean isSupplierOrBroker() {
         OfferingType offeringType = vo.getOfferingType();
-        return (offeringType == OfferingType.DIRECT || offeringType == OfferingType.BROKER);
+        return offeringType == OfferingType.DIRECT || offeringType == OfferingType.BROKER;
     }
 
 }

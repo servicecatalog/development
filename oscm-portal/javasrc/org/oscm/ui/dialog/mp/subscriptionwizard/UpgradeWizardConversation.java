@@ -606,6 +606,7 @@ public class UpgradeWizardConversation implements Serializable {
      * Navigation section
      */
     public String next() {
+        model.setReadOnlyParams(true);
         return BaseBean.OUTCOME_SERVICE_SUBSCRIBE;
     }
 
@@ -618,10 +619,16 @@ public class UpgradeWizardConversation implements Serializable {
         if(model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
         }
+        if (OUTCOME_SUCCESS.equals(resultNav)) {
+            conversation.end();
+        }
+
+        model.setReadOnlyParams(false);
         return resultNav;
     }
 
     public String gotoConfiguration() {
+        model.setReadOnlyParams(false);
         return OUTCOME_PREVIOUS;
     }
 

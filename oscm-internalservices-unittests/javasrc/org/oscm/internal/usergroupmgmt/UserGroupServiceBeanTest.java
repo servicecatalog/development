@@ -34,11 +34,14 @@ import org.junit.Test;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.assembler.POUserGroupAssembler;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usermanagement.POUser;
 import org.oscm.internal.usermanagement.POUserInUnit;
@@ -178,6 +181,28 @@ public class UserGroupServiceBeanTest {
         // when
         userGroupService.updateGroup(preparePOUserGroup(0l), MARKETPLACEID,
                 preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
+    }
+
+    //Bug-12657
+    @Test
+    public void updateGroup_nullInvisibleServices() throws Exception {
+        // given
+        POUserGroup poUserGroup = preparePOUserGroup(123L);
+        poUserGroup.setInvisibleProducts(null);
+        final UserGroup userGroup = POUserGroupAssembler.toUserGroup(poUserGroup);
+        doReturn(userGroup).when(userGroupServiceLocal)
+                .getUserGroupDetails(anyLong());
+        doReturn(null).when(userGroupService).getInvisibleProducts(anyLong());
+        // when
+        userGroupService.updateGroup(poUserGroup, MARKETPLACEID,
+                preparePOUserInUnitList(1), preparePOUserInUnitList(2), preparePOUserInUnitList(1));
+        // then
+        verify(userGroupServiceLocal, times(1)).updateUserGroup(
+                any(UserGroup.class), anyListOf(Product.class),
+                anyListOf(Product.class), anyString(),
+                anyMap(),
+                anyListOf(PlatformUser.class),
+                anyMap());
     }
 
     @Test

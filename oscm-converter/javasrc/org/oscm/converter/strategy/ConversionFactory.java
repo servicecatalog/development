@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.oscm.converter.utils.Pair;
+import org.oscm.dataservice.local.DataService;
 
 /**
  * Factory used to return conversion strategy to convert object from one type to
@@ -98,6 +99,34 @@ public class ConversionFactory {
 
         return (ConversionStrategy<From, To>) REGISTRY
                 .get(new Pair<Class<?>, Class<?>>(from, to));
+    }
+
+    /**
+     * Returns converter assigned to class to class mapping If not converter is
+     * found throws {@link UnsupportedOperationException}
+     *
+     * @param from
+     *            - Class that should be converter
+     * @param to
+     *            - Class that should be result of conversion
+     * @param <From>
+     * @param <To>
+     * @return - ConversionStrategy if supported class to class mapping is
+     *         found.
+     */
+    public static <From, To> ConversionStrategy<From, To> getConverter(
+            Class<From> from, Class<To> to, DataService dataService) {
+
+        if (!isRegistered(from, to)) {
+            throw new UnsupportedOperationException("Class mapping "
+                    + from.getName() + " -> " + to.getName()
+                    + " not supported.");
+        }
+
+        final ConversionStrategy<From, To> strategy = (ConversionStrategy<From, To>) REGISTRY
+                .get(new Pair<Class<?>, Class<?>>(from, to));
+        strategy.setDataService(dataService);
+        return strategy;
     }
 
 }

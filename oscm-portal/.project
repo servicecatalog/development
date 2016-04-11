@@ -3,6 +3,7 @@
 	<name>oscm-portal</name>
 	<comment></comment>
 	<projects>
+		<project>oscm-billing-external-interfaces</project>
 		<project>oscm-common</project>
 		<project>oscm-extsvc-internal</project>
 		<project>oscm-internal</project>

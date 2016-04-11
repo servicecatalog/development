@@ -47,6 +47,7 @@
     <class>org.oscm.domobjects.PublicLandingpageData</class>
     <class>org.oscm.domobjects.LandingpageProduct</class>
     <class>org.oscm.domobjects.LandingpageProductData</class>
+    <class>org.oscm.domobjects.LocalizedBillingResource</class>
     <class>org.oscm.domobjects.ModifiedEntity</class>
     <class>org.oscm.domobjects.ModifiedEntityData</class>
     <class>org.oscm.domobjects.ModifiedEntityHistory</class>

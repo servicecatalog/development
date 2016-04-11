@@ -42,6 +42,7 @@ import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "TriggerProcess.getAllForOrganization", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.organization.key = :organizationKey ORDER BY o.dataContainer.activationDate DESC"),
+        @NamedQuery(name = "TriggerProcess.getAllForOrganizationRelatedSubscription", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.organization.key = :organizationKey AND o.triggerDefinition.dataContainer.type IN ('MODIFY_SUBSCRIPTION', 'SUBSCRIBE_TO_SERVICE', 'SAVE_PAYMENT_CONFIGURATION', 'UNSUBSCRIBE_FROM_SERVICE', 'UPGRADE_SUBSCRIPTION', 'ADD_REVOKE_USER')"),
         @NamedQuery(name = "TriggerProcess.getAllForUser", query = "SELECT o FROM TriggerProcess o WHERE o.user.key = :userKey AND o.triggerDefinition.organization.key = :organizationKey ORDER BY o.dataContainer.activationDate DESC"),
         @NamedQuery(name = "TriggerProcess.getAllForTriggerDefinition", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.key = :triggerDefinitionKey ORDER BY o.dataContainer.activationDate DESC"),
         @NamedQuery(name = "TriggerProcess.getAllForTriggerDefinitionWithStatus", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.key = :triggerDefinitionKey AND o.dataContainer.status IN (:triggerProcessStatus) ORDER BY o.dataContainer.activationDate DESC") })

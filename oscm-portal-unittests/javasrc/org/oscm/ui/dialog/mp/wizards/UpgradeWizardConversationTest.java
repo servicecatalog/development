@@ -273,6 +273,16 @@ public class UpgradeWizardConversationTest {
     }
 
     @Test
+    public void testNext() {
+        // given
+        model.setReadOnlyParams(false);
+        // when
+        bean.next();
+        // then
+        assertTrue(model.isReadOnlyParams());
+    }
+
+    @Test
     public void initializeSubscription_Bug10481_Admin() throws Exception {
         // given
 

@@ -251,8 +251,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
-        container.addBean(new BillingAdapterLocalBean());
-        container.addBean(new ServiceProvisioningServiceBean());
+        container.addBean(new BillingAdapterLocalBean());      
         container.addBean(new AccountServiceStub());
         container.addBean(new CategorizationServiceStub() {
             @Override
@@ -261,9 +260,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 return true;
             }
         });
-        container.addBean(new ServiceProvisioningPartnerServiceLocalBean());
-        container.addBean(new MarketplaceServiceLocalBean());
-        container.addBean(new MarketplaceServiceBean());
+        
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new SubscriptionUtilBean());
         container.addBean(new ModifyAndUpgradeSubscriptionBean());
@@ -274,6 +271,10 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new OperationRecordServiceLocalBean());
         container.addBean(mock(SubscriptionSearchService.class));
         container.addBean(new SubscriptionServiceBean());
+        container.addBean(new ServiceProvisioningServiceBean());
+        container.addBean(new ServiceProvisioningPartnerServiceLocalBean());
+        container.addBean(new MarketplaceServiceLocalBean());
+        container.addBean(new MarketplaceServiceBean());
         container.addBean(new ProductReviewDao());
         container.addBean(new ReviewServiceLocalBean());
         container.addBean(new LdapSettingsManagementServiceBean());

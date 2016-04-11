@@ -24,6 +24,7 @@ import javax.faces.bean.ViewScoped;
 import org.oscm.ui.common.RolePriceHandler;
 import org.oscm.ui.common.SteppedPriceComparator;
 import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalSubscriptionPriceModelCtrl;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Discount;
 import org.oscm.ui.model.PricedEventRow;
@@ -41,6 +42,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscription;
 import org.oscm.internal.vo.VOSubscriptionDetails;
@@ -83,14 +85,16 @@ public class SubscriptionViewBean implements Serializable {
     private List<UdaRow> defaultSubscriptionUdaRows;
     private String terminationReason;
 
+    @ManagedProperty(value = "#{externalSubscriptionPriceModelCtrl}")
+    private ExternalSubscriptionPriceModelCtrl extSubBean;
 
     @PostConstruct
-	public void getInitialize() {
-		initialDefaultUdaRows();
+    public void getInitialize() {
+        initialDefaultUdaRows();
         if (model.getSelectedSubscriptionAndCustomer() != null) {
             loadSelectedSubscriptionDetails();
         }
-	}
+    }
 
     public String selectSubscriptionIdAndCustomerId() {
         return loadSelectedSubscription();
@@ -99,7 +103,6 @@ public class SubscriptionViewBean implements Serializable {
     private String loadSelectedSubscription() {
         model.setSelectedSubscriptionAndCustomer(searchPoObjFromList());
         return loadSelectedSubscriptionDetails();
-
     }
 
     private POSubscriptionAndCustomer searchPoObjFromList() {
@@ -127,6 +130,12 @@ public class SubscriptionViewBean implements Serializable {
             sessionBean.setSelectedCustomerId(model.getCustomerId());
             sessionBean.setSelectedSubscriptionId(model.getSubscriptionId());
             loadSelectedSubcriptionUdasRows();
+            if (model.getSelectedSubscription() != null) {
+                VOService voService = model.getSelectedSubscription().getSubscribedService();
+                if (voService.getPriceModel().isExternal()) {
+                    getExtSubBean().reloadPriceModel(voService);
+                }
+            }
             return BaseBean.OUTCOME_SUCCESS;
         } catch (SaaSApplicationException e) {
             return errorSubscriptionNotAccessible();
@@ -399,4 +408,19 @@ public class SubscriptionViewBean implements Serializable {
         if(getSelectedSubscriptionAndCustomer() == null) return null;
         return Integer.valueOf(getSelectedSubscription().getUsageLicenses().size());
     }
+
+    /**
+     * @return the extSubBean
+     */
+    public ExternalSubscriptionPriceModelCtrl getExtSubBean() {
+        return extSubBean;
+    }
+
+    /**
+     * @param extSubBean the extSubBean to set
+     */
+    public void setExtSubBean(ExternalSubscriptionPriceModelCtrl extSubBean) {
+        this.extSubBean = extSubBean;
+    }
+    
 }

@@ -1,0 +1,20 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
+  xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:adm="http://www.fujitsu.com/global/services/software/interstage" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
+
+  <a4j:outputPanel layout="block" styleClass="button-panel-with-padding">
+    <adm:buttonCustomizedOnClick id="displayExternalPriceModelButton"
+      onclick="#{rich:element('hiddenDisplayExternalPriceModelButton')}.click()" value="#{msg['button.display']}"
+      type="submit" buttonType="#{buttonType}" disabled="#{disabled}" />
+
+    <h:commandLink id="hiddenDisplayExternalPriceModelButton" style="display: none;" value="ShowPDF"
+      action="#{controller.display}" target="_blank" />
+  </a4j:outputPanel>
+
+</ui:composition>

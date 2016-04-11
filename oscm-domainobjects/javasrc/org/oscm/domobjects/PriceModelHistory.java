@@ -80,7 +80,8 @@ public class PriceModelHistory extends DomainHistoryObject<PriceModelData> {
     }
 
     public boolean isChargeable() {
-        return dataContainer.getType() != PriceModelType.FREE_OF_CHARGE;
+        return dataContainer.getType() != PriceModelType.FREE_OF_CHARGE &&
+                dataContainer.getType() != PriceModelType.UNKNOWN;
     }
 
     public PricingPeriod getPeriod() {

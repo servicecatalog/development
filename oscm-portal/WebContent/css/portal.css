@@ -1019,7 +1019,7 @@ span.select .option.disabled{
 
 .buttonDisabled span,
 .button span {
-    padding: 2px 12px 3px 16px;
+    padding: 3px 12px 3px 16px;
     text-align:center;
 }
 .buttonFloat {
@@ -1033,7 +1033,7 @@ span.select .option.disabled{
 .buttonImg.confirm{background-position:-286px 0;}
 .buttonImg.delete{background-position:-453px 0;}
 .buttonImg.download{background-position:-94px -23px;}
-.buttonImg.edit{background-position:3px -71px;}
+.buttonImg.edit{background-position:1px -73px;}
 .buttonImg.execute{background-position:-261px -72px;}
 .buttonImg.exclude{background-position:-215px -95px;}
 .buttonImg.export{background-position:-23px -24px;}
@@ -1046,6 +1046,7 @@ span.select .option.disabled{
 .buttonImg.reset{background-position:-237px -23px;}
 .buttonImg.roles{background-position:-165px 1px;}
 .buttonImg.save{background-position:-286px 0;}
+.buttonImg.upload {background-position: -95px -22px;}
 .buttonImg.unlock{background-position:-312px -24px;}
 .buttonImg.search{background-position:-49px 0;}
 
@@ -1914,6 +1915,7 @@ div.cke_chrome{
     border-spacing: 1px;
     background: #FFF;
     width: 320px;
+    z-index:1000 !important;
 }
 #mainContainer .rf-cal-tl-btn {
     cursor: pointer;
@@ -2217,6 +2219,20 @@ form .formHighlight div.div-for-input {
     padding-left: 10px;
 }
 
+#billingAdapters .rf-ac-itm-lbl{
+	color: #ffffff;
+	font-weight:bold;
+}
+
+#billingAdapters .rf-ac-itm-cnt{
+	height:auto !important;
+}
+
+#billingAdapters *.rf-ac-itm-hdr-act {
+	cursor:default;
+}
+
 .short-button {
     width: inherit !important;
 }
+

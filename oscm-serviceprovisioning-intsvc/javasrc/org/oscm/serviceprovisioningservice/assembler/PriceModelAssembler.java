@@ -11,7 +11,9 @@ package org.oscm.serviceprovisioningservice.assembler;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.PriceModel;
+import org.oscm.domobjects.enums.LocalizedBillingResourceType;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.validator.BLValidator;
@@ -80,8 +82,11 @@ public class PriceModelAssembler extends BaseAssembler {
      * Sets the most important attributes in the transfer object. Usually, these
      * fields are required for listings.
      */
-    private static void fillBaseFields(PriceModel priceModel, VOPriceModel voPM) {
+    private static void fillBaseFields(PriceModel priceModel,
+            VOPriceModel voPM) {
+        voPM.setExternal(priceModel.isExternal());
         voPM.setType(priceModel.getType());
+        voPM.setUuid(priceModel.getUuid());
         if (priceModel.isChargeable()) {
             voPM.setPeriod(priceModel.getPeriod());
             voPM.setOneTimeFee(priceModel.getOneTimeFee());
@@ -91,11 +96,11 @@ public class PriceModelAssembler extends BaseAssembler {
             if (authType == ServiceAccessType.DIRECT) {
                 voPM.setPricePerUserAssignment(BigDecimal.ZERO);
             } else {
-                voPM.setPricePerUserAssignment(priceModel
-                        .getPricePerUserAssignment());
+                voPM.setPricePerUserAssignment(
+                        priceModel.getPricePerUserAssignment());
             }
-            voPM.setCurrencyISOCode(priceModel.getCurrency()
-                    .getCurrencyISOCode());
+            voPM.setCurrencyISOCode(
+                    priceModel.getCurrency().getCurrencyISOCode());
         }
     }
 
@@ -109,8 +114,8 @@ public class PriceModelAssembler extends BaseAssembler {
         fillBaseFields(priceModel, voPM);
         if (priceModel.isChargeable()) {
 
-            voPM.setRoleSpecificUserPrices(PricedProductRoleAssembler
-                    .toVOPricedProductRoles(
+            voPM.setRoleSpecificUserPrices(
+                    PricedProductRoleAssembler.toVOPricedProductRoles(
                             priceModel.getRoleSpecificUserPrices(), facade));
 
             // stepped pricing information
@@ -122,8 +127,8 @@ public class PriceModelAssembler extends BaseAssembler {
         String license = facade.getText(priceModel.getKey(),
                 LocalizedObjectTypes.PRICEMODEL_LICENSE);
         voPM.setLicense(license);
-        voPM.setConsideredEvents(EventAssembler.toVOPricedEvent(
-                priceModel.getConsideredEvents(), facade));
+        voPM.setConsideredEvents(EventAssembler
+                .toVOPricedEvent(priceModel.getConsideredEvents(), facade));
         String description = facade.getText(priceModel.getKey(),
                 LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
         voPM.setDescription(description);
@@ -131,6 +136,19 @@ public class PriceModelAssembler extends BaseAssembler {
         // for the priced parameter
         voPM.setSelectedParameters(ParameterAssembler.toVOPricedParameters(
                 priceModel.getSelectedParameters(), facade));
+
+        // presentation data of the price model
+        if (priceModel.isExternal()) {
+            LocalizedBillingResource localizedPriceModelPresentation = facade
+                    .getLocalizedPriceModelResource(priceModel.getUuid());
+            if (localizedPriceModelPresentation != null) {
+                voPM.setRelatedSubscription(localizedPriceModelPresentation.getResourceType() == LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION);
+                voPM.setPresentation(
+                        localizedPriceModelPresentation.getValue());
+                voPM.setPresentationDataType(
+                        localizedPriceModelPresentation.getDataType());
+            }
+        }
     }
 
     /**
@@ -165,11 +183,11 @@ public class PriceModelAssembler extends BaseAssembler {
                 .validatePricedProductRoles(pmRoleSpecificPrices);
 
         for (VOPricedParameter param : inputValue.getSelectedParameters()) {
-            PricedProductRoleAssembler.validatePricedProductRoles(param
-                    .getRoleSpecificUserPrices());
+            PricedProductRoleAssembler.validatePricedProductRoles(
+                    param.getRoleSpecificUserPrices());
             for (VOPricedOption option : param.getPricedOptions()) {
-                PricedProductRoleAssembler.validatePricedProductRoles(option
-                        .getRoleSpecificUserPrices());
+                PricedProductRoleAssembler.validatePricedProductRoles(
+                        option.getRoleSpecificUserPrices());
             }
         }
 

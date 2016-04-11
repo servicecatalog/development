@@ -19,6 +19,18 @@
     <message name="createUnitResponse" />
     <message name="deleteUnit" />
     <message name="deleteUnitResponse" />
+    <message name="getVisibleServices" />
+    <message name="getVisibleServicesResponse" />
+    <message name="getAccessibleServices" />
+    <message name="getAccessibleServicesResponse" />
+    <message name="addVisibleServices" />
+    <message name="addVisibleServicesResponse" />
+    <message name="addAccessibleServices" />
+    <message name="addAccessibleServicesResponse" />
+    <message name="revokeVisibleServices" />
+    <message name="revokeVisibleServicesResponse" />
+    <message name="revokeAccessibleServices" />
+    <message name="revokeAccessibleServicesResponse" />
     <portType name="OrganizationalUnitService">
         <operation name="grantUserRoles">
             <input message="tns:grantUserRoles" />
@@ -39,6 +51,30 @@
         <operation name="deleteUnit">
             <input message="tns:deleteUnit" />
             <output message="tns:deleteUnitResponse" />
+        </operation>
+        <operation name="getVisibleServices">
+            <input message="tns:getVisibleServices" />
+            <output message="tns:getVisibleServicesResponse" />
+        </operation>
+        <operation name="getAccessibleServices">
+            <input message="tns:getAccessibleServices" />
+            <output message="tns:getAccessibleServicesResponse" />
+        </operation>
+        <operation name="addAccessibleServices">
+            <input message="tns:addAccessibleServices" />
+            <output message="tns:addAccessibleServicesResponse" />
+        </operation>
+        <operation name="revokeAccessibleServices">
+            <input message="tns:revokeAccessibleServices" />
+            <output message="tns:revokeAccessibleServicesResponse" />
+        </operation>
+        <operation name="addVisibleServices">
+            <input message="tns:addVisibleServices" />
+            <output message="tns:addVisibleServicesResponse" />
+        </operation>
+        <operation name="revokeVisibleServices">
+            <input message="tns:revokeVisibleServices" />
+            <output message="tns:revokeVisibleServicesResponse" />
         </operation>
     </portType>
     <binding name="OrganizationalUnitServicePortSTSBinding" type="tns:OrganizationalUnitService">
@@ -76,6 +112,54 @@
             </output>
         </operation>
         <operation name="deleteUnit">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="getVisibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="getAccessibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="addAccessibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="revokeAccessibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="addVisibleServices">
+            <input>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
+            </input>
+            <output>
+                <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Output_Policy" />
+            </output>
+        </operation>
+        <operation name="revokeVisibleServices">
             <input>
                 <wsp:PolicyReference URI="#OrganizationalUnitServicePortSTSBinding_Input_Policy" />
             </input>
