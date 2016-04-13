@@ -33,13 +33,13 @@ Configuration of OSCM
 Billing adapter must be registered in the OSCM in order to use freshly deployed billing system delivered with it.
     1. Log in as platform operator to OSCM.
     2. In the Operation -> Manage billing systems, add a new billing system with the following values in the fields:
-        Billing Adapter ID:                 FILE_BILLING
+        Billing system ID:                 FILE_BILLING
         Name:                               File Billing Adapter
+        JNDI_NAME:                          java:global/oscm-file-adapter/oscm-file-adapter
         org.omg.CORBA.ORBInitialPort:       <IIOP port>
         java.naming.factory.initial:        com.sun.enterprise.naming.SerialInitContextFactory
         java.naming.provider.url:           http://<host>:<port>
-        JNDI_NAME:                          java:global/oscm-file-adapter/oscm-file-adapter
-        org.omg.CORBA.ORBInitialHost:       <host>
+         org.omg.CORBA.ORBInitialHost:       <host>
 
        where:
        <host> - is host where file billing adapter has been deployed
