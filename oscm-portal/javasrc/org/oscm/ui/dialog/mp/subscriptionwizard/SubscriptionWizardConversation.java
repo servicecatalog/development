@@ -421,8 +421,6 @@ public class SubscriptionWizardConversation implements Serializable {
                 outcome = OUTCOME_PROCESS;
             } else {
                 status = rc.getStatus();
-                // TODO: fix that piece of code. Without it subs details won't
-                // work.
                 getSessionBean().setSelectedSubscriptionId(
                         rc.getSubscriptionId());
                 getSessionBean().setSelectedSubscriptionKey(rc.getKey());
