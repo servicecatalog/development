@@ -1,0 +1,58 @@
+/*******************************************************************************
+ *                                                                              
+ *  COPYRIGHT (C) 2011 FUJITSU Limited - ALL RIGHTS RESERVED.                  
+ *                                                                              
+ *  Creation Date: 24.07.2012                                                      
+ *                                                                              
+ *******************************************************************************/
+
+package org.oscm.app.vmware.business.balancer;
+
+import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.business.model.VMwareStorage;
+import org.oscm.app.vmware.i18n.Messages;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Storage balancer implementation dynamically selecting the least used storage
+ * from vSphere.
+ * 
+ * @author Oliver Petrovski
+ * 
+ */
+public class DynamicEquipartitionStorageBalancer extends StorageBalancer {
+
+    private static final Logger logger = LoggerFactory
+            .getLogger(DynamicEquipartitionStorageBalancer.class);
+
+    @Override
+    public VMwareStorage next(VMPropertyHandler properties)
+            throws APPlatformException {
+        VMwareStorage selectedStorage = null;
+        String targetHost = properties
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_HOST);
+
+        if (targetHost == null) {
+            throw new APPlatformException(
+                    Messages.getAll("error_target_host_not_defined"));
+        }
+
+        double maxFreeSpace = 0.0;
+        for (VMwareStorage storage : inventory.getStorageByHost(targetHost)) {
+            if (storage.getCapacity() > maxFreeSpace) {
+                selectedStorage = storage;
+                maxFreeSpace = storage.getCapacity();
+            }
+        }
+
+        if (selectedStorage != null)
+
+        {
+            return selectedStorage;
+        }
+
+        throw new APPlatformException(Messages.getAll("error_outof_storage"));
+    }
+}
