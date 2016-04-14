@@ -26,6 +26,8 @@
 	</info>
     <dependencies>
     	<dependency org="javax" name="javaee-api" rev="6.0"/>
+    	<dependency org="org.apache.commons" name="commons-pool2" rev="2.4.2"/>
+    	<dependency org="com.opencsv" name="opencsv" rev="3.7"/>
         <dependency org="org.antlr" name="antlr4-runtime" rev="4.1" transitive="false"/>
         <dependency org="org.apache.ant" name="ant" rev="1.7.0" transitive="false"/>
         <dependency org="org.apache.ant" name="ant-junit" rev="1.7.0" transitive="false"/>
