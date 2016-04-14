@@ -205,6 +205,19 @@ public class SubscriptionDao {
     }
 
     @SuppressWarnings("unchecked")
+    List<Object[]> getSubscriptionIdsForVendor(PlatformUser user,
+            Set<SubscriptionStatus> states,
+            String queryString) {
+
+        Set<String> statesAsString = getSubscriptionStatesAsString(states);
+        Query query = dataManager.createNativeQuery(queryString);
+        query.setParameter("offerer", Long.valueOf(user.getOrganization().getKey()));
+        query.setParameter("states", statesAsString);
+
+        return query.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
     List<Subscription> getSubscriptionsForOwner(PlatformUser owner, Set<SubscriptionStatus> states,
             Pagination pagination, String queryString) {
 
@@ -894,6 +907,11 @@ public class SubscriptionDao {
         return getSubscriptionsForVendor(user, states, pagination, queryString);
     }
 
+    public List<Object[]> getSubscriptionIdsForOrg(PlatformUser user, Set<SubscriptionStatus> states) {
+        String queryString = getQuerySubscriptionIdsForOrg();
+        return getSubscriptionIdsForVendor(user, states, queryString);
+    }
+
     public List<Subscription> getSubscriptionsForOrgWithFiltering(PlatformUser user, org.oscm.paginator.Pagination pagination,
                                                                   Set<SubscriptionStatus> states, Collection<Long> subscriptionKeys) {
         String queryString = getQuerySubscriptionsForOrgWithFiltering(pagination);
@@ -1195,6 +1213,15 @@ public class SubscriptionDao {
                         + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
                         + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ",
                 pagination);
+    }
+
+    private String getQuerySubscriptionIdsForOrg() {
+        return "SELECT s.* "
+                        + "FROM Subscription s "
+                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+                        + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ";
     }
 
     private String getQuerySubscriptionsForOrgWithFiltering(org.oscm.paginator.Pagination pagination) {
