@@ -355,12 +355,29 @@ public class MarketableServicePublishCtrl extends BaseBean implements
             initRevenueShare(model.getSelectedServiceKey(), model
                     .getServiceDetails().getMarketplaceId());
         } catch (SaaSApplicationException e) {
+            
+            if(e instanceof ObjectNotFoundException){
+                String[] keys = e.getMessageParams();
+                String displayedName = getDisplayedName(keys[0]);
+                e.setMessageParams(new String[]{displayedName});
+            }
+            
             ui.handleException(e);
             return OUTCOME_ERROR;
         }
         return OUTCOME_SUCCESS;
     }
-
+    
+    private String getDisplayedName(String key){
+        List<VOCategory> changedCategoriess = model.getChangedCategoriess();
+        for(VOCategory category:changedCategoriess){
+            if(key.equals(Long.toString(category.getKey()))){
+                return category.getName();
+            }
+        }
+        return null;
+    }
+    
     private void initRevenueShare(long serviceKey, String marketPlaceId)
             throws SaaSApplicationException {
         Response response = null;
