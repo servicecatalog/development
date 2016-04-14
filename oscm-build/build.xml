@@ -24,6 +24,7 @@
 
   <!-- Optional Input Parameters -->
   <property name="workspace.dir" location=".." />
+  <property name="dependency.resolver.dir" location="${workspace.dir}" />
 
   <property name="webtest-results" location="${workspace.dir}/oscm-portal-webtests" />
   <property name="cruisecontrolBaseDir" location="../../.." />
@@ -139,7 +140,7 @@
   </target>
 
   <target name="_dependencies">
-    <dependencyresolver workspacedir="${workspace.dir}" projects="${projects}" />
+    <dependencyresolver workspacedir="${dependency.resolver.dir}" projects="${projects}" />
   </target>
 
   <target name="_copyDocument">
