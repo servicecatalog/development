@@ -3433,3 +3433,11 @@ div.responsive-table-panel {
 #organizationUnitPanelGrid {
 	padding:10px;
 }
+
+#configurationForm .hintAndMessageTable td > span.rf-msg.errorMsg {
+	float: left;
+}
+
+#configurationForm .hintAndMessageTable td {
+	min-width: 50px;
+}
