@@ -82,14 +82,14 @@
           <adm:message id="marketplaceErrorMsg" for="marketplace" />
 
           <adm:outputLabel value="#{msg['marketplace.view.operatorRevenueShare']}"
-            rendered="#{not marketableServicePublishModel.serviceDetails.service.priceModel.external and marketableServicePublishModel.operatorShareVisible}" />
-          <h:panelGroup rendered="#{(marketableServicePublishModel.operatorShareVisible) and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}">
+            rendered="#{marketableServicePublishModel.operatorShareVisible}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.operatorShareVisible}">
             <h:outputText id="revenueShareOperator" displayAs="percent"
               value="#{marketableServicePublishModel.operatorPriceModel.revenueShare.revenueShare}">
               <f:converter converterId="bigDecimal.converter" />
             </h:outputText>
           </h:panelGroup>
-          <h:outputText value="" rendered="#{(marketableServicePublishModel.operatorShareVisible) and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
+          <h:outputText value="" rendered="#{marketableServicePublishModel.operatorShareVisible}" />
 
           <adm:outputLabel value="#{msg['marketplace.revenueShare']}"
             rendered="#{marketableServicePublishModel.supplier and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
@@ -102,24 +102,24 @@
           <h:outputText value="" rendered="#{marketableServicePublishModel.supplier and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
 
           <adm:outputLabel value="#{msg['marketplace.view.resellerRevenueShare']}"
-            rendered="#{marketableServicePublishModel.resellerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
-          <h:panelGroup rendered="#{marketableServicePublishModel.resellerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}">
+            rendered="#{marketableServicePublishModel.resellerShareVisible }" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.resellerShareVisible}">
             <h:outputText id="revenueShareReseller" displayAs="percent"
               value="#{marketableServicePublishModel.serviceSpecificResellerRevenueShare.revenueShare}">
               <f:converter converterId="bigDecimal.converter" />
             </h:outputText>
           </h:panelGroup>
-          <h:outputText value="" rendered="#{marketableServicePublishModel.resellerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
+          <h:outputText value="" rendered="#{marketableServicePublishModel.resellerShareVisible}" />
 
           <adm:outputLabel value="#{msg['marketplace.view.brokerRevenueShare']}"
-            rendered="#{marketableServicePublishModel.brokerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
-          <h:panelGroup rendered="#{marketableServicePublishModel.brokerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}">
+            rendered="#{marketableServicePublishModel.brokerShareVisible}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.brokerShareVisible}">
             <h:outputText id="revenueShareBroker" displayAs="percent"
               value="#{marketableServicePublishModel.serviceSpecificBrokerRevenueShare.revenueShare}">
               <f:converter converterId="bigDecimal.converter" />
             </h:outputText>
           </h:panelGroup>
-          <h:outputText value="" rendered="#{marketableServicePublishModel.brokerShareVisible and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
+          <h:outputText value="" rendered="#{marketableServicePublishModel.brokerShareVisible}" />
 
           <h:panelGroup id="categoriesLabelPanel" layout="block">
             <adm:outputLabel value="#{msg['service.categories']}"
