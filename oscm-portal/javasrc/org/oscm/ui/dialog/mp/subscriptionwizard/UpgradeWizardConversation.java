@@ -451,7 +451,7 @@ public class UpgradeWizardConversation implements Serializable {
                 return "";
             }
         }
-
+        model.setReadOnlyParams(true);
         if (svc != null && svc.getPriceModel().isChargeable()) {
             return OUTCOME_ENTER_PAYMENT;
         }
@@ -611,6 +611,7 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public String previous() {
+        model.setReadOnlyParams(false);
         return SubscriptionDetailsCtrlConstants.OUTCOME_PREVIOUS;
     }
 
