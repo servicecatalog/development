@@ -9,6 +9,8 @@
   </target>
   <target name="copyLibraries" depends="resolve">
     <copy file="${ivy.lib.dir}/javaee-api-6.0.jar" todir="${root.dir}/libraries/javaee-api/javalib"></copy>
+    <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib"></copy>
+    <copy file="${ivy.lib.dir}/opencsv-3.7.jar" todir="${root.dir}/libraries/opencsv/javalib"></copy>
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib"></copy>
     <copy file="${ivy.lib.dir}/ant-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar"></copy>
     <copy file="${ivy.lib.dir}/ant-junit-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar"></copy>
