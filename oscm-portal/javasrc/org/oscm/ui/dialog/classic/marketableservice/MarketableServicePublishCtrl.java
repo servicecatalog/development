@@ -43,11 +43,12 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOPriceModel;
 
 @ManagedBean
 @ViewScoped
-public class MarketableServicePublishCtrl extends BaseBean implements
-        Serializable {
+public class MarketableServicePublishCtrl extends BaseBean
+        implements Serializable {
 
     private static final long serialVersionUID = 725185082688691574L;
 
@@ -66,7 +67,6 @@ public class MarketableServicePublishCtrl extends BaseBean implements
     PricingService pricingService;
     @EJB
     CategorizationService categorizationService;
-
 
     /**
      * initializer method called by <adm:initialize />
@@ -126,22 +126,25 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                 }
             }
         }
-        model.setServiceDetails(service == null ? new POServiceForPublish()
-                : service);
+        model.setServiceDetails(
+                service == null ? new POServiceForPublish() : service);
         model.setInitialMarketplaceId(getMarketplaceId(service));
-        model.setOperatorPriceModel(operatorPriceModel == null ? new POOperatorPriceModel()
-                : operatorPriceModel);
-        model.setServicePartnerPriceModel(servicePartnerPriceModel == null ? new POPartnerPriceModel()
-                : servicePartnerPriceModel);
-        model.setSelectedServiceKey(model.getServiceDetails().getService()
-                .getKey());
+        model.setOperatorPriceModel(operatorPriceModel == null
+                ? new POOperatorPriceModel() : operatorPriceModel);
+        model.setServicePartnerPriceModel(servicePartnerPriceModel == null
+                ? new POPartnerPriceModel() : servicePartnerPriceModel);
+        model.setSelectedServiceKey(
+                model.getServiceDetails().getService().getKey());
         User sessionUser = userBean.getUserFromSession();
         model.setSupplier(sessionUser.isSupplier());
-        model.setOperatorShareVisible(sessionUser.isSupplier());
-        model.setBrokerShareVisible(sessionUser.isBroker()
-                || sessionUser.isSupplier());
-        model.setResellerShareVisible(sessionUser.isReseller()
-                || sessionUser.isSupplier());
+        model.setOperatorShareVisible(
+                sessionUser.isSupplier() && !isExternalPMUsed());
+        model.setBrokerShareVisible(
+                (sessionUser.isBroker() || sessionUser.isSupplier())
+                        && !isExternalPMUsed());
+        model.setResellerShareVisible(
+                (sessionUser.isReseller() || sessionUser.isSupplier())
+                        && !isExternalPMUsed());
         if (marketplaceId == null) {
             marketplaceId = model.getServiceDetails().getMarketplaceId();
         }
@@ -154,16 +157,14 @@ public class MarketableServicePublishCtrl extends BaseBean implements
         List<POServiceDetails> templates = response
                 .getResultList(POServiceDetails.class);
         List<SelectItem> templateItems = new ArrayList<SelectItem>();
-        templateItems.add(new SelectItemBuilder(ui).pleaseSelect(Long
-                .valueOf(0L)));
+        templateItems
+                .add(new SelectItemBuilder(ui).pleaseSelect(Long.valueOf(0L)));
         for (POServiceDetails template : templates) {
-            String id = model.isSupplier() ? template.getServiceId() : template
-                    .getServiceId()
-                    + "  ("
-                    + template.getOrganizationId()
-                    + ")";
-            templateItems.add(new SelectItem(Long.valueOf(template.getKey()),
-                    id));
+            String id = model.isSupplier() ? template.getServiceId()
+                    : template.getServiceId() + "  ("
+                            + template.getOrganizationId() + ")";
+            templateItems
+                    .add(new SelectItem(Long.valueOf(template.getKey()), id));
         }
         model.setServiceTemplates(templateItems);
     }
@@ -200,10 +201,10 @@ public class MarketableServicePublishCtrl extends BaseBean implements
             }
         }
         model.initializeMarketplaceCategories(allMarketplaceCategories);
-        model.setMarketplacePriceModel(marketplacePriceModel == null ? new POMarketplacePriceModel()
-                : marketplacePriceModel);
-        model.setMarketplacePartnerPriceModel(partnerPriceModel == null ? new POPartnerPriceModel()
-                : partnerPriceModel);
+        model.setMarketplacePriceModel(marketplacePriceModel == null
+                ? new POMarketplacePriceModel() : marketplacePriceModel);
+        model.setMarketplacePartnerPriceModel(partnerPriceModel == null
+                ? new POPartnerPriceModel() : partnerPriceModel);
         initializeLists(marketplaceId, partnerPriceModel);
     }
 
@@ -220,19 +221,17 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                     model.getServiceDetails().getService().getKey());
             model.setResellers(response.getResultList(POPartner.class));
         }
-        setDefaultRevenueShares(
-                model.getBrokers(),
+        setDefaultRevenueShares(model.getBrokers(),
                 model.getServicePartnerPriceModel()
                         .getRevenueShareBrokerModel(),
-                partnerPriceModel == null ? null : partnerPriceModel
-                        .getRevenueShareBrokerModel());
+                partnerPriceModel == null ? null
+                        : partnerPriceModel.getRevenueShareBrokerModel());
 
-        setDefaultRevenueShares(
-                model.getResellers(),
+        setDefaultRevenueShares(model.getResellers(),
                 model.getServicePartnerPriceModel()
                         .getRevenueShareResellerModel(),
-                partnerPriceModel == null ? null : partnerPriceModel
-                        .getRevenueShareResellerModel());
+                partnerPriceModel == null ? null
+                        : partnerPriceModel.getRevenueShareResellerModel());
 
         if (!model.isSupplier()) {
             if (model.getServicePartnerPriceModel()
@@ -268,8 +267,7 @@ public class MarketableServicePublishCtrl extends BaseBean implements
     }
 
     public void marketplaceChanged(ValueChangeEvent event) {
-        initializeModel(
-                model.getSelectedServiceKey(),
+        initializeModel(model.getSelectedServiceKey(),
                 event.getNewValue() == null ? "" : (String) event.getNewValue(),
                 true);
     }
@@ -279,8 +277,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                 .longValue();
         if (selectedServiceKey != model.getSelectedServiceKey()) {
             initializeModel(selectedServiceKey, null, true);
-            sessionBean.setSelectedServiceKeyForSupplier(Long.valueOf(model
-                            .getSelectedServiceKey()));
+            sessionBean.setSelectedServiceKeyForSupplier(
+                    Long.valueOf(model.getSelectedServiceKey()));
         }
     }
 
@@ -294,8 +292,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                     categories.add(cat.getCategory());
                 }
             }
-            List<VOCategory> changedCategories = getChangedAndSelectedCategories(model
-                    .getServiceDetails().getCatalogEntry().getCategories(),
+            List<VOCategory> changedCategories = getChangedAndSelectedCategories(
+                    model.getServiceDetails().getCatalogEntry().getCategories(),
                     categories);
             model.setChangedCategories(changedCategories);
             model.getServiceDetails().getCatalogEntry()
@@ -303,7 +301,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
         }
     }
 
-    List<VOCategory> getChangedAndSelectedCategories(List<VOCategory> originalCategories,
+    List<VOCategory> getChangedAndSelectedCategories(
+            List<VOCategory> originalCategories,
             List<VOCategory> newCategories) {
         List<VOCategory> changedCategories = new ArrayList<VOCategory>();
         for (VOCategory category : originalCategories) {
@@ -318,7 +317,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
     private boolean isCategoryExistInList(List<VOCategory> categories,
             VOCategory targetCategory) {
         for (VOCategory category : categories) {
-            if (category.getCategoryId().equals(targetCategory.getCategoryId())) {
+            if (category.getCategoryId()
+                    .equals(targetCategory.getCategoryId())) {
                 return true;
             }
         }
@@ -345,15 +345,15 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                     OfferingType.RESELLER, false));
         }
         try {
-            getCategorizationService().verifyCategoriesUpdated(
-                    model.getChangedCategoriess());
+            getCategorizationService()
+                    .verifyCategoriesUpdated(model.getChangedCategoriess());
             Response response = getPublishService().updateAndPublishService(
                     model.getServiceDetails(), toGrant, toRevoke);
-            ui.handle(response, "info.service.saved", model.getServiceDetails()
-                    .getService().getServiceId());
+            ui.handle(response, "info.service.saved",
+                    model.getServiceDetails().getService().getServiceId());
             updateAssignedPermissions(model.getBrokers(), model.getResellers());
-            initRevenueShare(model.getSelectedServiceKey(), model
-                    .getServiceDetails().getMarketplaceId());
+            initRevenueShare(model.getSelectedServiceKey(),
+                    model.getServiceDetails().getMarketplaceId());
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
             return OUTCOME_ERROR;
@@ -375,23 +375,24 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                 .getResult(POPartnerPriceModel.class);
         response = getPricingService().getOperatorRevenueShare(serviceKey);
         operatorPriceModel = response.getResult(POOperatorPriceModel.class);
-        response = getPricingService().getMarketplaceRevenueShares(
-                marketPlaceId);
+        response = getPricingService()
+                .getMarketplaceRevenueShares(marketPlaceId);
         marketplacePriceModel = response
                 .getResult(POMarketplacePriceModel.class);
-        response = getPricingService().getPartnerRevenueSharesForMarketplace(
-                marketPlaceId);
+        response = getPricingService()
+                .getPartnerRevenueSharesForMarketplace(marketPlaceId);
         marketplacePartnerPriceModel = response
                 .getResult(POPartnerPriceModel.class);
 
-        model.setServicePartnerPriceModel(servicePartnerPriceModel == null ? new POPartnerPriceModel()
-                : servicePartnerPriceModel);
-        model.setOperatorPriceModel(operatorPriceModel == null ? new POOperatorPriceModel()
-                : operatorPriceModel);
-        model.setMarketplacePriceModel(marketplacePriceModel == null ? new POMarketplacePriceModel()
-                : marketplacePriceModel);
-        model.setMarketplacePartnerPriceModel(marketplacePartnerPriceModel == null ? new POPartnerPriceModel()
-                : marketplacePartnerPriceModel);
+        model.setServicePartnerPriceModel(servicePartnerPriceModel == null
+                ? new POPartnerPriceModel() : servicePartnerPriceModel);
+        model.setOperatorPriceModel(operatorPriceModel == null
+                ? new POOperatorPriceModel() : operatorPriceModel);
+        model.setMarketplacePriceModel(marketplacePriceModel == null
+                ? new POMarketplacePriceModel() : marketplacePriceModel);
+        model.setMarketplacePartnerPriceModel(
+                marketplacePartnerPriceModel == null ? new POPartnerPriceModel()
+                        : marketplacePartnerPriceModel);
     }
 
     private void updateAssignedPermissions(List<POPartner> brokers,
@@ -404,8 +405,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
             allPartners.addAll(resellers);
         }
         for (POPartner partner : allPartners) {
-            if (partner.isSelected() != model.assignedPermissions.get(
-                    Long.valueOf(partner.getKey())).booleanValue()) {
+            if (partner.isSelected() != model.assignedPermissions
+                    .get(Long.valueOf(partner.getKey())).booleanValue()) {
                 model.assignedPermissions.put(Long.valueOf(partner.getKey()),
                         Boolean.valueOf(partner.isSelected()));
             }
@@ -417,8 +418,8 @@ public class MarketableServicePublishCtrl extends BaseBean implements
         List<POResalePermissionDetails> list = new ArrayList<POResalePermissionDetails>();
         if (partners != null) {
             for (POPartner partner : partners) {
-                boolean addToList = model.assignedPermissions.get(
-                        Long.valueOf(partner.getKey())).booleanValue();
+                boolean addToList = model.assignedPermissions
+                        .get(Long.valueOf(partner.getKey())).booleanValue();
                 if (grant) {
                     // grant permission
                     addToList = partner.isSelected() && !addToList;
@@ -432,22 +433,30 @@ public class MarketableServicePublishCtrl extends BaseBean implements
                     permission.setGrantee(new POOrganization());
                     permission.setGrantor(new POOrganization());
                     permission.setService(new POServiceDetails());
-                    permission.getGrantee().setOrganizationId(
-                            partner.getOrganizationId());
-                    permission.getGrantor().setOrganizationId(
-                            model.getServiceDetails().getService()
-                                    .getSellerId());
-                    permission.getService().setKey(
-                            model.getSelectedServiceKey());
-                    permission.getService().setServiceId(
-                            model.getServiceDetails().getService()
-                                    .getServiceId());
+                    permission.getGrantee()
+                            .setOrganizationId(partner.getOrganizationId());
+                    permission.getGrantor().setOrganizationId(model
+                            .getServiceDetails().getService().getSellerId());
+                    permission.getService()
+                            .setKey(model.getSelectedServiceKey());
+                    permission.getService().setServiceId(model
+                            .getServiceDetails().getService().getServiceId());
                     permission.setOfferingType(type);
                     list.add(permission);
                 }
             }
         }
         return list;
+    }
+
+    private boolean isExternalPMUsed() {
+        VOPriceModel priceModel = model.getServiceDetails().getService()
+                .getPriceModel();
+
+        if (priceModel != null) {
+            return priceModel.isExternal();
+        }
+        return false;
     }
 
     public void setModel(MarketableServicePublishModel model) {
