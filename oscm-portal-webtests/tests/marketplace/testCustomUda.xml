@@ -74,14 +74,14 @@
       <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
       <clickLink htmlId="confirmForm:confirmLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.created}" />
-      <mpl_verify.success label="#{infoMsg}" />
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully created. Users who are to work with the subscribed service must be registered and assigned to the subscription.')]" />
 
       <!-- Bug #9289, #9290: the udas cannot be saved right after subscription-->
       <mpl_goto.tab label="${subscription.configuration}" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
-      <mpl_verify.success label="#{infoMsg}" />
-    	
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
+
       <!-- Bug #9880 -->
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" newValue="new mandatory sub uda starter" oldValue="mandatory sub uda trial" />
@@ -90,7 +90,7 @@
       <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
-      <mpl_verify.success label="#{infoMsg}" />
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
     	
       <!-- update udas without any change  -->
       <changeUdaValue index="0" isMandatory="false" newValue="new optional sub uda starter" oldValue="new optional sub uda starter" />
@@ -99,7 +99,7 @@
   	  <changeUdaValue index="1" isMandatory="true" isSubscription="false" oldValue="new mandatory org uda trial" newValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
-      <mpl_verify.success label="#{infoMsg}" />
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
     	
       <changeUdaValue index="0" isMandatory="false" oldValue="new optional sub uda starter" newValue="optional sub uda trial" />
       <changeUdaValue index="1" isMandatory="true" oldValue="new mandatory sub uda starter" newValue="mandatory sub uda trial" />
@@ -108,7 +108,7 @@
       <changeUdaValue index="1" isMandatory="true" isSubscription="false" newValue="mandatory org uda trial" oldValue="new mandatory org uda trial" />
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
-      <mpl_verify.success label="#{infoMsg}" />
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
    
 
       <mpl_login.logout />
@@ -154,7 +154,7 @@
       <clickElement htmlId="configurationForm:saveConfigurationButtonLink" />
 
       <common.handleMessageParameters property="infoMsg" att0="Mega Office Trial" value="${info.subscription.saved}" />
-      <mpl_verify.success label="#{infoMsg}" />
+      <verifyXPath xpath="//*[contains(text(),'The subscription Mega Office Trial has been successfully saved.')]" />
       <mpl_login.logout />
     </webtest>
 
