@@ -9,6 +9,7 @@
 package org.oscm.ui.dialog.mp.accountNavigation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -21,7 +22,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.constants.HiddenUIConstants;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author Yuyin
@@ -31,14 +37,27 @@ public class AccountNavigationCtrlTest {
 
     private AccountNavigationCtrl ctrl;
     private ApplicationBean abMock;
+    private ConfigurationService cnfgSrv;
 
     @Before
     public void setup() throws Exception {
         abMock = mock(ApplicationBean.class);
-        when(Boolean.valueOf(abMock.isReportingAvailable())).thenReturn(
-                Boolean.TRUE);
-        ctrl = spy(new AccountNavigationCtrl());
+        cnfgSrv = mock(ConfigurationService.class);
+
+        when(Boolean.valueOf(abMock.isReportingAvailable()))
+                .thenReturn(Boolean.TRUE);
+        ctrl = new AccountNavigationCtrl() {
+            @Override
+            protected ConfigurationService getConfigurationService() {
+                return cnfgSrv;
+            }
+        };
+        ctrl = spy(ctrl);
         doReturn(Boolean.TRUE).when(ctrl).isLoggedInAndAdmin();
+        doReturn(getDefaultHidePaymentConfigurationSetting()).when(cnfgSrv)
+                .getVOConfigurationSetting(
+                        ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                        Configuration.GLOBAL_CONTEXT);
         ctrl.setApplicationBean(abMock);
         ctrl.setModel(new AccountNavigationModel());
     }
@@ -50,8 +69,8 @@ public class AccountNavigationCtrlTest {
         assertEquals(9, model.getLink().size());
         assertEquals(9, model.getTitle().size());
         assertEquals("account/index.jsf", model.getLink().get(0));
-        assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE, model
-                .getTitle().get(0));
+        assertEquals(AccountNavigationModel.MARKETPLACE_ACCOUNT_TITLE,
+                model.getTitle().get(0));
     }
 
     @Test
@@ -154,12 +173,37 @@ public class AccountNavigationCtrlTest {
         doReturn(Boolean.TRUE).when(ctrl).isLoggedInAndUnitAdmin();
         ctrl.getModel();
         int visibleLinks = 0;
-        for(int i = 0; i < ctrl.getLink().size(); i++) {
+        for (int i = 0; i < ctrl.getLink().size(); i++) {
             if (ctrl.isLinkVisible(i)) {
                 visibleLinks++;
             }
         }
         assertEquals(6, visibleLinks);
+    }
+
+    @Test
+    public void isPaymentAvailable_inVisible() {
+
+        // given
+        VOConfigurationSetting setting = new VOConfigurationSetting(
+                ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                Configuration.GLOBAL_CONTEXT, "TRUE");
+        doReturn(setting).when(cnfgSrv).getVOConfigurationSetting(
+                ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                Configuration.GLOBAL_CONTEXT);
+        
+        // when
+        boolean isPaymentAvailable = ctrl.isPaymentAvailable();
+
+        // then
+        assertFalse(isPaymentAvailable);
+    }
+
+    private VOConfigurationSetting getDefaultHidePaymentConfigurationSetting() {
+
+        return new VOConfigurationSetting(
+                ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                Configuration.GLOBAL_CONTEXT, "FALSE");
     }
 
 }

@@ -18,6 +18,9 @@ import javax.faces.bean.SessionScoped;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.internal.types.constants.HiddenUIConstants;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author Yuyin
@@ -72,6 +75,21 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
                         HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS));
     }
 
+    public boolean isPaymentAvailable() {
+
+        VOConfigurationSetting setting = getConfigurationService()
+                .getVOConfigurationSetting(
+                        ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                        Configuration.GLOBAL_CONTEXT);
+
+        boolean hidePaymentInfo = Boolean.valueOf(setting.getValue());
+
+        return (isLoggedInAndAdmin()
+                && !applicationBean.isUIElementHidden(
+                        HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT)
+                && !hidePaymentInfo);
+    }
+
     public void setModel(AccountNavigationModel model) {
         this.model = model;
     }
@@ -90,12 +108,13 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
         if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_REPORTS
                 .equals(hiddenElement)) {
             return isReportingAvailable();
-        } else if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT
-                .equals(hiddenElement)
-                || HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_USERS
-                        .equals(hiddenElement)) {
+        } else if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_USERS
+                .equals(hiddenElement)) {
             return isLoggedInAndAdmin()
                     && !applicationBean.isUIElementHidden(hiddenElement);
+        } else if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT
+                .equals(hiddenElement)) {
+            return isPaymentAvailable();
         } else if (HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_SUBSCRIPTIONS
                 .equals(hiddenElement)) {
             return (isLoggedInAndAdmin() || isLoggedInAndSubscriptionManager()
