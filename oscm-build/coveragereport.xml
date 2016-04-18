@@ -89,12 +89,12 @@
           </sourcefiles>
         </group>
 
-        <group name="oscm-billing-service">
+        <group name="oscm-billing-adapter-service">
           <classfiles>
-            <fileset dir="${result.dir}/work/oscm-billing-service/classes" />
+            <fileset dir="${result.dir}/work/oscm-billing-adapter-service/classes" />
           </classfiles>
           <sourcefiles encoding="utf-8">
-            <fileset dir="${workspace.dir}/oscm-billing-service/javasrc" />
+            <fileset dir="${workspace.dir}/oscm-billing-adapter-service/javasrc" />
           </sourcefiles>
         </group>
 
