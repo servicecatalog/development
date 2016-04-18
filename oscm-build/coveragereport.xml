@@ -542,7 +542,7 @@
 
       <html destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
       <xml destfile="${result.reports.coverage.dir}/jUnitReport.xml"/>
-      <csv destfile="${result.report.dir}/jUnitReport.csv"/>
+      <csv destfile="${result.reports.coverage.dir}/jUnitReport.csv"/>
     </jacoco:report>
 
   </target>
