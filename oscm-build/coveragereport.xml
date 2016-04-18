@@ -577,8 +577,7 @@
       </structure>
 
       <html destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
-      <xml destfile="${result.reports.coverage.dir}/jUnitReport.xml"/>
-      <csv destfile="${result.reports.coverage.dir}/jUnitReport.csv"/>
+      <xml destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
     </jacoco:report>
 
   </target>
