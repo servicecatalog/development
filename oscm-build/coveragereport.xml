@@ -541,7 +541,7 @@
       </structure>
 
       <html destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
-      <xml destdir="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
+      <xml outputDirectory="${result.reports.coverage.dir}" footer="${footer}" locale="en" />
     </jacoco:report>
 
   </target>
