@@ -10,21 +10,23 @@ package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.same;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.doReturn;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,7 +36,6 @@ import javax.faces.model.SelectItem;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.internal.intf.SubscriptionService;
@@ -48,7 +49,6 @@ import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.vo.VOServiceOperationParameter;
 import org.oscm.internal.vo.VOServiceOperationParameterValues;
 import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOTechnicalServiceOperation;
 
 public class MySubscriptionsCtrlTest {
@@ -61,6 +61,7 @@ public class MySubscriptionsCtrlTest {
     ApplicationBean appBean = mock(ApplicationBean.class);
 
     private SubscriptionService subSvc;
+    private SubscriptionsService subsSvc;
 
     UiDelegate ui;
 
@@ -70,8 +71,7 @@ public class MySubscriptionsCtrlTest {
         ctrl.setApplicationBean(appBean);
 
         ExternalContext extContext = mock(ExternalContext.class);
-        when(extContext.getRequestContextPath()).thenReturn(
-                "/oscm-portal");
+        when(extContext.getRequestContextPath()).thenReturn("/oscm-portal");
 
         ui = mock(UiDelegate.class);
         when(ui.getExternalContext()).thenReturn(extContext);
@@ -81,9 +81,11 @@ public class MySubscriptionsCtrlTest {
         model = spy(new MySubscriptionsLazyDataModel());
         ctrl.setModel(model);
 
-        ctrl.subscriptionsService = mock(SubscriptionsService.class);
-        when(ctrl.applicationBean.getServerBaseUrlHttps()).thenReturn(
-                BASE_URL_HTTPS);
+        subsSvc = mock(SubscriptionsService.class);
+        ctrl.setSubscriptionsService(subsSvc);
+
+        when(ctrl.applicationBean.getServerBaseUrlHttps())
+                .thenReturn(BASE_URL_HTTPS);
         when(ctrl.applicationBean.getServerBaseUrl()).thenReturn(BASE_URL_HTTP);
 
         subSvc = mock(SubscriptionService.class);
@@ -153,7 +155,8 @@ public class MySubscriptionsCtrlTest {
         ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
-        assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
+        assertSame(om.getOperation(),
+                sub.getSelectedOperation().getOperation());
         verify(subSvc, never()).getServiceOperationParameterValues(
                 any(VOSubscription.class),
                 any(VOTechnicalServiceOperation.class));
@@ -167,7 +170,8 @@ public class MySubscriptionsCtrlTest {
         ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
-        assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
+        assertSame(om.getOperation(),
+                sub.getSelectedOperation().getOperation());
         verify(subSvc, never()).getServiceOperationParameterValues(
                 any(VOSubscription.class),
                 any(VOTechnicalServiceOperation.class));
@@ -182,7 +186,8 @@ public class MySubscriptionsCtrlTest {
         ctrl.operationChanged();
 
         assertFalse(sub.isExecuteDisabled());
-        assertSame(om.getOperation(), sub.getSelectedOperation().getOperation());
+        assertSame(om.getOperation(),
+                sub.getSelectedOperation().getOperation());
         verify(subSvc).getServiceOperationParameterValues(
                 eq(sub.getVOSubscription()), eq(om.getOperation()));
         List<SelectItem> values = model.getMySubscriptions().get(0)
@@ -194,6 +199,34 @@ public class MySubscriptionsCtrlTest {
         }
     }
 
+    @Test
+    public void checkSubscription() {
+
+        // given
+        initSubscription(model);
+
+        // when
+        ctrl.checkSelectedSubscription();
+
+        // then
+        verify(subsSvc, times(1)).getMySubscriptionDetails(anyLong());
+    }
+    
+    @Test
+    public void checkSubscription_concurrentlyRemoved() {
+
+        // given
+        initSubscription(model);
+        assertNotNull("Selected subscription was not selected yet", model.getSelectedSubscription());
+        
+        // when
+        ctrl.checkSelectedSubscription();
+        doReturn(null).when(subsSvc).getMySubscriptionDetails(anyLong());
+
+        // then
+        assertNull(model.getSelectedSubscription());
+    }
+
     private static final List<String> initValues(SubscriptionService subSvc,
             POSubscription sub, OperationModel om) throws Exception {
 
@@ -202,10 +235,9 @@ public class MySubscriptionsCtrlTest {
                 .getParameterId());
         List<String> list = Arrays.asList("1", "2", "3");
         value.setValues(list);
-        when(
-                subSvc.getServiceOperationParameterValues(
-                        eq(sub.getVOSubscription()), eq(om.getOperation())))
-                .thenReturn(Arrays.asList(value));
+        when(subSvc.getServiceOperationParameterValues(
+                eq(sub.getVOSubscription()), eq(om.getOperation())))
+                        .thenReturn(Arrays.asList(value));
         return list;
     }
 
@@ -240,6 +272,7 @@ public class MySubscriptionsCtrlTest {
         VOSubscription vo = new VOSubscription();
         vo.setSubscriptionId("subscriptionId");
         vo.setStatus(SubscriptionStatus.ACTIVE);
+        vo.setKey(11001);
         POSubscription subscription = new POSubscription(vo);
         when(model.getMySubscriptions())
                 .thenReturn(Arrays.asList(subscription));
@@ -247,6 +280,7 @@ public class MySubscriptionsCtrlTest {
                 .thenReturn(Arrays.asList(subscription));
         model.setSubscriptionIdForOperation(vo.getSubscriptionId());
         model.setSelectedSubscription(subscription);
+        model.setSelectedSubscriptionId(Long.toString(subscription.getKey()));
         return subscription;
     }
 }
