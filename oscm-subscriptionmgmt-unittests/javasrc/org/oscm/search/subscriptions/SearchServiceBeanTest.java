@@ -46,11 +46,15 @@ public class SearchServiceBeanTest {
         doReturn(queryBuilder).when(entityContext).get();
         TermContext termContext = mock(TermContext.class);
         doReturn(termContext).when(queryBuilder).keyword();
+        WildcardContext wc = mock(WildcardContext.class);
+        doReturn(wc).when(termContext).wildcard();
         TermMatchingContext termMatchingContext = mock(TermMatchingContext.class);
         doReturn(termMatchingContext).when(termContext).onFields("dataContainer.purchaseOrderNumber", "dataContainer.subscriptionId");
         doReturn(termMatchingContext).when(termContext).onFields("dataContainer.udaValue");
         doReturn(termMatchingContext).when(termContext).onFields("dataContainer.value");
+        doReturn(termMatchingContext).when(wc).onField(anyString());
         TermTermination termTermination = mock(TermTermination.class);
+        doReturn(termMatchingContext).when(termMatchingContext).andField(anyString());
         doReturn(termTermination).when(termMatchingContext).matching(anyString());
 
         FullTextQuery subFTS = mock(FullTextQuery.class);
