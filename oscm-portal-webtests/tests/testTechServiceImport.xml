@@ -13,6 +13,14 @@
       <techservice.import.fail file="data/TechnicalServiceImportEmptyFile.xml" errorLabel="${error.upload.fileNotNullNorEmpty}" verifyFieldError="true" />
     </webtest>
 
+    <webtest name="Bug12684_emptyLocales">
+      <mail.cleanInbox />
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+      <techservice.import file="data/TechnicalServices-empty-locales.xml" />
+    </webtest>
+
     <webtest name="testTechServiceImport">
       <storeProperty name="marketServiceName" value="MarketService1" propertyType="dynamic" />
       <storeProperty name="subscriptionName" value="SubscriptionName1" propertyType="dynamic" />

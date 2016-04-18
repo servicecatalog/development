@@ -140,7 +140,7 @@ public class SubscriptionWizardConversationTest {
 
     @Before
     public void setup() {
-        model = new SubscriptionWizardConversationModel();
+        model = spy(new SubscriptionWizardConversationModel());
 
         sdm = mock(ServiceDetailsModel.class);
         conversation = mock(Conversation.class);
@@ -336,6 +336,17 @@ public class SubscriptionWizardConversationTest {
         // then
         verify(bean, times(0)).addMessage(any(Severity.class), any(String.class));
         assertEquals("success", result);
+    }
+    
+    @Test
+    public void testPreviousFromPayment() {
+        // given
+        
+        // when
+        bean.previousFromPayment();
+        // then
+        
+        verify(model, times(1)).setReadOnlyParams(false);
     }
 
     @Test

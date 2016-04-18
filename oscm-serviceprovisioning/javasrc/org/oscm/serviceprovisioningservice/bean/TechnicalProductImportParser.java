@@ -129,6 +129,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
     private static final String ATTRIBUTE_SUBSCRIPTION_RESTRICTION = "onlyOneSubscriptionPerUser";
     private static final String ATTRIBUTE_ONBEHALF_ACTING = "allowingOnBehalfActing";
     private static final String ATTRIBUTE_MANDATORY = "mandatory";
+    private static final String DEFAULT_LOCALE = "en";
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(TechnicalProductImportParser.class);
@@ -423,7 +424,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                     LogMessageIdentifier.ERROR_IMPORT_PARSER_ERROR);
             buffer.append(text).append("\n");
         } catch (SaaSSystemException e) {
-            throw e;            
+            throw e;
         } catch (Exception e) {
             if (appException instanceof OperationNotPermittedException) {
                 throw (OperationNotPermittedException) appException;
@@ -549,6 +550,14 @@ public class TechnicalProductImportParser extends ImportParserBase {
                     LogMessageIdentifier.WARN_IMPORT_PARSER_ERROR_MANDATORY_ATTRIBUTE_MISSING,
                     attName);
             return null;
+        }
+        return value;
+    }
+
+    private String getLocaleValue(Attributes atts, String attName) {
+        String value = atts.getValue(attName);
+        if (isBlank(value)) {
+            return DEFAULT_LOCALE;
         }
         return value;
     }
@@ -857,19 +866,19 @@ public class TechnicalProductImportParser extends ImportParserBase {
             techProduct.setBillingIdentifier(billingIdentifier);
 
         } else if (ELEMENT_LOCALIZED_DESCRIPTION.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else if (ELEMENT_LOCALIZED_NAME.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else if (ELEMENT_LOCALIZED_TAG.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else if (ELEMENT_ACCESS_INFO.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else if (ELEMENT_LOCALIZED_LICENSE.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
             cleanBuffer();
         } else if (ELEMENT_EVENT.equals(name)) {
             String id = getMandatoryValue(name, atts, ATTRIBUTE_ID);
@@ -978,7 +987,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
                 }
             }
         } else if (ELEMENT_LOCALIZED_OPTION.equals(name)) {
-            locale = getMandatoryValue(name, atts, ATTRIBUTE_LOCALE);
+            locale = getLocaleValue(atts, ATTRIBUTE_LOCALE);
 
             if (parOptionParser.hasProcessedLocale(locale)) {
                 addError(name,
@@ -1210,6 +1219,9 @@ public class TechnicalProductImportParser extends ImportParserBase {
         if (!isXmlValid()) {
             return;
         }
+        if (isBlank(locale)) {
+            locale = DEFAULT_LOCALE;
+        }
         if (ELEMENT_TECHNICAL_SERVICE.equals(name)) {
             if (!obsoleteEvents.isEmpty() || !obsoleteParameterDefs.isEmpty()
                     || !obsoleteRoles.isEmpty()) {
@@ -1275,9 +1287,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
             }
             clearMembers();
         } else if (ELEMENT_ACCESS_INFO.equals(name)) {
-            if (isBlank(locale)) {
-                return;
-            }
+
             String value = text.toString().trim();
             if ((techProduct.getAccessType() == ServiceAccessType.DIRECT
                     || techProduct.getAccessType() == ServiceAccessType.USER)
@@ -1294,7 +1304,7 @@ public class TechnicalProductImportParser extends ImportParserBase {
             localizer.storeLocalizedResource(locale, techProduct.getKey(),
                     LocalizedObjectTypes.TEC_PRODUCT_LOGIN_ACCESS_DESC, value);
         } else if (ELEMENT_LOCALIZED_DESCRIPTION.equals(name)) {
-            if (isBlank(locale) || isBlank(text)) {
+            if (isBlank(text)) {
                 return;
             }
             long key;
@@ -1325,9 +1335,6 @@ public class TechnicalProductImportParser extends ImportParserBase {
             localizer.storeLocalizedResource(locale, key, type,
                     text.toString().trim());
         } else if (ELEMENT_LOCALIZED_NAME.equals(name)) {
-            if (isBlank(locale)) {
-                return;
-            }
             long key;
             LocalizedObjectTypes type;
             if (role != null) {
@@ -1357,9 +1364,6 @@ public class TechnicalProductImportParser extends ImportParserBase {
             localizer.storeLocalizedResource(locale, key, type,
                     text.toString().trim());
         } else if (ELEMENT_LOCALIZED_LICENSE.equals(name)) {
-            if (isBlank(locale)) {
-                return;
-            }
             String newText = text.toString().trim();
             String oldText = localizer.getLocalizedTextFromDatabase(locale,
                     techProduct.getKey(),
@@ -1550,8 +1554,6 @@ public class TechnicalProductImportParser extends ImportParserBase {
      * 
      * @param id
      *            the product identifier
-     * @param version
-     *            The version of the technical product.
      * @param provisioningType
      *            The provisioning type.
      * @param provisioningUrl

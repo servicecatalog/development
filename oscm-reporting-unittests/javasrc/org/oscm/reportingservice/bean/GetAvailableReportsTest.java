@@ -47,7 +47,7 @@ import org.oscm.internal.vo.VOReport;
 
 public class GetAvailableReportsTest {
 
-    private static final String REPORTENGINE_URL = "http://estkulle:8180/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
+    private static final String REPORTENGINE_URL = "http://estkulle:8180/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
 
     ReportingServiceBean reportBean = new ReportingServiceBean();
     PlatformUser currentUser;
