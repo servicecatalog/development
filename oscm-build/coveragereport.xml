@@ -80,6 +80,33 @@
           </sourcefiles>
         </group>
 
+        <group name="oscm-billing-application">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-billing-application/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-billing-application/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-billing-service">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-billing-service/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-billing-service/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-file-billing-adapter">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-file-billing-adapter/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-file-billing-adapter/javasrc" />
+          </sourcefiles>
+        </group>
+
         <group name="oscm-brandmgmt">
           <classfiles>
             <fileset dir="${result.dir}/work/oscm-brandmgmt/classes" />
@@ -434,6 +461,15 @@
           </classfiles>
           <sourcefiles encoding="utf-8">
             <fileset dir="${workspace.dir}/oscm-server-common/javasrc" />
+          </sourcefiles>
+        </group>
+
+        <group name="oscm-server-util">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-server-util/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-server-util/javasrc" />
           </sourcefiles>
         </group>
 
