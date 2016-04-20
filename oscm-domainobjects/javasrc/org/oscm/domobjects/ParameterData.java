@@ -15,6 +15,7 @@ package org.oscm.domobjects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
 /**
  * Data container to hold the information of a product parameter.
@@ -26,7 +27,7 @@ import org.hibernate.search.annotations.Field;
 public class ParameterData extends DomainDataContainer {
 
     private static final long serialVersionUID = -2165507867844651769L;
-    @Field
+    @Field(analyzer = @Analyzer(definition = "customanalyzer"))
     private String value;
 
     @Column(nullable = false)
