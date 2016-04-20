@@ -26,7 +26,6 @@ import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.dao.SubscriptionDao;
 import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.validation.ArgumentValidator;
