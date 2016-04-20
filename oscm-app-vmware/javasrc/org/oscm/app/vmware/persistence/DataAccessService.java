@@ -57,7 +57,7 @@ public class DataAccessService {
 			throw new IllegalArgumentException("DataAccessService.getNextSequenceNumber() vCenter cannot be null.");
 		}
 
-		String seqName = "site_" + vcenterId.trim() + "_seq";
+		String seqName = "vcenter_" + vcenterId.trim() + "_seq";
 		String seq = null;
 		String query = "SELECT nextval('" + seqName + "')";
 		try (Connection con = getDatasource().getConnection(); PreparedStatement stmt = con.prepareStatement(query);) {

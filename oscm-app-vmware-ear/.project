@@ -10,7 +10,6 @@
 		<project>oscm-app-vmware-setup</project>
 		<project>oscm-app-vmware-ui</project>
 		<project>oscm-extsvc</project>
-		<project>oscm-extsvc-notification</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
