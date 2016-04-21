@@ -96,6 +96,8 @@ public class StateMachine {
 
                 if ("suspended".equals(config.getServiceSetting(
                         VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
+                    logger.debug(
+                            "Reinitialize timeout reference after an occured timeout.");
                     setReferenceForTimeout(config);
                 } else {
                     if (exceededTimeout(config, ms)) {
