@@ -1,0 +1,556 @@
+/*******************************************************************************
+ *                                                                              
+ *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
+ *                                                                                                                                 
+ *  Creation Date: 13.05.2015                                                      
+ *                                                                              
+ *******************************************************************************/
+
+package org.oscm.app.vmware.business;
+
+import java.util.HashMap;
+import java.util.List;
+
+import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.i18n.Messages;
+import org.oscm.app.vmware.remote.vmware.VMwareClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.vmware.vim25.CustomFieldDef;
+import com.vmware.vim25.CustomFieldStringValue;
+import com.vmware.vim25.GuestInfo;
+import com.vmware.vim25.GuestNicInfo;
+import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.TaskInfo;
+import com.vmware.vim25.VimPortType;
+import com.vmware.vim25.VirtualDevice;
+import com.vmware.vim25.VirtualDisk;
+import com.vmware.vim25.VirtualMachineConfigInfo;
+import com.vmware.vim25.VirtualMachineConfigSpec;
+import com.vmware.vim25.VirtualMachinePowerState;
+import com.vmware.vim25.VirtualMachineRuntimeInfo;
+
+public class VM extends Template {
+
+    private static final Logger logger = LoggerFactory.getLogger(VM.class);
+
+    private static final String GUEST_STATE_RUNNING = "running";
+
+    private static final String TOOLS_RUNNING_STATE = "guestToolsRunning";
+
+    /**
+     * Enumeration for the current state of the guest system.
+     */
+    public enum VMwareGuestSystemStatus {
+        GUEST_READY, GUEST_NOTREADY;
+    }
+
+    private ManagedObjectReference vmInstance;
+    private VirtualMachineConfigInfo configSpec;
+    private ManagedObjectReference folder;
+    private GuestInfo guestInfo;
+    private String instanceName;
+
+    public VM(VMwareClient vmw, String instanceName) throws Exception {
+        logger.debug("instanceName: " + instanceName);
+        this.vmw = vmw;
+        this.instanceName = instanceName;
+        vmInstance = vmw.getServiceUtil().getDecendentMoRef(null,
+                "VirtualMachine", instanceName);
+        configSpec = (VirtualMachineConfigInfo) vmw.getServiceUtil()
+                .getDynamicProperty(vmInstance, "config");
+        folder = (ManagedObjectReference) vmw.getServiceUtil()
+                .getDynamicProperty(vmInstance, "parent");
+        guestInfo = (GuestInfo) vmw.getServiceUtil()
+                .getDynamicProperty(vmInstance, "guest");
+
+        if (vmInstance == null || configSpec == null || folder == null
+                || guestInfo == null) {
+            logger.warn("failed to retrieve VM");
+            throw new Exception(
+                    "Failed to retrieve information of VM " + instanceName);
+        }
+    }
+
+    public String getGuestFullName() {
+        return configSpec.getGuestFullName();
+    }
+
+    public boolean isLinux() {
+        String guestid = configSpec.getGuestId();
+        boolean isLinux = guestid.startsWith("cent")
+                || guestid.startsWith("debian") || guestid.startsWith("freebsd")
+                || guestid.startsWith("other24xLinux")
+                || guestid.startsWith("other26xLinux")
+                || guestid.startsWith("otherLinux")
+                || guestid.startsWith("redhat") || guestid.startsWith("rhel")
+                || guestid.startsWith("sles") || guestid.startsWith("suse")
+                || guestid.startsWith("ubuntu");
+
+        logger.debug("instanceName: " + instanceName + " isLinux: " + isLinux
+                + " guestid: " + configSpec.getGuestId() + " OS: "
+                + configSpec.getGuestFullName());
+
+        return isLinux;
+    }
+
+    public void updateServiceParameter(VMPropertyHandler paramHandler)
+            throws Exception {
+        logger.debug("instanceName: " + instanceName);
+        int key = getDataDiskKey();
+        if (key != -1) {
+            paramHandler.setDataDiskKey(1, key);
+        }
+
+        if (!paramHandler
+                .isServiceSettingTrue(VMPropertyHandler.TS_IMPORT_EXISTING_VM)
+                && !paramHandler.getInstanceName()
+                        .equals(guestInfo.getHostName())) {
+            throw new Exception(
+                    "Instancename and hostname do not match. Hostname: "
+                            + guestInfo.getHostName() + "  Instancename: "
+                            + paramHandler.getInstanceName());
+        }
+
+        String targetFolder = (String) vmw.getServiceUtil()
+                .getDynamicProperty(folder, "name");
+
+        Integer ramMB = (Integer) vmw.getServiceUtil()
+                .getDynamicProperty(vmInstance, "summary.config.memorySizeMB");
+        paramHandler.setSetting(VMPropertyHandler.TS_AMOUNT_OF_RAM,
+                ramMB.toString());
+        paramHandler.setSetting(VMPropertyHandler.TS_NUMBER_OF_CPU,
+                Integer.toString(getNumCPU()));
+        paramHandler.setSetting(VMPropertyHandler.TS_TARGET_FOLDER,
+                targetFolder);
+
+        paramHandler.setSetting(VMPropertyHandler.TS_DISK_SIZE,
+                getDiskSizeInGB(1));
+
+        paramHandler.setSetting(
+                VMPropertyHandler.TS_DATA_DISK_SIZE.replace("#", "1"),
+                getDiskSizeInGB(2));
+        paramHandler.setSetting(VMPropertyHandler.TS_NUMBER_OF_NICS,
+                Integer.toString(getNumberOfNICs()));
+
+        int i = 1;
+        List<GuestNicInfo> nicList = guestInfo.getNet();
+        for (GuestNicInfo info : nicList) {
+            if (info.getIpAddress() != null && info.getIpAddress().size() > 0) {
+                paramHandler.setSetting("NIC" + i + "_IP_ADDRESS",
+                        info.getIpAddress().get(0));
+                if (info.getNetwork() != null) {
+                    paramHandler.setSetting("NIC" + i + "_NETWORK_ADAPTER",
+                            info.getNetwork());
+                }
+                i++;
+            }
+        }
+    }
+
+    public boolean isWindows() {
+        String guestid = configSpec.getGuestId();
+        boolean isWindows = guestid.startsWith("win");
+        logger.debug("isWindows: " + isWindows + " guestid: "
+                + configSpec.getGuestId() + " OS: "
+                + configSpec.getGuestFullName());
+
+        return isWindows;
+    }
+
+    public boolean isRunning() throws Exception {
+        VirtualMachineRuntimeInfo vmRuntimeInfo = (VirtualMachineRuntimeInfo) vmw
+                .getServiceUtil().getDynamicProperty(vmInstance, "runtime");
+
+        boolean isRunning = false;
+        if (vmRuntimeInfo != null) {
+            isRunning = !VirtualMachinePowerState.POWERED_OFF
+                    .equals(vmRuntimeInfo.getPowerState());
+            logger.debug(Boolean.toString(isRunning));
+        } else {
+            logger.warn("Failed to retrieve runtime information from VM "
+                    + instanceName);
+        }
+
+        return isRunning;
+    }
+
+    public TaskInfo start() throws Exception {
+        logger.debug("instanceName: " + instanceName);
+        ManagedObjectReference startTask = vmw.getConnection().getService()
+                .powerOnVMTask(vmInstance, null);
+
+        TaskInfo tInfo = (TaskInfo) vmw.getServiceUtil()
+                .getDynamicProperty(startTask, "info");
+        return tInfo;
+    }
+
+    public TaskInfo stop(boolean forceStop) throws Exception {
+        logger.debug(
+                "instanceName: " + instanceName + " forceStop: " + forceStop);
+        TaskInfo tInfo = null;
+
+        if (forceStop) {
+            logger.debug("Call vSphere API: powerOffVMTask() instanceName: "
+                    + instanceName);
+            ManagedObjectReference stopTask = vmw.getConnection().getService()
+                    .powerOffVMTask(vmInstance);
+            tInfo = (TaskInfo) vmw.getServiceUtil().getDynamicProperty(stopTask,
+                    "info");
+        } else {
+
+            if (isRunning()) {
+                logger.debug("Call vSphere API: shutdownGuest() instanceName: "
+                        + instanceName);
+                vmw.getConnection().getService().shutdownGuest(vmInstance);
+            }
+        }
+
+        return tInfo;
+    }
+
+    public ManagedObjectReference getFolder() {
+        return folder;
+    }
+
+    public void runScript(VMPropertyHandler paramHandler) throws Exception {
+        logger.debug("instanceName: " + instanceName);
+
+        String scriptURL = paramHandler
+                .getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL);
+        String guestUserId = paramHandler
+                .getServiceSetting(VMPropertyHandler.TS_SCRIPT_USERID);
+        String guestPassword = paramHandler
+                .getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD);
+        if (scriptURL != null) {
+            Script script = new Script(guestUserId, guestPassword, scriptURL,
+                    isWindows());
+            script.execute(vmw, vmInstance, paramHandler);
+        }
+    }
+
+    public int getNumberOfNICs() throws Exception {
+        return NetworkManager.getNumberOfNICs(vmw, vmInstance);
+    }
+
+    public String getNetworkName(int numNic) throws Exception {
+        return NetworkManager.getNetworkName(vmw, vmInstance, numNic);
+    }
+
+    /**
+     * Reconfigures VMware instance. Memory, CPU, disk space and network
+     * adapter. The VM has been created and must be stopped to reconfigure the
+     * hardware.
+     */
+    public TaskInfo reconfigureVirtualMachine(VMPropertyHandler paramHandler)
+            throws Exception {
+        logger.debug("instanceName: " + instanceName);
+
+        VimPortType service = vmw.getConnection().getService();
+        VirtualMachineConfigSpec vmConfigSpec = new VirtualMachineConfigSpec();
+
+        vmConfigSpec
+                .setMemoryMB(Long.valueOf(paramHandler.getConfigMemoryMB()));
+        vmConfigSpec.setNumCPUs(Integer.valueOf(paramHandler.getConfigCPUs()));
+
+        String reqUser = paramHandler
+                .getServiceSetting(VMPropertyHandler.REQUESTING_USER);
+
+        String comment = Messages.get(paramHandler.getLocale(), "vm_comment",
+                new Object[] { paramHandler.getSettings().getOrganizationName(),
+                        paramHandler.getSettings().getSubscriptionId(),
+                        reqUser });
+        vmConfigSpec.setAnnotation(comment);
+
+        DiskManager.reconfigureDisks(vmw, vmConfigSpec, paramHandler,
+                vmInstance);
+
+        NetworkManager.configureNetworkAdapter(vmw, vmConfigSpec, paramHandler,
+                vmInstance);
+
+        logger.debug("Call vSphere API: reconfigVMTask()");
+        ManagedObjectReference reconfigureTask = service
+                .reconfigVMTask(vmInstance, vmConfigSpec);
+
+        return (TaskInfo) vmw.getServiceUtil()
+                .getDynamicProperty(reconfigureTask, "info");
+    }
+
+    public TaskInfo updateCommentField(String comment) throws Exception {
+        logger.debug("instanceName: " + instanceName + " comment: " + comment);
+        VimPortType service = vmw.getConnection().getService();
+        VirtualMachineConfigSpec vmConfigSpec = new VirtualMachineConfigSpec();
+        vmConfigSpec.setAnnotation(comment);
+        logger.debug("Call vSphere API: reconfigVMTask()");
+        ManagedObjectReference reconfigureTask = service
+                .reconfigVMTask(vmInstance, vmConfigSpec);
+
+        return (TaskInfo) vmw.getServiceUtil()
+                .getDynamicProperty(reconfigureTask, "info");
+    }
+
+    /**
+     * Delete VMware instance on vSphere server.
+     * 
+     * @param vmw
+     *            connected VMware client entity
+     * @param instanceId
+     *            id of the instance
+     */
+    public TaskInfo delete() throws Exception {
+        logger.debug("Call vSphere API: destroyTask() instanceName: "
+                + instanceName);
+        ManagedObjectReference startTask = vmw.getConnection().getService()
+                .destroyTask(vmInstance);
+
+        return (TaskInfo) vmw.getServiceUtil().getDynamicProperty(startTask,
+                "info");
+    }
+
+    public VMwareGuestSystemStatus getState(VMPropertyHandler properties)
+            throws Exception {
+
+        boolean isConnected = areNetworkCardsConnected();
+        boolean validHostname = isValidHostname();
+        boolean validIp = isValidIp(properties);
+
+        if (validHostname && isConnected && validIp && isGuestSystemRunning()
+                && areGuestToolsRunning()) {
+            return VMwareGuestSystemStatus.GUEST_READY;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Guest system is not ready yet ");
+        sb.append("[");
+        sb.append("hostname=" + guestInfo.getHostName() + ", ");
+        sb.append("ipReady=" + validIp + ", ");
+        sb.append("guestState=" + guestInfo.getGuestState() + ", ");
+        sb.append("toolsState=" + guestInfo.getToolsStatus() + ", ");
+        sb.append("toolsRunning=" + guestInfo.getToolsRunningStatus() + ", ");
+        sb.append("isConnected=" + isConnected);
+        sb.append("]");
+        logger.debug(sb.toString());
+
+        return VMwareGuestSystemStatus.GUEST_NOTREADY;
+    }
+
+    boolean areGuestToolsRunning() {
+        return TOOLS_RUNNING_STATE.equals(guestInfo.getToolsRunningStatus());
+    }
+
+    boolean isGuestSystemRunning() {
+        return GUEST_STATE_RUNNING.equals(guestInfo.getGuestState());
+    }
+
+    boolean areNetworkCardsConnected() {
+        boolean isConnected = false;
+        if (guestInfo.getNet() != null && !guestInfo.getNet().isEmpty()) {
+            isConnected = true;
+        }
+        for (GuestNicInfo nicInfo : guestInfo.getNet()) {
+            isConnected = isConnected && nicInfo.isConnected();
+        }
+        return isConnected;
+    }
+
+    boolean isValidHostname() {
+        String hostname = guestInfo.getHostName();
+        return hostname != null && hostname.length() > 0 && hostname
+                .toUpperCase().startsWith(instanceName.toUpperCase());
+    }
+
+    boolean isValidIp(VMPropertyHandler configuration) {
+        for (int i = 1; i <= configuration.getNumberOfNetworkAdapter(); i++) {
+            GuestNicInfo info = getNicInfo(configuration.getNetworkAdapter(i));
+            if (info == null) {
+                return false;
+            }
+
+            if (configuration.isAdapterConfiguredManually(i)) {
+                if (!containsIpAddress(info, configuration.getIpAddress(i))) {
+                    return false;
+                }
+            } else {
+                if (!ipAddressExists(info)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    GuestNicInfo getNicInfo(String adapter) {
+        for (GuestNicInfo info : guestInfo.getNet()) {
+            if (info.getNetwork().equals(adapter)) {
+                return info;
+            }
+        }
+        return null;
+    }
+
+    boolean containsIpAddress(GuestNicInfo info, String address) {
+        return info.getIpAddress().contains(address);
+    }
+
+    boolean guestInfoContainsNic(String adapter) {
+        for (GuestNicInfo info : guestInfo.getNet()) {
+            if (info.getNetwork().equals(adapter)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    boolean ipAddressExists(GuestNicInfo info) {
+        if (info.getIpAddress().isEmpty()) {
+            return false;
+        }
+
+        for (String ip : info.getIpAddress()) {
+            if (ip == null || ip.trim().length() == 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public String generateAccessInfo(VMPropertyHandler paramHandler)
+            throws Exception {
+        logger.debug("instanceName: " + instanceName);
+        VMwareAccessInfo accInfo = new VMwareAccessInfo(vmw, paramHandler);
+        return accInfo.generateAccessInfo(guestInfo);
+    }
+
+    private int getDataDiskKey() throws Exception {
+        List<VirtualDevice> devices = configSpec.getHardware().getDevice();
+        int countDisks = 0;
+        int key = -1;
+        for (VirtualDevice vdInfo : devices) {
+            if (vdInfo instanceof VirtualDisk) {
+                countDisks++;
+                if (countDisks == 2) {
+                    key = ((VirtualDisk) vdInfo).getKey();
+                    break;
+                }
+            }
+        }
+
+        return key;
+    }
+
+    private String getDiskSizeInGB(int disk) throws Exception {
+        String size = "";
+        List<VirtualDevice> devices = configSpec.getHardware().getDevice();
+        int countDisks = 0;
+        for (VirtualDevice vdInfo : devices) {
+            if (vdInfo instanceof VirtualDisk) {
+                countDisks++;
+                if (countDisks == disk) {
+                    long gigabyte = ((VirtualDisk) vdInfo).getCapacityInKB()
+                            / 1024 / 1024;
+                    size = Long.toString(gigabyte);
+                    break;
+                }
+            }
+        }
+
+        return size;
+    }
+
+    public String getTotalDiskSizeInMB() throws Exception {
+        long megabyte = 0;
+        List<VirtualDevice> devices = configSpec.getHardware().getDevice();
+        for (VirtualDevice vdInfo : devices) {
+            if (vdInfo instanceof VirtualDisk) {
+                megabyte = megabyte
+                        + (((VirtualDisk) vdInfo).getCapacityInKB() / 1024);
+            }
+        }
+
+        return Long.toString(megabyte);
+    }
+
+    public Integer getNumCPU() {
+        return configSpec.getHardware().getNumCPU();
+    }
+
+    public Integer getCoresPerCPU() {
+        return configSpec.getHardware().getNumCoresPerSocket();
+    }
+
+    public String getCPUModel(VMPropertyHandler paramHandler) throws Exception {
+
+        String datacenter = paramHandler.getTargetDatacenter();
+        ManagedObjectReference dataCenterRef = vmw.getServiceUtil()
+                .getDecendentMoRef(null, "Datacenter", datacenter);
+        if (dataCenterRef == null) {
+            logger.error("Datacenter not found. dataCenter: " + datacenter);
+            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
+                    "error_invalid_datacenter", new Object[] { datacenter }));
+        }
+
+        String hostName = paramHandler
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_HOST);
+        ManagedObjectReference hostRef = vmw.getServiceUtil()
+                .getDecendentMoRef(dataCenterRef, "HostSystem", hostName);
+        if (hostRef == null) {
+            logger.error("Target host " + hostName + " not found");
+            throw new APPlatformException(Messages.getAll("error_invalid_host",
+                    new Object[] { hostName }));
+        }
+
+        // HostSystem summary
+        // HostListSummary hardware
+        // HostHardwareSummary.cpuModel
+        return (String) vmw.getServiceUtil().getDynamicProperty(hostRef,
+                "summary.hardware.cpuModel");
+
+    }
+
+    public HashMap<String, String> getAnnotationAttributes() throws Exception {
+        logger.debug("instanceName: " + instanceName);
+        HashMap<String, String> attributes = new HashMap<String, String>();
+
+        ManagedObjectReference customFieldsManager = vmw.getConnection()
+                .getServiceContent().getCustomFieldsManager();
+        List<CustomFieldDef> customFieldDef = (List<CustomFieldDef>) vmw
+                .getServiceUtil()
+                .getDynamicProperty(customFieldsManager, "field");
+
+        // CustomFieldsManager.RemoveCustomFieldDef
+
+        List<CustomFieldStringValue> customValues = (List<CustomFieldStringValue>) vmw
+                .getServiceUtil()
+                .getDynamicProperty(vmInstance, "summary.customValue");
+
+        for (CustomFieldDef field : customFieldDef) {
+            for (CustomFieldStringValue value : customValues) {
+                if (field.getKey() == value.getKey()) {
+                    if (value.getValue() != null
+                            && value.getValue().trim().length() > 0) {
+                        attributes.put(field.getName(), value.getValue());
+                    } else {
+                        logger.warn("no value set for annotation attribute "
+                                + field.getName());
+                    }
+                }
+            }
+        }
+
+        return attributes;
+    }
+
+    /**
+     * Do not remove. Is used by NOW-IT integration.
+     * 
+     * @return fully qualified domain name
+     */
+    public String getFQDN() {
+        // guestInfo.getNet()
+        return ""; // TODO return FQDN
+    }
+}
