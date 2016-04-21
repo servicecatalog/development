@@ -32,7 +32,9 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.oscm.accountservice.assembler.BillingContactAssembler;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
+import org.oscm.accountservice.assembler.PaymentInfoAssembler;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.accountservice.dataaccess.UdaAccess;
 import org.oscm.accountservice.local.AccountServiceLocal;
@@ -43,6 +45,7 @@ import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingContact;
 import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.OnBehalfUserReference;
 import org.oscm.domobjects.OperationParameter;
@@ -157,6 +160,7 @@ import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.string.Strings;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
+import org.oscm.subscriptionservice.dao.BillingContactDao;
 import org.oscm.subscriptionservice.dao.MarketplaceDao;
 import org.oscm.subscriptionservice.dao.ModifiedEntityDao;
 import org.oscm.subscriptionservice.dao.OrganizationDao;
@@ -213,6 +217,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     public static final String KEY_PAIR_NAME = "Key pair name";
     public static final String AMAZONAWS_COM = "amazonaws.com";
+    private static final int PAYMENTTYPE_INVOICE = 3;
 
     private static final Log4jLogger LOG = LoggerFactory
             .getLogger(SubscriptionServiceBean.class);
@@ -301,14 +306,20 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
-
+        
         Subscription sub;
         PlatformUser currentUser = dataManager.getCurrentUser();
+        
         checkIfServiceAvailable(service.getKey(), service.getServiceId(),
                 currentUser);
         checkIfSubscriptionAlreadyExists(service);
         verifyIdAndKeyUniqueness(currentUser, subscription);
 
+        if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
+            Organization organization = currentUser.getOrganization();
+            billingContact = createBillingContactForOrganization(currentUser);
+            paymentInfo = createPaymentInfoForOrganization(organization);
+        }
         validateSettingsForSubscribing(subscription, service, paymentInfo,
                 billingContact);
         validateUserAssignmentForSubscribing(service, users);
@@ -353,6 +364,72 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
 
         return voSub;
+    }
+    
+    public boolean isPaymentInfoHidden() {
+        ConfigurationSetting hidePaymentInformationSetting = cfgService
+                .getConfigurationSetting(
+                        ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                        Configuration.GLOBAL_CONTEXT);
+        return Boolean.valueOf(hidePaymentInformationSetting.getValue());
+    }
+
+    private VOBillingContact createBillingContactForOrganization(
+            PlatformUser user) throws ObjectNotFoundException,
+                    NonUniqueBusinessKeyException {
+        Organization organization = user.getOrganization();
+        BillingContact orgBillingContact = new BillingContact();
+        String email = organization.getEmail() == null ? " "
+                : organization.getEmail();
+
+        String address = organization.getAddress() == null ? " "
+                : organization.getAddress();
+        List<BillingContact> billingContacts = getBillingContactDao()
+                .getCustomersForSubscriptionId(organization.getKey(), email,
+                        address);
+        if (!billingContacts.isEmpty()) {
+            orgBillingContact = billingContacts.get(0);
+        } else {
+            orgBillingContact.setAddress(address);
+            orgBillingContact.setCompanyName(organization.getName());
+            orgBillingContact.setOrganization_tkey(organization.getKey());
+            orgBillingContact.setOrgAddressUsed(true);
+            orgBillingContact.setEmail(email);
+            String organizationId = organization.getName() == null
+                    ? user.getUserId() : organization.getName();
+            orgBillingContact.setBillingContactId(organizationId
+                    + DateFactory.getInstance().getTransactionTime());
+            orgBillingContact.setOrganization(organization);
+            dataManager.persist(orgBillingContact);
+        }
+
+        return BillingContactAssembler.toVOBillingContact(orgBillingContact);
+    }
+
+    private VOPaymentInfo createPaymentInfoForOrganization(
+            Organization organization) throws ObjectNotFoundException,
+                    NonUniqueBusinessKeyException {
+        PaymentInfo paInfo = new PaymentInfo(
+                DateFactory.getInstance().getTransactionTime());
+        paInfo.setOrganization_tkey(organization.getKey());
+        PaymentType paymentType = new PaymentType();
+        paymentType.setPaymentTypeId(PaymentType.INVOICE);
+        paymentType = (PaymentType) dataManager.find(paymentType);
+        paInfo.setOrganization(organization);
+        paInfo.setPaymentType(paymentType);
+        LocalizerFacade localizerFacade = new LocalizerFacade(
+                localizer, dataManager.getCurrentUser().getLocale());
+        
+        paInfo.setPaymentInfoId(localizerFacade.getText(PAYMENTTYPE_INVOICE,
+                LocalizedObjectTypes.PAYMENT_TYPE_NAME));
+        try {
+            paInfo = (PaymentInfo) dataManager
+                    .getReferenceByBusinessKey(paInfo);
+        } catch (ObjectNotFoundException onfe) {
+            dataManager.persist(paInfo);
+        }
+
+        return PaymentInfoAssembler.toVOPaymentInfo(paInfo, localizerFacade);
     }
 
     private void autoAssignUser(VOService service, Subscription sub)
@@ -1205,13 +1282,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *             Thrown in case the product is chargeable but the customer
      *             does not have a payment information stored.
      * @throws ConcurrentModificationException
+     * @throws NonUniqueBusinessKeyException 
      */
     private void validateSettingsForSubscribing(VOSubscription subscription,
             VOService product, VOPaymentInfo paymentInfo,
             VOBillingContact voBillingContact) throws ValidationException,
             ObjectNotFoundException, OperationNotPermittedException,
             ServiceChangedException, PriceModelException,
-            PaymentInformationException, ConcurrentModificationException {
+            PaymentInformationException, ConcurrentModificationException, NonUniqueBusinessKeyException {
         String subscriptionId = subscription.getSubscriptionId();
         BLValidator.isId("subscriptionId", subscriptionId, true);
         String pon = subscription.getPurchaseOrderNumber();
@@ -1278,7 +1356,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             throw mpme;
         }
 
-        if (priceModel.isChargeable()) {
+        if (priceModel.isChargeable() && !isPaymentInfoHidden()) {
             PaymentDataValidator.validateNotNull(paymentInfo, voBillingContact);
             PaymentInfo pi = dataManager.getReference(PaymentInfo.class,
                     paymentInfo.getKey());
@@ -2582,6 +2660,14 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
         ArgumentValidator.notNull("subscription", subscription);
         ArgumentValidator.notNull("service", service);
+        
+        PlatformUser currentUser = dataManager.getCurrentUser();
+
+        if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
+            Organization organization = currentUser.getOrganization();
+            billingContact = createBillingContactForOrganization(currentUser);
+            paymentInfo = createPaymentInfoForOrganization(organization);
+        }
 
         manageBean.checkSubscriptionOwner(subscription.getSubscriptionId(),
                 subscription.getKey());
@@ -5271,6 +5357,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     public SessionDao getSessionDao() {
         return new SessionDao(dataManager);
+    }
+    
+    public BillingContactDao getBillingContactDao() {
+        return new BillingContactDao(dataManager);
     }
 
     @Override
