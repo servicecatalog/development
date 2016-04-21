@@ -371,6 +371,17 @@ public class SubscriptionWizardConversationTest {
         
         verify(model, times(1)).setReadOnlyParams(false);
     }
+    
+    @Test
+    public void testPreviousFromPayment() {
+        // given
+        
+        // when
+        bean.previousFromPayment();
+        // then
+        
+        verify(model, times(1)).setReadOnlyParams(false);
+    }
 
     @Test
     public void selectServiceByUnitAdminSubMan_WithoutUnit() {
