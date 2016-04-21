@@ -1,0 +1,4 @@
+"VCenter","Datacenter","Cluster","VLAN","IPAddress"
+"estvcenterdev1","bespoc","esscluster","VLAN1","169.254.10.1"
+"estvcenterdev1","bespoc","esscluster","VLAN1","169.254.10.2"
+"estvcenterdev1","bespoc","esscluster","VLAN1","169.254.10.3"
