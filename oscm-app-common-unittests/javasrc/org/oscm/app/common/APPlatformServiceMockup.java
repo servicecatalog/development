@@ -41,8 +41,8 @@ public class APPlatformServiceMockup implements APPlatformService {
     }
 
     @Override
-    public void sendMail(List<String> mailAddresses, String subject, String text)
-            throws APPlatformException {
+    public void sendMail(List<String> mailAddresses, String subject,
+            String text) throws APPlatformException {
     }
 
     @Override
@@ -72,8 +72,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public boolean lockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2) throws AuthenticationException,
-            APPlatformException {
+            PasswordAuthentication arg2)
+            throws AuthenticationException, APPlatformException {
         return false;
     }
 
@@ -90,8 +90,8 @@ public class APPlatformServiceMockup implements APPlatformService {
 
     @Override
     public void unlockServiceInstance(String arg0, String arg1,
-            PasswordAuthentication arg2) throws AuthenticationException,
-            APPlatformException {
+            PasswordAuthentication arg2)
+            throws AuthenticationException, APPlatformException {
     }
 
     @Override
@@ -124,5 +124,14 @@ public class APPlatformServiceMockup implements APPlatformService {
     @Override
     public String getBSSWebServiceWSDLUrl() throws ConfigurationException {
         return null;
+    }
+
+    @Override
+    public void storeServiceInstanceDetails(String controllerId,
+            String instanceId, ProvisioningSettings settings,
+            PasswordAuthentication authentication)
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException {
+        // store service settings not supported by mock
     }
 }

@@ -104,7 +104,7 @@ public abstract class BaseBillingReport {
     protected static final long INVALID_USER_ID = 2L;
     protected static final String REPORT_WSDLURL = "http://localhost:8081/Report/ReportingServiceBean?wsdl";
     protected static final String REPORT_SOAP_ENDPOINT = "http://localhost:8081/Report/ReportingServiceBean";
-    protected static final String REPORT_ENGINEURL = "http://localhost:8080/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
+    protected static final String REPORT_ENGINEURL = "http://localhost:8080/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
     protected static final String LOCALIZED_REPORT_DESCRIPTION = "LocalizedReportDescription";
 
     protected static final String VALID_SESSION_ID = "valid_session";

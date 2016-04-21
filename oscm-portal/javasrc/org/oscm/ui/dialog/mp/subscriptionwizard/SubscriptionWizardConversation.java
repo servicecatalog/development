@@ -622,6 +622,7 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public String previousFromPayment() {
+        model.setReadOnlyParams(false);
         return SubscriptionDetailsCtrlConstants.OUTCOME_PREVIOUS;
     }
 

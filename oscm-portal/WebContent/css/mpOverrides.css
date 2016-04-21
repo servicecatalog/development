@@ -126,3 +126,7 @@ a.linkBtn{
 	height:23px;
 	padding:2px 0px 0px 12px;
 }
+
+div#subDetails .labelAndValuePanelCol1{
+	padding: 0px;
+}

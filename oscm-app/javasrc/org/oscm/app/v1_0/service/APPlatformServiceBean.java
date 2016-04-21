@@ -17,9 +17,6 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
@@ -39,6 +36,8 @@ import org.oscm.app.v1_0.exceptions.SuspendException;
 import org.oscm.app.v1_0.intf.APPlatformController;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dirk Bernsau
@@ -88,8 +87,8 @@ public class APPlatformServiceBean implements APPlatformService {
     }
 
     @Override
-    public void sendMail(List<String> mailAddresses, String subject, String text)
-            throws APPlatformException {
+    public void sendMail(List<String> mailAddresses, String subject,
+            String text) throws APPlatformException {
         try {
             mailService.sendMail(mailAddresses, subject, text);
         } catch (Exception e) {
@@ -103,8 +102,8 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public String getEventServiceUrl() throws ConfigurationException {
-        String result = configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.APP_BASE_URL);
+        String result = configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.APP_BASE_URL);
         if (!result.endsWith("/")) {
             result += "/";
         }
@@ -114,14 +113,13 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public String getBSSWebServiceUrl() throws ConfigurationException {
-        if ("SAML_SP"
-                .equals(configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_AUTH_MODE))) {
-            return configService
-                    .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL);
+        if ("SAML_SP".equals(configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_AUTH_MODE))) {
+            return configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_URL);
         }
-        return configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_URL);
+        return configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_WEBSERVICE_URL);
     }
 
     @Override
@@ -135,6 +133,7 @@ public class APPlatformServiceBean implements APPlatformService {
     public void storeControllerSettings(String controllerId,
             HashMap<String, String> controllerSettings,
             PasswordAuthentication authentication) throws APPlatformException {
+
         authService.authenticateTMForController(controllerId, authentication);
         configService.storeControllerConfigurationSettings(controllerId,
                 controllerSettings);
@@ -146,8 +145,8 @@ public class APPlatformServiceBean implements APPlatformService {
     @Override
     public User authenticate(String controllerId,
             PasswordAuthentication authentication) throws APPlatformException {
-        VOUserDetails vo = authService.getAuthenticatedTMForController(
-                controllerId, authentication);
+        VOUserDetails vo = authService
+                .getAuthenticatedTMForController(controllerId, authentication);
         User user = new User();
         user.setUserKey(vo.getKey());
         user.setUserId(vo.getUserId());
@@ -165,10 +164,11 @@ public class APPlatformServiceBean implements APPlatformService {
                 .getControllerConfigurationSettings(controllerId);
         APPlatformController controller = APPlatformControllerFactory
                 .getInstance(controllerId);
-        ControllerSettings controllerSettings = new ControllerSettings(settings);
-        controllerSettings.setAuthentication(configService
-                .getAuthenticationForBESTechnologyManager(controllerId, null,
-                        null));
+        ControllerSettings controllerSettings = new ControllerSettings(
+                settings);
+        controllerSettings.setAuthentication(
+                configService.getAuthenticationForBESTechnologyManager(
+                        controllerId, null, null));
         controller.setControllerSettings(controllerSettings);
     }
 
@@ -203,13 +203,30 @@ public class APPlatformServiceBean implements APPlatformService {
 
     @Override
     public String getBSSWebServiceWSDLUrl() throws ConfigurationException {
-        if ("SAML_SP"
-                .equals(configService
-                        .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_AUTH_MODE))) {
-            return configService
-                    .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL);
+        if ("SAML_SP".equals(configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_AUTH_MODE))) {
+            return configService.getProxyConfigurationSetting(
+                    PlatformConfigurationKey.BSS_STS_WEBSERVICE_WSDL_URL);
         }
-        return configService
-                .getProxyConfigurationSetting(PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL);
+        return configService.getProxyConfigurationSetting(
+                PlatformConfigurationKey.BSS_WEBSERVICE_WSDL_URL);
+    }
+
+    @Override
+    public void storeServiceInstanceDetails(String controllerId,
+            String instanceId, ProvisioningSettings settings,
+            PasswordAuthentication authentication)
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException {
+        authService.authenticateTMForInstance(controllerId, instanceId,
+                authentication);
+        try {
+            ServiceInstance instance = instanceDAO.getInstanceById(instanceId);
+            instance.setInstanceParameters(settings.getParameters());
+        } catch (ServiceInstanceNotFoundException e) {
+            throw new ObjectNotFoundException(e.getMessage());
+        } catch (BadResultException e) {
+            throw new APPlatformException(e.getMessage());
+        }
     }
 }

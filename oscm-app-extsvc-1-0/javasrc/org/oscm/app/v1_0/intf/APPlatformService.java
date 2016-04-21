@@ -20,6 +20,7 @@ import org.oscm.app.v1_0.data.User;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.v1_0.exceptions.AuthenticationException;
 import org.oscm.app.v1_0.exceptions.ConfigurationException;
+import org.oscm.app.v1_0.exceptions.ObjectNotFoundException;
 
 /**
  * Interface providing methods by which service controllers implemented in APP
@@ -44,8 +45,8 @@ public interface APPlatformService {
      *            the body of the mail
      * @throws APPlatformException
      */
-    public void sendMail(List<String> mailAddresses, String subject, String text)
-            throws APPlatformException;
+    public void sendMail(List<String> mailAddresses, String subject,
+            String text) throws APPlatformException;
 
     /**
      * Returns the basic URL of the APP notification handler. Requests to the
@@ -58,8 +59,8 @@ public interface APPlatformService {
     public String getEventServiceUrl() throws ConfigurationException;
 
     /**
-     * Returns the base URL of the OSCM platform services in
-     * the following format:
+     * Returns the base URL of the OSCM platform services in the following
+     * format:
      * <p>
      * <code>http(s)://&lt;host&gt;:&lt;port&gt;/{SERVICE}/BASIC</code>
      * <p>
@@ -296,4 +297,34 @@ public interface APPlatformService {
             throws AuthenticationException, ConfigurationException,
             APPlatformException;
 
+    /**
+     * /** Stores the service instance settings for the given instance.
+     * <p>
+     * In order to execute this method, you must specify the credentials of a
+     * technology manager registered in the organization which is responsible
+     * for the controller.
+     * 
+     * @param controllerId
+     *            the ID of the service controller
+     * @param instanceId
+     *            the ID of the service instance
+     * @param settings
+     *            the configuration settings, consisting of a key and a value
+     *            each; specify a <code>null</code> value to remove a setting
+     * @param authentication
+     *            a <code>PasswordAuthentication</code> object identifying a
+     *            technology manager registered in the organization which is
+     *            responsible for the controller
+     * @throws AuthenticationException
+     *             if the authentication of the user fails
+     * @throws ConfigurationException
+     *             if the configuration settings cannot be loaded
+     * @throws APPlatformException
+     *             if a general problem occurs in accessing APP
+     */
+    public void storeServiceInstanceDetails(String controllerId,
+            String instanceId, ProvisioningSettings settings,
+            PasswordAuthentication authentication)
+            throws AuthenticationException, ConfigurationException,
+            APPlatformException;
 }
