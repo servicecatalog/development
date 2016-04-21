@@ -9,12 +9,12 @@ import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.VM;
+import org.oscm.app.vmware.business.VM.VMwareGuestSystemStatus;
 import org.oscm.app.vmware.business.VMPropertyHandler;
-import org.oscm.app.vmware.business.VMwareGuestSystemStatus;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.i18n.Messages;
+import org.oscm.app.vmware.remote.vmware.VMClientPool;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
-import org.oscm.app.vmware.remote.vmware.VMwareClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +53,10 @@ public class Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.reconfigureVirtualMachine(ph);
             ph.setTask(tInfo.getKey());
@@ -77,8 +79,10 @@ public class Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             vm.stop(false);
             return EVENT_STOPPED;
@@ -100,8 +104,10 @@ public class Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.stop(true);
             ph.setTask(tInfo.getKey());
@@ -121,8 +127,10 @@ public class Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.start();
             ph.setTask(tInfo.getKey());
@@ -143,8 +151,10 @@ public class Actions {
 
         String instanceName = "";
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             instanceName = ph.getInstanceName();
             VM vm = new VM(vmClient, instanceName);
             VMwareGuestSystemStatus guestStatus = vm.getState(ph);
@@ -166,8 +176,10 @@ public class Actions {
             ProvisioningSettings settings, InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             String accessInfo = vm.generateAccessInfo(ph);
             ph.setAccessInfo(accessInfo);
@@ -205,8 +217,10 @@ public class Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        try (VMwareClient vmClient = new VMwareClientFactory("en")
-                .getInstance(ph);) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
 
             TaskInfo taskInfo = getTaskInfo(vmClient, ph);
             TaskInfoState taskState = (taskInfo != null) ? taskInfo.getState()

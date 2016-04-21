@@ -725,7 +725,9 @@ public class VMPropertyHandler {
     }
 
     /**
-     * @return the full name of the new instance (including the prefix)
+     * Returns the full name of the new instance (including the prefix).
+     * 
+     * @return the full name of the new instance
      */
     public String getInstanceName() throws APPlatformException {
         StringBuffer b = new StringBuffer();
@@ -740,6 +742,11 @@ public class VMPropertyHandler {
         return b.toString();
     }
 
+    /**
+     * Returns the target folder.
+     * 
+     * @return the name of the custom defined instance name
+     */
     public String getTargetFolder() {
         String targetFolder = getServiceSetting(TS_TARGET_FOLDER);
         if (targetFolder != null

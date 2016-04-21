@@ -7,10 +7,9 @@
  *******************************************************************************/
 package org.oscm.app.vmware.business;
 
-import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.remote.vmware.VMwareClient;
 
 import com.vmware.vim25.GuestInfo;
-import com.vmware.vim25.GuestNicInfo;
 
 /**
  * Custom generation of access information output.
@@ -26,81 +25,51 @@ public class VMwareAccessInfo {
 
     private VMPropertyHandler paramHandler;
 
-    public VMwareAccessInfo(VMPropertyHandler paramHandler) {
+    public VMwareAccessInfo(@SuppressWarnings("unused") VMwareClient vmw,
+            VMPropertyHandler paramHandler) {
         this.paramHandler = paramHandler;
     }
 
     /**
      * Returns the generated access info for the given VM.
      */
-    public String generateAccessInfo(GuestInfo guestInfo)
-            throws APPlatformException {
-
+    public String generateAccessInfo(GuestInfo guestInfo) throws Exception {
+        String accessInfo = "";
+        String myIP = guestInfo.getIpAddress();
+        if (myIP==null){
+        	myIP="Unkown";
+        }
         String myHOST = guestInfo.getHostName();
         String hostName;
-        if (myHOST != null) {
-            hostName = guestInfo.getHostName().split("\\.", 2)[0];
-        } else {
-            hostName = "Unkown hostname (probably missing vmware tools).\nInstance name "
-                    + paramHandler.getInstanceName() + ".";
-            myHOST = "Unkown(InstanceName " + paramHandler.getInstanceName()
-                    + ")";
+        if (myHOST!=null){
+        	hostName= guestInfo.getHostName().split("\\.", 2)[0];
         }
-
+        else{
+        	hostName="Unkown hostname (probably missing vmware tools).\nInstance name "+paramHandler.getInstanceName()+".";
+        	myHOST="Unkown(InstanceName "+paramHandler.getInstanceName()+")";
+        }
         String accessInfoPattern = paramHandler.getAccessInfo();
-        if (accessInfoPatternUndefined(accessInfoPattern)) {
-            return hostName;
-        }
+        if (accessInfoPattern == null || accessInfoPattern.length() == 0) {
+            accessInfo = hostName;
+        } else {
+            String myCPU = Integer.toString(paramHandler.getConfigCPUs());
+            String myMEM = paramHandler
+                    .formatMBasGB(paramHandler.getConfigMemoryMB());
+            String myDISKS = paramHandler.getDataDisksAsString();
+            String respuser = paramHandler
+                    .getResponsibleUserAsString(paramHandler.getLocale());
+            if (respuser == null) {
+                respuser = "";
+            }
 
-        String accessInfo = accessInfoPattern.replace(PATTERN_IP,
-                getIpAddress(guestInfo));
-        accessInfo = accessInfo.replace(PATTERN_HOST, myHOST);
-        accessInfo = accessInfo.replace(PATTERN_CPU,
-                Integer.toString(paramHandler.getConfigCPUs()));
-        accessInfo = accessInfo.replace(PATTERN_MEM,
-                paramHandler.formatMBasGB(paramHandler.getConfigMemoryMB()));
-        accessInfo = accessInfo.replace(PATTERN_DISKS,
-                paramHandler.getDataDisksAsString());
-        accessInfo = accessInfo.replace(PATTERN_RESPUSER, getResponsibleUser());
-        accessInfo = accessInfo.replace("<br>", "<br>\r\n");
+            accessInfo = accessInfoPattern.replace(PATTERN_IP, myIP);
+            accessInfo = accessInfo.replace(PATTERN_HOST, myHOST);
+            accessInfo = accessInfo.replace(PATTERN_CPU, myCPU);
+            accessInfo = accessInfo.replace(PATTERN_MEM, myMEM);
+            accessInfo = accessInfo.replace(PATTERN_DISKS, myDISKS);
+            accessInfo = accessInfo.replace(PATTERN_RESPUSER, respuser);
+            accessInfo = accessInfo.replace("<br>", "<br>\r\n");
+        }
         return accessInfo;
     }
-
-    private boolean accessInfoPatternUndefined(String accessInfoPattern) {
-        return accessInfoPattern == null
-                || accessInfoPattern.trim().length() == 0;
-    }
-
-    private String getIpAddress(GuestInfo guestInfo) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i <= paramHandler.getNumberOfNetworkAdapter(); i++) {
-            sb.append(paramHandler.getNetworkAdapter(i) + ": ");
-            GuestNicInfo info = getNicInfo(guestInfo,
-                    paramHandler.getNetworkAdapter(i));
-            sb.append(info.getIpAddress());
-            if (i < paramHandler.getNumberOfNetworkAdapter()) {
-                sb.append(", ");
-            }
-        }
-        return sb.toString();
-    }
-
-    GuestNicInfo getNicInfo(GuestInfo guestInfo, String adapter) {
-        for (GuestNicInfo info : guestInfo.getNet()) {
-            if (info.getNetwork().equals(adapter)) {
-                return info;
-            }
-        }
-        return null;
-    }
-
-    private String getResponsibleUser() {
-        String respuser = paramHandler
-                .getResponsibleUserAsString(paramHandler.getLocale());
-        if (respuser == null) {
-            respuser = "";
-        }
-        return respuser;
-    }
-
 }

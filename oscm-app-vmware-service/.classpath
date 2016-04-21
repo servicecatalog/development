@@ -8,5 +8,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-vmware"/>
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-common"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-notification"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
