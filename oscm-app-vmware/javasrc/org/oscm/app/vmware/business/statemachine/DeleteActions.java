@@ -8,7 +8,6 @@ import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.remote.vmware.VMClientPool;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
-import org.oscm.app.vmware.remote.vmware.VMwareClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,40 +18,27 @@ public class DeleteActions extends Actions {
     private static final Logger logger = LoggerFactory
             .getLogger(DeleteActions.class);
 
+    private static final String EVENT_DELETING = "deleting";
+
     @StateMachineAction
     public String deleteVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instanceId: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
-        
-//        try (VMwareClient vmClient = vmwFactory.getInstance(ph);) {
-//            vmClient.connect();
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
-            TaskInfo tInfo = vm.delete();
-            ph.setTask(tInfo.getKey());
-            eventId = "deleting";
+            TaskInfo taskInfo = vm.delete();
+            ph.setTask(taskInfo.getKey());
+            return EVENT_DELETING;
         } catch (Exception e) {
             logger.error("Failed to delete VM for instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_delete_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 }

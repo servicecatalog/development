@@ -17,9 +17,6 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.business.exceptions.ServiceInstanceNotFoundException;
@@ -136,6 +133,7 @@ public class APPlatformServiceBean implements APPlatformService {
     public void storeControllerSettings(String controllerId,
             HashMap<String, String> controllerSettings,
             PasswordAuthentication authentication) throws APPlatformException {
+
         authService.authenticateTMForController(controllerId, authentication);
         configService.storeControllerConfigurationSettings(controllerId,
                 controllerSettings);

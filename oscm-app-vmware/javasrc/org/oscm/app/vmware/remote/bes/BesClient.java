@@ -22,7 +22,7 @@ public class BesClient {
     public <T> T getWebService(Class<T> serviceClass, Credentials credentials)
             throws Exception {
         return BSSWebServiceFactory.getBSSWebService(serviceClass,
-                credentials.getPasswordAuthentication());
+                credentials.toPasswordAuthentication());
     }
 
 }

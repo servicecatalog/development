@@ -194,7 +194,7 @@ public class VMController implements APPlatformController {
             ph.setSetting(VMPropertyHandler.TASK_STARTTIME, "");
             ph.setSetting(VMPropertyHandler.SM_STATE, failedState);
             Credentials cred = ph.getTPUser();
-            platformService.storeServiceInstanceDetails(Controller.ID,instanceId, ph.getProvisioningSettings(), cred.getPasswordAuthentication());
+            platformService.storeServiceInstanceDetails(Controller.ID,instanceId, ph.getProvisioningSettings(), cred.toPasswordAuthentication());
             String errorMessage = ph
                     .getServiceSetting(VMPropertyHandler.SM_ERROR_MESSAGE);
             throw new SuspendException(errorMessage);

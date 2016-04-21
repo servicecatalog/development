@@ -10,10 +10,9 @@ package org.oscm.app.vmware.business;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
-import org.jboss.weld.security.spi.SecurityServices;
+import org.oscm.app.v1_0.data.PasswordAuthentication;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.data.ServiceUser;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
@@ -26,8 +25,6 @@ import org.oscm.app.vmware.persistence.APPDataAccessService;
 import org.oscm.app.vmware.persistence.DataAccessService;
 import org.oscm.app.vmware.persistence.VMwareNetwork;
 import org.oscm.app.vmware.remote.bes.Credentials;
-import org.oscm.app.vmware.remote.vmware.VMClientPool;
-import org.oscm.app.vmware.remote.vmware.VMwareClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +40,11 @@ public class VMPropertyHandler {
     private double templateDiskSpace;
     private final ProvisioningSettings settings;
     DataAccessService das_stub = null;
+
+    public static final String TS_GUEST_READY_TIMEOUT = "READY_TIMEOUT";
+
+    public static final String GUEST_READY_TIMEOUT_REF = "READY_TIMEOUT_REF";
+
     public static final String TS_SERVICE_TYPE = "SERVICE_TYPE";
 
     /**
@@ -149,7 +151,10 @@ public class VMPropertyHandler {
      * several stages until it is automatically deleted
      */
     public enum SubscriptionEndStatus {
-        UNDEFINED, SCHEDULED_FOR_NOTIFICATION, SCHEDULED_FOR_DEACTIVATION, SCHEDULED_FOR_DELETION
+        UNDEFINED,
+        SCHEDULED_FOR_NOTIFICATION,
+        SCHEDULED_FOR_DEACTIVATION,
+        SCHEDULED_FOR_DELETION
     };
 
     public static final String SUBSCRIPTION_END_STATUS = "SUBSCRIPTION_END_STATUS";
@@ -289,6 +294,10 @@ public class VMPropertyHandler {
      */
     public static final String TS_NUMBER_OF_NICS = "NUMBER_OF_NICS";
 
+    public static final String NETWORK_SETTING_DHCP = "DHCP";
+    public static final String NETWORK_SETTING_MANUAL = "MANUAL";
+    public static final String NETWORK_SETTING_DATABASE = "DATABASE";
+
     public static final String TS_NIC1_NETWORK_ADAPTER = "NIC1_NETWORK_ADAPTER";
     public static final String TS_NIC1_NETWORK_SETTINGS = "NIC1_NETWORK_SETTINGS";
     public static final String TS_NIC1_IP_ADDRESS = "NIC1_IP_ADDRESS";
@@ -384,11 +393,23 @@ public class VMPropertyHandler {
     }
 
     public void setSetting(String key, String value) {
-    	if (value!=null) {
-    		settings.getParameters().put(key, value);
-    	} else{
-    		logger.warn("Setting not set because null value. key:"+key);
-    	}
+        if (value != null) {
+            settings.getParameters().put(key, value);
+        } else {
+            logger.warn("Setting not set because null value. key:" + key);
+        }
+    }
+
+    public String loadGuestReadyTimeout(String key) {
+        if (settings.getParameters().containsKey(key)) {
+            return settings.getParameters().get(key);
+        }
+        return settings.getConfigSettings().get(key);
+    }
+
+    public int getNumberOfNetworkAdapter() {
+        return Integer.parseInt(
+                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
     }
 
     /**
@@ -400,8 +421,8 @@ public class VMPropertyHandler {
         int numNIC = Integer.parseInt(
                 getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numNIC; i++) {
-            if (getNICSettingsFromDatabase(i)) {
-                String ipAddress = getIPAddress(i);
+            if (isAdapterConfiguredByDatabase(i)) {
+                String ipAddress = getIpAddress(i);
 
                 if (ipAddress != null) {
                     String vcenter = getTargetVCenterServer();
@@ -434,25 +455,26 @@ public class VMPropertyHandler {
         String vcenter = getTargetVCenterServer();
         String datacenter = getTargetDatacenter();
         String cluster = getTargetCluster();
-    	logger.debug("vcenter: " + vcenter + " datacenter: " + datacenter + " cluster: " + cluster);
+        logger.debug("vcenter: " + vcenter + " datacenter: " + datacenter
+                + " cluster: " + cluster);
 
         int numberOfNICs = Integer.parseInt(
                 getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numberOfNICs; i++) {
 
-            if (getNICSettingsFromDatabase(i)) {
+            if (isAdapterConfiguredByDatabase(i)) {
                 String vlan = das.getVLANwithMostIPs(vcenter, datacenter,
                         cluster);
-                if( vlan == null ){
-                	throw new APPlatformException(Messages.getAll(
+                if (vlan == null) {
+                    throw new APPlatformException(Messages.getAll(
                             "error_read_vlans",
-                            new Object[] { vcenter, datacenter,
-                                    cluster })
+                            new Object[] { vcenter, datacenter, cluster })
                             .get(0).getText());
                 }
 
-                settings.getParameters().put("NIC"+i+"_NETWORK_ADAPTER",vlan);
-                
+                settings.getParameters().put("NIC" + i + "_NETWORK_ADAPTER",
+                        vlan);
+
                 String ipAddress;
                 VMwareNetwork nw;
                 try {
@@ -518,7 +540,6 @@ public class VMPropertyHandler {
             }
         }
     }
-
 
     /**
      * Returns the defined amount of memory (MB).
@@ -713,7 +734,8 @@ public class VMPropertyHandler {
         String prefix = getServiceSetting(
                 VMPropertyHandler.TS_INSTANCENAME_PREFIX);
         String name = getServiceSettingValidated(TS_INSTANCENAME);
-        if (prefix != null && !name.startsWith(prefix)&&!isImportOfExistingVM()) {
+        if (prefix != null && !name.startsWith(prefix)
+                && !isImportOfExistingVM()) {
             b.append(prefix);
         }
         b.append(getInstanceNameCustom(name));
@@ -1032,6 +1054,10 @@ public class VMPropertyHandler {
         return user;
     }
 
+    public PasswordAuthentication getTechnologyProviderCredentials() {
+        return getTPUser().toPasswordAuthentication();
+    }
+
     /**
      * Returns whether SSO has been defined.
      */
@@ -1064,72 +1090,38 @@ public class VMPropertyHandler {
     /**
      * Is DHCP defined for the given NIC.
      * 
-     * @param i
+     * @param adapter
      *            NIC identifier
      * @return true if DHCP is defined for the given NIC
      * @exception IllegalArgumentException
      *                if identifier is out of range
-     * @exception RuntimeException
-     *                if the technical service parameter is not defined
      */
-    public boolean useDHCP(int i) {
-        String networkSettings = null;
-        switch (i) {
-        case 1:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC1_NETWORK_SETTINGS);
-            break;
-        case 2:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC2_NETWORK_SETTINGS);
-            break;
-        case 3:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC3_NETWORK_SETTINGS);
-            break;
-        case 4:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC4_NETWORK_SETTINGS);
-            break;
-        default:
-            throw new IllegalArgumentException("NIC identifier " + i
-                    + " is out of range. Valid range is [1-4].");
-        }
-
-        return "DHCP".equals(networkSettings);
+    public boolean isAdapterConfiguredByDhcp(int adapter) {
+        return NETWORK_SETTING_DHCP.equals(getNicSetting(adapter));
     }
 
-    /**
-     * Determines whether the NIC settings are retrieved from the database.
-     * 
-     * @param i
-     *            NIC identifier
-     */
-    public boolean getNICSettingsFromDatabase(int i) {
-        String networkSettings = null;
-        switch (i) {
+    public boolean isAdapterConfiguredManually(int adapter) {
+        return NETWORK_SETTING_MANUAL.equals(getNicSetting(adapter));
+    }
+
+    public boolean isAdapterConfiguredByDatabase(int i) {
+        return NETWORK_SETTING_DATABASE.equals(getNicSetting(i));
+    }
+
+    public String getNicSetting(int adapter) {
+        switch (adapter) {
         case 1:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC1_NETWORK_SETTINGS);
-            break;
+            return getServiceSettingValidated(TS_NIC1_NETWORK_SETTINGS);
         case 2:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC2_NETWORK_SETTINGS);
-            break;
+            return getServiceSettingValidated(TS_NIC2_NETWORK_SETTINGS);
         case 3:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC3_NETWORK_SETTINGS);
-            break;
+            return getServiceSettingValidated(TS_NIC3_NETWORK_SETTINGS);
         case 4:
-            networkSettings = getServiceSettingValidated(
-                    TS_NIC4_NETWORK_SETTINGS);
-            break;
+            return getServiceSettingValidated(TS_NIC4_NETWORK_SETTINGS);
         default:
-            throw new IllegalArgumentException("NIC identifier " + i
+            throw new IllegalArgumentException("NIC identifier " + adapter
                     + " is out of range. Valid range is [1-4].");
         }
-
-        return ("DATABASE".equals(networkSettings));
     }
 
     /**
@@ -1202,7 +1194,7 @@ public class VMPropertyHandler {
     /**
      * Get the IP address of the given NIC.
      * 
-     * @param i
+     * @param adapter
      *            NIC identifier
      * @return the IP address
      * @exception IllegalArgumentException
@@ -1210,33 +1202,27 @@ public class VMPropertyHandler {
      * @exception RuntimeException
      *                if the technical service parameter is not defined
      */
-    public String getIPAddress(int i) {
-        String ipaddress = null;
-        switch (i) {
+    public String getIpAddress(int adapter) {
+        switch (adapter) {
         case 1:
-            ipaddress = getServiceSetting(TS_NIC1_IP_ADDRESS);
-            break;
+            return getServiceSetting(TS_NIC1_IP_ADDRESS);
         case 2:
-            ipaddress = getServiceSetting(TS_NIC2_IP_ADDRESS);
-            break;
+            return getServiceSetting(TS_NIC2_IP_ADDRESS);
         case 3:
-            ipaddress = getServiceSetting(TS_NIC3_IP_ADDRESS);
-            break;
+            return getServiceSetting(TS_NIC3_IP_ADDRESS);
         case 4:
-            ipaddress = getServiceSetting(TS_NIC4_IP_ADDRESS);
-            break;
+            return getServiceSetting(TS_NIC4_IP_ADDRESS);
         default:
-            throw new IllegalArgumentException("NIC identifier " + i
+            throw new IllegalArgumentException("NIC identifier " + adapter
                     + " is out of range. Valid range is [1-4].");
         }
-        return ipaddress;
     }
 
     /**
      * Get the network adapter (VLAN) for the given NIC.
      * 
      * @param i
-     *            NIC identifier
+     *            NIC identifier, i=[1,4]
      * @return the name of the network adapter
      * @exception IllegalArgumentException
      *                if identifier is out of range

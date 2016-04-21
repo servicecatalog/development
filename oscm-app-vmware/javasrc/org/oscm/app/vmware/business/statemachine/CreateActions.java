@@ -25,132 +25,114 @@ public class CreateActions extends Actions {
     private static final Logger logger = LoggerFactory
             .getLogger(CreateActions.class);
 
+    private static final String EVENT_CREATING = "creating";
+
+    // TODO rename method to validateInstanceName
     @StateMachineAction
     public String createInstanceName(String instanceId,
-            ProvisioningSettings settings, InstanceStatus result)
-                    throws Exception {
-        logger.debug("instance: " + instanceId);
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result)
+            throws Exception {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String instanceName = ph.getInstanceName();
         String regex = ph
                 .getServiceSetting(VMPropertyHandler.TS_INSTANCENAME_PATTERN);
         if (regex != null) {
+            String instanceName = ph.getInstanceName();
             Pattern p = Pattern.compile(regex);
             Matcher m = p.matcher(instanceName);
             if (!m.matches()) {
                 logger.error("Validation error on instance name: ["
-                        + instanceName + "/" + regex + "]");
+                        + instanceName + "/" + regex + "] for instanceId"
+                        + instanceId);
                 throw new APPlatformException(
                         Messages.getAll("error_invalid_name",
                                 new Object[] { instanceName, regex }));
             }
         }
 
-        return SUCCESS;
+        return EVENT_SUCCESS;
     }
 
     @StateMachineAction
     public String createVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
+
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM template = new VM(vmClient, ph.getTemplateName());
-            TaskInfo tInfo = template.cloneVM(ph);
-            ph.setTask(tInfo.getKey());
-            eventId = "creating";
+            TaskInfo taskInfo = template.cloneVM(ph);
+            ph.setTask(taskInfo.getKey());
+            return EVENT_CREATING;
         } catch (Exception e) {
             logger.error("Failed to create VM of instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_create_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
-
 
     @StateMachineAction
     public String executeScript(String instanceId,
-            ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
-            if (ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL) != null) {
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
+            if (ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL) != null
+                    && ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL)
+                            .trim().length() > 0) {
                 VM vm = new VM(vmClient, ph.getInstanceName());
                 vm.runScript(ph);
             }
-            eventId = SUCCESS;
+            return EVENT_SUCCESS;
         } catch (Exception e) {
             logger.error("Failed to execute script of instance " + instanceId,
                     e);
             String message = Messages.get(ph.getLocale(),
                     "error_execute_script", new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
     @StateMachineAction
     public String suspendAfterCreation(String instanceId,
             ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
         String mailRecipient = ph
                 .getServiceSetting(VMPropertyHandler.TS_MAIL_FOR_COMPLETION);
+
         if (mailRecipient == null) {
             logger.debug("mailRecipient is not defined.");
-            return SUCCESS;
+            return EVENT_SUCCESS;
         }
 
         try {
             sendEmail(ph, instanceId, mailRecipient);
             result.setRunWithTimer(false);
-            eventId = SUCCESS;
+            return EVENT_SUCCESS;
         } catch (Exception e) {
             logger.error("Failed to pause after creating the VM instance "
                     + instanceId, e);
             String message = Messages.get(ph.getLocale(),
                     "error_pause_after_creation", new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-
-        return eventId;
     }
 
     private void sendEmail(VMPropertyHandler paramHandler, String instanceId,
             String mailRecipient) throws Exception {
+
         logger.debug("instanceId: " + instanceId + " mailRecipient: "
                 + mailRecipient);
         StringBuffer eventLink = new StringBuffer(
@@ -172,7 +154,6 @@ public class CreateActions extends Actions {
                         paramHandler.getServiceSetting(
                                 VMPropertyHandler.REQUESTING_USER),
                         details, eventLink.toString() });
-
         platformService.sendMail(Collections.singletonList(mailRecipient),
                 subject, text);
     }
