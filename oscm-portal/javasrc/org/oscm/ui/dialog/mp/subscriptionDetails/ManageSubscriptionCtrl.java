@@ -246,7 +246,7 @@ public class ManageSubscriptionCtrl implements Serializable {
     }
 
     void initializeSubscription(POSubscriptionDetails subscriptionDetails) {
-
+        model.setPaymentTabAvailable(isPaymentTabAvailable());
         model.setIsReportIssueAllowed(isReportIssueAllowed());
         model.setSubscription(null);
         model.getSubscriptionParameters().clear();
@@ -366,7 +366,11 @@ public class ManageSubscriptionCtrl implements Serializable {
         return userBean.isLoggedInAndAdmin()
                 || userBean.isLoggedInAndSubscriptionManager();
     }
-
+    
+    private boolean isPaymentTabAvailable() {
+        return paymentAndBillingVisibleBean.isPaymentTabVisible();
+    }
+    
     void setStateWarningAndTabDisabled(
             final POSubscriptionDetails subscriptionDetails) {
         SubscriptionStatus status = subscriptionDetails.getStatus();

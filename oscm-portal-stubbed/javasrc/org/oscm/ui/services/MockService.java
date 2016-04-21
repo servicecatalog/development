@@ -2675,4 +2675,14 @@ public class MockService implements IdentityService, SubscriptionService,
         vo.setUser(voUserDetails);
         return Collections.singletonList(vo);
     }
+
+    @Override
+    public boolean isPaymentInfoAvailable() {
+        return true;
+    }
+
+    @Override
+    public boolean isPaymentInfoHidden() {
+        return false;
+    }
 }

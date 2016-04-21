@@ -105,6 +105,7 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
     private boolean showOwnerWarning;
     private String ownerWarningText;
     private long currentSubscriptionKey;
+    private boolean paymentTabAvailable;
 
     /**
      * @return the showExternalConfigurator
@@ -724,6 +725,14 @@ public class ManageSubscriptionModel implements Serializable, ConfigParamValidat
             return JSFUtils.getText("unit.notAssigned", new Object[]{""});
         }
         return subscription.getUnitName();
+    }
+
+    public boolean isPaymentTabAvailable() {
+        return paymentTabAvailable;
+    }
+
+    public void setPaymentTabAvailable(boolean paymentTabAvailable) {
+        this.paymentTabAvailable = paymentTabAvailable;
     }
 
 }

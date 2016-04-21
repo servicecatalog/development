@@ -367,11 +367,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
     
     public boolean isPaymentInfoHidden() {
-        ConfigurationSetting hidePaymentInformationSetting = cfgService
-                .getConfigurationSetting(
-                        ConfigurationKey.HIDE_PAYMENT_INFORMATION,
-                        Configuration.GLOBAL_CONTEXT);
-        return Boolean.valueOf(hidePaymentInformationSetting.getValue());
+        return !cfgService.isPaymentInfoAvailable();
     }
 
     private VOBillingContact createBillingContactForOrganization(

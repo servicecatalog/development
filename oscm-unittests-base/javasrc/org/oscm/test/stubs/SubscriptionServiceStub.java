@@ -473,4 +473,9 @@ public class SubscriptionServiceStub implements SubscriptionService,
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean isPaymentInfoHidden() {
+        throw new UnsupportedOperationException();
+    }
+
 }

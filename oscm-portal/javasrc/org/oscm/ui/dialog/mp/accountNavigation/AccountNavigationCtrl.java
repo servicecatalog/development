@@ -15,12 +15,9 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.internal.types.constants.HiddenUIConstants;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.types.constants.Configuration;
 
 /**
  * @author Yuyin
@@ -77,17 +74,10 @@ public class AccountNavigationCtrl extends BaseBean implements Serializable {
 
     public boolean isPaymentAvailable() {
 
-        VOConfigurationSetting setting = getConfigurationService()
-                .getVOConfigurationSetting(
-                        ConfigurationKey.HIDE_PAYMENT_INFORMATION,
-                        Configuration.GLOBAL_CONTEXT);
-
-        boolean hidePaymentInfo = Boolean.valueOf(setting.getValue());
-
         return (isLoggedInAndAdmin()
                 && !applicationBean.isUIElementHidden(
                         HiddenUIConstants.MARKETPLACE_MENU_ITEM_ACCOUNT_PAYMENT)
-                && !hidePaymentInfo);
+                && getConfigurationService().isPaymentInfoAvailable());
     }
 
     public void setModel(AccountNavigationModel model) {
