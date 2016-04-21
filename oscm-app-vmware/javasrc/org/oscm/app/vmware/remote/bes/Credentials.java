@@ -68,7 +68,7 @@ public class Credentials {
         this.orgId = orgId;
     }
 
-    public PasswordAuthentication getPasswordAuthentication() {
+    public PasswordAuthentication toPasswordAuthentication() {
         PasswordAuthentication pa = (isSSO)
                 ? new PasswordAuthentication(userId, password)
                 : new PasswordAuthentication(Long.toString(userKey), password);

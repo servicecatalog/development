@@ -27,6 +27,10 @@ public class States {
         this.clazz = clazz;
     }
 
+    public String getActionClass() {
+        return clazz;
+    }
+
     @XmlElement(name = "state")
     public List<State> getStates() {
         return states;
@@ -38,7 +42,7 @@ public class States {
 
     public String invokeAction(State state, String instanceId,
             ProvisioningSettings settings, InstanceStatus status)
-                    throws StateMachineException {
+            throws StateMachineException {
 
         logger.info("Invoking action: " + state.getAction() + " for instance "
                 + instanceId);

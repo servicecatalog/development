@@ -128,7 +128,7 @@ public abstract class UiThreadBase implements Runnable {
     private VMPropertyHandler getVMwareAPPSettings() throws Exception {
         HashMap<String, String> ctrlSettings = platformService
                 .getControllerSettings(Controller.ID,
-                        tpCredentials.getPasswordAuthentication());
+                        tpCredentials.toPasswordAuthentication());
         ProvisioningSettings settings = new ProvisioningSettings(
                 new HashMap<String, String>(), ctrlSettings,
                 Messages.DEFAULT_LOCALE);

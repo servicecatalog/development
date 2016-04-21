@@ -10,8 +10,8 @@ import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.intf.APPlatformService;
 import org.oscm.app.vmware.business.VM;
 import org.oscm.app.vmware.business.VM.VMwareGuestSystemStatus;
-import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.remote.vmware.VMClientPool;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
@@ -33,188 +33,133 @@ public class Actions {
 
     private static final Logger logger = LoggerFactory.getLogger(Actions.class);
 
-    protected static final String FAILED = "failed";
-    protected static final String SUCCESS = "success";
-    protected static final String ERROR = "error";
+    protected static final String EVENT_FAILED = "failed";
+    protected static final String EVENT_SUCCESS = "success";
+    protected static final String EVENT_ERROR = "error";
 
-    protected APPlatformService platformService;
+    private static final String EVENT_CONFIGURING = "configuring";
+    private static final String EVENT_STOPPED = "stopped";
+    private static final String EVENT_STOPPING = "stopping";
+    private static final String EVENT_QUEUED = "queued";
+    private static final String EVENT_RUNNING = "running";
+    private static final String EVENT_NOT_RUNNING = "not running";
+    private static final String EVENT_STARTING = "starting";
 
-    public Actions() {
-        try {
-            platformService = APPlatformServiceFactory.getInstance();
-        } catch (IllegalStateException e) {
-            logger.error(e.getMessage());
-            throw e;
-        }
-    }
+    protected APPlatformService platformService = APPlatformServiceFactory
+            .getInstance();
 
     @StateMachineAction
     public String configureVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.reconfigureVirtualMachine(ph);
             ph.setTask(tInfo.getKey());
-            eventId = "configuring";
+            return EVENT_CONFIGURING;
         } catch (Exception e) {
             logger.error("Failed to configure VM of instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_configure_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
-    
-    
     /**
      * Synchronous activity. This is like selecting the shutdown option in the
      * operating system.
-     * 
-     * @return eventId
      */
     @StateMachineAction
     public String shutdownVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             vm.stop(false);
-            eventId = "stopped";
+            return EVENT_STOPPED;
         } catch (Exception e) {
             logger.error("Failed to shutdown VM of instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_shutdown_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
     /**
      * Asynchronous activity. This is like pressing the power button to turn off
      * the machine.
-     * 
-     * @return eventId
      */
     @StateMachineAction
     public String powerOffVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.stop(true);
             ph.setTask(tInfo.getKey());
-            eventId = "stopping";
+            return EVENT_STOPPING;
         } catch (Exception e) {
             logger.error("Failed to power off VM of instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_poweroff_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
-        }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
+            return EVENT_FAILED;
         }
 
-        return eventId;
     }
 
     @StateMachineAction
     public String startVM(String instanceId, ProvisioningSettings settings,
-            InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             TaskInfo tInfo = vm.start();
             ph.setTask(tInfo.getKey());
-            eventId = "starting";
+            return EVENT_STARTING;
         } catch (Exception e) {
             logger.error("Failed to start VM of instance " + instanceId, e);
             String message = Messages.get(ph.getLocale(), "error_start_vm",
                     new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
-    
     @StateMachineAction
     public String checkVMRunning(String instanceId,
-            ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
-        String instanceName = "";
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result) {
 
+        String instanceName = "";
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             instanceName = ph.getInstanceName();
             VM vm = new VM(vmClient, instanceName);
-            VMwareGuestSystemStatus guestStatus = vm.getState();
-            eventId = guestStatus == VMwareGuestSystemStatus.GUEST_READY
-                    ? "running" : "not running";
+            VMwareGuestSystemStatus guestStatus = vm.getState(ph);
+            return guestStatus == VMwareGuestSystemStatus.GUEST_READY
+                    ? EVENT_RUNNING : EVENT_NOT_RUNNING;
         } catch (Exception e) {
             logger.error("Failed to check VM running state of instance "
                     + instanceId, e);
@@ -222,93 +167,70 @@ public class Actions {
                     "error_check_vm_running",
                     new Object[] { instanceName, instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
     @StateMachineAction
     public String finalizeProvisioning(String instanceId,
             ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = FAILED;
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
             VM vm = new VM(vmClient, ph.getInstanceName());
             String accessInfo = vm.generateAccessInfo(ph);
             ph.setAccessInfo(accessInfo);
             result.setAccessInfo(accessInfo);
             result.setIsReady(true);
-            eventId = SUCCESS;
+            return EVENT_SUCCESS;
         } catch (Exception e) {
             logger.error("Failed to set access info for instance " + instanceId,
                     e);
             String message = Messages.get(ph.getLocale(),
                     "error_finalize_provisioning", new Object[] { instanceId });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
-        }
-
-        return eventId;
     }
 
+    @SuppressWarnings("unused")
     @StateMachineAction
     public String finish(String instanceId, ProvisioningSettings settings,
             InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
         result.setIsReady(true);
-        return SUCCESS;
+        return EVENT_SUCCESS;
     }
 
+    @SuppressWarnings("unused")
     @StateMachineAction
     public String throwSuspendException(String instanceId,
             ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        return FAILED;
+        return EVENT_FAILED;
     }
 
     @StateMachineAction
     public String inspectTaskResult(String instanceId,
-            ProvisioningSettings settings, InstanceStatus result) {
-        logger.debug("instance: " + instanceId);
-        String eventId = "";
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        VMwareClient vmClient = null;
-        try{
-        	vmClient = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
+                .borrowObject(vcenter);) {
+
             TaskInfo taskInfo = getTaskInfo(vmClient, ph);
             TaskInfoState taskState = (taskInfo != null) ? taskInfo.getState()
                     : TaskInfoState.SUCCESS;
-
             switch (taskState) {
             case SUCCESS:
-                eventId = SUCCESS;
-                break;
+                ph.setSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF,
+                        String.valueOf(System.currentTimeMillis()));
+                return EVENT_SUCCESS;
             case ERROR:
-                eventId = ERROR;
                 String errorMessage = "";
                 if (taskInfo != null && taskInfo.getError() != null) {
                     errorMessage = taskInfo.getError().getLocalizedMessage();
@@ -332,41 +254,29 @@ public class Actions {
                     }
                 }
                 ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, errorMessage);
-                break;
+                return EVENT_ERROR;
             case QUEUED:
-                eventId = "queued";
-                break;
+                return EVENT_QUEUED;
             case RUNNING:
-                eventId = "running";
-                break;
+                return EVENT_RUNNING;
             }
         } catch (Exception e) {
             logger.error("Failed to check task execution result for instance "
                     + instanceId, e);
-
             String taskKey = ph.getServiceSetting(VMPropertyHandler.TASK_KEY);
-
             String message = Messages.get(ph.getLocale(),
                     "error_check_task_result",
                     new Object[] { instanceId, taskKey });
             ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
-            eventId = ERROR;
-        }
-        finally{
-        	if( vmClient != null ){
-        	try {
-				VMClientPool.getInstance().getPool().returnObject(vcenter, vmClient);
-			} catch (Exception e) {
-	            logger.error("Failed to return VMware client into pool", e);
-			}
-        	}
+            return EVENT_ERROR;
         }
 
-        return eventId;
+        return EVENT_ERROR;
     }
 
     protected TaskInfo getTaskInfo(VMwareClient vmw,
             VMPropertyHandler paramHandler) throws Exception {
+
         String instanceId = paramHandler.getInstanceName();
         String taskKey = paramHandler
                 .getServiceSetting(VMPropertyHandler.TASK_KEY);

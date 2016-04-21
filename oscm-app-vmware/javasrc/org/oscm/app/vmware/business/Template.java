@@ -385,13 +385,13 @@ public class Template {
         for (int i = 1; i <= numberOfNICs; i++) {
             CustomizationAdapterMapping networkAdapter = new CustomizationAdapterMapping();
             CustomizationIPSettings ipSettings = new CustomizationIPSettings();
-            if (paramHandler.useDHCP(i)) {
+            if (paramHandler.isAdapterConfiguredByDhcp(i)) {
                 CustomizationDhcpIpGenerator publicDhcpIp = new CustomizationDhcpIpGenerator();
                 ipSettings.setIp(publicDhcpIp);
             } else {
-                logger.debug("NIC" + i + " IP:" + paramHandler.getIPAddress(i));
+                logger.debug("NIC" + i + " IP:" + paramHandler.getIpAddress(i));
                 CustomizationFixedIp newip = new CustomizationFixedIp();
-                newip.setIpAddress(paramHandler.getIPAddress(i));
+                newip.setIpAddress(paramHandler.getIpAddress(i));
                 ipSettings.setIp(newip);
 
                 String[] gateways = paramHandler.getGateway(i).split(",");

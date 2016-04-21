@@ -9,6 +9,7 @@ public class State {
 
     private String id;
     private String action;
+    private String timeout;
     private List<Event> events;
 
     @XmlElement(name = "event")
@@ -36,6 +37,15 @@ public class State {
     @XmlAttribute
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTimeout() {
+        return timeout;
+    }
+
+    @XmlAttribute(required = false)
+    public void setTimeout(String timeout) {
+        this.timeout = timeout;
     }
 
 }
