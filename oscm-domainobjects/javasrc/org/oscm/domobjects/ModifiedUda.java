@@ -31,7 +31,7 @@ import org.oscm.domobjects.enums.ModifiedEntityType;
         "targetObjectType", "subscriptionKey" }))
 @BusinessKey(attributes = { "targetObjectKey", "targetObjectType",
         "subscriptionKey" })
-public class ModifiedUda extends DomainObjectWithHistory<ModifiedUdaData> {
+public class ModifiedUda extends DomainObjectWithVersioning<ModifiedUdaData> {
 
     private static final long serialVersionUID = -983947573071480232L;
 

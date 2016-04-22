@@ -18,8 +18,7 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "category_tkey",
         "catalogentry_tkey" }))
-public class CategoryToCatalogEntry extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class CategoryToCatalogEntry extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = 5336379997821816252L;
 

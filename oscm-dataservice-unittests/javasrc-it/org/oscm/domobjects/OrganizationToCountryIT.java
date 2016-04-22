@@ -13,12 +13,11 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.SupportedCountries;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 public class OrganizationToCountryIT extends DomainObjectTestBase {
 
@@ -44,12 +43,14 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
     public void testAdd() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAddCheck();
                     return null;
@@ -126,6 +127,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
     public void testModify() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyPrepare();
                     return null;
@@ -133,6 +135,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
 
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModify();
                     return null;
@@ -140,6 +143,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
 
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyCheck();
                     return null;
@@ -223,13 +227,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
 
     private void checkHistoryEntry(ModificationType type,
             OrganizationToCountry orgToCountry, DomainHistoryObject<?> history) {
-        assertEquals("organizationKey",
-                orgToCountry.getOrganization().getKey(),
-                ((OrganizationToCountryHistory) history)
-                        .getOrganizationObjKey());
-        assertEquals("countryKey", orgToCountry.getSupportedCountry().getKey(),
-                ((OrganizationToCountryHistory) history)
-                        .getSupportedCountryObjKey());
+
         assertEquals("modType", type, history.getModtype());
         assertEquals("modUser", "guest", history.getModuser());
         assertEquals("OBJID in history different", orgToCountry.getKey(),
@@ -247,6 +245,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
     public void testSetDomicileCountry() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doSetDomicileCountry();
                     return null;
@@ -254,6 +253,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
 
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doSetDomicileCountryCheck();
                     return null;
