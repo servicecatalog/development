@@ -45,7 +45,7 @@ import org.oscm.domobjects.enums.PublishingAccess;
         @NamedQuery(name = "MarketplaceToOrganization.findSuppliersForMpByPublishingAccess", query = "SELECT c FROM MarketplaceToOrganization c WHERE c.marketplace_tkey=:marketplace_tkey AND c.dataContainer.publishingAccess=:publishingAccess") })
 @BusinessKey(attributes = { "marketplace_tkey", "organization_tkey" })
 public class MarketplaceToOrganization extends
-        DomainObjectWithHistory<MarketplaceToOrganizationData> {
+        DomainObjectWithVersioning<MarketplaceToOrganizationData> {
 
     private static final long serialVersionUID = 6476060292996834053L;
 

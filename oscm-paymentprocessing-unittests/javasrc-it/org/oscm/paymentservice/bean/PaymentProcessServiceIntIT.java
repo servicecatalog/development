@@ -8,7 +8,6 @@
 
 package org.oscm.paymentservice.bean;
 
-import static org.oscm.test.Numbers.TIMESTAMP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -20,6 +19,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.Numbers.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -31,10 +31,8 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceLocal;
-import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
@@ -48,7 +46,6 @@ import org.oscm.domobjects.PSPAccount;
 import org.oscm.domobjects.PSPAccountHistory;
 import org.oscm.domobjects.PaymentInfo;
 import org.oscm.domobjects.PaymentResult;
-import org.oscm.domobjects.PaymentResultHistory;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
@@ -56,6 +53,10 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.paymentservice.adapter.PaymentServiceProviderAdapter;
 import org.oscm.paymentservice.local.PaymentServiceLocal;
 import org.oscm.paymentservice.local.PortLocatorLocal;
@@ -64,6 +65,9 @@ import org.oscm.paymentservice.transport.HttpMethodFactory;
 import org.oscm.payproc.stubs.ConfigurationServiceStub;
 import org.oscm.payproc.stubs.HttpClientStub;
 import org.oscm.payproc.stubs.PostMethodStub;
+import org.oscm.psp.data.ChargingData;
+import org.oscm.psp.data.ChargingResult;
+import org.oscm.psp.data.RequestData;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
@@ -73,13 +77,6 @@ import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.types.enumtypes.PaymentProcessingStatus;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.psp.data.ChargingData;
-import org.oscm.psp.data.ChargingResult;
-import org.oscm.psp.data.RequestData;
 import org.oscm.types.exceptions.PSPCommunicationException;
 
 /**
@@ -132,6 +129,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
 
     private ConfigurationServiceStub cs;
 
+    @Override
     public void setup(TestContainer container) throws Exception {
         container.login(USER_KEY_EXISTING);
 
@@ -164,6 +162,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         pp = container.get(PaymentServiceLocal.class);
         mgr = container.get(DataService.class);
         runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
                 createOrganizationRoles(mgr);
                 createPaymentTypes(mgr);
@@ -204,6 +203,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     @Test
     public void testChargeCustomerNoHitForPaymentInfoHistory() throws Exception {
         runTX(new Callable<Organization>() {
+            @Override
             public Organization call() throws Exception {
                 Organization cust = new Organization();
                 cust.setOrganizationId("testOrg");
@@ -312,6 +312,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         PostMethodStub
                 .setStubReturnValue(PaymentProcessServiceTest.sampleResponse);
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.reinvokePaymentProcessing());
             }
@@ -327,12 +328,6 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 pr.getProcessingException());
         assertTrue("payment result not persisted", pr.getKey() > 0);
 
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr), PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 2, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.MODIFY, prHist.get(1).getModtype());
     }
 
     @Test
@@ -353,6 +348,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         PostMethodStub
                 .setStubReturnValue(PaymentProcessServiceTest.sampleResponse);
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.reinvokePaymentProcessing());
             }
@@ -368,32 +364,16 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 pr1.getProcessingException());
         assertTrue("payment result not persisted", pr1.getKey() > 0);
 
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr1), PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 2, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.MODIFY, prHist.get(1).getModtype());
-
         // assert that the other payment result objects are not changed
         pr2 = findDO(PaymentResult.class, pr2);
         assertEquals("wrong status in payment result",
                 PaymentProcessingStatus.SUCCESS, pr2.getProcessingStatus());
-        prHist = ParameterizedTypes.list(getHistory(pr2),
-                PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 1, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.ADD, prHist.get(0).getModtype());
 
         pr3 = findDO(PaymentResult.class, pr3);
         assertEquals("wrong status in payment result",
                 PaymentProcessingStatus.FAILED_INTERNAL,
                 pr3.getProcessingStatus());
-        prHist = ParameterizedTypes.list(getHistory(pr3),
-                PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 1, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.ADD, prHist.get(0).getModtype());
+
     }
 
     @Test
@@ -405,6 +385,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 .thenThrow(new RuntimeException());
 
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.reinvokePaymentProcessing());
             }
@@ -418,12 +399,6 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 pr.getProcessingException());
         assertTrue("payment result not persisted", pr.getKey() > 0);
 
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr), PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 2, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.MODIFY, prHist.get(1).getModtype());
     }
 
     @Test
@@ -433,6 +408,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 .thenThrow(new RuntimeException("Exception for testing"));
 
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.chargeForOutstandingBills());
 
@@ -444,6 +420,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 result.booleanValue());
 
         PaymentResult pr = runTX(new Callable<PaymentResult>() {
+            @Override
             public PaymentResult call() {
                 BillingResult billingResult = mgr.find(BillingResult.class,
                         br.getKey());
@@ -452,12 +429,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 return paymentResult;
             }
         });
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr), PaymentResultHistory.class);
-        Assert.assertEquals("Wrong number of history objects", 1, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.ADD, prHist.get(0).getModtype());
+
     }
 
     @Test
@@ -466,6 +438,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         initBillingResultAndCreateOrg(12345);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() {
                 long initialTransactionTime = DateFactory.getInstance()
                         .getTransactionTime();
@@ -483,6 +456,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         final BillingResult br = initBillingResultAndCreateOrg(12345);
 
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.chargeForOutstandingBills());
             }
@@ -493,6 +467,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 result.booleanValue());
 
         PaymentResult pr = runTX(new Callable<PaymentResult>() {
+            @Override
             public PaymentResult call() {
                 BillingResult billingResult = mgr.find(BillingResult.class,
                         br.getKey());
@@ -501,14 +476,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 return paymentResult;
             }
         });
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr), PaymentResultHistory.class);
-        Assert.assertEquals(PaymentProcessingStatus.SUCCESS,
-                pr.getProcessingStatus());
-        Assert.assertEquals("Wrong number of history objects", 1, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.ADD, prHist.get(0).getModtype());
+
     }
 
     @Test
@@ -517,6 +485,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 CREDIT_CARD, true);
 
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.chargeForOutstandingBills());
             }
@@ -527,6 +496,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 result.booleanValue());
 
         PaymentResult pr = runTX(new Callable<PaymentResult>() {
+            @Override
             public PaymentResult call() {
                 BillingResult billingResult = mgr.find(BillingResult.class,
                         br.getKey());
@@ -535,14 +505,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 return paymentResult;
             }
         });
-        // check existence of history entries
-        List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                getHistory(pr), PaymentResultHistory.class);
-        Assert.assertEquals(PaymentProcessingStatus.SUCCESS,
-                pr.getProcessingStatus());
-        Assert.assertEquals("Wrong number of history objects", 1, prHist.size());
-        Assert.assertEquals("Wrong modification type for last history entry",
-                ModificationType.ADD, prHist.get(0).getModtype());
+
     }
 
     @Test
@@ -551,6 +514,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 false);
 
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.chargeForOutstandingBills());
             }
@@ -561,6 +525,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 result.booleanValue());
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() {
                 BillingResult billingResult = mgr.find(BillingResult.class,
                         br.getKey());
@@ -580,6 +545,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
                 PaymentProcessingStatus.RETRY);
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() {
                 pp.reinvokePaymentProcessing();
                 return null;
@@ -587,6 +553,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         });
         final BillingResult br2 = initBillingResultAndCreateOrg(12346);
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.chargeForOutstandingBills());
             }
@@ -595,35 +562,21 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         Assert.assertTrue("Billing result handling must have succeeded",
                 result.booleanValue());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 PaymentResult oldPR = mgr.getReference(PaymentResult.class,
                         pr.getKey());
-                List<PaymentResultHistory> prHist = ParameterizedTypes.list(
-                        getHistory(oldPR), PaymentResultHistory.class);
+
                 Assert.assertEquals(PaymentProcessingStatus.SUCCESS,
                         oldPR.getProcessingStatus());
-                Assert.assertEquals("Wrong number of history objects", 2,
-                        prHist.size());
-                Assert.assertEquals(
-                        "Wrong modification type for history entry",
-                        ModificationType.ADD, prHist.get(0).getModtype());
-                Assert.assertEquals(
-                        "Wrong modification type for last history entry",
-                        ModificationType.MODIFY, prHist.get(1).getModtype());
 
                 // Furthermore, a new payment result must exist
                 BillingResult billingResult = mgr.getReference(
                         BillingResult.class, br2.getKey());
                 PaymentResult secondPR = billingResult.getPaymentResult();
-                prHist = ParameterizedTypes.list(getHistory(secondPR),
-                        PaymentResultHistory.class);
+
                 Assert.assertEquals(PaymentProcessingStatus.SUCCESS,
                         secondPR.getProcessingStatus());
-                Assert.assertEquals("Wrong number of history objects", 1,
-                        prHist.size());
-                Assert.assertEquals(
-                        "Wrong modification type for last history entry",
-                        ModificationType.ADD, prHist.get(0).getModtype());
 
                 return null;
             }
@@ -635,6 +588,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
         initBillingResultAndCreateOrg(12345);
         cs.setPSPUsageEnabled(false);
         Boolean result = runTX(new Callable<Boolean>() {
+            @Override
             public Boolean call() {
                 return Boolean.valueOf(pp.reinvokePaymentProcessing());
             }
@@ -657,6 +611,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     private <T extends DomainObject<?>> T findDO(final Class<T> type,
             final T obj) throws Exception {
         return runTX(new Callable<T>() {
+            @Override
             public T call() {
                 return mgr.find(type, obj.getKey());
             }
@@ -673,6 +628,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
      */
     private List<?> getHistory(final DomainObject<?> obj) throws Exception {
         return runTX(new Callable<List<?>>() {
+            @Override
             public List<?> call() {
                 List<DomainHistoryObject<?>> hist = mgr.findHistory(obj);
                 return hist;
@@ -694,6 +650,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
     private PaymentResult initPaymentResult(final BillingResult br,
             final PaymentProcessingStatus status) throws Exception {
         return runTX(new Callable<PaymentResult>() {
+            @Override
             public PaymentResult call() throws Exception {
                 PaymentResult pr = new PaymentResult();
                 pr.setProcessingStatus(status);
@@ -726,6 +683,7 @@ public class PaymentProcessServiceIntIT extends EJBTestBase {
             final double overallCosts, final String paymentType,
             final boolean asBroker) throws Exception {
         return runTX(new Callable<BillingResult>() {
+            @Override
             public BillingResult call() throws Exception {
                 // SUPPPLIER
                 Organization supplier = new Organization();

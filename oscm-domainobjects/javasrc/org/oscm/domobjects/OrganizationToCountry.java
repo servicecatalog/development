@@ -15,8 +15,7 @@ import javax.persistence.ManyToOne;
  * @author cheld, pock
  */
 @Entity
-public class OrganizationToCountry extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class OrganizationToCountry extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = 4336379997821816252L;
 

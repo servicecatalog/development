@@ -25,17 +25,16 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.data.Categories;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 /**
  * Tests for the domain object category.
@@ -45,7 +44,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
  */
 public class CategoryIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithHistory<?>> domObjects = new ArrayList<DomainObjectWithHistory<?>>();
+    private List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<DomainObjectWithVersioning<?>>();
 
     /**
      * <b>Test case:</b> Add a new catalog entry<br>
@@ -222,8 +221,7 @@ public class CategoryIT extends DomainObjectTestBase {
             // expected
         }
         List<DomainHistoryObject<?>> histObjs = mgr.findHistory(oldEntry);
-        Assert.assertNotNull("History entry 'null' for catalog entry",
-                histObjs);
+        Assert.assertNotNull("History entry 'null' for catalog entry", histObjs);
         Assert.assertFalse("History entry empty for catalog entry",
                 histObjs.isEmpty());
         Assert.assertTrue("Two history entries expected for catalog entry",
@@ -231,7 +229,7 @@ public class CategoryIT extends DomainObjectTestBase {
         DomainHistoryObject<?> hist = histObjs.get(0);
         Assert.assertEquals(ModificationType.ADD, hist.getModtype());
         Assert.assertEquals("modUser", "guest", hist.getModuser());
-        
+
         hist = histObjs.get(1);
         Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
         Assert.assertEquals("modUser", "guest", hist.getModuser());

@@ -36,8 +36,7 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
         @NamedQuery(name = "ProductReference.deleteBySourceProduct", query = "DELETE FROM ProductReference obj WHERE obj.sourceProduct=:sourceProduct"),
         @NamedQuery(name = "ProductReference.getTargetKeysForProduct", query = "SELECT ref.targetProduct.key FROM ProductReference ref WHERE ref.sourceProduct=:product") })
-public class ProductReference extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class ProductReference extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = -2559482256679921063L;
 
