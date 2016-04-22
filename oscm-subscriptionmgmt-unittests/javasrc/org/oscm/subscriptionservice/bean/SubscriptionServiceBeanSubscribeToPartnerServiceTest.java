@@ -31,6 +31,7 @@ import org.mockito.stubbing.Answer;
 
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRole;
@@ -101,7 +102,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
     private UserGroupServiceLocalBean userGroupService;
     private final OrganizationDao orgDao = mock(OrganizationDao.class);
     private final List<PlatformUser> givenUsers = new ArrayList<PlatformUser>();
-
+    private ConfigurationServiceLocal cfgService;
+    
     @Before
     public void setup() throws Exception {
         createDomainObjects();
@@ -123,6 +125,7 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         subscriptionServiceBean.tqs = mock(TaskQueueServiceLocal.class);
         subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
         subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
+        
         productDao = mock(ProductDao.class);
         doReturn(productDao).when(subscriptionServiceBean).getProductDao();
         terminateBean = spy(new TerminateSubscriptionBean());
@@ -147,6 +150,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         subscriptionServiceBean.tenantProvisioning = tenantProvisioningMock;
         userGroupService = mock(UserGroupServiceLocalBean.class);
         subscriptionServiceBean.userGroupService = userGroupService;
+        cfgService = mock(ConfigurationServiceLocal.class);
+        subscriptionServiceBean.cfgService = cfgService;
         queryMock = mock(Query.class);
     }
 
@@ -277,7 +282,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         doReturn(orgDao).when(subscriptionServiceBean.manageBean)
                 .getOrganizationDao();
         doReturn(givenUsers).when(orgDao).getOrganizationAdmins(anyLong());
-
+        doReturn(true).when(cfgService).isPaymentInfoAvailable();
+        
         // when
         VOSubscription voSub = subscriptionServiceBean
                 .subscribeToService(subscription, service, null, null, null,
