@@ -48,7 +48,9 @@ public class CustomerPaymentPreviewReport {
     final BillingServiceLocal billing;
     final UserGroupServiceLocalBean userGroupService;
     BillingResultParser brParser;
-
+    
+    private static final String EMPTY = "";
+    
     public CustomerPaymentPreviewReport(BillingDao dao, UnitDao unitDao,
             BillingServiceLocal billing, UserGroupServiceLocalBean userGroupService) {
         this.billingDao = dao;
@@ -154,5 +156,14 @@ public class CustomerPaymentPreviewReport {
         }
 
         return result;
+    }
+    
+    public void hidePaymentInformation(RDOCustomerPaymentPreview preview){
+        
+        List<RDOPaymentPreviewSummary> summaries = preview.getSummaries();
+        
+        for(RDOPaymentPreviewSummary summary : summaries){
+            summary.setPaymentType(EMPTY);
+        }
     }
 }

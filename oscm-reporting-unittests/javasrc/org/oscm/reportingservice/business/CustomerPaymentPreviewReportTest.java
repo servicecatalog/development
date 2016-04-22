@@ -8,8 +8,10 @@
 
 package org.oscm.reportingservice.business;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -314,7 +316,30 @@ public class CustomerPaymentPreviewReportTest {
                         any(PriceConverter.class),
                         eq(Long.valueOf(INVOCATION_TIME)));
     }
+    
+    @Test
+    public void hidePaymentInfo() throws Exception {
+        
+        // given
+        PlatformUser user = givenUser(false, true, OrganizationRoleType.CUSTOMER);
+        mockCalculateBillingResultsForPaymentPreview(Arrays.asList(XML_FILE_UPGRADE), user.getOrganization().getKey());
+        mockReportDaoData("MyOrganization", "Main Street Munich", "productId");
 
+        // when
+        RDOCustomerPaymentPreview result = reporting.buildReport(user);
+        
+        //then
+        String paymentType = result.getSummaries().get(0).getPaymentType();
+        assertThat(paymentType, is("INVOICE"));
+        
+        //when
+        reporting.hidePaymentInformation(result);
+        
+        // then
+        paymentType = result.getSummaries().get(0).getPaymentType();
+        assertThat(paymentType, is(""));
+    }
+    
     private void mockCalculateBillingResultsForPaymentPreview(
             long organizationKey) throws Exception {
         BillingResult billingResult = new BillingResult();

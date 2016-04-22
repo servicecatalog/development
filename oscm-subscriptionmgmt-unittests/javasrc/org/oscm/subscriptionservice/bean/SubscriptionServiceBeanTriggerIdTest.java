@@ -37,6 +37,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
@@ -97,6 +98,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
     private ModifyAndUpgradeSubscriptionBean modifyAndUpgradeBean;
     private ProductDao productDao;
     private UserGroupServiceLocalBean userGroupService;
+    private ConfigurationServiceLocal cfgService;
 
     @SuppressWarnings("boxing")
     @Before
@@ -104,6 +106,8 @@ public class SubscriptionServiceBeanTriggerIdTest extends
         subscriptionServiceBean = initMocksAndSpys();
         productDao = mock(ProductDao.class);
         commService = mock(CommunicationServiceLocal.class);
+        cfgService = mock(ConfigurationServiceLocal.class);
+        subscriptionServiceBean.cfgService = cfgService;
         modifyAndUpgradeBean = spy(new ModifyAndUpgradeSubscriptionBean());
         modifyAndUpgradeBean.commService = commService;
         subscriptionServiceBean.modUpgBean = modifyAndUpgradeBean;
@@ -187,6 +191,7 @@ public class SubscriptionServiceBeanTriggerIdTest extends
 
         defineMockBehavior();
         when(dsMock.getCurrentUser()).thenReturn(orgAdmin);
+        doReturn(true).when(cfgService).isPaymentInfoAvailable();
     }
 
     private void prepareInvisibleProducts() throws Exception {
