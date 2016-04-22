@@ -7,7 +7,7 @@
         <dependent-module archiveName="apache-commons-lang.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/apache-commons-lang/apache-commons-lang">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="commons-lang3-3.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/apache-commons-lang/javalib/commons-lang3-3.1.jar">
+        <dependent-module archiveName="commons-lang3-3.3.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/apache-commons-lang/javalib/commons-lang3-3.1.jar">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="oscm-integration-ws-security-client"/>
