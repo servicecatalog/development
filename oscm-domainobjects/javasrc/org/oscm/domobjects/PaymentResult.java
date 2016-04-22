@@ -27,7 +27,8 @@ import org.oscm.types.enumtypes.PaymentProcessingStatus;
  */
 @Entity
 @NamedQuery(name = "PaymentResult.getAllByStatus", query = "SELECT pr FROM PaymentResult pr WHERE pr.dataContainer.processingStatus = :status")
-public class PaymentResult extends DomainObjectWithHistory<PaymentResultData> {
+public class PaymentResult extends
+        DomainObjectWithVersioning<PaymentResultData> {
 
     private static final long serialVersionUID = 478112019440984839L;
 

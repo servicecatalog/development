@@ -36,8 +36,7 @@ import org.oscm.domobjects.annotations.BusinessKey;
         "paymenttype_tkey" }))
 @NamedQueries({ @NamedQuery(name = "ProductToPaymentType.findByBusinessKey", query = "SELECT c FROM ProductToPaymentType c WHERE c.product_tkey=:product_tkey AND c.paymenttype_tkey=:paymenttype_tkey") })
 @BusinessKey(attributes = { "product_tkey", "paymenttype_tkey" })
-public class ProductToPaymentType extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class ProductToPaymentType extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = 3625206280823720826L;
 

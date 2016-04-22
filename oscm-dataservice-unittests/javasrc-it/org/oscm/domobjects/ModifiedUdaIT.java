@@ -20,12 +20,11 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.ModifiedEntityType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.ReflectiveCompare;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 /**
  * Tests of the modifieduda-related domain objects
@@ -34,7 +33,7 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
  */
 public class ModifiedUdaIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithHistory<?>> domObjects = new ArrayList<DomainObjectWithHistory<?>>();
+    private List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<DomainObjectWithVersioning<?>>();
     private static final long TARGET_OBJECT_KEY = 10001L;
     private static final long SUBSCRIPTION_KEY = 1001L;
     private static final String VALUE1 = "value1";
@@ -89,18 +88,21 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
     public void testModifyModifiedUda() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUdaPrepare();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUda();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUdaCheck();
                     return null;
@@ -168,7 +170,7 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
     private void doTestAddCheck() {
         ModifiedUda saved = null;
         ModifiedUda qry = new ModifiedUda();
-        for (DomainObjectWithHistory<?> modifiedUda : domObjects) {
+        for (DomainObjectWithVersioning<?> modifiedUda : domObjects) {
             // Load ModifiedUda and check values
             ModifiedUda modUda = (ModifiedUda) modifiedUda;
             qry.setTargetObjectKey(modUda.getTargetObjectKey());

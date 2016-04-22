@@ -48,7 +48,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
         @NamedQuery(name = "Category.findServices", query = "SELECT p FROM Product p, CategoryToCatalogEntry cc, CatalogEntry ce WHERE cc.category.key = :categoryKey and cc.catalogEntry = ce and ce.product = p"),
         @NamedQuery(name = "Category.findAdminsOfServices", query = "SELECT pu FROM PlatformUser pu, RoleAssignment ra, CategoryToCatalogEntry assignedCat WHERE pu.organization=assignedCat.catalogEntry.product.vendor AND assignedCat.category.key=:categoryKey AND ra.user=pu AND ra.userRole.dataContainer.roleName='ORGANIZATION_ADMIN'") })
 @BusinessKey(attributes = { "marketplaceKey", "categoryId" })
-public class Category extends DomainObjectWithHistory<CategoryData> {
+public class Category extends DomainObjectWithVersioning<CategoryData> {
 
     private static final long serialVersionUID = -2321303407897558514L;
 
@@ -115,6 +115,7 @@ public class Category extends DomainObjectWithHistory<CategoryData> {
         this.marketplace = marketplace;
     }
 
+    @Override
     public List<LocalizedObjectTypes> getLocalizedObjectTypes() {
         return LOCALIZATION_TYPES;
     }

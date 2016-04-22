@@ -19,15 +19,13 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
 
 /**
  * @author brandstetter
@@ -183,15 +181,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
         Assert.assertNotNull(list);
         Assert.assertEquals(2, list.size());
 
-        ProductToPaymentTypeHistory hist = ProductToPaymentTypeHistory.class
-                .cast(list.get(1));
-        Assert.assertEquals(prod.getKey(), hist.getProductObjKey());
-        Assert.assertEquals(ptCreditCard.getKey(), hist.getPaymentTypeObjKey());
-        Assert.assertEquals(prodToPt.getKey(), hist.getObjKey());
-        Assert.assertEquals(1, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
-
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
         List<ProductToPaymentType> ptList = prodDb.getPaymentTypes();
@@ -220,15 +209,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
         Assert.assertNotNull(list);
         Assert.assertEquals(1, list.size());
 
-        ProductToPaymentTypeHistory hist = ProductToPaymentTypeHistory.class
-                .cast(list.get(0));
-        Assert.assertEquals(prod.getKey(), hist.getProductObjKey());
-        Assert.assertEquals(ptCreditCard.getKey(), hist.getPaymentTypeObjKey());
-        Assert.assertEquals(ref.getKey(), hist.getObjKey());
-        Assert.assertEquals(0, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.ADD, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
-
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
         List<ProductToPaymentType> ptList = prodDb.getPaymentTypes();
@@ -248,15 +228,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
         List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
         Assert.assertNotNull(list);
         Assert.assertEquals(2, list.size());
-
-        ProductToPaymentTypeHistory hist = ProductToPaymentTypeHistory.class
-                .cast(list.get(1));
-        Assert.assertEquals(newPt.getKey(), hist.getPaymentTypeObjKey());
-        Assert.assertEquals(prod.getKey(), hist.getProductObjKey());
-        Assert.assertEquals(ref.getKey(), hist.getObjKey());
-        Assert.assertEquals(1, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.MODIFY, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
 
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
