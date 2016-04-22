@@ -164,6 +164,37 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     }
 
     @Test
+    public void testCreate_History() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MarketingPermission permission = new MarketingPermission();
+                permission.setTechnicalProduct(technicalProduct);
+                permission.setOrganizationReference(reference);
+                mgr.persist(permission);
+                domObjects.add((MarketingPermission) ReflectiveClone
+                        .clone(permission));
+                return null;
+            }
+        });
+
+        // ASSERT
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MarketingPermission original = (MarketingPermission) domObjects
+                        .get(0);
+                List<DomainHistoryObject<?>> historyList = mgr
+                        .findHistory(original);
+
+                assertEquals(1, historyList.size());
+
+                return null;
+            }
+        });
+    }
+
+    @Test
     public void testDelete() throws Exception {
         runTX(new Callable<Void>() {
             @Override
@@ -204,6 +235,48 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
             }
         });
 
+    }
+
+    @Test
+    public void testDelete_History() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MarketingPermission permission = new MarketingPermission();
+                permission.setTechnicalProduct(technicalProduct);
+                permission.setOrganizationReference(reference);
+                mgr.persist(permission);
+                domObjects.add((MarketingPermission) ReflectiveClone
+                        .clone(permission));
+                return null;
+            }
+        });
+
+        // REMOVE
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MarketingPermission original = (MarketingPermission) domObjects
+                        .get(0);
+                MarketingPermission found = mgr.find(MarketingPermission.class,
+                        original.getKey());
+                mgr.remove(found);
+                return null;
+            }
+        });
+
+        // ASSERT
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                MarketingPermission original = (MarketingPermission) domObjects
+                        .get(0);
+                List<DomainHistoryObject<?>> historyList = mgr
+                        .findHistory(original);
+                assertEquals(2, historyList.size());
+                return null;
+            }
+        });
     }
 
     @Test

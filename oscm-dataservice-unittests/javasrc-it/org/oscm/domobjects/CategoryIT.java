@@ -24,6 +24,7 @@ import javax.ejb.EJBException;
 import javax.persistence.Query;
 
 import org.junit.Test;
+import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -203,6 +204,22 @@ public class CategoryIT extends DomainObjectTestBase {
         } catch (ObjectNotFoundException ex) {
             // expected
         }
+<<<<<<< e28c8ddae7949b373263783b6a1efec888c405c4
+=======
+        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(oldEntry);
+        Assert.assertNotNull("History entry 'null' for catalog entry", histObjs);
+        Assert.assertFalse("History entry empty for catalog entry",
+                histObjs.isEmpty());
+        Assert.assertTrue("Two history entries expected for catalog entry",
+                histObjs.size() == 2);
+        DomainHistoryObject<?> hist = histObjs.get(0);
+        Assert.assertEquals(ModificationType.ADD, hist.getModtype());
+        Assert.assertEquals("modUser", "guest", hist.getModuser());
+
+        hist = histObjs.get(1);
+        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
+        Assert.assertEquals("modUser", "guest", hist.getModuser());
+>>>>>>> deleted 19 history tables and adapted tests - Suzana[10,0,0]
 
     }
 

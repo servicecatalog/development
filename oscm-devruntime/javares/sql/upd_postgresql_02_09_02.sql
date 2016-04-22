@@ -16,6 +16,7 @@ drop table RoleAssignmentHistory;
 drop table OnBehalfUserReferenceHistory;
 drop table TriggerDefinitionHistory;
 drop table TriggerProcessHistory;
+<<<<<<< e28c8ddae7949b373263783b6a1efec888c405c4
 drop table PaymentResultHistory;
 
 delete from hibernate_sequences where sequence_name = 'CategoryHistory';
@@ -37,3 +38,6 @@ delete from hibernate_sequences where sequence_name = 'OnBehalfUserReferenceHist
 delete from hibernate_sequences where sequence_name = 'TriggerDefinitionHistory';
 delete from hibernate_sequences where sequence_name = 'TriggerProcessHistory';
 delete from hibernate_sequences where sequence_name = 'PaymentResultHistory';
+=======
+drop table PaymentResultHistory;
+>>>>>>> deleted 19 history tables and adapted tests - Suzana[10,0,0]

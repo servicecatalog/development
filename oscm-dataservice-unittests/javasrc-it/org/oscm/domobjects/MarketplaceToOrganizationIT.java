@@ -151,6 +151,10 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
         Assert.assertNull(mgr.find(MarketplaceToOrganization.class,
                 mpToOrg.getKey()));
 
+        List<DomainHistoryObject<?>> list = mgr.findHistory(mpToOrg);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(2, list.size());
+
     }
 
     protected void doTestAdd() throws Exception {
@@ -170,6 +174,10 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_DENIED,
                 ref.getPublishingAccess());
 
+        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(1, list.size());
+
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_DENIED,
                 ref.getPublishingAccess());
     }
@@ -182,6 +190,10 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
         Assert.assertEquals(1, ref.getVersion());
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_GRANTED,
                 ref.getPublishingAccess());
+
+        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
+        Assert.assertNotNull(list);
+        Assert.assertEquals(2, list.size());
 
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_GRANTED,
                 ref.getPublishingAccess());

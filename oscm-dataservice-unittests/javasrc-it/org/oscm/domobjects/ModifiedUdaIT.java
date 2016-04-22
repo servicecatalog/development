@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
+import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveClone;

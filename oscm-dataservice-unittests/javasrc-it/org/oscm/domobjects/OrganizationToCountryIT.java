@@ -13,6 +13,7 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Organizations;
@@ -193,6 +194,37 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
         checkSame(org.getOrganizationToCountries(),
                 reloadedOrganization.getOrganizationToCountries());
 
+        // assert history
+        checkAddedHistory(addedCountry);
+        checkRemovedHistory(removedCountry);
+    }
+
+    /*
+     * check that one history entry was created for an added country code
+     */
+    private void checkAddedHistory(OrganizationToCountry country) {
+        List<DomainHistoryObject<?>> entries = mgr.findHistory(country);
+        assertEquals("Only one history entry expected", 1, entries.size());
+        checkHistoryEntry(ModificationType.ADD, country, entries.get(0));
+    }
+
+    /*
+     * check that two history entries have been created for a country code that
+     * was added and removed again.
+     */
+    private void checkRemovedHistory(OrganizationToCountry country) {
+        List<DomainHistoryObject<?>> entries = mgr.findHistory(country);
+        checkHistoryEntry(ModificationType.ADD, country, entries.get(0));
+        checkHistoryEntry(ModificationType.DELETE, country, entries.get(1));
+    }
+
+    private void checkHistoryEntry(ModificationType type,
+            OrganizationToCountry orgToCountry, DomainHistoryObject<?> history) {
+
+        assertEquals("modType", type, history.getModtype());
+        assertEquals("modUser", "guest", history.getModuser());
+        assertEquals("OBJID in history different", orgToCountry.getKey(),
+                history.getObjKey());
     }
 
     /**
