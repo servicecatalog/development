@@ -104,7 +104,7 @@ public class ReportingServiceBeanTest {
     private static final String INVALID_SESSION_ID = "dkjf892hlkjsf";
     private static final String REPORT_WSDLURL = "http://localhost:8081/Report/ReportingServiceBean?wsdl";
     private static final String REPORT_SOAP_ENDPOINT = "http://localhost:8081/Report/ReportingServiceBean";
-    private static final String REPORT_ENGINEURL = "http://localhost:8080/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
+    private static final String REPORT_ENGINEURL = "http://localhost:8080/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
     private static final String LOCALIZED_REPORT_DESCRIPTION = "LocalizedReportDescription";
 
     private static final String VALID_SESSION_ID = "valid_session";

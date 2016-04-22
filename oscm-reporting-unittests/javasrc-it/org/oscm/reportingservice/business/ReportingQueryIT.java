@@ -153,7 +153,7 @@ public class ReportingQueryIT extends EJBTestBase {
 
     private static final String REPORT_WSDLURL = "http://localhost:8080/Report/ReportingServiceBean?wsdl";
     private static final String REPORT_SOAP_ENDPOINT = "http://localhost:8080/Report/ReportingServiceBean";
-    private static final String REPORT_ENGINEURL = "http://localhost:8080/eclipse-birt-runtime/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
+    private static final String REPORT_ENGINEURL = "http://localhost:8080/birt/frameset?__report=${reportname}.rptdesign&SessionId=${sessionid}&__locale=${locale}&WSDLURL=${wsdlurl}&SOAPEndPoint=${soapendpoint}";
 
     private static final File TEST_XML_FILE = new File(
             "javares/BillingResult.xml");

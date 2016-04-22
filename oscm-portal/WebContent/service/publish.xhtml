@@ -92,17 +92,17 @@
           <h:outputText value="" rendered="#{marketableServicePublishModel.operatorShareVisible}" />
 
           <adm:outputLabel value="#{msg['marketplace.revenueShare']}"
-            rendered="#{marketableServicePublishModel.supplier}" />
-          <h:panelGroup rendered="#{marketableServicePublishModel.supplier}">
+            rendered="#{marketableServicePublishModel.supplier and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
+          <h:panelGroup rendered="#{marketableServicePublishModel.supplier and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}">
             <h:outputText id="revenueShare" displayAs="percent" 
               value="#{marketableServicePublishModel.marketplacePriceModel.revenueShare.revenueShare}">
               <f:converter converterId="bigDecimal.converter" />
             </h:outputText>
           </h:panelGroup>
-          <h:outputText value="" rendered="#{marketableServicePublishModel.supplier}" />
+          <h:outputText value="" rendered="#{marketableServicePublishModel.supplier and (not marketableServicePublishModel.serviceDetails.service.priceModel.external)}" />
 
           <adm:outputLabel value="#{msg['marketplace.view.resellerRevenueShare']}"
-            rendered="#{marketableServicePublishModel.resellerShareVisible}" />
+            rendered="#{marketableServicePublishModel.resellerShareVisible }" />
           <h:panelGroup rendered="#{marketableServicePublishModel.resellerShareVisible}">
             <h:outputText id="revenueShareReseller" displayAs="percent"
               value="#{marketableServicePublishModel.serviceSpecificResellerRevenueShare.revenueShare}">

@@ -98,6 +98,7 @@
               </ui:fragment>
 
               <ui:fragment rendered="#{subscriptionWizardConversation.model.useInternalConfigurator}">
+                <mp:outputStep value="#{msg['parameter.table.header']}" />
                 <ui:include src="../../account/paramtable.xhtml">
                   <ui:param name="inputList" value="#{subscriptionWizardConversation.model.serviceParameters}" />
                   <ui:param name="formName" value="configurationForm" />

@@ -27,9 +27,6 @@ import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.validator.MySubscriptionActivationValidator;
-import org.oscm.ui.validator.MySubscriptionStatusValidator;
-import org.oscm.ui.validator.ValidationPerformer;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.OperationModel;
 import org.oscm.internal.subscriptions.OperationParameterModel;
@@ -85,6 +82,7 @@ public class MySubscriptionsCtrl implements Serializable {
     @PostConstruct
     public void initialize(){
     	initializeTriggerSubscriptions();
+    	checkSelectedSubscription();
     }
 
     public void initializeTriggerSubscriptions() {
@@ -247,6 +245,17 @@ public class MySubscriptionsCtrl implements Serializable {
             model.setSelectedSubscriptionId(null);
         } else {
             model.setSelectedSubscription(mySubscriptionDetails);
+        }
+    }
+    
+    public void checkSelectedSubscription() {
+        String subKey = model.getSelectedSubscriptionId();
+        if(subKey!=null){
+            POSubscription mySubscriptionDetails = subscriptionsService.getMySubscriptionDetails(Long.parseLong(subKey));
+            if (mySubscriptionDetails == null) {
+                model.setSelectedSubscription(null);
+                model.setSelectedSubscriptionId(null);
+            }
         }
     }
 }
