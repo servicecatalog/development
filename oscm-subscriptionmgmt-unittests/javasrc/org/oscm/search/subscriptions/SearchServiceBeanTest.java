@@ -55,7 +55,8 @@ public class SearchServiceBeanTest {
         doReturn(termMatchingContext).when(wc).onField(anyString());
         TermTermination termTermination = mock(TermTermination.class);
         doReturn(termMatchingContext).when(termMatchingContext).andField(anyString());
-        doReturn(termTermination).when(termMatchingContext).matching(anyString());
+        doReturn(termTermination).when(termMatchingContext).matching("*searchphrase*");
+        doReturn(termTermination).when(termMatchingContext).matching("*phrase*");
 
         FullTextQuery subFTS = mock(FullTextQuery.class);
         FullTextQuery parFTS = mock(FullTextQuery.class);
@@ -70,7 +71,7 @@ public class SearchServiceBeanTest {
         doReturn(longs).when(subFTS).list();
         doReturn(params).when(parFTS).list();
         doReturn(udas).when(udaFTS).list();
-        Collection<Long> results = ssb.searchSubscriptions("searchPhrase");
+        Collection<Long> results = ssb.searchSubscriptions("searchphrase phrase");
         assertTrue(results.contains(10L));
     }
 }

@@ -9,6 +9,9 @@ import javax.ejb.Stateless;
 
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
+import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.Query;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
@@ -80,13 +83,19 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     private org.apache.lucene.search.Query getLuceneQueryForClass(String searchString, FullTextSession fts, Class clazz, String[] fieldNames)
             throws ParseException {
         QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(clazz).get();
-        TermMatchingContext termMatchingContext = qb.keyword().wildcard().onField(fieldNames[0]);
-        int counter = 1;
-        while(counter < fieldNames.length) {
-            termMatchingContext = termMatchingContext.andField(fieldNames[counter++]);
+        String[] split = searchString.split(" ");
+        BooleanQuery bq = new BooleanQuery();
+        for (String s : split) {
+            TermMatchingContext termMatchingContext = qb.keyword().wildcard().onField(fieldNames[0]);
+            int counter = 1;
+            while(counter < fieldNames.length) {
+                termMatchingContext = termMatchingContext.andField(fieldNames[counter++]);
+            }
+            Query query = termMatchingContext.
+                    matching("*" + QueryParser.escape(s) + "*").createQuery();
+            bq.add(query, BooleanClause.Occur.MUST);
         }
-        return termMatchingContext.
-                matching("*" + QueryParser.escape(searchString) + "*").createQuery();
+        return bq;
     }
 
     private Set<Long> searchSubscriptionViaLucene(org.apache.lucene.search.Query query,
