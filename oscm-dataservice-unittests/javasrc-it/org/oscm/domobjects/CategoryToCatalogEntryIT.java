@@ -18,13 +18,12 @@ import javax.ejb.EJBException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
 
 /**
  * Tests for the domain object relationship category to catalogentry
@@ -55,6 +54,7 @@ public class CategoryToCatalogEntryIT extends DomainObjectTestBase {
     @Before
     public void setupData() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 setupCategory();
                 setupCatalogEntry();
@@ -66,12 +66,14 @@ public class CategoryToCatalogEntryIT extends DomainObjectTestBase {
     @Test
     public void testAdd() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestAdd();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestAddCheck();
                 return null;
@@ -147,18 +149,21 @@ public class CategoryToCatalogEntryIT extends DomainObjectTestBase {
     public void testDelete() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDeletePrepare();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDelete();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDeleteCheck();
                     return null;
@@ -231,12 +236,5 @@ public class CategoryToCatalogEntryIT extends DomainObjectTestBase {
         Assert.assertNull("CategoryToCatalogEntry still available",
                 categoryToCatalogEntry);
 
-        // check history of CategoryToCatalogEntry
-        List<DomainHistoryObject<?>> categoryToCatalogEntryHistory = mgr
-                .findHistory(oldCategoryToCatalogEntry);
-        Assert.assertNotNull(categoryToCatalogEntryHistory);
-        Assert.assertEquals(2, categoryToCatalogEntryHistory.size());
-        Assert.assertEquals(oldCategoryToCatalogEntry.getKey(),
-                categoryToCatalogEntryHistory.get(1).getObjKey());
     }
 }
