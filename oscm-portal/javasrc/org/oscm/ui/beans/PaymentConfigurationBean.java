@@ -20,18 +20,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.ui.model.CustomerPaymentTypes;
-import org.oscm.ui.model.PaymentTypes;
-import org.oscm.ui.model.SelectedPaymentType;
-import org.oscm.ui.model.ServicePaymentTypes;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.model.CustomerPaymentTypes;
+import org.oscm.ui.model.PaymentTypes;
+import org.oscm.ui.model.SelectedPaymentType;
+import org.oscm.ui.model.ServicePaymentTypes;
 
 /**
  * Handles the payment configuration a supplier can manage for his customers and
@@ -45,6 +49,10 @@ import org.oscm.internal.vo.VOServicePaymentConfiguration;
 public class PaymentConfigurationBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = -4889463909553062668L;
+
+    @EJB(beanInterface = ConfigurationService.class)
+    private
+    ConfigurationService cfgService;
 
     private Comparator<SelectedPaymentType> paymentTypeComparator = new Comparator<SelectedPaymentType>() {
 
@@ -70,7 +78,9 @@ public class PaymentConfigurationBean extends BaseBean implements Serializable {
      * @return the enabled payment types
      */
     public List<SelectedPaymentType> getEnabledPaymentTypesForSupplier() {
-
+        if (!getCfgService().isPaymentInfoAvailable()) {
+            JSFUtils.addMessage(null, FacesMessage.SEVERITY_WARN, BaseBean.WARNING_PAYMENT_TYPES_NOT_USED, null);
+        }
         if (enabledPaymentTypes == null) {
             Set<VOPaymentType> availablePaymentTypes = getAccountingService()
                     .getAvailablePaymentTypesForOrganization();
@@ -307,6 +317,20 @@ public class PaymentConfigurationBean extends BaseBean implements Serializable {
             result.add(defaultType);
         }
         return result;
+    }
+
+    /**
+     * @return the cfgService
+     */
+    public ConfigurationService getCfgService() {
+        return cfgService;
+    }
+
+    /**
+     * @param cfgService the cfgService to set
+     */
+    public void setCfgService(ConfigurationService cfgService) {
+        this.cfgService = cfgService;
     }
 
 }
