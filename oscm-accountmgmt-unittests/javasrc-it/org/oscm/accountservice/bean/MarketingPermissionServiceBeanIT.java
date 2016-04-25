@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.accountservice.dao.TechnicalProductDao;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
@@ -41,18 +40,18 @@ import org.oscm.domobjects.Product;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.exception.MarketingPermissionNotFoundException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * Tests of the Account service that are related to the managing of suppliers
@@ -97,6 +96,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ms.removeMarketingPermission(0, new ArrayList<String>());
                     return null;
@@ -114,6 +114,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         container.login(techProvider2User.getKey(), ROLE_TECHNOLOGY_MANAGER);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         new ArrayList<String>());
@@ -127,6 +128,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ms.removeMarketingPermission(techProdKey,
                             Arrays.asList(supplier1.getOrganizationId()));
@@ -144,6 +146,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ms.removeMarketingPermission(techProdKey, Arrays.asList(
                             supplier1.getOrganizationId(),
@@ -165,6 +168,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         Arrays.asList(supplier1.getOrganizationId()));
@@ -180,6 +184,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         Product product = createMarketableService(supplier1, techProd1, false);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         Arrays.asList(supplier1.getOrganizationId()));
@@ -195,6 +200,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         Product product = createMarketableService(supplier1, techProd1, true);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         Arrays.asList(supplier1.getOrganizationId()));
@@ -212,6 +218,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         Arrays.asList(supplier1.getOrganizationId()));
@@ -229,6 +236,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         createMarketingPermission(supplier2.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(techProdKey,
                         Arrays.asList(supplier2.getOrganizationId()));
@@ -248,6 +256,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier2.getKey(), techProd1.getKey());
         createMarketingPermission(supplier3.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(
                         techProdKey,
@@ -269,6 +278,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier2.getKey(), techProd1.getKey());
         createMarketingPermission(supplier3.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermission(
                         techProdKey,
@@ -289,6 +299,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier3.getKey(), techProd1.getKey());
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ms.removeMarketingPermission(techProdKey, Arrays.asList(
                             supplier2.getOrganizationId(),
@@ -339,6 +350,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProd3.getKey());
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     ms.removeMarketingPermission(techProdKey, Arrays.asList(
                             supplier2.getOrganizationId(),
@@ -364,6 +376,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     public void getSuppliersForTechnicalService_NonExistingService()
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.getSuppliersForTechnicalService(-1);
                 return null;
@@ -376,6 +389,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             throws Exception {
         container.login(techProvider2User.getKey(), ROLE_TECHNOLOGY_MANAGER);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.getSuppliersForTechnicalService(techProdKey);
                 return null;
@@ -386,6 +400,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     @Test
     public void getSuppliersForTechnicalService_EmptyResult() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<Organization> result = ms
                         .getSuppliersForTechnicalService(techProdKey);
@@ -400,6 +415,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     public void getSuppliersForTechnicalService_OneResult() throws Exception {
         createMarketingPermission(supplier1.getKey(), techProdKey);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<Organization> result = ms
                         .getSuppliersForTechnicalService(techProdKey);
@@ -417,6 +433,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier1.getKey(), techProdKey);
         createMarketingPermission(supplier3.getKey(), techProdKey);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 List<Organization> result = ms
                         .getSuppliersForTechnicalService(techProdKey);
@@ -436,6 +453,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
 
         setProductStatus(prdKey, ServiceStatus.ACTIVE);
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product product = ds.find(Product.class, prdKey);
                 assertEquals(ServiceStatus.ACTIVE, product.getStatus());
@@ -444,6 +462,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.addMarketingPermission(
                         techProvider1,
@@ -464,6 +483,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
 
         final long orgRefKey = mp.getOrganizationReferenceKey();
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermissions(techProd1);
                 List<TechnicalProduct> result = ms
@@ -474,6 +494,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 OrganizationReference organizationReference = ds.find(
                         OrganizationReference.class, orgRefKey);
@@ -488,6 +509,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     public void removeMarketingPermissions_OneSupplier() throws Exception {
         createMarketingPermission(supplier1.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermissions(techProd1);
                 List<TechnicalProduct> result = ms
@@ -504,6 +526,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier2.getKey(), techProd1.getKey());
         createMarketingPermission(supplier3.getKey(), techProd1.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermissions(techProd1);
                 assertEquals(0, ms.getTechnicalServicesForSupplier(supplier1)
@@ -524,6 +547,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
         createMarketingPermission(supplier2.getKey(), techProd1.getKey());
         createMarketingPermission(supplier3.getKey(), techProd2.getKey());
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 ms.removeMarketingPermissions(techProd1);
                 assertEquals(0, ms.getTechnicalServicesForSupplier(supplier1)
@@ -541,6 +565,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             final long tpKey, final long supplierKey,
             final OrganizationReferenceType type) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Query query = ds
                         .createQuery("SELECT COUNT(*) FROM OrganizationReference orgRef WHERE orgRef.source.key = :tpkey AND orgRef.target.key = :supplierKey AND orgRef.dataContainer.referenceType = :type");
@@ -558,6 +583,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             final int expectedCount, final long technicalServiceKey)
             throws Exception {
         return runTX(new Callable<List<OrganizationReference>>() {
+            @Override
             public List<OrganizationReference> call() throws Exception {
                 Query query = ds
                         .createQuery("SELECT mp.organizationReference FROM MarketingPermission mp WHERE mp.technicalProduct.key = :tpKey");
@@ -573,9 +599,10 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     private void assertOrgRefHistoryNotDeletedCount(final int expectedCount,
             final long technicalServiceKey) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Query query = ds
-                        .createQuery("SELECT COUNT(orgRefHist) FROM OrganizationReferenceHistory orgRefHist, MarketingPermissionHistory mp WHERE mp.technicalProductObjKey = :tpKey AND mp.organizationReferenceObjKey = orgRefHist.objKey AND orgRefHist.modType <> :modType AND orgRefHist.objVersion = (SELECT MAX(innerOrgRefHist.objVersion) FROM OrganizationReferenceHistory innerOrgRefHist WHERE orgRefHist.objKey = innerOrgRefHist.objKey)");
+                        .createQuery("SELECT COUNT(orgRefHist) FROM OrganizationReferenceHistory orgRefHist, MarketingPermission mp WHERE mp.technicalProductKey = :tpKey AND mp.organizationReferenceKey = orgRefHist.objKey AND orgRefHist.modType <> :modType AND orgRefHist.objVersion = (SELECT MAX(innerOrgRefHist.objVersion) FROM OrganizationReferenceHistory innerOrgRefHist WHERE orgRefHist.objKey = innerOrgRefHist.objKey)");
                 query.setParameter("tpKey", Long.valueOf(technicalServiceKey));
                 query.setParameter("modType", ModificationType.DELETE);
                 Long count = (Long) query.getSingleResult();
@@ -587,6 +614,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
 
     private void initData() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 techProvider1 = Organizations.createOrganization(ds,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER,
@@ -626,6 +654,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             final long supplierKey, final long technicalServiceKey)
             throws Exception {
         return runTX(new Callable<MarketingPermission>() {
+            @Override
             public MarketingPermission call() throws Exception {
                 Organization targetSupplier = ds.getReference(
                         Organization.class, supplierKey);
@@ -665,6 +694,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
             final TechnicalProduct techProd, final boolean createCustomerCopy)
             throws Exception {
         return runTX(new Callable<Product>() {
+            @Override
             public Product call() throws Exception {
                 Marketplaces.createGlobalMarketplace(supplier, "mid", ds);
                 Product template = Products.createProduct(supplier, techProd,
@@ -681,6 +711,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     private void validateServiceState(final long key, final ServiceStatus status)
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product prodRef = ds.getReference(Product.class, key);
                 assertEquals(status, prodRef.getStatus());
@@ -692,6 +723,7 @@ public class MarketingPermissionServiceBeanIT extends EJBTestBase {
     private void setProductStatus(final long productKey,
             final ServiceStatus status) throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 Product product = ds.find(Product.class, productKey);
                 product.setStatus(status);
