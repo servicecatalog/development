@@ -36,15 +36,7 @@ public class VM extends Template {
     private static final Logger logger = LoggerFactory.getLogger(VM.class);
 
     private static final String GUEST_STATE_RUNNING = "running";
-
     private static final String TOOLS_RUNNING_STATE = "guestToolsRunning";
-
-    /**
-     * Enumeration for the current state of the guest system.
-     */
-    public enum VMwareGuestSystemStatus {
-        GUEST_READY, GUEST_NOTREADY;
-    }
 
     private ManagedObjectReference vmInstance;
     private VirtualMachineConfigInfo configSpec;
@@ -53,9 +45,9 @@ public class VM extends Template {
     private String instanceName;
 
     public VM(VMwareClient vmw, String instanceName) throws Exception {
-        logger.debug("instanceName: " + instanceName);
         this.vmw = vmw;
         this.instanceName = instanceName;
+
         vmInstance = vmw.getServiceUtil().getDecendentMoRef(null,
                 "VirtualMachine", instanceName);
         configSpec = (VirtualMachineConfigInfo) vmw.getServiceUtil()
@@ -420,9 +412,12 @@ public class VM extends Template {
 
     public String generateAccessInfo(VMPropertyHandler paramHandler)
             throws Exception {
-        logger.debug("instanceName: " + instanceName);
-        VMwareAccessInfo accInfo = new VMwareAccessInfo(vmw, paramHandler);
-        return accInfo.generateAccessInfo(guestInfo);
+
+        VMwareAccessInfo accInfo = new VMwareAccessInfo(paramHandler);
+        String accessInfo = accInfo.generateAccessInfo(guestInfo);
+        logger.debug("Generated access information for service instance '"
+                + instanceName + "':\n" + accessInfo);
+        return accessInfo;
     }
 
     private int getDataDiskKey() throws Exception {
@@ -483,7 +478,6 @@ public class VM extends Template {
     }
 
     public String getCPUModel(VMPropertyHandler paramHandler) throws Exception {
-
         String datacenter = paramHandler.getTargetDatacenter();
         ManagedObjectReference dataCenterRef = vmw.getServiceUtil()
                 .getDecendentMoRef(null, "Datacenter", datacenter);
@@ -503,16 +497,12 @@ public class VM extends Template {
                     new Object[] { hostName }));
         }
 
-        // HostSystem summary
-        // HostListSummary hardware
-        // HostHardwareSummary.cpuModel
         return (String) vmw.getServiceUtil().getDynamicProperty(hostRef,
                 "summary.hardware.cpuModel");
 
     }
 
     public HashMap<String, String> getAnnotationAttributes() throws Exception {
-        logger.debug("instanceName: " + instanceName);
         HashMap<String, String> attributes = new HashMap<String, String>();
 
         ManagedObjectReference customFieldsManager = vmw.getConnection()
@@ -520,8 +510,6 @@ public class VM extends Template {
         List<CustomFieldDef> customFieldDef = (List<CustomFieldDef>) vmw
                 .getServiceUtil()
                 .getDynamicProperty(customFieldsManager, "field");
-
-        // CustomFieldsManager.RemoveCustomFieldDef
 
         List<CustomFieldStringValue> customValues = (List<CustomFieldStringValue>) vmw
                 .getServiceUtil()
