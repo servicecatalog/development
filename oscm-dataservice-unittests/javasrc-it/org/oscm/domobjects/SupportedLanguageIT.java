@@ -208,11 +208,6 @@ public class SupportedLanguageIT extends DomainObjectTestBase {
         saved.setLanguageISOCode(ISOCODE_DE);
         saved = (SupportedLanguage) mgr.find(saved);
 
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(saved);
-        assertNotNull("History 'null' for SupportedLanguage", histObjs);
-        assertEquals("History entry expected for SupportedLanguage ", 2,
-                histObjs.size());
-
         assertEquals(Boolean.valueOf(false),
                 Boolean.valueOf(saved.getActiveStatus()));
 

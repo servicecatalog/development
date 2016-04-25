@@ -177,10 +177,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
         Assert.assertNull(mgr.find(ProductToPaymentType.class,
                 prodToPt.getKey()));
 
-        List<DomainHistoryObject<?>> list = mgr.findHistory(prodToPt);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(2, list.size());
-
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
         List<ProductToPaymentType> ptList = prodDb.getPaymentTypes();
@@ -205,13 +201,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
                 .getKey());
         Assert.assertEquals(0, ref.getVersion());
 
-<<<<<<< e28c8ddae7949b373263783b6a1efec888c405c4
-=======
-        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(1, list.size());
-
->>>>>>> deleted 19 history tables and adapted tests - Suzana[10,0,0]
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
         List<ProductToPaymentType> ptList = prodDb.getPaymentTypes();
@@ -228,13 +217,6 @@ public class ProductToPaymentTypeIT extends DomainObjectTestBase {
         Assert.assertEquals(1, ref.getVersion());
         Assert.assertEquals("INVOICE", ref.getPaymentType().getPaymentTypeId());
 
-<<<<<<< e28c8ddae7949b373263783b6a1efec888c405c4
-=======
-        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(2, list.size());
-
->>>>>>> deleted 19 history tables and adapted tests - Suzana[10,0,0]
         Product prodDb = mgr.getReference(Product.class, prod.getKey());
 
         List<ProductToPaymentType> ptList = prodDb.getPaymentTypes();
