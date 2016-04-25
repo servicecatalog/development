@@ -26,27 +26,18 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.any;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.domobjects.PaymentType;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.model.CustomerPaymentTypes;
-import org.oscm.ui.model.SelectedPaymentType;
-import org.oscm.ui.model.ServicePaymentTypes;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -56,6 +47,9 @@ import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.ui.model.CustomerPaymentTypes;
+import org.oscm.ui.model.SelectedPaymentType;
+import org.oscm.ui.model.ServicePaymentTypes;
 
 /**
  * Tests for the {@link PaymentConfigurationBean}.

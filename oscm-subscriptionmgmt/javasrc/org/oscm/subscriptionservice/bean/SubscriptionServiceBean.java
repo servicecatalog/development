@@ -45,7 +45,6 @@ import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingContact;
 import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.OnBehalfUserReference;
 import org.oscm.domobjects.OperationParameter;
