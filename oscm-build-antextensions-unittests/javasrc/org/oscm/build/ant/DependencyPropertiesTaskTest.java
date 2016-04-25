@@ -59,18 +59,25 @@ public class DependencyPropertiesTaskTest {
     }
 
     @Test
-    public void testProperties() {
+    public void testProjectProperties() {
+        // given
         task.setWorkspacedir(TESTWORKSPACE);
         task.setProjectdir(PROJECT_A_DIR);
         task.setResultdir(RESULTDIR);
+
+        // when
         task.execute();
+
+        // then
         assertEquals("project-a", project.getProperty("project.name"));
-        assertEquals(ospath("resources/testworkspace/project-lib"), project
-                .getProperty("project.project-lib.dir"));
-        assertEquals(ospath("resources/result/work/project-lib"), project
-                .getProperty("result.work.project-lib.dir"));
-        assertEquals(ospath("resources/result/package/project-lib"), project
-                .getProperty("result.package.project-lib.dir"));
+        assertEquals(
+                platformfile("resources/testworkspace/project-lib")
+                        .getAbsoluteFile().toString(),
+                project.getProperty("project.project-lib.dir"));
+        assertEquals(ospath("resources/result/work/project-lib"),
+                project.getProperty("result.work.project-lib.dir"));
+        assertEquals(ospath("resources/result/package/project-lib"),
+                project.getProperty("result.package.project-lib.dir"));
     }
 
     @Test
@@ -80,8 +87,8 @@ public class DependencyPropertiesTaskTest {
         task.setResultdir(RESULTDIR);
         task.execute();
         Path path = (Path) project.getReference("dependencies.compile.path");
-        List<String> expected = Arrays
-                .asList(absospath("resources/testworkspace/project-lib/javalib/samplelib.jar"));
+        List<String> expected = Arrays.asList(absospath(
+                "resources/testworkspace/project-lib/javalib/samplelib.jar"));
         assertEquals(expected, Arrays.asList(path.list()));
     }
 
@@ -92,8 +99,8 @@ public class DependencyPropertiesTaskTest {
         task.setResultdir(RESULTDIR);
         task.execute();
         Path path = (Path) project.getReference("dependencies.compile.path");
-        List<String> expected = Collections
-                .singletonList(absospath("resources/result/work/project-a/classes"));
+        List<String> expected = Collections.singletonList(
+                absospath("resources/result/work/project-a/classes"));
         assertEquals(expected, Arrays.asList(path.list()));
     }
 
@@ -104,10 +111,9 @@ public class DependencyPropertiesTaskTest {
         task.setResultdir(RESULTDIR);
         task.execute();
         Path path = (Path) project.getReference("dependencies.runtime.path");
-        List<String> expected = Arrays
-                .asList(
-                        absospath("resources/result/work/project-a/classes"),
-                        absospath("resources/testworkspace/project-lib/javalib/samplelib.jar"));
+        List<String> expected = Arrays.asList(
+                absospath("resources/result/work/project-a/classes"), absospath(
+                        "resources/testworkspace/project-lib/javalib/samplelib.jar"));
         assertEquals(expected, Arrays.asList(path.list()));
     }
 
@@ -117,6 +123,11 @@ public class DependencyPropertiesTaskTest {
 
     private String absospath(String path) {
         return new File(path).getAbsolutePath();
+    }
+
+    protected File platformfile(String path) {
+        path = path.replace('/', File.separatorChar);
+        return new File(path);
     }
 
 }
