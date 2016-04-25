@@ -22,17 +22,14 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
 /**
  * Tests for the domain object representing the sum of all user reviews for a
@@ -67,12 +64,14 @@ public class ProductFeedbackIT extends DomainObjectTestBase {
     public void testAdd() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductFeedback();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAddCheck();
                     return null;
@@ -182,18 +181,21 @@ public class ProductFeedbackIT extends DomainObjectTestBase {
     public void testModify() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductFeedback();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModify();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyCheck();
                     return null;
@@ -256,18 +258,21 @@ public class ProductFeedbackIT extends DomainObjectTestBase {
     public void testDelete() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductFeedback();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDelete();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDeleteCheck();
                     return null;
@@ -304,20 +309,6 @@ public class ProductFeedbackIT extends DomainObjectTestBase {
         Assert.assertNull("Deleted ProductReview '" + feedback.getKey()
                 + "' can still be accessed via DataManager.find", savedReview);
 
-        // Load history objects for corresponding ProductReviews and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(review);
-        Assert.assertNotNull(
-                "History entry 'null' for ProductReview " + review.getKey(),
-                histObjs);
-        Assert.assertEquals(
-                "Exactly 2 history entries expected for ProductReview "
-                        + review.getKey(), 2, histObjs.size());
-        // load deleted history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-        Assert.assertEquals("OBJID in history different", review.getKey(),
-                hist.getObjKey());
-
         // check that the Product was not deleted
         Product product = feedback.getProduct();
         assertNotNull(
@@ -329,7 +320,7 @@ public class ProductFeedbackIT extends DomainObjectTestBase {
                 savedProduct);
 
         // check that the Product does not have a new history entry
-        histObjs = mgr.findHistory(savedProduct);
+        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedProduct);
         Assert.assertNotNull(
                 "History entry 'null' for Product " + product.getKey(),
                 histObjs);

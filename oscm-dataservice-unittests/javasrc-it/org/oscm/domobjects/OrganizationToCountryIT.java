@@ -13,7 +13,6 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Organizations;
@@ -22,8 +21,6 @@ import org.oscm.test.data.SupportedCountries;
 public class OrganizationToCountryIT extends DomainObjectTestBase {
 
     private Organization org;
-
-    private OrganizationToCountry addedCountry;
 
     private OrganizationToCountry removedCountry;
 
@@ -93,11 +90,6 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
         checkSame(org.getOrganizationToCountries(),
                 reloadedOrganization.getOrganizationToCountries());
 
-        // check history entries
-        List<OrganizationToCountry> orgToCountries = reloadedOrganization
-                .getOrganizationToCountries();
-        checkAddedHistory(orgToCountries.get(0));
-        checkAddedHistory(orgToCountries.get(1));
     }
 
     /*
@@ -186,7 +178,7 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
         // add JP country
         SupportedCountry jpCountry = SupportedCountries.findOrCreate(mgr, "JP");
         org.setSupportedCountry(jpCountry);
-        addedCountry = org.getOrganizationToCountries().get(0);
+        org.getOrganizationToCountries().get(0);
 
     }
 
@@ -201,37 +193,6 @@ public class OrganizationToCountryIT extends DomainObjectTestBase {
         checkSame(org.getOrganizationToCountries(),
                 reloadedOrganization.getOrganizationToCountries());
 
-        // assert history
-        checkAddedHistory(addedCountry);
-        checkRemovedHistory(removedCountry);
-    }
-
-    /*
-     * check that one history entry was created for an added country code
-     */
-    private void checkAddedHistory(OrganizationToCountry country) {
-        List<DomainHistoryObject<?>> entries = mgr.findHistory(country);
-        assertEquals("Only one history entry expected", 1, entries.size());
-        checkHistoryEntry(ModificationType.ADD, country, entries.get(0));
-    }
-
-    /*
-     * check that two history entries have been created for a country code that
-     * was added and removed again.
-     */
-    private void checkRemovedHistory(OrganizationToCountry country) {
-        List<DomainHistoryObject<?>> entries = mgr.findHistory(country);
-        checkHistoryEntry(ModificationType.ADD, country, entries.get(0));
-        checkHistoryEntry(ModificationType.DELETE, country, entries.get(1));
-    }
-
-    private void checkHistoryEntry(ModificationType type,
-            OrganizationToCountry orgToCountry, DomainHistoryObject<?> history) {
-
-        assertEquals("modType", type, history.getModtype());
-        assertEquals("modUser", "guest", history.getModuser());
-        assertEquals("OBJID in history different", orgToCountry.getKey(),
-                history.getObjKey());
     }
 
     /**
