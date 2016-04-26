@@ -78,7 +78,7 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
             ValidationException, UserRoleAssignmentException {
         return null;
     }
-    
+
     @Override
     public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
             throws NonUniqueBusinessKeyException, MailOperationException,
@@ -199,13 +199,6 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
 
     @Override
     public VOUserDetails getCurrentUserDetailsIfPresent() {
-
-        return null;
-    }
-
-    @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public String getOperatorLogInfo() {
 
         return null;
     }
@@ -444,7 +437,5 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     public void revokeUnitRole(VOUser user, UserRoleType role)
             throws ObjectNotFoundException, OperationNotPermittedException {
     }
-
-    
 
 }

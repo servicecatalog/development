@@ -196,7 +196,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(new LandingpageServiceBean());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
         container.addBean(new BillingAdapterLocalBean());
-        
+
         container.addBean(new AccountServiceStub());
         container.addBean(new CategorizationServiceStub() {
             @Override
@@ -278,11 +278,6 @@ public class SubscriptionUpgradeSetup {
                     throw new UnsupportedOperationException();
                 }
                 return user;
-            }
-
-            @Override
-            public String getOperatorLogInfo() {
-                return "";
             }
         });
     }
