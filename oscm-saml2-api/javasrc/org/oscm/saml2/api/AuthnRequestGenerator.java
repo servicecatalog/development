@@ -130,7 +130,9 @@ public class AuthnRequestGenerator {
         authnRequest.setIssuer(issuer);
         NameIDType nameId = new NameIDType();
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
+        nameId.setValue("BESSSO");
         authnRequest.setNameID(nameId);
+        authnRequest.getSessionIndex().add("s2e5cd039fd16b92f9357757f5a730e4a0c1c01701");
 
         JAXBElement<LogoutRequestType> authnRequestJAXB = protocolObjFactory
                 .createLogoutRequest(authnRequest);
