@@ -90,6 +90,7 @@ public class UserBean extends BaseBean implements Serializable {
     static final String APPLICATION_BEAN = "appBean";
     static final String SELF_REGISTRATION = "/marketplace/registration.jsf";
     static final String SAMPSP_FORM = "samlSPForm:";
+    static final String OUTCOME_SAML_LOGOUT = "samlLogout";
 
     private List<UserRole> userRolesForNewUser;
     private String currentPassword;
@@ -1059,7 +1060,7 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     public String redirectToIDPLogout() {
-        return "/saml2/redirectToIdpLogout.xhtml";
+        return OUTCOME_SAML_LOGOUT;
     }
 
     private String handleAuthentication(HttpSession session) {

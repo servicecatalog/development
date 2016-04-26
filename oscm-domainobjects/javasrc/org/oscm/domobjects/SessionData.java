@@ -17,7 +17,6 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import org.apache.axis2.databinding.types.soapencoding.String;
 import org.oscm.internal.types.enumtypes.SessionType;
 
 /**
@@ -66,14 +65,16 @@ public class SessionData extends DomainDataContainer {
     private SessionType sessionType;
 
     /**
+     * SAML session identifier.
+     */
+    @Column(nullable = true)
+    private String idpSessionIndex;
+
+    /**
      * The name of the node the session was created on.
      */
     @Column(nullable = false)
     private String nodeName;
-
-    //TODO: javadoc
-    @Column(nullable = true)
-    private String idpSessionIndex;
 
     public Long getSubscriptionTKey() {
         return subscriptionTKey;
@@ -90,6 +91,8 @@ public class SessionData extends DomainDataContainer {
     public String getPlatformUserId() {
         return platformUserId;
     }
+
+    public String getIdpSessionIndex() { return idpSessionIndex; }
 
     public void setSubscriptionTKey(Long subscriptionTKey) {
         this.subscriptionTKey = subscriptionTKey;
@@ -129,10 +132,6 @@ public class SessionData extends DomainDataContainer {
 
     public void setNodeName(String nodeName) {
         this.nodeName = nodeName;
-    }
-
-    public String getIdpSessionIndex() {
-        return idpSessionIndex;
     }
 
     public void setIdpSessionIndex(String idpSessionIndex) {
