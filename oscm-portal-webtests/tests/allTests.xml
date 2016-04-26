@@ -98,7 +98,6 @@
 
   <!-- put your own test files to test them on a buildmachine -->
   <target name="partCustomBuildMachines">
-    <sleep seconds="300" />
-  	<ant antfile="playground.xml" />
+  	<ant antfile="testHidePaymentInfo.xml" />
   </target>
 </project>
