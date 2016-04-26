@@ -13,8 +13,8 @@ import org.oscm.app.vmware.business.VM;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.i18n.Messages;
-import org.oscm.app.vmware.remote.vmware.VMClientPool;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
+import org.oscm.app.vmware.remote.vmware.VMwareClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,10 +59,9 @@ public class CreateActions extends Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph
-                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
-                .borrowObject(vcenter);) {
+        try (VMwareClient vmClient = new VMwareClientFactory("en")
+                .getInstance(ph);) {
+
             VM template = new VM(vmClient, ph.getTemplateName());
             TaskInfo taskInfo = template.cloneVM(ph);
             ph.setTask(taskInfo.getKey());
@@ -82,10 +81,10 @@ public class CreateActions extends Actions {
             @SuppressWarnings("unused") InstanceStatus result) {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
-        String vcenter = ph
-                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-        try (VMwareClient vmClient = VMClientPool.getInstance().getPool()
-                .borrowObject(vcenter);) {
+        try (VMwareClient vmClient = new VMwareClientFactory("en")
+                .getInstance(ph);) {
+
+            new VMwareClientFactory("en").getInstance(ph);
             if (ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL) != null
                     && ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL)
                             .trim().length() > 0) {
