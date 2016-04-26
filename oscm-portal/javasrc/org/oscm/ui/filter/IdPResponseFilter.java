@@ -19,6 +19,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.types.exception.SessionIndexNotFoundException;
+import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.ADMStringUtils;
@@ -70,6 +72,13 @@ public class IdPResponseFilter implements Filter {
                 httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                         Boolean.TRUE);
                 String relayState = httpRequest.getParameter("RelayState");
+                try {
+                    new SAMLResponseExtractor().getSessionIndex(httpRequest.getParameter("SAMLResponse"));
+                    //TODO: store in db using SessionServiceLocal.updatePlatformSession
+                } catch (SessionIndexNotFoundException e) {
+                    //TODO: add logging
+                    e.printStackTrace();
+                }
                 if (relayState != null) {
                     String forwardUrl = getForwardUrl(httpRequest, relayState);
                     redirector.forward(httpRequest, httpResponse, forwardUrl);

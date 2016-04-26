@@ -405,6 +405,11 @@ public class SessionServiceBean implements SessionServiceLocal, SessionService {
     }
 
     @Override
+    public void updatePlatformSession(String sessionId, String samlSessionIndex) {
+       //TODO: get current session and store saml session index into it.
+    }
+
+    @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Session> getSessionsForUserKey(long platformUserKey) {
 

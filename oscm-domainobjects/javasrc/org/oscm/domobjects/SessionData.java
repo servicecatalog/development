@@ -17,6 +17,7 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
+import org.apache.axis2.databinding.types.soapencoding.String;
 import org.oscm.internal.types.enumtypes.SessionType;
 
 /**
@@ -69,6 +70,10 @@ public class SessionData extends DomainDataContainer {
      */
     @Column(nullable = false)
     private String nodeName;
+
+    //TODO: javadoc
+    @Column(nullable = true)
+    private String idpSessionIndex;
 
     public Long getSubscriptionTKey() {
         return subscriptionTKey;
@@ -126,4 +131,11 @@ public class SessionData extends DomainDataContainer {
         this.nodeName = nodeName;
     }
 
+    public String getIdpSessionIndex() {
+        return idpSessionIndex;
+    }
+
+    public void setIdpSessionIndex(String idpSessionIndex) {
+        this.idpSessionIndex = idpSessionIndex;
+    }
 }

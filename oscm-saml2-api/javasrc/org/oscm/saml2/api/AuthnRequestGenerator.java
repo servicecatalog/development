@@ -13,15 +13,15 @@ import java.util.Random;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.apache.axis2.databinding.types.soapencoding.String;
 import org.apache.commons.codec.binary.Base64;
-import org.oscm.saml2.api.model.protocol.LogoutRequestType;
-import org.w3c.dom.Document;
-
 import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.saml2.api.model.protocol.LogoutRequestType;
+import org.w3c.dom.Document;
 
 /**
  * @author roderus
@@ -64,11 +64,12 @@ public class AuthnRequestGenerator {
     /**
      * @return BASE64-encoded SAML Authentication Request
      * @throws SAML2AuthnRequestException
+     * @param idpSessionIndex
      */
-    public String getEncodedAuthnLogoutRequest() throws SAML2AuthnRequestException {
+    public String getEncodedAuthnLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
         String authnRequest = null;
         try {
-            authnRequest = marshal(generateAuthnLogoutRequest());
+            authnRequest = marshal(generateAuthnLogoutRequest(idpSessionIndex));
         } catch (SAML2AuthnRequestException e) {
             throw e;
         } catch (Exception e) {
@@ -110,7 +111,7 @@ public class AuthnRequestGenerator {
         return authnRequestJAXB;
     }
 
-    public JAXBElement<LogoutRequestType> generateAuthnLogoutRequest()
+    public JAXBElement<LogoutRequestType> generateAuthnLogoutRequest(String idpSessionIndex)
             throws DatatypeConfigurationException {
 
         org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
@@ -132,7 +133,7 @@ public class AuthnRequestGenerator {
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
         nameId.setValue("BESSSO");
         authnRequest.setNameID(nameId);
-        authnRequest.getSessionIndex().add("s2e5cd039fd16b92f9357757f5a730e4a0c1c01701");
+        authnRequest.getSessionIndex().add(idpSessionIndex);
 
         JAXBElement<LogoutRequestType> authnRequestJAXB = protocolObjFactory
                 .createLogoutRequest(authnRequest);

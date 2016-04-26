@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -55,6 +56,9 @@ public class SAMLResponseExtractor {
             + "//*[local-name()='Attribute'][@AttributeName='name']" //
             + "/*[local-name()='AttributeValue']";
 
+    private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']" //
+            + "//*[local-name()='AuthnStatement']";
+
     /**
      * Retrieves the userid from an encoded saml:Response String.
      * 
@@ -80,6 +84,63 @@ public class SAMLResponseExtractor {
         }
 
         return userId;
+    }
+
+    /**
+     * Retrieves the sessionIndex from an encoded saml:Response String.
+     *
+     * @param encodedSamlResponse
+     *            the encoded saml response
+     * @return the sessionIndex as a String
+     * @throws UnsupportedEncodingException
+     */
+    public String getSessionIndex(String encodedSamlResponse)
+            throws SessionIndexNotFoundException {
+
+        String userId = null;
+
+        try {
+            userId = getSessionIndexDecoded(decode(encodedSamlResponse));
+        } catch (UnsupportedEncodingException exception) {
+            throw new SessionIndexNotFoundException(
+                    String.format(
+                            "An exception occurred while Base64-decoding the SAML response:\n%s",
+                            encodedSamlResponse),
+                    SessionIndexNotFoundException.ReasonEnum.EXCEPTION_OCCURRED,
+                    exception, new String[] { encodedSamlResponse });
+        }
+
+        return userId;
+    }
+
+    private String getSessionIndexDecoded(String samlResponse) throws SessionIndexNotFoundException {
+        String userid = null;
+
+        try {
+            Document document = XMLConverter.convertToDocument(samlResponse,
+                    true);
+
+            userid = extractSessionIndex(document);
+        } catch (XPathExpressionException | ParserConfigurationException
+                | SAXException | IOException exception) {
+            throw new SessionIndexNotFoundException(
+                    String.format(
+                            "An exception occurred while retrieving the userid from the saml response:\n%s",
+                            samlResponse),
+                    SessionIndexNotFoundException.ReasonEnum.EXCEPTION_OCCURRED,
+                    exception, new String[] { samlResponse });
+        }
+
+        if (userid == null || userid.trim().length() == 0) {
+            throw new SessionIndexNotFoundException(
+                    String.format(
+                            "The userid attribute was not found for the saml response:\n%s",
+                            samlResponse),
+                    SessionIndexNotFoundException.ReasonEnum.SESSION_ATTRIBUTE_NOT_FOUND,
+                    new String[] { samlResponse });
+
+        }
+        return userid;
     }
 
     private String getUserId_decoded(String samlResponse)
@@ -134,6 +195,12 @@ public class SAMLResponseExtractor {
 
         userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML1_ATTRIBUTE_NAME_XPATH_EXPR);
+        return userId;
+    }
+
+    String extractSessionIndex(Document samlResponse) throws XPathExpressionException {
+        String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+                SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR);
         return userId;
     }
 

@@ -18,6 +18,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
+import org.apache.axis2.databinding.types.soapencoding.String;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.internal.types.enumtypes.SessionType;
 
@@ -103,5 +104,9 @@ public class Session extends DomainObjectWithVersioning<SessionData> {
 
     public void setNodeName(String nodeName) {
         dataContainer.setNodeName(nodeName);
+    }
+
+    public String getIdpSessionIndex() {
+        return dataContainer.getIdpSessionIndex();
     }
 }
