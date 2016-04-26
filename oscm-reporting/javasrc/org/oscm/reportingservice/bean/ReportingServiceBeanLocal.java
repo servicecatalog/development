@@ -354,6 +354,11 @@ public class ReportingServiceBeanLocal {
                     userGroupService);
             RDODetailedBilling result = billingReport.buildReport(user,
                     billingKey);
+            
+            if (!configurationService.isPaymentInfoAvailable()) {
+                billingReport.hidePaymentInformation(result);
+            }
+            
             putToCache(cacheKey, result);
 
             return result;
