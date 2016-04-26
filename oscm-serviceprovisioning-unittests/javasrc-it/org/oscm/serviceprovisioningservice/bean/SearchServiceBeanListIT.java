@@ -338,14 +338,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
         container.addBean(new SessionServiceStub());
         container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessServiceStub());
-        container.addBean(new IdentityServiceStub() {
-
-            @Override
-            public String getOperatorLogInfo() {
-                return "getOperatorLogInfo";
-            }
-
-        });
+        container.addBean(new IdentityServiceStub());
         container.addBean(mock(TaskQueueServiceLocal.class));
         container.addBean(new TriggerQueueServiceStub() {
             @Override
