@@ -299,7 +299,6 @@
     <copy file="${build.result.package.dir}/oscm-integrationtests-parameter-configurator/oscm-parameter-configurator.war" todir="${example.domain.app.path}" />
   	<copy file="${build.result.package.dir}/oscm-file-billing-adapter/oscm-file-adapter.ear" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-file-billing-application/oscm-file-billing.war" todir="${example.domain.app.path}" />
-    	
     <antcall target="copyMockSTS" />
   </target>
 
