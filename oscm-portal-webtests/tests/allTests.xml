@@ -8,7 +8,7 @@
   <!-- target for developers -->
   <target name="partCustom">
     <!-- put your own test files e.g. "playground.xml" --> 
-    <ant antfile="testBillingPlugin.xml" />
+    <ant antfile="testHidePaymentInfo.xml" />
   </target>
 
   <target name="part1">
@@ -79,6 +79,7 @@
     <ant antfile="testManageLanguages.xml" />
     <ant antfile="testManageUsers.xml" />
     <ant antfile="testProvisioningInterface.xml" />
+    <ant antfile="testHidePaymentInfo.xml" />
   </target>
 
   <target name="part2">
@@ -97,7 +98,6 @@
 
   <!-- put your own test files to test them on a buildmachine -->
   <target name="partCustomBuildMachines">
-    <sleep seconds="300" />
-  	<ant antfile="playground.xml" />
+  	<ant antfile="testHidePaymentInfo.xml" />
   </target>
 </project>
