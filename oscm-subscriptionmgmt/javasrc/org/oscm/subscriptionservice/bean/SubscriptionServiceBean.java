@@ -315,9 +315,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
         verifyIdAndKeyUniqueness(currentUser, subscription);
 
         if (isPaymentInfoHidden() && service.getPriceModel().isChargeable()) {
-            Organization organization = currentUser.getOrganization();
-            billingContact = createBillingContactForOrganization(currentUser);
-            paymentInfo = createPaymentInfoForOrganization(organization);
+            if (billingContact == null) {
+                billingContact = createBillingContactForOrganization(currentUser);
+            }
+            if (paymentInfo == null) {
+                Organization organization = currentUser.getOrganization();
+                paymentInfo = createPaymentInfoForOrganization(organization);
+            }
         }
         validateSettingsForSubscribing(subscription, service, paymentInfo,
                 billingContact);
