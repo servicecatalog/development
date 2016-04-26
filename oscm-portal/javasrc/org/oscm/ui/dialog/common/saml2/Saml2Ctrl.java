@@ -41,6 +41,7 @@ public class Saml2Ctrl extends BaseBean {
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
+            model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedAuthnLogoutRequest());
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             storeRequestIdInSession(reqGenerator.getRequestId());

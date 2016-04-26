@@ -80,6 +80,10 @@
               </a4j:outputPanel>
             </h:form>
           </ui:fragment>
+
+          <h:form id="formLogin2">
+            <h:commandLink id="logoutSAML" action="#{userBean.redirectToIDPLogout}" ><h:outputText value="logout z idepe" /></h:commandLink>
+          </h:form>
         </a4j:outputPanel>
 
       </a4j:outputPanel>

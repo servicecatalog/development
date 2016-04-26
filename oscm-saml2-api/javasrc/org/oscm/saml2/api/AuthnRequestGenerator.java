@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.w3c.dom.Document;
 
 import org.oscm.calendar.GregorianCalendars;
@@ -60,6 +61,24 @@ public class AuthnRequestGenerator {
         return encodeBase64(authnRequest);
     }
 
+    /**
+     * @return BASE64-encoded SAML Authentication Request
+     * @throws SAML2AuthnRequestException
+     */
+    public String getEncodedAuthnLogoutRequest() throws SAML2AuthnRequestException {
+        String authnRequest = null;
+        try {
+            authnRequest = marshal(generateAuthnLogoutRequest());
+        } catch (SAML2AuthnRequestException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SAML2AuthnRequestException(
+                    e.getMessage(),
+                    SAML2AuthnRequestException.ReasonEnum.XML_TRANSFORMATION_ERROR);
+        }
+        return encodeBase64(authnRequest);
+    }
+
     public String getRequestId() {
         return requestId;
     }
@@ -91,8 +110,36 @@ public class AuthnRequestGenerator {
         return authnRequestJAXB;
     }
 
-    String marshal(JAXBElement<AuthnRequestType> authnRequest) throws Exception {
-        Marshalling<AuthnRequestType> marshaller = new Marshalling<AuthnRequestType>();
+    public JAXBElement<LogoutRequestType> generateAuthnLogoutRequest()
+            throws DatatypeConfigurationException {
+
+        org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
+        protocolObjFactory = new org.oscm.saml2.api.model.protocol.ObjectFactory();
+        org.oscm.saml2.api.model.assertion.ObjectFactory assertionObjFactory;
+        assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
+
+        NameIDType issuer = assertionObjFactory.createNameIDType();
+        issuer.setValue(this.issuer);
+
+        LogoutRequestType authnRequest = protocolObjFactory
+                .createLogoutRequestType();
+        authnRequest.setID(requestId);
+        authnRequest.setVersion("2.0");
+        authnRequest.setIssueInstant(GregorianCalendars
+                .newXMLGregorianCalendarSystemTime());
+        authnRequest.setIssuer(issuer);
+        NameIDType nameId = new NameIDType();
+        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
+        authnRequest.setNameID(nameId);
+
+        JAXBElement<LogoutRequestType> authnRequestJAXB = protocolObjFactory
+                .createLogoutRequest(authnRequest);
+
+        return authnRequestJAXB;
+    }
+
+    <T> String marshal(JAXBElement<T> authnRequest) throws Exception {
+        Marshalling<T> marshaller = new Marshalling<>();
         Document samlRequestDoc = marshaller.marshallElement(authnRequest);
         String authnRequestString = XMLConverter.convertToString(
                 samlRequestDoc, false);

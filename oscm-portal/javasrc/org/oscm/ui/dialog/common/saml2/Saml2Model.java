@@ -21,6 +21,7 @@ public class Saml2Model implements Serializable {
     private String encodedAuthnRequest;
     private String relayState;
     private String acsUrl;
+    private String encodedAuthnLogoutRequest;
 
     public String getEncodedAuthnRequest() {
         return encodedAuthnRequest;
@@ -46,4 +47,11 @@ public class Saml2Model implements Serializable {
         this.acsUrl = acsUrl;
     }
 
+    public void setEncodedAuthnLogoutRequest(String encodedAuthnLogoutRequest) {
+        this.encodedAuthnLogoutRequest = encodedAuthnLogoutRequest;
+    }
+
+    public String getEncodedAuthnLogoutRequest() {
+        return encodedAuthnLogoutRequest;
+    }
 }

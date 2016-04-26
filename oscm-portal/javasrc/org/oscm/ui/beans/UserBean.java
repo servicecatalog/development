@@ -1058,6 +1058,10 @@ public class UserBean extends BaseBean implements Serializable {
         return "redirectToIdp";
     }
 
+    public String redirectToIDPLogout() {
+        return "/saml2/redirectToIdpLogout.xhtml";
+    }
+
     private String handleAuthentication(HttpSession session) {
         try {
             return getAuthenticationHandler().handleAuthentication(true,
