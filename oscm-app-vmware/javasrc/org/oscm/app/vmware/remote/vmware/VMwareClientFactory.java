@@ -43,10 +43,10 @@ public class VMwareClientFactory {
 
         String vcenter = paramHandler.getTargetVCenterServer();
         VMwareCredentials credentials = das.getCredentials(vcenter);
-
         validateState(vcenter, credentials);
-
-        return new VMwareClient(credentials);
+        VMwareClient client = new VMwareClient(credentials);
+        client.connect();
+        return client;
     }
 
     void validateState(String vcenter, VMwareCredentials credentials)
@@ -63,10 +63,8 @@ public class VMwareClientFactory {
     }
 
     public VMwareClient getInstance(String vcenter) throws Exception {
-
         VMwareCredentials credentials = das.getCredentials(vcenter);
         validateState(vcenter, credentials);
-
         return new VMwareClient(credentials);
     }
 
