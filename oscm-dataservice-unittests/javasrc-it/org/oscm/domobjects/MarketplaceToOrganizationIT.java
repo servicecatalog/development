@@ -12,20 +12,16 @@
 
 package org.oscm.domobjects;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBException;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.PublishingAccess;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 /**
  * @author weiser
@@ -37,6 +33,7 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     private Marketplace mp;
     private MarketplaceToOrganization mpToOrg;
 
+    @Override
     protected void dataSetup() throws Exception {
         org = Organizations.createOrganization(mgr);
         mp = Marketplaces.createGlobalMarketplace(org, "mpid", mgr);
@@ -46,12 +43,14 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     public void testAdd() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAddCheck();
                     return null;
@@ -66,12 +65,14 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     public void testAdd_Duplicate() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
@@ -86,12 +87,14 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     public void testModify() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
                 }
             });
             final Organization newOrg = runTX(new Callable<Organization>() {
+                @Override
                 public Organization call() throws Exception {
                     MarketplaceToOrganization ref = mgr.getReference(
                             MarketplaceToOrganization.class, mpToOrg.getKey());
@@ -102,6 +105,7 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyCheck(newOrg);
                     return null;
@@ -116,12 +120,14 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     public void testDelete() throws Exception {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAdd();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     MarketplaceToOrganization ref = mgr.getReference(
                             MarketplaceToOrganization.class, mpToOrg.getKey());
@@ -130,6 +136,7 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDeleteCheck();
                     return null;
@@ -143,19 +150,6 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
     protected void doTestDeleteCheck() {
         Assert.assertNull(mgr.find(MarketplaceToOrganization.class,
                 mpToOrg.getKey()));
-
-        List<DomainHistoryObject<?>> list = mgr.findHistory(mpToOrg);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(2, list.size());
-
-        MarketplaceToOrganizationHistory hist = MarketplaceToOrganizationHistory.class
-                .cast(list.get(1));
-        Assert.assertEquals(org.getKey(), hist.getOrganizationObjKey());
-        Assert.assertEquals(mp.getKey(), hist.getMarketplaceObjKey());
-        Assert.assertEquals(mpToOrg.getKey(), hist.getObjKey());
-        Assert.assertEquals(1, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
 
     }
 
@@ -176,18 +170,6 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_DENIED,
                 ref.getPublishingAccess());
 
-        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(1, list.size());
-
-        MarketplaceToOrganizationHistory hist = MarketplaceToOrganizationHistory.class
-                .cast(list.get(0));
-        Assert.assertEquals(org.getKey(), hist.getOrganizationObjKey());
-        Assert.assertEquals(mp.getKey(), hist.getMarketplaceObjKey());
-        Assert.assertEquals(ref.getKey(), hist.getObjKey());
-        Assert.assertEquals(0, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.ADD, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_DENIED,
                 ref.getPublishingAccess());
     }
@@ -201,18 +183,6 @@ public class MarketplaceToOrganizationIT extends DomainObjectTestBase {
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_GRANTED,
                 ref.getPublishingAccess());
 
-        List<DomainHistoryObject<?>> list = mgr.findHistory(ref);
-        Assert.assertNotNull(list);
-        Assert.assertEquals(2, list.size());
-
-        MarketplaceToOrganizationHistory hist = MarketplaceToOrganizationHistory.class
-                .cast(list.get(1));
-        Assert.assertEquals(newOrg.getKey(), hist.getOrganizationObjKey());
-        Assert.assertEquals(mp.getKey(), hist.getMarketplaceObjKey());
-        Assert.assertEquals(ref.getKey(), hist.getObjKey());
-        Assert.assertEquals(1, hist.getObjVersion());
-        Assert.assertEquals(ModificationType.MODIFY, hist.getModtype());
-        Assert.assertEquals("guest", hist.getModuser());
         Assert.assertEquals(PublishingAccess.PUBLISHING_ACCESS_GRANTED,
                 ref.getPublishingAccess());
     }

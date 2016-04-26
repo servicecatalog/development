@@ -11,12 +11,12 @@
  ********************************************************************************/
 package org.oscm.domobjects;
 
-import static org.oscm.test.Numbers.TIMESTAMP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.oscm.test.Numbers.TIMESTAMP;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,17 +33,8 @@ import javax.ejb.EJBTransactionRolledbackException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.ReflectiveClone;
-import org.oscm.test.ReflectiveCompare;
-import org.oscm.test.data.CatalogEntries;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
 import org.oscm.internal.types.enumtypes.EventType;
 import org.oscm.internal.types.enumtypes.ParameterType;
 import org.oscm.internal.types.enumtypes.ParameterValueType;
@@ -54,6 +45,14 @@ import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.ReflectiveClone;
+import org.oscm.test.ReflectiveCompare;
+import org.oscm.test.data.CatalogEntries;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.TechnicalProducts;
 
 /**
  * Tests of the product-related domain objects (incl. auditing functionality)
@@ -1076,12 +1075,6 @@ public class ProductIT extends DomainObjectTestBase {
         assertEquals(
                 "No parameter found, although the original product had one", 1,
                 parameterSet.getParameters().size());
-        assertEquals(
-                "No history entries found for parameterset created via copying",
-                1, getHistory(parameterSet).size());
-        assertEquals("Wrong modification type of history entry for param set",
-                ModificationType.ADD, getHistory(parameterSet).get(0)
-                        .getModtype());
         Parameter parameter = parameterSet.getParameters().get(0);
         assertTrue("Object was not copied or persisted",
                 parameter.getKey() > original.getParameterSet().getParameters()

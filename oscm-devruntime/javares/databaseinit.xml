@@ -41,16 +41,13 @@
   <Hibernate_Sequences SEQUENCE_NAME="BillingResult" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ConfigurationSetting" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="Category" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="CategoryHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="Event" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="EventHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="GatheredEvent" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ImageResource" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="LocalizedResource" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ModifiedEntity" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="ModifiedEntityHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ModifiedUda" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="ModifiedUdaHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="Organization" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="OrganizationHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="OrganizationReference" SEQUENCE_NEXT_HI_VALUE="10"/>
@@ -66,11 +63,9 @@
   <Hibernate_Sequences SEQUENCE_NAME="ParameterOption" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ParameterOptionHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ParameterSet" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="ParameterSetHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PaymentInfo" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PaymentInfoHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PaymentResult" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="PaymentResultHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PlatformUser" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PlatformUserHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="PricedEvent" SEQUENCE_NEXT_HI_VALUE="10"/>
@@ -84,7 +79,6 @@
   <Hibernate_Sequences SEQUENCE_NAME="Product" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ProductHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="ProductReference" SEQUENCE_NEXT_HI_VALUE="10"/>
-  <Hibernate_Sequences SEQUENCE_NAME="ProductReferenceHistory" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="Report" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="RevenueShareModel" SEQUENCE_NEXT_HI_VALUE="10"/>
   <Hibernate_Sequences SEQUENCE_NAME="RevenueShareModelHistory" SEQUENCE_NEXT_HI_VALUE="10"/>

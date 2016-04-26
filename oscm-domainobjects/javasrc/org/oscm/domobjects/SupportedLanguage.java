@@ -31,7 +31,7 @@ import org.oscm.domobjects.annotations.BusinessKey;
         @NamedQuery(name = "SupportedLanguage.findDefault", query = "SELECT sl.dataContainer.languageISOCode FROM SupportedLanguage sl WHERE sl.dataContainer.defaultStatus = TRUE") })
 @Entity
 public class SupportedLanguage extends
-        DomainObjectWithHistory<SupportedLanguageData> {
+        DomainObjectWithVersioning<SupportedLanguageData> {
 
     private static final long serialVersionUID = 6373227371951477776L;
 

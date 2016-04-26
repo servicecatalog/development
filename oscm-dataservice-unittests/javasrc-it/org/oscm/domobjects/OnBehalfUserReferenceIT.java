@@ -23,10 +23,7 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.PlatformUsers;
 
@@ -59,12 +56,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     public void testAdd() throws Throwable {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestAddCheck();
                 return null;
@@ -94,22 +93,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
                 onBehalfUserReference), ReflectiveCompare.compare(
                 savedReference, onBehalfUserReference));
 
-        // load history object and check the values
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedReference);
-        Assert.assertNotNull("History entry 'null' for OnBehalfUserReference "
-                + onBehalfUserReference.getKey());
-        Assert.assertEquals(
-                "Only one history entry expected for OnBehalfUserReference "
-                        + onBehalfUserReference.getKey(), 1, histObjs.size());
-        DomainHistoryObject<?> hist = histObjs.get(0);
-        Assert.assertEquals(ModificationType.ADD, hist.getModtype());
-        Assert.assertEquals("modUser", "guest", hist.getModuser());
-        Assert.assertTrue(
-                ReflectiveCompare.showDiffs(onBehalfUserReference, hist),
-                ReflectiveCompare.compare(onBehalfUserReference, hist));
-        Assert.assertEquals("OBJID in history different",
-                onBehalfUserReference.getKey(), hist.getObjKey());
-
         // check cascaded objects
         PlatformUser savedMasterUser = savedReference.getMasterUser();
         PlatformUser orgMasterUser = onBehalfUserReference.getMasterUser();
@@ -122,14 +105,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
         Assert.assertTrue(
                 ReflectiveCompare.showDiffs(savedSlaveUser, orgSlaveUser),
                 ReflectiveCompare.compare(savedSlaveUser, orgSlaveUser));
-
-        // Load cascaded history objects and check
-        histObjs = mgr.findHistory(savedMasterUser);
-        Assert.assertNotNull("History entry 'null' for masterUser of OnBehalfUserReference "
-                + onBehalfUserReference.getKey());
-        Assert.assertEquals(
-                "Only one history entry expected for masterUser of OnBehalfUserReference "
-                        + onBehalfUserReference.getKey(), 1, histObjs.size());
     }
 
     private OnBehalfUserReference loadOnBehalfUserReference() {
@@ -156,12 +131,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     public void testModify() throws Throwable {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 onBehalfUserReference = loadOnBehalfUserReference();
                 onBehalfUserReference.setLastAccessTime(newAccessTime());
@@ -174,6 +151,7 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
 
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestModifyCheck();
                 return null;
@@ -190,24 +168,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
                 onBehalfUserReference), ReflectiveCompare.compare(
                 savedReference, onBehalfUserReference));
 
-        // load history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedReference);
-        Assert.assertNotNull("History entry 'null' for OnBehalfUserReference "
-                + onBehalfUserReference.getKey());
-        Assert.assertEquals(
-                "OExactly 2 history entries expected for OnBehalfUserReference "
-                        + onBehalfUserReference.getKey(), 2, histObjs.size());
-
-        // load modified history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        Assert.assertEquals(ModificationType.MODIFY, hist.getModtype());
-        Assert.assertEquals("modUser", "guest", hist.getModuser());
-        Assert.assertTrue(
-                ReflectiveCompare.showDiffs(onBehalfUserReference, hist),
-                ReflectiveCompare.compare(onBehalfUserReference, hist));
-        Assert.assertEquals("OBJID in history different",
-                onBehalfUserReference.getKey(), hist.getObjKey());
-
         // Check cascaded objects
         PlatformUser savedMasterUser = savedReference.getMasterUser();
         PlatformUser orgMasterUser = masterUser;
@@ -221,13 +181,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
                 ReflectiveCompare.showDiffs(savedSlaveUser, orgSlaveUser),
                 ReflectiveCompare.compare(savedSlaveUser, orgSlaveUser));
 
-        // Load cascaded history objects and check
-        histObjs = mgr.findHistory(savedMasterUser);
-        Assert.assertNotNull("History entry 'null' for masterUser of OnBehalfUserReference "
-                + onBehalfUserReference.getKey());
-        Assert.assertEquals(
-                "Only one history entry expected for masterUser of OnBehalfUserReference "
-                        + onBehalfUserReference.getKey(), 1, histObjs.size());
     }
 
     /**
@@ -254,12 +207,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     public void testDeleteReferenceCascade() throws Throwable {
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 onBehalfUserReference = loadOnBehalfUserReference();
                 mgr.remove(onBehalfUserReference);
@@ -267,6 +222,7 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestDeleteOnBehalfUserReferenceCheck();
                 doTestMasterUserNotDeletedCheck();
@@ -285,20 +241,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
                 + "' can still be accessed via DataManager.find",
                 savedReference);
 
-        // Load history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr
-                .findHistory(onBehalfUserReference);
-        Assert.assertNotNull("History entry 'null' for OnBehalfUserReference "
-                + onBehalfUserReference.getKey(), histObjs);
-        Assert.assertEquals(
-                "Exactly 2 history entries expected for OnBehalfUserReference "
-                        + onBehalfUserReference.getKey(), 2, histObjs.size());
-        // load deleted history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-        Assert.assertEquals("OBJID in history different",
-                onBehalfUserReference.getKey(), hist.getObjKey());
-
         PlatformUser savedUser = loadPlatformUser(false, slaveUser);
 
         // check the PlatformUser of slaveUser deletion
@@ -306,15 +248,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
                 "Deleted PlatformUser of slaveUser '" + slaveUser.getKey()
                         + "' can still be accessed via DataManager.find",
                 savedUser);
-
-        // check that the PlatformUser of slaveUser has a new history entry
-        histObjs = mgr.findHistory(slaveUser);
-        Assert.assertNotNull(
-                "History entry 'null' for PlatformUser of slaveUser "
-                        + slaveUser.getKey(), histObjs);
-        Assert.assertEquals(
-                "Exactly 2 history entries expected for PlatformUser of slaveUser "
-                        + slaveUser.getKey(), 2, histObjs.size());
     }
 
     private void doTestMasterUserNotDeletedCheck() throws Exception {
@@ -328,15 +261,6 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
         assertNotNull("Cannot find PlatformUser of masterUser '"
                 + orgMasterUser.getKey() + "' in DB", savedMasterUser);
 
-        // check that the MasterUser does not have a new history entry
-        List<DomainHistoryObject<?>> histObjs = mgr
-                .findHistory(savedMasterUser);
-        Assert.assertNotNull(
-                "History entry 'null' for PlatformUser of masterUser "
-                        + orgMasterUser.getKey(), histObjs);
-        Assert.assertEquals(
-                "Only one history entry expected for PlatformUser of masterUser "
-                        + savedMasterUser.getKey(), 1, histObjs.size());
     }
 
     private PlatformUser loadPlatformUser(boolean mandatory, PlatformUser user) {
@@ -367,12 +291,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     @Test
     public void testDeleteMasterUserCascade() throws Throwable {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 masterUser = mgr.getReference(PlatformUser.class,
                         masterUser.getKey());
@@ -381,6 +307,7 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 doTestDeleteOnBehalfUserReferenceCheck();
                 return null;
@@ -399,12 +326,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     public void testFindInactiveBeforePeriod_allUsersInactive()
             throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 long period = 20;
                 Long lowerPeriodBound = Long.valueOf(System.currentTimeMillis()
@@ -426,12 +355,14 @@ public class OnBehalfUserReferenceIT extends DomainObjectTestBase {
     @Test
     public void testFindInactiveBeforePeriod_noUserInactive() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 createOnBehalfUserReference();
                 return null;
             }
         });
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 long period = 10000;
                 Long lowerPeriodBound = Long.valueOf(System.currentTimeMillis()
