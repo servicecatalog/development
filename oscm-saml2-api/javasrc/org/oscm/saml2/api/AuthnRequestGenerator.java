@@ -13,7 +13,6 @@ import java.util.Random;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.apache.axis2.databinding.types.soapencoding.String;
 import org.apache.commons.codec.binary.Base64;
 import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
@@ -131,7 +130,7 @@ public class AuthnRequestGenerator {
         authnRequest.setIssuer(issuer);
         NameIDType nameId = new NameIDType();
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
-        nameId.setValue("BESSSO");
+        nameId.setValue("G02PLXNNOW29067");
         authnRequest.setNameID(nameId);
         authnRequest.getSessionIndex().add(idpSessionIndex);
 
