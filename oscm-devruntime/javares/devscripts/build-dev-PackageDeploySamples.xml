@@ -65,6 +65,15 @@
     </ant>
   </target>
 
+  <target name="VMWare_Install.BUILD"
+    description="Builds the VMware install project, the result can be found in oscm-build/result/package/oscm-vmware-install-pack">
+    <antcall target="APP.BUILD" />
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects"
+        value="oscm-app-vmware,oscm-vmware-install-pack" />
+    </ant>
+  </target>
+
   <target name="OPENSTACK_Install.BUILD"
     description="Builds the OPENSTACK install project, the result can be found in oscm-build/result/package/oscm-openstack-install-pack">
     <antcall target="APP.BUILD" />
