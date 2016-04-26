@@ -5,7 +5,7 @@
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd">
   
   <tns:TechnicalService 
-    id="VMWare"
+    id="VMware"
     build="2016-04-04" 
     accessType="DIRECT" 
     onlyOneSubscriptionPerUser="false" 
@@ -13,18 +13,18 @@
     baseUrl=""
     loginPath="/" 
     provisioningType="ASYNCHRONOUS"
-    provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
+    provisioningUrl="https://HOST:PORT/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningPassword="" 
     provisioningUsername="" 
     provisioningVersion="1.0">
     
-    <AccessInfo locale="en" >VMware Access Info. </AccessInfo>
+    <AccessInfo locale="en">VMware Access Info</AccessInfo>
     <LocalizedDescription locale="en">VMware Virtual Machine Provisioning</LocalizedDescription>
     <LocalizedDescription locale="de">VMware Virtual Machine Provisioning</LocalizedDescription>    
-	<LocalizedLicense locale="en">&lt;b&gt;License Agreement&lt;/b&gt;</LocalizedLicense>
+	<LocalizedLicense locale="en">License Agreement</LocalizedLicense>
 	
-    <ParameterDefinition id="ACCESS_INFO" configurable="true" default="${HOST} (IP: ${IP}) ${CPU} CPU(s), ${MEM} RAM, ${DISK} HDD" mandatory="false" valueType="STRING">
-      <LocalizedDescription locale="en">Access info pattern</LocalizedDescription>
+    <ParameterDefinition id="ACCESS_INFO" configurable="true" default="${HOST}, ${IP}" mandatory="false" valueType="STRING">
+      <LocalizedDescription locale="en">Access info pattern. Valid placeholder: ${HOST},${IP},${CPU},${MEM},${DISK}</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition id="AMOUNT_OF_RAM" configurable="true" default="1024" mandatory="true" valueType="ENUMERATION">
@@ -306,27 +306,27 @@
     </ParameterDefinition>
     
     
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="RESTART_VM">
+    <Operation id="RESTART_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Neustart der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Restart of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren und wieder hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown and started again</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="START_VM">
+    
+    <Operation id="START_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Start der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Start of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be started</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="STOP_VM">
+    
+    <Operation id="STOP_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Stop der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Stop of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown</LocalizedDescription>
     </Operation>
+    
  </tns:TechnicalService>
   
 </tns:TechnicalServices>
