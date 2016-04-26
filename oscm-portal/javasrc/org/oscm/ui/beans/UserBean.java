@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.intf.ConfigurationService;
@@ -733,7 +734,9 @@ public class UserBean extends BaseBean implements Serializable {
      */
     public String logoff() {
         HttpServletRequest request = invalidateSession();
-
+        if (isServiceProvider()) {
+            redirectLogoutToIDP();
+        }
         if (isMarketplaceSet(request)) {
             return OUTCOME_MARKETPLACE_LOGOUT;
         }
@@ -1043,6 +1046,16 @@ public class UserBean extends BaseBean implements Serializable {
         storeRelayStateInSession(confirmedRedirect);
 
         return handleAuthentication(session);
+    }
+    public String redirectLogoutToIDP() {
+        confirmedRedirect = "";
+        storeRelayStateInSession(confirmedRedirect);
+        try {
+            getAuthenticationHandler().handleLogout();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "redirectToIdp";
     }
 
     private String handleAuthentication(HttpSession session) {
