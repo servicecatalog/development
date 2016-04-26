@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>oscm-vmware-install-pack</name>
+	<comment></comment>
+	<projects>
+		<project>oscm-app</project>
+		<project>oscm-app-ear</project>
+		<project>oscm-app-vmware</project>
+		<project>oscm-app-vmware-ear</project>
+		<project>oscm-installation</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>
