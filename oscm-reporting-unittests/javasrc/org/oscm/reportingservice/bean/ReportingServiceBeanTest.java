@@ -48,8 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataSet;
@@ -68,6 +66,12 @@ import org.oscm.domobjects.Session;
 import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ReportType;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOReport;
 import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
@@ -79,17 +83,12 @@ import org.oscm.reportingservice.stubs.QueryStub;
 import org.oscm.reportingservice.stubs.ResultSetMetaDataStub;
 import org.oscm.reportingservice.stubs.ResultSetStub;
 import org.oscm.test.stubs.BillingServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.types.constants.Configuration;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ReportType;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOReport;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * The tests for the payment processing status report of the reporting service.
@@ -1117,11 +1116,21 @@ public class ReportingServiceBeanTest {
             throws Exception {
 
         // when
-        RDOCustomerPaymentPreview result = reporting
-                .getCustomerPaymentPreview(VALID_SESSION_ID);
+        reporting.getCustomerPaymentPreview(VALID_SESSION_ID);
 
         // then
         verify(cnfgServLocal, times(1)).isPaymentInfoAvailable();
-        
+
+    }
+
+    @Test
+    public void testBillingDetailsReportWithHiddenPaymentInfo()
+            throws Exception {
+
+        // when
+        reporting.getBillingDetailsReport(VALID_SESSION_ID, VALID_BILLING_KEY);
+
+        // then
+        verify(cnfgServLocal, times(1)).isPaymentInfoAvailable();
     }
 }
