@@ -35,10 +35,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import org.apache.solr.analysis.*;
-import org.hibernate.search.annotations.AnalyzerDef;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
+import org.hibernate.search.annotations.*;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.interceptor.DateFactory;
@@ -58,11 +55,13 @@ import org.oscm.types.exceptions.UserNotAssignedException;
  */
 @Entity
 @AnalyzerDef(name = "customanalyzer",
-        tokenizer = @TokenizerDef(factory= StandardTokenizerFactory.class),
+        tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
         filters = {
+                @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
+                        @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
+                        @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
                 @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = StandardFilterFactory.class)
-        })
+                @TokenFilterDef(factory = SnowballPorterFilterFactory.class) })
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))
