@@ -327,6 +327,20 @@
       <LocalizedDescription locale="en">The virtual machine will be shutdown</LocalizedDescription>
     </Operation>
     
+    <Operation id="SNAPSHOT_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
+      <LocalizedName locale="de">Snapshot</LocalizedName>
+      <LocalizedName locale="en">Snapshot</LocalizedName>
+      <LocalizedDescription locale="de">Erzeugt ein Snapshot</LocalizedDescription>
+      <LocalizedDescription locale="en">Creates a snapshort of the vm</LocalizedDescription>
+    </Operation>
+    
+    <Operation id="RESTORE_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
+      <LocalizedName locale="de">Restore</LocalizedName>
+      <LocalizedName locale="en">Restore</LocalizedName>
+      <LocalizedDescription locale="de">Stellt ein Snapshot wieder her</LocalizedDescription>
+      <LocalizedDescription locale="en">Restores a snapshot</LocalizedDescription>
+    </Operation>
+    
  </tns:TechnicalService>
   
 </tns:TechnicalServices>

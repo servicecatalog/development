@@ -126,6 +126,10 @@ public class VMwareClient implements AutoCloseable {
         }
     }
 
+    public VimPortType getService() {
+        return getConnection().getService();
+    }
+
     /**
      * Returns the {@link ManagedObjectAccessor} based on the current client
      * connection.
@@ -147,7 +151,7 @@ public class VMwareClient implements AutoCloseable {
      */
     public ServiceConnection getConnection() {
         if (connection == null) {
-            throw new IllegalStateException("Not connected");
+            throw new IllegalStateException("Not connected to vCenter");
         }
         return connection;
     }
