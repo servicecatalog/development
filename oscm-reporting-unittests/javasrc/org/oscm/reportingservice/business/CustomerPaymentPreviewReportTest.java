@@ -8,10 +8,8 @@
 
 package org.oscm.reportingservice.business;
 
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
@@ -33,8 +31,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.billingservice.service.model.BillingRun;
 import org.oscm.converter.PriceConverter;
@@ -47,14 +43,15 @@ import org.oscm.domobjects.PaymentResult;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.UserRole;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.dao.BillingDao;
 import org.oscm.reportingservice.dao.BillingDao.ReportData;
 import org.oscm.reportingservice.dao.UnitDao;
 import org.oscm.stream.Streams;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.w3c.dom.Document;
 
 /**
  * @author kulle
@@ -315,29 +312,6 @@ public class CustomerPaymentPreviewReportTest {
                         any(Document.class), eq(user),
                         any(PriceConverter.class),
                         eq(Long.valueOf(INVOCATION_TIME)));
-    }
-    
-    @Test
-    public void hidePaymentInfo() throws Exception {
-        
-        // given
-        PlatformUser user = givenUser(false, true, OrganizationRoleType.CUSTOMER);
-        mockCalculateBillingResultsForPaymentPreview(Arrays.asList(XML_FILE_UPGRADE), user.getOrganization().getKey());
-        mockReportDaoData("MyOrganization", "Main Street Munich", "productId");
-
-        // when
-        RDOCustomerPaymentPreview result = reporting.buildReport(user);
-        
-        //then
-        String paymentType = result.getSummaries().get(0).getPaymentType();
-        assertThat(paymentType, is("INVOICE"));
-        
-        //when
-        reporting.hidePaymentInformation(result);
-        
-        // then
-        paymentType = result.getSummaries().get(0).getPaymentType();
-        assertThat(paymentType, is(""));
     }
     
     private void mockCalculateBillingResultsForPaymentPreview(

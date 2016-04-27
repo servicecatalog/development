@@ -8,8 +8,10 @@
 
 package org.oscm.reportingservice.bean;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -75,6 +77,7 @@ import org.oscm.internal.vo.VOReport;
 import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
+import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.business.model.externalservices.RDOExternal;
 import org.oscm.reportingservice.business.model.supplierrevenue.RDOPlatformRevenue;
@@ -115,6 +118,8 @@ public class ReportingServiceBeanTest {
     private static final String VALID_SESSION_ID3 = "valid_session3";
     private static final long VALID_BILLING_KEY = 83476L;
     private static final long NON_EXISTING_BILLING_KEY = 0L;
+    
+    private static final String EMPTY = "";
 
     private ReportingServiceBean reporting;
     private ReportingServiceBeanLocal reportingLocal;
@@ -1090,7 +1095,9 @@ public class ReportingServiceBeanTest {
     @Test
     public void getBillingDetailsOfASupplierReport() {
         // given
-
+        
+        doReturn(true).when(cnfgServLocal).isPaymentInfoAvailable(); 
+        
         givenDataSetRow(Arrays.asList((Object) 1000L,
                 getTestFileAsString(TEST_XML_FILE), "supplierName",
                 "supplerAddress"));
@@ -1114,23 +1121,54 @@ public class ReportingServiceBeanTest {
     @Test
     public void testCustomerPaymentPreviewReportWithHiddenPaymentInfo()
             throws Exception {
-
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
         // when
         reporting.getCustomerPaymentPreview(VALID_SESSION_ID);
 
         // then
-        verify(cnfgServLocal, times(1)).isPaymentInfoAvailable();
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDOCustomerPaymentPreview.class));
 
     }
 
     @Test
     public void testBillingDetailsReportWithHiddenPaymentInfo()
             throws Exception {
-
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
         // when
         reporting.getBillingDetailsReport(VALID_SESSION_ID, VALID_BILLING_KEY);
 
         // then
-        verify(cnfgServLocal, times(1)).isPaymentInfoAvailable();
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDODetailedBilling.class));
+    }
+    
+    @Test
+    public void testBillingDetailsOfASupplierReportWithHiddenPaymentInfo()
+            throws Exception {
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
+        givenDataSetRow(Arrays.asList((Object) 1000L,
+                getTestFileAsString(TEST_XML_FILE), "supplierName",
+                "supplerAddress"));
+
+        givenDataSetMetaData(
+                Arrays.asList("creationtime", "resultxml", "name", "address"));
+        
+        // when
+        RDODetailedBilling report = reporting.getBillingDetailsOfASupplierReport(VALID_SESSION_ID,VALID_BILLING_KEY);
+
+        // then
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDODetailedBilling.class));
+        
+        RDOSummary summary = report.getSummaries().get(0);
+        assertThat(summary.getPaymentType(), is(EMPTY));
+        assertThat(summary.getOrganizationAddress(), is(EMPTY));
     }
 }

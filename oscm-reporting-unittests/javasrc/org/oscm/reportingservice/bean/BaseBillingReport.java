@@ -39,14 +39,13 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.After;
 import org.junit.Before;
-
-import org.w3c.dom.Document;
-
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
 import org.oscm.domobjects.BillingResult;
+import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationReference;
 import org.oscm.domobjects.OrganizationRole;
@@ -57,6 +56,8 @@ import org.oscm.domobjects.Report;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.stubs.ConnectionStub;
 import org.oscm.reportingservice.stubs.DataSourceStub;
@@ -67,11 +68,10 @@ import org.oscm.reportingservice.stubs.StatementStub;
 import org.oscm.stream.Streams;
 import org.oscm.string.Strings;
 import org.oscm.test.stubs.BillingServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.types.constants.Configuration;
+import org.w3c.dom.Document;
 
 /**
  * @author kulle
@@ -110,6 +110,8 @@ public abstract class BaseBillingReport {
     protected static final String VALID_SESSION_ID = "valid_session";
     protected static final String VALID_SESSION_ID2 = "valid_session2";
     protected static final String VALID_SESSION_ID3 = "valid_session3";
+    
+    protected static final String EMPTY = "";
 
     protected ReportingServiceBean reporting;
     protected ReportingServiceBeanLocal reportingLocal;
@@ -124,7 +126,6 @@ public abstract class BaseBillingReport {
     protected ResultSetStub rs;
     protected ResultSetMetaDataStub rsmd;
     protected LocalizerServiceStub localizerStub;
-    protected ConfigurationServiceStub configurationStub;
     protected Set<OrganizationToRole> roles = new HashSet<>();
     protected Organization organization;
     protected Map<OrganizationRoleType, List<Report>> roleToReports;
@@ -134,7 +135,9 @@ public abstract class BaseBillingReport {
 
     protected static String userLocale = "en";
     protected static Locale defaultLocale = Locale.ENGLISH;
-
+    
+    protected ConfigurationServiceLocal cnfgServLocal;
+    
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() throws Exception {
@@ -168,13 +171,25 @@ public abstract class BaseBillingReport {
                         objectKey, objectType);
             }
         };
-        configurationStub = new ConfigurationServiceStub();
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_ENGINEURL, REPORT_ENGINEURL);
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_SOAP_ENDPOINT, REPORT_SOAP_ENDPOINT);
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_WSDLURL, REPORT_WSDLURL);
+        
+        cnfgServLocal = mock(ConfigurationServiceLocal.class);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_ENGINEURL,
+                Configuration.GLOBAL_CONTEXT, REPORT_ENGINEURL))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_ENGINEURL,
+                                Configuration.GLOBAL_CONTEXT);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_SOAP_ENDPOINT,
+                Configuration.GLOBAL_CONTEXT, REPORT_SOAP_ENDPOINT))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_SOAP_ENDPOINT,
+                                Configuration.GLOBAL_CONTEXT);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_WSDLURL,
+                Configuration.GLOBAL_CONTEXT, REPORT_WSDLURL))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_WSDLURL,
+                                Configuration.GLOBAL_CONTEXT);
+        
+        doReturn(true).when(cnfgServLocal).isPaymentInfoAvailable();
 
         reporting = spy(new ReportingServiceBean());
         reportingLocal = spy(new ReportingServiceBeanLocal());
@@ -250,12 +265,12 @@ public abstract class BaseBillingReport {
 
         reporting.dataService = dm;
         reporting.localizerService = localizerStub;
-        reporting.configurationService = configurationStub;
+        reporting.configurationService = cnfgServLocal;
         reportingLocal.sessionService = prodMgmt;
         reportingLocal.billingService = billing;
         reportingLocal.dataService = dm;
         reportingLocal.localizerService = localizerStub;
-        reportingLocal.configurationService = configurationStub;
+        reportingLocal.configurationService = cnfgServLocal;
 
         doReturn(null).when(reportingLocal).getFromCache(anyString(),
                 any(Class.class));
