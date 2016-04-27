@@ -423,4 +423,3 @@
     <copy file="${ivy.lib.dir}/wsdl4j-1.6.2.jar" tofile="${root.dir}/libraries/wsdl4j/javalib/wsdl4j.jar"></copy>
   </target>
 </project>
->>>>>>> 5523d4e Resolved conflict
