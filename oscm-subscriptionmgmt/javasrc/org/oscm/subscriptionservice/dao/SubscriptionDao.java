@@ -1074,7 +1074,7 @@ public class SubscriptionDao {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
-                queryBuilder.append(getQueryForUnitAdmin());
+                queryBuilder.append(getQueryForUnitAdminWithFiltering());
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
@@ -1088,7 +1088,7 @@ public class SubscriptionDao {
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
-                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder.append(getQueryForSubOwnerWithFiltering());
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
@@ -1178,6 +1178,20 @@ public class SubscriptionDao {
                 + "' AND ugtu.platformuser_tkey = :userKey AND s.status IN (:states) ";
     }
 
+    private String getQueryForUnitAdminWithFiltering() {
+        return "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
+                + "FROM Subscription s "
+                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+                + "LEFT JOIN usergrouptouser ugtu ON ugtu.usergroup_tkey = ug.tkey "
+                + "LEFT JOIN unitroleassignment ura ON ura.usergrouptouser_tkey = ugtu.tkey "
+                + "WHERE ura.unituserrole_tkey = '"
+                + UnitRoleType.ADMINISTRATOR.getKey()
+                + "' AND ugtu.platformuser_tkey = :userKey AND s.status IN (:states) " +
+                "AND s.tkey IN (:keys)";
+    }
+
     private String getQueryForSubOwner() {
         return "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
                 + "FROM Subscription s "
@@ -1185,6 +1199,16 @@ public class SubscriptionDao {
                 + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
                 + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
                 + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey ";
+    }
+
+    private String getQueryForSubOwnerWithFiltering() {
+        return "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
+                + "FROM Subscription s "
+                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+                + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+                + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey " +
+                "AND s.tkey IN (:keys)";
     }
 
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner, Pagination pagination) {
