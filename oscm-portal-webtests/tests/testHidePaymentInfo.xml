@@ -3,18 +3,9 @@
   <import file="../macros/marketplace/all.xml" />
 
   <target name="testHidePaymentInfo">
-
+    
     <webtest name="setup visibility">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageConfiguration.jsf" />
-      <storeXPath property="hiddenElementFieldId" xpath="//td[text()='HIDE_PAYMENT_INFORMATION']/..//input/@id"
-        propertyType="ant" />
-      <storeXPath property="hiddenElementFieldValue" xpath="//td[text()='HIDE_PAYMENT_INFORMATION']/..//input/@value"
-        propertyType="ant" />
-      <setInputField htmlId="${hiddenElementFieldId}" value="TRUE" />
-      <clickElement htmlId="configurationSettings:saveButton" />
-      <common.verifySuccess label="${info.configuration.saved}" />
-      <login.logout />
+      <common.setConfigurationSettingValue settingName='HIDE_PAYMENT_INFORMATION' settingValue='TRUE' />
     </webtest>
 
     <webtest name="test warning on Manage Payment Types">
@@ -93,6 +84,7 @@
     </webtest>
 
     <webtest name="cleanup">
+      <common.setConfigurationSettingValue settingName='HIDE_PAYMENT_INFORMATION' settingValue='FALSE' />
       <mail.cleanInbox />
     </webtest>
   </target>
