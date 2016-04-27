@@ -12,9 +12,8 @@ import java.util.Calendar;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.string.Strings;
 import org.oscm.internal.types.exception.AssertionValidationException;
+import org.oscm.string.Strings;
 
 /**
  * @author kulle
@@ -25,8 +24,8 @@ public class AssertionConsumerServiceTest {
     private AssertionConsumerService acs;
     private final String FILE_OPENAM_RESPONSE = "javares/openamResponse.xml";
     private final String FILE_KEYSTORE_OPENAM = "javares/openam.jks";
-    private final String acsUrl = "http://estkulle:8680/oscm-integrationtests-saml2-sp/jsp/showPostResponse.jsp";
-    private final String acsUrlHttps = "https://estkulle:8681/oscm-integrationtests-saml2-sp/jsp/showPostResponse.jsp";
+    private final String acsUrl = "http://estkulle:8680/test/jsp/showPostResponse.jsp";
+    private final String acsUrlHttps = "https://estkulle:8681/test/jsp/showPostResponse.jsp";
 
     @Before
     public void setup() {

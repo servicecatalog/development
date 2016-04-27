@@ -61,7 +61,7 @@ public class IdentityServiceStub implements IdentityService,
             OperationPendingException {
         throw new UnsupportedOperationException();
     }
-    
+
     @Override
     public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
             throws NonUniqueBusinessKeyException, MailOperationException,
@@ -167,11 +167,6 @@ public class IdentityServiceStub implements IdentityService,
 
     @Override
     public void deletePlatformUser(PlatformUser user, Marketplace marketplace) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public String getOperatorLogInfo() {
         throw new UnsupportedOperationException();
     }
 
