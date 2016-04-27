@@ -490,6 +490,16 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Determines if payment info should be visible in the marketplace
+     *
+     * @return true - if payment info should be visible, false - otherwise
+     */
+    public boolean isPaymentInfoAvailable() {
+        lookupConfigurationService();
+        return configurationService.isPaymentInfoAvailable();
+    }
+
+    /**
      * Checks if the reporting is available. This is the case if the
      * {@link ConfigurationKey#REPORT_ENGINEURL} is set to a non empty value.
      * 
