@@ -57,14 +57,6 @@
     <echo message="Applying SQL scripts from databases/${db.dir}/sql " />
     <property file="${data.dir}/databases/${db.dir}/db.properties" />
   	<property name="db.url" value="jdbc:${db.type}://${db.host}:${db.port}/${db.name}"/>
-    <java classname="org.oscm.dbtask.CheckAndResetOwnerForImageResource" failonerror="false">
-      <arg value="${db.driver.class}" />
-      <arg value="${db.url}" />
-      <arg value="${db.admin.user}" />
-      <arg value="${db.admin.pwd}" />
-      <arg value="${db.user}"/>
-      <classpath refid="client.path" />
-    </java>
     <java classname="org.oscm.setup.DatabaseUpgradeHandler" failonerror="true">
       <arg value="${data.dir}/databases/${db.dir}/db.properties" />
       <arg value="${data.dir}/databases/${db.dir}/sql" />
