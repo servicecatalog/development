@@ -194,4 +194,21 @@ public interface SessionService {
 
     public int deletePlatformSession(String sessionId);
 
+    /**
+     * Updates the current platform session with additional ID from the SAML identity provider session.
+     *
+     * @param sessionId
+     * @param samlSessionIndex
+     */
+    public void updatePlatformSessionWithSAMLSession(String sessionId, String samlSessionIndex);
+
+    /**
+     * Returns the current active SAML session for the sessionId.
+     *
+     * @param sessionId
+     *            The sessionID.
+     * @return The current SAML session will be returned.
+     */
+    public String getSAMLSessionStringForSessionId(String sessionId);
+
 }

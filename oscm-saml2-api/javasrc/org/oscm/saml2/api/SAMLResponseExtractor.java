@@ -56,8 +56,7 @@ public class SAMLResponseExtractor {
             + "//*[local-name()='Attribute'][@AttributeName='name']" //
             + "/*[local-name()='AttributeValue']";
 
-    private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']" //
-            + "//*[local-name()='AuthnStatement']";
+    private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']//*[local-name()='AuthnStatement']//@*[local-name()='SessionIndex']";
 
     /**
      * Retrieves the userid from an encoded saml:Response String.
@@ -97,10 +96,10 @@ public class SAMLResponseExtractor {
     public String getSessionIndex(String encodedSamlResponse)
             throws SessionIndexNotFoundException {
 
-        String userId = null;
+        String sessionIndex = null;
 
         try {
-            userId = getSessionIndexDecoded(decode(encodedSamlResponse));
+            sessionIndex = getSessionIndexDecoded(decode(encodedSamlResponse));
         } catch (UnsupportedEncodingException exception) {
             throw new SessionIndexNotFoundException(
                     String.format(
@@ -110,37 +109,37 @@ public class SAMLResponseExtractor {
                     exception, new String[] { encodedSamlResponse });
         }
 
-        return userId;
+        return sessionIndex;
     }
 
     private String getSessionIndexDecoded(String samlResponse) throws SessionIndexNotFoundException {
-        String userid = null;
+        String sessionIndex = null;
 
         try {
             Document document = XMLConverter.convertToDocument(samlResponse,
                     true);
 
-            userid = extractSessionIndex(document);
+            sessionIndex = extractSessionIndex(document);
         } catch (XPathExpressionException | ParserConfigurationException
                 | SAXException | IOException exception) {
             throw new SessionIndexNotFoundException(
                     String.format(
-                            "An exception occurred while retrieving the userid from the saml response:\n%s",
+                            "An exception occurred while retrieving the sessionIndex from the saml response:\n%s",
                             samlResponse),
                     SessionIndexNotFoundException.ReasonEnum.EXCEPTION_OCCURRED,
                     exception, new String[] { samlResponse });
         }
 
-        if (userid == null || userid.trim().length() == 0) {
+        if (sessionIndex == null || sessionIndex.trim().length() == 0) {
             throw new SessionIndexNotFoundException(
                     String.format(
-                            "The userid attribute was not found for the saml response:\n%s",
+                            "The sessionIndex attribute was not found for the saml response:\n%s",
                             samlResponse),
                     SessionIndexNotFoundException.ReasonEnum.SESSION_ATTRIBUTE_NOT_FOUND,
                     new String[] { samlResponse });
 
         }
-        return userid;
+        return sessionIndex;
     }
 
     private String getUserId_decoded(String samlResponse)
@@ -199,9 +198,9 @@ public class SAMLResponseExtractor {
     }
 
     String extractSessionIndex(Document samlResponse) throws XPathExpressionException {
-        String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+        String samlSessionId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR);
-        return userId;
+        return samlSessionId;
     }
 
     public String getUserId(SAMLAssertion samlResponse)
@@ -227,5 +226,23 @@ public class SAMLResponseExtractor {
         byte[] decodedBytes = Base64.decodeBase64(encodedString);
         String decodedString = new String(decodedBytes, "UTF-8");
         return decodedString;
+    }
+
+    public boolean isFromAuthorisation(String encodedSamlResponse) {
+        try {
+            return decode(encodedSamlResponse).contains("SessionIndex");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean isFromLogout(String encodedSamlResponse) {
+        try {
+            return decode(encodedSamlResponse).contains("LogoutResponse");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 }

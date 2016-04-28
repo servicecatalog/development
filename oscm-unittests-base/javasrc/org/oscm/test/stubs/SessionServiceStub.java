@@ -31,6 +31,16 @@ public class SessionServiceStub implements SessionServiceLocal, SessionService {
     }
 
     @Override
+    public void updatePlatformSessionWithSAMLSession(String sessionId, String samlSessionIndex) {
+
+    }
+
+    @Override
+    public String getSAMLSessionStringForSessionId(String sessionId) {
+        return null;
+    }
+
+    @Override
     public String deleteServiceSession(long subscriptionTKey, String sessionId) {
         throw new UnsupportedOperationException();
     }

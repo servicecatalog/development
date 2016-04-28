@@ -405,8 +405,22 @@ public class SessionServiceBean implements SessionServiceLocal, SessionService {
     }
 
     @Override
-    public void updatePlatformSession(String sessionId, String samlSessionIndex) {
-       //TODO: get current session and store saml session index into it.
+    public void updatePlatformSessionWithSAMLSession(String sessionId, String samlSessionId) {
+        Query query = dm.createNativeQuery("UPDATE session SET idpsession =:samlSessionId WHERE sessionid =:internalSessionId");
+        query.setParameter("internalSessionId", sessionId);
+        query.setParameter("samlSessionId", samlSessionId);
+        query.executeUpdate();
+    }
+
+    @Override
+    public String getSAMLSessionStringForSessionId(String sessionId) {
+        try {
+            Session session = getPlatformSessionForSessionId(sessionId);
+            return session.getIdpSessionIndex();
+        } catch (Exception e) {
+            logger.logDebug(e.getMessage(), Log4jLogger.SYSTEM_LOG);
+        }
+        return null;
     }
 
     @Override

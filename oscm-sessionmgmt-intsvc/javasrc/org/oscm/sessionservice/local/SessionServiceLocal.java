@@ -48,9 +48,6 @@ public interface SessionServiceLocal {
     public List<Session> getProductSessionsForSubscriptionTKey(
             long subscriptionTKey);
 
-    //TODO: javadoc
-    public void updatePlatformSession(String sessionId, String samlSessionIndex);
-
     /**
      * Returns all sessions for the user having the given user key.
      * 

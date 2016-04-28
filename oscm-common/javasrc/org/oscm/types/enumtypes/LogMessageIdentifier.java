@@ -704,6 +704,7 @@ public enum LogMessageIdentifier {
     ERROR_INVALID_JSON("70305"), //
     ERROR_IO_VALIDITY_EXTERNAL_JSON("70306"), //
     ERROR_RETRIEVAL_EXTERNAL_PRICE_MODEL_FAILED("70307"), //
+    ERROR_SESSION_NOT_FOUND("40337"), //
     ERROR("-00001"), DEBUG("00000"); /* Debug Log */
 
     String msgId;

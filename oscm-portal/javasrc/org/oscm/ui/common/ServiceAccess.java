@@ -154,6 +154,8 @@ public abstract class ServiceAccess {
             SessionService service = serviceAccess
                     .getService(SessionService.class);
             service.createPlatformSession(session.getId());
+            String samlSessionId = (String)request.getSession().getAttribute("SAMLSessionId");
+            service.updatePlatformSessionWithSAMLSession(session.getId(), samlSessionId);
 
         } catch (ValidationException e) {
             logger.logError(

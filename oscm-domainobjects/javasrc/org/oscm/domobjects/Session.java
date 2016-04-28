@@ -73,7 +73,7 @@ public class Session extends DomainObjectWithVersioning<SessionData> {
         return dataContainer.getUserToken();
     }
 
-    public String getIdpSessionIndex(){ return dataContainer.getIdpSessionIndex(); }
+    public String getIdpSessionIndex(){ return dataContainer.getIdpSession(); }
 
     public void setPlatformUserId(String platformUserId) {
         dataContainer.setPlatformUserId(platformUserId);
@@ -99,16 +99,12 @@ public class Session extends DomainObjectWithVersioning<SessionData> {
         dataContainer.setUserToken(userToken);
     }
 
-    public String getNodeName() {
-        return dataContainer.getNodeName();
-    }
-
     public void setNodeName(String nodeName) {
         dataContainer.setNodeName(nodeName);
     }
 
     public void setIdpSessionIndex(String idpSessionIndex) {
-        dataContainer.setIdpSessionIndex(idpSessionIndex);
+        dataContainer.setIdpSession(idpSessionIndex);
     }
 
 }

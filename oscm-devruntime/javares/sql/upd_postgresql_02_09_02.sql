@@ -1,1 +1,1 @@
-ALTER TABLE "session" ADD COLUMN "idpSessionIndex" VARCHAR(255);
+ALTER TABLE "session" ADD COLUMN "idpsession" VARCHAR(255);

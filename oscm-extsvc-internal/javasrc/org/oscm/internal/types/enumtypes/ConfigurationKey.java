@@ -377,6 +377,10 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<MEXAddress>")
     SSO_STS_METADATA_URL(false, null, "url", true),
 
+    @Doc({ "URL of Identity Provider logout page" })
+    @Example("http://<host>:<port>/<MEXAddress>")
+    SSO_LOGOUT_URL(false, null, "url", true),
+
     @Doc({ "the max number of users that can be registered on the platform" })
     @Example("10")
     MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long

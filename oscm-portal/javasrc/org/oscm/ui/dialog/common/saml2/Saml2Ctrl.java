@@ -12,15 +12,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.ejb.EJB;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
-import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.ADMStringUtils;
@@ -31,24 +34,27 @@ import org.oscm.ui.common.JSFUtils;
  * @author roderus
  * 
  */
+@ManagedBean
+@RequestScoped
 public class Saml2Ctrl extends BaseBean {
 
     protected static final String SAML_SP_REDIRECT_IFRAME = "/saml2/saml2PostInclude.jsf";
 
+    @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
 
-    @EJB(beanInterface = SessionServiceLocal.class)
-    private SessionServiceLocal sessionService;
+    @EJB(beanInterface = SessionService.class)
+    private SessionService sessionService;
 
     public String initModelAndCheckForErrors() {
 
-        AuthnRequestGenerator reqGenerator = null;
+        AuthnRequestGenerator reqGenerator;
 
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
             model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedAuthnLogoutRequest(
-                    sessionService.getPlatformSessionForSessionId(JSFUtils.getSession().getId()).getIdpSessionIndex()));
+                    sessionService.getSAMLSessionStringForSessionId(JSFUtils.getSession().getId())));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             storeRequestIdInSession(reqGenerator.getRequestId());
