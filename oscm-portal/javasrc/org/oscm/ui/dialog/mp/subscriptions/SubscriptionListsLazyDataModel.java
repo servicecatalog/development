@@ -96,7 +96,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
         try {
             Response response = subscriptionsService.getSubscriptionsForOrgWithFiltering(states, pagination);
             resultList = response.getResultList(POSubscriptionForList.class);
-        } catch (OrganizationAuthoritiesException e) {
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return resultList;
@@ -116,7 +116,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
             pagination.setFullTextFilterValue(fullTextSearchFilterValue);
             setTotalCount(subscriptionsService.getSubscriptionsForOrgSizeWithFiltering(
                     states, pagination).intValue());
-        } catch (OrganizationAuthoritiesException e) {
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }

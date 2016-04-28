@@ -101,7 +101,7 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
                 subscription.setTarget(isOpenNewTab(subscription) ? "_blank" : "");
             }
             refreshSelectedSubscription();
-        } catch (OrganizationAuthoritiesException e) {
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return resultList;
@@ -148,7 +148,7 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
             pagination.setFullTextFilterValue(fullTextSearchFilterValue);
             setTotalCount(subscriptionsService
                     .getMySubscriptionsSizeWithFiltering(pagination).intValue());
-        } catch (OrganizationAuthoritiesException e) {
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }

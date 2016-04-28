@@ -61,7 +61,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
                         @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
                         @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
                 @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = SnowballPorterFilterFactory.class) })
+                @TokenFilterDef(factory = StandardFilterFactory.class) })
 @Indexed
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))

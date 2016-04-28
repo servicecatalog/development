@@ -7,11 +7,11 @@ import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
 
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Query;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.BooleanClause.Occur;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
@@ -49,7 +49,6 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     @Override
     public Collection<Long> searchSubscriptions(String searchPhrase)
             throws InvalidPhraseException, ObjectNotFoundException {
-
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
         List<Long> voList = new ArrayList<>(100);
         searchPhrase = searchPhrase.toLowerCase();
@@ -83,17 +82,33 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     private org.apache.lucene.search.Query getLuceneQueryForClass(String searchString, FullTextSession fts, Class clazz, String[] fieldNames)
             throws ParseException {
         QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(clazz).get();
-        String[] split = searchString.split(" ");
         BooleanQuery bq = new BooleanQuery();
-        for (String s : split) {
-            TermMatchingContext termMatchingContext = qb.keyword().wildcard().onField(fieldNames[0]);
-            int counter = 1;
-            while(counter < fieldNames.length) {
-                termMatchingContext = termMatchingContext.andField(fieldNames[counter++]);
+        //TODO: remove it to enable search by phrases
+        searchString = searchString.replaceAll("\"", "");
+        if (!searchString.startsWith("\"") || !searchString.endsWith("\"")) {
+            String[] split = searchString.replaceAll("\"", "").split(" ");
+            for (String s : split) {
+                TermMatchingContext termMatchingContext = qb.keyword().wildcard().onField(fieldNames[0]);
+                int counter = 1;
+                while(counter < fieldNames.length) {
+                    termMatchingContext = termMatchingContext.andField(fieldNames[counter++]);
+                }
+                Query query = termMatchingContext.
+                        matching("*" + QueryParser.escape(s) + "*").createQuery();
+                bq.add(query, Occur.SHOULD);
             }
-            Query query = termMatchingContext.
-                    matching("*" + QueryParser.escape(s) + "*").createQuery();
-            bq.add(query, BooleanClause.Occur.MUST);
+        } else {
+            PhraseQuery phraseQuery;
+            String[] split = searchString.replaceAll("\"", "").split(" ");
+            int counter = 0;
+            while(counter < fieldNames.length) {
+                phraseQuery = new PhraseQuery();
+                for (String s : split) {
+                    phraseQuery.add(new Term(fieldNames[counter], s));
+                }
+                bq.add(phraseQuery, Occur.SHOULD);
+                counter++;
+            }
         }
         return bq;
     }
