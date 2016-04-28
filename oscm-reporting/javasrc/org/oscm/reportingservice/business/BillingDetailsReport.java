@@ -46,8 +46,6 @@ public class BillingDetailsReport {
     final UserGroupServiceLocalBean userGroupService;
     private final UnitDao unitDao;
     
-    private static final String EMPTY = "";
-    
     public BillingDetailsReport(BillingDao billingDao, UnitDao unitDao,
             UserGroupServiceLocalBean userGroupService) {
         this.billingDao = billingDao;
@@ -150,15 +148,4 @@ public class BillingDetailsReport {
         }
         return result;
     }
-    
-    public void hidePaymentInformation(RDODetailedBilling rdo){
-        
-        List<RDOSummary> summaries = rdo.getSummaries();
-        
-        for(RDOSummary summary : summaries){
-            summary.setPaymentType(EMPTY);
-            summary.setOrganizationAddress(EMPTY);
-        }
-    }
-
 }

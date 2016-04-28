@@ -56,8 +56,11 @@ import org.oscm.reportingservice.business.SupplierCustomerReport;
 import org.oscm.reportingservice.business.SupplierPaymentReport;
 import org.oscm.reportingservice.business.SupplierProductReport;
 import org.oscm.reportingservice.business.SupplierRevenueShareReport;
+import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
+import org.oscm.reportingservice.business.model.billing.RDOPaymentPreviewSummary;
+import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.business.model.externalservices.RDOExternal;
 import org.oscm.reportingservice.business.model.partnerrevenue.RDOPartnerReport;
@@ -107,7 +110,9 @@ public class ReportingServiceBeanLocal {
 
     @EJB(beanInterface = UserGroupServiceLocalBean.class)
     protected UserGroupServiceLocalBean userGroupService;
-
+    
+    private static final String EMPTY = "";
+    
     public VOReportResult getReport(String sessionId, String reportId) {
 
         PlatformUser platformUser = loadUser(sessionId);
@@ -306,7 +311,7 @@ public class ReportingServiceBeanLocal {
                     .buildReport(loadUser(sessionId));
 
             if (!configurationService.isPaymentInfoAvailable()) {
-                report.hidePaymentInformation(result);
+                hidePaymentInfo(result);
             }
 
             putToCache(sessionId, result);
@@ -356,7 +361,7 @@ public class ReportingServiceBeanLocal {
                     billingKey);
             
             if (!configurationService.isPaymentInfoAvailable()) {
-                billingReport.hidePaymentInformation(result);
+                hidePaymentInfo(result);
             }
             
             putToCache(cacheKey, result);
@@ -519,7 +524,11 @@ public class ReportingServiceBeanLocal {
                     new BillingDao(dataService));
             RDODetailedBilling result = billingReport.buildReport(platformUser,
                     billingKey);
-
+            
+            if (!configurationService.isPaymentInfoAvailable()) {
+                hidePaymentInfo(result);
+            }
+            
             putToCache(cacheKey, result);
 
             return result;
@@ -585,5 +594,27 @@ public class ReportingServiceBeanLocal {
                     LogMessageIdentifier.ERROR_GENERATE_REPORT_FAILED);
             throw ex;
         }
+    }
+    
+    void hidePaymentInfo(RDO rdo){
+        
+        List<RDOSummary> summaries = new ArrayList<>();
+        
+        if(rdo instanceof RDOCustomerPaymentPreview){
+            
+            RDOCustomerPaymentPreview rdoPaymentPreview = (RDOCustomerPaymentPreview) rdo;  
+            summaries.addAll(rdoPaymentPreview.getSummaries());
+
+        } else if(rdo instanceof RDODetailedBilling){
+            
+            RDODetailedBilling rdoDetailedBilling = (RDODetailedBilling) rdo;
+            summaries.addAll(rdoDetailedBilling.getSummaries());
+        }
+        
+        for(RDOSummary summary : summaries){
+            summary.setPaymentType(EMPTY);
+            summary.setOrganizationAddress(EMPTY);
+        }
+        
     }
 }
