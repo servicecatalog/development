@@ -384,7 +384,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         String address = organization.getAddress() == null ? " "
                 : organization.getAddress();
         List<BillingContact> billingContacts = getBillingContactDao()
-                .getCustomersForSubscriptionId(organization.getKey(), email,
+                .getBillingContactsForOrganization(organization.getKey(), email,
                         address);
         if (!billingContacts.isEmpty()) {
             orgBillingContact = billingContacts.get(0);

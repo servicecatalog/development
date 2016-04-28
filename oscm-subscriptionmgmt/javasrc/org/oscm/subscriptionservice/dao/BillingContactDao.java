@@ -27,7 +27,7 @@ public class BillingContactDao {
         this.dataManager = ds;
     }
 
-    public List<BillingContact> getCustomersForSubscriptionId(long organizationKey, String email,
+    public List<BillingContact> getBillingContactsForOrganization(long organizationKey, String email,
             String address) {
         Query query = dataManager
                 .createNamedQuery("BillingContact.findByOrgAndAddress");
