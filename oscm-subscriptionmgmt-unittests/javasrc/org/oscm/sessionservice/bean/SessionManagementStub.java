@@ -70,6 +70,16 @@ public class SessionManagementStub implements SessionServiceLocal,
         return 0;
     }
 
+    @Override
+    public void updatePlatformSessionWithSAMLSession(String sessionId, String samlSessionIndex) {
+
+    }
+
+    @Override
+    public String getSAMLSessionStringForSessionId(String sessionId) {
+        return null;
+    }
+
     public Session getPlatformSessionForSessionId(String sessionId) {
         return null;
     }

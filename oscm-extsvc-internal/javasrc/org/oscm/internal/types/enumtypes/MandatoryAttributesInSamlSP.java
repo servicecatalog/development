@@ -30,6 +30,8 @@ public enum MandatoryAttributesInSamlSP {
 
     SSO_STS_METADATA_URL,
 
-    SSO_STS_URL;
+    SSO_STS_URL,
+
+    SSO_LOGOUT_URL;
 
 }

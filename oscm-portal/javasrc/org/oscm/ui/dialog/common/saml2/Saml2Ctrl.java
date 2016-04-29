@@ -39,6 +39,8 @@ import org.oscm.ui.common.JSFUtils;
 public class Saml2Ctrl extends BaseBean {
 
     protected static final String SAML_SP_REDIRECT_IFRAME = "/saml2/saml2PostInclude.jsf";
+    protected static final String SAML_SP_LOGOFF_PORTAL = "/login.jsf";
+    protected static final String SAML_SP_LOGOFF_MARKETPLACE = "/marketplace/index.jsf";
 
     @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
@@ -57,6 +59,8 @@ public class Saml2Ctrl extends BaseBean {
                     sessionService.getSAMLSessionStringForSessionId(JSFUtils.getSession().getId())));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
+            model.setLogoffUrl(this.getLogoffUrl());
+            model.setRelayStateForLogout(this.getRelayStateForLogout());
             storeRequestIdInSession(reqGenerator.getRequestId());
         } catch (SAML2AuthnRequestException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
@@ -72,6 +76,7 @@ public class Saml2Ctrl extends BaseBean {
 
         return null;
     }
+
 
     public void setModel(Saml2Model model) {
         this.model = model;
@@ -93,10 +98,23 @@ public class Saml2Ctrl extends BaseBean {
         setSessionAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID, requestId);
     }
 
+    private String getRelayStateForLogout() {
+        if (isOnMarketplace()) {
+            return SAML_SP_LOGOFF_MARKETPLACE;
+        }
+        return SAML_SP_LOGOFF_PORTAL;
+    }
+
     URL getAcsUrl() throws MalformedURLException {
         String acsURL = getConfigService().getVOConfigurationSetting(
                 ConfigurationKey.SSO_IDP_URL, "global").getValue();
         return new URL(acsURL);
+    }
+
+    String getLogoffUrl() throws MalformedURLException {
+        String logoffURL = getConfigService().getVOConfigurationSetting(
+                ConfigurationKey.SSO_LOGOUT_URL, "global").getValue();
+        return logoffURL;
     }
 
     AuthnRequestGenerator getAuthnRequestGenerator()

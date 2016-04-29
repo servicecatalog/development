@@ -103,6 +103,7 @@ public class IdPResponseFilter implements Filter {
                 if (samlResponseExtractor.isFromLogout(samlResponse)) {
                     getSsl().deletePlatformSession(currentSession.getId());
                     currentSession.invalidate();
+                    httpRequest.removeAttribute("SAMLResponse");
                 }
                 String relayState = httpRequest.getParameter("RelayState");
                 if (relayState != null) {

@@ -10,9 +10,9 @@
 
     <h:body>
         <a4j:outputPanel id="saml2PostFormPanel">
-            <form method="post" id="saml2Form" action="http://localhost:8080/OpenAM-13.0.0/IDPSloRedirect/metaAlias/idp">
+            <form method="post" id="saml2Form" action="#{saml2Model.logoffUrl}">
                 <input type="hidden" name="SAMLRequest" value="#{saml2Model.encodedAuthnLogoutRequest}" />
-                <input type="hidden" name="RelayState" value="#{saml2Model.relayState}" />
+                <input type="hidden" name="RelayState" value="#{saml2Model.relayStateForLogout}" />
             </form>
         </a4j:outputPanel>
 

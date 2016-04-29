@@ -162,6 +162,7 @@ public class ApplicationBean implements Serializable {
 
     }
 
+
     /**
      * Enum for date patterns in the resource bundle message files
      */
@@ -528,6 +529,13 @@ public class ApplicationBean implements Serializable {
         return internalAuthMode.booleanValue();
     }
 
+
+    public String findSSOLogoutUrl() {
+        lookupConfigurationService();
+        VOConfigurationSetting ssoLogoutUrl = configurationService.getVOConfigurationSetting(ConfigurationKey.SSO_LOGOUT_URL, Configuration.GLOBAL_CONTEXT);
+        return String.valueOf(ssoLogoutUrl.getValue());
+    }
+
     /**
      * Setter for configuration service. Use it for JUnit for stubbing the EJB.
      * 
@@ -646,8 +654,6 @@ public class ApplicationBean implements Serializable {
     /**
      * Setter for manage language service. Use it for JUnit for stubbing the
      * EJB.
-     * 
-     * @param ManageLanguageService
      * 
      */
     protected void setManageLanguageService(

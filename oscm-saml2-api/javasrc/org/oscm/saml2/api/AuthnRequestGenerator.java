@@ -30,6 +30,7 @@ public class AuthnRequestGenerator {
 
     private final static Integer HTTPS_INDEX = Integer.valueOf(0);
     private final static Integer HTTP_INDEX = Integer.valueOf(1);
+    private final static String SAML_VERSION = "2.0";
 
     private Random prng = new Random();
     private String issuer;
@@ -97,7 +98,7 @@ public class AuthnRequestGenerator {
         AuthnRequestType authnRequest = protocolObjFactory
                 .createAuthnRequestType();
         authnRequest.setID(requestId);
-        authnRequest.setVersion("2.0");
+        authnRequest.setVersion(SAML_VERSION);
         authnRequest.setIssueInstant(GregorianCalendars
                 .newXMLGregorianCalendarSystemTime());
         Integer acsIndex = isHttps.booleanValue() ? HTTPS_INDEX : HTTP_INDEX;
