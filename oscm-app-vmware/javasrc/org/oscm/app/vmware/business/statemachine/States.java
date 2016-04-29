@@ -44,8 +44,8 @@ public class States {
             ProvisioningSettings settings, InstanceStatus status)
             throws StateMachineException {
 
-        logger.info("Invoking action: " + state.getAction() + " for instance "
-                + instanceId);
+        logger.info("Invoking action '" + state.getAction() + "' of state '"
+                + state.getId() + "' for instance " + instanceId);
 
         try {
             Class<?> c = Class.forName(clazz);
@@ -69,11 +69,11 @@ public class States {
                     e.getCause(), instanceId, clazz, state.getAction());
         } catch (Exception e) {
             logger.error("Failed to call action method '" + state.getAction()
-                    + "' for class " + clazz + " and instance " + instanceId,
-                    e);
+                    + "' of state '" + state.getId() + "' for class '" + clazz
+                    + "' and instance " + instanceId, e);
             throw new StateMachineException(
-                    "Error in action method: " + e.getMessage(), e, instanceId,
-                    clazz, state.getAction());
+                    "Runtime error in action method: " + e.getMessage(), e,
+                    instanceId, clazz, state.getAction());
         }
     }
 }

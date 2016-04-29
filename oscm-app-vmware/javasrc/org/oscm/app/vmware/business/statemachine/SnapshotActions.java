@@ -8,9 +8,10 @@
 
 package org.oscm.app.vmware.business.statemachine;
 
+import java.util.Date;
+
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
-import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
@@ -18,9 +19,7 @@ import org.oscm.app.vmware.remote.vmware.VMwareClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
-import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.TaskInfo;
 
 /**
@@ -32,10 +31,46 @@ public class SnapshotActions extends Actions {
     private static final Logger logger = LoggerFactory
             .getLogger(SnapshotActions.class);
 
+    private static final String TASK_NAME_CREATE_SNAPSHOT = "CreateSnapshot_Task";
     private static final String SNAPSHOT_NAME = "backup";
-
-    private static final String EVENT_ERROR = "error";
     private static final String EVENT_RUN = "run";
+
+    @StateMachineAction
+    public String deleteSnapshots(String instanceId,
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result) {
+
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        try (VMwareClient client = new VMwareClientFactory("en")
+                .getInstance(ph);) {
+
+            ManagedObjectReference snapshot = client.findSnapshot(
+                    ph.getInstanceName(),
+                    ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+            if (snapshot == null) {
+                logger.info("Found no old snapshot to delete for instance "
+                        + instanceId + ", virtual system '"
+                        + ph.getInstanceName() + "' and snapshot id "
+                        + ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+                return EVENT_SUCCESS;
+            }
+
+            boolean removeChildren = false;
+            boolean consolidate = true;
+            ManagedObjectReference removeTask = client.getService()
+                    .removeSnapshotTask(snapshot, removeChildren, consolidate);
+
+            ph.setTask(client.retrieveTaskInfoKey(removeTask));
+            return EVENT_RUN;
+        } catch (Exception e) {
+            String message = "Failed to delete old snapshot for instance "
+                    + instanceId + " and snapshot id "
+                    + ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID);
+            logger.error(message, e);
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
+        }
+    }
 
     @StateMachineAction
     public String createSnapshot(String instanceId,
@@ -46,38 +81,49 @@ public class SnapshotActions extends Actions {
         try (VMwareClient client = new VMwareClientFactory("en")
                 .getInstance(ph);) {
 
-            ManagedObjectReference vm = getVirtualMachine(ph, client);
-            String description = "Instance ID: " + instanceId;
-            boolean dumpMemory = true;
+            ManagedObjectReference vm = client
+                    .getVirtualMachine(ph.getInstanceName());
+            String description = "Instance ID: " + instanceId
+                    + ", Snapshot date: " + (new Date());
+            boolean dumpMemory = false;
             boolean quiesceFileSystem = true;
             ManagedObjectReference task = client.getService()
                     .createSnapshotTask(vm, SNAPSHOT_NAME, description,
                             dumpMemory, quiesceFileSystem);
-            ph.setTask(retrieveTaskInfoKey(client, task));
+
+            ph.setTask(client.retrieveTaskInfoKey(task));
             return EVENT_RUN;
         } catch (Exception e) {
-            logger.error("Failed to create snapshot for instance " + instanceId,
-                    e);
-            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE,
-                    "Failed to create snapshot for instance " + instanceId);
-            return EVENT_ERROR;
+            String message = "Failed to create snapshot for instance "
+                    + instanceId;
+            logger.error(message, e);
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_FAILED;
         }
     }
 
-    private ManagedObjectReference getVirtualMachine(VMPropertyHandler ph,
-            VMwareClient client) throws InvalidPropertyFaultMsg,
-            RuntimeFaultFaultMsg, APPlatformException {
-
-        ManagedObjectReference vm = client.getServiceUtil().getDecendentMoRef(
-                null, "VirtualMachine", ph.getInstanceName());
-        return vm;
+    @Override
+    protected String successfulTask(TaskInfo taskInfo, VMPropertyHandler ph) {
+        ph.setSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF,
+                String.valueOf(System.currentTimeMillis()));
+        if (TASK_NAME_CREATE_SNAPSHOT.equals(taskInfo.getName())) {
+            ManagedObjectReference mor = (ManagedObjectReference) taskInfo
+                    .getResult();
+            ph.setSetting(VMPropertyHandler.SNAPSHOT_ID, mor.getValue());
+        }
+        return EVENT_SUCCESS;
     }
 
-    private String retrieveTaskInfoKey(VMwareClient client,
-            ManagedObjectReference task) throws Exception {
+    @Override
+    public String finish(String instanceId, ProvisioningSettings settings,
+            InstanceStatus result) {
 
-        return ((TaskInfo) client.getServiceUtil().getDynamicProperty(task,
-                "info")).getKey();
+        result.setIsReady(true);
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        logger.info("Created snapshot for instance " + instanceId
+                + " with snapshot id "
+                + ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+        return EVENT_SUCCESS;
     }
 
 }

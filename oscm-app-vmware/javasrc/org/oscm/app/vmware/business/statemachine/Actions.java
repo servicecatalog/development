@@ -213,9 +213,7 @@ public class Actions {
                     : TaskInfoState.SUCCESS;
             switch (taskState) {
             case SUCCESS:
-                ph.setSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF,
-                        String.valueOf(System.currentTimeMillis()));
-                return EVENT_SUCCESS;
+                return successfulTask(taskInfo, ph);
             case ERROR:
                 String errorMessage = "";
                 if (taskInfo != null && taskInfo.getError() != null) {
@@ -258,6 +256,14 @@ public class Actions {
         }
 
         return EVENT_ERROR;
+    }
+
+    protected String successfulTask(
+            @SuppressWarnings("unused") TaskInfo taskInfo,
+            VMPropertyHandler ph) {
+        ph.setSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF,
+                String.valueOf(System.currentTimeMillis()));
+        return EVENT_SUCCESS;
     }
 
     protected TaskInfo getTaskInfo(VMwareClient vmw,
