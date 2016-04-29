@@ -43,5 +43,6 @@
      <ant antfile="./marketplace/testSubscriptionToUnit.xml" />
     <ant antfile="./marketplace/testPageAccess.xml" />
     <ant antfile="./marketplace/testAccessInfo.xml" />
+    <ant antfile="./marketplace/testserviceParameters.xml" />
   </target>
 </project>
