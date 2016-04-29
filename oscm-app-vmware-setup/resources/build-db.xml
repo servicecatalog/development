@@ -11,8 +11,8 @@
 	<property name="csv.dir" location="${work.dir}/csv" />
 	<property name="sqlscripts.dir" location="${work.dir}/sql" />
 	<property file="${dbproperties.file}" />
-	<property name="database.interpreter" value="${db.interpreter}" />
-	<property name="db.admin.user" value="${db.admin.user}" />
+	<property name="database.interpreter" value="${env.DB_INTERPRETER}" />
+	<property name="db.admin.user" value="postgres" />
 	<property name="db.admin.pwd" value="${db.admin.pwd}" />
 	<property name="db.schema" value="${db.user}" />
 
