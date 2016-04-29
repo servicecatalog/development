@@ -529,13 +529,6 @@ public class ApplicationBean implements Serializable {
         return internalAuthMode.booleanValue();
     }
 
-
-    public String findSSOLogoutUrl() {
-        lookupConfigurationService();
-        VOConfigurationSetting ssoLogoutUrl = configurationService.getVOConfigurationSetting(ConfigurationKey.SSO_LOGOUT_URL, Configuration.GLOBAL_CONTEXT);
-        return String.valueOf(ssoLogoutUrl.getValue());
-    }
-
     /**
      * Setter for configuration service. Use it for JUnit for stubbing the EJB.
      * 

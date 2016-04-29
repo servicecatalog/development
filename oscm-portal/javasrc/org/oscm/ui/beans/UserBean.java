@@ -736,7 +736,7 @@ public class UserBean extends BaseBean implements Serializable {
     public String logoff() {
         HttpServletRequest request = invalidateSession();
         if (isServiceProvider()) {
-            redirectLogoutToIDP();
+            redirectToIDPLogout();
         }
         if (isMarketplaceSet(request)) {
             return OUTCOME_MARKETPLACE_LOGOUT;
@@ -1047,16 +1047,6 @@ public class UserBean extends BaseBean implements Serializable {
         storeRelayStateInSession(confirmedRedirect);
 
         return handleAuthentication(session);
-    }
-    public String redirectLogoutToIDP() {
-        confirmedRedirect = "";
-        storeRelayStateInSession(confirmedRedirect);
-        try {
-            getAuthenticationHandler().handleLogout();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "redirectToIdp";
     }
 
     public String redirectToIDPLogout() {

@@ -403,6 +403,8 @@ public class BaseBean {
     public static final String OUTCOME_USER_LIST = "showUsers";
     public static final String OUTCOME_REFRESH = "refresh";
     public static final String OUTCOME_UNIT_ADMIN_ROLE_REMOVED = "unitAdminRoleRemoved";
+    public static final String OUTCOME_SAML_SP_LOGOFF_PORTAL = "/oscm-portal/login.jsf";
+    public static final String OUTCOME_SAML_SP_LOGOFF_MARKETPLACE = "/oscm-portal/marketplace/index.jsf";
 
     public static final String PROGRESS_DEFAULT = "progress.default";
     public static final String PROGRESS_CREATE_USER = "progress.createUser";

@@ -131,8 +131,7 @@ public class AuthnRequestGenerator {
         authnRequest.setIssuer(issuer);
         NameIDType nameId = new NameIDType();
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
-        nameId.setValue("G02PLXNNOW29067");
-        authnRequest.setNameID(nameId);
+        authnRequest.setNameID(issuer);
         authnRequest.getSessionIndex().add(idpSessionIndex);
 
         JAXBElement<LogoutRequestType> authnRequestJAXB = protocolObjFactory

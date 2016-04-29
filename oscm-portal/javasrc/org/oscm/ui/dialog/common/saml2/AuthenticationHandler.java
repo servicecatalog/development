@@ -8,28 +8,23 @@
 
 package org.oscm.ui.dialog.common.saml2;
 
-import java.io.IOException;
 import java.net.URL;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
-import org.oscm.saml2.api.LogoutRequestGenerator;
 import org.oscm.saml2.api.RedirectSamlURLBuilder;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
-import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.filter.AuthenticationSettings;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 
 /**
  * @author roderus
@@ -74,11 +69,6 @@ public class AuthenticationHandler {
                     "Error while redirecting to the SAML IdP",
                     SAML2AuthnRequestException.ReasonEnum.CANNOT_REDIRECT_OR_FORWARD);
         }
-    }
-
-    public void handleLogout() throws DatatypeConfigurationException, IOException {
-        LogoutRequestGenerator gen = new LogoutRequestGenerator(authSettings.getIssuer());
-        gen.generateLogoutRequest();
     }
 
     public String handleAuthentication(boolean isFromBean, HttpSession httpSession)
