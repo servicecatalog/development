@@ -44,8 +44,8 @@ public class States {
             ProvisioningSettings settings, InstanceStatus status)
             throws StateMachineException {
 
-        logger.info("Invoking action: " + state.getAction() + " for instance "
-                + instanceId);
+        logger.info("Invoking action '" + state.getAction() + "' of state '"
+                + state.getId() + "' for instance " + instanceId);
 
         try {
             Class<?> c = Class.forName(clazz);
@@ -64,12 +64,16 @@ public class States {
                 m = c.getSuperclass().getMethod(methodName, paramTypes);
             }
             return (String) m.invoke(o, instanceId, settings, status);
-        } catch (ClassNotFoundException | InstantiationException
-                | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException | NoSuchMethodException
-                | SecurityException e) {
+        } catch (InvocationTargetException e) {
+            throw new StateMachineException(e.getCause().getMessage(),
+                    e.getCause(), instanceId, clazz, state.getAction());
+        } catch (Exception e) {
+            logger.error("Failed to call action method '" + state.getAction()
+                    + "' of state '" + state.getId() + "' for class '" + clazz
+                    + "' and instance " + instanceId, e);
             throw new StateMachineException(
-                    "Failed to call method " + state.getAction(), e);
+                    "Runtime error in action method: " + e.getMessage(), e,
+                    instanceId, clazz, state.getAction());
         }
     }
 }

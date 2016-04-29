@@ -45,6 +45,8 @@ public class VMPropertyHandler {
 
     public static final String GUEST_READY_TIMEOUT_REF = "READY_TIMEOUT_REF";
 
+    public static final String SNAPSHOT_ID = "SNAPSHOT_ID";
+
     public static final String TS_SERVICE_TYPE = "SERVICE_TYPE";
 
     /**

@@ -8,6 +8,7 @@
 
 package org.oscm.app.vmware.remote.vmware;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HostnameVerifier;
@@ -19,10 +20,15 @@ import org.oscm.app.vmware.persistence.VMwareCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.vmware.vim25.InvalidPropertyFaultMsg;
 import com.vmware.vim25.ManagedObjectReference;
+import com.vmware.vim25.RuntimeFaultFaultMsg;
 import com.vmware.vim25.ServiceContent;
+import com.vmware.vim25.TaskInfo;
 import com.vmware.vim25.VimPortType;
 import com.vmware.vim25.VimService;
+import com.vmware.vim25.VirtualMachineSnapshotInfo;
+import com.vmware.vim25.VirtualMachineSnapshotTree;
 
 /**
  * @author Dirk Bernsau
@@ -32,6 +38,10 @@ public class VMwareClient implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory
             .getLogger(VMwareClient.class);
+
+    private static final String MO_TYPE_VIRTUAL_MACHINE = "VirtualMachine";
+    private static final String PROPERTY_SNAPSHOT = "snapshot";
+    private static final String PROPERTY_INFO = "info";
 
     private String url;
     private String user;
@@ -99,7 +109,7 @@ public class VMwareClient implements AutoCloseable {
                 repeatLogin = true;
                 try {
                     Thread.sleep(3000);
-                } catch (InterruptedException ex) {
+                } catch (@SuppressWarnings("unused") InterruptedException ex) {
                     Thread.currentThread().interrupt();
                 }
             }
@@ -162,6 +172,50 @@ public class VMwareClient implements AutoCloseable {
             connection.disconnect();
         }
         connection = null;
+    }
+
+    public ManagedObjectReference getVirtualMachine(String vmName)
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+
+        ManagedObjectReference vm = getServiceUtil().getDecendentMoRef(null,
+                MO_TYPE_VIRTUAL_MACHINE, vmName);
+        return vm;
+    }
+
+    public ManagedObjectReference findSnapshot(String vmName, String snapshotId)
+            throws Exception {
+
+        ManagedObjectReference vm = getVirtualMachine(vmName);
+        VirtualMachineSnapshotInfo info = (VirtualMachineSnapshotInfo) getServiceUtil()
+                .getDynamicProperty(vm, PROPERTY_SNAPSHOT);
+        if (info == null) {
+            return null;
+        }
+        return searchSnapshot(info.getRootSnapshotList(), snapshotId);
+    }
+
+    private static ManagedObjectReference searchSnapshot(
+            List<VirtualMachineSnapshotTree> tree, String id) {
+
+        if (tree == null) {
+            return null;
+        }
+
+        for (VirtualMachineSnapshotTree snapshot : tree) {
+            if (snapshot.getSnapshot().getValue().equals(id)) {
+                return snapshot.getSnapshot();
+            }
+            return searchSnapshot(snapshot.getChildSnapshotList(), id);
+        }
+
+        return null;
+    }
+
+    public String retrieveTaskInfoKey(ManagedObjectReference task)
+            throws Exception {
+
+        return ((TaskInfo) getServiceUtil().getDynamicProperty(task,
+                PROPERTY_INFO)).getKey();
     }
 
 }
