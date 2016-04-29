@@ -24,15 +24,18 @@ import org.oscm.internal.vo.VOServiceDetails;
 @ManagedBean
 @ViewScoped
 public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
-    
+
     public void initBean(VOServiceDetails selectedService) {
         initPersistedPriceModel(ServiceType.TEMPLATE, selectedService);
     }
-    
+
     public void upload(VOServiceDetails service) {
         try {
             PriceModel priceModel = getExternalPriceModelService()
                     .getExternalPriceModelForService(service);
+            if (priceModel == null) {
+                throw new ExternalPriceModelException();
+            }
             loadPriceModelContent(priceModel);
 
             addMessage(null, FacesMessage.SEVERITY_INFO,
@@ -42,9 +45,9 @@ public class ExternalServicePriceModelCtrl extends ExternalPriceModelCtrl {
                     ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE);
         }
     }
-    
+
     public void reloadPriceModel(VOServiceDetails selectedService) {
         reloadPriceModel(ServiceType.TEMPLATE, selectedService);
     }
-    
+
 }
