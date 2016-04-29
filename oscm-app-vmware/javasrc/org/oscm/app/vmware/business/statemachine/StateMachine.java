@@ -175,8 +175,9 @@ public class StateMachine {
 
         for (Event event : state.getEvents()) {
             if (event.getId().equals(eventId)) {
-                logger.debug("current state: " + state.getId() + " event: "
-                        + eventId + " next state: " + event.getState());
+                logger.debug("Transition from current state '" + state.getId()
+                        + "' with event '" + eventId + "' into state '"
+                        + event.getState() + "'");
                 return event.getState();
             }
         }

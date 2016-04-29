@@ -45,7 +45,7 @@ public class States {
             throws StateMachineException {
 
         logger.info("Invoking action '" + state.getAction() + "' of state '"
-                + state.getId() + "' for instance " + instanceId);
+                + state.getId() + "' for instance '" + instanceId + "'");
 
         try {
             Class<?> c = Class.forName(clazz);
