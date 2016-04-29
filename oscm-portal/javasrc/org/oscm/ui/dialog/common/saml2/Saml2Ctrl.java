@@ -39,8 +39,8 @@ import org.oscm.ui.common.JSFUtils;
 public class Saml2Ctrl extends BaseBean {
 
     protected static final String SAML_SP_REDIRECT_IFRAME = "/saml2/saml2PostInclude.jsf";
-    protected static final String SAML_SP_LOGOFF_PORTAL = "/login.jsf";
-    protected static final String SAML_SP_LOGOFF_MARKETPLACE = "/marketplace/index.jsf";
+    protected static final String SAML_SP_LOGOFF_PORTAL = "/oscm-portal/login.jsf";
+    protected static final String SAML_SP_LOGOFF_MARKETPLACE = "/oscm-portal/marketplace/index.jsf";
 
     @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
