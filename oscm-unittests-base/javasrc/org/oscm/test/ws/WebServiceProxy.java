@@ -37,8 +37,8 @@ public class WebServiceProxy {
                 userName, password);
     }
 
-    public static <T> T get(String baseUrl, String versionWSDL,
-            final String versionHeader, String auth, String namespace,
+    public static <T> T get(String baseUrl, final String versionWSDL,
+            String versionHeader, String auth, String namespace,
             Class<T> remoteInterface, String userName, String password)
             throws Exception {
         String wsdlUrl = baseUrl + "/oscm/" + versionWSDL + "/"
@@ -46,13 +46,13 @@ public class WebServiceProxy {
         URL url = new URL(wsdlUrl);
         QName qName = new QName(namespace, remoteInterface.getSimpleName());
         Service service = Service.create(url, qName);
-        if ("v1.7".equals(versionHeader) || "v1.8".equals(versionHeader)) {
+        if ("v1.7".equals(versionWSDL) || "v1.8".equals(versionWSDL)) {
             service.setHandlerResolver(new HandlerResolver() {
                 @SuppressWarnings("rawtypes")
                 @Override
                 public List<Handler> getHandlerChain(PortInfo portInfo) {
                     List<Handler> handlerList = new ArrayList<Handler>();
-                    handlerList.add(new VersionHandlerCtmg(versionHeader));
+                    handlerList.add(new VersionHandlerCtmg(versionWSDL));
                     return handlerList;
                 }
             });
