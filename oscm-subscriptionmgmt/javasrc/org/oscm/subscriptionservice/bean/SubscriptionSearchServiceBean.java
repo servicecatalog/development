@@ -17,7 +17,6 @@ import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.hibernate.search.bridge.builtin.IntegerBridge;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
@@ -55,26 +54,27 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
             Session session = getDm().getSession();
             if (session != null) {
                 FullTextSession fts = Search.getFullTextSession(session);
+                searchPhrase = searchPhrase.toLowerCase();
                 String[] split = searchPhrase.replaceAll("\"", "").split(" ");
                 Set<Long> runResult;
                 for (int i = 0; i < split.length; i++) {
                     String s = split[i];
-                    org.apache.lucene.search.Query query = getLuceneQueryForClass(
+                    org.apache.lucene.search.Query query = getLuceneQueryForFields(
                             s, getSearchFieldsForSubscription()[0]);
                     runResult = searchSubscriptionViaLucene(query, fts);
                     logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId");
 
-                    query = getLuceneQueryForClass(
+                    query = getLuceneQueryForFields(
                             s, getSearchFieldsForSubscription()[1]);
                     runResult.addAll(searchSubscriptionViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId and subscriptionId");
 
-                    query = getLuceneQueryForClass(
+                    query = getLuceneQueryForFields(
                             s, getSearchFieldsForParameter());
                     runResult.addAll(searchParametersViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by parameters value");
 
-                    query = getLuceneQueryForClass(
+                    query = getLuceneQueryForFields(
                             s, getSearchFieldsForUda());
                     runResult.addAll(searchUdasViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by uda value");
@@ -107,27 +107,17 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return result;
     }
 
-    private boolean countHits(Map<Long, Integer> hitMap, Set<Long> voList) {
-        Iterator<Long> iterator = voList.iterator();
-        while (iterator.hasNext()) {
-            Long next = iterator.next();
-            int integer = hitMap.get(next) == null ? 0 : hitMap.get(next);
-            hitMap.put(next, ++integer);
-        }
-        return !voList.isEmpty();
-    }
-
     public DataService getDm() {
         return dm;
     }
 
-    private org.apache.lucene.search.Query getLuceneQueryForClass(String searchString, String... fieldNames)
+    private org.apache.lucene.search.Query getLuceneQueryForFields(String searchString, String... fieldNames)
             throws ParseException {
         BooleanQuery bq = new BooleanQuery();
         if (isPhraseQuery(searchString)) {
             getPhraseQuery(searchString, fieldNames, bq);
         } else {
-            getWildcardQuery(searchString, fieldNames, bq);
+            getTermQuery(searchString, fieldNames, bq);
         }
         return bq;
     }
@@ -138,15 +128,15 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return false;
     }
 
-    private void getWildcardQuery(String searchString, String[] fieldNames, BooleanQuery bq) {
+    private void getTermQuery(String searchString, String[] fieldNames, BooleanQuery bq) {
         String[] split = searchString.replaceAll("\"", "").split(" ");
-        WildcardQuery wq;
+        TermQuery wq;
         int counter = 0;
         BooleanQuery internal;
         for (String s : split) {
             internal = new BooleanQuery();
             while(counter < fieldNames.length) {
-                wq = new WildcardQuery(new Term(fieldNames[counter++], "*" + QueryParser.escape(s)+"*"));
+                wq = new TermQuery(new Term(fieldNames[counter++], QueryParser.escape(s)));
                 internal.add(wq, Occur.SHOULD);
             }
             bq.add(internal, Occur.SHOULD);
