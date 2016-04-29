@@ -17,8 +17,7 @@ import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.hibernate.search.query.dsl.QueryBuilder;
-import org.hibernate.search.query.dsl.TermMatchingContext;
+import org.hibernate.search.bridge.builtin.IntegerBridge;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
@@ -50,21 +49,42 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     public Collection<Long> searchSubscriptions(String searchPhrase)
             throws InvalidPhraseException, ObjectNotFoundException {
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
-        List<Long> voList = new ArrayList<>(100);
-        searchPhrase = searchPhrase.toLowerCase();
+        searchPhrase = searchPhrase.trim();
+        Set<Long> voList = new HashSet<>(100);
         try {
             Session session = getDm().getSession();
             if (session != null) {
                 FullTextSession fts = Search.getFullTextSession(session);
-                org.apache.lucene.search.Query query = getLuceneQueryForClass(
-                        searchPhrase, fts, Subscription.class, getSearchFieldsForSubscription());
-                voList.addAll(searchSubscriptionViaLucene(query, fts));
-                query = getLuceneQueryForClass(
-                        searchPhrase, fts, Parameter.class, getSearchFieldsForParameter());
-                voList.addAll(searchParametersViaLucene(query, fts));
-                query = getLuceneQueryForClass(
-                        searchPhrase, fts, Uda.class, getSearchFieldsForUda());
-                voList.addAll(searchUdasViaLucene(query, fts));
+                String[] split = searchPhrase.replaceAll("\"", "").split(" ");
+                Set<Long> runResult;
+                for (int i = 0; i < split.length; i++) {
+                    String s = split[i];
+                    org.apache.lucene.search.Query query = getLuceneQueryForClass(
+                            s, getSearchFieldsForSubscription()[0]);
+                    runResult = searchSubscriptionViaLucene(query, fts);
+                    logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId");
+
+                    query = getLuceneQueryForClass(
+                            s, getSearchFieldsForSubscription()[1]);
+                    runResult.addAll(searchSubscriptionViaLucene(query, fts));
+                    logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId and subscriptionId");
+
+                    query = getLuceneQueryForClass(
+                            s, getSearchFieldsForParameter());
+                    runResult.addAll(searchParametersViaLucene(query, fts));
+                    logger.logDebug("I have found " + voList.size() + " subscriptions by parameters value");
+
+                    query = getLuceneQueryForClass(
+                            s, getSearchFieldsForUda());
+                    runResult.addAll(searchUdasViaLucene(query, fts));
+                    logger.logDebug("I have found " + voList.size() + " subscriptions by uda value");
+
+                    if (i == 0) {
+                        voList.addAll(runResult);
+                    } else {
+                        voList = findCommonIds(voList, runResult);
+                    }
+                }
             }
         } catch (ParseException e) {
             InvalidPhraseException ipe = new InvalidPhraseException(e,
@@ -75,42 +95,77 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return voList;
     }
 
+    private Set<Long> findCommonIds(Set<Long> voList, Set<Long> runResult) {
+        Set<Long> result = new HashSet<>();
+        Set<Long> shorter = voList.size() < runResult.size() ? voList : runResult;
+        Set<Long> longer = voList.size() >= runResult.size() ? voList : runResult;
+        for (Long aLong : shorter) {
+            if (longer.contains(aLong)) {
+                result.add(aLong);
+            }
+        }
+        return result;
+    }
+
+    private boolean countHits(Map<Long, Integer> hitMap, Set<Long> voList) {
+        Iterator<Long> iterator = voList.iterator();
+        while (iterator.hasNext()) {
+            Long next = iterator.next();
+            int integer = hitMap.get(next) == null ? 0 : hitMap.get(next);
+            hitMap.put(next, ++integer);
+        }
+        return !voList.isEmpty();
+    }
+
     public DataService getDm() {
         return dm;
     }
 
-    private org.apache.lucene.search.Query getLuceneQueryForClass(String searchString, FullTextSession fts, Class clazz, String[] fieldNames)
+    private org.apache.lucene.search.Query getLuceneQueryForClass(String searchString, String... fieldNames)
             throws ParseException {
-        QueryBuilder qb = fts.getSearchFactory().buildQueryBuilder().forEntity(clazz).get();
         BooleanQuery bq = new BooleanQuery();
-        //TODO: remove it to enable search by phrases
-        searchString = searchString.replaceAll("\"", "");
-        if (!searchString.startsWith("\"") || !searchString.endsWith("\"")) {
-            String[] split = searchString.replaceAll("\"", "").split(" ");
-            for (String s : split) {
-                TermMatchingContext termMatchingContext = qb.keyword().wildcard().onField(fieldNames[0]);
-                int counter = 1;
-                while(counter < fieldNames.length) {
-                    termMatchingContext = termMatchingContext.andField(fieldNames[counter++]);
-                }
-                Query query = termMatchingContext.
-                        matching("*" + QueryParser.escape(s) + "*").createQuery();
-                bq.add(query, Occur.SHOULD);
-            }
+        if (isPhraseQuery(searchString)) {
+            getPhraseQuery(searchString, fieldNames, bq);
         } else {
-            PhraseQuery phraseQuery;
-            String[] split = searchString.replaceAll("\"", "").split(" ");
-            int counter = 0;
-            while(counter < fieldNames.length) {
-                phraseQuery = new PhraseQuery();
-                for (String s : split) {
-                    phraseQuery.add(new Term(fieldNames[counter], s));
-                }
-                bq.add(phraseQuery, Occur.SHOULD);
-                counter++;
-            }
+            getWildcardQuery(searchString, fieldNames, bq);
         }
         return bq;
+    }
+
+    private boolean isPhraseQuery(String searchString) {
+        // Uncomment if you want to phrase querying
+//        return searchString.startsWith("\"") && searchString.endsWith("\"");
+        return false;
+    }
+
+    private void getWildcardQuery(String searchString, String[] fieldNames, BooleanQuery bq) {
+        String[] split = searchString.replaceAll("\"", "").split(" ");
+        WildcardQuery wq;
+        int counter = 0;
+        BooleanQuery internal;
+        for (String s : split) {
+            internal = new BooleanQuery();
+            while(counter < fieldNames.length) {
+                wq = new WildcardQuery(new Term(fieldNames[counter++], "*" + QueryParser.escape(s)+"*"));
+                internal.add(wq, Occur.SHOULD);
+            }
+            bq.add(internal, Occur.SHOULD);
+            counter = 0;
+        }
+    }
+
+    private void getPhraseQuery(String searchString, String[] fieldNames, BooleanQuery bq) {
+        String[] split = searchString.replaceAll("\"", "").split(" ");
+        PhraseQuery phraseQuery;
+        int counter = 0;
+        for (String s : split) {
+            phraseQuery = new PhraseQuery();
+            while(counter < fieldNames.length) {
+                phraseQuery.add(new Term(fieldNames[counter++], QueryParser.escape(s)));
+            }
+            bq.add(phraseQuery, Occur.MUST);
+            counter = 0;
+        }
     }
 
     private Set<Long> searchSubscriptionViaLucene(org.apache.lucene.search.Query query,
