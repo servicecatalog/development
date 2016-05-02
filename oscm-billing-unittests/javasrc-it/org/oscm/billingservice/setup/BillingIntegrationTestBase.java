@@ -281,7 +281,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
-        container.addBean(new BillingAdapterLocalBean());      
+        container.addBean(new BillingAdapterLocalBean());
         container.addBean(new AccountServiceStub());
         container.addBean(new CategorizationServiceStub() {
             @Override
@@ -290,7 +290,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                 return true;
             }
         });
-        
+
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new SubscriptionUtilBean());
         container.addBean(new ModifyAndUpgradeSubscriptionBean());
@@ -412,11 +412,6 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
                     throw new UnsupportedOperationException();
                 }
                 return user;
-            }
-
-            @Override
-            public String getOperatorLogInfo() {
-                return "";
             }
         });
     }

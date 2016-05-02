@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.auditlog.dao.AuditLogDao;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -40,6 +39,17 @@ import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.interceptor.AuditLogDataInterceptor;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.provisioning.data.User;
 import org.oscm.sessionservice.bean.SessionManagementStub;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.taskhandling.operations.SendMailHandler;
@@ -63,17 +73,6 @@ import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.provisioning.data.User;
 
 /**
  * Test class considering with user handling related scenarios in the context of
@@ -131,12 +130,7 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
             }
         });
         container.addBean(new SessionManagementStub());
-        container.addBean(new IdManagementStub() {
-            @Override
-            public String getOperatorLogInfo() {
-                return null;
-            }
-        });
+        container.addBean(new IdManagementStub());
         container.addBean(mock(TenantProvisioningServiceBean.class));
         container.addBean(new CommunicationServiceStub() {
             @Override

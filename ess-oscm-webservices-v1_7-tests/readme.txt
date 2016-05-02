@@ -1,0 +1,1 @@
+The web service 1.7 test project for the Catalog Manager application.

@@ -91,8 +91,7 @@
   <target name="BesEar.REDEPLOY" description="Redeploys the BES server ear file into the BES domain">
     <delete file="${bes.domain.apps}/oscm/.glassfishStaleFiles" failonerror="false" />
     <copy file="${build.result.package.dir}/oscm-security/oscm-security.jar" todir="${glassfish.domain.dir}/lib" />
-    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-ear/oscm.ear"
-      appname="oscm" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-ear/oscm.ear" appname="oscm" />
   </target>
 
   <target name="BesEar.UNDEPLOY" description="Undeploys the BES server ear file from the BES domain">

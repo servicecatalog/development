@@ -30,7 +30,7 @@
 
     3. Configuration setting of BES needs to have the following setting values.
        - SSO_ISSUER_ID={value of Entity ID in 1st step}
-       - SSO_IDP_TRUSTSTORE={local Development derectory}/oscm-integrationtests-saml2-sp/javares/truststore.jks
+       - SSO_IDP_TRUSTSTORE={local Development derectory}/oscm-integrationtests-setup/resources/config/truststore.jks
        - SSO_IDP_TRUSTSTORE_PASSWORD=changeit
        - SSO_IDP_URL=http://estbesdev2.lan.est.fujitsu.de:9080/openam/SSORedirect/metaAlias/idp
   -->
