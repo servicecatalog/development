@@ -57,7 +57,7 @@ public class SoapRequestParserTest {
     }
 
     @Test
-    public void parseApiVersion_1_8() throws Exception {
+    public void parseApiVersion_cm_1_8() throws Exception {
         // given
         SOAPPart part = mock(SOAPPart.class);
         SOAPEnvelope envelope = mock(SOAPEnvelope.class);
@@ -78,4 +78,28 @@ public class SoapRequestParserTest {
         // then
         assertEquals("testVersion", result);
     }
+
+    @Test
+    public void parseApiVersion_ctmg_1_8() throws Exception {
+        // given
+        SOAPPart part = mock(SOAPPart.class);
+        SOAPEnvelope envelope = mock(SOAPEnvelope.class);
+        SOAPHeader soapHeader = mock(SOAPHeader.class);
+        List<Node> version = new ArrayList<Node>();
+        Node node = mock(Node.class);
+        doReturn("testVersion").when(node).getValue();
+        version.add(node);
+        Iterator<?> it = version.iterator();
+        doReturn(it).when(soapHeader).extractHeaderElements(
+                eq("ctmg.service.version"));
+        doReturn(soapHeader).when(envelope).getHeader();
+        doReturn(envelope).when(part).getEnvelope();
+        doReturn(part).when(message).getSOAPPart();
+        // when
+        String result = SoapRequestParser.parseApiVersion(context);
+
+        // then
+        assertEquals("testVersion", result);
+    }
+
 }

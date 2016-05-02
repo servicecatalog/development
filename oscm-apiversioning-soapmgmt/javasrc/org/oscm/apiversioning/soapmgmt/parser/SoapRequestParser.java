@@ -27,7 +27,8 @@ import javax.xml.ws.handler.soap.SOAPMessageContext;
  */
 public class SoapRequestParser {
 
-    private static final String VERSION = "cm.service.version";
+    private static final String VERSION_CM = "cm.service.version";
+    private static final String VERSION_CTMG = "ctmg.service.version";
 
     public static String parseApiVersion(SOAPMessageContext context)
             throws SOAPException {
@@ -40,9 +41,17 @@ public class SoapRequestParser {
             return "";
         }
 
-        Iterator<?> it = soapHeader.extractHeaderElements(VERSION);
-        if (it == null || !it.hasNext()) {
-            return "";
+        Iterator<?> it = null;
+        Iterator<?> itCm = soapHeader.extractHeaderElements(VERSION_CM);
+        if (itCm == null || !itCm.hasNext()) {
+            Iterator<?> itCtmg = soapHeader.extractHeaderElements(VERSION_CTMG);
+            if (itCtmg == null || !itCtmg.hasNext()) {
+                return "";
+            } else {
+                it = itCtmg;
+            }
+        } else {
+            it = itCm;
         }
 
         Node node = (Node) it.next();
@@ -116,8 +125,9 @@ public class SoapRequestParser {
         throw new SOAPException("Soap message param " + paramName
                 + " not found.");
     }
-    
-    public static SOAPBodyElement getChildNode(SOAPBodyElement element, String name) throws SOAPException {
+
+    public static SOAPBodyElement getChildNode(SOAPBodyElement element,
+            String name) throws SOAPException {
 
         @SuppressWarnings("unchecked")
         Iterator<SOAPBodyElement> elements = element.getChildElements();
@@ -130,7 +140,6 @@ public class SoapRequestParser {
             }
         }
 
-        throw new SOAPException(
-                "Child element: " + name + " not found.");
+        throw new SOAPException("Child element: " + name + " not found.");
     }
 }
