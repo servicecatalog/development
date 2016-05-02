@@ -77,7 +77,7 @@ public class VersionHandlerCtmg implements SOAPHandler<SOAPMessageContext> {
                 QName qname_user = new QName("http://com/auth/", "auth");
                 SOAPHeaderElement helem_user = hdr.addHeaderElement(qname_user);
                 helem_user.setActor(VERSION);
-                if (version == null || version.trim().length() == 0) {
+                if (version != null && version.trim().length() != 0) {
                     helem_user.addTextNode(version);
                 }
 
