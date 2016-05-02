@@ -234,8 +234,8 @@
     </antcall>
   </target>
 
-  <target name="addResourcesExtension" if="resources-extenstion.xml.exists">
-    <addRes resfile="resources-extenstion.xml"/>    
+  <target name="addResourcesExtension" if="resources-extension.xml.exists">
+    <addRes resfile="resources-extension.xml"/>    
   </target>
 
   <target name="deleteExistingResources" if="resources.exists">
