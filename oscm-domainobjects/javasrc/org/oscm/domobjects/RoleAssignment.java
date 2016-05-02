@@ -29,8 +29,7 @@ import javax.persistence.UniqueConstraint;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "USER_TKEY",
         "USERROLE_TKEY" }))
 @NamedQueries({ @NamedQuery(name = "RoleAssignment.getPlatformOperators", query = "SELECT role.user FROM RoleAssignment role where role.userRole.dataContainer.roleName='PLATFORM_OPERATOR'") })
-public class RoleAssignment extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class RoleAssignment extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = -8066561546691425234L;
 

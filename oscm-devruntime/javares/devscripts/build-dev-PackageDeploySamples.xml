@@ -65,6 +65,24 @@
     </ant>
   </target>
 
+  <target name="VMWare_Install.BUILD"
+    description="Builds the VMware install project, the result can be found in oscm-build/result/package/oscm-vmware-install-pack">
+    <antcall target="APP.BUILD" />
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects"
+        value="oscm-app-vmware,oscm-vmware-install-pack" />
+    </ant>
+  </target>
+  
+    <target name="APP_Install.BUILD"
+    description="Builds the APP install project, the result can be found in oscm-build/result/package/oscm-app-install-pack">
+    <antcall target="APP.BUILD" />
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects"
+        value="oscm-app,oscm-app-ear,oscm-app-install-pack" />
+    </ant>
+  </target>  
+
   <target name="OPENSTACK_Install.BUILD"
     description="Builds the OPENSTACK install project, the result can be found in oscm-build/result/package/oscm-openstack-install-pack">
     <antcall target="APP.BUILD" />
@@ -206,7 +224,7 @@
     description="Builds all the sample applications, the build result can be found in oscm-build/result/package/">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
       <property name="projects"
-        value="example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml-sp,oscm-integrationtests-saml2-sp,oscm-integrationtests-saml2-sts,oscm-integration-ws-security-client,oscm-psp-heidelpay" />
+        value="example-service,oscm-integrationtests-mockproduct,mock-psp-service,oscm-portal,oscm-integrationtests-saml-sp,oscm-integrationtests-saml2-sts,oscm-psp-heidelpay" />
     </ant>
   </target>
 
@@ -223,18 +241,10 @@
       failonerror="false" />
     <deployOnExampleDomain
       appl="${build.result.package.dir}/oscm-integrationtests-saml-sp/oscm-integrationtests-saml-sp.war" />
-    <delete file="${example.domain.apps}/oscm-integrationtests-saml2-sp/.glassfishStaleFiles"
-      failonerror="false" />
-    <deployOnExampleDomain
-      appl="${build.result.package.dir}/oscm-integrationtests-saml2-sp/oscm-integrationtests-saml2-sp.war" />
     <delete file="${example.domain.apps}/oscm-integrationtests-saml2-sts/.glassfishStaleFiles"
       failonerror="false" />
     <deployOnExampleDomain target="server"
       appl="${build.result.package.dir}/oscm-integrationtests-saml2-sts/oscm-integrationtests-saml2-sts.war" />
-    <delete file="${example.domain.apps}/oscm-integration-ws-security-client/.glassfishStaleFiles"
-      failonerror="false" />
-    <deployOnExampleDomain target="server"
-      appl="${build.result.package.dir}/oscm-integration-ws-security-client/oscm-integration-ws-security-client.war" />
     <delete file="${example.domain.apps}/oscm-psp-heidelpay/.glassfishStaleFiles" failonerror="false" />
     <deployOnExampleDomain appl="${build.result.package.dir}/oscm-psp-heidelpay/oscm-psp-heidelpay.war" />
   </target>
@@ -244,24 +254,8 @@
     <undeployFromExampleDomain appl="oscm-integrationtests-mockproduct" failonerror="false" />
     <undeployFromExampleDomain appl="mock-psp-service" failonerror="false" />
     <undeployFromExampleDomain appl="oscm-integrationtests-saml-sp" failonerror="false" />
-    <undeployFromExampleDomain appl="oscm-integrationtests-saml2-sp" failonerror="false" />
     <undeployFromExampleDomain appl="oscm-integrationtests-saml2-sts" failonerror="false" />
-    <undeployFromExampleDomain appl="oscm-integration-ws-security-client"
-      failonerror="false" />
     <undeployFromExampleDomain appl="oscm-psp-heidelpay" failonerror="false" />
-  </target>
-
-  <target name="MockWSClient.BUILD"
-    description="Builds the WS security client, the result can be found in oscm-build/result/package/oscm-integration-ws-security-client">
-    <importConfigParam />
-    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-integration-ws-security-client" />
-    </ant>
-  </target>
-
-  <target name="MockWSClient.UNDEPLOY" description="Undeploys the WS security client from the example domain">
-    <undeployFromExampleDomain target="server" appl="oscm-integration-ws-security-client"
-      failonerror="false" />
   </target>
 
   <target name="MashupServer.BUILD"

@@ -36,7 +36,6 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.OnBehalfUserReferenceHistory;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationReference;
 import org.oscm.domobjects.OrganizationRole;
@@ -49,6 +48,20 @@ import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
@@ -65,20 +78,6 @@ import org.oscm.types.constants.Configuration;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Test class for the functionality of creating a new user for a specified
@@ -459,8 +458,8 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         container.login(supplierAdminUser.getKey(), ROLE_TECHNOLOGY_MANAGER);
         VOUserDetails result = idService.createOnBehalfUser(
                 supplier2.getOrganizationId(), "abcdef");
-        result = idService.createOnBehalfUser(
-                supplier2.getOrganizationId(), "abcdef");
+        result = idService.createOnBehalfUser(supplier2.getOrganizationId(),
+                "abcdef");
 
         // then
         checkCreatedUser(result, supplier2, "abcdef", true);
@@ -569,11 +568,6 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         } catch (ObjectNotFoundException e) {
             // expected
         }
-        List<OnBehalfUserReferenceHistory> userRelationHist = getHistory(
-                onBehalf, OnBehalfUserReferenceHistory.class);
-        assertEquals(2, userRelationHist.size());
-        assertEquals(ModificationType.DELETE, userRelationHist.get(1)
-                .getModtype());
 
         getDomainObject(supplierAdminUser, PlatformUser.class);
 
@@ -650,10 +644,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         // assert History changes
         for (OnBehalfUserReference currentUserRelation : utobus) {
             // relations must be deleted
-            List<OnBehalfUserReferenceHistory> history = getHistory(
-                    currentUserRelation, OnBehalfUserReferenceHistory.class);
-            assertEquals(ModificationType.DELETE,
-                    history.get(history.size() - 1).getModtype());
+
             // slave users must be deleted
             List<PlatformUserHistory> slaveHist = getHistory(
                     currentUserRelation.getSlaveUser(),

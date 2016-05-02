@@ -359,13 +359,14 @@
   </macrodef>
 
   <macrodef name="addRes">
+    <attribute name="resfile" default="resources.xml" />
     <sequential>
       <asadmin.domain command="add-resources">
         <arg value="--target" />
         <arg value="server" />
-        <arg value="${domains.dir}/${domain.dir}/installer/resources.xml" />
+        <arg value="${domains.dir}/${domain.dir}/installer/@{resfile}" />
       </asadmin.domain>
-      <delete file="${domains.dir}/${domain.dir}/installer/resources.xml" failonerror="false" />
+      <delete file="${domains.dir}/${domain.dir}/installer/@{resfile}" failonerror="false" />
     </sequential>
   </macrodef>
 

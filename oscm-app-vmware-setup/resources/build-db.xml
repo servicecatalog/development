@@ -11,8 +11,8 @@
 	<property name="csv.dir" location="${work.dir}/csv" />
 	<property name="sqlscripts.dir" location="${work.dir}/sql" />
 	<property file="${dbproperties.file}" />
-	<property name="database.interpreter" value="${db.interpreter}" />
-	<property name="db.admin.user" value="${db.admin.user}" />
+	<property name="database.interpreter" value="${env.DB_INTERPRETER}" />
+	<property name="db.admin.user" value="postgres" />
 	<property name="db.admin.pwd" value="${db.admin.pwd}" />
 	<property name="db.schema" value="${db.user}" />
 
@@ -199,15 +199,7 @@
 	</target>
 
 	<target name="updateSchema">
-		<echo message="Applying SQL scripts from ${sqlscripts.dir} " level="debug" />
-		<java classname="org.oscm.dbtask.CheckAndResetOwnerForImageResource" failonerror="false">
-			<arg value="${db.driver.class}" />
-			<arg value="${db.url}" />
-			<arg value="${db.admin.user}" />
-			<arg value="${db.admin.pwd}" />
-			<arg value="${db.user}" />
-			<classpath refid="client.path" />
-		</java>
+		<echo message="Applying SQL scripts from ${sqlscripts.dir} " level="debug" />	
 		<java classname="org.oscm.setup.DatabaseUpgradeHandler" failonerror="true">
 			<arg value="${dbproperties.file}" />
 			<arg value="${sqlscripts.dir}" />

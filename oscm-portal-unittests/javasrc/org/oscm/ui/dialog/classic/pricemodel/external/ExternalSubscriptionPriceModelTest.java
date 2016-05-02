@@ -24,11 +24,13 @@ import javax.faces.component.UIViewRoot;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.internal.pricemodel.external.ExternalPriceModelService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOPriceModel;
 import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.PriceModelBean;
@@ -38,7 +40,7 @@ import org.oscm.ui.stubs.FacesContextStub;
 
 /**
  * @author BadziakP
- *
+ * 
  */
 public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
     private ExternalSubscriptionPriceModelCtrl ctrl;
@@ -80,8 +82,8 @@ public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
         VOSubscriptionDetails voSubscriptionDetails = new VOSubscriptionDetails();
         voSubscriptionDetails.setPriceModel(voPriceModel);
 
-        when(priceModelBean.getSelectedSubscription())
-                .thenReturn(voSubscriptionDetails);
+        when(priceModelBean.getSelectedSubscription()).thenReturn(
+                voSubscriptionDetails);
         when(priceModelBean.validateSubscription(any(VOService.class)))
                 .thenReturn(voSubscriptionDetails);
 
@@ -92,6 +94,21 @@ public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
         verify(externalPriceModelService, times(1))
                 .getExternalPriceModelForSubscription(
                         any(VOSubscriptionDetails.class));
+    }
+
+    @Test
+    public void testUploadEmpty() throws SaaSApplicationException {
+
+        // given
+        doReturn(null).when(externalPriceModelService)
+                .getExternalPriceModelForService(
+                        Mockito.any(VOServiceDetails.class));
+
+        // when
+        ctrl.upload(new VOSubscriptionDetails());
+
+        // then
+        verify(ctrl, times(0)).loadPriceModelContent(null);
     }
 
     @Test

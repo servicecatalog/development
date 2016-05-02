@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright FUJITSU LIMITED 2016-->
- 
-<endpoints version="2.0" xmlns="http://java.sun.com/xml/ns/jax-ws/ri/runtime">
-  <endpoint implementation="org.oscm.mocksts.ws.MockWebService" name="MockWebService" url-pattern="/MockWebService"/>
-  <endpoint implementation="org.oscm.mocksts.handler.SoapHandlerServiceImpl" name="SoapHandlerService" url-pattern="/SoapHandlerService"/>
-</endpoints>

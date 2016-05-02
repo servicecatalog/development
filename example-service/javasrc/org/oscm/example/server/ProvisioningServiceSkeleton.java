@@ -289,7 +289,7 @@ public class ProvisioningServiceSkeleton {
 
     private static BaseResult setOk(BaseResult result) {
         result.setRc(RETURN_CODE_OK);
-        result.setDesc("Ok");
+        result.setDesc("");
         return result;
     }
 

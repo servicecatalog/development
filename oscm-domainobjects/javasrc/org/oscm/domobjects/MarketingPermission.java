@@ -39,8 +39,7 @@ import org.oscm.domobjects.annotations.BusinessKey;
         @NamedQuery(name = "MarketingPermission.findForSupplierIds", query = "SELECT mp, supplier FROM MarketingPermission mp, OrganizationReference orgref, Organization tp, Organization supplier WHERE supplier.dataContainer.organizationId IN (:orgIds) AND tp.key = orgref.sourceKey AND orgref.dataContainer.referenceType = :refType AND mp.organizationReference = orgref AND mp.technicalProduct = :tp AND supplier.key = orgref.targetKey"),
         @NamedQuery(name = "MarketingPermission.findForTechnicalService", query = "SELECT mp FROM MarketingPermission mp WHERE mp.technicalProduct = :tp"),
         @NamedQuery(name = "MarketingPermission.getOrgsForUsingTechnicalService", query = "SELECT organization FROM Organization organization, MarketingPermission mp, OrganizationReference orgRef WHERE mp.technicalProduct.key = :tpKey AND mp.organizationReference.key = orgRef.key AND orgRef.target.key = organization.key AND orgRef.dataContainer.referenceType = :refType") })
-public class MarketingPermission extends
-        DomainObjectWithHistoryAndEmptyDataContainer {
+public class MarketingPermission extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = 335153545468338197L;
 
