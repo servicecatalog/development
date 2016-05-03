@@ -205,7 +205,11 @@ public class VMwareClient implements AutoCloseable {
             if (snapshot.getSnapshot().getValue().equals(id)) {
                 return snapshot.getSnapshot();
             }
-            return searchSnapshot(snapshot.getChildSnapshotList(), id);
+            ManagedObjectReference mor = searchSnapshot(
+                    snapshot.getChildSnapshotList(), id);
+            if (mor != null) {
+                return mor;
+            }
         }
 
         return null;

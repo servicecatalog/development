@@ -402,7 +402,7 @@ public class VMPropertyHandler {
         }
     }
 
-    public String loadGuestReadyTimeout(String key) {
+    public String getGuestReadyTimeout(String key) {
         if (settings.getParameters().containsKey(key)) {
             return settings.getParameters().get(key);
         }

@@ -74,7 +74,7 @@
       <LocalizedDescription locale="en">VM name prefix</LocalizedDescription>
     </ParameterDefinition>
     
-    <ParameterDefinition id="DOMAIN_NAME" configurable="true" default="hs-wismar.de" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition id="DOMAIN_NAME" configurable="true" default="intern.est.fujitsu.com" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Domainname</LocalizedDescription>
     </ParameterDefinition>
     
