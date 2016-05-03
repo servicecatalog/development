@@ -74,12 +74,14 @@ public class VMwareAccessInfo {
     private String getIpAddress(GuestInfo guestInfo) {
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= paramHandler.getNumberOfNetworkAdapter(); i++) {
-            sb.append(paramHandler.getNetworkAdapter(i) + ": ");
             GuestNicInfo info = getNicInfo(guestInfo,
                     paramHandler.getNetworkAdapter(i));
-            sb.append(info.getIpAddress());
-            if (i < paramHandler.getNumberOfNetworkAdapter()) {
-                sb.append(", ");
+            if (info != null) {
+                sb.append(paramHandler.getNetworkAdapter(i) + ": ");
+                sb.append(info.getIpAddress());
+                if (i < paramHandler.getNumberOfNetworkAdapter()) {
+                    sb.append(", ");
+                }
             }
         }
         return sb.toString();
@@ -87,7 +89,7 @@ public class VMwareAccessInfo {
 
     GuestNicInfo getNicInfo(GuestInfo guestInfo, String adapter) {
         for (GuestNicInfo info : guestInfo.getNet()) {
-            if (info.getNetwork().equals(adapter)) {
+            if (info != null && adapter.equals(info.getNetwork())) {
                 return info;
             }
         }

@@ -434,8 +434,6 @@ public class VMController implements APPlatformController {
             throws APPlatformException {
 
         try {
-            logger.debug("instanceId: " + instanceId + " userId: " + userId
-                    + " operationId: " + operationId);
             switch (operationId) {
             case OPERATION_RESTART:
                 StateMachine.initializeProvisioningSettings(settings,
@@ -447,7 +445,7 @@ public class VMController implements APPlatformController {
                 break;
             case OPERATION_STOP:
                 StateMachine.initializeProvisioningSettings(settings,
-                        "start_vm.xml");
+                        "stop_vm.xml");
                 break;
             case OPERATION_SNAPSHOT:
                 StateMachine.initializeProvisioningSettings(settings,
@@ -462,6 +460,8 @@ public class VMController implements APPlatformController {
             result.setChangedParameters(settings.getParameters());
             return result;
         } catch (Exception t) {
+            logger.debug("Failed to execute service operation " + operationId
+                    + " for instance " + instanceId + " and user " + userId);
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
                     Context.OPERATION);
         }

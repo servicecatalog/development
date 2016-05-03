@@ -151,7 +151,7 @@ public class Template {
         String reqUser = paramHandler
                 .getServiceSetting(VMPropertyHandler.REQUESTING_USER);
 
-        String systemvariante = "";//paramHandler.getServiceSetting(NOWITServiceparameter.SYSTEMVARIANTE);
+        String systemvariante = "";
 
         String comment = Messages.get(paramHandler.getLocale(), "vm_comment",
                 new Object[] { paramHandler.getSettings().getOrganizationName(),
@@ -199,7 +199,7 @@ public class Template {
      */
     private CustomizationSpec getCustomizationSpec(
             VirtualMachineConfigInfo configSpec, VMPropertyHandler paramHandler)
-                    throws APPlatformException {
+            throws APPlatformException {
 
         logger.debug("");
         final int DEFAULT_TIMEZONE = 110;
@@ -224,7 +224,8 @@ public class Template {
                 + configSpec.getGuestFullName());
 
         if (!isLinux && !isWindows) {
-            logger.error("GuestId cannot be interpreted. guestid: " + configSpec.getGuestId() + " OS: "
+            logger.error("GuestId cannot be interpreted. guestid: "
+                    + configSpec.getGuestId() + " OS: "
                     + configSpec.getGuestFullName());
             throw new APPlatformException("Unsupported operating system "
                     + configSpec.getGuestFullName());
@@ -283,7 +284,8 @@ public class Template {
                 String domainAdminPwd = paramHandler.getServiceSettingValidated(
                         VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
 
-                logger.debug("Join Domain " + domainName + " admin: " + domainAdmin + " pwd: " + domainAdminPwd);
+                logger.debug("Join Domain " + domainName + " admin: "
+                        + domainAdmin + " pwd: " + domainAdminPwd);
 
                 identification.setJoinDomain(domainName);
                 identification.setDomainAdmin(domainAdmin);
@@ -301,8 +303,9 @@ public class Template {
 
                 String adminPwd = paramHandler.getServiceSettingValidated(
                         VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
-                
-                logger.debug("Create workgroup " + workgroup + " pwd: " + adminPwd);
+
+                logger.debug(
+                        "Create workgroup " + workgroup + " pwd: " + adminPwd);
 
                 CustomizationPassword password = new CustomizationPassword();
                 password.setValue(adminPwd);
@@ -435,8 +438,9 @@ public class Template {
                 .getServiceSetting(VMPropertyHandler.TS_TARGET_STORAGE);
         String hostName = paramHandler
                 .getServiceSetting(VMPropertyHandler.TS_TARGET_HOST);
-        if (hostName == null || hostName.trim().length() == 0 ) {
-            logger.debug("target host not set. get host and storage from loadbalancer");
+        if (hostName == null || hostName.trim().length() == 0) {
+            logger.debug(
+                    "target host not set. get host and storage from loadbalancer");
             VMwareDatacenterInventory inventory = readDatacenterInventory(vmw,
                     datacenter, cluster);
             LoadBalancerConfiguration balancerConfig = new LoadBalancerConfiguration(
@@ -447,8 +451,9 @@ public class Template {
             VMwareStorage storage = host.getNextStorage(paramHandler);
             storageName = storage.getName();
         } else {
-            if (storageName == null || storageName.trim().length() == 0 ) {
-                logger.debug("target storage not set. get host and storage from loadbalancer");
+            if (storageName == null || storageName.trim().length() == 0) {
+                logger.debug(
+                        "target storage not set. get host and storage from loadbalancer");
                 VMwareDatacenterInventory inventory = readDatacenterInventory(
                         vmw, datacenter, cluster);
                 VMwareHost host = inventory.getHost(hostName);
@@ -515,7 +520,7 @@ public class Template {
 
     private VMwareDatacenterInventory readDatacenterInventory(
             VMwareClient appUtil, String datacenter, String cluster)
-                    throws Exception {
+            throws Exception {
         logger.debug("datacenter: " + datacenter + " cluster: " + cluster);
 
         ManagedObjectAccessor serviceUtil = appUtil.getServiceUtil();
