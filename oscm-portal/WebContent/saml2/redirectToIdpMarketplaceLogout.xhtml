@@ -12,7 +12,7 @@
         <a4j:outputPanel id="saml2PostFormPanel">
             <form method="post" id="saml2Form" action="#{saml2Model.logoffUrl}">
                 <input type="hidden" name="SAMLRequest" value="#{saml2Model.encodedAuthnLogoutRequest}" />
-                <input type="hidden" name="RelayState" value="#{facesContext.externalContext.requestContextPath}/login.jsf" />
+                <input type="hidden" name="RelayState" value="#{facesContext.externalContext.requestContextPath}/marketplace/index.jsf" />
             </form>
         </a4j:outputPanel>
 

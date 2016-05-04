@@ -8,6 +8,11 @@
 
 package org.oscm.ui.dialog.common.saml2;
 
+import static org.oscm.ui.beans.BaseBean.ERROR_GENERATE_AUTHNREQUEST;
+import static org.oscm.ui.beans.BaseBean.ERROR_INVALID_IDP_URL;
+import static org.oscm.ui.beans.BaseBean.OUTCOME_MARKETPLACE_LOGOUT;
+import static org.oscm.ui.beans.BaseBean.OUTCOME_PUBLIC_ERROR_PAGE;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -27,15 +32,10 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
-import static org.oscm.ui.beans.BaseBean.ERROR_GENERATE_AUTHNREQUEST;
-import static org.oscm.ui.beans.BaseBean.ERROR_INVALID_IDP_URL;
-import static org.oscm.ui.beans.BaseBean.OUTCOME_MARKETPLACE_LOGOUT;
-import static org.oscm.ui.beans.BaseBean.OUTCOME_PUBLIC_ERROR_PAGE;
 
 /**
  * @author roderus
@@ -71,7 +71,6 @@ public class Saml2Ctrl{
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
-            model.setRelayStateForLogout(this.getRelayStateForLogout());
             storeRequestIdInSession(reqGenerator.getRequestId());
         } catch (SAML2AuthnRequestException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
@@ -127,13 +126,6 @@ public class Saml2Ctrl{
         session.setAttribute(key, value);
     }
 
-    private String getRelayStateForLogout() {
-        if (isOnMarketplace()) {
-            return "/marketplace/index.jsf";
-        }
-        return "/login.jsf";
-    }
-
     URL getAcsUrl() throws MalformedURLException {
         String acsURL = configurationService.getVOConfigurationSetting(
                 ConfigurationKey.SSO_IDP_URL, "global").getValue();
@@ -169,8 +161,8 @@ public class Saml2Ctrl{
 
 
     boolean isOnMarketplace() {
-        String marketplaceId = BaseBean.getMarketplaceIdStatic();
-        return marketplaceId != null && marketplaceId.trim().length() > 0;
+        Object marketplaceId = getRequest().getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
+        return marketplaceId != null && ((String) marketplaceId).trim().length() > 0;
     }
 
     protected HttpServletRequest getRequest() {

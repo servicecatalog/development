@@ -1099,6 +1099,12 @@
       <to-view-id>/saml2/redirectToIdpLogout.xhtml</to-view-id>
     </navigation-case>
   </navigation-rule>
+  <navigation-rule>
+    <navigation-case>
+      <from-outcome>samlMarketplaceLogout</from-outcome>
+      <to-view-id>/saml2/redirectToIdpMarketplaceLogout.xhtml</to-view-id>
+    </navigation-case>
+  </navigation-rule>
   <validator>
     <validator-id>ldapUser</validator-id>
     <validator-class>org.oscm.ui.validator.LdapUserValidator</validator-class>

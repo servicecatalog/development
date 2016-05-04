@@ -91,6 +91,7 @@ public class UserBean extends BaseBean implements Serializable {
     static final String SELF_REGISTRATION = "/marketplace/registration.jsf";
     static final String SAMPSP_FORM = "samlSPForm:";
     static final String OUTCOME_SAML_LOGOUT = "samlLogout";
+    static final String OUTCOME_SAML_MARKETPLACE_LOGOUT = "samlMarketplaceLogout";
 
     private List<UserRole> userRolesForNewUser;
     private String currentPassword;
@@ -735,13 +736,12 @@ public class UserBean extends BaseBean implements Serializable {
      */
     public String logoff() {
         HttpServletRequest request = invalidateSession();
-        if (isServiceProvider()) {
-            redirectToIDPLogout();
-        }
         if (isMarketplaceSet(request)) {
+            getSession().setAttribute("source", "marktplatz");
             return OUTCOME_MARKETPLACE_LOGOUT;
         }
 
+        getSession().setAttribute("source", "blauportal");
         return OUTCOME_LOGIN;
     }
 
@@ -1050,6 +1050,10 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     public String redirectToIDPLogout() {
+        HttpServletRequest request = invalidateSession();
+        if (isMarketplaceSet(request)) {
+            return OUTCOME_SAML_MARKETPLACE_LOGOUT;
+        }
         return OUTCOME_SAML_LOGOUT;
     }
 
