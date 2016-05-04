@@ -92,24 +92,23 @@ public class StateMachine {
             VMPropertyHandler config = new VMPropertyHandler(settings);
 
             if (sameState(currentState, nextState)) {
-                String ms = loadTimeout(nextState, config);
-
                 if ("suspended".equals(config.getServiceSetting(
                         VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
                     logger.debug(
                             "Reinitialize timeout reference after an occured timeout.");
                     setReferenceForTimeout(config);
                 } else {
-                    if (exceededTimeout(config, ms)) {
+                    String timeoutInMs = getReadyTimeout(nextState, config);
+                    if (exceededTimeout(config, timeoutInMs)) {
                         config.setSetting(
                                 VMPropertyHandler.GUEST_READY_TIMEOUT_REF,
                                 "suspended");
                         storeSettings(instanceId, config);
                         logger.debug("Aborted execution of state '"
                                 + nextState.getId() + "' due to timeout of "
-                                + ms + " ms");
-                        throw new SuspendException(
-                                "Task not finished after " + ms + " ms.");
+                                + timeoutInMs + " ms");
+                        throw new SuspendException("Task not finished after "
+                                + timeoutInMs + " ms.");
                     }
                 }
             } else {
@@ -145,20 +144,35 @@ public class StateMachine {
         return oldState.getId().equals(nextState.getId());
     }
 
-    private String loadTimeout(State nextState, VMPropertyHandler config) {
-        String ms = nextState.getTimeout();
-        if (ms.startsWith("$")) {
-            String timeoutVar = ms.substring(2, ms.length() - 1);
-            ms = config.loadGuestReadyTimeout(timeoutVar);
+    private String getReadyTimeout(State nextState, VMPropertyHandler config) {
+        String timeoutInMs = nextState.getTimeout();
+        if (timeoutInMs.startsWith("$")) {
+            String timeoutVar = timeoutInMs.substring(2,
+                    timeoutInMs.length() - 1);
+            timeoutInMs = config.getGuestReadyTimeout(timeoutVar);
         }
-        return ms;
+        return timeoutInMs;
     }
 
-    private boolean exceededTimeout(VMPropertyHandler config, String ms) {
-        return System.currentTimeMillis()
-                - Long.valueOf(config.getServiceSetting(
-                        VMPropertyHandler.GUEST_READY_TIMEOUT_REF)) > Long
-                                .valueOf(ms);
+    private boolean exceededTimeout(VMPropertyHandler config,
+            String timeoutInMs) {
+
+        if (timeoutInMs == null || timeoutInMs.trim().length() == 0) {
+            logger.warn("Action timeout is not set and therefore ignored!");
+            return false;
+        }
+
+        try {
+            return System.currentTimeMillis()
+                    - Long.valueOf(config.getServiceSetting(
+                            VMPropertyHandler.GUEST_READY_TIMEOUT_REF)) > Long
+                                    .valueOf(timeoutInMs);
+        } catch (@SuppressWarnings("unused") NumberFormatException e) {
+            logger.warn("The action timeout '" + timeoutInMs
+                    + " 'is not a number and therefore ignored.");
+            return false;
+        }
+
     }
 
     private State getState(String stateId) throws StateMachineException {
@@ -175,8 +189,9 @@ public class StateMachine {
 
         for (Event event : state.getEvents()) {
             if (event.getId().equals(eventId)) {
-                logger.debug("current state: " + state.getId() + " event: "
-                        + eventId + " next state: " + event.getState());
+                logger.debug("Transition from current state '" + state.getId()
+                        + "' with event '" + eventId + "' into state '"
+                        + event.getState() + "'");
                 return event.getState();
             }
         }

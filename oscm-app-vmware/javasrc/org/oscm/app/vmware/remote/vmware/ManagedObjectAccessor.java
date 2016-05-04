@@ -65,7 +65,7 @@ public class ManagedObjectAccessor {
         Object propertyValue = null;
         if (objContent != null) {
             List<DynamicProperty> listdp = objContent[0].getPropSet();
-            if (listdp != null) {
+            if (listdp != null && listdp.size() > 0) {
                 /*
                  * Check the dynamic property for ArrayOfXXX object
                  */
@@ -159,7 +159,7 @@ public class ManagedObjectAccessor {
      */
     private ObjectContent[] getObjectProperties(ManagedObjectReference mobj,
             String[] properties)
-                    throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
         if (mobj == null) {
             return null;
         }
@@ -194,7 +194,7 @@ public class ManagedObjectAccessor {
      */
     private List<ObjectContent> retrievePropertiesAllObjects(
             List<PropertyFilterSpec> filterSpecs)
-                    throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 
         RetrieveOptions retrieveOptions = new RetrieveOptions();
         ManagedObjectReference collector = serviceContent
@@ -243,7 +243,7 @@ public class ManagedObjectAccessor {
      */
     public ManagedObjectReference getDecendentMoRef(
             ManagedObjectReference object, String type, String name)
-                    throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
         if (object == null) {
             object = connection.getServiceContent().getRootFolder();
         }
@@ -268,7 +268,7 @@ public class ManagedObjectAccessor {
      */
     public Map<String, ManagedObjectReference> getMoRefsInContainerByType(
             ManagedObjectReference folder, String morefType)
-                    throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
 
         String PROP_ME_NAME = "name";
         ManagedObjectReference viewManager = serviceContent.getViewManager();

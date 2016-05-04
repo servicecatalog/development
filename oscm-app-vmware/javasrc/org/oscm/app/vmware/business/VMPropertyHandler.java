@@ -45,6 +45,8 @@ public class VMPropertyHandler {
 
     public static final String GUEST_READY_TIMEOUT_REF = "READY_TIMEOUT_REF";
 
+    public static final String SNAPSHOT_ID = "SNAPSHOT_ID";
+
     public static final String TS_SERVICE_TYPE = "SERVICE_TYPE";
 
     /**
@@ -400,7 +402,7 @@ public class VMPropertyHandler {
         }
     }
 
-    public String loadGuestReadyTimeout(String key) {
+    public String getGuestReadyTimeout(String key) {
         if (settings.getParameters().containsKey(key)) {
             return settings.getParameters().get(key);
         }
@@ -725,9 +727,7 @@ public class VMPropertyHandler {
     }
 
     /**
-     * Returns the full name of the new instance (including the prefix).
-     * 
-     * @return the full name of the new instance
+     * @return the full name of the new instance (including the prefix)
      */
     public String getInstanceName() throws APPlatformException {
         StringBuffer b = new StringBuffer();
@@ -742,11 +742,6 @@ public class VMPropertyHandler {
         return b.toString();
     }
 
-    /**
-     * Returns the target folder.
-     * 
-     * @return the name of the custom defined instance name
-     */
     public String getTargetFolder() {
         String targetFolder = getServiceSetting(TS_TARGET_FOLDER);
         if (targetFolder != null

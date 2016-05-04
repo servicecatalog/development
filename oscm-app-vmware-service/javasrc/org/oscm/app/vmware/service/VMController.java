@@ -57,6 +57,12 @@ public class VMController implements APPlatformController {
     private static final Logger logger = LoggerFactory
             .getLogger(CreateActions.class);
 
+    private static final String OPERATION_RESTART = "RESTART_VM";
+    private static final String OPERATION_START = "START_VM";
+    private static final String OPERATION_STOP = "STOP_VM";
+    private static final String OPERATION_SNAPSHOT = "SNAPSHOT_VM";
+    private static final String OPERATION_RESTORE = "RESTORE_VM";
+
     protected APPlatformService platformService;
 
     private VMwareControllerAccess controllerAccess;
@@ -176,14 +182,18 @@ public class VMController implements APPlatformController {
         } catch (SuspendException e) {
             throw e;
         } catch (Throwable t) {
-        	logger.error("Failed to get instance status for instance " + instanceId,t);
-        	throw new SuspendException("Failed to get instance status for instance " + instanceId, t);
+            logger.error(
+                    "Failed to get instance status for instance " + instanceId,
+                    t);
+            throw new SuspendException(
+                    "Failed to get instance status for instance " + instanceId,
+                    t);
         }
     }
 
     private void updateProvisioningSettings(VMPropertyHandler ph,
-            StateMachine stateMachine,String instanceId)
-                    throws StateMachineException, SuspendException, Exception {
+            StateMachine stateMachine, String instanceId)
+            throws StateMachineException, SuspendException, Exception {
 
         String nextState = stateMachine.getStateId();
         switch (nextState) {
@@ -194,7 +204,9 @@ public class VMController implements APPlatformController {
             ph.setSetting(VMPropertyHandler.TASK_STARTTIME, "");
             ph.setSetting(VMPropertyHandler.SM_STATE, failedState);
             Credentials cred = ph.getTPUser();
-            platformService.storeServiceInstanceDetails(Controller.ID,instanceId, ph.getProvisioningSettings(), cred.toPasswordAuthentication());
+            platformService.storeServiceInstanceDetails(Controller.ID,
+                    instanceId, ph.getProvisioningSettings(),
+                    cred.toPasswordAuthentication());
             String errorMessage = ph
                     .getServiceSetting(VMPropertyHandler.SM_ERROR_MESSAGE);
             throw new SuspendException(errorMessage);
@@ -297,8 +309,8 @@ public class VMController implements APPlatformController {
             throws APPlatformException {
         boolean isDomainJoin = params
                 .isServiceSettingTrue(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
-        boolean domainName = params.getServiceSetting(
-                VMPropertyHandler.TS_DOMAIN_NAME) != null;
+        boolean domainName = params
+                .getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME) != null;
         boolean admin = params.getServiceSetting(
                 VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN) != null;
         boolean adminPwd = params.getServiceSetting(
@@ -330,7 +342,7 @@ public class VMController implements APPlatformController {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus notifyInstance(String instanceId,
             ProvisioningSettings settings, Properties properties)
-                    throws APPlatformException {
+            throws APPlatformException {
         logger.info("notifyInstance({})",
                 LogAndExceptionConverter.getLogText(instanceId, settings));
         InstanceStatus status = null;
@@ -394,7 +406,7 @@ public class VMController implements APPlatformController {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatusUsers createUsers(String instanceId,
             ProvisioningSettings settings, List<ServiceUser> users)
-                    throws APPlatformException {
+            throws APPlatformException {
         return null;
     }
 
@@ -402,7 +414,7 @@ public class VMController implements APPlatformController {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus deleteUsers(String instanceId,
             ProvisioningSettings settings, List<ServiceUser> users)
-                    throws APPlatformException {
+            throws APPlatformException {
         return null;
     }
 
@@ -410,7 +422,7 @@ public class VMController implements APPlatformController {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public InstanceStatus updateUsers(String instanceId,
             ProvisioningSettings settings, List<ServiceUser> users)
-                    throws APPlatformException {
+            throws APPlatformException {
         return null;
     }
 
@@ -419,32 +431,42 @@ public class VMController implements APPlatformController {
     public InstanceStatus executeServiceOperation(String userId,
             String instanceId, String transactionId, String operationId,
             List<OperationParameter> parameters, ProvisioningSettings settings)
-                    throws APPlatformException {
-        logger.debug("instanceId: " + instanceId + " userId: " + userId
-                + " operationId: " + operationId);
-        InstanceStatus result = new InstanceStatus();
+            throws APPlatformException {
+
         try {
-            if ("RESTART_VM".equals(operationId)) {
+            switch (operationId) {
+            case OPERATION_RESTART:
                 StateMachine.initializeProvisioningSettings(settings,
                         "restart_vm.xml");
-                result.setChangedParameters(settings.getParameters());
-            } else if ("START_VM".equals(operationId)) {
+                break;
+            case OPERATION_START:
                 StateMachine.initializeProvisioningSettings(settings,
                         "start_vm.xml");
-                result.setChangedParameters(settings.getParameters());
-            } else if ("STOP_VM".equals(operationId)) {
+                break;
+            case OPERATION_STOP:
                 StateMachine.initializeProvisioningSettings(settings,
                         "stop_vm.xml");
-                result.setChangedParameters(settings.getParameters());
+                break;
+            case OPERATION_SNAPSHOT:
+                StateMachine.initializeProvisioningSettings(settings,
+                        "snapshot_vm.xml");
+                break;
+            case OPERATION_RESTORE:
+                StateMachine.initializeProvisioningSettings(settings,
+                        "restore_vm.xml");
+                break;
             }
-        } catch (Throwable t) {
+            InstanceStatus result = new InstanceStatus();
+            result.setChangedParameters(settings.getParameters());
+            return result;
+        } catch (Exception t) {
+            logger.debug("Failed to execute service operation " + operationId
+                    + " for instance " + instanceId + " and user " + userId);
             throw LogAndExceptionConverter.createAndLogPlatformException(t,
                     Context.OPERATION);
         }
 
-        return result;
     }
-
 
     @Override
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
@@ -457,7 +479,7 @@ public class VMController implements APPlatformController {
     @TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
     public List<OperationParameter> getOperationParameters(String arg0,
             String arg1, String arg2, ProvisioningSettings arg3)
-                    throws APPlatformException {
+            throws APPlatformException {
         return null;
     }
 
@@ -465,12 +487,11 @@ public class VMController implements APPlatformController {
     public void setControllerSettings(ControllerSettings settings) {
         if (controllerAccess != null) {
             controllerAccess.storeSettings(settings);
-            //throw new RuntimeException("Cannot store controller settings the old way.");
         }
     }
 
     @Inject
     public void setControllerAccess(final ControllerAccess access) {
-        this.controllerAccess = (VMwareControllerAccess)access;
+        this.controllerAccess = (VMwareControllerAccess) access;
     }
 }

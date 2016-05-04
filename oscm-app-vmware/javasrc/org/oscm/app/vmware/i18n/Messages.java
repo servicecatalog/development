@@ -56,7 +56,7 @@ public class Messages {
             } else {
                 return bundleList.get(DEFAULT_LOCALE).getString(key);
             }
-        } catch (MissingResourceException e) {
+        } catch (@SuppressWarnings("unused") MissingResourceException e) {
             return '!' + key + '!';
         }
     }

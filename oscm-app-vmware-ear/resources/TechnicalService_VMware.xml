@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Copyright FUJITSU LIMITED 2016-->
+<!-- Copyright FUJITSU LIMITED 2016 -->
 
 <tns:TechnicalServices
   xmlns:tns="oscm.serviceprovisioning/1.9/TechnicalService.xsd" 
@@ -7,7 +7,7 @@
   xsi:schemaLocation="oscm.serviceprovisioning/1.9/TechnicalService.xsd ../../oscm-serviceprovisioning/javares/TechnicalServices.xsd">
   
   <tns:TechnicalService 
-    id="VMWare"
+    id="VMware"
     build="2016-04-04" 
     accessType="DIRECT" 
     onlyOneSubscriptionPerUser="false" 
@@ -15,19 +15,19 @@
     baseUrl=""
     loginPath="/" 
     provisioningType="ASYNCHRONOUS"
-    provisioningUrl="https://<host>:<port>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
+    provisioningUrl="https://HOST:PORT/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningPassword="" 
     provisioningUsername="" 
     provisioningVersion="1.0">
     
-    <AccessInfo locale="en" >VMware Access Info.</AccessInfo>
+    <AccessInfo locale="en">VMware Access Info</AccessInfo>
     <LocalizedDescription locale="en">VMware Virtual Machine Provisioning</LocalizedDescription>
     <LocalizedDescription locale="de">VMware Virtual Machine Provisioning</LocalizedDescription>    
-    <LocalizedDescription locale="ja">VMware Virtual Machine Provisioning</LocalizedDescription>    
-	<LocalizedLicense locale="en">&lt;b&gt;License Agreement&lt;/b&gt;</LocalizedLicense>
+	<LocalizedLicense locale="en">License Agreement</LocalizedLicense>
+    <LocalizedTag locale="en">VMware</LocalizedTag>
 	
-    <ParameterDefinition id="ACCESS_INFO" configurable="true" default="${HOST} (IP: ${IP}) ${CPU} CPU(s), ${MEM} RAM, ${DISK} HDD" mandatory="false" valueType="STRING">
-      <LocalizedDescription locale="en">Access info pattern</LocalizedDescription>
+    <ParameterDefinition id="ACCESS_INFO" configurable="true" default="${HOST}, ${IP}" mandatory="false" valueType="STRING">
+      <LocalizedDescription locale="en">Access info pattern. Valid placeholder: ${HOST},${IP},${CPU},${MEM},${DISK}</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition id="AMOUNT_OF_RAM" configurable="true" default="1024" mandatory="true" valueType="ENUMERATION">
@@ -74,7 +74,7 @@
       <LocalizedDescription locale="en">VM name prefix</LocalizedDescription>
     </ParameterDefinition>
     
-    <ParameterDefinition id="DOMAIN_NAME" configurable="true" default="hs-wismar.de" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition id="DOMAIN_NAME" configurable="true" default="intern.est.fujitsu.com" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Domainname</LocalizedDescription>
     </ParameterDefinition>
     
@@ -306,38 +306,44 @@
     
     <ParameterDefinition id="WEBUI_CONFIG" configurable="false" default="webui.conf" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Configuration file for external parameter configuration tool</LocalizedDescription>
-      <LocalizedDescription locale="de">Configuration file for external parameter configuration tool</LocalizedDescription>
-      <LocalizedDescription locale="ja">Configuration file for external parameter configuration tool</LocalizedDescription>
     </ParameterDefinition>
     
     
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="RESTART_VM">
+    <Operation id="RESTART_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Neustart der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Restart of virtual machine</LocalizedName>
-      <LocalizedName locale="ja">Restart of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren und wieder hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown and started again</LocalizedDescription>
-      <LocalizedDescription locale="ja">The virtual machine will be shutdown and started again</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="START_VM">
+    
+    <Operation id="START_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Start der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Start of virtual machine</LocalizedName>
-      <LocalizedName locale="ja">Start of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be started</LocalizedDescription>
-      <LocalizedDescription locale="ja">The virtual machine will be started</LocalizedDescription>
     </Operation>
-    <Operation actionURL="https://<host>:<port>/OperationService/AsynchronousOperationProxy?wsdl" 
-        id="STOP_VM">
+    
+    <Operation id="STOP_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Stop der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Stop of virtual machine</LocalizedName>
-      <LocalizedName locale="ja">Stop of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown</LocalizedDescription>
-      <LocalizedDescription locale="ja">The virtual machine will be shutdown</LocalizedDescription>
     </Operation>
+    
+    <Operation id="SNAPSHOT_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
+      <LocalizedName locale="de">Snapshot</LocalizedName>
+      <LocalizedName locale="en">Snapshot</LocalizedName>
+      <LocalizedDescription locale="de">Erzeugt ein Snapshot</LocalizedDescription>
+      <LocalizedDescription locale="en">Creates a snapshort of the vm</LocalizedDescription>
+    </Operation>
+    
+    <Operation id="RESTORE_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
+      <LocalizedName locale="de">Restore</LocalizedName>
+      <LocalizedName locale="en">Restore</LocalizedName>
+      <LocalizedDescription locale="de">Stellt ein Snapshot wieder her</LocalizedDescription>
+      <LocalizedDescription locale="en">Restores a snapshot</LocalizedDescription>
+    </Operation>
+    
  </tns:TechnicalService>
   
 </tns:TechnicalServices>
