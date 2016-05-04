@@ -19,6 +19,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.UiDelegate;
 import org.oscm.internal.billingadapter.BillingAdapterService;
 import org.oscm.internal.billingadapter.ConnectionPropertyItem;
 import org.oscm.internal.billingadapter.POBillingAdapter;
@@ -120,11 +121,12 @@ public class BillingAdapterCtrl extends BaseBean {
         return response.getResultList(POBillingAdapter.class);
     }
 
-    BillingAdapterService getBillingAdapterService() {
+    public BillingAdapterService getBillingAdapterService() {
         return billingAdapterService;
     }
 
     public String save() {
+        setDisabledAddBtn(false);
         if (model == null) {
             return OUTCOME_ERROR;
         }
@@ -139,7 +141,6 @@ public class BillingAdapterCtrl extends BaseBean {
 
             updateAdapter(selectedBillingAdapter.getBillingIdentifier());
             ui.handle(INFO_ADAPTER_SAVED);
-            setDisabledAddBtn(false);
 
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
@@ -151,7 +152,7 @@ public class BillingAdapterCtrl extends BaseBean {
     }
 
     public String setDefaultAdapter() throws SaaSApplicationException {
-
+        setDisabledAddBtn(false);
         model = getModel();
 
         if (model == null) {
@@ -178,6 +179,7 @@ public class BillingAdapterCtrl extends BaseBean {
     }
 
     public String deleteAdapter() throws SaaSApplicationException {
+        setDisabledAddBtn(false);
         if (model == null) {
             return OUTCOME_ERROR;
         }
@@ -269,5 +271,9 @@ public class BillingAdapterCtrl extends BaseBean {
 
     public void setBillingAdapterService(BillingAdapterService billingAdapterService) {
         this.billingAdapterService = billingAdapterService;
+    }
+    
+    public void setUiDelegate(UiDelegate ui) {
+        this.ui = ui;
     }
 }
