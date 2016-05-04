@@ -14,6 +14,7 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.SearchFactory;
 import org.hibernate.search.query.dsl.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.domobjects.Parameter;
@@ -28,6 +29,13 @@ public class SearchServiceBeanTest {
 
     @Test
     public void searchSubscriptions() throws Exception {
+        setup();
+        Collection<Long> results = ssb.searchSubscriptions("searchphrase phrase");
+        assertTrue(results.contains(10L));
+    }
+
+    @Before
+    public void setup() {
         bean = spy(new DataServiceBean());
         ssb = spy(new SubscriptionSearchServiceBean());
         doReturn(bean).when(ssb).getDm();
@@ -55,8 +63,8 @@ public class SearchServiceBeanTest {
         doReturn(termMatchingContext).when(wc).onField(anyString());
         TermTermination termTermination = mock(TermTermination.class);
         doReturn(termMatchingContext).when(termMatchingContext).andField(anyString());
-        doReturn(termTermination).when(termMatchingContext).matching("*searchphrase*");
-        doReturn(termTermination).when(termMatchingContext).matching("*phrase*");
+        doReturn(termTermination).when(termMatchingContext).matching("searchphrase");
+        doReturn(termTermination).when(termMatchingContext).matching("phrase");
 
         FullTextQuery subFTS = mock(FullTextQuery.class);
         FullTextQuery parFTS = mock(FullTextQuery.class);
@@ -71,7 +79,5 @@ public class SearchServiceBeanTest {
         doReturn(longs).when(subFTS).list();
         doReturn(params).when(parFTS).list();
         doReturn(udas).when(udaFTS).list();
-        Collection<Long> results = ssb.searchSubscriptions("searchphrase phrase");
-        assertTrue(results.contains(10L));
     }
 }

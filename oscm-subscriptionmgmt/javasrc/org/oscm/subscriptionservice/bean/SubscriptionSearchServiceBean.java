@@ -58,24 +58,28 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
                 String[] split = searchPhrase.replaceAll("\"", "").split(" ");
                 Set<Long> runResult;
                 for (int i = 0; i < split.length; i++) {
-                    String s = split[i];
+                    String singleString = split[i];
+                    singleString = singleString.trim();
+                    if(singleString.length() == 0) {
+                        continue;
+                    }
                     org.apache.lucene.search.Query query = getLuceneQueryForFields(
-                            s, getSearchFieldsForSubscription()[0]);
+                            singleString, getSearchFieldsForSubscription()[0]);
                     runResult = searchSubscriptionViaLucene(query, fts);
                     logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId");
 
                     query = getLuceneQueryForFields(
-                            s, getSearchFieldsForSubscription()[1]);
+                            singleString, getSearchFieldsForSubscription()[1]);
                     runResult.addAll(searchSubscriptionViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by referenceId and subscriptionId");
 
                     query = getLuceneQueryForFields(
-                            s, getSearchFieldsForParameter());
+                            singleString, getSearchFieldsForParameter());
                     runResult.addAll(searchParametersViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by parameters value");
 
                     query = getLuceneQueryForFields(
-                            s, getSearchFieldsForUda());
+                            singleString, getSearchFieldsForUda());
                     runResult.addAll(searchUdasViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size() + " subscriptions by uda value");
 
@@ -133,10 +137,10 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         TermQuery wq;
         int counter = 0;
         BooleanQuery internal;
-        for (String s : split) {
+        for (String singleString : split) {
             internal = new BooleanQuery();
             while(counter < fieldNames.length) {
-                wq = new TermQuery(new Term(fieldNames[counter++], QueryParser.escape(s)));
+                wq = new TermQuery(new Term(fieldNames[counter++], QueryParser.escape(singleString)));
                 internal.add(wq, Occur.SHOULD);
             }
             bq.add(internal, Occur.SHOULD);
@@ -148,10 +152,10 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         String[] split = searchString.replaceAll("\"", "").split(" ");
         PhraseQuery phraseQuery;
         int counter = 0;
-        for (String s : split) {
+        for (String singleString : split) {
             phraseQuery = new PhraseQuery();
             while(counter < fieldNames.length) {
-                phraseQuery.add(new Term(fieldNames[counter++], QueryParser.escape(s)));
+                phraseQuery.add(new Term(fieldNames[counter++], QueryParser.escape(singleString)));
             }
             bq.add(phraseQuery, Occur.MUST);
             counter = 0;
