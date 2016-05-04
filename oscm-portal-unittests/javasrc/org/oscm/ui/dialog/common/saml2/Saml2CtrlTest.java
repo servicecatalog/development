@@ -30,20 +30,27 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.runners.MockitoJUnitRunner;
 
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.saml2.api.AuthnRequestGenerator;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.UiDelegate;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.vo.VOConfigurationSetting;
 
 /**
  * @author roderus
- * 
+ *
  */
+@RunWith(MockitoJUnitRunner.class)
 public class Saml2CtrlTest {
 
     private static final String TEST_RELAY_STATE = "some_relay_state";
@@ -56,46 +63,40 @@ public class Saml2CtrlTest {
     private static final String DUMMY_ACSURL = "https://some.acs.url.de";
     private static final String DUMMY_REQID = "some_requestid";
 
-    private Saml2Ctrl saml2Ctrl;
+    @InjectMocks
+    @Spy
+    private Saml2Ctrl saml2Ctrl = new Saml2Ctrl();
+    @Mock
     private VOConfigurationSetting voConfigSetting;
+    @Mock
     private AuthnRequestGenerator authnReqGenMock;
+    @Mock
     private HttpServletRequest requestMock;
+    @Mock
     private ConfigurationService configServiceMock;
+    @Mock
     private Log4jLogger loggerMock;
+    @Mock
     private Saml2Model saml2ModelMock;
+    @Mock
     private UiDelegate uiDelegateMock;
+    @Mock
+    private SessionService sessionServiceMock;
 
     @Before
-    public void setup() throws SAML2AuthnRequestException,
-            MalformedURLException {
-        requestMock = mock(HttpServletRequest.class);
-        saml2Ctrl = spy(new Saml2Ctrl() {
-            @Override
-            protected HttpServletRequest getRequest() {
-                return requestMock;
-            }
-        });
+    public void setup()
+            throws SAML2AuthnRequestException, MalformedURLException {
 
-        saml2ModelMock = mock(Saml2Model.class);
 
-        // usually injected as configured in faces-config.xml
-        saml2Ctrl.setModel(saml2ModelMock);
-
-        uiDelegateMock = mock(UiDelegate.class);
-        saml2Ctrl.ui = uiDelegateMock;
-
-        configServiceMock = mock(ConfigurationService.class);
-        voConfigSetting = mock(VOConfigurationSetting.class);
-        authnReqGenMock = mock(AuthnRequestGenerator.class);
-
-        loggerMock = mock(Log4jLogger.class);
+        doReturn(requestMock).when(saml2Ctrl).getRequest();
+        doReturn("someSessionId").when(saml2Ctrl).getSessionId();
+        doReturn("someSessionId").when(sessionServiceMock).getSAMLSessionStringForSessionId(anyString());
+        doReturn(true).when(saml2Ctrl).isOnMarketplace();
 
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
         doReturn(TEST_RELAY_STATE).when(saml2Ctrl).getRelayState();
-        doReturn(configServiceMock).when(saml2Ctrl).getConfigService();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
-        doReturn(requestMock).when(saml2Ctrl.ui).getRequest();
         doReturn(loggerMock).when(saml2Ctrl).getLogger();
 
         doReturn(voConfigSetting).when(configServiceMock)
@@ -120,8 +121,8 @@ public class Saml2CtrlTest {
 
         // then
         assertNull(outcome);
-        verify(saml2ModelMock).setEncodedAuthnRequest(
-                matches(DUMMY_AUTHREQUEST));
+        verify(saml2ModelMock)
+                .setEncodedAuthnRequest(matches(DUMMY_AUTHREQUEST));
         verify(saml2ModelMock).setRelayState(matches(DUMMY_RELAYSTATE));
         verify(saml2ModelMock).setAcsUrl(matches(DUMMY_ACSURL));
         verify(saml2Ctrl).storeRequestIdInSession(matches(DUMMY_REQID));
@@ -271,10 +272,9 @@ public class Saml2CtrlTest {
     @Test
     public void getSaml2PostUrl() {
         // given
-        doReturn(
-                new StringBuffer(
-                        "http://ttttttttt:8180/oscm-portal/saml2/redirectToIdp.jsf"))
-                .when(requestMock).getRequestURL();
+        doReturn(new StringBuffer(
+                "http://ttttttttt:8180/oscm-portal/saml2/redirectToIdp.jsf"))
+                        .when(requestMock).getRequestURL();
         doReturn("/saml2/redirectToIdp.jsf").when(requestMock).getServletPath();
 
         // when
