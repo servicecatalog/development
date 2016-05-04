@@ -56,6 +56,7 @@ import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -75,7 +76,6 @@ import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.types.enumtypes.ProvisioningType;
@@ -139,7 +139,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new IdentityServiceStub());
-        container.addBean(new SessionServiceStub() {
+        container.addBean(new SessionServiceBean() {
             @Override
             public boolean hasTechnicalProductActiveSessions(
                     long technicalProductKey) {

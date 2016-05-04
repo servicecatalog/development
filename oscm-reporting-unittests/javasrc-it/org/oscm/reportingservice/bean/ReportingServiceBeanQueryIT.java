@@ -96,6 +96,7 @@ import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.service.stubs.ApplicationServiceStub;
 import org.oscm.reportingservice.service.stubs.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.stream.Streams;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
@@ -114,7 +115,6 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -316,7 +316,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
 
-        container.addBean(new SessionServiceStub() {
+        container.addBean(new SessionServiceBean() {
             @Override
             public Session getPlatformSessionForSessionId(String sessionId) {
                 for (Session session : sessions) {

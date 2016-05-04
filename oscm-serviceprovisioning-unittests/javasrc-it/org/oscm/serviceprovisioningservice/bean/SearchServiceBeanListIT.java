@@ -109,6 +109,7 @@ import org.oscm.provisioning.data.User;
 import org.oscm.search.IndexRequestMasterListener;
 import org.oscm.serviceprovisioningservice.local.ProductSearchResult;
 import org.oscm.serviceprovisioningservice.local.SearchServiceLocal;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
@@ -130,7 +131,6 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
@@ -335,7 +335,7 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
             }
 
         });
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new IdentityServiceStub() {
@@ -2386,7 +2386,6 @@ public class SearchServiceBeanListIT extends StaticEJBTestBase {
     }
 
     /**
-     * @param suspendedServiceKey2
      * @param result
      * @return
      */

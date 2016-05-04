@@ -34,6 +34,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
@@ -46,7 +47,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -141,7 +141,7 @@ public class SubscriptionServiceBeanParameterIT extends EJBTestBase {
 
         });
         container.addBean(new DataServiceBean());
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(mock(SubscriptionListServiceBean.class));
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new TerminateSubscriptionBean());

@@ -39,6 +39,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Test;
 
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.w3c.dom.Document;
 
@@ -115,7 +116,6 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -327,7 +327,7 @@ public class ReportingQueryIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
 
-        container.addBean(new SessionServiceStub() {
+        container.addBean(new SessionServiceBean() {
             @Override
             public Session getPlatformSessionForSessionId(String sessionId) {
                 for (Session session : sessions) {

@@ -45,6 +45,7 @@ import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.identityservice.bean.LdapAccessStub;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -58,7 +59,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
@@ -123,7 +123,7 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
         container.addBean(new ImageResourceServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new ApplicationServiceStub());
-        container.addBean(new SessionServiceStub());
+        container.addBean(new SessionServiceBean());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new CommunicationServiceStub() {
             @Override

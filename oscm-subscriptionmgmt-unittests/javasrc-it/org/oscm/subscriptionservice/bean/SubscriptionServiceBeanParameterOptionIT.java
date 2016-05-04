@@ -41,24 +41,6 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ParameterType;
@@ -74,6 +56,24 @@ import org.oscm.internal.vo.VOSubscriptionDetails;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
+import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.sessionservice.bean.SessionServiceBean;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.SupportedCountries;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.CommunicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.LocalizerServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.types.enumtypes.EmailType;
 
 /**
  * ParameterOption related tests for the subscription service.
@@ -158,7 +158,7 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
 
         });
         container.addBean(new DataServiceBean());
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(mock(SubscriptionListServiceBean.class));
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new TerminateSubscriptionBean());

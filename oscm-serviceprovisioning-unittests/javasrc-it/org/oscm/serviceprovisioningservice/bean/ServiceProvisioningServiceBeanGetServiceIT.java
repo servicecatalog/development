@@ -54,6 +54,7 @@ import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
@@ -73,7 +74,6 @@ import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -202,7 +202,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
             }
 
         });
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new IdentityServiceStub() {
 
             @Override

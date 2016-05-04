@@ -37,6 +37,7 @@ import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.LdapAccessStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Scenario;
@@ -46,7 +47,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.intf.AccountService;
@@ -76,7 +76,7 @@ public class AccountServiceBean2IT extends EJBTestBase {
         container.addBean(new ImageResourceServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new ApplicationServiceStub());
-        container.addBean(new SessionServiceStub());
+        container.addBean(new SessionServiceBean());
         container.addBean(new CommunicationServiceStub() {
             @Override
             public void sendMail(PlatformUser recipient, EmailType type,

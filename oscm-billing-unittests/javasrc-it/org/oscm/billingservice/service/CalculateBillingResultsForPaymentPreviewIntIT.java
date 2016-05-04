@@ -47,6 +47,7 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
@@ -63,7 +64,6 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PricingPeriod;
@@ -303,7 +303,6 @@ public class CalculateBillingResultsForPaymentPreviewIntIT extends EJBTestBase {
 
     /**
      * 
-     * @param dateFormat
      * @return
      */
     private long calculateMillis(String dateSource) {
@@ -323,10 +322,6 @@ public class CalculateBillingResultsForPaymentPreviewIntIT extends EJBTestBase {
     /**
      * Returns the defined invocation time in millis.
      * 
-     * @param year
-     * @param month
-     * @param day
-     * @param hour
      * @return invocation time in millis.
      */
     private long defineInvocationTime(String dateSource) {
@@ -476,7 +471,7 @@ public class CalculateBillingResultsForPaymentPreviewIntIT extends EJBTestBase {
         container.addBean(new ApplicationServiceBaseStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new CommunicationServiceStub());
-        container.addBean(new SessionServiceStub());
+        container.addBean(new SessionServiceBean());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new ImageResourceServiceStub());

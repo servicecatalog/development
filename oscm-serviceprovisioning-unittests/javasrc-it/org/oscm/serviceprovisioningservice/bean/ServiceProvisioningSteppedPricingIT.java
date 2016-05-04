@@ -49,6 +49,7 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
@@ -64,7 +65,6 @@ import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.EventType;
@@ -113,7 +113,7 @@ public class ServiceProvisioningSteppedPricingIT extends EJBTestBase {
         container.login("1");
 
         container.addBean(new DataServiceBean());
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new CommunicationServiceStub());
         container.addBean(new ApplicationServiceStub() {
 

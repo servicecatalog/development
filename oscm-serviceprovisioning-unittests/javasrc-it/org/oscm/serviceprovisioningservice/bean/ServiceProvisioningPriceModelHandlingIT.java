@@ -47,6 +47,7 @@ import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.serviceprovisioningservice.assembler.PriceModelAssembler;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.Numbers;
@@ -57,7 +58,6 @@ import org.oscm.test.stubs.ApplicationServiceStub;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.types.enumtypes.ImageType;
@@ -95,7 +95,7 @@ public class ServiceProvisioningPriceModelHandlingIT extends EJBTestBase {
 
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new CommunicationServiceStub());
         container.addBean(new ApplicationServiceStub());
         container.addBean(new LocalizerServiceBean());

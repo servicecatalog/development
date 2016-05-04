@@ -50,6 +50,7 @@ import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
@@ -58,7 +59,6 @@ import org.oscm.test.stubs.ApplicationServiceStub;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.constants.Configuration;
@@ -125,7 +125,7 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
         container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new LdapAccessServiceStub());
-        container.addBean(new SessionServiceStub());
+        container.addBean(new SessionServiceBean());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ConfigurationServiceStub() {
             @Override

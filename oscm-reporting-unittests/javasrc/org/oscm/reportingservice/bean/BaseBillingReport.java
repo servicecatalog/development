@@ -64,12 +64,12 @@ import org.oscm.reportingservice.stubs.QueryStub;
 import org.oscm.reportingservice.stubs.ResultSetMetaDataStub;
 import org.oscm.reportingservice.stubs.ResultSetStub;
 import org.oscm.reportingservice.stubs.StatementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.stream.Streams;
 import org.oscm.string.Strings;
 import org.oscm.test.stubs.BillingServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 
@@ -113,7 +113,7 @@ public abstract class BaseBillingReport {
 
     protected ReportingServiceBean reporting;
     protected ReportingServiceBeanLocal reportingLocal;
-    protected SessionServiceStub prodMgmt;
+    protected SessionServiceBean prodMgmt;
     protected Session session;
     protected DataService dm;
     protected QueryStub query;
@@ -180,7 +180,7 @@ public abstract class BaseBillingReport {
         reportingLocal = spy(new ReportingServiceBeanLocal());
         reporting.delegate = reportingLocal;
 
-        prodMgmt = new SessionServiceStub() {
+        prodMgmt = new SessionServiceBean() {
             @Override
             public Session getPlatformSessionForSessionId(String sessionId) {
                 if (VALID_SESSION_ID.equals(sessionId)

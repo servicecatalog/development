@@ -55,6 +55,7 @@ import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.BaseAdmUmTest;
@@ -70,7 +71,6 @@ import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.internal.intf.ServiceProvisioningService;
@@ -138,7 +138,7 @@ public class ServiceProvisioningServiceBeanCopyIT extends EJBTestBase {
                     throws TechnicalServiceNotAliveException {
             }
         });
-        container.addBean(new SessionServiceStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessServiceStub());
