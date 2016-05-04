@@ -30,6 +30,7 @@ import org.mockito.Matchers;
 
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 
 /**
  * @author roderus
@@ -160,5 +161,50 @@ public class AuthnRequestGeneratorTest {
         // then
         byte[] actualAuthReq = Base64.decodeBase64(encodedAuthReq.getBytes());
         assertEquals(expectedAuthnRequest, new String(actualAuthReq));
+    }
+
+    @Test
+    public void generateLogoutRequest() throws DatatypeConfigurationException {
+        // given
+        // when
+        JAXBElement<LogoutRequestType> logoutRequest = generator
+                .generateLogoutRequest("sessionId");
+
+        // then
+        assertEquals("Issuer Name", logoutRequest.getValue().getIssuer()
+                .getValue());
+    }
+
+    @Test
+    public void generateLogoutRequest_Error() throws Exception {
+        // given
+        final String errorMessage = "some error message";
+        doThrow(new TransformerException(errorMessage)).when(generator)
+                .marshal(Matchers.<JAXBElement<AuthnRequestType>> any());
+
+        // when
+        try {
+            generator.getEncodedLogoutRequest("sessionId");
+            fail();
+        } catch (SAML2AuthnRequestException e) {
+            assertThat(e.getMessage(), containsString(errorMessage));
+        }
+    }
+
+    @Test
+    public void getEncodedLogoutRequest() throws Exception {
+        // given
+        final String expectedLogoutRequest = "some_authn_request";
+        AuthnRequestGenerator generator = spy(new AuthnRequestGenerator(
+                "Issuer Name", Boolean.TRUE));
+        doReturn(expectedLogoutRequest).when(generator).marshal(
+                Matchers.<JAXBElement<AuthnRequestType>> any());
+
+        // when
+        String encodedLogoutReq = generator.getEncodedLogoutRequest("sessionId");
+
+        // then
+        byte[] actualLogoutReq = Base64.decodeBase64(encodedLogoutReq.getBytes());
+        assertEquals(expectedLogoutRequest, new String(actualLogoutReq));
     }
 }

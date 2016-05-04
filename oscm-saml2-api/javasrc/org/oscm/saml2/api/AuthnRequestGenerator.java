@@ -66,10 +66,10 @@ public class AuthnRequestGenerator {
      * @throws SAML2AuthnRequestException
      * @param idpSessionIndex
      */
-    public String getEncodedAuthnLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
+    public String getEncodedLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
         String authnRequest = null;
         try {
-            authnRequest = marshal(generateAuthnLogoutRequest(idpSessionIndex));
+            authnRequest = marshal(generateLogoutRequest(idpSessionIndex));
         } catch (SAML2AuthnRequestException e) {
             throw e;
         } catch (Exception e) {
@@ -111,7 +111,7 @@ public class AuthnRequestGenerator {
         return authnRequestJAXB;
     }
 
-    public JAXBElement<LogoutRequestType> generateAuthnLogoutRequest(String idpSessionIndex)
+    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex)
             throws DatatypeConfigurationException {
 
         org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;

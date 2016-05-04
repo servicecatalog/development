@@ -53,7 +53,7 @@ public class Saml2Ctrl extends BaseBean {
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
-            model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedAuthnLogoutRequest(
+            model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedLogoutRequest(
                     sessionService.getSAMLSessionStringForSessionId(JSFUtils.getSession().getId())));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
@@ -98,9 +98,9 @@ public class Saml2Ctrl extends BaseBean {
 
     private String getRelayStateForLogout() {
         if (isOnMarketplace()) {
-            return OUTCOME_SAML_SP_LOGOFF_MARKETPLACE;
+            return "/marketplace/index.jsf";
         }
-        return OUTCOME_SAML_SP_LOGOFF_PORTAL;
+        return "/login.jsf";
     }
 
     URL getAcsUrl() throws MalformedURLException {
