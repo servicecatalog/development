@@ -58,5 +58,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-sessionmgmt"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
