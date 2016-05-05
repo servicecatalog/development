@@ -7,18 +7,8 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -32,6 +22,13 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 
+import org.apache.commons.lang3.StringUtils;
+import org.oscm.internal.intf.SubscriptionSearchService;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.UdaAssembler;
 import org.oscm.accountservice.dataaccess.UdaAccess;
@@ -98,33 +95,8 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DomainObjectException;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.MandatoryUdaMissingException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
-import org.oscm.internal.types.exception.OperationStateException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.PaymentDataException;
-import org.oscm.internal.types.exception.PaymentInformationException;
-import org.oscm.internal.types.exception.PriceModelException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.ServiceChangedException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
-import org.oscm.internal.types.exception.SubscriptionMigrationException;
 import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
-import org.oscm.internal.types.exception.SubscriptionStateException;
-import org.oscm.internal.types.exception.SubscriptionStillActiveException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOLocalizedText;
@@ -252,6 +224,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @EJB(beanInterface = AccountServiceLocal.class)
     public AccountServiceLocal accountService;
+
+    @EJB
+    public SubscriptionSearchService subscriptionSearchService;
 
     @EJB
     SubscriptionAuditLogCollector audit;
@@ -616,7 +591,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 newSub.setExternal(true);
             }
         }
-        
+
         // to avoid id conflicts in high load scenarios add customer
         // organization hash
         theProduct.setProductId(theProduct.getProductId()
@@ -5325,11 +5300,58 @@ public class SubscriptionServiceBean implements SubscriptionService,
         return getSubscriptionDao().getSubscriptionsForUser(user, pagination);
     }
 
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
+                                                          org.oscm.paginator.Pagination pagination) {
+        String fullTextFilterValue = pagination.getFullTextFilterValue();
+        List<Subscription> subscriptions = Collections.emptyList();
+        if (StringUtils.isNotEmpty(fullTextFilterValue)) {
+            Collection<Long> subscriptionKeys = Collections.emptySet();
+            try {
+                subscriptionKeys = getFilteredOutSubscriptionKeys(fullTextFilterValue);
+            } catch (InvalidPhraseException e) {
+                LOG.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
+            } catch (ObjectNotFoundException e) {
+                LOG.logDebug("No subscription keys found");
+            }
+            if(!subscriptionKeys.isEmpty()) {
+                subscriptions = getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, subscriptionKeys);
+            }
+        } else {
+            subscriptions = getSubscriptionDao().getSubscriptionsForUser(user, pagination);
+        }
+        return subscriptions;
+    }
+
+    /**
+     * Implementation of method which should return set of Long object, which represents subscriptions retunred
+     * in full text search process
+     * @param filterValue Text enetered by user to filter subscriptions by
+     * @return Set of primary keys of subscriptions which are valid against the filter value or empty (not null!) set.
+     */
+    private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue) throws InvalidPhraseException, ObjectNotFoundException {
+        return subscriptionSearchService.searchSubscriptions(filterValue);
+    }
+
     @Override
     public List<Subscription> getSubscriptionsForCurrentUser(
             Pagination pagination) {
         PlatformUser user = dataManager.getCurrentUser();
         return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination);
+    }
+
+    @Override
+    public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
+            org.oscm.paginator.Pagination pagination) {
+        PlatformUser user = dataManager.getCurrentUser();
+        return getSubscriptionsForUserInt(user, pagination).size();
     }
 
     @Override
@@ -5349,5 +5371,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
+    }
+
+    public void setSubscriptionSearchService(SubscriptionSearchService subscriptionSearchService) {
+        this.subscriptionSearchService = subscriptionSearchService;
     }
 }
