@@ -132,7 +132,7 @@
               <!-- navigate back to subscription details using navigation rules -->
               <mp:button id="previousUpgrade" value="#{msg['button.previous']}" bean="#{upgradeWizardConversation}"
                 action="previous" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}"
+              <mp:button id="nextLink" value="#{msg['button.next']}"
                 onclick="setDirty(false); event.preventDefault(); #{rich:element('configurationForm:next')}.click();"
                 style="float: right;" keepDirty="true" />
             </h:form>

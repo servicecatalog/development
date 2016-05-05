@@ -65,7 +65,7 @@
       <clickElement htmlId="priceModelTab:header" />
       <verifyInputField htmlId="configurationForm2:parameterTable:8:integerValue" value="100" />
       <verifyXPath xpath="*//input[@id='configurationForm2:parameterTable:8:integerValue' and @disabled='disabled']" />
-      <clickLink htmlId="configurationForm2:next" />
+      <clickLink htmlId="configurationForm2:nextLink" />
       <clickLink htmlId="payment:nextLink" />
       <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
       <verifyInputField htmlId="confirmForm:parameterConfigTable:8:integerValue" value="100" />
