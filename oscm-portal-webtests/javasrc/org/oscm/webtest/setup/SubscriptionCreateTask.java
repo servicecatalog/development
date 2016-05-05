@@ -8,11 +8,7 @@
 
 package org.oscm.webtest.setup;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.IdentityService;
@@ -20,15 +16,7 @@ import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VORoleDefinition;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceEntry;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
 
 /**
  * @author weiser
@@ -45,6 +33,7 @@ public class SubscriptionCreateTask extends WebtestTask {
     private Long serviceKey;
     private String userIds;
     private String userRole;
+    private String udas;
 
     @Override
     public void executeInternal() throws Exception {
@@ -53,8 +42,26 @@ public class SubscriptionCreateTask extends WebtestTask {
         sub.setPurchaseOrderNumber(pon);
         SubscriptionService ss = getServiceInterface(SubscriptionService.class);
         VOService svc = getService();
+        ArrayList<VOUda> udaValues = processUdas();
         ss.subscribeToService(sub, svc, getUsers(ss, svc), getPaymentInfo(),
-                getBillingContact(), new ArrayList<VOUda>());
+                getBillingContact(), udaValues);
+    }
+
+    private ArrayList<VOUda> processUdas() {
+        ArrayList<VOUda> udaValues = new ArrayList<>();
+        if (udas != null && udas.length() != 0) {
+            AccountService as = getServiceInterface(AccountService.class);
+            List<VOUdaDefinition> udaDefinitions = as.getUdaDefinitions();
+            for (VOUdaDefinition udaDefinition : udaDefinitions) {
+                if (udas.contains(udaDefinition.getUdaId())) {
+                    VOUda voUda = new VOUda();
+                    voUda.setUdaDefinition(udaDefinition);
+                    voUda.setUdaValue(udaDefinition.getDefaultValue());
+                    udaValues.add(voUda);
+                }
+            }
+        }
+        return udaValues;
     }
 
     private VOBillingContact getBillingContact() {
@@ -167,4 +174,11 @@ public class SubscriptionCreateTask extends WebtestTask {
         this.userRole = userRole;
     }
 
+    public String getUdas() {
+        return udas;
+    }
+
+    public void setUdas(String udas) {
+        this.udas = udas;
+    }
 }

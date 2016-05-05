@@ -53,6 +53,8 @@
 
           <mp:outputStep id="pageHeader" value="#{msg['subscriptions.table.availableForUsage']}" />
           <h:link fragment="anchor" styleClass="invisible-jumper" />
+          <mp:subscriptionFinder formId="subListForm" searchPhraseProperty="#{mySubscriptionsCtrl.model.fullTextSearchFilterValue}"
+                                 renderElementList="subscriptionsList@body subListPager subListPagerScripts :pagerPanel :subscriptionsListScripts"/>
           <rich:dataTable rows="10" id="subscriptionsList" value="#{mySubscriptionsCtrl.model}" var="sub"
             headerClass="rowTitle sortable" columnHeaderClass="rowTitle sortable" 
             styleClass="sortable table-with-selectable-rows"
