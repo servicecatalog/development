@@ -642,16 +642,44 @@ public class UserBeanTest {
     public void login_SAMLSP() throws ObjectNotFoundException,
             OrganizationRemovedException, OperationNotPermittedException,
             ValidationException {
-        VOUser voUser = createVoUser("userId", UserAccountStatus.ACTIVE);
-        doReturn("userId").when(requestMock).getParameter(
-                eq(UserBean.SAMPSP_FORM + Constants.REQ_PARAM_USER_ID));
-        doReturn(Boolean.TRUE).when(userBean).isServiceProvider();
-        doReturn(voUser).when(idServiceMock).getUser(any(VOUser.class));
+        createUserForSAMLLogin();
         // when
         userBean.login();
         // then
         verify(userBean, times(1)).getLoginRedirect(
                 any(HttpServletRequest.class), eq(sessionMock), eq(false));
+    }
+
+    @Test
+    public void logout_SAMLSP() throws SaaSApplicationException {
+        //given
+        createUserForSAMLLogin();
+        userBean.login();
+        doReturn(Boolean.FALSE).when(userBean).isMarketplaceSet(any(HttpServletRequest.class));
+        //when
+        String outcome = userBean.redirectToIDPLogout();
+        //then
+        assertEquals(UserBean.OUTCOME_SAML_LOGOUT, outcome);
+    }
+
+    @Test
+    public void logout_SAMLSP_Marketplace() throws SaaSApplicationException {
+        //given
+        createUserForSAMLLogin();
+        userBean.login();
+        doReturn(Boolean.TRUE).when(userBean).isMarketplaceSet(any(HttpServletRequest.class));
+        //when
+        String outcome = userBean.redirectToIDPLogout();
+        //then
+        assertEquals(UserBean.OUTCOME_SAML_MARKETPLACE_LOGOUT, outcome);
+    }
+
+    private void createUserForSAMLLogin() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
+        VOUser voUser = createVoUser("userId", UserAccountStatus.ACTIVE);
+        doReturn("userId").when(requestMock).getParameter(
+                eq(UserBean.SAMPSP_FORM + Constants.REQ_PARAM_USER_ID));
+        doReturn(Boolean.TRUE).when(userBean).isServiceProvider();
+        doReturn(voUser).when(idServiceMock).getUser(any(VOUser.class));
     }
 
     /**

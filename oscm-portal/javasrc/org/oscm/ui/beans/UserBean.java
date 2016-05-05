@@ -737,11 +737,8 @@ public class UserBean extends BaseBean implements Serializable {
     public String logoff() {
         HttpServletRequest request = invalidateSession();
         if (isMarketplaceSet(request)) {
-            getSession().setAttribute("source", "marktplatz");
             return OUTCOME_MARKETPLACE_LOGOUT;
         }
-
-        getSession().setAttribute("source", "blauportal");
         return OUTCOME_LOGIN;
     }
 

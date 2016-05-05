@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -41,6 +42,20 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.UserRole;
 import org.oscm.eventservice.bean.EventServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.SessionType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
@@ -62,20 +77,6 @@ import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.SessionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.vo.VOMarketplace;
 
 /**
  * @author Mike J&auml;ger
@@ -153,15 +154,16 @@ public class SessionServiceBeanIT extends EJBTestBase {
                 param = new Parameter();
                 ParameterDefinition paramDef = new ParameterDefinition();
                 paramDef.setParameterType(ParameterType.PLATFORM_PARAMETER);
-                paramDef.setParameterId(PlatformParameterIdentifiers.CONCURRENT_USER);
+                paramDef.setParameterId(
+                        PlatformParameterIdentifiers.CONCURRENT_USER);
                 param.setParameterDefinition(paramDef);
                 if (paramValue != null) {
                     param.setValue(String.valueOf(paramValue));
                 }
                 sampleProd.getParameterSet().getParameters().add(param);
                 sampleProd.setTechnicalProduct(new TechnicalProduct());
-                sampleProd.getTechnicalProduct().setAccessType(
-                        serviceAccessType);
+                sampleProd.getTechnicalProduct()
+                        .setAccessType(serviceAccessType);
                 sub.bindToProduct(sampleProd);
 
                 if (subscriptionKey == 10) {
@@ -189,7 +191,7 @@ public class SessionServiceBeanIT extends EJBTestBase {
             @Override
             public VOMarketplace getMarketplaceForSubscription(
                     long subscriptionKey, String locale)
-                    throws ObjectNotFoundException {
+                            throws ObjectNotFoundException {
                 VOMarketplace mpl = new VOMarketplace();
 
                 switch ((int) subscriptionKey) {
@@ -223,9 +225,9 @@ public class SessionServiceBeanIT extends EJBTestBase {
         mgr = container.get(DataService.class);
         ConfigurationServiceLocal cfg = container
                 .get(ConfigurationServiceLocal.class);
-        cfg.setConfigurationSetting(new ConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT,
-                "http://localhost"));
+        cfg.setConfigurationSetting(
+                new ConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, "http://localhost"));
 
         // lookup bean references
         sessionMgmt = container.get(SessionService.class);
@@ -352,9 +354,9 @@ public class SessionServiceBeanIT extends EJBTestBase {
         Boolean result = runTX(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return Boolean.valueOf(sessionMgmtLocal
-                        .hasTechnicalProductActiveSessions(sub.getProduct()
-                                .getTechnicalProduct().getKey()));
+                return Boolean.valueOf(
+                        sessionMgmtLocal.hasTechnicalProductActiveSessions(sub
+                                .getProduct().getTechnicalProduct().getKey()));
             }
         });
         assertTrue(result.booleanValue());
@@ -480,6 +482,22 @@ public class SessionServiceBeanIT extends EJBTestBase {
         assertEquals(SessionType.PLATFORM_SESSION, session.getSessionType());
     }
 
+    @Test
+    public void updatePlatformSessionWithSAMLSession() throws Exception {
+        sessionMgmt.createPlatformSession("someSession");
+        Session resultSession = runTX(new Callable<Session>() {
+            @Override
+            public Session call() throws Exception {
+                sessionMgmt.updatePlatformSessionWithSAMLSession("someSession",
+                        "samlIDForSomeSession");
+                return sessionMgmtLocal
+                        .getPlatformSessionForSessionId("someSession");
+            }
+        });
+        assertEquals("samlIDForSomeSession",
+                resultSession.getIdpSessionIndex());
+    }
+
     @Test(expected = EJBException.class)
     public void testDeletePlatformSession() throws Exception {
         String sessionid = "sessionId";
@@ -567,8 +585,8 @@ public class SessionServiceBeanIT extends EJBTestBase {
                 Organization customer = Organizations.createCustomer(mgr,
                         supplierAndProvider);
                 return Subscriptions.createSubscription(mgr,
-                        customer.getOrganizationId(), prod.getProductId(),
-                        "s1", supplierAndProvider);
+                        customer.getOrganizationId(), prod.getProductId(), "s1",
+                        supplierAndProvider);
             }
         });
     }
