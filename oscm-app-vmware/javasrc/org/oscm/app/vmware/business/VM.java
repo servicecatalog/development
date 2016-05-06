@@ -313,19 +313,35 @@ public class VM extends Template {
             return VMwareGuestSystemStatus.GUEST_READY;
         }
 
+        logger.debug(createLogForGetState(properties, isConnected,
+                validIp));
+
+        return VMwareGuestSystemStatus.GUEST_NOTREADY;
+    }
+
+    private String createLogForGetState(VMPropertyHandler configuration,
+            boolean isConnected, boolean validIp) {
+
         StringBuilder sb = new StringBuilder();
         sb.append("Guest system is not ready yet ");
         sb.append("[");
         sb.append("hostname=" + guestInfo.getHostName() + ", ");
         sb.append("ipReady=" + validIp + ", ");
+        for (int i = 1; i <= configuration.getNumberOfNetworkAdapter(); i++) {
+            GuestNicInfo info = getNicInfo(configuration.getNetworkAdapter(i));
+            if (info != null) {
+                sb.append(info.getNetwork() + "=");
+                sb.append(info.getIpAddress());
+                sb.append(",");
+            }
+        }
         sb.append("guestState=" + guestInfo.getGuestState() + ", ");
         sb.append("toolsState=" + guestInfo.getToolsStatus() + ", ");
         sb.append("toolsRunning=" + guestInfo.getToolsRunningStatus() + ", ");
         sb.append("isConnected=" + isConnected);
         sb.append("]");
-        logger.debug(sb.toString());
-
-        return VMwareGuestSystemStatus.GUEST_NOTREADY;
+        String logStatement = sb.toString();
+        return logStatement;
     }
 
     boolean areGuestToolsRunning() {
