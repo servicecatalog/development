@@ -211,6 +211,7 @@ public class Template {
 
         boolean isLinux = guestid.startsWith("cent")
                 || guestid.startsWith("debian") || guestid.startsWith("freebsd")
+                || guestid.startsWith("oracle")
                 || guestid.startsWith("other24xLinux")
                 || guestid.startsWith("other26xLinux")
                 || guestid.startsWith("otherLinux")
