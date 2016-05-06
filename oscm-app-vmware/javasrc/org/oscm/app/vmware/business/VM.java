@@ -376,7 +376,7 @@ public class VM extends Template {
 
     GuestNicInfo getNicInfo(String adapter) {
         for (GuestNicInfo info : guestInfo.getNet()) {
-            if (info.getNetwork().equals(adapter)) {
+            if (adapter.equals(info.getNetwork())) {
                 return info;
             }
         }
