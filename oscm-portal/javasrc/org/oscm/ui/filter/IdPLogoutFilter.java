@@ -96,6 +96,14 @@ public class IdPLogoutFilter implements Filter {
                     httpRequest.removeAttribute("SAMLResponse");
                     httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                             Boolean.FALSE);
+                    if (samlResponseExtractor.errorInLogoutResponse(samlResponse)) {
+                        httpRequest.setAttribute(
+                                Constants.REQ_ATTR_ERROR_KEY,
+                                BaseBean.ERROR_INVALID_SAML_RESPONSE);
+                        redirector.forward(httpRequest, httpResponse,
+                                BaseBean.ERROR_PAGE);
+                        return;
+                    }
                     String relayState = httpRequest.getParameter("RelayState");
                     if (relayState != null) {
                         String forwardUrl = getForwardUrl(httpRequest, relayState);

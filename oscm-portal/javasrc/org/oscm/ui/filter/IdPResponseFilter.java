@@ -89,21 +89,14 @@ public class IdPResponseFilter implements Filter {
                 samlResponseExtractor = new SAMLResponseExtractor();
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
                 HttpSession currentSession = httpRequest.getSession();
-                if (samlResponseExtractor.isFromAuthorisation(samlResponse)) {
-                    try {
-                        String samlSessionId = samlResponseExtractor
-                                .getSessionIndex(samlResponse);
-                            currentSession.setAttribute("SAMLSessionId",
-                                    samlSessionId);
-                    } catch (SessionIndexNotFoundException e) {
-                        getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
-                                LogMessageIdentifier.ERROR_SESSION_NOT_FOUND);
-                    }
-                }
-                if (samlResponseExtractor.isFromLogout(samlResponse)) {
-                    getSsl().deletePlatformSession(currentSession.getId());
-                    currentSession.invalidate();
-                    httpRequest.removeAttribute("SAMLResponse");
+                try {
+                    String samlSessionId = samlResponseExtractor
+                            .getSessionIndex(samlResponse);
+                        currentSession.setAttribute("SAMLSessionId",
+                                samlSessionId);
+                } catch (SessionIndexNotFoundException e) {
+                    getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
+                            LogMessageIdentifier.ERROR_SESSION_NOT_FOUND);
                 }
                 String relayState = httpRequest.getParameter("RelayState");
                 if (relayState != null) {

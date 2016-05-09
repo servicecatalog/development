@@ -245,4 +245,13 @@ public class SAMLResponseExtractor {
         }
         return false;
     }
+
+    public boolean errorInLogoutResponse(String encodedSamlResponse) {
+        try {
+            return !decode(encodedSamlResponse).contains("<samlp:StatusCode xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\"");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
