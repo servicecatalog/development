@@ -182,6 +182,11 @@
         <exclude name=".project"/>
       </fileset>
     </copy>
+    <copy todir="${workspace.dir}/oscm-file-billing-adapter/doc">
+      <fileset dir="../../document/Development/oscm-file-billing-adapter/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
     <copy todir="${workspace.dir}/oscm-portal/resources/branding/Readme">
       <fileset dir="../../document/Development/oscm-portal/resources/branding/Readme">
         <exclude name=".project"/>
