@@ -1047,7 +1047,7 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     public String redirectToIDPLogout() {
-        HttpServletRequest request = invalidateSession();
+        HttpServletRequest request = getRequest();
         if (isMarketplaceSet(request)) {
             return OUTCOME_SAML_MARKETPLACE_LOGOUT;
         }
