@@ -8,5 +8,13 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/javax.ws.rs-api-2.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core-2.2.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind-2.2.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-json.jar"/>
+	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
