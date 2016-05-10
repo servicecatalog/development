@@ -156,12 +156,14 @@ public class VMwareClient implements AutoCloseable {
      * Returns the {@link ServiceConnection} when client is in connect state.
      * 
      * @return the service connection
-     * @throws IllegalStateException
-     *             when client is not connected
      */
     public ServiceConnection getConnection() {
         if (connection == null) {
-            throw new IllegalStateException("Not connected to vCenter");
+            try {
+                connect();
+            } catch (Exception e) {
+                throw new RuntimeException("Couldn't connect to vSphere", e);
+            }
         }
         return connection;
     }
