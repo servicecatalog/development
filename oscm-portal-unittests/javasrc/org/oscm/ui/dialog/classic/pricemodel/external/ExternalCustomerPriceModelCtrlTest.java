@@ -86,9 +86,9 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
                 .getExternalPriceModelForCustomer(
                         Mockito.any(VOServiceDetails.class),
                         Mockito.any(VOOrganization.class));
-        
+
         VOServiceDetails service = new VOServiceDetails();
-        
+
         VOOrganization customer = new VOOrganization();
         // when
         ctrl.upload(service, customer);
@@ -99,6 +99,21 @@ public class ExternalCustomerPriceModelCtrlTest extends ExternalPriceModelTest {
                         Mockito.any(VOServiceDetails.class),
                         Mockito.any(VOOrganization.class));
 
+    }
+
+    @Test
+    public void testUploadEmpty() throws SaaSApplicationException {
+
+        // given
+        doReturn(null).when(externalPriceModelService)
+                .getExternalPriceModelForService(
+                        Mockito.any(VOServiceDetails.class));
+
+        // when
+        ctrl.upload(new VOServiceDetails(), new VOOrganization());
+
+        // then
+        verify(ctrl, times(0)).loadPriceModelContent(null);
     }
 
     @Test

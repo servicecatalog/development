@@ -19,10 +19,8 @@ import javax.ejb.EJBException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
@@ -34,7 +32,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
  */
 public class SupportedLanguageIT extends DomainObjectTestBase {
 
-    private final List<DomainObjectWithHistory<?>> domObjects = new ArrayList<DomainObjectWithHistory<?>>();
+    private final List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<DomainObjectWithVersioning<?>>();
 
     private final String ISOCODE_DE = "de";
 
@@ -167,20 +165,25 @@ public class SupportedLanguageIT extends DomainObjectTestBase {
 
         assertNotNull("Object not found", ls);
         assertEquals(3, ls.size());
-        assertEquals(Boolean.valueOf(true), Boolean.valueOf(ls.get(0).getDefaultStatus()));
+        assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(ls.get(0).getDefaultStatus()));
         assertEquals(ISOCODE_EN, ls.get(0).getLanguageISOCode());
-        assertEquals(Boolean.valueOf(true), Boolean.valueOf(ls.get(1).getActiveStatus()));
+        assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(ls.get(1).getActiveStatus()));
         assertEquals(ISOCODE_DE, ls.get(1).getLanguageISOCode());
-        assertEquals(Boolean.valueOf(false), Boolean.valueOf(ls.get(2).getActiveStatus()));
+        assertEquals(Boolean.valueOf(false),
+                Boolean.valueOf(ls.get(2).getActiveStatus()));
         assertEquals("te", ls.get(2).getLanguageISOCode());
 
         ls = findAllActive(mgr);
 
         assertNotNull("Object not found", ls);
         assertEquals(2, ls.size());
-        assertEquals(Boolean.valueOf(true), Boolean.valueOf(ls.get(0).getDefaultStatus()));
+        assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(ls.get(0).getDefaultStatus()));
         assertEquals(ISOCODE_EN, ls.get(0).getLanguageISOCode());
-        assertEquals(Boolean.valueOf(true), Boolean.valueOf(ls.get(1).getActiveStatus()));
+        assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(ls.get(1).getActiveStatus()));
         assertEquals(ISOCODE_DE, ls.get(1).getLanguageISOCode());
     }
 
@@ -205,19 +208,8 @@ public class SupportedLanguageIT extends DomainObjectTestBase {
         saved.setLanguageISOCode(ISOCODE_DE);
         saved = (SupportedLanguage) mgr.find(saved);
 
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(saved);
-        assertNotNull("History 'null' for SupportedLanguage", histObjs);
-        assertEquals("History entry expected for SupportedLanguage ", 2,
-                histObjs.size());
-        SupportedLanguageHistory hist = (SupportedLanguageHistory) histObjs
-                .get(1);
-
-        assertEquals(ModificationType.MODIFY, hist.getModtype());
-
         assertEquals(Boolean.valueOf(false),
                 Boolean.valueOf(saved.getActiveStatus()));
-        assertEquals(Boolean.valueOf(false),
-                Boolean.valueOf(hist.dataContainer.getActiveStatus()));
 
     }
 

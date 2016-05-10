@@ -24,14 +24,13 @@ import javax.persistence.Query;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.TechnicalProducts;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 /**
  * Tests for the domain object representing marketing permission
@@ -40,7 +39,7 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
  */
 public class MarketingPermissionIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithHistoryAndEmptyDataContainer> domObjects = new ArrayList<DomainObjectWithHistoryAndEmptyDataContainer>();
+    private List<DomainObjectWithEmptyDataContainer> domObjects = new ArrayList<DomainObjectWithEmptyDataContainer>();
     private Organization supplier;
     private Organization supplier2;
     private Organization supplier3;
@@ -51,6 +50,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     private OrganizationReference reference3;
     private TechnicalProduct technicalProduct;
 
+    @Override
     @Before
     public void setup() throws Exception {
         super.setup();
@@ -58,6 +58,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
         domObjects.clear();
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 provider = Organizations.createOrganization(mgr,
                         OrganizationRoleType.TECHNOLOGY_PROVIDER);
@@ -106,6 +107,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     @Test
     public void testCreate() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
@@ -119,6 +121,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // ASSERT
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission original = (MarketingPermission) domObjects
                         .get(0);
@@ -138,6 +141,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     @Test(expected = NonUniqueBusinessKeyException.class)
     public void testBusinessKeyException() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
@@ -148,47 +152,12 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
         });
 
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
                 permission.setOrganizationReference(reference);
                 mgr.persist(permission);
-                return null;
-            }
-        });
-    }
-
-    @Test
-    public void testCreate_History() throws Exception {
-        runTX(new Callable<Void>() {
-            public Void call() throws Exception {
-                MarketingPermission permission = new MarketingPermission();
-                permission.setTechnicalProduct(technicalProduct);
-                permission.setOrganizationReference(reference);
-                mgr.persist(permission);
-                domObjects.add((MarketingPermission) ReflectiveClone
-                        .clone(permission));
-                return null;
-            }
-        });
-
-        // ASSERT
-        runTX(new Callable<Void>() {
-            public Void call() throws Exception {
-                MarketingPermission original = (MarketingPermission) domObjects
-                        .get(0);
-                List<DomainHistoryObject<?>> historyList = mgr
-                        .findHistory(original);
-
-                assertEquals(1, historyList.size());
-                MarketingPermissionHistory history = (MarketingPermissionHistory) historyList
-                        .get(0);
-                assertEquals(original.getKey(), history.getObjKey());
-                assertEquals(original.getTechnicalProduct().getKey(),
-                        history.getTechnicalProductObjKey());
-                assertEquals(original.getOrganizationReference().getKey(),
-                        history.getOrganizationReferenceObjKey());
-
                 return null;
             }
         });
@@ -197,6 +166,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     @Test
     public void testDelete() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
@@ -210,6 +180,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // REMOVE
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission original = (MarketingPermission) domObjects
                         .get(0);
@@ -222,6 +193,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // ASSERT
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission original = (MarketingPermission) domObjects
                         .get(0);
@@ -235,51 +207,10 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     }
 
     @Test
-    public void testDelete_History() throws Exception {
-        runTX(new Callable<Void>() {
-            public Void call() throws Exception {
-                MarketingPermission permission = new MarketingPermission();
-                permission.setTechnicalProduct(technicalProduct);
-                permission.setOrganizationReference(reference);
-                mgr.persist(permission);
-                domObjects.add((MarketingPermission) ReflectiveClone
-                        .clone(permission));
-                return null;
-            }
-        });
-
-        // REMOVE
-        runTX(new Callable<Void>() {
-            public Void call() throws Exception {
-                MarketingPermission original = (MarketingPermission) domObjects
-                        .get(0);
-                MarketingPermission found = mgr.find(MarketingPermission.class,
-                        original.getKey());
-                mgr.remove(found);
-                return null;
-            }
-        });
-
-        // ASSERT
-        runTX(new Callable<Void>() {
-            public Void call() throws Exception {
-                MarketingPermission original = (MarketingPermission) domObjects
-                        .get(0);
-                List<DomainHistoryObject<?>> historyList = mgr
-                        .findHistory(original);
-                assertEquals(2, historyList.size());
-                MarketingPermissionHistory history = (MarketingPermissionHistory) historyList
-                        .get(1);
-                assertEquals(1, history.getObjVersion());
-                return null;
-            }
-        });
-    }
-
-    @Test
     public void testNamedQuery_FindForTechnicalService() throws Exception {
         // create marketing permission
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
@@ -293,6 +224,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // run query
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Query query = mgr
@@ -312,6 +244,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
     public void testNamedQuery_FindForTechnicalServices() throws Exception {
         // create marketing permissions
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 MarketingPermission permission = new MarketingPermission();
                 permission.setTechnicalProduct(technicalProduct);
@@ -340,6 +273,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // run query
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Query query = mgr
@@ -361,6 +295,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // create another technical product
         final TechnicalProduct tp = runTX(new Callable<TechnicalProduct>() {
+            @Override
             public TechnicalProduct call() throws Exception {
                 TechnicalProduct technicalProduct = TechnicalProducts
                         .createTestData(mgr, provider, 1).get(0);
@@ -371,6 +306,7 @@ public class MarketingPermissionIT extends DomainObjectTestBase {
 
         // run query
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
 
                 Query query = mgr

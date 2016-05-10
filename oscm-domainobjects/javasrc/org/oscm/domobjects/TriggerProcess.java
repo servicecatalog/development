@@ -29,9 +29,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 import org.oscm.types.enumtypes.TriggerProcessIdentifierName;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
 
 /**
  * JPA managed entity representing a trigger process.
@@ -46,7 +46,8 @@ import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
         @NamedQuery(name = "TriggerProcess.getAllForUser", query = "SELECT o FROM TriggerProcess o WHERE o.user.key = :userKey AND o.triggerDefinition.organization.key = :organizationKey ORDER BY o.dataContainer.activationDate DESC"),
         @NamedQuery(name = "TriggerProcess.getAllForTriggerDefinition", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.key = :triggerDefinitionKey ORDER BY o.dataContainer.activationDate DESC"),
         @NamedQuery(name = "TriggerProcess.getAllForTriggerDefinitionWithStatus", query = "SELECT o FROM TriggerProcess o WHERE o.triggerDefinition.key = :triggerDefinitionKey AND o.dataContainer.status IN (:triggerProcessStatus) ORDER BY o.dataContainer.activationDate DESC") })
-public class TriggerProcess extends DomainObjectWithHistory<TriggerProcessData> {
+public class TriggerProcess extends
+        DomainObjectWithVersioning<TriggerProcessData> {
 
     private static final long serialVersionUID = 3306614951053331464L;
 

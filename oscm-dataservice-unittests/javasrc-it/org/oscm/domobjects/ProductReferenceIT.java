@@ -16,14 +16,12 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.ReflectiveCompare;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.TechnicalProducts;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.test.ReflectiveCompare;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.TechnicalProducts;
 
 /**
  * Test of the product reference object.
@@ -162,19 +160,7 @@ public class ProductReferenceIT extends DomainObjectTestBase {
         for (ProductReference ref : references) {
             DomainObject<?> savedRef = mgr.getReference(ProductReference.class,
                     ref.getKey());
-            List<DomainHistoryObject<?>> historizedEvents = mgr
-                    .findHistory(savedRef);
-            Assert.assertEquals("Wrong number of history objects found",
-                    references.size(), historizedEvents.size());
-            if (historizedEvents.size() > 0) {
-                DomainHistoryObject<?> hist = historizedEvents.get(0);
-                Assert.assertEquals(ModificationType.ADD, hist.getModtype());
-                Assert.assertEquals("modUser", "guest", hist.getModuser());
-                Assert.assertTrue(ReflectiveCompare.showDiffs(savedRef, hist),
-                        ReflectiveCompare.compare(savedRef, hist));
-                Assert.assertEquals("OBJID in history different",
-                        savedRef.getKey(), hist.getObjKey());
-            }
+
             // now compare the objects themselves
             Assert.assertTrue(ReflectiveCompare.showDiffs(ref, savedRef),
                     ReflectiveCompare.compare(ref, savedRef));
@@ -196,20 +182,6 @@ public class ProductReferenceIT extends DomainObjectTestBase {
             Assert.assertNull("Object was deleted and must not be found",
                     savedRef);
 
-            // read history objects for that entry
-            List<DomainHistoryObject<?>> historizedEvents = mgr
-                    .findHistory(ref);
-            Assert.assertEquals("Wrong number of history objects found", 2,
-                    historizedEvents.size());
-
-            // second entry must indicate the deletion
-            DomainHistoryObject<?> hist = historizedEvents.get(1);
-            Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-            Assert.assertEquals("modUser", "guest", hist.getModuser());
-            Assert.assertTrue(ReflectiveCompare.showDiffs(ref, hist),
-                    ReflectiveCompare.compare(ref, hist));
-            Assert.assertEquals("OBJID in history different", ref.getKey(),
-                    hist.getObjKey());
         }
     }
 

@@ -49,9 +49,6 @@ import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.apache.commons.validator.GenericValidator;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.authorization.PasswordHash;
 import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.data.SendMailStatus.SendMailStatusItem;
@@ -92,31 +89,6 @@ import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.PlatformOperatorServiceProviderInterceptor;
 import org.oscm.interceptor.ServiceProviderInterceptor;
-import org.oscm.permission.PermissionCheck;
-import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
-import org.oscm.sessionservice.local.SessionServiceLocal;
-import org.oscm.stream.Streams;
-import org.oscm.string.Strings;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.taskhandling.operations.ImportUserHandler;
-import org.oscm.taskhandling.operations.UpdateUserHandler;
-import org.oscm.taskhandling.payloads.ImportUserPayload;
-import org.oscm.taskhandling.payloads.UpdateUserPayload;
-import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
-import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
-import org.oscm.triggerservice.validator.TriggerProcessValidator;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.validation.ArgumentValidator;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -151,6 +123,33 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.permission.PermissionCheck;
+import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.stream.Streams;
+import org.oscm.string.Strings;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.local.TaskQueueServiceLocal;
+import org.oscm.taskhandling.operations.ImportUserHandler;
+import org.oscm.taskhandling.operations.UpdateUserHandler;
+import org.oscm.taskhandling.payloads.ImportUserPayload;
+import org.oscm.taskhandling.payloads.UpdateUserPayload;
+import org.oscm.triggerservice.bean.TriggerProcessIdentifiers;
+import org.oscm.triggerservice.local.TriggerMessage;
+import org.oscm.triggerservice.local.TriggerProcessMessageData;
+import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
+import org.oscm.triggerservice.validator.TriggerProcessValidator;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.validation.ArgumentValidator;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Session Bean implementation class IdentityServiceBean
@@ -222,14 +221,14 @@ public class IdentityServiceBean implements IdentityService,
 
         return createUser(user, roles, marketplaceId, null);
     }
-    
+
     @Override
     @RolesAllowed("ORGANIZATION_ADMIN")
     public VOUserDetails createUser(VOUserDetails user, String marketplaceId)
             throws NonUniqueBusinessKeyException, MailOperationException,
             ValidationException, UserRoleAssignmentException,
             OperationPendingException {
-        
+
         List<UserRoleType> roles = Collections.emptyList();
         return createUser(user, roles, marketplaceId, null);
     }
@@ -378,10 +377,13 @@ public class IdentityServiceBean implements IdentityService,
         String marketplaceId = tp.getParamValueForName(
                 TriggerProcessParameterName.MARKETPLACE_ID).getValue(
                 String.class);
-        Map<Long, UnitUserRole> userGroupKeyToRole = ParameterizedTypes.hashmap(tp
-                .getParamValueForName(TriggerProcessParameterName.USER_GROUPS_WITH_ROLES)
-                .getValue(Map.class), Long.class, UnitUserRole.class);
-        
+        Map<Long, UnitUserRole> userGroupKeyToRole = ParameterizedTypes
+                .hashmap(
+                        tp.getParamValueForName(
+                                TriggerProcessParameterName.USER_GROUPS_WITH_ROLES)
+                                .getValue(Map.class), Long.class,
+                        UnitUserRole.class);
+
         // generate a one-time password for the user
         VOUserDetails result;
         Organization organization = dm.getCurrentUser().getOrganization();
@@ -423,7 +425,8 @@ public class IdentityServiceBean implements IdentityService,
             sessionCtx.setRollbackOnly();
             throw e;
         } catch (ObjectNotFoundException | OperationNotPermittedException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR); 
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR);
             throw new ValidationException(e.getMessage());
         }
 
@@ -439,10 +442,11 @@ public class IdentityServiceBean implements IdentityService,
             Map<Long, UnitUserRole> userGroupKeyToRole) {
         Map<UserGroup, UnitUserRole> userGroupToRole = new HashMap<>();
         if (userGroupKeyToRole != null) {
-            for (Map.Entry<Long, UnitUserRole> e : userGroupKeyToRole.entrySet()) {
+            for (Map.Entry<Long, UnitUserRole> e : userGroupKeyToRole
+                    .entrySet()) {
                 try {
-                    userGroupToRole.put(dm.getReference(UserGroup.class,
-                            e.getKey().longValue()), e.getValue());
+                    userGroupToRole.put(dm.getReference(UserGroup.class, e
+                            .getKey().longValue()), e.getValue());
                 } catch (ObjectNotFoundException ignored) {
                 }
             }
@@ -560,7 +564,7 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     @Override
-    @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public void grantUnitRole(VOUser user, UserRoleType role)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
@@ -571,7 +575,7 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     @Override
-    @RolesAllowed({"ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR"})
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "UNIT_ADMINISTRATOR" })
     public void revokeUnitRole(VOUser user, UserRoleType role)
             throws ObjectNotFoundException, OperationNotPermittedException {
 
@@ -758,7 +762,8 @@ public class IdentityServiceBean implements IdentityService,
     }
 
     @Override
-    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR" })
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOUserDetails> getUsersForOrganization() {
         List<PlatformUser> organizationUsers = getOrganizationUsers();
         List<VOUserDetails> resultList = new ArrayList<>();
@@ -1253,8 +1258,7 @@ public class IdentityServiceBean implements IdentityService,
         Map<SettingType, String> attrMap = connector.getAttrMap();
         String baseDN = connector.getBaseDN();
 
-        List<SettingType> attrList = new ArrayList<>(
-                attrMap.keySet());
+        List<SettingType> attrList = new ArrayList<>(attrMap.keySet());
         ILdapResultMapper<VOUserDetails> mapper = new LdapVOUserDetailsMapper(
                 null, attrMap);
         try {
@@ -1608,23 +1612,6 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         return pUser;
-    }
-
-    @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public String getOperatorLogInfo() {
-        String result = "";
-        try {
-            final PlatformUser currentUser = dm.getCurrentUserIfPresent();
-            if (currentUser != null) {
-                result = "Operator:(" + currentUser.getOrganization().getKey()
-                        + "/" + currentUser.getKey() + "): ";
-            }
-        } catch (NumberFormatException e) {
-            // do nothing, this method must never cause an exception if the user
-            // is not logged in
-        }
-        return result;
     }
 
     @Override
@@ -2029,7 +2016,8 @@ public class IdentityServiceBean implements IdentityService,
         for (OrganizationRoleType orgRole : orgRoles) {
             final UserRoleType userRole = orgRole.correspondingUserRole();
             if (userRole != null) {
-                if (user.hasRole(userRole) || user.hasRole(UserRoleType.ORGANIZATION_ADMIN)) {
+                if (user.hasRole(userRole)
+                        || user.hasRole(UserRoleType.ORGANIZATION_ADMIN)) {
                     return;
                 }
                 requiredUserRoles.add(userRole);
@@ -2076,7 +2064,8 @@ public class IdentityServiceBean implements IdentityService,
                     user.getUserId());
             throw ure;
         }
-        if (!isAllowedUserRole(user.getOrganization(), role) && !role.isUnitRole()) {
+        if (!isAllowedUserRole(user.getOrganization(), role)
+                && !role.isUnitRole()) {
             OrganizationRoleType orgRole = OrganizationRoleType
                     .correspondingOrgRoleForUserRole(role);
             String msg = String
@@ -2264,15 +2253,18 @@ public class IdentityServiceBean implements IdentityService,
                 dm.persist(onBehalf);
             } catch (NonUniqueBusinessKeyException e) {
                 if (isSAML) {
-                    logger.logDebug("User with the userId " + password + " already exists. But this is not a problem" +
-                            " as you creating on behalf user.");
-                    //Ignore the error (bug11001)
+                    logger.logDebug("User with the userId " + password
+                            + " already exists. But this is not a problem"
+                            + " as you creating on behalf user.");
+                    // Ignore the error (bug11001)
                     PlatformUser findTemplate = new PlatformUser();
                     findTemplate.setUserId(password);
                     try {
-                        customerUser = (PlatformUser) dm.getReferenceByBusinessKey(findTemplate);
+                        customerUser = (PlatformUser) dm
+                                .getReferenceByBusinessKey(findTemplate);
                     } catch (ObjectNotFoundException e1) {
-                        // impossible because we have got here after non unique business key exception has been
+                        // impossible because we have got here after non unique
+                        // business key exception has been
                         // thrown
                     }
                     break;
@@ -2580,8 +2572,8 @@ public class IdentityServiceBean implements IdentityService,
      * on Windows. The method cannot be found at runtime.
      */
     boolean isOrganizationSpecificRole(UserRoleType roleType) {
-        return !(UserRoleType.ORGANIZATION_ADMIN.equals(roleType)
-                || UserRoleType.SUBSCRIPTION_MANAGER.equals(roleType));
+        return !(UserRoleType.ORGANIZATION_ADMIN.equals(roleType) || UserRoleType.SUBSCRIPTION_MANAGER
+                .equals(roleType));
     }
 
     @Override
@@ -2669,18 +2661,18 @@ public class IdentityServiceBean implements IdentityService,
     public VOUserDetails createUserWithGroups(VOUserDetails user,
             List<UserRoleType> roles, String marketplaceId,
             Map<Long, UnitUserRole> userGroupKeyToRole)
-                    throws NonUniqueBusinessKeyException,
-                    MailOperationException, ValidationException,
-                    UserRoleAssignmentException, OperationPendingException {
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException {
         return createUser(user, roles, marketplaceId, userGroupKeyToRole);
     }
 
     private VOUserDetails createUser(VOUserDetails user,
             List<UserRoleType> roles, String marketplaceId,
             Map<Long, UnitUserRole> userGroupKeyToRole)
-                    throws NonUniqueBusinessKeyException,
-                    MailOperationException, ValidationException,
-                    UserRoleAssignmentException, OperationPendingException {
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException {
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
 
@@ -2826,7 +2818,5 @@ public class IdentityServiceBean implements IdentityService,
         }
         return allExpired;
     }
-
-    
 
 }

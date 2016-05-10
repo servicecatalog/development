@@ -65,6 +65,16 @@ public abstract class RichLazyDataModel<T> extends ExtendedDataModel<T>
     protected void decorateWithLocalizedStatuses(Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination
                 .getLocalizedStatusesMap();
+        fillStatusesMap(localizedStatusesMap);
+    }
+
+    protected void decorateWithLocalizedStatuses(org.oscm.paginator.Pagination pagination) {
+        Map<SubscriptionStatus, String> localizedStatusesMap = pagination
+                .getLocalizedStatusesMap();
+        fillStatusesMap(localizedStatusesMap);
+    }
+
+    private void fillStatusesMap(Map<SubscriptionStatus, String> localizedStatusesMap) {
         for (SubscriptionStatus subscriptionStatus : SubscriptionStatus
                 .values()) {
             localizedStatusesMap.put(

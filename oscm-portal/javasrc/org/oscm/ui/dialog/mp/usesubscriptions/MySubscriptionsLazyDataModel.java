@@ -20,9 +20,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 
 import org.oscm.internal.subscriptions.OperationModel;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.vo.VOTechnicalServiceOperation;
-import org.oscm.string.Strings;
+import org.oscm.paginator.Pagination;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -39,7 +37,6 @@ import org.oscm.validator.ADMValidator;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscription;
 import org.oscm.internal.subscriptions.SubscriptionsService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 
@@ -56,6 +53,7 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
     private String subscriptionIdForOperation;
     private POSubscription selectedSubscription;
     private String selectedSubscriptionId;
+    private String fullTextSearchFilterValue;
 
 
     @ManagedProperty(value = "#{appBean}")
@@ -94,16 +92,16 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedStatuses(pagination);
         List<POSubscription> resultList = Collections.emptyList();
-        
+        pagination.setFullTextFilterValue(fullTextSearchFilterValue);
         try {
-            Response response = subscriptionsService.getMySubscriptions(pagination);
+            Response response = subscriptionsService.getMySubscriptionsWithFiltering(pagination);
             resultList = response.getResultList(POSubscription.class);
             for (POSubscription subscription : resultList) {
                 subscription.setAccessUrl(getAccessUrl(subscription));
                 subscription.setTarget(isOpenNewTab(subscription) ? "_blank" : "");
             }
             refreshSelectedSubscription();
-        } catch (OrganizationAuthoritiesException e) {
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
         }
         return resultList;
@@ -147,9 +145,10 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
             Pagination pagination = new Pagination();
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithLocalizedStatuses(pagination);
+            pagination.setFullTextFilterValue(fullTextSearchFilterValue);
             setTotalCount(subscriptionsService
-                    .getMySubscriptionsSize(pagination).intValue());
-        } catch (OrganizationAuthoritiesException e) {
+                    .getMySubscriptionsSizeWithFiltering(pagination).intValue());
+        } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }
@@ -273,4 +272,12 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
 	public void setSelectedSubscriptionId(String selectedSubscriptionId) {
 		this.selectedSubscriptionId = selectedSubscriptionId;
 	}
+
+    public String getFullTextSearchFilterValue() {
+        return fullTextSearchFilterValue;
+    }
+
+    public void setFullTextSearchFilterValue(String fullTextSearchFilterValue) {
+        this.fullTextSearchFilterValue = fullTextSearchFilterValue;
+    }
 }

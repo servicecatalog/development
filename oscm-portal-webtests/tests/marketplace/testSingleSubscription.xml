@@ -21,11 +21,10 @@
 
       <!-- Import the services -->
       <techservice.import file="data/TechnicalServicesPlayground.xml" />
-      <techservice.import file="${techService.import.file}" />
-
 
       <!-- Define a service which uses the timeout parameter defined in the techniocal service-->
-      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" />
+      <setup:service.define serviceId="Highlander" techServiceId="Example 1.10" name="Highlander" description="Highlander, there can be only one"
+                            concurrentUser="3" namedUser="2" marketplaceId="${mId}" useParameters="true"/>
       <setup:pricemodel.define serviceId="Highlander" isFree="true" />
       <setup:service.activate serviceIds="Highlander" />
 
@@ -123,12 +122,101 @@
       <common.waitForJavaScript />
       <!-- Verify if the configuration form popup was displayed automatically -->
       <verifyXPath xpath="//*[@id='configurationForm:configurator_content']" />
-      <setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="testMPL_SingleSubscription_filteringMySubscriptions_empty">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
+
+      <common.ignorePageScriptError />
+      <common.waitForJavaScript />
+      <setup:udaDef.create numOfUdas="1" defaultValue="sampleValue" forCustomer="false" runAs="${supplierUserKey}" mandatory="true" userOption="true" />
+      <setup:service.define serviceId="Highlander1" techServiceId="Example 1.10" name="Highlander1"
+                            description="Highlander, there can be only one" concurrentUser="3" namedUser="2" marketplaceId="${mId}" svcKeyProperty="svcKey1"/>
+      <setup:pricemodel.define serviceId="Highlander1" isFree="true" />
+      <setup:service.activate serviceIds="Highlander1" />
+      <setup:subscription.create subId="subscribeUserService1" marketplaceId="${mId}" udas="uda0"
+                                 pon="referenceId" serviceKey="${svcKey1}" userIds="${supplierUserId}"/>
+
+      <mpl_goto.subscriptions />
+      <sleep seconds="120"/>
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      <setInputField htmlId="subListForm:search" value="Missing" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <not>
+        <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      </not>
+      <mpl_login.logout/>
+    </webtest>
+
+    <webtest name="testMPL_SingleSubscription_filteringMySubscriptions">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
+
+      <common.ignorePageScriptError />
+      <mpl_goto.subscriptions />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="subscribeUserService1" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="referenceId" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="searchParam" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="sampleValue" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <mpl_login.logout/>
+    </webtest>
+
+    <webtest name="testMPL_SingleSubscription_filteringAccountSubscriptions_empty">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      <setInputField htmlId="subListForm:search" value="Missing" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <not>
+        <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+      </not>
+      <mpl_login.logout/>
+    </webtest>
+
+    <webtest name="testMPL_SingleSubscription_filteringAccountSubscriptions">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
+      <mpl_goto.account.subscriptions />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="subscribeUserService1" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="referenceId" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="searchParam" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <setInputField htmlId="subListForm:search" value="sampleValue" />
+      <clickLink htmlId="subListForm:submitLink" />
+      <verifyXPath xpath="//*[@id='subListForm:subscriptionsList:0']" />
+
+      <mpl_login.logout/>
     </webtest>
 
     <webtest name="testMPL_singleSubscription_finalCleanUp">
+      <mpl_login.user mid="${mId}" userId="${supplierUserId}" verifyWelcomeText="false" />
+      <setup:service.delete serviceIds="ExtIntSrv0" deactivate="true" />
       <setup:store.settings userkey="${supplierUserKey}" password="secret" />
       <setup:service.delete serviceIds="*" deactivate="true" />
+      <mpl_login.logout/>
       <mail.cleanInbox />
     </webtest>
 

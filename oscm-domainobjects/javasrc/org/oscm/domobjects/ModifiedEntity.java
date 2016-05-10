@@ -35,7 +35,8 @@ import org.oscm.domobjects.enums.ModifiedEntityType;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "targetObjectKey",
         "targetObjectType" }))
 @BusinessKey(attributes = { "targetObjectKey", "targetObjectType" })
-public class ModifiedEntity extends DomainObjectWithHistory<ModifiedEntityData> {
+public class ModifiedEntity extends
+        DomainObjectWithVersioning<ModifiedEntityData> {
 
     private static final long serialVersionUID = -1844757495950320851L;
 
