@@ -34,7 +34,8 @@ import org.oscm.domobjects.annotations.BusinessKey;
 @NamedQueries({
         @NamedQuery(name = "ProductReview.findByUser", query = "select r from ProductReview r where r.platformUser=:platformUser"),
         @NamedQuery(name = "ProductReview.findByBusinessKey", query = "select r from ProductReview r where r.platformUser=:platformUser and r.productFeedback=:productFeedback") })
-public class ProductReview extends DomainObjectWithHistory<ProductReviewData> {
+public class ProductReview extends
+        DomainObjectWithVersioning<ProductReviewData> {
 
     private static final long serialVersionUID = 4418368426157722708L;
 

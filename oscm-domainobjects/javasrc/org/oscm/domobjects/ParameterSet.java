@@ -33,7 +33,7 @@ import javax.persistence.OrderBy;
  * 
  */
 @Entity
-public class ParameterSet extends DomainObjectWithHistoryAndEmptyDataContainer {
+public class ParameterSet extends DomainObjectWithEmptyDataContainer {
 
     private static final long serialVersionUID = 273606238278847037L;
 

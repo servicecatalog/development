@@ -8,23 +8,20 @@
 
 package org.oscm.domobjects;
 
-import static org.oscm.types.enumtypes.OperationParameterType.INPUT_STRING;
-import static org.oscm.types.enumtypes.OperationParameterType.REQUEST_SELECT;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
+import static org.oscm.types.enumtypes.OperationParameterType.INPUT_STRING;
+import static org.oscm.types.enumtypes.OperationParameterType.REQUEST_SELECT;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.types.enumtypes.OperationParameterType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
 /**
  * @author weiser
@@ -46,14 +43,12 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
 
     @Test
     public void testAdd() throws Exception {
-        final TechnicalProductOperation read = doAdd();
-        verifyHistory(read, 1, ModificationType.ADD);
+        doAdd();
     }
 
     @Test
     public void testModify() throws Exception {
-        final TechnicalProductOperation read = doModify(doAdd());
-        verifyHistory(read, 2, ModificationType.MODIFY);
+        doModify(doAdd());
     }
 
     @Test
@@ -61,6 +56,7 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
         final TechnicalProductOperation read = doModify(doAdd());
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 TechnicalProductOperation operation = mgr.getReference(
                         TechnicalProductOperation.class, read.getKey());
@@ -68,14 +64,14 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
                 return null;
             }
         });
-        verifyHistory(read, 3, ModificationType.DELETE);
     }
 
     @Test
     public void testDeleteTP() throws Exception {
-        final TechnicalProductOperation read = doAdd();
+        doAdd();
         runTX(new Callable<Void>() {
 
+            @Override
             public Void call() throws Exception {
                 TechnicalProduct tp = mgr.getReference(TechnicalProduct.class,
                         technicalProduct.getKey());
@@ -83,7 +79,6 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
                 return null;
             }
         });
-        verifyHistory(read, 2, ModificationType.DELETE);
     }
 
     @Test
@@ -126,6 +121,7 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
 
         final TechnicalProductOperation read = runTX(new Callable<TechnicalProductOperation>() {
 
+            @Override
             public TechnicalProductOperation call() throws Exception {
                 TechnicalProduct tp = mgr.getReference(TechnicalProduct.class,
                         technicalProduct.getKey());
@@ -146,6 +142,7 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
 
         final TechnicalProductOperation read = runTX(new Callable<TechnicalProductOperation>() {
 
+            @Override
             public TechnicalProductOperation call() throws Exception {
                 TechnicalProductOperation tpo = mgr.getReference(
                         TechnicalProductOperation.class, op.getKey());
@@ -157,25 +154,6 @@ public class TechnicalProductOperationIT extends DomainObjectTestBase {
         Assert.assertEquals("ID", read.getOperationId());
         Assert.assertEquals("someOtherUlr", read.getActionUrl());
         return read;
-    }
-
-    private void verifyHistory(final TechnicalProductOperation read,
-            int historyEntries, ModificationType lastModType) throws Exception {
-        List<DomainHistoryObject<?>> history = runTX(new Callable<List<DomainHistoryObject<?>>>() {
-
-            public List<DomainHistoryObject<?>> call() throws Exception {
-                return mgr.findHistory(read);
-            }
-        });
-        Assert.assertNotNull(history);
-        Assert.assertEquals(historyEntries, history.size());
-        TechnicalProductOperationHistory oh = (TechnicalProductOperationHistory) history
-                .get(history.size() - 1);
-        TechnicalProductOperationData dc = read.getDataContainer();
-        Assert.assertEquals(dc.getOperationId(), oh.getOperationId());
-        Assert.assertEquals(read.getKey(), oh.getObjKey());
-        Assert.assertEquals(lastModType, oh.getModtype());
-        Assert.assertTrue(oh.getTechnicalProductObjKey() != 0);
     }
 
 }

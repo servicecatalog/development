@@ -39,7 +39,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 @NamedQueries({ @NamedQuery(name = "TechnicalProductOperation.findByBusinessKey", query = "select c from TechnicalProductOperation c where c.dataContainer.operationId=:operationId AND c.technicalProduct_tkey=:technicalProduct_tkey") })
 @BusinessKey(attributes = { "technicalProduct_tkey", "operationId" })
 public class TechnicalProductOperation extends
-        DomainObjectWithHistory<TechnicalProductOperationData> {
+        DomainObjectWithVersioning<TechnicalProductOperationData> {
 
     private static final long serialVersionUID = 2022025062839133740L;
 

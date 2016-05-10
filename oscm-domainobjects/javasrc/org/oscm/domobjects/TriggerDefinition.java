@@ -18,11 +18,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
+import org.oscm.internal.types.enumtypes.TriggerTargetType;
+import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.enumtypes.TriggerTargetType;
-import org.oscm.internal.types.enumtypes.TriggerType;
 
 /**
  * JPA managed entity representing a trigger definition.
@@ -33,7 +33,7 @@ import org.oscm.internal.types.enumtypes.TriggerType;
 @Entity
 @NamedQueries({ @NamedQuery(name = "TriggerDefinition.getAllForOrganizationAndName", query = "SELECT td FROM TriggerDefinition td WHERE td.organization.key = :organizationKey AND td.dataContainer.type = :type") })
 public class TriggerDefinition extends
-        DomainObjectWithHistory<TriggerDefinitionData> {
+        DomainObjectWithVersioning<TriggerDefinitionData> {
 
     private static final long serialVersionUID = 7568098325172286511L;
 
