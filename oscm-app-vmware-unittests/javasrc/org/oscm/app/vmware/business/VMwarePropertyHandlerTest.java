@@ -110,16 +110,16 @@ public class VMwarePropertyHandlerTest {
                 "255.255.4.0");
 
         for (int i = 1; i < 5; i++) {
-            propertyHandler.useDHCP(i);
+            propertyHandler.isAdapterConfiguredByDhcp(i);
             propertyHandler.getGateway(i);
-            propertyHandler.getIPAddress(i);
+            propertyHandler.getIpAddress(i);
             propertyHandler.getDNSServer(i);
             propertyHandler.getDNSSuffix(i);
             propertyHandler.getSubnetMask(i);
         }
 
         try {
-            propertyHandler.useDHCP(5);
+            propertyHandler.isAdapterConfiguredByDhcp(5);
         } catch (IllegalArgumentException e) {
             assertTrue("NIC identifier 5 is out of range. Valid range is [1-4]."
                     .equals(e.getMessage()));
@@ -133,7 +133,7 @@ public class VMwarePropertyHandlerTest {
         }
 
         try {
-            propertyHandler.getIPAddress(5);
+            propertyHandler.getIpAddress(5);
         } catch (IllegalArgumentException e) {
             assertTrue("NIC identifier 5 is out of range. Valid range is [1-4]."
                     .equals(e.getMessage()));
@@ -282,8 +282,8 @@ public class VMwarePropertyHandlerTest {
         // given
         parameters.put(VMPropertyHandler.TS_NUMBER_OF_NICS, "1");
         doReturn(Boolean.TRUE).when(propertyHandler)
-                .getNICSettingsFromDatabase(1);
-        doReturn("ipaddress").when(propertyHandler).getIPAddress(anyInt());
+                .getNicSetting(1);
+        doReturn("ipaddress").when(propertyHandler).getIpAddress(anyInt());
         doReturn("site").when(propertyHandler).getTargetVCenterServer();
         doReturn("datacenter").when(propertyHandler).getTargetDatacenter();
         doReturn("cluster").when(propertyHandler).getTargetCluster();
@@ -298,7 +298,7 @@ public class VMwarePropertyHandlerTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getIPAddress_NIC0() {
+    public void getIpAddress_NIC0() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -306,11 +306,11 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        propertyHandler.getIPAddress(0);
+        propertyHandler.getIpAddress(0);
     }
 
     @Test
-    public void getIPAddress_NIC1() {
+    public void getIpAddress_NIC1() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -318,25 +318,25 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        String ipAddress = propertyHandler.getIPAddress(1);
+        String ipAddress = propertyHandler.getIpAddress(1);
 
         // then
         assertEquals("ip address 1", ipAddress);
     }
 
     @Test
-    public void getIPAddress_NIC1_undefined() {
+    public void getIpAddress_NIC1_undefined() {
         // given
 
         // when
-        String ipAddress = propertyHandler.getIPAddress(1);
+        String ipAddress = propertyHandler.getIpAddress(1);
 
         // then
         assertNull(ipAddress);
     }
 
     @Test
-    public void getIPAddress_NIC2() {
+    public void getIpAddress_NIC2() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -344,14 +344,14 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        String ipAddress = propertyHandler.getIPAddress(2);
+        String ipAddress = propertyHandler.getIpAddress(2);
 
         // then
         assertEquals("ip address 2", ipAddress);
     }
 
     @Test
-    public void getIPAddress_NIC3() {
+    public void getIpAddress_NIC3() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -359,14 +359,14 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        String ipAddress = propertyHandler.getIPAddress(3);
+        String ipAddress = propertyHandler.getIpAddress(3);
 
         // then
         assertEquals("ip address 3", ipAddress);
     }
 
     @Test
-    public void getIPAddress_NIC4() {
+    public void getIpAddress_NIC4() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -374,14 +374,14 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        String ipAddress = propertyHandler.getIPAddress(4);
+        String ipAddress = propertyHandler.getIpAddress(4);
 
         // then
         assertEquals("ip address 4", ipAddress);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void getIPAddress_greater_4() {
+    public void getIpAddress_greater_4() {
         // given
         parameters.put(VMPropertyHandler.TS_NIC1_IP_ADDRESS, "ip address 1");
         parameters.put(VMPropertyHandler.TS_NIC2_IP_ADDRESS, "ip address 2");
@@ -389,6 +389,6 @@ public class VMwarePropertyHandlerTest {
         parameters.put(VMPropertyHandler.TS_NIC4_IP_ADDRESS, "ip address 4");
 
         // when
-        propertyHandler.getIPAddress(5);
+        propertyHandler.getIpAddress(5);
     }
 }
