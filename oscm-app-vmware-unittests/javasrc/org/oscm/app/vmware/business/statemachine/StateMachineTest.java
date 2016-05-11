@@ -40,14 +40,14 @@ public class StateMachineTest {
 
     /**
      * For all states except final states is checked that the action method
-     * exists on the state class. The ERROR state is ignored because it is a
-     * final state and the error handling is done by the controller and not the
-     * action class.
+     * exists on the state class. The ERROR state for example is ignored because
+     * it is a final state and the error handling is done by the controller and
+     * not the action class.
      */
     private void ensureActionMethods(States states) throws Exception {
         String clazz = states.getActionClass();
         for (State s : states.getStates()) {
-            if (isTerminalState(s)) {
+            if (isFinal(s)) {
                 continue;
             }
             Method method = loadMethod(clazz, s);
@@ -59,7 +59,7 @@ public class StateMachineTest {
         }
     }
 
-    private boolean isTerminalState(State state) {
+    private boolean isFinal(State state) {
         return state.getAction() == null;
     }
 
