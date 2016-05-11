@@ -6,12 +6,12 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware.aes;
+package org.oscm.app.vmware.aes;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.oscm.app.vmware.encryption.AESEncrypter;
 
 /**
  * @author kulle
@@ -23,10 +23,10 @@ public class AesTest {
     public void vm() throws Exception {
         // given
         String password = "e$_w=x268WEI3vfr7";
-        String vmEncrypted = AESEncrypterVm.encrypt(password);
+        String vmEncrypted = AESEncrypter.encrypt(password);
 
         // when
-        String vmDecrypted = AESEncrypterVm.decrypt(vmEncrypted);
+        String vmDecrypted = AESEncrypter.decrypt(vmEncrypted);
 
         // then
         assertEquals(password, vmDecrypted);
@@ -36,10 +36,10 @@ public class AesTest {
     public void ctmg() throws Exception {
         // given
         String password = "e$_w=x268WEI3vfr7";
-        String encrypted = AESEncrypter.encrypt(password);
+        String encrypted = AESEncrypterCtmg.encrypt(password);
 
         // when
-        String decrypted = AESEncrypter.decrypt(encrypted);
+        String decrypted = AESEncrypterCtmg.decrypt(encrypted);
 
         // then
         assertEquals(password, decrypted);
@@ -49,13 +49,13 @@ public class AesTest {
     public void ctmg_vm() throws Exception {
         // given
         String password = "e$_w=x268WEI3vfr7";
-        String encrypted = AESEncrypter.encrypt(password);
+        String encrypted = AESEncrypterCtmg.encrypt(password);
 
         // when
-        String decrypt = AESEncrypterVm.decrypt(encrypted);
+        String decrypted = AESEncrypter.decrypt(encrypted);
 
         // then
-        assertTrue("e$_w=x268WEI3vfr7".equals(decrypt));
+        assertEquals("e$_w=x268WEI3vfr7", decrypted);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class AesTest {
         String encrypted = "+ULbWgH1mTXCs79dgOqTNw==";
 
         // when
-        String password = AESEncrypter.decrypt(encrypted);
+        String password = AESEncrypterCtmg.decrypt(encrypted);
 
         // then
         assertEquals("secret", password);
@@ -74,10 +74,10 @@ public class AesTest {
     public void umlaute_vm() throws Exception {
         // given
         String password = "e$_w=x268WEI3vf7ä";
-        String vmEncrypted = AESEncrypterVm.encrypt(password);
+        String vmEncrypted = AESEncrypter.encrypt(password);
 
         // when
-        String vmDecrypted = AESEncrypterVm.decrypt(vmEncrypted);
+        String vmDecrypted = AESEncrypter.decrypt(vmEncrypted);
 
         // then
         assertEquals(password, vmDecrypted);
@@ -87,10 +87,10 @@ public class AesTest {
     public void umlaute() throws Exception {
         // given
         String password = "e$_w=x268WEI3vf7ä";
-        String encrypted = AESEncrypter.encrypt(password);
+        String encrypted = AESEncrypterCtmg.encrypt(password);
 
         // when
-        String decrypted = AESEncrypter.decrypt(encrypted);
+        String decrypted = AESEncrypterCtmg.decrypt(encrypted);
 
         // then
         assertEquals(password, decrypted);
@@ -102,7 +102,7 @@ public class AesTest {
         String utf8_encoded = "k95HaoH8WYFxAwdKEdaZq+nx3oyR0hqM9Y3m85U+Lf8=";
 
         // then
-        String utfMinus8_decoded = AESEncrypter.decrypt(utf8_encoded);
+        String utfMinus8_decoded = AESEncrypterCtmg.decrypt(utf8_encoded);
 
         // then
         assertEquals("e$_w=x268WEI3vf7ä", utfMinus8_decoded);

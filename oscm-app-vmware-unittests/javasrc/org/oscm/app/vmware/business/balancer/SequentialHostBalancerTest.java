@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware.balancer;
+package org.oscm.app.vmware.business.balancer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,13 +20,12 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.fujitsu.bss.app.vmware.LoggerMocking;
-import com.fujitsu.bss.app.vmware.VMPropertyHandler;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventory;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventoryTest;
-import com.fujitsu.bss.app.vmware.data.VMwareHost;
-import com.fujitsu.bss.app.vmware.data.VMwareValue;
+import org.oscm.app.vmware.LoggerMocking;
+import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.business.VMwareDatacenterInventory;
+import org.oscm.app.vmware.business.VMwareDatacenterInventoryTest;
+import org.oscm.app.vmware.business.VMwareValue;
+import org.oscm.app.vmware.business.model.VMwareHost;
 
 /**
  * @author Dirk Bernsau

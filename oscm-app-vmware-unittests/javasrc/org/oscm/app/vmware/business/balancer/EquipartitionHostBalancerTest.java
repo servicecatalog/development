@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware.balancer;
+package org.oscm.app.vmware.business.balancer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,16 +23,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.vmware.LoggerMocking;
+import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.business.VMwareDatacenterInventory;
+import org.oscm.app.vmware.business.VMwareDatacenterInventoryTest;
+import org.oscm.app.vmware.business.VMwareValue;
+import org.oscm.app.vmware.business.model.VMwareHost;
+import org.oscm.app.vmware.i18n.Messages;
 import org.slf4j.impl.SimpleLogger;
-
-import com.fujitsu.bss.app.v1_0.data.ProvisioningSettings;
-import com.fujitsu.bss.app.vmware.LoggerMocking;
-import com.fujitsu.bss.app.vmware.VMPropertyHandler;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventory;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventoryTest;
-import com.fujitsu.bss.app.vmware.data.VMwareHost;
-import com.fujitsu.bss.app.vmware.data.VMwareValue;
-import com.fujitsu.bss.app.vmware.i18n.Messages;
 
 /**
  * @author Dirk Bernsau

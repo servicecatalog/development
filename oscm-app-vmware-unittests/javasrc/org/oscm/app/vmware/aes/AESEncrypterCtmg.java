@@ -1,4 +1,4 @@
-package com.fujitsu.bss.app.vmware.aes;
+package org.oscm.app.vmware.aes;
 
 /*******************************************************************************
  *                                                                              
@@ -19,7 +19,7 @@ import org.apache.commons.codec.binary.Base64;
  * Simple AES Encryption
  * 
  */
-public class AESEncrypter {
+public class AESEncrypterCtmg {
     /** The Constant ENCRYPTION_KEY - generated only once here. */
     private final static byte[] ENCRYPTION_KEY = StringScrambler
             .decode(new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,

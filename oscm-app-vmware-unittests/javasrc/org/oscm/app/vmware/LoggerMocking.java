@@ -6,7 +6,7 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware;
+package org.oscm.app.vmware;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
