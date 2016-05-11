@@ -19,6 +19,8 @@
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-pool/javalib/commons-pool2-2.4.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/org.mockito/javalib/mockito-all-1.10.19.jar"/>
+	<classpathentry kind="lib" path="/libraries/org.hamcrest/javalib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
