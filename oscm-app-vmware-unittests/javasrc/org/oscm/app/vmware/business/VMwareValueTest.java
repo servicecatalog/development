@@ -6,15 +6,17 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware.data;
+package org.oscm.app.vmware.business;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-
-import com.fujitsu.bss.app.vmware.data.VMwareValue.Unit;
+import org.oscm.app.vmware.business.VMwareDatacenterInventory;
+import org.oscm.app.vmware.business.VMwareValue;
+import org.oscm.app.vmware.business.VMwareValue.Unit;
+import org.oscm.app.vmware.business.model.VMwareHost;
 
 /**
  * Unit tests for the VMwareLimit.

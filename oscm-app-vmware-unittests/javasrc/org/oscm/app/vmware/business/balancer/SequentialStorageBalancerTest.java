@@ -6,11 +6,10 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware.balancer;
+package org.oscm.app.vmware.business.balancer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import java.io.StringReader;
 
@@ -18,12 +17,12 @@ import org.apache.commons.configuration.XMLConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.fujitsu.bss.app.vmware.VMPropertyHandler;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventory;
-import com.fujitsu.bss.app.vmware.data.VMwareDatacenterInventoryTest;
-import com.fujitsu.bss.app.vmware.data.VMwareStorage;
-import com.fujitsu.bss.app.vmware.data.VMwareValue;
+import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.business.VMwareDatacenterInventory;
+import org.oscm.app.vmware.business.VMwareDatacenterInventoryTest;
+import org.oscm.app.vmware.business.VMwareValue;
+import org.oscm.app.vmware.business.model.VMwareStorage;
 
 /**
  * @author Oliver Soehnges
@@ -38,29 +37,35 @@ public class SequentialStorageBalancerTest {
         properties = Mockito.mock(VMPropertyHandler.class);
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void testEmpty() throws Exception {
+        // given
         SequentialStorageBalancer balancer = new SequentialStorageBalancer();
-        VMwareStorage elm = balancer.next(properties);
-        assertNull(elm);
+
+        // when
+        balancer.next(properties);
     }
 
-    @Test
+    @Test(expected = APPlatformException.class)
     public void testNoneEnabled() throws Exception {
-
+        // given
         SequentialStorageBalancer balancer = new SequentialStorageBalancer();
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
-        VMwareStorage elm = inventory.addStorage(VMwareDatacenterInventoryTest
-                .createDataStoreProperties("elm1", "100", "100"));
+        VMwareStorage elm = inventory.addStorage("host",
+                VMwareDatacenterInventoryTest.createDataStoreProperties("elm1",
+                        "100", "100"));
+        balancer.datastoreNames.add("elm1");
         elm.setEnabled(false);
-
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm2", "100", "100"));
+        balancer.datastoreNames.add("elm2");
         elm.setEnabled(false);
-
         balancer.setInventory(inventory);
+
+        // when
         elm = balancer.next(properties);
-        assertNull(elm);
+
+        // then exception expected
     }
 
     @Test
@@ -75,8 +80,9 @@ public class SequentialStorageBalancerTest {
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
 
-        VMwareStorage elm = inventory.addStorage(VMwareDatacenterInventoryTest
-                .createDataStoreProperties("elm1", "100", "100"));
+        VMwareStorage elm = inventory.addStorage("host",
+                VMwareDatacenterInventoryTest.createDataStoreProperties("elm1",
+                        "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));
 
@@ -105,22 +111,23 @@ public class SequentialStorageBalancerTest {
 
         // elm1 does not provide enough resources with respect to configured
         // limit
-        VMwareStorage elm = inventory.addStorage(VMwareDatacenterInventoryTest
-                .createDataStoreProperties("elm1", "100", "40"));
+        VMwareStorage elm = inventory.addStorage("host",
+                VMwareDatacenterInventoryTest.createDataStoreProperties("elm1",
+                        "100", "40"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("50%"));
 
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm2", "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));
 
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm3", "100", "100"));
         elm.setEnabled(false);
         elm.setLimit(VMwareValue.parse("90%"));
 
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm4", "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));
@@ -154,12 +161,13 @@ public class SequentialStorageBalancerTest {
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
 
-        VMwareStorage elm = inventory.addStorage(VMwareDatacenterInventoryTest
-                .createDataStoreProperties("elm1", "100", "100"));
+        VMwareStorage elm = inventory.addStorage("host",
+                VMwareDatacenterInventoryTest.createDataStoreProperties("elm1",
+                        "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));
 
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm2", "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));
@@ -173,7 +181,7 @@ public class SequentialStorageBalancerTest {
         // Now shorten list, so "elm2" is not longer next element
         inventory = new VMwareDatacenterInventory();
 
-        elm = inventory.addStorage(VMwareDatacenterInventoryTest
+        elm = inventory.addStorage("host", VMwareDatacenterInventoryTest
                 .createDataStoreProperties("elm3", "100", "100"));
         elm.setEnabled(true);
         elm.setLimit(VMwareValue.parse("90%"));

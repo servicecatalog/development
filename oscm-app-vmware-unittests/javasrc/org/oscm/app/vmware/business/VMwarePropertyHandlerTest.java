@@ -6,25 +6,28 @@
  *                                                                              
  *******************************************************************************/
 
-package com.fujitsu.bss.app.vmware;
+package org.oscm.app.vmware.business;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.HashMap;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.fujitsu.bss.app.v1_0.data.ProvisioningSettings;
-import com.fujitsu.bss.app.v1_0.exceptions.APPlatformException;
-import com.fujitsu.bss.app.vmware.data.DataAccessService;
-import com.fujitsu.bss.app.vmware.data.VMwareOperation;
-import com.fujitsu.bss.app.vmware.i18n.Messages;
+import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.business.VMPropertyHandler;
+import org.oscm.app.vmware.i18n.Messages;
+import org.oscm.app.vmware.persistence.DataAccessService;
 
 /**
  * @author Dirk Bernsau
@@ -48,38 +51,6 @@ public class VMwarePropertyHandlerTest {
 
         das = mock(DataAccessService.class);
         doReturn(das).when(propertyHandler).getDataAccessService();
-    }
-
-    @Test
-    public void getLinuxTimezone() {
-        // given
-        settings.getParameters().put(VMPropertyHandler.TS_TIMEZONE_LINUX,
-                "363");
-        settings.getParameters().put(VMPropertyHandler.TS_TIMEZONE_WINDOWS,
-                "110");
-
-        // when
-        String timzone = propertyHandler.getLinuxTimezone();
-
-        // then
-        assertTrue("Etc/GMT+1".equals(timzone));
-    }
-
-    @Test
-    public void getWindowsTimezone() {
-        // given
-        settings.getParameters().put(VMPropertyHandler.TS_TIMEZONE_LINUX,
-                "363");
-        settings.getParameters().put(VMPropertyHandler.TS_TIMEZONE_WINDOWS,
-                "110");
-
-        // when
-        String timzone = propertyHandler.getWindowsTimezone();
-
-        // then
-        assertTrue(
-                "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna"
-                        .equals(timzone));
     }
 
     @Test
@@ -191,20 +162,7 @@ public class VMwarePropertyHandlerTest {
     }
 
     @Test
-    public void getTargetClusterFromLocation() throws APPlatformException {
-        // given
-        settings.getParameters().put(VMPropertyHandler.TS_TARGET_LOCATION,
-                "site@datacenter@cluster");
-
-        // when
-        String cluster = propertyHandler.getTargetCluster();
-
-        // then
-        assertTrue("cluster".equals(cluster));
-    }
-
-    @Test
-    public void testDiskSizeParameter() throws APPlatformException {
+    public void getConfigDiskSpaceMB_sizeParameter() throws Exception {
         // given
         settings.getParameters().put(VMPropertyHandler.TS_DISK_SIZE, "17");
 
@@ -216,7 +174,7 @@ public class VMwarePropertyHandlerTest {
     }
 
     @Test
-    public void testDiskSizeParameterMissing() throws APPlatformException {
+    public void getConfigDiskSpaceMB_parameterMissing() throws Exception {
         // given
 
         // when
@@ -227,41 +185,12 @@ public class VMwarePropertyHandlerTest {
     }
 
     @Test(expected = APPlatformException.class)
-    public void testDiskSizeParameterInvalid() throws APPlatformException {
+    public void getConfigDiskSpaceMB_parameterInvalid() throws Exception {
         // given
         settings.getParameters().put(VMPropertyHandler.TS_DISK_SIZE, "12abc");
 
         // when
         propertyHandler.getConfigDiskSpaceMB();
-    }
-
-    @Test
-    public void testOperationParameterUnknown() {
-        // given no parameters
-
-        // when
-        VMwareOperation operation = propertyHandler.getOperation();
-
-        // then
-        assertEquals(VMwareOperation.UNKNOWN, operation);
-    }
-
-    @Test
-    public void testLDAPParameterTest() {
-        configSettings.put(VMPropertyHandler.CTL_LDAP_HOSTURL, "ldap_host");
-        configSettings.put(VMPropertyHandler.CTL_LDAP_USER, "ldap_user");
-        configSettings.put(VMPropertyHandler.CTL_LDAP_PWD, "ldap_pwd");
-        configSettings.put(VMPropertyHandler.CTL_LDAP_QUERY_GETUSERCN,
-                "ldap_query");
-        VMPropertyHandler propertyHandler = new VMPropertyHandler(settings);
-        assertEquals("ldap_host", propertyHandler
-                .getControllerSetting(VMPropertyHandler.CTL_LDAP_HOSTURL));
-        assertEquals("ldap_user", propertyHandler
-                .getControllerSetting(VMPropertyHandler.CTL_LDAP_USER));
-        assertEquals("ldap_pwd", propertyHandler
-                .getControllerSetting(VMPropertyHandler.CTL_LDAP_PWD));
-        assertEquals("ldap_query", propertyHandler.getControllerSetting(
-                VMPropertyHandler.CTL_LDAP_QUERY_GETUSERCN));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -346,6 +275,26 @@ public class VMwarePropertyHandlerTest {
 
         // then
         assertEquals("adapter 4", adapter);
+    }
+
+    @Test
+    public void releaseManuallyDefinedIPAddresses() throws Exception {
+        // given
+        parameters.put(VMPropertyHandler.TS_NUMBER_OF_NICS, "1");
+        doReturn(Boolean.TRUE).when(propertyHandler)
+                .getNICSettingsFromDatabase(1);
+        doReturn("ipaddress").when(propertyHandler).getIPAddress(anyInt());
+        doReturn("site").when(propertyHandler).getTargetVCenterServer();
+        doReturn("datacenter").when(propertyHandler).getTargetDatacenter();
+        doReturn("cluster").when(propertyHandler).getTargetCluster();
+        doReturn("vlan").when(propertyHandler).getVLAN(anyInt());
+
+        // when
+        propertyHandler.releaseManuallyDefinedIPAddresses();
+
+        // then
+        verify(das, times(1)).releaseIPAddress(eq("site"), eq("datacenter"),
+                eq("cluster"), eq("vlan"), eq("ipaddress"));
     }
 
     @Test(expected = IllegalArgumentException.class)

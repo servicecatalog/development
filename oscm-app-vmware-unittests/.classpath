@@ -18,5 +18,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-commons-pool/javalib/commons-pool2-2.4.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

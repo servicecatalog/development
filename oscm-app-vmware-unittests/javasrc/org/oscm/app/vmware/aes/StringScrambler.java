@@ -1,21 +1,28 @@
-package com.fujitsu.bss.app.vmware.aes;
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2015                                             
+ *                                                                              
+ *  Creation Date: 20.09.2012                                                      
+ *                                                                              
+ *******************************************************************************/
+
+package org.oscm.app.vmware.aes;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 /**
- * Class for decoding an obfuscated/scrambled string.
- * <p>
- * For security reasons it will not be shipped to the customer.
+ * class for decoding an obfuscated/scrambled string
  */
-public final class StringScramblerVm {
-
+public final class StringScrambler {
     /**
      * The opposite to this method, obfuscate, is found in
      * com.fujitsu.est.tools.StringScrambler.
      * 
+     * @param obfuscated
      * @return original string
      */
+    // For security reasons the encode part will not be shipped to the customer.
     public static final String decode(final long[] obfuscated) {
         final int length = obfuscated.length;
         final byte[] encoded = new byte[8 * (length - 1)];
@@ -35,7 +42,7 @@ public final class StringScramblerVm {
 
         final String decoded;
         try {
-            decoded = new String(encoded, "UTF-8");
+            decoded = new String(encoded, "UTF8");
         } catch (UnsupportedEncodingException ex) {
             throw new AssertionError(ex);
         }
