@@ -282,7 +282,7 @@ public class VMwarePropertyHandlerTest {
         // given
         parameters.put(VMPropertyHandler.TS_NUMBER_OF_NICS, "1");
         doReturn(Boolean.TRUE).when(propertyHandler)
-                .getNicSetting(1);
+                .isAdapterConfiguredByDatabase(1);
         doReturn("ipaddress").when(propertyHandler).getIpAddress(anyInt());
         doReturn("site").when(propertyHandler).getTargetVCenterServer();
         doReturn("datacenter").when(propertyHandler).getTargetDatacenter();
