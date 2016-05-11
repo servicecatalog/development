@@ -40,9 +40,7 @@ public class VMwareClientFactoryTest {
         // given
         String url = null;
         String vcenter = "vcenter";
-        String datacenter = "datacenter";
-        String cluster = "cluster";
-        VMwareCredentials credentials = new VMwareCredentials("http://vcenter",
+        VMwareCredentials credentials = new VMwareCredentials(url,
                 "userId", "password");
 
         // when
@@ -56,9 +54,7 @@ public class VMwareClientFactoryTest {
         // given
         String url = "url";
         String vcenter = "vcenter";
-        String datacenter = "datacenter";
-        String cluster = "cluster";
-        VMwareCredentials credentials = new VMwareCredentials(null, null,
+        VMwareCredentials credentials = new VMwareCredentials(url, null,
                 "password");
 
         // when
@@ -72,9 +68,7 @@ public class VMwareClientFactoryTest {
         // given
         String url = "url";
         String vcenter = "vcenter";
-        String datacenter = "datacenter";
-        String cluster = "cluster";
-        VMwareCredentials credentials = new VMwareCredentials(null, "userid",
+        VMwareCredentials credentials = new VMwareCredentials(url, "userid",
                 null);
 
         // when

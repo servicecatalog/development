@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.oscm.app.vmware.business.VMwareDatacenterInventory;
+import org.oscm.app.vmware.business.balancer.DynamicEquipartitionStorageBalancer;
 import org.oscm.app.vmware.business.model.VMwareHost;
 import org.oscm.app.vmware.business.model.VMwareStorage;
 import org.oscm.app.vmware.business.model.VMwareVirtualMachine;
@@ -114,7 +115,7 @@ public class VMwareDatacenterInventoryTest {
         assertEquals("host1", host.getName());
         assertTrue(512 == host.getMemorySizeMB());
         assertTrue(2 == host.getCpuCores());
-        assertNull(host.getBalancer());
+        assertTrue(host.getBalancer()instanceof DynamicEquipartitionStorageBalancer);
     }
 
     @Test
