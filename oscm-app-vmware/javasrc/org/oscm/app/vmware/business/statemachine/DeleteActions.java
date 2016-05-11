@@ -1,5 +1,7 @@
 package org.oscm.app.vmware.business.statemachine;
 
+import java.util.Collections;
+
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.vmware.business.VM;
@@ -45,6 +47,59 @@ public class DeleteActions extends Actions {
 					logger.error("Failed to return VMware client into pool", e);
 				}
 			}
+
 		}
-	}
+    }
+    
+    @StateMachineAction
+    public String notifyAdministrator(String instanceId, ProvisioningSettings settings,
+            InstanceStatus result) {
+        logger.debug("instance: " + instanceId);
+        String eventId = EVENT_FAILED;
+
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        String mailRecipient = ph
+                .getServiceSetting(VMPropertyHandler.TS_MAIL_FOR_COMPLETION);
+        if (mailRecipient == null) {
+            logger.debug("mailRecipient is not defined.");
+            return EVENT_SUCCESS;
+        }
+
+        try {
+            sendEmail(ph, instanceId, mailRecipient);
+            eventId = EVENT_SUCCESS;
+        } catch (Exception e) {
+            logger.error("Failed to send mail after deleting the VM instance "
+                    + instanceId, e);
+            String message = Messages.get(ph.getLocale(),
+                    "error_pause_after_creation", new Object[] { instanceId });
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+        }
+
+        return eventId;
+
+    }
+
+    
+    private void sendEmail(VMPropertyHandler paramHandler, String instanceId,
+            String mailRecipient) throws Exception {
+        logger.debug("instanceId: " + instanceId + " mailRecipient: "
+                + mailRecipient);
+        String subject = Messages.get(paramHandler.getSettings().getLocale(),
+                "mail_delete_vm.subject",
+                new Object[] { paramHandler.getInstanceName() });
+        String details = paramHandler.getConfigurationAsString(
+                paramHandler.getSettings().getLocale());
+        details += paramHandler.getResponsibleUserAsString(
+                paramHandler.getSettings().getLocale());
+        String text = Messages.get(paramHandler.getSettings().getLocale(),
+                "mail_delete_vm.text",
+                new Object[] { paramHandler.getInstanceName(),
+                        paramHandler.getServiceSetting(
+                                VMPropertyHandler.REQUESTING_USER),
+                        details});
+
+        platformService.sendMail(Collections.singletonList(mailRecipient),
+                subject, text);
+    }
 }
