@@ -79,6 +79,9 @@ public class StateMachineTest {
         }
     }
 
+    /**
+     * Checks for each transition the existence of the next state.
+     */
     private void checkForBrokenTransitions(States states) {
         List<State> allStates = states.getStates();
         for (State s : allStates) {
