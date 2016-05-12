@@ -25,61 +25,72 @@ import com.vmware.vim25.ManagedObjectReference;
  */
 public class RestoreActions extends Actions {
 
-	private static final Logger logger = LoggerFactory.getLogger(RestoreActions.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(RestoreActions.class);
 
-	private static final String EVENT_RUN = "run";
+    private static final String EVENT_RUN = "run";
 
-	@StateMachineAction
-	public String restoreSnapshot(String instanceId, ProvisioningSettings settings,
-			@SuppressWarnings("unused") InstanceStatus result) {
+    @StateMachineAction
+    public String restoreSnapshot(String instanceId,
+            ProvisioningSettings settings,
+            @SuppressWarnings("unused") InstanceStatus result) {
 
-		VMPropertyHandler ph = new VMPropertyHandler(settings);
-		String vcenter = ph.getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
-		VMwareClient client = null;
-		try {
-			client = VMClientPool.getInstance().getPool().borrowObject(vcenter);
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        VMwareClient client = null;
+        try {
+            client = VMClientPool.getInstance().getPool().borrowObject(vcenter);
 
-			ManagedObjectReference snapshot = client.findSnapshot(ph.getInstanceName(),
-					ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+            ManagedObjectReference snapshot = client.findSnapshot(
+                    ph.getInstanceName(),
+                    ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
 
-			if (snapshot == null) {
-				logger.info("Found no snapshot to restore for instance " + instanceId + ", virtual system '"
-						+ ph.getInstanceName() + "' and snapshot id "
-						+ ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
-				return EVENT_SUCCESS;
-			}
+            if (snapshot == null) {
+                logger.info("Found no snapshot to restore for instance "
+                        + instanceId + ", virtual system '"
+                        + ph.getInstanceName() + "' and snapshot id "
+                        + ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+                return EVENT_SUCCESS;
+            }
 
-			ManagedObjectReference targetHost = null;
-			boolean suppressPowerOn = false;
-			ManagedObjectReference task = client.getService().revertToSnapshotTask(snapshot, targetHost,
-					suppressPowerOn);
+            ManagedObjectReference targetHost = null;
+            boolean suppressPowerOn = false;
+            ManagedObjectReference task = client.getService()
+                    .revertToSnapshotTask(snapshot, targetHost,
+                            suppressPowerOn);
 
-			ph.setTask(client.retrieveTaskInfoKey(task));
-			return EVENT_RUN;
-		} catch (Exception e) {
-			String message = "Failed to restore snapshot for instance " + instanceId;
-			logger.error(message, e);
-			ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
-			return EVENT_ERROR;
-		} finally {
-			if (client != null) {
-				try {
-					VMClientPool.getInstance().getPool().returnObject(vcenter, client);
-				} catch (Exception e) {
-					logger.error("Failed to return VMware client into pool", e);
-				}
-			}
-		}
-	}
+            ph.setTask(client.retrieveTaskInfoKey(task));
+            return EVENT_RUN;
+        } catch (Exception e) {
+            String message = "Failed to restore snapshot for instance "
+                    + instanceId;
+            logger.error(message, e);
+            ph.setSetting(VMPropertyHandler.SM_ERROR_MESSAGE, message);
+            return EVENT_ERROR;
+        } finally {
+            if (client != null) {
+                try {
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            client);
+                } catch (Exception e) {
+                    logger.error("Failed to return VMware client into pool", e);
+                }
+            }
+        }
+    }
 
-	@Override
-	public String finish(String instanceId, ProvisioningSettings settings, InstanceStatus result) {
+    @StateMachineAction
+    @Override
+    public String finish(String instanceId, ProvisioningSettings settings,
+            InstanceStatus result) {
 
-		result.setIsReady(true);
-		VMPropertyHandler ph = new VMPropertyHandler(settings);
-		logger.info("Restored snapshot for instance " + instanceId + " with snapshot id "
-				+ ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
-		return EVENT_SUCCESS;
-	}
+        result.setIsReady(true);
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        logger.info("Restored snapshot for instance " + instanceId
+                + " with snapshot id "
+                + ph.getServiceSetting(VMPropertyHandler.SNAPSHOT_ID));
+        return EVENT_SUCCESS;
+    }
 
 }
