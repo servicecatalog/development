@@ -203,7 +203,7 @@ public class CategoryIT extends DomainObjectTestBase {
         } catch (ObjectNotFoundException ex) {
             // expected
         }
-   }
+    }
 
     @Test
     public void testQueryForAdminsThatMustBeNotified() throws Throwable {

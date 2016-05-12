@@ -4,6 +4,8 @@ jdk: oraclejdk7
 cache:
   directories:
     - $TRAVIS_BUILD_DIR/libraries
+before_install:
+  - sudo pip install codecov
 install:
   - wget -P libraries/apache-ant-contrib/javalib/ http://central.maven.org/maven2/org/apache/ivy/ivy/2.4.0/ivy-2.4.0.jar
   - mkdir ../document
