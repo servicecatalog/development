@@ -96,9 +96,8 @@ public interface IdentityServiceLocal {
      *             organization than the caller and the parameter
      *             validateOrganization is set to <code>true</code>.
      */
-    PlatformUser getPlatformUser(String userId,
-                                 boolean validateOrganization) throws ObjectNotFoundException,
-            OperationNotPermittedException;
+    PlatformUser getPlatformUser(String userId, boolean validateOrganization)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Changes the status of the given platform user and sends the corresponding
@@ -112,8 +111,7 @@ public interface IdentityServiceLocal {
      *             Thrown in case the caller does not have the platform operator
      *             role.
      */
-    void setUserAccountStatus(PlatformUser user,
-                              UserAccountStatus newStatus)
+    void setUserAccountStatus(PlatformUser user, UserAccountStatus newStatus)
             throws OrganizationAuthoritiesException;
 
     /**
@@ -172,19 +170,10 @@ public interface IdentityServiceLocal {
      *             be sent.
      */
     void createOrganizationAdmin(VOUserDetails userDetails,
-                                 Organization organization, String password, Long serviceKey,
-                                 Marketplace marketplace) throws NonUniqueBusinessKeyException,
+            Organization organization, String password, Long serviceKey,
+            Marketplace marketplace) throws NonUniqueBusinessKeyException,
             ObjectNotFoundException, ValidationException,
             MailOperationException;
-
-    /**
-     * Returns a log message prefix containing information on the current user
-     * and the organization it belongs to, the format is:
-     * "Operator:(&lt;organization-key&gt;/&lt;user-key&gt;): ".
-     * 
-     * @return A log message prefix.
-     */
-    String getOperatorLogInfo();
 
     /**
      * Returns the administrative platform users that have never confirmed their
@@ -226,7 +215,7 @@ public interface IdentityServiceLocal {
      * @throws ConcurrentModificationException
      */
     PlatformUser modifyUserData(PlatformUser existingUser,
-                                VOUserDetails updatedUser, boolean modifyOwnUser, boolean sendMail)
+            VOUserDetails updatedUser, boolean modifyOwnUser, boolean sendMail)
             throws OperationNotPermittedException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException, ValidationException,
@@ -354,15 +343,17 @@ public interface IdentityServiceLocal {
     void verifyIdUniquenessAndLdapAttributes(PlatformUser existingUser,
             PlatformUser modUser) throws NonUniqueBusinessKeyException;
 
-    void sendMailToCreatedUser(String password,
-                               boolean userLocalLdap, Marketplace marketplace, PlatformUser pu)
+    void sendMailToCreatedUser(String password, boolean userLocalLdap,
+            Marketplace marketplace, PlatformUser pu)
             throws MailOperationException;
 
     /**
      * Method creates platform user
      * 
-     * @param user - details of user that has to be created
-     * @param marketplaceId - marketplace identifier
+     * @param user
+     *            - details of user that has to be created
+     * @param marketplaceId
+     *            - marketplace identifier
      * @return created user details
      * 
      * @throws NonUniqueBusinessKeyException
@@ -371,17 +362,23 @@ public interface IdentityServiceLocal {
      * @throws UserRoleAssignmentException
      * @throws OperationPendingException
      */
-    VOUserDetails createUser(VOUserDetails user, String marketplaceId) throws NonUniqueBusinessKeyException,
-                    MailOperationException, ValidationException,
-                    UserRoleAssignmentException, OperationPendingException;
+    VOUserDetails createUser(VOUserDetails user, String marketplaceId)
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException;
 
     /**
-     * Method creates platform user and assigns user groups to him with given roles.
+     * Method creates platform user and assigns user groups to him with given
+     * roles.
      *
-     * @param user - details of user that has to be created
-     * @param roles - roles to which user will be assigned
-     * @param marketplaceId - marketplace identifier
-     * @param groups - user group(unit) and role mapping
+     * @param user
+     *            - details of user that has to be created
+     * @param roles
+     *            - roles to which user will be assigned
+     * @param marketplaceId
+     *            - marketplace identifier
+     * @param groups
+     *            - user group(unit) and role mapping
      * @return created user details
      *
      * @throws NonUniqueBusinessKeyException
@@ -393,25 +390,29 @@ public interface IdentityServiceLocal {
     VOUserDetails createUserWithGroups(VOUserDetails user,
             List<UserRoleType> roles, String marketplaceId,
             Map<Long, UnitUserRole> userGroupKeyToRole)
-                    throws NonUniqueBusinessKeyException,
-                    MailOperationException, ValidationException,
-                    UserRoleAssignmentException, OperationPendingException;
+            throws NonUniqueBusinessKeyException, MailOperationException,
+            ValidationException, UserRoleAssignmentException,
+            OperationPendingException;
 
     /**
-     * This method is used to grant unit role to given user.
-     * Only organization administrator is allowed to use this method.
+     * This method is used to grant unit role to given user. Only organization
+     * administrator is allowed to use this method.
      *
-     * @param user - platform user
-     * @param role - unit role which has to be granted
+     * @param user
+     *            - platform user
+     * @param role
+     *            - unit role which has to be granted
      */
     public void grantUnitRole(PlatformUser user, UserRoleType role);
 
     /**
-     * This method is used to revoke unit role from given user.
-     * Only organization administrator is allowed to use this method.
+     * This method is used to revoke unit role from given user. Only
+     * organization administrator is allowed to use this method.
      *
-     * @param user - platform user
-     * @param role - unit role which has to be revoked
+     * @param user
+     *            - platform user
+     * @param role
+     *            - unit role which has to be revoked
      * @throws UserModificationConstraintException
      */
     public void revokeUnitRole(PlatformUser user, UserRoleType role)

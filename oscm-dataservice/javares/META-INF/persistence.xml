@@ -25,9 +25,7 @@
     <class>org.oscm.domobjects.CatalogEntryHistory</class>
     <class>org.oscm.domobjects.Category</class>
     <class>org.oscm.domobjects.CategoryData</class>
-    <class>org.oscm.domobjects.CategoryHistory</class>
     <class>org.oscm.domobjects.CategoryToCatalogEntry</class>
-    <class>org.oscm.domobjects.CategoryToCatalogEntryHistory</class>
     <class>org.oscm.domobjects.ConfigurationSetting</class>
     <class>org.oscm.domobjects.ConfigurationSettingData</class>
     <class>org.oscm.domobjects.Discount</class>
@@ -50,15 +48,11 @@
     <class>org.oscm.domobjects.LocalizedBillingResource</class>
     <class>org.oscm.domobjects.ModifiedEntity</class>
     <class>org.oscm.domobjects.ModifiedEntityData</class>
-    <class>org.oscm.domobjects.ModifiedEntityHistory</class>
     <class>org.oscm.domobjects.ModifiedUda</class>
-    <class>org.oscm.domobjects.ModifiedUdaHistory</class>
     <class>org.oscm.domobjects.OnBehalfUserReference</class>
     <class>org.oscm.domobjects.OnBehalfUserReferenceData</class>
-    <class>org.oscm.domobjects.OnBehalfUserReferenceHistory</class>
     <class>org.oscm.domobjects.OperationParameter</class>
     <class>org.oscm.domobjects.OperationParameterData</class>
-    <class>org.oscm.domobjects.OperationParameterHistory</class>
     <class>org.oscm.domobjects.Organization</class>
     <class>org.oscm.domobjects.OrganizationData</class>
     <class>org.oscm.domobjects.OrganizationHistory</class>
@@ -70,7 +64,6 @@
     <class>org.oscm.domobjects.OrganizationSetting</class>
     <class>org.oscm.domobjects.OrganizationSettingData</class>
     <class>org.oscm.domobjects.OrganizationToCountry</class>
-    <class>org.oscm.domobjects.OrganizationToCountryHistory</class>
     <class>org.oscm.domobjects.OrganizationRefToPaymentType</class>
     <class>org.oscm.domobjects.OrganizationRefToPaymentTypeData</class>
     <class>org.oscm.domobjects.OrganizationToRole</class>
@@ -85,13 +78,11 @@
     <class>org.oscm.domobjects.ParameterOptionData</class>
     <class>org.oscm.domobjects.ParameterOptionHistory</class>
     <class>org.oscm.domobjects.ParameterSet</class>
-    <class>org.oscm.domobjects.ParameterSetHistory</class>
     <class>org.oscm.domobjects.PaymentInfo</class>
     <class>org.oscm.domobjects.PaymentInfoData</class>
     <class>org.oscm.domobjects.PaymentInfoHistory</class>
     <class>org.oscm.domobjects.PaymentResult</class>
     <class>org.oscm.domobjects.PaymentResultData</class>
-    <class>org.oscm.domobjects.PaymentResultHistory</class>
     <class>org.oscm.domobjects.PaymentType</class>
     <class>org.oscm.domobjects.PaymentTypeData</class>
     <class>org.oscm.domobjects.PaymentTypeHistory</class>
@@ -120,9 +111,7 @@
     <class>org.oscm.domobjects.ProductFeedbackData</class>
     <class>org.oscm.domobjects.ProductReview</class>
     <class>org.oscm.domobjects.ProductReviewData</class>
-    <class>org.oscm.domobjects.ProductReviewHistory</class>
     <class>org.oscm.domobjects.ProductReference</class>
-    <class>org.oscm.domobjects.ProductReferenceHistory</class>
     <class>org.oscm.domobjects.PSP</class>
     <class>org.oscm.domobjects.PSPData</class>
     <class>org.oscm.domobjects.PSPHistory</class>
@@ -139,7 +128,6 @@
     <class>org.oscm.domobjects.RevenueShareModelData</class>
     <class>org.oscm.domobjects.RevenueShareModelHistory</class>
     <class>org.oscm.domobjects.RoleAssignment</class>
-    <class>org.oscm.domobjects.RoleAssignmentHistory</class>
     <class>org.oscm.domobjects.RoleDefinition</class>
     <class>org.oscm.domobjects.RoleDefinitionData</class>
     <class>org.oscm.domobjects.RoleDefinitionHistory</class>
@@ -160,7 +148,6 @@
     <class>org.oscm.domobjects.SupportedCurrencyData</class>
     <class>org.oscm.domobjects.SupportedLanguage</class>
     <class>org.oscm.domobjects.SupportedLanguageData</class>
-    <class>org.oscm.domobjects.SupportedLanguageHistory</class>
     <class>org.oscm.domobjects.Tag</class>
     <class>org.oscm.domobjects.TagData</class>
     <class>org.oscm.domobjects.TechnicalProduct</class>
@@ -168,16 +155,13 @@
     <class>org.oscm.domobjects.TechnicalProductHistory</class>
     <class>org.oscm.domobjects.TechnicalProductOperation</class>
     <class>org.oscm.domobjects.TechnicalProductOperationData</class>
-    <class>org.oscm.domobjects.TechnicalProductOperationHistory</class>
     <class>org.oscm.domobjects.TechnicalProductTag</class>
     <class>org.oscm.domobjects.TimerProcessing</class>
     <class>org.oscm.domobjects.TimerProcessingData</class>
     <class>org.oscm.domobjects.TriggerDefinition</class>
     <class>org.oscm.domobjects.TriggerDefinitionData</class>
-    <class>org.oscm.domobjects.TriggerDefinitionHistory</class>
     <class>org.oscm.domobjects.TriggerProcess</class>
     <class>org.oscm.domobjects.TriggerProcessData</class>
-    <class>org.oscm.domobjects.TriggerProcessHistory</class>
     <class>org.oscm.domobjects.TriggerProcessParameter</class>
     <class>org.oscm.domobjects.TriggerProcessParameterData</class>
     <class>org.oscm.domobjects.TriggerProcessIdentifier</class>
@@ -199,11 +183,8 @@
     <class>org.oscm.domobjects.LocalizedResource</class>
     <class>org.oscm.domobjects.ImageResource</class>
     <class>org.oscm.domobjects.MarketplaceToOrganization</class>
-    <class>org.oscm.domobjects.MarketplaceToOrganizationHistory</class>
     <class>org.oscm.domobjects.ProductToPaymentType</class>
-    <class>org.oscm.domobjects.ProductToPaymentTypeHistory</class>
     <class>org.oscm.domobjects.MarketingPermission</class>
-    <class>org.oscm.domobjects.MarketingPermissionHistory</class>
     <class>org.oscm.domobjects.PlatformSetting</class>
     <class>org.oscm.domobjects.PlatformSettingData</class>
     <class>org.oscm.domobjects.EnterpriseLandingpage</class>

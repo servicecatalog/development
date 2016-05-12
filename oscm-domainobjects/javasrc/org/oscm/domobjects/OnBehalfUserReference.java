@@ -29,7 +29,7 @@ import javax.persistence.OneToOne;
 @Entity
 @NamedQuery(name = "OnBehalfUserReference.findInactiveBeforePeriod", query = "SELECT u FROM OnBehalfUserReference u WHERE u.dataContainer.lastAccessTime < :leastPermittedTime")
 public class OnBehalfUserReference extends
-        DomainObjectWithHistory<OnBehalfUserReferenceData> {
+        DomainObjectWithVersioning<OnBehalfUserReferenceData> {
 
     private static final long serialVersionUID = 6961787812028179143L;
 

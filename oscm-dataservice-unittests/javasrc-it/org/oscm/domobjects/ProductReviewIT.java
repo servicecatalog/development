@@ -19,17 +19,14 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Assert;
-
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.test.ReflectiveCompare;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.TechnicalProducts;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
 /**
  * Tests for the domain object representing an user review for a
@@ -61,12 +58,14 @@ public class ProductReviewIT extends DomainObjectTestBase {
     public void testAdd() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductReview();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestAddCheck();
                     return null;
@@ -119,21 +118,6 @@ public class ProductReviewIT extends DomainObjectTestBase {
         Assert.assertTrue(ReflectiveCompare.showDiffs(savedReview, review),
                 ReflectiveCompare.compare(savedReview, review));
 
-        // load history object and check the values
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedReview);
-        Assert.assertNotNull("History entry 'null' for ProductReview "
-                + review.getKey());
-        Assert.assertEquals(
-                "Only one history entry expected for ProductReview "
-                        + review.getKey(), 1, histObjs.size());
-        DomainHistoryObject<?> hist = histObjs.get(0);
-        Assert.assertEquals(ModificationType.ADD, hist.getModtype());
-        Assert.assertEquals("modUser", "guest", hist.getModuser());
-        Assert.assertTrue(ReflectiveCompare.showDiffs(review, hist),
-                ReflectiveCompare.compare(review, hist));
-        Assert.assertEquals("OBJID in history different", review.getKey(),
-                hist.getObjKey());
-
         // check cascaded objects
         PlatformUser savedUser = savedReview.getPlatformUser();
         PlatformUser orgUser = review.getPlatformUser();
@@ -141,7 +125,7 @@ public class ProductReviewIT extends DomainObjectTestBase {
                 ReflectiveCompare.compare(savedUser, orgUser));
 
         // Load cascaded history objects and check
-        histObjs = mgr.findHistory(savedUser);
+        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedUser);
         Assert.assertNotNull("History entry 'null' for PlatformUser of ProductReview "
                 + review.getKey());
         Assert.assertEquals(
@@ -178,18 +162,21 @@ public class ProductReviewIT extends DomainObjectTestBase {
     public void testModify() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductReview();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModify();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyCheck();
                     return null;
@@ -217,23 +204,6 @@ public class ProductReviewIT extends DomainObjectTestBase {
         Assert.assertTrue(ReflectiveCompare.showDiffs(savedReview, review),
                 ReflectiveCompare.compare(savedReview, review));
 
-        // load history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedReview);
-        Assert.assertNotNull("History entry 'null' for ProductReview "
-                + review.getKey());
-        Assert.assertEquals(
-                "OExactly 2 history entries expected for ProductReview "
-                        + review.getKey(), 2, histObjs.size());
-
-        // load modified history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        Assert.assertEquals(ModificationType.MODIFY, hist.getModtype());
-        Assert.assertEquals("modUser", "guest", hist.getModuser());
-        Assert.assertTrue(ReflectiveCompare.showDiffs(review, hist),
-                ReflectiveCompare.compare(review, hist));
-        Assert.assertEquals("OBJID in history different", review.getKey(),
-                hist.getObjKey());
-
         // Check cascaded objects
         PlatformUser savedUser = savedReview.getPlatformUser();
         PlatformUser orgUser = platformUser;
@@ -241,7 +211,7 @@ public class ProductReviewIT extends DomainObjectTestBase {
                 ReflectiveCompare.compare(savedUser, orgUser));
 
         // Load cascaded history objects and check
-        histObjs = mgr.findHistory(savedUser);
+        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedUser);
         Assert.assertNotNull("History entry 'null' for PlatformUser of ProductReview "
                 + review.getKey());
         Assert.assertEquals(
@@ -263,18 +233,21 @@ public class ProductReviewIT extends DomainObjectTestBase {
     public void testDelete() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     createProductReview();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDelete();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestDeleteCheck();
                     return null;
@@ -299,20 +272,6 @@ public class ProductReviewIT extends DomainObjectTestBase {
         Assert.assertNull("Deleted ProductReview '" + review.getKey()
                 + "' can still be accessed via DataManager.find", savedReview);
 
-        // Load history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(review);
-        Assert.assertNotNull(
-                "History entry 'null' for ProductReview " + review.getKey(),
-                histObjs);
-        Assert.assertEquals(
-                "Exactly 2 history entries expected for ProductReview "
-                        + review.getKey(), 2, histObjs.size());
-        // load deleted history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        Assert.assertEquals(ModificationType.DELETE, hist.getModtype());
-        Assert.assertEquals("OBJID in history different", review.getKey(),
-                hist.getObjKey());
-
         // check that the PlatformUser was not deleted
         PlatformUser user = review.getPlatformUser();
         assertNotNull(
@@ -324,7 +283,7 @@ public class ProductReviewIT extends DomainObjectTestBase {
                 savedUser);
 
         // check that the PlatformUser does not have a new history entry
-        histObjs = mgr.findHistory(savedUser);
+        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(savedUser);
         Assert.assertNotNull(
                 "History entry 'null' for PlatformUser " + user.getKey(),
                 histObjs);

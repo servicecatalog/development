@@ -21,7 +21,6 @@ import java.util.concurrent.Callable;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -41,6 +40,21 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOParameter;
+import org.oscm.internal.vo.VOParameterOption;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -59,21 +73,6 @@ import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOParameterOption;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
 
 /**
  * ParameterOption related tests for the subscription service.
@@ -128,11 +127,6 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
         container.addBean(new ApplicationServiceStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new IdentityServiceStub() {
-            @Override
-            public String getOperatorLogInfo() {
-                return "";
-            }
-
             @Override
             public PlatformUser getPlatformUser(String userId,
                     boolean validateOrganization) {
@@ -221,8 +215,7 @@ public class SubscriptionServiceBeanParameterOptionIT extends EJBTestBase {
         List<VOParameterOption> parameterOptions = parameters.get(0)
                 .getParameterDefinition().getParameterOptions();
         parameters.get(0).setValue(parameterOptions.get(1).getOptionId());
-        
-        
+
         subSvc.modifySubscription(subscriptionDetails, parameters,
                 new ArrayList<VOUda>());
 

@@ -10,22 +10,18 @@ package org.oscm.domobjects;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertNull;
 
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.types.enumtypes.OperationParameterType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.types.enumtypes.OperationParameterType;
 
 /**
  * @author weiser
@@ -53,19 +49,14 @@ public class OperationParameterIT extends DomainObjectTestBase {
 
     @Test
     public void add() throws Exception {
-        OperationParameter read = doAdd("PARAM1", operation1);
+        doAdd("PARAM1", operation1);
 
-        verifyHistory(read, 1, ModificationType.ADD);
     }
 
     @Test
     public void add_SameIdInDifferentOperations() throws Exception {
-        OperationParameter read = doAdd("PARAM1", operation1);
-        verifyHistory(read, 1, ModificationType.ADD);
-
-        read = doAdd("PARAM1", operation2);
-
-        verifyHistory(read, 1, ModificationType.ADD);
+        doAdd("PARAM1", operation1);
+        doAdd("PARAM1", operation2);
     }
 
     @Test(expected = NonUniqueBusinessKeyException.class)
@@ -76,10 +67,7 @@ public class OperationParameterIT extends DomainObjectTestBase {
 
     @Test
     public void modify() throws Exception {
-        final OperationParameter read = doModify(doAdd("PARAM1", operation1),
-                "PARAM47");
-
-        verifyHistory(read, 2, ModificationType.MODIFY);
+        doModify(doAdd("PARAM1", operation1), "PARAM47");
     }
 
     @Test
@@ -105,12 +93,11 @@ public class OperationParameterIT extends DomainObjectTestBase {
             }
         });
 
-        verifyHistory(op, 2, ModificationType.DELETE);
     }
 
     @Test
     public void delete_CascadeFromOperation() throws Exception {
-        OperationParameter op = doAdd("PARAM1", operation1);
+        doAdd("PARAM1", operation1);
 
         runTX(new Callable<Void>() {
 
@@ -123,7 +110,6 @@ public class OperationParameterIT extends DomainObjectTestBase {
             }
         });
 
-        verifyHistory(op, 2, ModificationType.DELETE);
     }
 
     private OperationParameter doAdd(final String id,
@@ -186,28 +172,6 @@ public class OperationParameterIT extends DomainObjectTestBase {
         assertEquals(OperationParameterType.REQUEST_SELECT, read.getType());
         assertTrue(read.isMandatory());
         return read;
-    }
-
-    private void verifyHistory(final OperationParameter read,
-            int historyEntries, ModificationType lastModType) throws Exception {
-        List<DomainHistoryObject<?>> history = runTX(new Callable<List<DomainHistoryObject<?>>>() {
-
-            @Override
-            public List<DomainHistoryObject<?>> call() throws Exception {
-                return mgr.findHistory(read);
-            }
-        });
-        assertNotNull(history);
-        assertEquals(historyEntries, history.size());
-        OperationParameterHistory oh = (OperationParameterHistory) history
-                .get(history.size() - 1);
-        OperationParameterData dc = read.getDataContainer();
-        assertEquals(dc.getId(), oh.getId());
-        assertEquals(dc.isMandatory(), oh.isMandatory());
-        assertEquals(dc.getType(), oh.getType());
-        assertEquals(read.getKey(), oh.getObjKey());
-        assertEquals(lastModType, oh.getModtype());
-        assertTrue(oh.getTechnicalProductOperationObjKey() != 0);
     }
 
 }

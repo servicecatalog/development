@@ -20,12 +20,10 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
-import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.enums.ModifiedEntityType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.ReflectiveCompare;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 /**
  * Tests of the modifieduda-related domain objects
@@ -34,7 +32,7 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
  */
 public class ModifiedUdaIT extends DomainObjectTestBase {
 
-    private List<DomainObjectWithHistory<?>> domObjects = new ArrayList<DomainObjectWithHistory<?>>();
+    private List<DomainObjectWithVersioning<?>> domObjects = new ArrayList<DomainObjectWithVersioning<?>>();
     private static final long TARGET_OBJECT_KEY = 10001L;
     private static final long SUBSCRIPTION_KEY = 1001L;
     private static final String VALUE1 = "value1";
@@ -89,18 +87,21 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
     public void testModifyModifiedUda() throws Throwable {
         try {
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUdaPrepare();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUda();
                     return null;
                 }
             });
             runTX(new Callable<Void>() {
+                @Override
                 public Void call() throws Exception {
                     doTestModifyModifiedUdaCheck();
                     return null;
@@ -168,7 +169,7 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
     private void doTestAddCheck() {
         ModifiedUda saved = null;
         ModifiedUda qry = new ModifiedUda();
-        for (DomainObjectWithHistory<?> modifiedUda : domObjects) {
+        for (DomainObjectWithVersioning<?> modifiedUda : domObjects) {
             // Load ModifiedUda and check values
             ModifiedUda modUda = (ModifiedUda) modifiedUda;
             qry.setTargetObjectKey(modUda.getTargetObjectKey());
@@ -185,17 +186,6 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
                     saved.getTargetObjectType());
             assertEquals(modUda.getSubscriptionKey(),
                     saved.getSubscriptionKey());
-
-            // Load history objects and check them
-            List<DomainHistoryObject<?>> histObjs = mgr.findHistory(saved);
-            assertEquals(1, histObjs.size());
-            DomainHistoryObject<?> hist = histObjs.get(0);
-            assertEquals(ModificationType.ADD, hist.getModtype());
-            assertEquals("modUser", "guest", hist.getModuser());
-            assertTrue(ReflectiveCompare.showDiffs(modUda, hist),
-                    ReflectiveCompare.compare(modUda, hist));
-            assertEquals("OBJID in history different", modUda.getKey(),
-                    hist.getObjKey());
         }
     }
 
@@ -223,23 +213,6 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
         assertNotNull("Cannot find '" + modifiedUda.getKey() + "' in DB", saved);
         assertTrue(ReflectiveCompare.showDiffs(saved, modifiedUda),
                 ReflectiveCompare.compare(saved, modifiedUda));
-        // Load history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(modifiedUda);
-        assertNotNull(
-                "History entry 'null' for ModifiedUda " + modifiedUda.getKey(),
-                histObjs);
-        assertEquals("Exactly 2 history entries expected for ModifiedUda "
-                + modifiedUda.getKey(), 2, histObjs.size());
-        assertEquals("OBJID in history different", modifiedUda.getKey(),
-                histObjs.get(1).getObjKey());
-        // load modified history object (should be second)
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        assertEquals(ModificationType.MODIFY, hist.getModtype());
-        assertEquals("modUser", "guest", hist.getModuser());
-        assertTrue(ReflectiveCompare.showDiffs(modifiedUda, hist),
-                ReflectiveCompare.compare(modifiedUda, hist));
-        assertEquals("OBJID in history different", modifiedUda.getKey(),
-                hist.getObjKey());
     }
 
     private void doTestDeleteModifiedUdaPrepare()
@@ -265,19 +238,6 @@ public class ModifiedUdaIT extends DomainObjectTestBase {
         // Check ModifiedUda data
         assertNull("Deleted ModifiedUda '" + modifiedUda.getKey()
                 + "' can still be accessed via DataManager.find", saved);
-        // Load ModifiedUda history objects and check them
-        List<DomainHistoryObject<?>> histObjs = mgr.findHistory(modifiedUda);
-        assertNotNull(
-                "History entry 'null' for ModifiedUda " + modifiedUda.getKey(),
-                histObjs);
-        assertEquals("Exactly 2 history entries expected for ModifiedUda "
-                + modifiedUda.getKey(), 2, histObjs.size());
-        assertEquals("OBJID in history different", modifiedUda.getKey(),
-                histObjs.get(1).getObjKey());
-
-        // deleted history object
-        DomainHistoryObject<?> hist = histObjs.get(1);
-        assertEquals(ModificationType.DELETE, hist.getModtype());
     }
 
     private ModifiedUda givenModifiedUda(long targetObjectKey,

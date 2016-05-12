@@ -9,34 +9,24 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.tables.Pagination;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.Numbers;
@@ -52,13 +42,6 @@ import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.tables.Pagination;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
 
 /**
  * Unit tests for {@link SubscriptionDao} using the test EJB container.
@@ -100,7 +83,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());
-        container.addBean(Mockito.mock(IdentityService.class));
+        container.addBean(mock(IdentityService.class));
 
         final Organization org = new Organization();
         org.setKey(0);
@@ -312,6 +295,48 @@ public class SubscriptionDaoIT extends EJBTestBase {
     }
 
     @Test
+    public void getSubscriptionsForUserWithKeysEmptySet() throws Exception {
+        // when
+        final Set<Long> keys = Collections.emptySet();
+        final PlatformUser user = createUser(randomString(), supplierCustomer);
+        List<Subscription> result = runTX(new Callable<List<Subscription>>() {
+            @Override
+            public List<Subscription> call() throws Exception {
+                return dao.getSubscriptionsForUser(user, mock(org.oscm.paginator.Pagination.class));
+            }
+        });
+
+        // then
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    public void getSubscriptionsForUserWithKeys() throws Exception {
+        final Product subscription = createSubscription();
+        final PlatformUser user = createUser(randomString(), supplierCustomer);
+        final Subscription[] subscription1 = new Subscription[1];
+        // when
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                subscription1[0] = Subscriptions.createSubscription(ds, supplierCustomer.getOrganizationId(), subscription);
+                Subscriptions.createUsageLicense(ds, user, subscription1[0]);
+                return null;
+            }
+        });
+        final Set<Long> keys = Collections.singleton(subscription1[0].getKey());
+        List<Subscription> result = runTX(new Callable<List<Subscription>>() {
+            @Override
+            public List<Subscription> call() throws Exception {
+                return dao.getSubscriptionsForUserWithSubscriptionKeys(user, mock(org.oscm.paginator.Pagination.class), keys);
+            }
+        });
+
+        // then
+        assertEquals(1, result.size());
+    }
+
+    @Test
     public void hasSubscriptionsBasedOnOnBehalfServicesForTp() throws Exception {
         createSubscription();
         // when
@@ -475,6 +500,12 @@ public class SubscriptionDaoIT extends EJBTestBase {
         return pagination;
     }
 
+    private org.oscm.paginator.Pagination givenNewPagination() {
+        org.oscm.paginator.Pagination pagination = new org.oscm.paginator.Pagination();
+        pagination.setFilterSet(Collections.EMPTY_SET);
+        return pagination;
+    }
+
     private UserGroup createUnit(final String name, final String description,
             final String referenceId, final Organization org) throws Exception {
         return runTX(new Callable<UserGroup>() {
@@ -625,26 +656,26 @@ public class SubscriptionDaoIT extends EJBTestBase {
         });
     }
 
-    private void createSubscription() throws Exception {
+    private Product createSubscription() throws Exception {
         TechnicalProduct tProduct = createTechnicalProduct("serviceId",
                 ServiceAccessType.LOGIN);
-        createSubscriptionForOfferer(tProduct, supplier, supplierCustomer,
+        return createSubscriptionForOfferer(tProduct, supplier, supplierCustomer,
                 "supplierCommonProduct", COMMON_SUB_ID);
     }
 
-    private void createSubscriptionForOfferer(final TechnicalProduct tProduct,
-            final Organization offerer, final Organization customer,
-            final String productId, final String subscriptionId)
+    private Product createSubscriptionForOfferer(final TechnicalProduct tProduct,
+                                                 final Organization offerer, final Organization customer,
+                                                 final String productId, final String subscriptionId)
             throws Exception {
-        runTX(new Callable<Void>() {
+        return runTX(new Callable<Product>() {
             @Override
-            public Void call() throws Exception {
+            public Product call() throws Exception {
                 Product product = Products.createProduct(offerer, tProduct,
                         false, productId, null, ds);
                 commonSubscription = Subscriptions.createSubscription(ds,
                         customer.getOrganizationId(), product.getProductId(),
                         subscriptionId, offerer);
-                return null;
+                return product;
             }
         });
     }

@@ -88,16 +88,31 @@ public class ExternalServicePriceModelCtrlTest extends ExternalPriceModelTest {
         verify(externalPriceModelService, times(1))
                 .getExternalPriceModelForService(
                         Mockito.any(VOServiceDetails.class));
-
     }
-    
+
+    @Test
+    public void testUploadEmpty() throws ExternalPriceModelException {
+
+        // given
+        doReturn(null).when(externalPriceModelService)
+                .getExternalPriceModelForService(
+                        Mockito.any(VOServiceDetails.class));
+
+        // when
+        ctrl.upload(new VOServiceDetails());
+
+        // then
+        verify(ctrl, times(0)).loadPriceModelContent(null);
+    }
+
     @Test
     public void testDisplay() throws IOException, SaaSApplicationException {
 
         // given
         PriceModelContent createPriceModelContent = createPriceModelContent();
-        doReturn(createPriceModelContent).when(model).getSelectedPriceModelContent();
-      
+        doReturn(createPriceModelContent).when(model)
+                .getSelectedPriceModelContent();
+
         // when
         ctrl.display();
 

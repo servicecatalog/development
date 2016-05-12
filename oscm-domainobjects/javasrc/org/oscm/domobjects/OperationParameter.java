@@ -38,7 +38,7 @@ import org.oscm.types.enumtypes.OperationParameterType;
 @NamedQueries({ @NamedQuery(name = "OperationParameter.findByBusinessKey", query = "select c from OperationParameter c where c.dataContainer.id=:id AND c.technicalproductoperation_tkey=:technicalproductoperation_tkey") })
 @BusinessKey(attributes = { "technicalproductoperation_tkey", "id" })
 public class OperationParameter extends
-        DomainObjectWithHistory<OperationParameterData> {
+        DomainObjectWithVersioning<OperationParameterData> {
 
     private static final long serialVersionUID = 6061895654935133124L;
 

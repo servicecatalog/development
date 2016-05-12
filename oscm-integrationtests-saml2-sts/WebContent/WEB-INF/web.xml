@@ -9,7 +9,7 @@
   id="WebApp_ID"
   version="2.5">
   
-  <display-name>oscm-integrationtests-saml2-sp</display-name>
+  <display-name>oscm-integrationtests-saml2-sts</display-name>
   
   <listener>
     <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
