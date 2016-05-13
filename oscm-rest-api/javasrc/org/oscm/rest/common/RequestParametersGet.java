@@ -12,7 +12,7 @@ import javax.ws.rs.BadRequestException;
 import javax.ws.rs.QueryParam;
 
 /**
- * BeanParam class for get requests.
+ * InjectParam class for get requests.
  * 
  * @author miethaner
  */
@@ -51,7 +51,7 @@ public class RequestParametersGet extends RequestParameters {
     }
 
     @Override
-    public void update(int version) {
+    public void update() {
         // nothing to update in version 1
     }
 }

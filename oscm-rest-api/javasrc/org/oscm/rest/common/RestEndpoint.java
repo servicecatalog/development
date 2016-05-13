@@ -11,7 +11,6 @@ package org.oscm.rest.common;
 import java.net.URI;
 import java.util.Collection;
 
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -19,6 +18,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.sun.jersey.api.core.InjectParam;
 import com.sun.jersey.spi.container.ContainerRequest;
 
 /**
@@ -33,15 +34,10 @@ import com.sun.jersey.spi.container.ContainerRequest;
  * 
  * @author miethaner
  */
-public class RestEndpoint<T extends RepresentationWithVersion> extends
-        RestResource {
+public class RestEndpoint<T extends Representation> {
 
     private static final String PARAM_VERSION = "version";
 
-    @Context
-    private Request request;
-
-    private int version;
     private EndpointBackend<T> backend;
 
     /**
@@ -51,9 +47,6 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
      *            the endpoint backend
      */
     public RestEndpoint(EndpointBackend<T> backend) {
-        ContainerRequest cr = (ContainerRequest) request;
-        version = ((Integer) cr.getProperties().get(PARAM_VERSION)).intValue();
-
         this.backend = backend;
     }
 
@@ -61,35 +54,45 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItem(@BeanParam RequestParametersGet params) {
+    public Response getItem(@Context Request request,
+            @InjectParam RequestParametersGet params) {
 
+        int version = getVersion(request);
         params.validateResourceId();
         params.validateParameters();
 
-        params.update(version);
+        params.setVersion(version);
+        params.update();
 
         T item = backend.getItem(params);
 
-        item.convert(version);
+        item.setVersion(version);
+        item.convert();
 
         return Response.ok(item).build();
     }
 
     @Since(1)
     @GET
+    @Path("")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCollection(@BeanParam RequestParametersGet params) {
+    public Response getCollection(@Context Request request,
+            @InjectParam RequestParametersGet params) {
+
+        int version = getVersion(request);
 
         params.validateParameters();
 
-        params.update(version);
+        params.setVersion(version);
+        params.update();
 
         Collection<T> items = backend.getCollection(params);
 
         RepresentationCollection<T> collection = new RepresentationCollection<T>(
                 items);
 
-        collection.convert(version);
+        collection.setVersion(version);
+        collection.convert();
 
         return Response.ok(collection).build();
     }
@@ -98,15 +101,20 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
     @POST
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postItem(@Context UriInfo uriInfo,
-            @BeanParam RequestParametersPost params, T content) {
+    public Response postItem(@Context Request request,
+            @Context UriInfo uriInfo,
+            @InjectParam RequestParametersPost params, T content) {
+
+        int version = getVersion(request);
 
         params.validateResourceId();
         params.validateParameters();
         content.validateContent();
 
-        params.update(version);
-        content.update(version);
+        params.setVersion(version);
+        params.update();
+        content.setVersion(version);
+        content.update();
 
         String newId = backend.postCollection(params, content);
 
@@ -118,15 +126,21 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
 
     @Since(1)
     @POST
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postCollection(@Context UriInfo uriInfo,
-            @BeanParam RequestParametersPost params, T content) {
+    public Response postCollection(@Context Request request,
+            @Context UriInfo uriInfo,
+            @InjectParam RequestParametersPost params, T content) {
+
+        int version = getVersion(request);
 
         params.validateParameters();
         content.validateContent();
 
-        params.update(version);
-        content.update(version);
+        params.setVersion(version);
+        params.update();
+        content.setVersion(version);
+        content.update();
 
         String newId = backend.postCollection(params, content);
 
@@ -140,33 +154,43 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
     @PUT
     @Path("{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putItem(@BeanParam RequestParametersPut params, T content) {
+    public Response putItem(@Context Request request,
+            @InjectParam RequestParametersPut params, T content) {
+
+        int version = getVersion(request);
 
         params.validateResourceId();
         params.validateParameters();
         content.validateContent();
 
-        params.update(version);
-        content.update(version);
+        params.setVersion(version);
+        params.update();
+        content.setVersion(version);
+        content.update();
 
-        backend.putItem(params, content);
+        backend.putItem(null, content);
 
         return Response.noContent().build();
     }
 
     @Since(1)
     @PUT
+    @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putCollection(@BeanParam RequestParametersPut params,
-            T content) {
+    public Response putCollection(@Context Request request,
+            @InjectParam RequestParametersPut params, T content) {
+
+        int version = getVersion(request);
 
         params.validateParameters();
         content.validateContent();
 
-        params.update(version);
-        content.update(version);
+        params.setVersion(version);
+        params.update();
+        content.setVersion(version);
+        content.update();
 
-        backend.putCollection(params, content);
+        backend.putCollection(null, content);
 
         return Response.noContent().build();
     }
@@ -174,12 +198,16 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
     @Since(1)
     @DELETE
     @Path("{id}")
-    public Response deleteItem(@BeanParam RequestParametersDelete params) {
+    public Response deleteItem(@Context Request request,
+            @InjectParam RequestParametersDelete params) {
+
+        int version = getVersion(request);
 
         params.validateResourceId();
         params.validateParameters();
 
-        params.update(version);
+        params.setVersion(version);
+        params.update();
 
         backend.deleteItem(params);
 
@@ -188,14 +216,40 @@ public class RestEndpoint<T extends RepresentationWithVersion> extends
 
     @Since(1)
     @DELETE
-    public Response deleteCollection(@BeanParam RequestParametersDelete params) {
+    @Path("")
+    public Response deleteCollection(@Context Request request,
+            @InjectParam RequestParametersDelete params) {
+
+        int version = getVersion(request);
 
         params.validateParameters();
 
-        params.update(version);
+        params.setVersion(version);
+        params.update();
 
         backend.deleteCollection(params);
 
         return Response.noContent().build();
+    }
+
+    /**
+     * Extracts the version number from the container request properties. Throws
+     * Exception if property is null.
+     * 
+     * @param request
+     *            the container request
+     * @return the version number
+     * @throws WebApplicationException
+     */
+    private int getVersion(Request request) throws WebApplicationException {
+
+        ContainerRequest cr = (ContainerRequest) request;
+        Object property = cr.getProperties().get(PARAM_VERSION);
+
+        if (property == null) {
+            throw WebException.notFound().build(); // TODO add more info
+        }
+
+        return ((Integer) property).intValue();
     }
 }
