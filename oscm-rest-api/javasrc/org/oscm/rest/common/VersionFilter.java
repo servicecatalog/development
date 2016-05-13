@@ -9,16 +9,13 @@
 package org.oscm.rest.common;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Method;
 
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.container.ResourceInfo;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Provider;
 
-import com.sun.jersey.api.NotFoundException;
+import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 
@@ -28,7 +25,6 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
  * 
  * @author miethaner
  */
-@Provider
 public class VersionFilter implements ContainerRequestFilter {
 
     // all available versions
@@ -41,11 +37,19 @@ public class VersionFilter implements ContainerRequestFilter {
     private static final String PATTERN_VERSION = "v[0-9]+";
     private static final int PATTERN_VERSION_OFFSET = 1;
 
-    @Context
-    private ResourceInfo resourceInfo;
-
-    @Context
+    private AbstractMethod method;
     private UriInfo uriInfo;
+
+    /**
+     * Creates a new version filter
+     * 
+     * @param method
+     *            the called method
+     */
+    public VersionFilter(AbstractMethod method, UriInfo uriInfo) {
+        this.method = method;
+        this.uriInfo = uriInfo;
+    }
 
     @Override
     public ContainerRequest filter(ContainerRequest request)
@@ -59,8 +63,6 @@ public class VersionFilter implements ContainerRequestFilter {
             String version = params.get(PARAM_VERSION).get(0);
 
             int vnr = validateVersion(version);
-
-            Method method = resourceInfo.getResourceMethod();
 
             if (method.isAnnotationPresent(Since.class)) {
 
@@ -78,7 +80,7 @@ public class VersionFilter implements ContainerRequestFilter {
 
                 if (vnr > until.value()) {
                     throw WebException.notFound().build(); // TODO add more
-                                                           // info
+                    // info
                 }
             }
 
@@ -100,7 +102,7 @@ public class VersionFilter implements ContainerRequestFilter {
      * @return the version as integer
      * @throws NotFoundException
      */
-    private int validateVersion(String version) throws NotFoundException {
+    private int validateVersion(String version) throws WebApplicationException {
 
         if (version == null) {
             throw WebException.notFound().build(); // TODO: add more info

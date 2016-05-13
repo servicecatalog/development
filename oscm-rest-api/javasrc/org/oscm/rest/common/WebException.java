@@ -9,16 +9,9 @@
 package org.oscm.rest.common;
 
 import javax.ws.rs.BadRequestException;
-import javax.ws.rs.ForbiddenException;
-import javax.ws.rs.InternalServerErrorException;
-import javax.ws.rs.NotAcceptableException;
-import javax.ws.rs.NotAuthorizedException;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.ServiceUnavailableException;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.google.gson.Gson;
 
 /**
  * Builder class for custom WebAppExceptions.
@@ -44,7 +37,7 @@ public class WebException {
          * @author miethaner
          */
         @SuppressWarnings("unused")
-        private static class ExceptionBody {
+        private static class ExceptionBody extends Representation {
             private int code;
             private Integer error;
             private String property;
@@ -90,6 +83,18 @@ public class WebException {
             public void setMoreInfo(String moreInfo) {
                 this.moreInfo = moreInfo;
             }
+
+            @Override
+            public void validateContent() throws BadRequestException {
+            }
+
+            @Override
+            public void update() {
+            }
+
+            @Override
+            public void convert() {
+            }
         }
 
         private ExceptionBody body;
@@ -107,6 +112,18 @@ public class WebException {
             body.setProperty(null);
             body.setMessage(null);
             body.setMoreInfo(null);
+        }
+
+        /**
+         * Sets the message format (api) version
+         * 
+         * @param version
+         *            the format/api version
+         * @return the exception builder
+         */
+        public ExceptionBuilder version(int version) {
+            body.setVersion(version);
+            return this;
         }
 
         /**
@@ -164,44 +181,41 @@ public class WebException {
          */
         public WebApplicationException build() {
 
-            Gson gson = new Gson();
-            String json = gson.toJson(body);
-
-            WebApplicationException exception = null;
+            Response response = null;
 
             switch (body.code) {
             case STATUS_BAD_REQUEST:
-                exception = new BadRequestException(Response
-                        .status(STATUS_BAD_REQUEST).entity(json).build());
+                response = Response.status(STATUS_BAD_REQUEST).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             case STATUS_UNAUTHORIZED:
-                exception = new NotAuthorizedException(Response
-                        .status(STATUS_UNAUTHORIZED).entity(json).build());
+                response = Response.status(STATUS_UNAUTHORIZED).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             case STATUS_FORBIDDEN:
-                exception = new ForbiddenException(Response
-                        .status(STATUS_FORBIDDEN).entity(json).build());
+                response = Response.status(STATUS_FORBIDDEN).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             case STATUS_NOT_FOUND:
-                exception = new NotFoundException(Response
-                        .status(STATUS_NOT_FOUND).entity(json).build());
+                response = Response.status(STATUS_NOT_FOUND).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             case STATUS_CONFLICT:
-                exception = new NotAcceptableException(Response
-                        .status(STATUS_CONFLICT).entity(json).build());
+                response = Response.status(STATUS_CONFLICT).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             case STATUS_INTERNAL_SERVER_ERROR:
-                exception = new InternalServerErrorException(Response
-                        .status(STATUS_INTERNAL_SERVER_ERROR).entity(json)
-                        .build());
+                response = Response.status(STATUS_INTERNAL_SERVER_ERROR)
+                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
+                        .build();
                 break;
             case STATUS_UNAVAILABLE:
-                exception = new ServiceUnavailableException(Response
-                        .status(STATUS_UNAVAILABLE).entity(json).build());
+                response = Response.status(STATUS_UNAVAILABLE).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
                 break;
             }
 
-            return exception;
+            return new WebApplicationException(response);
         }
     }
 
