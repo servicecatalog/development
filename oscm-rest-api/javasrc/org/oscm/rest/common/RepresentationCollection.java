@@ -17,8 +17,8 @@ import javax.ws.rs.BadRequestException;
  * 
  * @author miethaner
  */
-public class RepresentationCollection<T extends RepresentationWithVersion>
-        extends RepresentationWithVersion {
+public class RepresentationCollection<T extends Representation> extends
+        Representation {
 
     private Collection<T> items;
 
@@ -57,22 +57,29 @@ public class RepresentationCollection<T extends RepresentationWithVersion>
     }
 
     @Override
-    public void update(int version) {
-        setVersion(version);
+    public void setVersion(int version) {
+        super.setVersion(version);
 
         for (T item : items) {
-            item.update(version);
+            item.setVersion(version);
+        }
+    }
+
+    @Override
+    public void update() {
+
+        for (T item : items) {
+            item.update();
         }
 
         // nothing to update in version 1
     }
 
     @Override
-    public void convert(int version) {
-        setVersion(version);
+    public void convert() {
 
         for (T item : items) {
-            item.convert(version);
+            item.convert();
         }
 
         // nothing to convert in version 1

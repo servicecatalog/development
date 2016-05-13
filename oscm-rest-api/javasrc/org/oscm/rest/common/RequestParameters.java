@@ -13,7 +13,7 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.PathParam;
 
 /**
- * Super class for BeanParams
+ * Super class for InjectParams
  * 
  * @author miethaner
  */
@@ -25,8 +25,18 @@ public abstract class RequestParameters {
     // pattern for input validation
     private static final String PATTERN_ID = "[0-9a-fA-F-]{36}";
 
+    private int version;
+
     @PathParam(PARAM_ID)
     private String id;
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
 
     public String getID() {
         return id;
@@ -58,11 +68,8 @@ public abstract class RequestParameters {
     public abstract void validateParameters() throws BadRequestException;
 
     /**
-     * Updates the parameters of the given old version to the current one.
-     * 
-     * @param version
-     *            the old version
+     * Updates the parameters of the internal version to the current one.
      */
-    public abstract void update(int version);
+    public abstract void update();
 
 }

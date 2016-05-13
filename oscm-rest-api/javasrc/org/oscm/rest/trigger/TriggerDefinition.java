@@ -8,16 +8,16 @@
 
 package org.oscm.rest.trigger;
 
-import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
 
-import org.oscm.rest.common.RepresentationWithVersion;
+import org.oscm.rest.common.Representation;
 
 /**
  * Representation class of trigger definitions.
  * 
  * @author miethaner
  */
-public class TriggerDefinition extends RepresentationWithVersion {
+public class TriggerDefinition extends Representation {
 
     public enum Action {
         SUBSCRIBE_TO_SERVICE, UNSUBSCRIBE_FROM_SERVICE, MODIFY_SUBSCRIPTION
@@ -151,20 +151,18 @@ public class TriggerDefinition extends RepresentationWithVersion {
     }
 
     @Override
-    public void validateContent() throws BadRequestException {
+    public void validateContent() throws WebApplicationException {
         // TODO validate content
     }
 
     @Override
-    public void update(int version) {
-        setVersion(version);
+    public void update() {
 
         // nothing to update in version 1
     }
 
     @Override
-    public void convert(int version) {
-        setVersion(version);
+    public void convert() {
 
         // nothing to convert in version 1
     }

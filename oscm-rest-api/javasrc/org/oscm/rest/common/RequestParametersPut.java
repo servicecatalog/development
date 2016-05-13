@@ -11,7 +11,7 @@ package org.oscm.rest.common;
 import javax.ws.rs.BadRequestException;
 
 /**
- * BeanParam class for put requests.
+ * InjectParam class for put requests.
  * 
  * @author miethaner
  */
@@ -23,7 +23,7 @@ public class RequestParametersPut extends RequestParameters {
     }
 
     @Override
-    public void update(int version) {
+    public void update() {
         // nothing to update in version 1
     }
 }

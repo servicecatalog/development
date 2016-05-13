@@ -9,9 +9,7 @@
 package org.oscm.rest.common;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.SecurityContext;
-import javax.ws.rs.ext.Provider;
 
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
@@ -21,11 +19,13 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
  * 
  * @author miethaner
  */
-@Provider
 public class SecurityFilter implements ContainerRequestFilter {
 
-    @Context
-    SecurityContext securityContext;
+    private SecurityContext securityContext;
+
+    public SecurityFilter(SecurityContext securityContext) {
+        this.securityContext = securityContext;
+    }
 
     /**
      * Check if connection is secure and user authenticated.
@@ -34,13 +34,13 @@ public class SecurityFilter implements ContainerRequestFilter {
     public ContainerRequest filter(ContainerRequest request)
             throws WebApplicationException {
 
-        if (!securityContext.isSecure()) {
-            throw WebException.forbidden().build(); // TODO: add more info
-        }
-
-        if (securityContext.getUserPrincipal() == null) {
-            throw WebException.forbidden().build(); // TODO: add more info
-        }
+        // if (!securityContext.isSecure()) {
+        // throw WebException.forbidden().build(); // TODO: add more info
+        // }
+        //
+        // if (securityContext.getUserPrincipal() == null) {
+        // throw WebException.forbidden().build(); // TODO: add more info
+        // }
 
         return request;
     }
