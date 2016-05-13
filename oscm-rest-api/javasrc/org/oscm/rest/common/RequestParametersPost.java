@@ -11,19 +11,19 @@ package org.oscm.rest.common;
 import javax.ws.rs.BadRequestException;
 
 /**
+ * InjectParam class for post requests
+ * 
  * @author miethaner
- *
  */
 public class RequestParametersPost extends RequestParameters {
 
     @Override
     public void validateParameters() throws BadRequestException {
         // TODO Auto-generated method stub
-
     }
 
     @Override
-    public void update(int version) {
+    public void update() {
         // nothing to update in version 1
     }
 }

@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -28,6 +29,7 @@ import javax.ws.rs.ext.Provider;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * Provider class for message body writer and reader with gson.
@@ -37,9 +39,8 @@ import com.google.gson.GsonBuilder;
 @Provider
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-public class GsonMessageProvider implements
-        MessageBodyWriter<RepresentationWithVersion>,
-        MessageBodyReader<RepresentationWithVersion> {
+public class GsonMessageProvider implements MessageBodyWriter<Representation>,
+        MessageBodyReader<Representation> {
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType,
@@ -48,9 +49,8 @@ public class GsonMessageProvider implements
     }
 
     @Override
-    public RepresentationWithVersion readFrom(
-            Class<RepresentationWithVersion> type, Type genericType,
-            Annotation[] annotations, MediaType mediaType,
+    public Representation readFrom(Class<Representation> type,
+            Type genericType, Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, String> httpHeaders, InputStream entityStream)
             throws IOException, WebApplicationException {
 
@@ -61,7 +61,7 @@ public class GsonMessageProvider implements
             Gson gson = new Gson();
             return gson.fromJson(reader, genericType);
 
-        } catch (com.google.gson.JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
             throw WebException.badRequest().build(); // TODO add more info
 
         } finally {
@@ -70,8 +70,8 @@ public class GsonMessageProvider implements
     }
 
     @Override
-    public long getSize(RepresentationWithVersion rep, Class<?> type,
-            Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(Representation rep, Class<?> type, Type genericType,
+            Annotation[] annotations, MediaType mediaType) {
         return -1;
     }
 
@@ -82,8 +82,8 @@ public class GsonMessageProvider implements
     }
 
     @Override
-    public void writeTo(RepresentationWithVersion rep, Class<?> type,
-            Type genericType, Annotation[] annotations, MediaType mediaType,
+    public void writeTo(Representation rep, Class<?> type, Type genericType,
+            Annotation[] annotations, MediaType mediaType,
             MultivaluedMap<String, Object> httpHeaders,
             OutputStream entityStream) throws IOException,
             WebApplicationException {
@@ -91,11 +91,14 @@ public class GsonMessageProvider implements
         OutputStreamWriter writer = new OutputStreamWriter(entityStream,
                 StandardCharsets.UTF_8);
 
+        Logger logger = Logger.getLogger(getClass().getName());
+        logger.info(type.getName() + ", " + genericType.toString());
+
         try {
             Gson gson = new GsonBuilder().setVersion(rep.getVersion()).create();
             gson.toJson(rep, genericType, writer);
 
-        } catch (com.google.gson.JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
             throw WebException.internalServerError().build(); // TODO add more
                                                               // info
         } finally {

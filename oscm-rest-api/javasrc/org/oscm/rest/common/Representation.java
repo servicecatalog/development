@@ -2,20 +2,21 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 9, 2016                                                      
+ *  Creation Date: May 12, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.rest.common;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.WebApplicationException;
 
 /**
- * Super class for representational objects with versions
+ * Super class for all representations
  * 
  * @author miethaner
  */
-public abstract class RepresentationWithVersion {
+public abstract class Representation {
 
     private transient int version;
 
@@ -33,22 +34,16 @@ public abstract class RepresentationWithVersion {
      * 
      * @throws BadRequestException
      */
-    public abstract void validateContent() throws BadRequestException;
+    public abstract void validateContent() throws WebApplicationException;
 
     /**
-     * Updates the fields and format of the given old version to the current one
-     * 
-     * @param version
-     *            the old version
+     * Updates the fields and format of the internal version to the current one
      */
-    public abstract void update(int version);
+    public abstract void update();
 
     /**
-     * Converts the format and fields of the current version to the given old
+     * Converts the format and fields of the current version to the internal old
      * one
-     * 
-     * @param version
-     *            the target version
      */
-    public abstract void convert(int version);
+    public abstract void convert();
 }

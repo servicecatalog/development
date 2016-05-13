@@ -17,7 +17,7 @@ import javax.ws.rs.WebApplicationException;
  * 
  * @author miethaner
  */
-public interface EndpointBackend<T extends RepresentationWithVersion> {
+public interface EndpointBackend<T extends Representation> {
 
     /**
      * Gets the item from resource for the given id
@@ -27,7 +27,8 @@ public interface EndpointBackend<T extends RepresentationWithVersion> {
      * @return item as JSON
      * @throws WebApplicationException
      */
-    public T getItem(RequestParametersGet params) throws WebApplicationException;
+    public T getItem(RequestParametersGet params)
+            throws WebApplicationException;
 
     /**
      * Gets all valid items from resource
