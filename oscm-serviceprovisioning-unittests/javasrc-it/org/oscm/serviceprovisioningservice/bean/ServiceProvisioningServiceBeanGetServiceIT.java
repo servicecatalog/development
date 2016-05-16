@@ -27,6 +27,7 @@ import javax.ejb.EJBException;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -50,32 +51,6 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.landingpageService.local.LandingpageServiceLocal;
-import org.oscm.marketplace.bean.MarketplaceServiceBean;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.sessionservice.bean.SessionServiceBean;
-import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
-import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
-import org.oscm.taskhandling.local.TaskQueueServiceLocal;
-import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
-import org.oscm.tenantprovisioningservice.vo.TenantProvisioningResult;
-import org.oscm.test.StaticEJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.data.SupportedCountries;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.LdapAccessServiceStub;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.intf.SubscriptionService;
@@ -105,6 +80,7 @@ import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.provisioning.data.User;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
@@ -124,7 +100,6 @@ import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
@@ -228,13 +203,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
 
         });
         container.addBean(mock(SessionServiceBean.class));
-        container.addBean(new IdentityServiceStub() {
-
-            @Override
-            public String getOperatorLogInfo() {
-                return "getOperatorLogInfo";
-            }
-        });
+        container.addBean(new IdentityServiceStub());
         container.addBean(mock(TaskQueueServiceLocal.class));
         container.addBean(new TriggerQueueServiceStub() {
             @Override
