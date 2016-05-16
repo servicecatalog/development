@@ -161,13 +161,6 @@ public class IdManagementStub implements IdentityService, IdentityServiceLocal {
     }
 
     @Override
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public String getOperatorLogInfo() {
-
-        return null;
-    }
-
-    @Override
     public void requestResetOfUserPassword(VOUser user, String marketplaceId) {
 
     }

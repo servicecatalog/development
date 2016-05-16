@@ -387,6 +387,11 @@ to the licensee's requirements.
              </Options>            
              <LocalizedDescription locale="en">Incremental disk storage</LocalizedDescription>
   </ParameterDefinition>
+  <ParameterDefinition configurable="true" id="SEARCH_PARAM" mandatory="true" valueType="STRING" default="searchParam">
+      <LocalizedDescription locale="en">param for parameter search test</LocalizedDescription>
+      <LocalizedDescription locale="de"/>
+      <LocalizedDescription locale="ja"/>
+  </ParameterDefinition>
    <ParameterDefinition id="MAX_FOLDER_NUMBER2" valueType="INTEGER" mandatory="true" configurable="true"
        minValue="12" maxValue="500" default="200">
       <LocalizedDescription locale="en"> Number2 of folders that can be created.</LocalizedDescription>

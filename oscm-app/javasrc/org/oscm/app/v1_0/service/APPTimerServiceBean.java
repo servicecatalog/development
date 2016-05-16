@@ -22,7 +22,7 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
+import javax.ejb.Singleton;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
@@ -33,9 +33,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.slf4j.Logger;
-
-import org.oscm.string.Strings;
 import org.oscm.app.business.APPlatformControllerFactory;
 import org.oscm.app.business.InstanceParameterFilter;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
@@ -68,9 +65,11 @@ import org.oscm.provisioning.data.InstanceInfo;
 import org.oscm.provisioning.data.InstanceRequest;
 import org.oscm.provisioning.data.InstanceResult;
 import org.oscm.provisioning.intf.ProvisioningService;
+import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.Logger;
 
 /**
  * The timer service implementation
@@ -78,7 +77,7 @@ import org.oscm.vo.VOUserDetails;
  * @author Mike J&auml;ger
  * 
  */
-@Stateless
+@Singleton
 @LocalBean
 public class APPTimerServiceBean {
 
@@ -125,7 +124,7 @@ public class APPTimerServiceBean {
     /**
      * Initialize the timer for polling for the services
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void initTimers() {
         Collection<?> timers = timerService.getTimers();
         if (timers.isEmpty()) {
@@ -143,7 +142,7 @@ public class APPTimerServiceBean {
         logger.info("Timer initialization finished");
     }
 
-    @TransactionAttribute(TransactionAttributeType.REQUIRED)
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void cancelTimers() {
         Collection<Timer> timers = timerService.getTimers();
         for (Timer th : timers) {

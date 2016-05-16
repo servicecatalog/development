@@ -23,7 +23,6 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UnitUserRole;
 import org.oscm.identityservice.local.IdentityServiceLocal;
-import org.oscm.test.BaseAdmUmTest;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
@@ -41,6 +40,7 @@ import org.oscm.internal.types.exception.UserModificationConstraintException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.BaseAdmUmTest;
 
 /**
  * @author Mike J&auml;ger
@@ -133,11 +133,6 @@ public class IdentityServiceStub implements IdentityServiceLocal {
             query.setPaymentInfo(null);
         }
         return user;
-    }
-
-    @Override
-    public String getOperatorLogInfo() {
-        return null;
     }
 
     @Override

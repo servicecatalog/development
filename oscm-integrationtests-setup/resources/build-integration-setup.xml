@@ -294,13 +294,11 @@
     <copy file="${build.result.package.dir}/oscm-integrationtests-mockproduct/oscm-integrationtests-mockproduct.war" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/mock-psp-service/mock-psp-service.war" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-integrationtests-saml-sp/oscm-integrationtests-saml-sp.war" todir="${example.domain.app.path}" />
-    <copy file="${build.result.package.dir}/oscm-integrationtests-saml2-sp/oscm-integrationtests-saml2-sp.war" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-integrationtests-saml2-sts/oscm-integrationtests-saml2-sts.war" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-psp-heidelpay/oscm-psp-heidelpay.war" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-integrationtests-parameter-configurator/oscm-parameter-configurator.war" todir="${example.domain.app.path}" />
   	<copy file="${build.result.package.dir}/oscm-file-billing-adapter/oscm-file-adapter.ear" todir="${example.domain.app.path}" />
     <copy file="${build.result.package.dir}/oscm-file-billing-application/oscm-file-billing.war" todir="${example.domain.app.path}" />
-    	
     <antcall target="copyMockSTS" />
   </target>
 
@@ -521,7 +519,6 @@
     <deployOnExampleDomain appl="${build.result.package.dir}/oscm-integrationtests-mockproduct/oscm-integrationtests-mockproduct.war" />
     <deployOnExampleDomain appl="${build.result.package.dir}/mock-psp-service/mock-psp-service.war" />
     <deployOnExampleDomain appl="${build.result.package.dir}/oscm-integrationtests-saml-sp/oscm-integrationtests-saml-sp.war" />
-    <deployOnExampleDomain appl="${build.result.package.dir}/oscm-integrationtests-saml2-sp/oscm-integrationtests-saml2-sp.war" />
     <antcall target="deployMockSTS" />
     <deployOnExampleDomain appl="${build.result.package.dir}/oscm-psp-heidelpay/oscm-psp-heidelpay.war" />
     <deployOnExampleDomain appl="${build.result.package.dir}/oscm-integrationtests-parameter-configurator/oscm-parameter-configurator.war" />

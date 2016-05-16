@@ -1,1 +1,1 @@
-The ADM UM Online help and faq documentation.
+Online help for the OSCM Administration Portal.
