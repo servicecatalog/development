@@ -242,4 +242,12 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
     public String getTrackingCode() {
         return dataContainer.getTrackingCode();
     }
+    
+    public void setRestricted(boolean restricted) {
+        dataContainer.setRestricted(restricted);
+    }
+
+    public boolean isRestricted() {
+        return dataContainer.isRestricted();
+    }
 }
