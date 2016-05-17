@@ -73,6 +73,7 @@ public class SnapshotActions extends Actions {
         }
     }
 
+    @SuppressWarnings("resource")
     @StateMachineAction
     public String createSnapshot(String instanceId,
             ProvisioningSettings settings,

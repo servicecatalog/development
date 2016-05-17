@@ -62,6 +62,7 @@ public class CreateActions extends Actions {
         return EVENT_SUCCESS;
     }
 
+    @SuppressWarnings("resource")
     @StateMachineAction
     public String createVM(String instanceId, ProvisioningSettings settings,
             @SuppressWarnings("unused") InstanceStatus result) {
@@ -95,6 +96,7 @@ public class CreateActions extends Actions {
         }
     }
 
+    @SuppressWarnings("resource")
     @StateMachineAction
     public String executeScript(String instanceId,
             ProvisioningSettings settings,
