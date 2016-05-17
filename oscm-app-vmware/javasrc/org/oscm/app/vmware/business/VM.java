@@ -260,8 +260,8 @@ public class VM extends Template {
                                 reqUser });
         vmConfigSpec.setAnnotation(comment);
 
-        DiskManager.reconfigureDisks(vmw, vmConfigSpec, paramHandler,
-                vmInstance);
+        DiskManager diskManager = new DiskManager(vmw, paramHandler);
+        diskManager.reconfigureDisks(vmConfigSpec, vmInstance);
 
         NetworkManager.configureNetworkAdapter(vmw, vmConfigSpec, paramHandler,
                 vmInstance);
