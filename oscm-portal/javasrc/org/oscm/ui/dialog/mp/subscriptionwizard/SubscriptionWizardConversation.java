@@ -638,6 +638,11 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public String previousFromConfirmPage() {
+        
+        if(isPaymentConfigurationHidden()){
+            return OUTCOME_ENTER_SERVICE_CONFIGURATION;
+        }
+        
         String resultNav = OUTCOME_PREVIOUS;
         if (model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
