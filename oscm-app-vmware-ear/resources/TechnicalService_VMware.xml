@@ -15,7 +15,7 @@
     baseUrl=""
     loginPath="/" 
     provisioningType="ASYNCHRONOUS"
-    provisioningUrl="https://<HOST>:<PORT>/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
+    provisioningUrl="https://HOST:PORT/ProvisioningService/AsynchronousProvisioningProxy?wsdl"
     provisioningPassword="" 
     provisioningUsername="" 
     provisioningVersion="1.0">
@@ -27,7 +27,7 @@
     <LocalizedTag locale="en">VMware</LocalizedTag>
 	
     <ParameterDefinition id="ACCESS_INFO" configurable="true" default="${HOST}, ${IP}" mandatory="false" valueType="STRING">
-      <LocalizedDescription locale="en">Access info pattern. Valid placeholder: ${HOST},${IP},${CPU},${MEM},${DISK}</LocalizedDescription>
+      <LocalizedDescription locale="en">Access info pattern. Valid placeholder: ${HOST},${IP}</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition id="AMOUNT_OF_RAM" configurable="true" default="1024" mandatory="true" valueType="ENUMERATION">
@@ -47,11 +47,23 @@
     </ParameterDefinition>
     
     <ParameterDefinition id="DISK_SIZE" configurable="true" default="40" mandatory="true" maxValue="160" minValue="40" valueType="INTEGER">
-      <LocalizedDescription locale="en">System disk size (GB)</LocalizedDescription>
+      <LocalizedDescription locale="en">System disk size in Gigabyte</LocalizedDescription>
     </ParameterDefinition>
     
     <ParameterDefinition id="DATA_DISK_SIZE_1" configurable="true" mandatory="false" maxValue="140" minValue="20" valueType="INTEGER">
-      <LocalizedDescription locale="en">Data disk size (GB)</LocalizedDescription>
+      <LocalizedDescription locale="en">Data disk size in Gigabyte</LocalizedDescription>
+    </ParameterDefinition>
+    
+    <ParameterDefinition id="DATA_DISK_TARGET_1" valueType="STRING" default="/data" configurable="true" mandatory="false" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Target mount point</LocalizedDescription>
+    </ParameterDefinition>
+
+    <ParameterDefinition id="DATA_DISK_TARGET_VALIDATION_1" valueType="STRING" default="/data" configurable="false" mandatory="false" modificationType="ONE_TIME">
+      <LocalizedDescription locale="en">Regex validation pattern for the target mount point</LocalizedDescription>
+    </ParameterDefinition>
+    
+    <ParameterDefinition id="IMPORT_EXISTING_VM" configurable="true" default="false" mandatory="true" valueType="BOOLEAN">
+      <LocalizedDescription locale="en">Import of existing VMs</LocalizedDescription>
     </ParameterDefinition>
     
     <ParameterDefinition id="INSTANCENAME" valueType="STRING" configurable="true" mandatory="true" modificationType="ONE_TIME">
@@ -296,35 +308,35 @@
       <LocalizedDescription locale="en">Windows Local Administrator Password</LocalizedDescription>
     </ParameterDefinition>        
     
-    <Operation id="RESTART_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
+    <Operation id="RESTART_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Neustart der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Restart of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren und wieder hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown and started again</LocalizedDescription>
     </Operation>
     
-    <Operation id="START_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
+    <Operation id="START_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Start der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Start of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird hochgefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be started</LocalizedDescription>
     </Operation>
     
-    <Operation id="STOP_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
+    <Operation id="STOP_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Stop der virtuellen Maschine</LocalizedName>
       <LocalizedName locale="en">Stop of virtual machine</LocalizedName>
       <LocalizedDescription locale="de">Die virtuelle Maschine wird runtergefahren</LocalizedDescription>
       <LocalizedDescription locale="en">The virtual machine will be shutdown</LocalizedDescription>
     </Operation>
     
-    <Operation id="SNAPSHOT_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
+    <Operation id="SNAPSHOT_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Snapshot</LocalizedName>
       <LocalizedName locale="en">Snapshot</LocalizedName>
       <LocalizedDescription locale="de">Erzeugt ein Snapshot</LocalizedDescription>
       <LocalizedDescription locale="en">Creates a snapshort of the VM</LocalizedDescription>
     </Operation>
     
-    <Operation id="RESTORE_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
+    <Operation id="RESTORE_VM" actionURL="https://HOST:PORT/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Restore</LocalizedName>
       <LocalizedName locale="en">Restore</LocalizedName>
       <LocalizedDescription locale="de">Stellt ein Snapshot wieder her</LocalizedDescription>

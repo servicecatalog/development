@@ -235,6 +235,17 @@ public class VMPropertyHandler {
     public static final String TS_DATA_DISK_SIZE = "DATA_DISK_SIZE_#";
 
     /**
+     * Target location for the data disk, e.g. /home/user/data for Linux VM or
+     * d: for Windows VM.
+     */
+    public static final String TS_DATA_DISK_TARGET = "DATA_DISK_TARGET_#";
+
+    /**
+     * Regular expression pattern used to validate the target for the data disk.
+     */
+    public static final String TS_DATA_DISK_TARGET_VALIDATION = "DATA_DISK_TARGET_VALIDATION_#";
+
+    /**
      * Saves the data disk mapping. Internal mapping of index to VMware device
      * key.
      */
@@ -274,8 +285,10 @@ public class VMPropertyHandler {
 
     public static final String TS_SCRIPT_PWD = "SCRIPT_PWD";
 
-    // for Linux this is the FQDN without the hostname
-    // for Windows this is the Windows domain
+    /**
+     * for Linux this is the FQDN without the hostname, for Windows this is the
+     * Windows domain
+     */
     public static final String TS_DOMAIN_NAME = "DOMAIN_NAME";
 
     public static final String TS_WINDOWS_DOMAIN_JOIN = "WINDOWS_DOMAIN_JOIN";
