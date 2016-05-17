@@ -11,18 +11,12 @@ package org.oscm.app.vmware.remote.vmware;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class VMClientFactory extends
-        BaseKeyedPooledObjectFactory<String, VMwareClient> {
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(VMClientFactory.class);
+public class VMClientFactory
+        extends BaseKeyedPooledObjectFactory<String, VMwareClient> {
 
     @Override
     public VMwareClient create(String vcenter) throws Exception {
-        logger.debug("vcenter: " + vcenter);
         VMwareClientFactory vmwFactory = new VMwareClientFactory("en");
         VMwareClient vmClient = vmwFactory.getInstance(vcenter);
         vmClient.connect();
@@ -35,15 +29,14 @@ public class VMClientFactory extends
     }
 
     @Override
-    public boolean validateObject(String vcenter, PooledObject<VMwareClient> p) {
-        logger.debug("vcenter: " + vcenter);
+    public boolean validateObject(String vcenter,
+            PooledObject<VMwareClient> p) {
         return p.getObject().isConnected();
     }
 
     @Override
     public void destroyObject(String vcenter, PooledObject<VMwareClient> p)
             throws Exception {
-        logger.debug("vcenter: " + vcenter);
         p.getObject().close();
     }
 

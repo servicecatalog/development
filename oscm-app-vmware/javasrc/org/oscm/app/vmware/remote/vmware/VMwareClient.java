@@ -36,7 +36,7 @@ import com.vmware.vim25.VirtualMachineSnapshotTree;
  */
 public class VMwareClient implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(VMwareClient.class);
 
     private static final String MO_TYPE_VIRTUAL_MACHINE = "VirtualMachine";
@@ -49,22 +49,18 @@ public class VMwareClient implements AutoCloseable {
     private ServiceConnection connection;
 
     public VMwareClient() {
-
     }
 
     public VMwareClient(VMwareCredentials credentials) {
         this.url = credentials.getURL();
         this.user = credentials.getUserId();
         this.password = credentials.getPassword();
-        logger.debug("Created VMware client for url " + url + " and user "
-                + user);
     }
 
     /**
      * Establish a connection to the vCenter.
      */
     public void connect() throws Exception {
-
         // FIXME what to do?
         HostnameVerifier hv = new HostnameVerifier() {
             @Override
@@ -78,7 +74,6 @@ public class VMwareClient implements AutoCloseable {
 
         while (repeatLogin) {
             try {
-
                 HttpsURLConnection.setDefaultHostnameVerifier(hv);
 
                 VimService vimService = new VimService();
@@ -98,10 +93,13 @@ public class VMwareClient implements AutoCloseable {
                 vimPort.login(serviceContent.getSessionManager(), user,
                         password, null);
                 connection = new ServiceConnection(vimPort, serviceContent);
+                LOG.debug("Established connection to vSphere. URL: " + url
+                        + ", UserId: " + user);
+
                 repeatLogin = false;
             } catch (Exception e) {
-                logger.error("Failed to login. URL: " + url + " UserId: "
-                        + user, e);
+                LOG.error("Failed to establish connection to vSphere. URL: "
+                        + url + ", UserId: " + user, e);
                 if (numFailedLogins > 2) {
                     throw e;
                 }
@@ -119,19 +117,24 @@ public class VMwareClient implements AutoCloseable {
     /**
      * Returns whether the connection has been established
      * 
-     * @return true if we are connected
+     * @return true if connected, false otherwise
      */
     public boolean isConnected() {
         if (connection == null) {
+            LOG.debug("Not connected to vSphere. URL: " + url + ", UserId: "
+                    + user);
             return false;
         }
 
         try {
-            ManagedObjectReference rootFolder = connection.getServiceContent()
-                    .getRootFolder();
-            getServiceUtil().getDynamicProperty(rootFolder, "name");
+            new ManagedObjectAccessor(connection).getDecendentMoRef(null,
+                    "VirtualMachine", "no-name");
+            LOG.debug("vSphere connection is alive. URL: " + url + ", UserId: "
+                    + user);
             return true;
         } catch (@SuppressWarnings("unused") Exception e) {
+            LOG.debug("Current connection is invalid. URL: " + url
+                    + ", UserId: " + user);
             return false;
         }
     }

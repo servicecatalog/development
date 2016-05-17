@@ -27,18 +27,10 @@ public class VMClientPool {
         startPool();
     }
 
-    /**
-     * 
-     * @return the org.apache.commons.pool.KeyedObjectPool class
-     */
     public KeyedObjectPool<String, VMwareClient> getPool() {
         return pool;
     }
 
-    /**
-     * 
-     * @return the org.apache.commons.pool.KeyedObjectPool class
-     */
     public void startPool() {
         pool = new GenericKeyedObjectPool<String, VMwareClient>(
                 new VMClientFactory());
