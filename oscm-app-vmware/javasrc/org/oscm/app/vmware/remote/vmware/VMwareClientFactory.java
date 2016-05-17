@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class VMwareClientFactory {
 
-    private static final Logger logger = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(VMwareClientFactory.class);
 
     DataAccessService das;
@@ -57,16 +57,14 @@ public class VMwareClientFactory {
                     "error_db_vsphere_api_info",
                     new Object[] { vcenter, credentials.getURL(),
                             credentials.getUserId() });
-            logger.error(message);
+            LOG.error(message);
             throw new ValidationException(message);
         }
     }
 
     public VMwareClient getInstance(String vcenter) throws Exception {
-
         VMwareCredentials credentials = das.getCredentials(vcenter);
         validateState(vcenter, credentials);
-
         return new VMwareClient(credentials);
     }
 
