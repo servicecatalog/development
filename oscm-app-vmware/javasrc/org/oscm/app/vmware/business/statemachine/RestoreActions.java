@@ -30,6 +30,7 @@ public class RestoreActions extends Actions {
 
     private static final String EVENT_RUN = "run";
 
+    @SuppressWarnings("resource")
     @StateMachineAction
     public String restoreSnapshot(String instanceId,
             ProvisioningSettings settings,
