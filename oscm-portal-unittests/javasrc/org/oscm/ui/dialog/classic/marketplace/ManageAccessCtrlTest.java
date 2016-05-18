@@ -17,15 +17,26 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.stubs.ApplicationStub;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.ResourceBundleStub;
+import org.oscm.ui.stubs.UIComponentStub;
 
 public class ManageAccessCtrlTest {
 
+    //private FacesContextStub context;
+    
     private ManageAccessCtrl ctrl;
     private ManageAccessModel model;
     private MarketplaceService marketplaceService;
@@ -35,7 +46,9 @@ public class ManageAccessCtrlTest {
 
     @Before
     public void setup() {
-
+        
+        new FacesContextStub(Locale.ENGLISH);
+        
         marketplaceService = mock(MarketplaceService.class);
 
         ctrl = new ManageAccessCtrl();
@@ -87,6 +100,19 @@ public class ManageAccessCtrlTest {
         // then
         verify(marketplaceService, times(0)).getMarketplaceById(MARKETPLACE_ID);
         assertEquals(false, model.isSelectedMarketplaceRestricted());
+    }
+    
+    @Test
+    public void testSave(){
+
+        // given
+
+
+        // when
+        String result = ctrl.save();
+
+        // then
+        assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
     private List<VOMarketplace> getSampleMarketplaces() {
