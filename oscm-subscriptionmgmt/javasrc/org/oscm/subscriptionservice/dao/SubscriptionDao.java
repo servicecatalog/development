@@ -32,10 +32,72 @@ import org.oscm.paginator.TableColumns;
 
 /**
  * @author Mao
- *
+ * 
  */
 @Interceptors({ ExceptionMapper.class })
 public class SubscriptionDao {
+
+    private final static String SUBSCRIPTIONS_FOR_USER = "SELECT s.* FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "WHERE s.status IN (:status) "
+            + "AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey AND lic.subscription_tkey = s.tkey) ";
+
+    private final static String SUBSCRIPTIONS_FOR_USER_WITH_KEYS = SUBSCRIPTIONS_FOR_USER
+            + "AND s.tkey IN (:keys) ";
+
+    private final static String SUBSCRIPTIONS_FOR_OWNER = "SELECT s.* FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "WHERE s.owner_tkey=:ownerKey ";
+
+    private final static String SUBSCRIPTION_FOR_OWNER_WITH_STATES = "SELECT s.* FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+            + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey ";
+
+    private final static String SUBSCRIPTIONS_FOR_ORG = "SELECT s.* FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+            + "WHERE s.status IN (:states) AND s.organizationkey=:organization ";
+
+    private final static String SUBSCRIPTIONS_FOR_ORG_WITH_KEYS = SUBSCRIPTIONS_FOR_ORG
+            + "AND s.tkey IN (:keys) ";
+
+    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR = "SELECT s.* FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+            + "WHERE s.status IN (:states) AND s.organizationkey=:organization AND p.vendorkey=:offerer ";
+
+    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_WITH_KEYS = SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR
+            + "AND s.tkey IN (:keys) ";
+
+    private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
+            + "FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+            + "LEFT JOIN usergrouptouser ugtu ON ugtu.usergroup_tkey = ug.tkey "
+            + "LEFT JOIN unitroleassignment ura ON ura.usergrouptouser_tkey = ugtu.tkey "
+            + "WHERE ura.unituserrole_tkey = '"
+            + UnitRoleType.ADMINISTRATOR.getKey()
+            + "' AND ugtu.platformuser_tkey = :userKey AND s.status IN (:states) ";
+
+    private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN_WITH_KEYS = SUBSCRIPTIONS_FOR_UNIT_ADMIN
+            + "AND s.tkey IN (:keys)";
+
+    private final static String SUBSCRIPTIONS_FOR_OWNER_FULLINFO = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
+            + "FROM Subscription s "
+            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
+            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
+            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
+            + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey ";
+
+    private final static String SUBSCRIPTIONS_FOR_OWNER_FULLINFO_WITH_KEYS = SUBSCRIPTIONS_FOR_OWNER_FULLINFO
+            + "AND s.tkey IN (:keys)";
 
     private final DataService dataManager;
     private Log4jLogger logger = LoggerFactory.getLogger(SubscriptionDao.class);
@@ -132,7 +194,7 @@ public class SubscriptionDao {
     public List<Subscription> getSubscriptionsForMyCustomers(PlatformUser user,
             Set<SubscriptionStatus> states, Pagination pagination) {
         String queryString = getQuerySubscriptionsForMyCustomers(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString);
+        return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
     @SuppressWarnings("unchecked")
@@ -153,7 +215,7 @@ public class SubscriptionDao {
 
     @Deprecated
     @SuppressWarnings("unchecked")
-    List<Subscription> getSubscriptionsForVendor(PlatformUser user,
+    List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Set<SubscriptionStatus> states, Pagination pagination,
             String queryString) {
 
@@ -167,7 +229,7 @@ public class SubscriptionDao {
         } catch (IllegalArgumentException exc) {
             logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
         }
-        query.setParameter("offerer",
+        query.setParameter("organization",
                 Long.valueOf(user.getOrganization().getKey()));
         query.setParameter("states", statesAsString);
 
@@ -177,7 +239,7 @@ public class SubscriptionDao {
     }
 
     @SuppressWarnings("unchecked")
-    List<Subscription> getSubscriptionsForVendor(PlatformUser user,
+    List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Set<SubscriptionStatus> states,
             org.oscm.paginator.Pagination pagination, String queryString,
             Long... keys) {
@@ -192,7 +254,7 @@ public class SubscriptionDao {
         } catch (IllegalArgumentException exc) {
             logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
         }
-        query.setParameter("offerer",
+        query.setParameter("organization",
                 Long.valueOf(user.getOrganization().getKey()));
         query.setParameter("states", statesAsString);
 
@@ -204,12 +266,13 @@ public class SubscriptionDao {
 
     @SuppressWarnings("unchecked")
     List<Object[]> getSubscriptionIdsForVendor(PlatformUser user,
-            Set<SubscriptionStatus> states, String queryString) {
+            Set<SubscriptionStatus> states, String queryString, long vendorKey) {
 
         Set<String> statesAsString = getSubscriptionStatesAsString(states);
         Query query = dataManager.createNativeQuery(queryString);
-        query.setParameter("offerer",
+        query.setParameter("customer",
                 Long.valueOf(user.getOrganization().getKey()));
+        query.setParameter("offerer", Long.valueOf(vendorKey));
         query.setParameter("states", statesAsString);
 
         return query.getResultList();
@@ -351,7 +414,7 @@ public class SubscriptionDao {
 
         String querySelect = "SELECT s.*"
                 + " FROM subscription s JOIN product p ON s.product_tkey = p.tkey JOIN organization o ON p.vendorkey = o.tkey JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey ";
-        String queryWhere = "WHERE o.tkey = :offerer AND s.status IN (:states) ";
+        String queryWhere = "WHERE o.tkey = :organization AND s.status IN (:states) ";
 
         return paginatedQueryForMyCustomers(querySelect + queryWhere,
                 pagination);
@@ -900,13 +963,13 @@ public class SubscriptionDao {
             PlatformUser user, Set<SubscriptionStatus> states,
             Pagination pagination) {
         String queryString = getQuerySubscriptionsForMyBrokerCustomers(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString);
+        return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
     String getQuerySubscriptionsForMyBrokerCustomers(Pagination pagination) {
 
         String querySelectSupplier = "SELECT * FROM (SELECT s.*, oCustomer.organizationid, oCustomer.name, p.productid, p.template_tkey FROM subscription s JOIN product p ON s.product_tkey = p.tkey JOIN organization o ON p.vendorkey = o.tkey JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey ";
-        String queryWhereSupplier = "WHERE o.tkey = :offerer AND s.status IN (:states) UNION ";
+        String queryWhereSupplier = "WHERE o.tkey = :organization AND s.status IN (:states) UNION ";
         String querySupplier = querySelectSupplier + queryWhereSupplier;
         String querySelect = "SELECT  s.*, oCustomer.organizationid, oCustomer.name, p.productid, p.template_tkey FROM subscription s, product p, product pTemplate, product resaleCopyTemplate, organization o, organizationtorole otr, organizationrole oRole, organization oCustomer ";
         String queryWhere = "WHERE s.status IN (:states) AND s.product_tkey =  p.tkey "
@@ -914,7 +977,7 @@ public class SubscriptionDao {
                 + "AND s.organizationkey = oCustomer.tkey "
                 + "AND p.template_tkey = resaleCopyTemplate.tkey "
                 + "AND resaleCopyTemplate.template_tkey = pTemplate.tkey "
-                + "AND pTemplate.vendorkey = :offerer "
+                + "AND pTemplate.vendorkey = :organization "
                 + "AND p.vendorkey= o.tkey "
                 + "AND otr.organization_tkey = o.tkey "
                 + "AND otr.organizationrole_tkey = oRole.tkey "
@@ -965,35 +1028,39 @@ public class SubscriptionDao {
     @Deprecated
     public List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
-        String queryString = getQuerySubscriptionsForOrg(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString);
+        String queryString = marketplacePaginatedQueryWithUnits(
+                SUBSCRIPTIONS_FOR_ORG, pagination);
+        return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
     public List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             org.oscm.paginator.Pagination pagination,
             Set<SubscriptionStatus> states) {
-        String queryString = getQuerySubscriptionsForOrg(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString);
+        String queryString = marketplacePaginatedQueryWithUnits(
+                SUBSCRIPTIONS_FOR_ORG, pagination);
+        return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
     public List<Object[]> getSubscriptionIdsForOrg(PlatformUser user,
-            Set<SubscriptionStatus> states) {
-        String queryString = getQuerySubscriptionIdsForOrg();
-        return getSubscriptionIdsForVendor(user, states, queryString);
+            Set<SubscriptionStatus> states, long vendorKey) {
+        return getSubscriptionIdsForVendor(user, states,
+                SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR, vendorKey);
     }
 
     public List<Subscription> getSubscriptionsForOrgWithFiltering(
             PlatformUser user, org.oscm.paginator.Pagination pagination,
             Set<SubscriptionStatus> states, Collection<Long> subscriptionKeys) {
-        String queryString = getQuerySubscriptionsForOrgWithFiltering(pagination);
-        return getSubscriptionsForVendor(user, states, pagination, queryString,
+        String queryString = marketplacePaginatedQueryWithUnitsWithFiltering(
+                SUBSCRIPTIONS_FOR_ORG_WITH_KEYS, pagination);
+        return getSubscriptionsForOrg(user, states, pagination, queryString,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
     }
 
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
             Pagination pagination, Set<SubscriptionStatus> states) {
 
-        String queryString = getQuerySubscriptionsForOwnerWithStates(pagination);
+        String queryString = marketplacePaginatedQueryWithUnits(
+                SUBSCRIPTION_FOR_OWNER_WITH_STATES, pagination);
         return getSubscriptionsForOwner(owner, states, pagination, queryString);
     }
 
@@ -1070,21 +1137,21 @@ public class SubscriptionDao {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
-                queryBuilder.append(getQueryForUnitAdmin());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
 
                 // Bug 11958 allow subscr owner to manage his subscription
                 queryBuilder.append(" ) UNION ( ");
-                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
-                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
@@ -1110,21 +1177,21 @@ public class SubscriptionDao {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
-                queryBuilder.append(getQueryForUnitAdmin());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
 
                 // Bug 11958 allow subscr owner to manage his subscription
                 queryBuilder.append(" ) UNION ( ");
-                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
-                queryBuilder.append(getQueryForSubOwner());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterString(
                                 pagination, " "));
@@ -1150,21 +1217,21 @@ public class SubscriptionDao {
             UserRoleType userRoleType = i.next();
             isAdded = false;
             if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
-                queryBuilder.append(getQueryForUnitAdminWithFiltering());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN_WITH_KEYS);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
 
                 // Bug 11958 allow subscr owner to manage his subscription
                 queryBuilder.append(" ) UNION ( ");
-                queryBuilder.append(getQueryForSubOwnerWithFiltering());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO_WITH_KEYS);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
                 isAdded = true;
             }
             if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
-                queryBuilder.append(getQueryForSubOwnerWithFiltering());
+                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO_WITH_KEYS);
                 queryBuilder
                         .append(createMarketplaceQueryWithUnitsFilterStringWithFiltering(
                                 pagination, " "));
@@ -1247,147 +1314,35 @@ public class SubscriptionDao {
         }
     }
 
-    private String getQueryForUnitAdmin() {
-        return "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
-                + "FROM Subscription s "
-                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                + "LEFT JOIN usergrouptouser ugtu ON ugtu.usergroup_tkey = ug.tkey "
-                + "LEFT JOIN unitroleassignment ura ON ura.usergrouptouser_tkey = ugtu.tkey "
-                + "WHERE ura.unituserrole_tkey = '"
-                + UnitRoleType.ADMINISTRATOR.getKey()
-                + "' AND ugtu.platformuser_tkey = :userKey AND s.status IN (:states) ";
-    }
-
-    private String getQueryForUnitAdminWithFiltering() {
-        return getQueryForUnitAdmin() + " AND s.tkey IN (:keys)";
-    }
-
-    private String getQueryForSubOwner() {
-        return "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
-                + "FROM Subscription s "
-                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey";
-    }
-
-    private String getQueryForSubOwnerWithFiltering() {
-        return getQueryForSubOwner() + " AND s.tkey IN (:keys)";
-    }
-
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
             Pagination pagination) {
-        String queryString = getQuerySubscriptionsForOwner(pagination);
+        String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_OWNER,
+                pagination);
         return getSubscriptionsForOwner(owner, pagination, queryString);
-    }
-
-    @Deprecated
-    private String getQuerySubscriptionsForOrg(Pagination pagination) {
-        return marketplacePaginatedQueryWithUnits(
-                "SELECT s.* "
-                        + "FROM Subscription s "
-                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                        + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionsForOrg(
-            org.oscm.paginator.Pagination pagination) {
-        return marketplacePaginatedQueryWithUnits(
-                "SELECT s.* "
-                        + "FROM Subscription s "
-                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                        + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionIdsForOrg() {
-        return "SELECT s.* "
-                + "FROM Subscription s "
-                + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ";
-    }
-
-    private String getQuerySubscriptionsForOrgWithFiltering(
-            org.oscm.paginator.Pagination pagination) {
-        return marketplacePaginatedQueryWithUnitsWithFiltering(
-                getQuerySubscriptionIdsForOrg() + " AND s.tkey IN (:keys) ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionsForOwnerWithStates(Pagination pagination) {
-        return marketplacePaginatedQueryWithUnits(
-                "SELECT s.* "
-                        + "FROM Subscription s "
-                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                        + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                        + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionsForOwner(Pagination pagination) {
-        return marketplacePaginatedQuery(
-                "SELECT s.*"
-                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey WHERE s.owner_tkey=:ownerKey ",
-                pagination);
     }
 
     @Deprecated
     public List<Subscription> getSubscriptionsForUser(PlatformUser user,
             Pagination pagination) {
-        String queryString = getQuerySubscriptionsForUser(pagination);
+        String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_USER,
+                pagination);
         return getSubscriptionsForUser(user, pagination, queryString);
     }
 
     public List<Subscription> getSubscriptionsForUser(PlatformUser user,
             org.oscm.paginator.Pagination pagination) {
-        String queryString = getQuerySubscriptionsForUser(pagination);
+        String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_USER,
+                pagination);
         return getSubscriptionsForUser(user, pagination, queryString);
     }
 
     public List<Subscription> getSubscriptionsForUserWithSubscriptionKeys(
             PlatformUser user, org.oscm.paginator.Pagination pagination,
             Collection<Long> subscriptionKeys) {
-        String queryString = getQuerySubscriptionsForUserWithKeys(pagination);
+        String queryString = marketplacePaginatedQuery(
+                SUBSCRIPTIONS_FOR_USER_WITH_KEYS, pagination);
         return getSubscriptionsForUser(user, pagination, queryString,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
-    }
-
-    private String getQuerySubscriptionsForUser(Pagination pagination) {
-        return marketplacePaginatedQuery(
-                "SELECT s.*"
-                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey AND lic.subscription_tkey = s.tkey) ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionsForUser(
-            org.oscm.paginator.Pagination pagination) {
-        return marketplacePaginatedQuery(
-                "SELECT s.*"
-                        + " FROM Subscription s LEFT JOIN product p ON (s.product_tkey = p.tkey) LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey WHERE s.status IN (:status) AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey AND lic.subscription_tkey = s.tkey) ",
-                pagination);
-    }
-
-    private String getQuerySubscriptionsForUserWithKeys(
-            org.oscm.paginator.Pagination pagination) {
-        return marketplacePaginatedQuery(
-                "SELECT s.* "
-                        + "FROM Subscription s "
-                        + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-                        + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-                        + "WHERE s.tkey IN (:keys) "
-                        + "AND s.status IN (:status) "
-                        + "AND EXISTS (SELECT 1 FROM UsageLicense lic WHERE lic.user_tkey = :userKey "
-                        + "AND lic.subscription_tkey = s.tkey) ", pagination);
     }
 
     private List<Subscription> getSubscriptionsForUser(PlatformUser user,
