@@ -127,10 +127,12 @@ public class VMwareClient implements AutoCloseable {
         }
 
         try {
+            long ref = System.currentTimeMillis();
             new ManagedObjectAccessor(connection).getDecendentMoRef(null,
                     "VirtualMachine", "no-name");
-            LOG.debug("vSphere connection is alive. URL: " + url + ", UserId: "
-                    + user);
+            LOG.debug("vSphere connection is alive. Check took "
+                    + (System.currentTimeMillis() - ref) + "ms. URL: " + url
+                    + ", UserId: " + user);
             return true;
         } catch (@SuppressWarnings("unused") Exception e) {
             LOG.debug("Current connection is invalid. URL: " + url
