@@ -379,7 +379,7 @@ public enum ConfigurationKey {
 
     @Doc({ "URL of Identity Provider logout service" })
     @Example("http://<host>:<port>/<MEXAddress>")
-    SSO_LOGOUT_URL(false, null, "url", true),
+    SSO_LOGOUT_URL(false, null, "url", false),
 
     @Doc({ "the max number of users that can be registered on the platform" })
     @Example("10")
