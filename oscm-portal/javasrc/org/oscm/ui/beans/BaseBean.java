@@ -306,6 +306,7 @@ public class BaseBean {
     public static final String INFO_MARKETPLACE_STAGE_SAVED = "info.marketplace.stage.saved";
     public static final String INFO_MARKETPLACE_CREATED = "info.marketplace.created";
     public static final String INFO_MARKETPLACE_DELETED = "info.marketplace.deleted";
+    public static final String INFO_MARKETPLACE_ACCESS_SAVED = "marketplace.manageAccess.saved";
     public static final String INFO_SUPPLIER_ADDED = "info.supplier.added";
     public static final String INFO_SUPPLIER_REMOVED = "info.supplier.removed";
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";

@@ -59,6 +59,7 @@ public class MarketplaceAssembler extends BaseAssembler {
         voResult.setReviewEnabled(domObj.isReviewEnabled());
         voResult.setSocialBookmarkEnabled(domObj.isSocialBookmarkEnabled());
         voResult.setCategoriesEnabled(domObj.isCategoriesEnabled());
+        voResult.setRestricted(domObj.isRestricted());
 
         Organization owner = domObj.getOrganization();
         if (owner != null) {
