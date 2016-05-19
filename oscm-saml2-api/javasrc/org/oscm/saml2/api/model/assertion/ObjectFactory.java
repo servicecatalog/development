@@ -18,6 +18,8 @@ import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.namespace.QName;
 
+import org.oscm.saml2.api.model.xmldsig.SignatureType;
+
 /**
  * This object contains factory methods for each Java content interface and Java
  * element interface generated in the oasis.names.tc.saml._2_0.assertion
@@ -51,6 +53,8 @@ public class ObjectFactory {
             "urn:oasis:names:tc:SAML:2.0:assertion", "Advice");
     private final static QName _Issuer_QNAME = new QName(
             "urn:oasis:names:tc:SAML:2.0:assertion", "Issuer");
+    private final static QName _Signature_QNAME = new QName(
+            "urn:oasis:names:tc:SAML:2.0:assertion", "Signature");
     private final static QName _AuthnContextDecl_QNAME = new QName(
             "urn:oasis:names:tc:SAML:2.0:assertion", "AuthnContextDecl");
     private final static QName _NameID_QNAME = new QName(
@@ -154,6 +158,10 @@ public class ObjectFactory {
      */
     public NameIDType createNameIDType() {
         return new NameIDType();
+    }
+
+    public SignatureType createSignatureType() {
+        return new SignatureType();
     }
 
     /**

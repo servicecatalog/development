@@ -20,6 +20,8 @@ import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
+import org.oscm.saml2.api.model.xmldsig.SignatureType;
+
 import org.w3c.dom.Document;
 
 /**
@@ -120,24 +122,27 @@ public class AuthnRequestGenerator {
         assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
 
         NameIDType issuer = assertionObjFactory.createNameIDType();
+
         issuer.setValue(this.issuer);
 
-        LogoutRequestType authnRequest = protocolObjFactory
+        LogoutRequestType logoutRequest = protocolObjFactory
                 .createLogoutRequestType();
-        authnRequest.setID(requestId);
-        authnRequest.setVersion("2.0");
-        authnRequest.setIssueInstant(GregorianCalendars
+        logoutRequest.setID(requestId);
+        logoutRequest.setVersion("2.0");
+        logoutRequest.setSignature(prepareSignature());
+
+        logoutRequest.setIssueInstant(GregorianCalendars
                 .newXMLGregorianCalendarSystemTime());
-        authnRequest.setIssuer(issuer);
+        logoutRequest.setIssuer(issuer);
         NameIDType nameId = new NameIDType();
         nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
-        authnRequest.setNameID(issuer);
-        authnRequest.getSessionIndex().add(idpSessionIndex);
+        logoutRequest.setNameID(issuer);
+        logoutRequest.getSessionIndex().add(idpSessionIndex);
 
-        JAXBElement<LogoutRequestType> authnRequestJAXB = protocolObjFactory
-                .createLogoutRequest(authnRequest);
+        JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
+                .createLogoutRequest(logoutRequest);
 
-        return authnRequestJAXB;
+        return logoutRequestJAXB;
     }
 
     <T> String marshal(JAXBElement<T> authnRequest) throws Exception {
@@ -146,6 +151,14 @@ public class AuthnRequestGenerator {
         String authnRequestString = XMLConverter.convertToString(
                 samlRequestDoc, false);
         return XMLConverter.removeEOLCharsFromXML(authnRequestString);
+    }
+
+    //TODO
+    private SignatureType prepareSignature() {
+        org.oscm.saml2.api.model.assertion.ObjectFactory assertionObjFactory;
+        assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
+        SignatureType signatureType = assertionObjFactory.createSignatureType();
+        return signatureType;
     }
 
     private String generate160BitID() {
