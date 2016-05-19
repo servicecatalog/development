@@ -32,7 +32,7 @@ import org.oscm.paginator.TableColumns;
 
 /**
  * @author Mao
- * 
+ *
  */
 @Interceptors({ ExceptionMapper.class })
 public class SubscriptionDao {
@@ -204,11 +204,12 @@ public class SubscriptionDao {
 
     @SuppressWarnings("unchecked")
     List<Object[]> getSubscriptionIdsForVendor(PlatformUser user,
-            Set<SubscriptionStatus> states, String queryString, long vendorKey) {
+            Set<SubscriptionStatus> states, String queryString) {
 
         Set<String> statesAsString = getSubscriptionStatesAsString(states);
         Query query = dataManager.createNativeQuery(queryString);
-        query.setParameter("offerer", Long.valueOf(vendorKey));
+        query.setParameter("offerer",
+                Long.valueOf(user.getOrganization().getKey()));
         query.setParameter("states", statesAsString);
 
         return query.getResultList();
@@ -976,9 +977,9 @@ public class SubscriptionDao {
     }
 
     public List<Object[]> getSubscriptionIdsForOrg(PlatformUser user,
-            Set<SubscriptionStatus> states, long vendorKey) {
+            Set<SubscriptionStatus> states) {
         String queryString = getQuerySubscriptionIdsForOrg();
-        return getSubscriptionIdsForVendor(user, states, queryString, vendorKey);
+        return getSubscriptionIdsForVendor(user, states, queryString);
     }
 
     public List<Subscription> getSubscriptionsForOrgWithFiltering(
@@ -1312,7 +1313,7 @@ public class SubscriptionDao {
                 + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
                 + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
                 + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-                + "WHERE s.status IN (:states) AND p.vendorkey=:offerer ";
+                + "WHERE s.status IN (:states) AND s.organizationkey=:offerer ";
     }
 
     private String getQuerySubscriptionsForOrgWithFiltering(
