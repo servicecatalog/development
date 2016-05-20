@@ -12,7 +12,7 @@ log4j.rootLogger=OFF
 org.apache.commons.logging.Log=org.apache.commons.logging.impl.NoOpLog
 log4j.logger.org.apache=OFF
 log4j.logger.httpclient=OFF
-log4j.logger.org.oscm.app.vmware=DEBUG, DEBUGFILE
+#log4j.logger.org.oscm.app.vmware=DEBUG, DEBUGFILE
 log4j.logger.org.oscm.app.vmware=INFO, INFOFILE
 
 
@@ -23,12 +23,12 @@ log4j.appender.CONSOLE.layout.ConversionPattern=%d [%t] - %-5p - %m%n
 
 
 # DEBUG file appender
-log4j.appender.DEBUGFILE=org.apache.log4j.RollingFileAppender
-log4j.appender.DEBUGFILE.File=../logs/vmware-debug.log
-log4j.appender.DEBUGFILE.MaxFileSize=10MB
-log4j.appender.DEBUGFILE.MaxBackupIndex=5
-log4j.appender.DEBUGFILE.layout=org.apache.log4j.PatternLayout
-log4j.appender.DEBUGFILE.layout.ConversionPattern=[%d{yyyy-MM-dd HH:mm:ss}] [%t] %-5p %C{1} %M %m%n
+#log4j.appender.DEBUGFILE=org.apache.log4j.RollingFileAppender
+#log4j.appender.DEBUGFILE.File=../logs/vmware-debug.log
+#log4j.appender.DEBUGFILE.MaxFileSize=10MB
+#log4j.appender.DEBUGFILE.MaxBackupIndex=5
+#log4j.appender.DEBUGFILE.layout=org.apache.log4j.PatternLayout
+#log4j.appender.DEBUGFILE.layout.ConversionPattern=[%d{yyyy-MM-dd HH:mm:ss}] [%t] %-5p %C{1} %M %m%n
 
 
 # INFO file appender
