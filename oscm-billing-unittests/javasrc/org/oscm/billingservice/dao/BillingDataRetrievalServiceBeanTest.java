@@ -136,6 +136,33 @@ public class BillingDataRetrievalServiceBeanTest {
     }
 
     @Test
+    public void testloadOrganizationBillingDataFromHistoryFromBillingContactHistoryNullable() {
+
+        // given
+        long orgKey = 10000;
+        long subKey = 1002;
+
+        OrganizationHistory orghistory = getNullOrgHistory();
+        BillingContactHistory billingContactHistory = getSimpleBillingContactHistoryNull();
+
+        doReturn(orghistory).when(dm).findLastHistory(any(Organization.class));
+        doReturn(PAYMENT_TYPE_ID).when(bdr).loadPaymentTypeIdForSubscription(
+                anyLong());
+        doReturn(billingContactHistory).when(bdr).loadBillingContact(anyLong());
+
+        // when
+        OrganizationAddressData addressData = bdr
+                .loadOrganizationBillingDataFromHistory(orgKey, subKey);
+
+        // then
+        assertEquals("", addressData.getEmail());
+        assertEquals("",
+                addressData.getOrganizationName());
+        assertEquals("", addressData.getAddress());
+        assertEquals(PAYMENT_TYPE_ID, addressData.getPaymentTypeId());
+    }
+
+    @Test
     public void testloadOrganizationBillingDataFromHistory_forceOrgAddressUsed() {
 
         // given
@@ -160,6 +187,34 @@ public class BillingDataRetrievalServiceBeanTest {
         assertEquals(orgHistory.getOrganizationName(),
                 addressData.getOrganizationName());
         assertEquals(orgHistory.getAddress(), addressData.getAddress());
+        assertEquals(PAYMENT_TYPE_ID, addressData.getPaymentTypeId());
+    }
+
+    @Test
+    public void testloadOrganizationBillingDataFromHistoryForceOrgAddressUsedNullable() {
+
+        // given
+        long orgKey = 10000;
+        long subKey = 1002;
+
+        OrganizationHistory orgHistory = getNullOrgHistory();
+        BillingContactHistory billingContactHistory = getSimpleBillingContactHistoryNull();
+        billingContactHistory.getDataContainer().setOrgAddressUsed(true);
+
+        doReturn(orgHistory).when(dm).findLastHistory(any(Organization.class));
+        doReturn(PAYMENT_TYPE_ID).when(bdr).loadPaymentTypeIdForSubscription(
+                anyLong());
+        doReturn(billingContactHistory).when(bdr).loadBillingContact(anyLong());
+
+        // when
+        OrganizationAddressData addressData = bdr
+                .loadOrganizationBillingDataFromHistory(orgKey, subKey);
+
+        // then
+        assertEquals("", addressData.getEmail());
+        assertEquals("",
+                addressData.getOrganizationName());
+        assertEquals("", addressData.getAddress());
         assertEquals(PAYMENT_TYPE_ID, addressData.getPaymentTypeId());
     }
 
@@ -230,6 +285,17 @@ public class BillingDataRetrievalServiceBeanTest {
         return history;
     }
 
+    private OrganizationHistory getNullOrgHistory() {
+
+        OrganizationHistory history = new OrganizationHistory();
+        history.getDataContainer().setOrganizationId("some_org");
+        history.getDataContainer().setName(null);
+        history.getDataContainer().setEmail(null);
+        history.getDataContainer().setAddress(null);
+
+        return history;
+    }
+
     private BillingContactHistory getSimpleBillingContactHistory() {
 
         BillingContactHistory history = new BillingContactHistory();
@@ -237,6 +303,17 @@ public class BillingDataRetrievalServiceBeanTest {
         history.getDataContainer().setCompanyName("some_company");
         history.getDataContainer().setEmail("test2@www.com");
         history.getDataContainer().setAddress("some_address2");
+
+        return history;
+    }
+
+    private BillingContactHistory getSimpleBillingContactHistoryNull() {
+
+        BillingContactHistory history = new BillingContactHistory();
+        history.getDataContainer().setOrgAddressUsed(false);
+        history.getDataContainer().setCompanyName(null);
+        history.getDataContainer().setEmail(null);
+        history.getDataContainer().setAddress(null);
 
         return history;
     }
