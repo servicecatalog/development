@@ -1007,4 +1007,19 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             ServiceProvisioningPartnerServiceLocal partnerSrvProv) {
         this.partnerSrvProv = partnerSrvProv;
     }
+
+    @Override
+    public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
+            long orgKey) {
+        
+        String selectQuery = "SELECT m.* FROM marketplace m JOIN marketplaceaccess ma ON m.tkey = ma.marketplace_tkey WHERE m.restricted = 'true' AND ma.organization_tkey = :orgKey";
+
+        Query query = ds.createNativeQuery(selectQuery, Marketplace.class);
+        query.setParameter("orgKey", orgKey);
+
+        List<Marketplace> marketplaces = ParameterizedTypes
+                .list(query.getResultList(), Marketplace.class);
+        
+        return marketplaces;
+    }
 }

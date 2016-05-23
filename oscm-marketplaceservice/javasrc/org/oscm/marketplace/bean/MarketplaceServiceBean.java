@@ -1049,5 +1049,23 @@ public class MarketplaceServiceBean implements MarketplaceService {
         }
         return voOrganizations;
     }
+    
+    @Override
+    public List<VOMarketplace> getRestrictedMarketplaces() {
+
+        long orgKey = dm.getCurrentUser().getOrganization().getKey();
+        List<Marketplace> marketplaces = marketplaceServiceLocal
+                .getMarketplacesForOrganizationWithRestrictedAccess(orgKey);
+
+        List<VOMarketplace> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+
+        for (Marketplace mp : marketplaces) {
+            result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
+        }
+
+        return result;
+    }
 
 }

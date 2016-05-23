@@ -157,4 +157,9 @@ public class MarketplaceServiceStub implements MarketplaceService {
         return null;
     }
 
+    @Override
+    public List<VOMarketplace> getRestrictedMarketplaces() {
+        throw new UnsupportedOperationException();
+    }
+
 }
