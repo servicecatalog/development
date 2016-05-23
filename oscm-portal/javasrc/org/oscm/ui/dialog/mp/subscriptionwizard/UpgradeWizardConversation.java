@@ -16,6 +16,7 @@ import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlC
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_PAYMENT;
+import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_SERVICE_CONFIGURATION;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ERROR;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PREVIOUS;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PROCESS;
@@ -623,6 +624,11 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public String previousFromConfirmPage() {
+        
+        if(isPaymentConfigurationHidden()){
+            return OUTCOME_PREVIOUS;
+        }
+        
         String resultNav = OUTCOME_PREVIOUS;
         if(model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
