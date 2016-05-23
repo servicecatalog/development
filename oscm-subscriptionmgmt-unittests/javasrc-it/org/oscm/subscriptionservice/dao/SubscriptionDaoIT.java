@@ -9,7 +9,7 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -450,6 +450,27 @@ public class SubscriptionDaoIT extends EJBTestBase {
     }
 
     @Test
+    public void getSubscriptionIdsForOrgTest() throws Exception {
+        // given
+        final PlatformUser user = spy(createUser(randomString(), supplierCustomer));
+        final Set<SubscriptionStatus> states = EnumSet.of(SubscriptionStatus.ACTIVE,
+                SubscriptionStatus.PENDING, SubscriptionStatus.EXPIRED,
+                SubscriptionStatus.PENDING_UPD, SubscriptionStatus.SUSPENDED,
+                SubscriptionStatus.SUSPENDED_UPD);
+
+        // when
+        runTX(new Callable<List<Object[]>>() {
+            @Override
+            public List<Object[]> call() throws Exception {
+                return dao.getSubscriptionIdsForOrg(user, states);
+            }
+        });
+
+        // then
+        verify(user, times(1)).getOrganization();
+    }
+
+    @Test
     public void getSubscriptionsForUserWithRolesUnitAdminAndOwner() throws Exception {
         // given
         final PlatformUser user = createUser(randomString(), supplierCustomer);
@@ -680,4 +701,12 @@ public class SubscriptionDaoIT extends EJBTestBase {
         });
     }
 
+
+    Set<String> getSubscriptionStatesAsString(Set<SubscriptionStatus> states) {
+        Set<String> statesAsString = new HashSet<String>();
+        for (SubscriptionStatus s : states) {
+            statesAsString.add(s.name());
+        }
+        return statesAsString;
+    }
 }
