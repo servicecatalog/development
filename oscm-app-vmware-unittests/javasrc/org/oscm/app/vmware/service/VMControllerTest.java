@@ -8,6 +8,9 @@
 
 package org.oscm.app.vmware.service;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.HashMap;
 
 import org.junit.Before;
@@ -127,6 +130,52 @@ public class VMControllerTest {
         controller.validateDataDiskMountPoints(newParameters);
 
         // then exception expected
+    }
+
+    @Test
+    public void validateDataDiskMountPoints_multipleDisks_matches()
+            throws Exception {
+        // given
+        VMPropertyHandler newParameters = new VMPropertyHandler(settings);
+        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
+                "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_2", "/opt/data2");
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_2",
+                "/opt/data2");
+        settings.getParameters().put("DATA_DISK_TARGET_4", "/opt/data4");
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_4",
+                "/opt/data4");
+
+        // when
+        controller.validateDataDiskMountPoints(newParameters);
+
+        // then no exception is expected
+    }
+
+    @Test
+    public void validateDataDiskMountPoints_multipleDisk_noMatch()
+            throws Exception {
+        // given
+        VMPropertyHandler newParameters = new VMPropertyHandler(settings);
+        settings.getParameters().put("DATA_DISK_TARGET_1", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_1",
+                "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_2", "/opt/data");
+        settings.getParameters().put("DATA_DISK_TARGET_VALIDATION_2",
+                "/opt/data2");
+
+        // when
+        try {
+            controller.validateDataDiskMountPoints(newParameters);
+            fail();
+        } catch (APPlatformException e) {
+            // then
+            assertTrue(
+                    e.getLocalizedMessage("en").contains("DATA_DISK_TARGET_2"));
+
+        }
+
     }
 
 }
