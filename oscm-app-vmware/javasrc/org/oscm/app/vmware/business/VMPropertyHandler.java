@@ -10,6 +10,7 @@ package org.oscm.app.vmware.business;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -413,6 +414,29 @@ public class VMPropertyHandler {
         }
     }
 
+    /**
+     * 
+     * @return parameters keys for the data disk mount point, the list is sorted
+     *         ascending
+     */
+    public List<String> getDataDiskMountPointParameterKeys() {
+        String regex = TS_DATA_DISK_TARGET.replace("#", "").concat("\\d+");
+        List<String> result = new ArrayList<String>();
+        for (String key : settings.getParameters().keySet()) {
+            if (key.matches(regex)) {
+                result.add(key);
+            }
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    public String getMountPointValidationPattern(String mointPointKey) {
+        String patternKey = mointPointKey.replace("TARGET_",
+                "TARGET_VALIDATION_");
+        return settings.getParameters().get(patternKey);
+    }
+
     public String getGuestReadyTimeout(String key) {
         if (settings.getParameters().containsKey(key)) {
             return settings.getParameters().get(key);
@@ -644,16 +668,13 @@ public class VMPropertyHandler {
     }
 
     public List<VLAN> getVLANs(Cluster cluster) {
-        List<VLAN> vlans;
-        DataAccessService das = getDataAccessService();
         try {
-            vlans = das.getVLANs(cluster);
+            DataAccessService das = getDataAccessService();
+            return das.getVLANs(cluster);
         } catch (Exception e) {
             logger.error("Failed to retrieve VLAN list.", e);
-            vlans = new ArrayList<VLAN>();
+            return new ArrayList<VLAN>();
         }
-
-        return vlans;
     }
 
     public int addVLAN(VLAN vlan) {
