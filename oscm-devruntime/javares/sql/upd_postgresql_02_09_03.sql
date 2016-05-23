@@ -3,6 +3,7 @@ ALTER TABLE "marketplacehistory" ADD "restricted" boolean NOT NULL DEFAULT false
 
 CREATE TABLE "marketplaceaccess" (
 		"tkey" BIGINT NOT NULL,
+		"version" INTEGER DEFAULT 0 NOT NULL,
 		"marketplace_tkey" BIGINT NOT NULL,
 		"organization_tkey" BIGINT NOT NULL 
 	)

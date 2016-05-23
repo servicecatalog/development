@@ -14,7 +14,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
@@ -27,21 +27,21 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "marketplace_tkey",
         "organization_tkey" }) )
-public class MarketplaceAccess extends DomainObjectWithEmptyDataContainer {
+public class MarketplaceAccess extends DomainObjectWithoutVersioning<EmptyDataContainer> {
 
     private static final long serialVersionUID = -3270780943325084256L;
 
-    @Column(name = "marketplace_tkey")
+    @Column(name = "marketplace_tkey", nullable = false, insertable = false, updatable = false)
     private long marketplace_tkey;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "marketplace_tkey")
     private Marketplace marketplace;
 
-    @Column(name = "organization_tkey")
+    @Column(name = "organization_tkey", nullable = false, insertable = false, updatable = false)
     private long organization_tkey;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_tkey")
     private Organization organization;
 
@@ -81,6 +81,11 @@ public class MarketplaceAccess extends DomainObjectWithEmptyDataContainer {
         if (organization != null) {
             setOrganization_tkey(organization.getKey());
         }
+    }
+    
+    @Override
+    public boolean hasHistory() {
+        return false;
     }
 
 }
