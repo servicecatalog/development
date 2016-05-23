@@ -55,7 +55,7 @@
 
       <a4j:outputPanel id="#{dialogId}RenderErrorPanel" ajaxRendered="true">
         <a4j:outputPanel id="#{dialogId}modalErrorPanel" layout="block" styleClass="modalErrorPanel"
-          rendered="#{facesContext.maximumSeverity.ordinal > 0}">
+          rendered="#{facesContext.maximumSeverity.ordinal > 0 and dialogId!='version' }">
           <!-- JSF error messages -->
           <rich:messages globalOnly="true" passedLabel="" layout="list" id="#{dialogId}ErrorMessages"
             styleClass="errorPanelBody" rendered="#{facesContext.maximumSeverity.ordinal > 0}">
