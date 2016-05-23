@@ -211,14 +211,9 @@ public class VM extends Template {
 
         String scriptURL = paramHandler
                 .getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL);
-        String guestUserId = paramHandler
-                .getServiceSetting(VMPropertyHandler.TS_SCRIPT_USERID);
-        String guestPassword = paramHandler
-                .getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD);
         if (scriptURL != null) {
-            Script script = new Script(guestUserId, guestPassword, scriptURL,
-                    isWindows());
-            script.execute(vmw, vmInstance, paramHandler);
+            Script script = new Script(paramHandler, isWindows());
+            script.execute(vmw, vmInstance);
         }
     }
 
