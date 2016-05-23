@@ -152,4 +152,9 @@ public class MarketplaceServiceStub implements MarketplaceService {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public List<VOOrganization> getAllOrganizations() {
+        return null;
+    }
+
 }

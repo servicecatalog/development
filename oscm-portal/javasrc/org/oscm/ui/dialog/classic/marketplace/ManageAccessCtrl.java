@@ -22,8 +22,10 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.marketplace.POOrganization;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.JSFUtils;
 
@@ -56,6 +58,15 @@ public class ManageAccessCtrl {
         }
 
         model.setSelectableMarketplaces(selectableMarketplaces);
+        getOrganizationsToShow();
+    }
+
+    private void getOrganizationsToShow() {
+        List<POOrganization> organizations = new ArrayList<>();
+        for(VOOrganization voOrganization : marketplaceService.getAllOrganizations()) {
+            organizations.add(new POOrganization(voOrganization.getName(), voOrganization.getOrganizationId()));
+        }
+        model.setOrganizations(organizations);
     }
 
     public void marketplaceChanged() {

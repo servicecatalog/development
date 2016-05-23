@@ -35,6 +35,7 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.enums.PublishingAccess;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.data.Marketplaces;
@@ -1295,4 +1296,9 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 this.hasUserRole(updatedUser));
     }
 
+    @Test
+    public void test_getAllOrganizations() {
+        List<VOOrganization> results = marketplaceService.getAllOrganizations();
+        assertFalse(results.isEmpty());
+    }
 }

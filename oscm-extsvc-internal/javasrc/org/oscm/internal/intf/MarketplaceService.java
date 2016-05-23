@@ -510,4 +510,10 @@ public interface MarketplaceService {
             throws ObjectNotFoundException, ValidationException,
             OperationNotPermittedException, ConcurrentModificationException;
 
+    /**
+     * Returns all organizations created in the system.
+     *
+     * @return collection of all organizations.
+     */
+    List<VOOrganization> getAllOrganizations();
 }

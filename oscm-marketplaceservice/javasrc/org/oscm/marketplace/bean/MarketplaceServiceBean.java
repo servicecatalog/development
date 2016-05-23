@@ -1037,4 +1037,17 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     }
 
+    @Override
+    @RolesAllowed("MARKETPLACE_OWNER")
+    public List<VOOrganization> getAllOrganizations() {
+        Query query = dm.createNamedQuery("Organization.getAllOrganizations");
+        List<Organization> organizations = ParameterizedTypes.list(
+                query.getResultList(), Organization.class);
+        List<VOOrganization> voOrganizations = new ArrayList<>();
+        for(Organization organization : organizations) {
+            voOrganizations.add(OrganizationAssembler.toVOOrganization(organization));
+        }
+        return voOrganizations;
+    }
+
 }

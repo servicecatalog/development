@@ -10,6 +10,8 @@
 
 package org.oscm.ui.dialog.classic.marketplace;
 
+import org.oscm.internal.marketplace.POOrganization;
+
 import java.util.List;
 
 import javax.faces.bean.ManagedBean;
@@ -19,12 +21,16 @@ import javax.faces.model.SelectItem;
 @ManagedBean
 @ViewScoped
 public class ManageAccessModel {
-    
+
     private List<SelectItem> selectableMarketplaces;
     
     private String selectedMarketplaceId;
     
     private boolean selectedMarketplaceRestricted;
+
+    private List<POOrganization> organizations;
+
+    private boolean allOrganizationsSelected;
 
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
@@ -49,5 +55,25 @@ public class ManageAccessModel {
     public void setSelectedMarketplaceRestricted(
             boolean selectedMarketplaceRestricted) {
         this.selectedMarketplaceRestricted = selectedMarketplaceRestricted;
+    }
+
+    public List<POOrganization> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(List<POOrganization> organizations) {
+        this.organizations = organizations;
+    }
+
+    public boolean isAllOrganizationsSelected() {
+        return allOrganizationsSelected;
+    }
+
+    public void setAllOrganizationsSelected(boolean allOrganizationsSelected) {
+        this.allOrganizationsSelected = allOrganizationsSelected;
+    }
+
+    public int getOrganizationsNumber() {
+        return organizations.size();
     }
 }
