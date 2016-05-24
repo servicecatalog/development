@@ -45,7 +45,8 @@ public class HeadersTest {
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()
-                    && files[i].getName().startsWith("oscm-")) {
+                    && (files[i].getName().startsWith("oscm-") || files[i]
+                            .getName().startsWith("ess-oscm-"))) {
                 projectCollection.add(files[i].getAbsolutePath());
             }
         }
