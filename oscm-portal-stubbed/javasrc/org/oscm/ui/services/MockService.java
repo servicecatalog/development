@@ -2382,6 +2382,11 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public List<VOMarketplace> getRestrictedMarketplaces() {
+        return null;
+    }
+
+    @Override
     public void refreshLdapUser() throws ValidationException {
 
     }
