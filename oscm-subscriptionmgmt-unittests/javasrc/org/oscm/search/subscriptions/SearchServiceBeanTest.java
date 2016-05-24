@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2009                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.search.subscriptions;
 
 import static org.junit.Assert.assertTrue;
@@ -30,7 +38,8 @@ public class SearchServiceBeanTest {
     @Test
     public void searchSubscriptions() throws Exception {
         setup();
-        Collection<Long> results = ssb.searchSubscriptions("searchphrase phrase");
+        Collection<Long> results = ssb
+                .searchSubscriptions("searchphrase phrase");
         assertTrue(results.contains(10L));
     }
 
@@ -47,7 +56,8 @@ public class SearchServiceBeanTest {
         QueryContextBuilder contextBuilder = mock(QueryContextBuilder.class);
         doReturn(contextBuilder).when(searchFactory).buildQueryBuilder();
         EntityContext entityContext = mock(EntityContext.class);
-        doReturn(entityContext).when(contextBuilder).forEntity(Subscription.class);
+        doReturn(entityContext).when(contextBuilder).forEntity(
+                Subscription.class);
         doReturn(entityContext).when(contextBuilder).forEntity(Parameter.class);
         doReturn(entityContext).when(contextBuilder).forEntity(Uda.class);
         QueryBuilder queryBuilder = mock(QueryBuilder.class);
@@ -57,25 +67,34 @@ public class SearchServiceBeanTest {
         WildcardContext wc = mock(WildcardContext.class);
         doReturn(wc).when(termContext).wildcard();
         TermMatchingContext termMatchingContext = mock(TermMatchingContext.class);
-        doReturn(termMatchingContext).when(termContext).onFields("dataContainer.purchaseOrderNumber", "dataContainer.subscriptionId");
-        doReturn(termMatchingContext).when(termContext).onFields("dataContainer.udaValue");
-        doReturn(termMatchingContext).when(termContext).onFields("dataContainer.value");
+        doReturn(termMatchingContext).when(termContext).onFields(
+                "dataContainer.purchaseOrderNumber",
+                "dataContainer.subscriptionId");
+        doReturn(termMatchingContext).when(termContext).onFields(
+                "dataContainer.udaValue");
+        doReturn(termMatchingContext).when(termContext).onFields(
+                "dataContainer.value");
         doReturn(termMatchingContext).when(wc).onField(anyString());
         TermTermination termTermination = mock(TermTermination.class);
-        doReturn(termMatchingContext).when(termMatchingContext).andField(anyString());
-        doReturn(termTermination).when(termMatchingContext).matching("searchphrase");
+        doReturn(termMatchingContext).when(termMatchingContext).andField(
+                anyString());
+        doReturn(termTermination).when(termMatchingContext).matching(
+                "searchphrase");
         doReturn(termTermination).when(termMatchingContext).matching("phrase");
 
         FullTextQuery subFTS = mock(FullTextQuery.class);
         FullTextQuery parFTS = mock(FullTextQuery.class);
         FullTextQuery udaFTS = mock(FullTextQuery.class);
-        doReturn(subFTS).when(session).createFullTextQuery(any(Query.class), eq(Subscription.class));
-        doReturn(parFTS).when(session).createFullTextQuery(any(Query.class), eq(Parameter.class));
-        doReturn(udaFTS).when(session).createFullTextQuery(any(Query.class), eq(Uda.class));
+        doReturn(subFTS).when(session).createFullTextQuery(any(Query.class),
+                eq(Subscription.class));
+        doReturn(parFTS).when(session).createFullTextQuery(any(Query.class),
+                eq(Parameter.class));
+        doReturn(udaFTS).when(session).createFullTextQuery(any(Query.class),
+                eq(Uda.class));
         Collection<Long[]> longs = new ArrayList<>();
         Collection<Parameter[]> params = new ArrayList<>();
         Collection<Uda[]> udas = new ArrayList<>();
-        longs.add(new Long[]{10L});
+        longs.add(new Long[] { 10L });
         doReturn(longs).when(subFTS).list();
         doReturn(params).when(parFTS).list();
         doReturn(udas).when(udaFTS).list();
