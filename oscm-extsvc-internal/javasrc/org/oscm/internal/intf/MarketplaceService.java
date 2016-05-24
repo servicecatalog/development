@@ -10,6 +10,7 @@ package org.oscm.internal.intf;
 
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -511,9 +512,36 @@ public interface MarketplaceService {
             OperationNotPermittedException, ConcurrentModificationException;
 
     /**
-     * Returns all organizations created in the system.
+     * Returns all organizations created in the system with information about access to the given marketplace.
      *
      * @return collection of all organizations.
      */
-    List<VOOrganization> getAllOrganizations();
+    @RolesAllowed("MARKETPLACE_OWNER")
+    List<VOOrganization> getAllOrganizations(String marketplaceId);
+
+    /**
+     * Method is used to restrict access to the given marketplace.
+     *
+     * @param marketplaceId
+     * @param authorizedOrganizations - organizations to which access to marketplace should be granted
+     * @param unauthorizedOrganizations - organizations which should not have access to marketplace any more
+     * @throws OperationNotPermittedException
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
+        List<VOOrganization> unauthorizedOrganizations)
+            throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException;
+
+    /**
+     * Method is used to remove restrictions to the given marketplace.
+     *
+     * @param marketplaceId
+     * @throws OperationNotPermittedException
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void openMarketplace(String marketplaceId) throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException;
 }

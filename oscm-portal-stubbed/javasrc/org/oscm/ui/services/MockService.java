@@ -2364,6 +2364,24 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public List<VOOrganization> getAllOrganizations(String marketplaceId) {
+        return null;
+    }
+
+    @Override
+    public void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
+        List<VOOrganization> unauthorizedOrganizations)
+        throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
+    public void openMarketplace(String marketplaceId)
+        throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
     public void refreshLdapUser() throws ValidationException {
 
     }

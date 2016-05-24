@@ -90,6 +90,8 @@ public class VOOrganization extends BaseVO {
 
     private BigDecimal operatorRevenueShare;
 
+    private boolean hasGrantedAccessToMarketplace;
+
     /**
      * Retrieves the identifier of the organization.
      * 
@@ -384,4 +386,11 @@ public class VOOrganization extends BaseVO {
         this.operatorRevenueShare = operatorRevenueShare;
     }
 
+    public boolean isHasGrantedAccessToMarketplace() {
+        return hasGrantedAccessToMarketplace;
+    }
+
+    public void setHasGrantedAccessToMarketplace(boolean hasGrantedAccessToMarketplace) {
+        this.hasGrantedAccessToMarketplace = hasGrantedAccessToMarketplace;
+    }
 }

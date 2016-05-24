@@ -26,21 +26,11 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.PublicLandingpage;
-import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
@@ -50,7 +40,17 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PerformanceHint;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.internal.vo.*;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.permission.PermissionCheck;
@@ -61,29 +61,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validation.ArgumentValidator;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PerformanceHint;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
-import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.VOCatalogEntry;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
 
 @Stateless
 @Remote(MarketplaceService.class)
@@ -1039,15 +1016,56 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
-    public List<VOOrganization> getAllOrganizations() {
-        Query query = dm.createNamedQuery("Organization.getAllOrganizations");
-        List<Organization> organizations = ParameterizedTypes.list(
-                query.getResultList(), Organization.class);
+    public List<VOOrganization> getAllOrganizations(String marketplaceId) {
         List<VOOrganization> voOrganizations = new ArrayList<>();
-        for(Organization organization : organizations) {
-            voOrganizations.add(OrganizationAssembler.toVOOrganization(organization));
+        for(Organization organization : marketplaceServiceLocal.getAllOrganizations()) {
+            VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(organization);
+            boolean doesAccessExist = doesAccessToMarketplaceExist(organization.getMarketplaceAccesses
+                (), marketplaceId);
+            voOrganization.setHasGrantedAccessToMarketplace(doesAccessExist);
+            voOrganizations.add(voOrganization);
         }
         return voOrganizations;
     }
 
+    private boolean doesAccessToMarketplaceExist(List<MarketplaceAccess> marketplaceAccesses, String
+        marketplaceId) {
+        for (MarketplaceAccess marketplaceAccess : marketplaceAccesses) {
+            if(marketplaceAccess.getMarketplace().getMarketplaceId().equals(marketplaceId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @RolesAllowed("MARKETPLACE_OWNER")
+    public void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
+        List<VOOrganization> unauthorizedOrganizations)
+            throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+
+        Marketplace marketplace = marketplaceServiceLocal.getMarketplaceForId(marketplaceId);
+        if (!marketplace.isRestricted()) {
+            marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(marketplaceId, true);
+        }
+
+        for (VOOrganization voOrganization : authorizedOrganizations) {
+            Organization organization = OrganizationAssembler.toOrganization(voOrganization);
+            marketplaceServiceLocal.grantAccessToMarketPlaceToOrganizations(marketplace, organization);
+        }
+        for (VOOrganization voOrganization : unauthorizedOrganizations) {
+            marketplaceServiceLocal.removeMarketplaceAccess(marketplace.getKey(), voOrganization.getKey());
+        }
+    }
+
+    @Override
+    @RolesAllowed("MARKETPLACE_OWNER")
+    public void openMarketplace(String marketplaceId) throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+        Marketplace marketplace = marketplaceServiceLocal.getMarketplaceForId(marketplaceId);
+        if (!marketplace.isRestricted()) {
+            return;
+        }
+        marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(marketplaceId, false);
+        marketplaceServiceLocal.removeMarketplaceAccesses(marketplace.getKey());
+    }
 }

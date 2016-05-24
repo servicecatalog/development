@@ -29,11 +29,8 @@ import javax.ejb.EJBException;
 
 import org.junit.Test;
 
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PublicLandingpage;
+import org.oscm.accountservice.assembler.OrganizationAssembler;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
@@ -1298,7 +1295,103 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
 
     @Test
     public void test_getAllOrganizations() {
-        List<VOOrganization> results = marketplaceService.getAllOrganizations();
+        container.login(platformOperatorUserKey, ROLE_MARKETPLACE_OWNER);
+        List<VOOrganization> results = marketplaceService.getAllOrganizations("MarketplaceId");
         assertFalse(results.isEmpty());
+    }
+
+
+    @Test
+    public void testCloseMarketplace() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR, ROLE_MARKETPLACE_OWNER);
+        final Organization marketplaceOwner = runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization newOrg = Organizations.createOrganization(mgr,
+                    OrganizationRoleType.PLATFORM_OPERATOR,
+                    OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                    OrganizationRoleType.MARKETPLACE_OWNER);
+                return newOrg;
+            }
+        });
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketRestricted = Marketplaces.createMarketplace(marketplaceOwner,
+                    "RESTRICTED_MARKETPLACE",
+                    false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(marketplaceOwner);
+                List<VOOrganization> authorizedOrganizations = new ArrayList<>();
+                authorizedOrganizations.add(voOrganization);
+
+                marketplaceService.closeMarketplace(marketRestricted.getMarketplaceId(), authorizedOrganizations, new
+                    ArrayList<VOOrganization>());
+
+                Marketplace mp = mgr.getReference(Marketplace.class,
+                    marketRestricted.getKey());
+
+                MarketplaceAccess ma = new MarketplaceAccess();
+                ma.setOrganization_tkey(marketplaceOwner.getKey());
+                ma.setMarketplace_tkey(marketRestricted.getKey());
+                ma = (MarketplaceAccess) mgr.getReferenceByBusinessKey(ma);
+
+                assertFalse(ma == null);
+                return mp;
+            }
+        });
+
+        assertTrue(marketplaceFromDB.isRestricted());
+    }
+
+    @Test
+    public void testOpenMarketplace() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+                ROLE_MARKETPLACE_OWNER);
+        final Organization marketplaceOwner = runTX(
+                new Callable<Organization>() {
+                    @Override
+                    public Organization call() throws Exception {
+                        Organization newOrg = Organizations.createOrganization(
+                                mgr, OrganizationRoleType.PLATFORM_OPERATOR,
+                                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                                OrganizationRoleType.MARKETPLACE_OWNER);
+                        return newOrg;
+                    }
+                });
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketRestricted = Marketplaces.createMarketplace(
+                        marketplaceOwner, "RESTRICTED_MARKETPLACE_TO_OPEN",
+                        false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler
+                        .toVOOrganization(marketplaceOwner);
+                List<VOOrganization> authorizedOrganizations = new ArrayList<>();
+                authorizedOrganizations.add(voOrganization);
+
+                marketplaceService.closeMarketplace(
+                        marketRestricted.getMarketplaceId(),
+                        authorizedOrganizations,
+                        new ArrayList<VOOrganization>());
+
+                Marketplace mp = mgr.getReference(Marketplace.class,
+                        marketRestricted.getKey());
+
+                assertTrue(mp.isRestricted());
+
+                marketplaceService
+                        .openMarketplace(marketRestricted.getMarketplaceId());
+
+                Marketplace mpOpened = mgr.getReference(Marketplace.class,
+                        marketRestricted.getKey());
+
+                assertFalse(mpOpened.isRestricted());
+
+                return mp;
+            }
+        });
+
     }
 }

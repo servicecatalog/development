@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import javax.ejb.Local;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Marketplace;
@@ -442,4 +444,57 @@ public interface MarketplaceServiceLocal {
             OperationNotPermittedException, ValidationException,
             OrganizationAuthorityException, ConcurrentModificationException,
             ServiceStateException, ServiceOperationException;
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Marketplace getMarketplaceForId(String marketplaceId) throws ObjectNotFoundException;
+
+    /**
+     * Returns all existing organizations.
+     *
+     * @return list of organizations
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Organization> getAllOrganizations();
+
+    /**
+     * This method is used to close or open marketplace.
+     *
+     * @param marketplaceId - Id of marketplace of which access type has to be changed
+     * @param isRestricted - true - close marketplace, false - open marketplace
+     * @return - changed marketplace object
+     * @throws ObjectNotFoundException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Marketplace updateMarketplaceAccessType(String marketplaceId, boolean isRestricted)
+        throws ObjectNotFoundException, NonUniqueBusinessKeyException;
+
+    /**
+     * This method is used to grant access to given marketplace to given organization.
+     *
+     * @param marketplace
+     * @param organization
+     * @throws NonUniqueBusinessKeyException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void grantAccessToMarketPlaceToOrganizations(Marketplace marketplace, Organization organization)
+        throws NonUniqueBusinessKeyException;
+
+    /**
+     * Removes all existing accesses to given marketplace.
+     *
+     * @param marketplaceKey
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void removeMarketplaceAccesses(long marketplaceKey);
+
+    /**
+     * Remove access to marketplace for given organization.
+     *
+     * @param marketplaceKey
+     * @param organizationKey
+     * @throws ObjectNotFoundException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    void removeMarketplaceAccess(long marketplaceKey, long organizationKey) throws ObjectNotFoundException;
 }

@@ -10,13 +10,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import org.oscm.domobjects.annotations.BusinessKey;
+
+import javax.persistence.*;
 
 /**
  * Defines marketplaces with restricted access and organizations which has
@@ -27,6 +23,13 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "marketplace_tkey",
         "organization_tkey" }) )
+
+@NamedQueries({
+        @NamedQuery(name = "MarketplaceAccess.findByBusinessKey", query = "SELECT obj FROM MarketplaceAccess obj WHERE obj.marketplace_tkey"
+                + " = :marketplace_tkey AND obj.organization_tkey = :organization_tkey"),
+        @NamedQuery(name = "MarketplaceAccess.findByMarketplace", query = "SELECT obj FROM MarketplaceAccess obj WHERE "
+                + "obj.marketplace_tkey = :marketplace_tkey") })
+@BusinessKey(attributes = { "marketplace_tkey", "organization_tkey" })
 public class MarketplaceAccess extends DomainObjectWithoutVersioning<EmptyDataContainer> {
 
     private static final long serialVersionUID = -3270780943325084256L;
