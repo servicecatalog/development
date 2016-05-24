@@ -170,6 +170,11 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public void openMarketplace(String marketplaceId)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
+    public List<VOMarketplace> getRestrictedMarketplaces() {
         throw new UnsupportedOperationException();
     }
 

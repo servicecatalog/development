@@ -116,7 +116,8 @@ public interface MarketplaceServiceLocal {
      */
     public boolean updateOwningOrganization(Marketplace marketplace,
             final String newOwningOrganizationId, boolean forCreate)
-            throws OperationNotPermittedException, ObjectNotFoundException;
+                    throws OperationNotPermittedException,
+                    ObjectNotFoundException;
 
     /**
      * Removes the {@link OrganizationRoleType#MARKETPLACE_OWNER} from the
@@ -212,8 +213,8 @@ public interface MarketplaceServiceLocal {
      */
     public RevenueShareModel updateRevenueShare(
             RevenueShareModel revenueShareModel, int version)
-            throws ObjectNotFoundException, ValidationException,
-            ConcurrentModificationException;
+                    throws ObjectNotFoundException, ValidationException,
+                    ConcurrentModificationException;
 
     /**
      * Persists the changes to the specified marketplace. The new name of the
@@ -244,8 +245,9 @@ public interface MarketplaceServiceLocal {
      */
     public boolean updateMarketplace(Marketplace marketplace,
             String marketplaceName, String owningOrganizationId)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, UserRoleAssignmentException;
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException, ValidationException,
+                    UserRoleAssignmentException;
 
     /**
      * Ensures that the owning organization has the right to publish on the
@@ -318,9 +320,11 @@ public interface MarketplaceServiceLocal {
             Marketplace newMarketplace, String marketplaceName,
             String owningOrganizationId, int marketplaceRevenueShareVersion,
             int resellerRevenueShareVersion, int brokerRevenueShareVersion)
-            throws ObjectNotFoundException, ValidationException,
-            ConcurrentModificationException, OperationNotPermittedException,
-            AddMarketingPermissionException, UserRoleAssignmentException;
+                    throws ObjectNotFoundException, ValidationException,
+                    ConcurrentModificationException,
+                    OperationNotPermittedException,
+                    AddMarketingPermissionException,
+                    UserRoleAssignmentException;
 
     /**
      * Persists the changes to the specified marketplace. The new name of the
@@ -341,7 +345,8 @@ public interface MarketplaceServiceLocal {
      */
     public void updateMarketplaceTrackingCode(String marketplaceId,
             int marketplaceVersion, String trackingCode)
-            throws ObjectNotFoundException, ConcurrentModificationException;
+                    throws ObjectNotFoundException,
+                    ConcurrentModificationException;
 
     /**
      * Extract the trackingCode from a given MarketplaceId
@@ -397,8 +402,8 @@ public interface MarketplaceServiceLocal {
      */
     public Product publishService(long serviceKey, CatalogEntry catalogEntry,
             List<VOCategory> categories) throws ObjectNotFoundException,
-            ValidationException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException;
+                    ValidationException, NonUniqueBusinessKeyException,
+                    OperationNotPermittedException;
 
     /**
      * Method does the same as method
@@ -497,4 +502,16 @@ public interface MarketplaceServiceLocal {
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     void removeMarketplaceAccess(long marketplaceKey, long organizationKey) throws ObjectNotFoundException;
+
+
+    /**
+     * Retrieves all marketplaces with restricted access which are accessible
+     * for given organization.
+     * 
+     * @param orgKey
+     *            key of the Organization
+     * @return list of marketplaces
+     */
+    public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
+            long orgKey);
 }
