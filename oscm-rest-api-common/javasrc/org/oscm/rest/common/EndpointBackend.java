@@ -17,18 +17,17 @@ import javax.ws.rs.WebApplicationException;
  * 
  * @author miethaner
  */
-public interface EndpointBackend<T extends Representation> {
+public interface EndpointBackend<T extends Representation, K extends RequestParameters> {
 
     /**
      * Gets the item from resource for the given id
      * 
      * @param params
-     *            the query parameters of the request
+     *            the query parameters and item id of the request
      * @return item as JSON
      * @throws WebApplicationException
      */
-    public T getItem(RequestParametersGet params)
-            throws WebApplicationException;
+    public T getItem(K params) throws WebApplicationException;
 
     /**
      * Gets all valid items from resource
@@ -38,21 +37,19 @@ public interface EndpointBackend<T extends Representation> {
      * @return items as JSON
      * @throws WebApplicationException
      */
-    public Collection<T> getCollection(RequestParametersGet params)
-            throws WebApplicationException;
+    public Collection<T> getCollection(K params) throws WebApplicationException;
 
     /**
      * Creates the given item for the given id
      * 
      * @param params
-     *            the query parameters of the request
+     *            the query parameters and item id of the request
      * @param content
      *            the new item
      * @return the new resource id
      * @throws WebApplicationException
      */
-    public String postItem(RequestParametersPost params, T content)
-            throws WebApplicationException;
+    public String postItem(K params, T content) throws WebApplicationException;
 
     /**
      * Creates the given items
@@ -64,20 +61,19 @@ public interface EndpointBackend<T extends Representation> {
      * @return the new resource id
      * @throws WebApplicationException
      */
-    public String postCollection(RequestParametersPost params, T content)
+    public String postCollection(K params, T content)
             throws WebApplicationException;
 
     /**
      * Updates the given item with the given id
      * 
      * @param params
-     *            the query parameters of the request
+     *            the query parameters and item id of the request
      * @param content
      *            the updated item
      * @throws WebApplicationException
      */
-    public void putItem(RequestParametersPut params, T content)
-            throws WebApplicationException;
+    public void putItem(K params, T content) throws WebApplicationException;
 
     /**
      * Updates the given items
@@ -88,18 +84,17 @@ public interface EndpointBackend<T extends Representation> {
      *            the updated items
      * @throws WebApplicationException
      */
-    public void putCollection(RequestParametersPut params, T content)
+    public void putCollection(K params, T content)
             throws WebApplicationException;
 
     /**
      * Deletes the item with the given id
      * 
      * @param params
-     *            the query parameters of the request
+     *            the query parameters and item id of the request
      * @throws WebApplicationException
      */
-    public void deleteItem(RequestParametersDelete params)
-            throws WebApplicationException;
+    public void deleteItem(K params) throws WebApplicationException;
 
     /**
      * Deletes all valid items
@@ -108,6 +103,5 @@ public interface EndpointBackend<T extends Representation> {
      *            the query parameters of the request
      * @throws WebApplicationException
      */
-    public void deleteCollection(RequestParametersDelete params)
-            throws WebApplicationException;
+    public void deleteCollection(K params) throws WebApplicationException;
 }

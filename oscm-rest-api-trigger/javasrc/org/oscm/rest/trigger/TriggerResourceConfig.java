@@ -18,6 +18,7 @@ import javax.ws.rs.ApplicationPath;
 import org.oscm.rest.common.CommonFilterFactory;
 import org.oscm.rest.common.GsonMessageProvider;
 
+import com.sun.jersey.api.container.filter.RolesAllowedResourceFilterFactory;
 import com.sun.jersey.api.core.ResourceConfig;
 
 /**
@@ -33,8 +34,10 @@ public class TriggerResourceConfig extends ResourceConfig {
 
     public TriggerResourceConfig() {
         properties = new HashMap<String, Object>();
-        properties.put(PROPERTY_RESOURCE_FILTER_FACTORIES,
-                CommonFilterFactory.class);
+
+        properties.put(PROPERTY_RESOURCE_FILTER_FACTORIES, new String[] {
+                CommonFilterFactory.class.getName(),
+                RolesAllowedResourceFilterFactory.class.getName() });
     }
 
     @Override

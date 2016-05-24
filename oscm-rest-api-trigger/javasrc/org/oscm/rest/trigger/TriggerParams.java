@@ -2,26 +2,18 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 9, 2016                                                      
+ *  Creation Date: May 24, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.rest.common;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package org.oscm.rest.trigger;
 
 /**
- * Custom annotation for REST method versioning. Cant be called for versions
- * smaller than value.
- * 
  * @author miethaner
+ *
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Since {
+public class TriggerParams {
 
-    int value();
+    private TriggerParams() {
+    }
 }

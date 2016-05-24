@@ -2,26 +2,28 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 9, 2016                                                      
+ *  Creation Date: May 19, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.rest.common;
+package org.oscm.rest.trigger.unittests;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.junit.Test;
 
 /**
- * Custom annotation for REST method versioning. Cant be called for versions
- * greater than value.
+ * Unit test for TriggerProcessParameter
  * 
  * @author miethaner
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Until {
+public class TriggerProcessParameterTest {
 
-    int value();
+    @Test
+    public void testUpdateV1() {
+        // nothing to test in version 1
+    }
+
+    @Test
+    public void testConvertV1() {
+        // nothing to test in version 1
+    }
 }

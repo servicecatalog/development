@@ -34,11 +34,11 @@ import com.sun.jersey.spi.container.ContainerRequest;
  * 
  * @author miethaner
  */
-public class RestEndpoint<T extends Representation> {
+public class RestEndpoint<T extends Representation, K extends RequestParameters> {
 
     private static final String PARAM_VERSION = "version";
 
-    private EndpointBackend<T> backend;
+    private EndpointBackend<T, K> backend;
 
     /**
      * Creates new REST endpoints with the given backend
@@ -46,16 +46,15 @@ public class RestEndpoint<T extends Representation> {
      * @param backend
      *            the endpoint backend
      */
-    public RestEndpoint(EndpointBackend<T> backend) {
+    public RestEndpoint(EndpointBackend<T, K> backend) {
         this.backend = backend;
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @GET
-    @Path("{id}")
+    @Path(CommonParams.PATH_ID)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getItem(@Context Request request,
-            @InjectParam RequestParametersGet params) {
+    public Response getItem(@Context Request request, @InjectParam K params) {
 
         int version = getVersion(request);
         params.validateResourceId();
@@ -72,12 +71,12 @@ public class RestEndpoint<T extends Representation> {
         return Response.ok(item).build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @GET
     @Path("")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCollection(@Context Request request,
-            @InjectParam RequestParametersGet params) {
+            @InjectParam K params) {
 
         int version = getVersion(request);
 
@@ -97,13 +96,12 @@ public class RestEndpoint<T extends Representation> {
         return Response.ok(collection).build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @POST
-    @Path("{id}")
+    @Path(CommonParams.PATH_ID)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response postItem(@Context Request request,
-            @Context UriInfo uriInfo,
-            @InjectParam RequestParametersPost params, T content) {
+            @Context UriInfo uriInfo, @InjectParam K params, T content) {
 
         int version = getVersion(request);
 
@@ -116,7 +114,7 @@ public class RestEndpoint<T extends Representation> {
         content.setVersion(version);
         content.update();
 
-        String newId = backend.postCollection(params, content);
+        String newId = backend.postItem(params, content);
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         URI uri = builder.path(newId).build();
@@ -124,13 +122,12 @@ public class RestEndpoint<T extends Representation> {
         return Response.created(uri).build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @POST
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response postCollection(@Context Request request,
-            @Context UriInfo uriInfo,
-            @InjectParam RequestParametersPost params, T content) {
+            @Context UriInfo uriInfo, @InjectParam K params, T content) {
 
         int version = getVersion(request);
 
@@ -150,12 +147,12 @@ public class RestEndpoint<T extends Representation> {
         return Response.created(uri).build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @PUT
-    @Path("{id}")
+    @Path(CommonParams.PATH_ID)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putItem(@Context Request request,
-            @InjectParam RequestParametersPut params, T content) {
+    public Response putItem(@Context Request request, @InjectParam K params,
+            T content) {
 
         int version = getVersion(request);
 
@@ -168,17 +165,17 @@ public class RestEndpoint<T extends Representation> {
         content.setVersion(version);
         content.update();
 
-        backend.putItem(null, content);
+        backend.putItem(params, content);
 
         return Response.noContent().build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @PUT
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response putCollection(@Context Request request,
-            @InjectParam RequestParametersPut params, T content) {
+            @InjectParam K params, T content) {
 
         int version = getVersion(request);
 
@@ -190,16 +187,15 @@ public class RestEndpoint<T extends Representation> {
         content.setVersion(version);
         content.update();
 
-        backend.putCollection(null, content);
+        backend.putCollection(params, content);
 
         return Response.noContent().build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @DELETE
-    @Path("{id}")
-    public Response deleteItem(@Context Request request,
-            @InjectParam RequestParametersDelete params) {
+    @Path(CommonParams.PATH_ID)
+    public Response deleteItem(@Context Request request, @InjectParam K params) {
 
         int version = getVersion(request);
 
@@ -214,11 +210,11 @@ public class RestEndpoint<T extends Representation> {
         return Response.noContent().build();
     }
 
-    @Since(1)
+    @Since(CommonParams.VERSION_1)
     @DELETE
     @Path("")
     public Response deleteCollection(@Context Request request,
-            @InjectParam RequestParametersDelete params) {
+            @InjectParam K params) {
 
         int version = getVersion(request);
 
@@ -241,7 +237,7 @@ public class RestEndpoint<T extends Representation> {
      * @return the version number
      * @throws WebApplicationException
      */
-    private int getVersion(Request request) throws WebApplicationException {
+    protected int getVersion(Request request) throws WebApplicationException {
 
         ContainerRequest cr = (ContainerRequest) request;
         Object property = cr.getProperties().get(PARAM_VERSION);
