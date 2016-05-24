@@ -250,6 +250,7 @@ public class Script {
         } else {
             addServiceParametersForLinuxVms(sb);
         }
+        addOsIndependetServiceParameters(sb);
 
         String patchedScript;
         if (os == OS.WINDOWS) {
@@ -267,154 +268,93 @@ public class Script {
     private void addServiceParametersForWindowsVms(StringBuffer sb)
             throws Exception, APPlatformException {
 
-        sb.append(buildParameterCommand(OS.WINDOWS,
+        sb.append(buildParameterCommand(
                 VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
+        sb.append(buildParameterCommand(
                 VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
+        sb.append(buildParameterCommand(
                 VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_DOMAIN_NAME));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
+        sb.append(buildParameterCommand(
                 VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_WINDOWS_WORKGROUP));
-
-        String value;
-        int numNics = Integer.parseInt(
-                sp.getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
-        while (numNics > 0) {
-            String param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SERVER,
-                    numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SUFFIX,
-                    numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            param = getIndexedParam(VMPropertyHandler.TS_NIC1_GATEWAY, numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            param = getIndexedParam(VMPropertyHandler.TS_NIC1_IP_ADDRESS,
-                    numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            param = getIndexedParam(VMPropertyHandler.TS_NIC1_NETWORK_ADAPTER,
-                    numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            param = getIndexedParam(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
-                    numNics);
-            value = sp.getServiceSetting(param);
-            sb.append("set " + param + "=" + value + os.getLineEnding());
-
-            numNics--;
-        }
-
-        for (String key : ph.getDataDiskMountPointParameterKeys()) {
-            sb.append(buildParameterCommand(OS.WINDOWS, key));
-        }
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_INSTANCENAME, ph.getInstanceName()));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_SCRIPT_URL));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_SCRIPT_USERID));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.TS_SCRIPT_PWD));
-
-        sb.append(buildParameterCommand(OS.WINDOWS,
-                VMPropertyHandler.REQUESTING_USER));
+        sb.append(
+                buildParameterCommand(VMPropertyHandler.TS_WINDOWS_WORKGROUP));
     }
 
     private void addServiceParametersForLinuxVms(StringBuffer sb)
             throws Exception, APPlatformException {
 
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_LINUX_ROOT_PWD));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_LINUX_ROOT_PWD));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
+    }
 
-        String value;
+    private void addOsIndependetServiceParameters(StringBuffer sb)
+            throws Exception {
+
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_INSTANCENAME,
+                ph.getInstanceName()));
+        sb.append(buildParameterCommand(VMPropertyHandler.REQUESTING_USER));
+        addScriptParameters(sb);
+        addNetworkServiceParameters(sb);
+        addDataDiskParameters(sb);
+    }
+
+    private void addScriptParameters(StringBuffer sb) throws Exception {
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_URL));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_USERID));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_PWD));
+    }
+
+    private void addDataDiskParameters(StringBuffer sb) throws Exception {
+        for (String key : ph.getDataDiskMountPointParameterKeys()) {
+            sb.append(buildParameterCommand(key));
+        }
+        for (String key : ph.getDataDiskSizeParameterKeys()) {
+            sb.append(buildParameterCommand(key));
+        }
+    }
+
+    private void addNetworkServiceParameters(StringBuffer sb) throws Exception {
         int numNics = Integer.parseInt(
                 sp.getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         while (numNics > 0) {
             String param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SERVER,
                     numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
 
             param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SUFFIX,
                     numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
 
             param = getIndexedParam(VMPropertyHandler.TS_NIC1_GATEWAY, numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
 
             param = getIndexedParam(VMPropertyHandler.TS_NIC1_IP_ADDRESS,
                     numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
 
             param = getIndexedParam(VMPropertyHandler.TS_NIC1_NETWORK_ADAPTER,
                     numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
 
             param = getIndexedParam(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
                     numNics);
-            value = sp.getServiceSetting(param);
-            sb.append(param + "='" + value + "'" + os.getLineEnding());
+            sb.append(buildParameterCommand(param));
+
             numNics--;
         }
-
-        for (String key : ph.getDataDiskMountPointParameterKeys()) {
-            sb.append(buildParameterCommand(OS.LINUX, key));
-        }
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_INSTANCENAME, ph.getInstanceName()));
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_SCRIPT_URL));
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_SCRIPT_USERID));
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_SCRIPT_PWD));
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.TS_DOMAIN_NAME));
-
-        sb.append(buildParameterCommand(OS.LINUX,
-                VMPropertyHandler.REQUESTING_USER));
     }
 
-    private String buildParameterCommand(OS os, String key) throws Exception {
-        return buildParameterCommand(os, key, sp.getServiceSetting(key));
+    private String buildParameterCommand(String key) throws Exception {
+        return buildParameterCommand(key, sp.getServiceSetting(key));
     }
 
-    private String buildParameterCommand(OS os, String key, String value) {
+    private String buildParameterCommand(String key, String value) {
         switch (os) {
         case LINUX:
-            return key + "='" + value + "'" + "\n";
+            return key + "='" + value + "'" + os.getLineEnding();
         case WINDOWS:
-            return "set " + key + "=" + value + "\r\n";
+            return "set " + key + "=" + value + os.getLineEnding();
         default:
             throw new IllegalStateException("OS type" + os.name()
                     + " not supported by Script execution");

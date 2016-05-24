@@ -415,12 +415,27 @@ public class VMPropertyHandler {
     }
 
     /**
-     * 
      * @return parameters keys for the data disk mount point, the list is sorted
      *         ascending
      */
     public List<String> getDataDiskMountPointParameterKeys() {
         String regex = TS_DATA_DISK_TARGET.replace("#", "").concat("\\d+");
+        List<String> result = new ArrayList<String>();
+        for (String key : settings.getParameters().keySet()) {
+            if (key.matches(regex)) {
+                result.add(key);
+            }
+        }
+        Collections.sort(result);
+        return result;
+    }
+
+    /**
+     * @return parameters keys for the data disk size, the list is sorted
+     *         ascending
+     */
+    public List<String> getDataDiskSizeParameterKeys() {
+        String regex = TS_DATA_DISK_SIZE.replace("#", "").concat("\\d+");
         List<String> result = new ArrayList<String>();
         for (String key : settings.getParameters().keySet()) {
             if (key.matches(regex)) {
