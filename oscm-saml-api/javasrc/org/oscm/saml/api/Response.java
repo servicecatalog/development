@@ -27,6 +27,7 @@ import org.oscm.saml.api.ResponseParser.XmlParser;
 public class Response {
 
 	public static final String RESPONSE = "Response";
+	public static final String LOGOUT_REQUEST = "LogoutRequest";
 	public static final String RESPONSE_ID = "ResponseID";
 	public static final String ISSUE_INSTANT = "IssueInstant";
 	public static final String IN_RESPONSE_TO = "InResponseTo";

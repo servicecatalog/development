@@ -24,6 +24,7 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.oscm.saml2.api.model.assertion.BaseIDAbstractType;
 import org.oscm.saml2.api.model.assertion.EncryptedElementType;
 import org.oscm.saml2.api.model.assertion.NameIDType;
+import org.oscm.saml2.api.model.xmldsig.SignatureType;
 
 /**
  * <p>
@@ -55,8 +56,8 @@ import org.oscm.saml2.api.model.assertion.NameIDType;
  * 
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "LogoutRequestType", propOrder = { "baseID", "nameID",
-        "encryptedID", "sessionIndex" })
+@XmlType(name = "LogoutRequestType", propOrder = { "signature", "baseID", "nameID",
+        "encryptedID", "sessionIndex"})
 public class LogoutRequestType extends RequestAbstractType {
 
     @XmlElement(name = "BaseID", namespace = "urn:oasis:names:tc:SAML:2.0:assertion")
@@ -67,6 +68,8 @@ public class LogoutRequestType extends RequestAbstractType {
     protected EncryptedElementType encryptedID;
     @XmlElement(name = "SessionIndex")
     protected List<String> sessionIndex;
+    @XmlElement(name = "Signature")
+    protected SignatureType signature;
     @XmlAttribute(name = "Reason")
     protected String reason;
     @XmlAttribute(name = "NotOnOrAfter")
@@ -185,6 +188,17 @@ public class LogoutRequestType extends RequestAbstractType {
     public void setReason(String value) {
         this.reason = value;
     }
+
+    @Override
+    public SignatureType getSignature() {
+        return signature;
+    }
+
+    public void setSignature(SignatureType signature) {
+        this.signature = signature;
+    }
+
+
 
     /**
      * Gets the value of the notOnOrAfter property.

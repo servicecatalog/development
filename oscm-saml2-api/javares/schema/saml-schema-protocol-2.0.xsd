@@ -264,6 +264,7 @@
                         <element ref="saml:NameID"/>
                         <element ref="saml:EncryptedID"/>
                     </choice>
+                    <element ref="ds:Signature" minOccurs="0"/>
                     <element ref="samlp:SessionIndex" minOccurs="0" maxOccurs="unbounded"/>
                 </sequence>
                 <attribute name="Reason" type="string" use="optional"/>

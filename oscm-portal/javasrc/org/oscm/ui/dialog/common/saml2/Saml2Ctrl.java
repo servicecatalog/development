@@ -23,19 +23,28 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
+import org.oscm.saml2.api.Marshalling;
+import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
+
+import org.w3c.dom.Document;
 
 /**
  * @author roderus
@@ -49,6 +58,9 @@ public class Saml2Ctrl{
 
     @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
+
+    @EJB(beanInterface = SamlService.class)
+    private SamlService samlBean;
 
     @EJB(beanInterface = SessionService.class)
     private SessionService sessionService;
@@ -66,8 +78,7 @@ public class Saml2Ctrl{
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
-            model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedLogoutRequest(
-                    sessionService.getSAMLSessionStringForSessionId(getSessionId())));
+            model.setEncodedAuthnLogoutRequest(generateLogoutRequest(reqGenerator));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
@@ -85,6 +96,37 @@ public class Saml2Ctrl{
         }
 
         return null;
+    }
+
+    String generateLogoutRequest(AuthnRequestGenerator reqGenerator) throws SAML2AuthnRequestException {
+        try {
+            final JAXBElement<LogoutRequestType> rootElement =
+                    reqGenerator.generateLogoutRequest(sessionService.getSAMLSessionStringForSessionId(getSessionId()));
+            return reqGenerator.encode(signElement(rootElement));
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private <T> String signElement(JAXBElement<T> element) throws TransformerException {
+        Marshalling<T> marshaller = new Marshalling<>();
+        Document samlRequestDoc = null;
+        try {
+            samlRequestDoc = marshaller.marshallElement(element);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        samlRequestDoc = samlBean
+                .signLogoutRequestElement(
+                        samlRequestDoc.getDocumentElement())
+                .getOwnerDocument();
+        String authnRequestString = XMLConverter.convertToString(
+                samlRequestDoc, false);
+        return XMLConverter.removeEOLCharsFromXML(authnRequestString);
     }
 
     String getSessionId() {
@@ -141,7 +183,7 @@ public class Saml2Ctrl{
     AuthnRequestGenerator getAuthnRequestGenerator()
             throws SAML2AuthnRequestException {
         Boolean isHttps = Boolean.valueOf(getRequest().isSecure());
-        return new AuthnRequestGenerator(getIssuer(), isHttps);
+        return new AuthnRequestGenerator(getIssuer(), isHttps, configurationService, samlBean);
     }
 
     String getIssuer() throws SAML2AuthnRequestException {

@@ -10,6 +10,8 @@ package org.oscm.internal.intf;
 
 import javax.ejb.Remote;
 
+import org.w3c.dom.Element;
+
 /**
  * Remote interface for single sign-on based on SAML (Security Assertion Markup
  * Language).
@@ -38,4 +40,11 @@ public interface SamlService {
 
     String createSamlResponse(String requestId);
 
+    /**
+     * Adds a signature to the SAML LogoutRequest form.
+     *
+     * @param samlRequestDoc
+     * @return
+     */
+    Element signLogoutRequestElement(Element samlRequestDoc);
 }

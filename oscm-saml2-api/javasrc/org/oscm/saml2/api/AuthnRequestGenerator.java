@@ -14,13 +14,16 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
+
 import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
-import org.oscm.saml2.api.model.xmldsig.SignatureType;
+import org.oscm.saml2.api.model.protocol.NameIDPolicyType;
 
 import org.w3c.dom.Document;
 
@@ -33,16 +36,25 @@ public class AuthnRequestGenerator {
     private final static Integer HTTPS_INDEX = Integer.valueOf(0);
     private final static Integer HTTP_INDEX = Integer.valueOf(1);
     private final static String SAML_VERSION = "2.0";
+    private ConfigurationService configService;
 
     private Random prng = new Random();
     private String issuer;
     private Boolean isHttps;
     private String requestId;
+    private SamlService samlBean;
 
     public AuthnRequestGenerator(String issuer, Boolean isHttps) {
         this.issuer = issuer;
         this.isHttps = isHttps;
         this.requestId = generate160BitID();
+    }
+
+    public AuthnRequestGenerator(String issuer, Boolean isHttps,
+            ConfigurationService configurationService, SamlService samlBean) {
+        this(issuer, isHttps);
+        this.configService = configurationService;
+        this.samlBean = samlBean;
     }
 
     /**
@@ -56,8 +68,7 @@ public class AuthnRequestGenerator {
         } catch (SAML2AuthnRequestException e) {
             throw e;
         } catch (Exception e) {
-            throw new SAML2AuthnRequestException(
-                    e.getMessage(),
+            throw new SAML2AuthnRequestException(e.getMessage(),
                     SAML2AuthnRequestException.ReasonEnum.XML_TRANSFORMATION_ERROR);
         }
         return encodeBase64(authnRequest);
@@ -82,6 +93,15 @@ public class AuthnRequestGenerator {
         return encodeBase64(authnRequest);
     }
 
+    public <T> String encode(String element) throws SAML2AuthnRequestException {
+        try {
+            return encodeBase64(element);
+        } catch (Exception e) {
+            throw new SAML2AuthnRequestException(e.getMessage(),
+                    SAML2AuthnRequestException.ReasonEnum.XML_TRANSFORMATION_ERROR);
+        }
+    }
+
     public String getRequestId() {
         return requestId;
     }
@@ -101,8 +121,11 @@ public class AuthnRequestGenerator {
                 .createAuthnRequestType();
         authnRequest.setID(requestId);
         authnRequest.setVersion(SAML_VERSION);
-        authnRequest.setIssueInstant(GregorianCalendars
-                .newXMLGregorianCalendarSystemTime());
+        final NameIDPolicyType nameIDPolicyType = protocolObjFactory.createNameIDPolicyType();
+        nameIDPolicyType.setAllowCreate(true);
+        authnRequest.setNameIDPolicy(nameIDPolicyType);
+        authnRequest.setIssueInstant(
+                GregorianCalendars.newXMLGregorianCalendarSystemTime());
         Integer acsIndex = isHttps.booleanValue() ? HTTPS_INDEX : HTTP_INDEX;
         authnRequest.setAssertionConsumerServiceIndex(acsIndex);
         authnRequest.setIssuer(issuer);
@@ -113,8 +136,7 @@ public class AuthnRequestGenerator {
         return authnRequestJAXB;
     }
 
-    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex)
-            throws DatatypeConfigurationException {
+    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex) throws DatatypeConfigurationException {
 
         org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
         protocolObjFactory = new org.oscm.saml2.api.model.protocol.ObjectFactory();
@@ -129,14 +151,12 @@ public class AuthnRequestGenerator {
                 .createLogoutRequestType();
         logoutRequest.setID(requestId);
         logoutRequest.setVersion("2.0");
-        logoutRequest.setSignature(prepareSignature());
 
-        logoutRequest.setIssueInstant(GregorianCalendars
-                .newXMLGregorianCalendarSystemTime());
+        logoutRequest.setIssueInstant(
+                GregorianCalendars.newXMLGregorianCalendarSystemTime());
         logoutRequest.setIssuer(issuer);
-        NameIDType nameId = new NameIDType();
-        nameId.setFormat("urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
         logoutRequest.setNameID(issuer);
+        logoutRequest.getNameID().setFormat("http://schemas.xmlsoap.org/claims/UPN");
         logoutRequest.getSessionIndex().add(idpSessionIndex);
 
         JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
@@ -151,14 +171,6 @@ public class AuthnRequestGenerator {
         String authnRequestString = XMLConverter.convertToString(
                 samlRequestDoc, false);
         return XMLConverter.removeEOLCharsFromXML(authnRequestString);
-    }
-
-    //TODO
-    private SignatureType prepareSignature() {
-        org.oscm.saml2.api.model.assertion.ObjectFactory assertionObjFactory;
-        assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
-        SignatureType signatureType = assertionObjFactory.createSignatureType();
-        return signatureType;
     }
 
     private String generate160BitID() {
@@ -176,8 +188,8 @@ public class AuthnRequestGenerator {
     }
 
     private String encodeBase64(String authnRequest) {
-        String encodedAuthnRequest = Base64.encodeBase64String(authnRequest
-                .getBytes());
+        String encodedAuthnRequest = Base64
+                .encodeBase64String(authnRequest.getBytes());
         return XMLConverter.removeEOLCharsFromXML(encodedAuthnRequest);
     }
 }

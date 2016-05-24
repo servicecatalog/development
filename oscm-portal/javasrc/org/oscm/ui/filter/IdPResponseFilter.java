@@ -86,7 +86,7 @@ public class IdPResponseFilter implements Filter {
             if (containsSamlResponse(httpRequest)) {
                 httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                         Boolean.TRUE);
-                samlResponseExtractor = new SAMLResponseExtractor();
+                samlResponseExtractor = getSamlResponseExtractor();
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
                 HttpSession currentSession = httpRequest.getSession();
                 try {
@@ -118,6 +118,10 @@ public class IdPResponseFilter implements Filter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    SAMLResponseExtractor getSamlResponseExtractor() {
+        return new SAMLResponseExtractor();
     }
 
     String getForwardUrl(HttpServletRequest httpRequest, String relayState) {
