@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
- *  Creation Date: 21.10.2014                                                      
+ *  Creation Date: 10.12.2014                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -45,8 +45,7 @@ public class LocalizedBillingResourceAssemblerTest {
     @Test
     public void isValidJSONwithInvalid() throws BillingApplicationException {
         // then
-        assertFalse(
-                LocalizedBillingResourceAssembler.isValidJSON(INVALID_JSON));
+        assertFalse(LocalizedBillingResourceAssembler.isValidJSON(INVALID_JSON));
     }
 
     @Test
@@ -71,8 +70,8 @@ public class LocalizedBillingResourceAssemblerTest {
                 returnValue.getResourceType());
         assertEquals("Wrong data type", MediaType.TEXT_PLAIN,
                 returnValue.getDataType());
-        assertTrue("Wrong value", Arrays.equals(priceModelTag.getBytes(),
-                returnValue.getValue()));
+        assertTrue("Wrong value",
+                Arrays.equals(priceModelTag.getBytes(), returnValue.getValue()));
     }
 
     @Test
@@ -85,7 +84,8 @@ public class LocalizedBillingResourceAssemblerTest {
         // when
         LocalizedBillingResource result = LocalizedBillingResourceAssembler
                 .createPriceModel(PRICEMODLELUUID1, new Locale("en"),
-                        priceModelContent, LocalizedBillingResourceType.PRICEMODEL_SERVICE);
+                        priceModelContent,
+                        LocalizedBillingResourceType.PRICEMODEL_SERVICE);
 
         // then
         assertEquals(MediaType.APPLICATION_JSON, result.getDataType());

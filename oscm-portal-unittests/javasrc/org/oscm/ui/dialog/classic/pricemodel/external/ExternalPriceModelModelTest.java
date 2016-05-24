@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                 
  *                                                                                                                                 
  *  Creation Date: 05.02.2015                                                      
  *                                                                              
@@ -19,7 +19,7 @@ import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 
 /**
  * @author iversen
- *
+ * 
  */
 public class ExternalPriceModelModelTest {
 

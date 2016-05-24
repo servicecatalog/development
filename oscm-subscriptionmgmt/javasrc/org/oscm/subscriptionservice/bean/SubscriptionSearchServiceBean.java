@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2015                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.subscriptionservice.bean;
 
 import java.math.BigInteger;

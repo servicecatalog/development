@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
- *  Creation Date: 21.10.2014                                                      
+ *  Creation Date: 10.12.2014                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -26,8 +26,7 @@ import org.oscm.domobjects.LocalizedBillingResource;
 
 public class LocalizedBillingResourceDAOTest {
 
-    private static LocalizedBillingResourceDAO resourceDAO = spy(
-            new LocalizedBillingResourceDAO());
+    private static LocalizedBillingResourceDAO resourceDAO = spy(new LocalizedBillingResourceDAO());
     private static DataService ds = mock(DataService.class);
     private static LocalizedBillingResource r1 = new LocalizedBillingResource();
     private static LocalizedBillingResource r2 = new LocalizedBillingResource();

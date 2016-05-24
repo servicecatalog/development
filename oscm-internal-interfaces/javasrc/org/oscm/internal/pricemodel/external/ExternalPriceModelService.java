@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                 
  *                                                                                                                                 
  *  Creation Date: 10.12.2014                                                      
  *                                                                              
@@ -88,13 +88,14 @@ public interface ExternalPriceModelService {
      * @return external price model
      * @throws ExternalPriceModelException
      */
-    public PriceModel getExternalPriceModelForCustomer(VOServiceDetails service,
-            VOOrganization customer) throws ExternalPriceModelException;
+    public PriceModel getExternalPriceModelForCustomer(
+            VOServiceDetails service, VOOrganization customer)
+            throws ExternalPriceModelException;
 
     /**
      * Retrieves the external price model from related billing adapter based on
      * selected service and subscription
-     *
+     * 
      * @param subscription
      *            selected subscription
      * @return external price model
@@ -103,5 +104,5 @@ public interface ExternalPriceModelService {
 
     public PriceModel getExternalPriceModelForSubscription(
             VOSubscriptionDetails subscription)
-                    throws ExternalPriceModelException;
+            throws ExternalPriceModelException;
 }

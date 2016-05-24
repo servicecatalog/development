@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                  
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
  *  Creation Date: 10.12.2014                                                      
  *                                                                              
@@ -34,7 +34,6 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.LocalizedBillingResource;
 import org.oscm.domobjects.SupportedLanguage;
 import org.oscm.domobjects.enums.LocalizedBillingResourceType;
-import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
@@ -53,8 +52,7 @@ import org.oscm.operatorservice.bean.OperatorServiceLocalBean;
 @Stateless
 @Remote(ExternalPriceModelService.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
-public class ExternalPriceModelServiceBean
-        implements ExternalPriceModelService {
+public class ExternalPriceModelServiceBean implements ExternalPriceModelService {
 
     @EJB
     PriceModelPluginBean priceModelPluginBean;
@@ -67,10 +65,10 @@ public class ExternalPriceModelServiceBean
 
     @Inject
     OperatorServiceLocalBean operatorService;
-    
+
     @EJB
     private DataService dm;
-    
+
     private static final int MAX_PRICE_LENGTH = 30;
 
     @Override
@@ -97,11 +95,13 @@ public class ExternalPriceModelServiceBean
         }
     }
 
-
     List<LocalizedBillingResource> convertToLocalizedBillingResource(
-            PriceModel externalPriceModel, LocalizedBillingResourceType localizedBillingResourceType) throws BillingApplicationException {
+            PriceModel externalPriceModel,
+            LocalizedBillingResourceType localizedBillingResourceType)
+            throws BillingApplicationException {
         List<LocalizedBillingResource> billingResource = LocalizedBillingResourceAssembler
-                .createLocalizedBillingResources(externalPriceModel, localizedBillingResourceType);
+                .createLocalizedBillingResources(externalPriceModel,
+                        localizedBillingResourceType);
         return billingResource;
     }
 
@@ -121,8 +121,7 @@ public class ExternalPriceModelServiceBean
                 locale, priceModelId);
 
         PriceModelContent content = new PriceModelContent(
-                priceModelResource.getDataType(),
-                priceModelResource.getValue());
+                priceModelResource.getDataType(), priceModelResource.getValue());
 
         return content;
     }
@@ -194,24 +193,26 @@ public class ExternalPriceModelServiceBean
 
     @Override
     @RolesAllowed("SERVICE_MANAGER")
-    public PriceModel getExternalPriceModelForCustomer(VOServiceDetails service,
-            VOOrganization customer) throws ExternalPriceModelException {
+    public PriceModel getExternalPriceModelForCustomer(
+            VOServiceDetails service, VOOrganization customer)
+            throws ExternalPriceModelException {
 
         PriceModel priceModel = getExternalPriceModel(service, customer);
         return priceModel;
     }
-    
+
     @Override
     @RolesAllowed("SERVICE_MANAGER")
-    public PriceModel getExternalPriceModelForSubscription(VOSubscriptionDetails subscription)
-                    throws ExternalPriceModelException {
+    public PriceModel getExternalPriceModelForSubscription(
+            VOSubscriptionDetails subscription)
+            throws ExternalPriceModelException {
 
-        PriceModel priceModel = getExternalPriceModel(subscription.getSubscribedService(), subscription);
+        PriceModel priceModel = getExternalPriceModel(
+                subscription.getSubscribedService(), subscription);
         return priceModel;
     }
 
-    private ContextBuilder prepareContextBuilderParameters(
-            VOService service) {
+    private ContextBuilder prepareContextBuilderParameters(VOService service) {
         List<VOParameter> parameters = service.getParameters();
         Map<String, String> parameterMap = new HashMap<String, String>();
 
@@ -227,7 +228,7 @@ public class ExternalPriceModelServiceBean
 
     private PriceModel getExternalPriceModel(VOService service,
             VOSubscriptionDetails subscription)
-                    throws ExternalPriceModelException {
+            throws ExternalPriceModelException {
         ContextBuilder contextBuilder = new ContextBuilder();
         if (subscription != null) {
             contextBuilder.addSubscription(subscription);
@@ -240,11 +241,10 @@ public class ExternalPriceModelServiceBean
             throw new ExternalPriceModelException(e);
         }
     }
-    
+
     private PriceModel getExternalPriceModel(VOServiceDetails service)
-                    throws ExternalPriceModelException {
-        ContextBuilder contextBuilder = prepareContextBuilderParameters(
-                service);
+            throws ExternalPriceModelException {
+        ContextBuilder contextBuilder = prepareContextBuilderParameters(service);
         try {
             return priceModelPluginBean.getPriceModel(
                     service.getBillingIdentifier(), getLocales(),
@@ -257,8 +257,7 @@ public class ExternalPriceModelServiceBean
     private PriceModel getExternalPriceModel(VOServiceDetails service,
             VOOrganization customer) throws ExternalPriceModelException {
 
-        ContextBuilder contextBuilder = prepareContextBuilderParameters(
-                service);
+        ContextBuilder contextBuilder = prepareContextBuilderParameters(service);
         if (customer != null) {
             contextBuilder.addCustomer(customer);
         }
@@ -278,13 +277,12 @@ public class ExternalPriceModelServiceBean
 
         if (languageList != null) {
             for (SupportedLanguage language : languageList) {
-                locales.add(LocaleHandler
-                        .getLocaleFromString(language.getLanguageISOCode()));
+                locales.add(LocaleHandler.getLocaleFromString(language
+                        .getLanguageISOCode()));
             }
         }
         return locales;
     }
-
 
     /**
      * @return the dm
@@ -293,9 +291,9 @@ public class ExternalPriceModelServiceBean
         return dm;
     }
 
-
     /**
-     * @param dm the dm to set
+     * @param dm
+     *            the dm to set
      */
     public void setDm(DataService dm) {
         this.dm = dm;
