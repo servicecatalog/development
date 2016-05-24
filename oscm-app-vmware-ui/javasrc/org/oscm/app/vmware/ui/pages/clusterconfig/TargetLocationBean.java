@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.ui.pages.clusterconfig;
@@ -88,7 +88,8 @@ public class TargetLocationBean extends UiBeanBase {
                     if (datacenterList.size() == 1) {
                         for (Cluster cluster : dc.cluster) {
                             SelectItem item3 = new SelectItem(
-                                    Integer.valueOf(cluster.tkey), cluster.name);
+                                    Integer.valueOf(cluster.tkey),
+                                    cluster.name);
                             clusterList.add(item3);
                             if (clusterList.size() == 1) {
                                 selectedCluster = cluster;
@@ -100,26 +101,22 @@ public class TargetLocationBean extends UiBeanBase {
             }
         }
 
-        hostBalancerList
-                .add(new SelectItem(
-                        "org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer",
-                        "Distribute VMs equally over all hosts (dynamically)"));
-        hostBalancerList
-                .add(new SelectItem(
-                        "org.oscm.app.vmware.business.balancer.EquipartitionHostBalancer",
-                        "Distribute VMs equally over all hosts (static configuration)"));
+        hostBalancerList.add(new SelectItem(
+                "org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer",
+                "Distribute VMs equally over all hosts (dynamically)"));
+        hostBalancerList.add(new SelectItem(
+                "org.oscm.app.vmware.business.balancer.EquipartitionHostBalancer",
+                "Distribute VMs equally over all hosts (static configuration)"));
         hostBalancerList.add(new SelectItem(
                 "org.oscm.app.vmware.business.balancer.SequentialHostBalancer",
                 "Distribute VMs in the order of the configured hosts"));
 
-        storageBalancerList
-                .add(new SelectItem(
-                        "org.oscm.app.vmware.business.balancer.EquipartitionStorageBalancer",
-                        "Distribute VMs equally over all storages"));
-        storageBalancerList
-                .add(new SelectItem(
-                        "org.oscm.app.vmware.business.balancer.SequentialStorageBalancer",
-                        "Distribute VMs in the order of the configured storages"));
+        storageBalancerList.add(new SelectItem(
+                "org.oscm.app.vmware.business.balancer.EquipartitionStorageBalancer",
+                "Distribute VMs equally over all storages"));
+        storageBalancerList.add(new SelectItem(
+                "org.oscm.app.vmware.business.balancer.SequentialStorageBalancer",
+                "Distribute VMs in the order of the configured storages"));
 
         parseConfiguration();
     }
@@ -198,11 +195,12 @@ public class TargetLocationBean extends UiBeanBase {
 
                 if (!foundStorage) {
                     status = Messages.get(getDefaultLanguage(),
-                            "ui.config.status.invalidhostconfig", new Object[] {
-                                    hoststorage, host.getName() });
+                            "ui.config.status.invalidhostconfig",
+                            new Object[] { hoststorage, host.getName() });
                     logger.error("The storage " + hoststorage + " for host "
                             + host.getName() + " is not defined.");
-                    logger.error("Failed to save load balancer settings to VMware controller database.");
+                    logger.error(
+                            "Failed to save load balancer settings to VMware controller database.");
                     return;
                 }
             }
@@ -333,8 +331,8 @@ public class TargetLocationBean extends UiBeanBase {
     }
 
     public String getUnsavedChangesMsg() {
-        return Messages
-                .get(getDefaultLanguage(), "confirm.unsavedChanges.lost");
+        return Messages.get(getDefaultLanguage(),
+                "confirm.unsavedChanges.lost");
     }
 
     public void valueChangeVCenter(ValueChangeEvent event) {

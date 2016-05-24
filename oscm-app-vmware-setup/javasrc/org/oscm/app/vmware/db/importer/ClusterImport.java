@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -87,8 +87,8 @@ public class ClusterImport extends GenericImport {
         }
     }
 
-    private void addTableRow(Connection con, String vcenter,
-            String clusterName, String datacenter) throws Exception {
+    private void addTableRow(Connection con, String vcenter, String clusterName,
+            String datacenter) throws Exception {
         int dcKey = getDatacenterKey(con, vcenter, datacenter);
         String loadbalancer = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><essvcenter><balancer class=\"org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer\" cpuWeight=\"\" memoryWeight=\"\" vmWeight=\"\"/></essvcenter>";
         String query = "insert into cluster (TKEY, NAME, LOAD_BALANCER, DATACENTER_TKEY) values (DEFAULT, ?, ?, ?)";
@@ -119,13 +119,13 @@ public class ClusterImport extends GenericImport {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to retrieve datacenter "
-                    + datacenter, e);
+            throw new RuntimeException(
+                    "Failed to retrieve datacenter " + datacenter, e);
         }
 
         if (dcKey == -1) {
-            throw new RuntimeException("Failed to retrieve datacenter "
-                    + datacenter);
+            throw new RuntimeException(
+                    "Failed to retrieve datacenter " + datacenter);
         }
         return dcKey;
     }

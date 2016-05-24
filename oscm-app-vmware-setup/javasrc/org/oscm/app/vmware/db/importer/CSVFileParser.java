@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -22,7 +22,7 @@ import com.opencsv.CSVReader;
 
 /**
  * Class for parsing a specified CSV file
- * 
+ *
  * @author soehnges
  */
 public abstract class CSVFileParser {
@@ -52,8 +52,8 @@ public abstract class CSVFileParser {
             List<String> checkCols = Arrays.asList(mappings);
             for (String reqCol : mandatory_columns) {
                 if (!checkCols.contains(reqCol)) {
-                    throw new Exception("Missing mandatory column '" + reqCol
-                            + "'.");
+                    throw new Exception(
+                            "Missing mandatory column '" + reqCol + "'.");
                 }
             }
 
@@ -78,9 +78,9 @@ public abstract class CSVFileParser {
 
     /**
      * Return next row as key-value map.
-     * 
+     *
      * Empty lines will be skipped.
-     * 
+     *
      * @return map with key-value data or NULL if no more line exists
      */
     public Map<String, String> readNext() throws Exception {
@@ -103,8 +103,8 @@ public abstract class CSVFileParser {
         }
 
         if (lines.contains(nextline.toString())) {
-            throw new Exception("Duplicate line definition: "
-                    + nextline.toString());
+            throw new Exception(
+                    "Duplicate line definition: " + nextline.toString());
         }
 
         lines.add(nextline.toString());
@@ -118,8 +118,8 @@ public abstract class CSVFileParser {
 
     public void validateMandatoryValue(String column) throws Exception {
         if (!data.containsKey(column) || data.get(column) == null) {
-            throw new Exception("Missing value for mandatory column '" + column
-                    + "'.");
+            throw new Exception(
+                    "Missing value for mandatory column '" + column + "'.");
         }
     }
 

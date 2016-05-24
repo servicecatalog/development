@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.ui.pages.clusterconfig;
@@ -12,7 +12,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 
 /**
  * Reflects a single storage configuration.
- * 
+ *
  * @author soehnges
  */
 public class StorageConfig {

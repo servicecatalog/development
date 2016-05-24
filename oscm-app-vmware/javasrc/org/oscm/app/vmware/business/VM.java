@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -277,7 +277,7 @@ public class VM extends Template {
 
     /**
      * Delete VMware instance on vSphere server.
-     * 
+     *
      * @param vmw
      *            connected VMware client entity
      * @param instanceId

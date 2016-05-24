@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.balancer;
@@ -29,7 +29,7 @@ import org.oscm.app.vmware.business.model.VMwareHost;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class SequentialHostBalancerTest {
 
@@ -149,9 +149,8 @@ public class SequentialHostBalancerTest {
         SequentialHostBalancer balancer = new SequentialHostBalancer();
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
-        VMwareHost host = inventory
-                .addHostSystem((VMwareDatacenterInventoryTest
-                        .createHostSystemProperties("host1", "128", "1")));
+        VMwareHost host = inventory.addHostSystem((VMwareDatacenterInventoryTest
+                .createHostSystemProperties("host1", "128", "1")));
         host.setEnabled(true);
         assertTrue(balancer.isValid(host, properties));
 
@@ -165,9 +164,8 @@ public class SequentialHostBalancerTest {
         SequentialHostBalancer balancer = new SequentialHostBalancer();
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
-        VMwareHost host = inventory
-                .addHostSystem((VMwareDatacenterInventoryTest
-                        .createHostSystemProperties("host1", "128", "1")));
+        VMwareHost host = inventory.addHostSystem((VMwareDatacenterInventoryTest
+                .createHostSystemProperties("host1", "128", "1")));
         host.setEnabled(true);
         host.setAllocatedVMs(0);
         host.setVMLimit(VMwareValue.parse("10"));

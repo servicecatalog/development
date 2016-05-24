@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.service;
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Controller implementation for integration of VMWare.
- * 
+ *
  * @author soehnges
  */
 @Stateless(mappedName = "bss/app/controller/" + Controller.ID)
@@ -225,7 +225,7 @@ public class VMController implements APPlatformController {
      * Validates the given parameters before contacting VMware API. When both
      * oldParams and newParams are set, also modification rules (e.g. no disk
      * reduce) are checked.
-     * 
+     *
      * @param currentParameters
      *            the existing parameters (optional)
      * @param newParameters

@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.model;
@@ -17,7 +17,7 @@ import org.oscm.app.vmware.business.VMwareValue.Unit;
  * Implements a storage in the VMware server structure
  * <p>
  * One storage can be assigned to one or more ESX hosts.
- * 
+ *
  * @author soehnges
  */
 public class VMwareStorage {

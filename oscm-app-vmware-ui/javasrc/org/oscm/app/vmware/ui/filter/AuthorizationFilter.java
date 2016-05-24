@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.ui.filter;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class AuthorizationFilter implements Filter {
 
@@ -108,11 +108,9 @@ public class AuthorizationFilter implements Filter {
         }
 
         String clientLocale = httpRequest.getLocale().getLanguage();
-        httpResponse.setHeader(
-                "WWW-Authenticate",
+        httpResponse.setHeader("WWW-Authenticate",
                 "Basic realm=\""
-                        + Messages
-                                .get(clientLocale, "ui.config.authentication")
+                        + Messages.get(clientLocale, "ui.config.authentication")
                         + "\"");
         httpResponse.setStatus(401);
     }

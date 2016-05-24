@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.encryption;
@@ -17,19 +17,20 @@ import org.apache.commons.codec.binary.Base64;
 
 /**
  * Simple AES Encryption
- * 
+ *
  */
 public class AESEncrypter {
     /** The Constant ENCRYPTION_KEY - generated only once here. */
-    private final static byte[] ENCRYPTION_KEY = StringScrambler.decode(
-            new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,
-                    0xF962DCA0907D0398L, 0xF54F221334184933L }).getBytes();
+    private final static byte[] ENCRYPTION_KEY = StringScrambler
+            .decode(new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,
+                    0xF962DCA0907D0398L, 0xF54F221334184933L })
+            .getBytes();
 
     /* => "aERkc2TCpkw58zLWR2YiIh" */
 
     /**
      * Encrypts a given string based on a shared secret.
-     * 
+     *
      * @param text
      * @return the encrypted text as Base64
      * @throws GeneralSecurityException
@@ -41,7 +42,7 @@ public class AESEncrypter {
 
     /**
      * Encrypts a given byte array based on a shared secret.
-     * 
+     *
      * @param bytes
      * @return the encrypted bytes as Base64
      * @throws GeneralSecurityException
@@ -61,10 +62,10 @@ public class AESEncrypter {
 
     /**
      * Decrypts a given text.
-     * 
+     *
      * @param encrypted
      *            the encrypted
-     * 
+     *
      * @return the string
      */
     public static String decrypt(String encrypted)
@@ -74,10 +75,10 @@ public class AESEncrypter {
 
     /**
      * Decrypts a given byte array.
-     * 
+     *
      * @param encrypted
      *            the encrypted
-     * 
+     *
      * @return the byte array
      */
     public static byte[] decrypt(byte[] encrypted)

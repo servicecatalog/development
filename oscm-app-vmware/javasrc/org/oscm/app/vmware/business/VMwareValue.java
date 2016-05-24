@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -12,7 +12,7 @@ import java.text.DecimalFormat;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareValue {
 
@@ -41,8 +41,8 @@ public class VMwareValue {
         if (expression.endsWith("%")) {
             try {
                 // Parse percentage value
-                long limitPercentage = Long.parseLong(expression.substring(0,
-                        expression.length() - 1));
+                long limitPercentage = Long.parseLong(
+                        expression.substring(0, expression.length() - 1));
                 if (limitPercentage >= 0) {
                     result.value = limitPercentage / 100.0;
                     result.isRelative = true;
@@ -120,7 +120,7 @@ public class VMwareValue {
 
     @Override
     public String toString() {
-        return (isRelative ? DF.format(value * 100) + "%" : DF.format(value)
-                + (unit != null ? unit.name() : ""));
+        return (isRelative ? DF.format(value * 100) + "%"
+                : DF.format(value) + (unit != null ? unit.name() : ""));
     }
 }

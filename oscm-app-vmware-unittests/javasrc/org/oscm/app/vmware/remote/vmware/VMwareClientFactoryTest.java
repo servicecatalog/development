@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -15,11 +15,10 @@ import org.junit.Test;
 import org.oscm.app.vmware.exception.ValidationException;
 import org.oscm.app.vmware.persistence.DataAccessService;
 import org.oscm.app.vmware.persistence.VMwareCredentials;
-import org.oscm.app.vmware.remote.vmware.VMwareClientFactory;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareClientFactoryTest {
 

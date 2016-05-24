@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -51,14 +51,14 @@ public class NetworkManager {
 
         String name = null;
         if (networkList != null && networkList.size() >= numNic) {
-            name = (String) vmw.getServiceUtil().getDynamicProperty(
-                    networkList.get(numNic - 1), "name");
+            name = (String) vmw.getServiceUtil()
+                    .getDynamicProperty(networkList.get(numNic - 1), "name");
             NetworkSummary summary = (NetworkSummary) vmw.getServiceUtil()
                     .getDynamicProperty(networkList.get(numNic - 1), "summary");
 
-            logger.debug("name: " + name + " ipPoolId: "
-                    + summary.getIpPoolName() + " ipPoolName: "
-                    + summary.getName());
+            logger.debug(
+                    "name: " + name + " ipPoolId: " + summary.getIpPoolName()
+                            + " ipPoolName: " + summary.getName());
         }
 
         if (name == null) {
@@ -70,7 +70,7 @@ public class NetworkManager {
 
     /**
      * Replaces the NICs in the given VM.
-     * 
+     *
      * @param vmw
      *            connected VMware client entity
      * @param paramHandler
@@ -94,12 +94,8 @@ public class NetworkManager {
         if (numberOfNICs != vmNics.size()) {
             throw new Exception(
                     "the number of NICs in virtual machine does not match the service parameter. VM: "
-                            + configInfo.getName()
-                            + " NICs: "
-                            + vmNics.size()
-                            + " "
-                            + VMPropertyHandler.TS_NUMBER_OF_NICS
-                            + ": "
+                            + configInfo.getName() + " NICs: " + vmNics.size()
+                            + " " + VMPropertyHandler.TS_NUMBER_OF_NICS + ": "
                             + numberOfNICs);
         }
 
@@ -143,8 +139,8 @@ public class NetworkManager {
         }
 
         if (netCard == null) {
-            String hostName = (String) vmw.getServiceUtil().getDynamicProperty(
-                    hostRef, "name");
+            String hostName = (String) vmw.getServiceUtil()
+                    .getDynamicProperty(hostRef, "name");
             logger.error("Network " + networkName + " not found on host "
                     + hostName);
             logger.debug("available networks are: " + networks.toString());

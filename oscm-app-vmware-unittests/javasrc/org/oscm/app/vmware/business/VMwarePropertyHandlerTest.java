@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -25,13 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
-import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.persistence.DataAccessService;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwarePropertyHandlerTest {
 
@@ -55,14 +54,14 @@ public class VMwarePropertyHandlerTest {
 
     @Test
     public void testNetworkParameter() {
-        settings.getParameters().put(
-                VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS, "DHCP");
-        settings.getParameters().put(
-                VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS, "DHCP");
-        settings.getParameters().put(
-                VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS, "DHCP");
-        settings.getParameters().put(
-                VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS, "DHCP");
+        settings.getParameters().put(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
+                "DHCP");
+        settings.getParameters().put(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
+                "DHCP");
+        settings.getParameters().put(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
+                "DHCP");
+        settings.getParameters().put(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
+                "DHCP");
 
         settings.getParameters().put(VMPropertyHandler.TS_NIC1_GATEWAY,
                 "127.0.0.1");

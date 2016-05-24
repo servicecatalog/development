@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -32,7 +32,7 @@ import com.vmware.vim25.VirtualMachineSnapshotTree;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareClient implements AutoCloseable {
 
@@ -116,7 +116,7 @@ public class VMwareClient implements AutoCloseable {
 
     /**
      * Returns whether the connection has been established
-     * 
+     *
      * @return true if connected, false otherwise
      */
     public boolean isConnected() {
@@ -148,7 +148,7 @@ public class VMwareClient implements AutoCloseable {
     /**
      * Returns the {@link ManagedObjectAccessor} based on the current client
      * connection.
-     * 
+     *
      * @return the managed object accessor
      * @throws IllegalStateException
      *             when client is not connected
@@ -159,7 +159,7 @@ public class VMwareClient implements AutoCloseable {
 
     /**
      * Returns the {@link ServiceConnection} when client is in connect state.
-     * 
+     *
      * @return the service connection
      */
     public ServiceConnection getConnection() {

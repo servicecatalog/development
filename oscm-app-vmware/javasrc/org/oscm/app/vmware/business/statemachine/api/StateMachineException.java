@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.statemachine.api;
@@ -12,7 +12,7 @@ import org.oscm.app.v1_0.exceptions.APPlatformException;
 
 /**
  * @author kulle
- * 
+ *
  */
 public class StateMachineException extends APPlatformException {
 

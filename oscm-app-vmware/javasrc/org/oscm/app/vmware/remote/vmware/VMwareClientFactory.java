@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Factory to create a VMware client.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareClientFactory {
 
@@ -52,9 +52,7 @@ public class VMwareClientFactory {
 
         if (credentials.getURL() == null || credentials.getUserId() == null
                 || credentials.getPassword() == null) {
-            String message = Messages.get(
-                    locale,
-                    "error_db_vsphere_api_info",
+            String message = Messages.get(locale, "error_db_vsphere_api_info",
                     new Object[] { vcenter, credentials.getURL(),
                             credentials.getUserId() });
             LOG.error(message);

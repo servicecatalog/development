@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.balancer;
@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Storage balancer implementation selecting the least used storage from all
  * available storages to equally distribute the storage usage in the system.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class EquipartitionStorageBalancer extends StorageBalancer {
 

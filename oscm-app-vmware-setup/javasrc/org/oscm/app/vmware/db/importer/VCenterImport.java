@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -55,8 +55,8 @@ public class VCenterImport extends GenericImport {
                     addTableRow(conn, vcenterId, vcenterName, url, userid,
                             password, tkey);
                 } catch (Exception e) {
-                    logger.error("failed to add row:  " + tkey + " "
-                            + vcenterId + " " + vcenterName);
+                    logger.error("failed to add row:  " + tkey + " " + vcenterId
+                            + " " + vcenterName);
                     logger.error(e.getMessage());
                     conn.rollback();
                     return;
@@ -64,8 +64,8 @@ public class VCenterImport extends GenericImport {
                 try {
                     createSequence(conn, vcenterId);
                 } catch (Exception e) {
-                    logger.error("failed to create sequence for   " + tkey
-                            + " " + vcenterId + " " + vcenterName);
+                    logger.error("failed to create sequence for   " + tkey + " "
+                            + vcenterId + " " + vcenterName);
                     logger.error(e.getMessage());
                     conn.rollback();
                     return;
