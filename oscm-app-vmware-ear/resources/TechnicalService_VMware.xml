@@ -43,7 +43,7 @@
     </ParameterDefinition>
     
     <ParameterDefinition id="APP_CONTROLLER_ID" configurable="false" default="ess.vmware" mandatory="true" valueType="STRING">
-      <LocalizedDescription locale="en">The ID of the BSS APP based controller implementation.</LocalizedDescription>
+      <LocalizedDescription locale="en">The ID of the APP controller implementation.</LocalizedDescription>
     </ParameterDefinition>
     
     <ParameterDefinition id="DISK_SIZE" configurable="true" default="40" mandatory="true" maxValue="160" minValue="40" valueType="INTEGER">
@@ -233,11 +233,11 @@
     </ParameterDefinition>
     
     <ParameterDefinition id="SCRIPT_USERID" configurable="true" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
-      <LocalizedDescription locale="en">UserId for executing the script in the VM</LocalizedDescription>
+      <LocalizedDescription locale="en">User identifier for executing the script in the VM</LocalizedDescription>
     </ParameterDefinition>
     
     <ParameterDefinition id="SCRIPT_PWD" configurable="true" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
-      <LocalizedDescription locale="en">Password for executing the script in the VM</LocalizedDescription>
+      <LocalizedDescription locale="en">User password for executing the script in the VM</LocalizedDescription>
     </ParameterDefinition>
     
     <ParameterDefinition id="SYSPREP_RUNONCE_COMMAND" configurable="true" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
@@ -253,7 +253,7 @@
     </ParameterDefinition>
 
     <ParameterDefinition id="TARGET_DATACENTER" configurable="false" default="bespoc"  mandatory="true" modificationType="ONE_TIME" valueType="STRING">
-      <LocalizedDescription locale="en">Target datacenter</LocalizedDescription>
+      <LocalizedDescription locale="en">Target data center</LocalizedDescription>
     </ParameterDefinition>
 
     <ParameterDefinition id="TARGET_FOLDER" configurable="true" default="VMs" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
@@ -294,12 +294,7 @@
     
     <ParameterDefinition id="WINDOWS_LOCAL_ADMIN_PWD" configurable="true" default="admin123" mandatory="false" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Windows Local Administrator Password</LocalizedDescription>
-    </ParameterDefinition>
-    
-    <ParameterDefinition id="WEBUI_CONFIG" configurable="false" default="webui.conf" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
-      <LocalizedDescription locale="en">Configuration file for external parameter configuration tool</LocalizedDescription>
-    </ParameterDefinition>
-    
+    </ParameterDefinition>        
     
     <Operation id="RESTART_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Neustart der virtuellen Maschine</LocalizedName>
@@ -326,14 +321,14 @@
       <LocalizedName locale="de">Snapshot</LocalizedName>
       <LocalizedName locale="en">Snapshot</LocalizedName>
       <LocalizedDescription locale="de">Erzeugt ein Snapshot</LocalizedDescription>
-      <LocalizedDescription locale="en">Creates a snapshort of the vm</LocalizedDescription>
+      <LocalizedDescription locale="en">Creates a snapshort of the VM</LocalizedDescription>
     </Operation>
     
     <Operation id="RESTORE_VM" actionURL="https://<HOST>:<PORT>/OperationService/AsynchronousOperationProxy?wsdl">
       <LocalizedName locale="de">Restore</LocalizedName>
       <LocalizedName locale="en">Restore</LocalizedName>
       <LocalizedDescription locale="de">Stellt ein Snapshot wieder her</LocalizedDescription>
-      <LocalizedDescription locale="en">Restores a snapshot</LocalizedDescription>
+      <LocalizedDescription locale="en">Restores a snapshot of the VM</LocalizedDescription>
     </Operation>
     
  </tns:TechnicalService>
