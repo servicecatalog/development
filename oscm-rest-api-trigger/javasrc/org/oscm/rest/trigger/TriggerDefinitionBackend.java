@@ -10,16 +10,16 @@ package org.oscm.rest.trigger;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.UUID;
 
+import javax.ejb.EJB;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.internal.intf.TriggerDefinitionService;
+import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.rest.common.EndpointBackend;
-import org.oscm.rest.common.RequestParametersDelete;
-import org.oscm.rest.common.RequestParametersGet;
-import org.oscm.rest.common.RequestParametersPost;
-import org.oscm.rest.common.RequestParametersPut;
 import org.oscm.rest.common.WebException;
+import org.oscm.rest.trigger.TriggerDefinition.Links;
 import org.oscm.rest.trigger.TriggerDefinition.Owner;
 
 /**
@@ -28,76 +28,75 @@ import org.oscm.rest.trigger.TriggerDefinition.Owner;
  * @author miethaner
  */
 public class TriggerDefinitionBackend implements
-        EndpointBackend<TriggerDefinition> {
+        EndpointBackend<TriggerDefinition, TriggerRequestParameters> {
+
+    @EJB(name = "TriggerDefinitionServiceBean")
+    private TriggerDefinitionService service;
 
     @Override
-    public TriggerDefinition getItem(RequestParametersGet params)
+    public TriggerDefinition getItem(TriggerRequestParameters params)
             throws WebApplicationException {
 
         TriggerDefinition td1 = new TriggerDefinition(
-                "12345678-1234-1234-1234-123456789012", "test",
-                TriggerDefinition.Action.SUBSCRIBE_TO_SERVICE, false,
-                "http://", new Owner("42", "fujitsu"));
-
+                UUID.fromString("12345678-1234-1234-1234-123456789012"),
+                "test", new Boolean(false), "http://", new Links("42",
+                        "SUBSCRIBE_TO_SERVICE"),
+                new Owner(UUID
+                        .fromString("12345678-1234-1234-1234-123456789012"),
+                        "fujitsu"));
         return td1;
     }
 
     @Override
     public Collection<TriggerDefinition> getCollection(
-            RequestParametersGet params) throws WebApplicationException {
+            TriggerRequestParameters params) throws WebApplicationException {
 
-        TriggerDefinition td1 = new TriggerDefinition(
-                "12345678-1234-1234-1234-123456789012", "test",
-                TriggerDefinition.Action.SUBSCRIBE_TO_SERVICE, false,
-                "http://", new Owner("42", "fujitsu"));
-        TriggerDefinition td2 = new TriggerDefinition(
-                "12345678-1234-5678-9012-123456789012", "test2",
-                TriggerDefinition.Action.MODIFY_SUBSCRIPTION, false, "http://",
-                new Owner("42", "fujitsu"));
+        Collection<VOTriggerDefinition> voDefinitions = service
+                .getTriggerDefinitions();
+        Collection<TriggerDefinition> repDefintions = new ArrayList<TriggerDefinition>();
 
-        List<TriggerDefinition> tdl = new ArrayList<TriggerDefinition>();
-        tdl.add(td1);
-        tdl.add(td2);
+        for (VOTriggerDefinition definition : voDefinitions) {
+            repDefintions.add(new TriggerDefinition(definition));
+        }
 
-        return tdl;
+        return repDefintions;
     }
 
     @Override
-    public String postItem(RequestParametersPost params,
+    public String postItem(TriggerRequestParameters params,
             TriggerDefinition content) throws WebApplicationException {
         throw WebException.notFound().build(); // TODO add more info
     }
 
     @Override
-    public String postCollection(RequestParametersPost params,
+    public String postCollection(TriggerRequestParameters params,
             TriggerDefinition item) throws WebApplicationException {
 
-        String id = item.getId() + "," + item.getName() + ","
-                + item.getAction();
+        String id = item.getId() + "," + item.getDescription();
 
         return id;
     }
 
     @Override
-    public void putItem(RequestParametersPut params, TriggerDefinition item)
+    public void putItem(TriggerRequestParameters params, TriggerDefinition item)
             throws WebApplicationException {
         // no test action
     }
 
     @Override
-    public void putCollection(RequestParametersPut params,
+    public void putCollection(TriggerRequestParameters params,
             TriggerDefinition content) throws WebApplicationException {
         throw WebException.notFound().build(); // TODO add more info
     }
 
     @Override
-    public void deleteItem(RequestParametersDelete params)
+    public void deleteItem(TriggerRequestParameters params)
             throws WebApplicationException {
         // no test action
     }
 
     @Override
-    public void deleteCollection(RequestParametersDelete params)
+    public void deleteCollection(TriggerRequestParameters params)
             throws WebApplicationException {
         throw WebException.notFound().build(); // TODO add more info
     }

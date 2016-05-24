@@ -2,29 +2,28 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 9, 2016                                                      
+ *  Creation Date: May 19, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.rest.common;
+package org.oscm.rest.trigger.unittests;
 
-import javax.ws.rs.BadRequestException;
+import org.junit.Test;
 
 /**
- * InjectParam class for delete requests
+ * Unit test for TriggerProcessIdentifier
  * 
  * @author miethaner
  */
-public class RequestParametersDelete extends RequestParameters {
+public class TriggerActionTest {
 
-    @Override
-    public void validateParameters() throws BadRequestException {
-        // TODO validate parameters
+    @Test
+    public void testUpdateV1() {
+        // nothing to test in version 1
     }
 
-    @Override
-    public void update() {
-        // nothing to update in version 1
+    @Test
+    public void testConvertV1() {
+        // nothing to test in version 1
     }
-
 }

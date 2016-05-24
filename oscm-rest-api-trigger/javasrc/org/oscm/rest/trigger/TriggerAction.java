@@ -8,16 +8,37 @@
 
 package org.oscm.rest.trigger;
 
+import java.util.UUID;
+
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.rest.common.Representation;
 
 /**
- * Representation class of trigger processes.
+ * Representation class of trigger process identifiers.
  * 
  * @author miethaner
+ *
  */
-public class TriggerProcess extends Representation {
+public class TriggerAction extends Representation {
+
+    private String description;
+
+    public TriggerAction() {
+    }
+
+    public TriggerAction(UUID id, String description) {
+        super(id);
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     @Override
     public void validateContent() throws WebApplicationException {

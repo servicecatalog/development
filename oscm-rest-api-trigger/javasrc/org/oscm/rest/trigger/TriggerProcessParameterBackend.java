@@ -13,10 +13,6 @@ import java.util.Collection;
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.rest.common.EndpointBackend;
-import org.oscm.rest.common.RequestParametersDelete;
-import org.oscm.rest.common.RequestParametersGet;
-import org.oscm.rest.common.RequestParametersPost;
-import org.oscm.rest.common.RequestParametersPut;
 
 /**
  * Backend class for the trigger process parameter resource.
@@ -24,10 +20,10 @@ import org.oscm.rest.common.RequestParametersPut;
  * @author miethaner
  */
 public class TriggerProcessParameterBackend implements
-        EndpointBackend<TriggerProcessParameter> {
+        EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> {
 
     @Override
-    public TriggerProcessParameter getItem(RequestParametersGet params)
+    public TriggerProcessParameter getItem(TriggerRequestParameters params)
             throws WebApplicationException {
         // TODO Auto-generated method stub
         return null;
@@ -35,48 +31,48 @@ public class TriggerProcessParameterBackend implements
 
     @Override
     public Collection<TriggerProcessParameter> getCollection(
-            RequestParametersGet params) throws WebApplicationException {
+            TriggerRequestParameters params) throws WebApplicationException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public String postItem(RequestParametersPost params,
-            TriggerProcessParameter content) throws WebApplicationException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public String postCollection(RequestParametersPost params,
+    public String postItem(TriggerRequestParameters params,
             TriggerProcessParameter content) throws WebApplicationException {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public void putItem(RequestParametersPut params,
+    public String postCollection(TriggerRequestParameters params,
+            TriggerProcessParameter content) throws WebApplicationException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void putItem(TriggerRequestParameters params,
             TriggerProcessParameter content) throws WebApplicationException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void putCollection(RequestParametersPut params,
+    public void putCollection(TriggerRequestParameters params,
             TriggerProcessParameter content) throws WebApplicationException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void deleteItem(RequestParametersDelete params)
+    public void deleteItem(TriggerRequestParameters params)
             throws WebApplicationException {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    public void deleteCollection(RequestParametersDelete params)
+    public void deleteCollection(TriggerRequestParameters params)
             throws WebApplicationException {
         // TODO Auto-generated method stub
 
