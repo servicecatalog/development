@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.oscm.app.v1_0.exceptions.APPlatformException;
+import org.oscm.app.vmware.business.Script.OS;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.remote.vmware.VMwareClient;
 import org.slf4j.Logger;
@@ -142,14 +143,11 @@ public class VM extends Template {
         }
     }
 
-    public boolean isWindows() {
-        String guestid = configSpec.getGuestId();
-        boolean isWindows = guestid.startsWith("win");
-        LOG.debug("isWindows: " + isWindows + " guestid: "
-                + configSpec.getGuestId() + " OS: "
-                + configSpec.getGuestFullName());
-
-        return isWindows;
+    public OS detectOs() {
+        if (configSpec.getGuestId().startsWith("win")) {
+            return OS.WINDOWS;
+        }
+        return OS.LINUX;
     }
 
     public boolean isRunning() throws Exception {
@@ -212,7 +210,7 @@ public class VM extends Template {
         String scriptURL = paramHandler
                 .getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL);
         if (scriptURL != null) {
-            Script script = new Script(paramHandler, isWindows());
+            Script script = new Script(paramHandler, detectOs());
             script.execute(vmw, vmInstance);
         }
     }
