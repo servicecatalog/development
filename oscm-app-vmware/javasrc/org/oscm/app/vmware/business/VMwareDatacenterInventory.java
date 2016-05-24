@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 24.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -62,11 +62,11 @@ public class VMwareDatacenterInventory {
             if ("summary.name".equals(key) && dp.getVal() != null) {
                 result.setName(dp.getVal().toString());
             } else if ("summary.capacity".equals(key) && dp.getVal() != null) {
-                result.setCapacity(VMwareValue
-                        .fromBytes(Long.parseLong(dp.getVal().toString())));
+                result.setCapacity(VMwareValue.fromBytes(Long.parseLong(dp
+                        .getVal().toString())));
             } else if ("summary.freeSpace".equals(key) && dp.getVal() != null) {
-                result.setFreeStorage(VMwareValue
-                        .fromBytes(Long.parseLong(dp.getVal().toString())));
+                result.setFreeStorage(VMwareValue.fromBytes(Long.parseLong(dp
+                        .getVal().toString())));
             }
         }
         storages.put(result.getName(), result);
@@ -99,9 +99,9 @@ public class VMwareDatacenterInventory {
                 result.setName(dp.getVal().toString());
             } else if ("summary.hardware.memorySize".equals(key)
                     && dp.getVal() != null) {
-                result.setMemorySizeMB(VMwareValue
-                        .fromBytes(Long.parseLong(dp.getVal().toString()))
-                        .getValue(Unit.MB));
+                result.setMemorySizeMB(VMwareValue.fromBytes(
+                        Long.parseLong(dp.getVal().toString())).getValue(
+                        Unit.MB));
             } else if ("summary.hardware.numCpuCores".equals(key)
                     && dp.getVal() != null) {
                 result.setCpuCores(Integer.parseInt(dp.getVal().toString()));
@@ -118,7 +118,7 @@ public class VMwareDatacenterInventory {
      */
     public VMwareVirtualMachine addVirtualMachine(
             List<DynamicProperty> properties, ManagedObjectAccessor serviceUtil)
-                    throws Exception {
+            throws Exception {
 
         if (properties == null || properties.size() == 0) {
             return null;
@@ -131,8 +131,7 @@ public class VMwareDatacenterInventory {
                 result.setName(dp.getVal().toString());
             } else if ("summary.config.memorySizeMB".equals(key)
                     && dp.getVal() != null) {
-                result.setMemorySizeMB(
-                        Integer.parseInt(dp.getVal().toString()));
+                result.setMemorySizeMB(Integer.parseInt(dp.getVal().toString()));
             } else if ("summary.config.numCpu".equals(key)
                     && dp.getVal() != null) {
                 result.setNumCpu(Integer.parseInt(dp.getVal().toString()));
@@ -174,10 +173,10 @@ public class VMwareDatacenterInventory {
             VMwareHost hostSystem = hostsSystems.get(vm.getHostName());
             if (hostSystem != null) {
                 long vmMemMBytes = vm.getMemorySizeMB();
-                hostSystem.setAllocatedMemoryMB(
-                        hostSystem.getAllocatedMemoryMB() + vmMemMBytes);
-                hostSystem.setAllocatedCPUs(
-                        hostSystem.getAllocatedCPUs() + vm.getNumCpu());
+                hostSystem.setAllocatedMemoryMB(hostSystem
+                        .getAllocatedMemoryMB() + vmMemMBytes);
+                hostSystem.setAllocatedCPUs(hostSystem.getAllocatedCPUs()
+                        + vm.getNumCpu());
                 hostSystem.setAllocatedVMs(hostSystem.getAllocatedVMs() + 1);
             }
         }

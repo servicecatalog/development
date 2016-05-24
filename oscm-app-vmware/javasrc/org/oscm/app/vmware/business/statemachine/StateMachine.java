@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.business.statemachine;
 
 import java.io.InputStream;
@@ -35,11 +43,11 @@ public class StateMachine {
 
     public StateMachine(ProvisioningSettings settings)
             throws StateMachineException {
-        machine = settings.getParameters()
-                .get(StateMachineProperties.SM_STATE_MACHINE);
+        machine = settings.getParameters().get(
+                StateMachineProperties.SM_STATE_MACHINE);
         states = loadStateMachine(machine);
-        history = settings.getParameters()
-                .get(StateMachineProperties.SM_STATE_HISTORY);
+        history = settings.getParameters().get(
+                StateMachineProperties.SM_STATE_HISTORY);
         stateId = settings.getParameters().get(StateMachineProperties.SM_STATE);
     }
 
@@ -47,8 +55,8 @@ public class StateMachine {
             throws StateMachineException {
         logger.debug("filename: " + filename);
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try (InputStream stream = loader
-                .getResourceAsStream("statemachines/" + filename);) {
+        try (InputStream stream = loader.getResourceAsStream("statemachines/"
+                + filename);) {
             JAXBContext jaxbContext = JAXBContext.newInstance(States.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (States) jaxbUnmarshaller.unmarshal(stream);
@@ -82,8 +90,8 @@ public class StateMachine {
             APPlatformException {
 
         State currentState = getState(stateId);
-        String eventId = states.invokeAction(currentState, instanceId, settings,
-                result);
+        String eventId = states.invokeAction(currentState, instanceId,
+                settings, result);
         history = appendStateToHistory(stateId, history);
         stateId = getNextState(currentState, eventId);
 
@@ -92,10 +100,10 @@ public class StateMachine {
             VMPropertyHandler config = new VMPropertyHandler(settings);
 
             if (sameState(currentState, nextState)) {
-                if ("suspended".equals(config.getServiceSetting(
-                        VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
-                    logger.debug(
-                            "Reinitialize timeout reference after an occured timeout.");
+                if ("suspended"
+                        .equals(config
+                                .getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF))) {
+                    logger.debug("Reinitialize timeout reference after an occured timeout.");
                     setReferenceForTimeout(config);
                 } else {
                     String timeoutInMs = getReadyTimeout(nextState, config);
@@ -154,8 +162,7 @@ public class StateMachine {
         return timeoutInMs;
     }
 
-    private boolean exceededTimeout(VMPropertyHandler config,
-            String timeoutInMs) {
+    private boolean exceededTimeout(VMPropertyHandler config, String timeoutInMs) {
 
         if (timeoutInMs == null || timeoutInMs.trim().length() == 0) {
             logger.warn("Action timeout is not set and therefore ignored!");
@@ -164,9 +171,9 @@ public class StateMachine {
 
         try {
             return System.currentTimeMillis()
-                    - Long.valueOf(config.getServiceSetting(
-                            VMPropertyHandler.GUEST_READY_TIMEOUT_REF)) > Long
-                                    .valueOf(timeoutInMs);
+                    - Long.valueOf(config
+                            .getServiceSetting(VMPropertyHandler.GUEST_READY_TIMEOUT_REF)) > Long
+                        .valueOf(timeoutInMs);
         } catch (@SuppressWarnings("unused") NumberFormatException e) {
             logger.warn("The action timeout '" + timeoutInMs
                     + " 'is not a number and therefore ignored.");
@@ -213,10 +220,10 @@ public class StateMachine {
     public String loadPreviousStateFromHistory(ProvisioningSettings settings)
             throws StateMachineException {
 
-        String currentState = settings.getParameters()
-                .get(StateMachineProperties.SM_STATE);
-        String stateHistory = settings.getParameters()
-                .get(StateMachineProperties.SM_STATE_HISTORY);
+        String currentState = settings.getParameters().get(
+                StateMachineProperties.SM_STATE);
+        String stateHistory = settings.getParameters().get(
+                StateMachineProperties.SM_STATE_HISTORY);
         String[] states = stateHistory.split(",");
         for (int i = states.length - 1; i >= 0; i--) {
             if (!states[i].equals(currentState)) {

@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 18.12.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -25,16 +25,15 @@ import org.oscm.app.vmware.i18n.Messages;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class ManagedBeans {
 
     public VMPropertyHandler loadControllerSettings(
             APPlatformService platformService) throws AuthenticationException,
-                    ConfigurationException, APPlatformException {
+            ConfigurationException, APPlatformException {
 
-        HashMap<String, String> controllerSettings = getControllerSettings(
-                platformService);
+        HashMap<String, String> controllerSettings = getControllerSettings(platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
                 new HashMap<String, String>(), controllerSettings,
@@ -44,7 +43,7 @@ public class ManagedBeans {
 
     private HashMap<String, String> getControllerSettings(
             APPlatformService platformService) throws AuthenticationException,
-                    ConfigurationException, APPlatformException {
+            ConfigurationException, APPlatformException {
 
         FacesContext facesContext = getContext();
         HttpSession session = (HttpSession) facesContext.getExternalContext()

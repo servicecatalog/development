@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 14.05.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -43,7 +43,7 @@ public class DiskManager {
     public static void reconfigureDisks(VMwareClient vmw,
             VirtualMachineConfigSpec vmConfigSpec,
             VMPropertyHandler paramHandler, ManagedObjectReference vmwInstance)
-                    throws Exception {
+            throws Exception {
         logger.debug("");
         long systemDiskMB = (long) paramHandler.getConfigDiskSpaceMB();
         Double[] dataDisksMB = paramHandler.getDataDisksMB();
@@ -59,13 +59,13 @@ public class DiskManager {
             if (newDiskSpace < vdSystemDisk.getCapacityInKB()) {
                 logger.error("Cannot reduce size of system disk \""
                         + vdSystemDisk.getDeviceInfo().getLabel() + "\"");
-                logger.error(
-                        "Current disk size: " + vdSystemDisk.getCapacityInKB()
-                                + " new disk space: " + newDiskSpace);
+                logger.error("Current disk size: "
+                        + vdSystemDisk.getCapacityInKB() + " new disk space: "
+                        + newDiskSpace);
 
-                throw new Exception(
-                        Messages.getAll("error_invalid_diskspacereduction")
-                                .get(0).getText());
+                throw new Exception(Messages
+                        .getAll("error_invalid_diskspacereduction").get(0)
+                        .getText());
             } else if (newDiskSpace > vdSystemDisk.getCapacityInKB()) {
                 logger.info("reconfigureDisks() extend system disk space to "
                         + newDiskSpace + " ("
@@ -81,8 +81,7 @@ public class DiskManager {
                         + newDiskSpace + " KB");
             }
         } else {
-            logger.error(
-                    "Reconfiguration of system disk not possible because system disk size is not defined.");
+            logger.error("Reconfiguration of system disk not possible because system disk size is not defined.");
         }
 
         if (dataDisksMB.length > 0) {
@@ -106,9 +105,8 @@ public class DiskManager {
                 int vdKey = paramHandler.getDataDiskKey(vdIndex);
                 long newDiskSpace = dataDiskMB.longValue() * 1024;
                 if (vdKey == 0) {
-                    logger.info(
-                            "reconfigureDisks() create data disk space with "
-                                    + newDiskSpace + " KB");
+                    logger.info("reconfigureDisks() create data disk space with "
+                            + newDiskSpace + " KB");
 
                     ManagedObjectReference vmDatastore = ((VirtualDeviceFileBackingInfo) vdSystemDisk
                             .getBacking()).getDatastore();
@@ -130,8 +128,8 @@ public class DiskManager {
                     VirtualDeviceConfigSpec vmDeviceSpec = new VirtualDeviceConfigSpec();
                     vmDeviceSpec
                             .setOperation(VirtualDeviceConfigSpecOperation.ADD);
-                    vmDeviceSpec.setFileOperation(
-                            VirtualDeviceConfigSpecFileOperation.CREATE);
+                    vmDeviceSpec
+                            .setFileOperation(VirtualDeviceConfigSpecFileOperation.CREATE);
                     vmDeviceSpec.setDevice(vdDataDisk);
                     vmConfigSpec.getDeviceChange().add(vmDeviceSpec);
 
@@ -157,12 +155,11 @@ public class DiskManager {
                             throw new Exception(Messages
                                     .getAll("error_invalid_diskspacereduction")
                                     .get(0).getText());
-                        } else
-                            if (newDiskSpace > vdDataDisk.getCapacityInKB()) {
+                        } else if (newDiskSpace > vdDataDisk.getCapacityInKB()) {
                             vdDataDisk.setCapacityInKB(newDiskSpace);
                             VirtualDeviceConfigSpec vmDeviceSpec = new VirtualDeviceConfigSpec();
-                            vmDeviceSpec.setOperation(
-                                    VirtualDeviceConfigSpecOperation.EDIT);
+                            vmDeviceSpec
+                                    .setOperation(VirtualDeviceConfigSpecOperation.EDIT);
                             vmDeviceSpec.setDevice(vdDataDisk);
                             vmConfigSpec.getDeviceChange().add(vmDeviceSpec);
                         } else {
@@ -174,8 +171,7 @@ public class DiskManager {
                 }
             }
         } else {
-            logger.debug(
-                    "Reconfiguration of data disk not possible because data disk size is not defined.");
+            logger.debug("Reconfiguration of data disk not possible because data disk size is not defined.");
         }
 
     }

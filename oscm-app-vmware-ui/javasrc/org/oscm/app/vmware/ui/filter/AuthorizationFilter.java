@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 27.09.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -108,9 +108,11 @@ public class AuthorizationFilter implements Filter {
         }
 
         String clientLocale = httpRequest.getLocale().getLanguage();
-        httpResponse.setHeader("WWW-Authenticate",
+        httpResponse.setHeader(
+                "WWW-Authenticate",
                 "Basic realm=\""
-                        + Messages.get(clientLocale, "ui.config.authentication")
+                        + Messages
+                                .get(clientLocale, "ui.config.authentication")
                         + "\"");
         httpResponse.setStatus(401);
     }

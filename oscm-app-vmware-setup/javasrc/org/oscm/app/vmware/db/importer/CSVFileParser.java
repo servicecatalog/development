@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.IOException;
@@ -30,7 +38,7 @@ public abstract class CSVFileParser {
             final String mandatory_columns[],
             final String mandatory_column_values[]) throws Exception {
 
-    	this.lines = new HashSet<String>();
+        this.lines = new HashSet<String>();
         this.mandatory_cols = mandatory_column_values;
         this.data = new LinkedHashMap<String, String>();
         reader = new CSVReader(new InputStreamReader(stream, encoding),
@@ -44,8 +52,8 @@ public abstract class CSVFileParser {
             List<String> checkCols = Arrays.asList(mappings);
             for (String reqCol : mandatory_columns) {
                 if (!checkCols.contains(reqCol)) {
-                    throw new Exception(
-                            "Missing mandatory column '" + reqCol + "'.");
+                    throw new Exception("Missing mandatory column '" + reqCol
+                            + "'.");
                 }
             }
 
@@ -94,13 +102,12 @@ public abstract class CSVFileParser {
             nextline.append(values[c]);
         }
 
-
-        if( lines.contains(nextline.toString())){
-        	throw new Exception("Duplicate line definition: " + nextline.toString());
+        if (lines.contains(nextline.toString())) {
+            throw new Exception("Duplicate line definition: "
+                    + nextline.toString());
         }
-        
+
         lines.add(nextline.toString());
-        
 
         for (String reqCol : mandatory_cols) {
             validateMandatoryValue(reqCol);
@@ -111,8 +118,8 @@ public abstract class CSVFileParser {
 
     public void validateMandatoryValue(String column) throws Exception {
         if (!data.containsKey(column) || data.get(column) == null) {
-            throw new Exception(
-                    "Missing value for mandatory column '" + column + "'.");
+            throw new Exception("Missing value for mandatory column '" + column
+                    + "'.");
         }
     }
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 12.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -55,14 +55,14 @@ public class VMwarePropertyHandlerTest {
 
     @Test
     public void testNetworkParameter() {
-        settings.getParameters().put(VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS,
-                "DHCP");
-        settings.getParameters().put(VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS,
-                "DHCP");
-        settings.getParameters().put(VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS,
-                "DHCP");
-        settings.getParameters().put(VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS,
-                "DHCP");
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC1_NETWORK_SETTINGS, "DHCP");
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC2_NETWORK_SETTINGS, "DHCP");
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC3_NETWORK_SETTINGS, "DHCP");
+        settings.getParameters().put(
+                VMPropertyHandler.TS_NIC4_NETWORK_SETTINGS, "DHCP");
 
         settings.getParameters().put(VMPropertyHandler.TS_NIC1_GATEWAY,
                 "127.0.0.1");

@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 04.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.ui.pages.clusterconfig;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;

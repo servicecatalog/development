@@ -1,3 +1,7 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2016 
+ */ 
+
 var AdmUtils = {};
 
 var storedValue = "";

@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2016 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 11.05.2016                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -24,14 +24,14 @@ import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class StateMachineTest {
 
     private States loadStates(String filename) throws Exception {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try (InputStream stream = loader
-                .getResourceAsStream("statemachines/" + filename);) {
+        try (InputStream stream = loader.getResourceAsStream("statemachines/"
+                + filename);) {
             JAXBContext jaxbContext = JAXBContext.newInstance(States.class);
             Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
             return (States) jaxbUnmarshaller.unmarshal(stream);
@@ -52,9 +52,8 @@ public class StateMachineTest {
             }
             Method method = loadMethod(clazz, s);
             assertNotNull(method);
-            assertNotNull(
-                    method.getName()
-                            + " is missing @StateMachineAction annotation",
+            assertNotNull(method.getName()
+                    + " is missing @StateMachineAction annotation",
                     method.getAnnotation(StateMachineAction.class));
         }
     }

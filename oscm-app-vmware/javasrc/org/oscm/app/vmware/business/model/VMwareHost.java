@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 04.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.business.model;
 
 import java.text.DecimalFormat;
@@ -94,8 +95,7 @@ public class VMwareHost {
 
     public boolean checkMemoryLimit(long requestedMegaBytes) {
         if (requestedMegaBytes < 0) {
-            throw new IllegalArgumentException(
-                    "Cannot request negative memory");
+            throw new IllegalArgumentException("Cannot request negative memory");
         }
         return (allocatedMemory + requestedMegaBytes) <= getMemoryLimit();
     }
@@ -202,9 +202,8 @@ public class VMwareHost {
     public String getAllocationAsString() {
         StringBuffer sb = new StringBuffer("[Mem:");
         VMwareValue memL = VMwareValue.parse(allocatedMemory + "MB");
-        sb.append(allocatedMemory >= 1024
-                ? DF.format(memL.getValue(Unit.GB)) + "GB"
-                : DF.format(memL.getValue(Unit.MB)) + "MB");
+        sb.append(allocatedMemory >= 1024 ? DF.format(memL.getValue(Unit.GB))
+                + "GB" : DF.format(memL.getValue(Unit.MB)) + "MB");
         sb.append("|CPU:").append(allocatedCPUs);
         sb.append("|VM:").append(allocatedVMs);
         sb.append("]");

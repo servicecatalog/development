@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -49,18 +57,20 @@ public class ClusterImport extends GenericImport {
                 try {
                     addTableRow(conn, vcenter, clusterName, datacenter);
                 } catch (Exception e) {
-                    logger.error("failed to add row:  " + vcenter + " " + datacenter + " " + clusterName);
-                	logger.error(e.getMessage());
+                    logger.error("failed to add row:  " + vcenter + " "
+                            + datacenter + " " + clusterName);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     line = csv.readNext();
                 } catch (Exception e) {
-                	logger.error("Failed to read line from CSV file after row: " + vcenter + " " + datacenter + " " + clusterName);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to read line from CSV file after row: "
+                            + vcenter + " " + datacenter + " " + clusterName);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
             }
             conn.commit();
@@ -77,8 +87,8 @@ public class ClusterImport extends GenericImport {
         }
     }
 
-    private void addTableRow(Connection con, String vcenter, String clusterName,
-            String datacenter) throws Exception {
+    private void addTableRow(Connection con, String vcenter,
+            String clusterName, String datacenter) throws Exception {
         int dcKey = getDatacenterKey(con, vcenter, datacenter);
         String loadbalancer = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><essvcenter><balancer class=\"org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer\" cpuWeight=\"\" memoryWeight=\"\" vmWeight=\"\"/></essvcenter>";
         String query = "insert into cluster (TKEY, NAME, LOAD_BALANCER, DATACENTER_TKEY) values (DEFAULT, ?, ?, ?)";
@@ -109,13 +119,13 @@ public class ClusterImport extends GenericImport {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RuntimeException(
-                    "Failed to retrieve datacenter " + datacenter, e);
+            throw new RuntimeException("Failed to retrieve datacenter "
+                    + datacenter, e);
         }
 
         if (dcKey == -1) {
-            throw new RuntimeException(
-                    "Failed to retrieve datacenter " + datacenter);
+            throw new RuntimeException("Failed to retrieve datacenter "
+                    + datacenter);
         }
         return dcKey;
     }

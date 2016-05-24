@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: Jul 27, 2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -453,8 +453,7 @@ public class EquipartitionHostBalancerTest {
                 Integer.toString(cpu));
         parameters.put(VMPropertyHandler.TS_AMOUNT_OF_RAM,
                 Integer.toString(mem));
-        parameters
-                .put(VMPropertyHandler.TS_DISK_SIZE, Integer.toString(20));
+        parameters.put(VMPropertyHandler.TS_DISK_SIZE, Integer.toString(20));
     }
 
     private VMwareHost createHost(VMwareDatacenterInventory inventory,

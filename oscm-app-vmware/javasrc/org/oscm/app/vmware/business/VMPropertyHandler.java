@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 07.05.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.business;
 
 import java.text.DecimalFormat;
@@ -153,10 +154,7 @@ public class VMPropertyHandler {
      * several stages until it is automatically deleted
      */
     public enum SubscriptionEndStatus {
-        UNDEFINED,
-        SCHEDULED_FOR_NOTIFICATION,
-        SCHEDULED_FOR_DEACTIVATION,
-        SCHEDULED_FOR_DELETION
+        UNDEFINED, SCHEDULED_FOR_NOTIFICATION, SCHEDULED_FOR_DEACTIVATION, SCHEDULED_FOR_DELETION
     };
 
     public static final String SUBSCRIPTION_END_STATUS = "SUBSCRIPTION_END_STATUS";
@@ -410,8 +408,8 @@ public class VMPropertyHandler {
     }
 
     public int getNumberOfNetworkAdapter() {
-        return Integer.parseInt(
-                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        return Integer
+                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
     }
 
     /**
@@ -420,8 +418,8 @@ public class VMPropertyHandler {
      */
     public void releaseManuallyDefinedIPAddresses() throws Exception {
         logger.debug("");
-        int numNIC = Integer.parseInt(
-                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        int numNIC = Integer
+                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numNIC; i++) {
             if (isAdapterConfiguredByDatabase(i)) {
                 String ipAddress = getIpAddress(i);
@@ -433,11 +431,11 @@ public class VMPropertyHandler {
                     String vlan = getVLAN(i);
                     try {
                         DataAccessService das = getDataAccessService();
-                        das.releaseIPAddress(vcenter, datacenter, cluster, vlan,
-                                ipAddress);
+                        das.releaseIPAddress(vcenter, datacenter, cluster,
+                                vlan, ipAddress);
                     } catch (Exception e) {
-                        logger.error(
-                                "Failed to release IP address " + ipAddress, e);
+                        logger.error("Failed to release IP address "
+                                + ipAddress, e);
                     }
                 }
             }
@@ -460,18 +458,19 @@ public class VMPropertyHandler {
         logger.debug("vcenter: " + vcenter + " datacenter: " + datacenter
                 + " cluster: " + cluster);
 
-        int numberOfNICs = Integer.parseInt(
-                getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        int numberOfNICs = Integer
+                .parseInt(getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
         for (int i = 1; i <= numberOfNICs; i++) {
 
             if (isAdapterConfiguredByDatabase(i)) {
                 String vlan = das.getVLANwithMostIPs(vcenter, datacenter,
                         cluster);
                 if (vlan == null) {
-                    throw new APPlatformException(Messages.getAll(
-                            "error_read_vlans",
-                            new Object[] { vcenter, datacenter, cluster })
-                            .get(0).getText());
+                    throw new APPlatformException(
+                            Messages.getAll(
+                                    "error_read_vlans",
+                                    new Object[] { vcenter, datacenter, cluster })
+                                    .get(0).getText());
                 }
 
                 settings.getParameters().put("NIC" + i + "_NETWORK_ADAPTER",
@@ -485,10 +484,10 @@ public class VMPropertyHandler {
                     nw = das.getNetworkSettings(vcenter, datacenter, cluster,
                             vlan);
                 } catch (Exception e) {
-                    throw new APPlatformException(Messages.getAll(
-                            "error_read_static_network_config",
-                            new Object[] { Integer.valueOf(i), e.getMessage() })
-                            .get(0).getText());
+                    throw new APPlatformException(Messages
+                            .getAll("error_read_static_network_config",
+                                    new Object[] { Integer.valueOf(i),
+                                            e.getMessage() }).get(0).getText());
                 }
 
                 logger.debug("NIC" + i + " VLAN: " + vlan + " IP address: "
@@ -617,8 +616,8 @@ public class VMPropertyHandler {
      * Returns the key of a custom virtual disk or "0" if not defined
      */
     public int getDataDiskKey(int index) {
-        String val = settings.getParameters()
-                .get(DATA_DISK_KEY + Integer.toString(index));
+        String val = settings.getParameters().get(
+                DATA_DISK_KEY + Integer.toString(index));
         return (val != null && val.length() > 0) ? Integer.parseInt(val) : 0;
     }
 
@@ -731,8 +730,7 @@ public class VMPropertyHandler {
      */
     public String getInstanceName() throws APPlatformException {
         StringBuffer b = new StringBuffer();
-        String prefix = getServiceSetting(
-                VMPropertyHandler.TS_INSTANCENAME_PREFIX);
+        String prefix = getServiceSetting(VMPropertyHandler.TS_INSTANCENAME_PREFIX);
         String name = getServiceSettingValidated(TS_INSTANCENAME);
         if (prefix != null && !name.startsWith(prefix)
                 && !isImportOfExistingVM()) {
@@ -762,8 +760,7 @@ public class VMPropertyHandler {
             throws APPlatformException {
 
         boolean contains_vcenter = (name.indexOf(PLACEHOLDER_VCENTER) >= 0);
-        boolean contains_datacenter = (name
-                .indexOf(PLACEHOLDER_DATACENTER) >= 0);
+        boolean contains_datacenter = (name.indexOf(PLACEHOLDER_DATACENTER) >= 0);
         boolean contains_id3 = (name.indexOf(PLACEHOLDER_ID3) >= 0);
         boolean contains_id4 = (name.indexOf(PLACEHOLDER_ID4) >= 0);
         boolean contains_id5 = (name.indexOf(PLACEHOLDER_ID5) >= 0);
@@ -926,9 +923,8 @@ public class VMPropertyHandler {
         }
 
         if ("".equals(xml)) {
-            logger.error(
-                    "VMwarePropertyHandler.getHostLoadBalancerConfig() The retrieved host load balancing configuration for cluster "
-                            + cluster + " is empty");
+            logger.error("VMwarePropertyHandler.getHostLoadBalancerConfig() The retrieved host load balancing configuration for cluster "
+                    + cluster + " is empty");
             throw new RuntimeException(
                     "The retrieved host load balancing configuration for cluster "
                             + cluster + " is empty");
@@ -965,7 +961,9 @@ public class VMPropertyHandler {
      */
     public String getConfigurationAsString(String locale)
             throws APPlatformException {
-        String config = Messages.get(locale, "mail_VM_configuration.text",
+        String config = Messages.get(
+                locale,
+                "mail_VM_configuration.text",
                 new Object[] { getInstanceName(), getTemplateName(),
                         settings.getSubscriptionId(),
                         Integer.toString(getConfigCPUs()),
@@ -1007,8 +1005,8 @@ public class VMPropertyHandler {
 
     public String formatMBasGB(double valueMB) {
         DecimalFormat format = new DecimalFormat("#0.# GB");
-        return format
-                .format(VMwareValue.fromMegaBytes(valueMB).getValue(Unit.GB));
+        return format.format(VMwareValue.fromMegaBytes(valueMB).getValue(
+                Unit.GB));
     }
 
     /**
@@ -1360,17 +1358,21 @@ public class VMPropertyHandler {
 
     public SubscriptionEndStatus getSubscriptionEndStatus() {
         SubscriptionEndStatus state = SubscriptionEndStatus.UNDEFINED;
-        String status = getServiceSetting(
-                VMPropertyHandler.SUBSCRIPTION_END_STATUS);
+        String status = getServiceSetting(VMPropertyHandler.SUBSCRIPTION_END_STATUS);
         logger.debug("status: " + status);
-        if (status != null && status.equals(
-                SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION.name())) {
+        if (status != null
+                && status
+                        .equals(SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION
+                                .name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_DEACTIVATION;
-        } else if (status != null && status
-                .equals(SubscriptionEndStatus.SCHEDULED_FOR_DELETION.name())) {
+        } else if (status != null
+                && status.equals(SubscriptionEndStatus.SCHEDULED_FOR_DELETION
+                        .name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_DELETION;
-        } else if (status != null && status.equals(
-                SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION.name())) {
+        } else if (status != null
+                && status
+                        .equals(SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION
+                                .name())) {
             state = SubscriptionEndStatus.SCHEDULED_FOR_NOTIFICATION;
         }
 
@@ -1401,8 +1403,8 @@ public class VMPropertyHandler {
      * @exception if
      *                previous state does not exist
      */
-    public String getPreviousStateFromHistory(VMPropertyHandler ph,
-            String state) throws APPlatformException {
+    public String getPreviousStateFromHistory(VMPropertyHandler ph, String state)
+            throws APPlatformException {
         logger.debug("state: " + state);
         String previousState = null;
         String stateHistory = getServiceSetting(SM_STATE_HISTORY);

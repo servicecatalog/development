@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -18,8 +26,8 @@ public class VLANImport extends GenericImport {
             throw new RuntimeException(
                     "Usage: VLANImport <driverClass> <driverURL> <userName> <userPwd> <csvFile>");
         }
-        VLANImport ipImport = new VLANImport(args[0], args[1], args[2], args[3],
-                args[4]);
+        VLANImport ipImport = new VLANImport(args[0], args[1], args[2],
+                args[3], args[4]);
         ipImport.execute();
     }
 
@@ -48,21 +56,32 @@ public class VLANImport extends GenericImport {
                 boolean enabled = "true".equalsIgnoreCase(flag) ? true : false;
 
                 try {
-                    int clusterTkey = getClusterTkey(vcenter, datacenter, cluster);
-                    addTableRow(conn, vlan, gateway, subnetMask, dnsServer, dnsSuffix, enabled, clusterTkey);
+                    int clusterTkey = getClusterTkey(vcenter, datacenter,
+                            cluster);
+                    addTableRow(conn, vlan, gateway, subnetMask, dnsServer,
+                            dnsSuffix, enabled, clusterTkey);
                 } catch (Exception e) {
-                    logger.error("failed to add row: " + vcenter + " " + datacenter + " " + cluster + " " + vlan  + " " + dnsServer + " " + dnsSuffix);
-                	logger.error(e.getMessage());
+                    logger.error("failed to add row: " + vcenter + " "
+                            + datacenter + " " + cluster + " " + vlan + " "
+                            + dnsServer + " " + dnsSuffix);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     line = csv.readNext();
                 } catch (Exception e) {
-                	logger.error("Failed to read line from CSV file after row: " + vcenter + " " + datacenter + " " + cluster + " " + vlan  + " " + dnsServer + " " + dnsSuffix);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to read line from CSV file after row: "
+                            + vcenter
+                            + " "
+                            + datacenter
+                            + " "
+                            + cluster
+                            + " "
+                            + vlan + " " + dnsServer + " " + dnsSuffix);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
             }
             conn.commit();
@@ -79,8 +98,9 @@ public class VLANImport extends GenericImport {
         }
     }
 
-    private void addTableRow(Connection con, String vlan, String gateway, String subnetMask, String dnsServer, String dnsSuffix, boolean enabled,
-            int clusterTkey) throws Exception {
+    private void addTableRow(Connection con, String vlan, String gateway,
+            String subnetMask, String dnsServer, String dnsSuffix,
+            boolean enabled, int clusterTkey) throws Exception {
         String query = "insert into vlan (TKEY, NAME, GATEWAY, SUBNET_MASK, DNSSERVER, DNSSUFFIX, ENABLED, CLUSTER_TKEY) values (DEFAULT,?,?,?,?,?,?,?)";
         try (PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, vlan);

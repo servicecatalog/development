@@ -1,3 +1,4 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
 <states class="org.oscm.app.vmware.business.statemachine.CreateActions">
   
   <state id="BEGIN" action="checkVMRunning">

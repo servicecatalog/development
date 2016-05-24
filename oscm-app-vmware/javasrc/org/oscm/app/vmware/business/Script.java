@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 13.05.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -75,14 +75,14 @@ public class Script {
         @Override
         public void checkServerTrusted(
                 java.security.cert.X509Certificate[] certs, String authType)
-                        throws java.security.cert.CertificateException {
+                throws java.security.cert.CertificateException {
             return;
         }
 
         @Override
         public void checkClientTrusted(
                 java.security.cert.X509Certificate[] certs, String authType)
-                        throws java.security.cert.CertificateException {
+                throws java.security.cert.CertificateException {
             return;
         }
     }
@@ -93,7 +93,8 @@ public class Script {
         this.guestPassword = guestPassword;
         this.isWindows = isWindows;
 
-        logger.debug("userid: " + guestUserId + " pwd: " + guestPassword + " script: " + scriptURL);
+        logger.debug("userid: " + guestUserId + " pwd: " + guestPassword
+                + " script: " + scriptURL);
         // TODO load certificate from vSphere host and install somehow
         disableSSL();
         script = downloadFile(scriptURL);
@@ -120,8 +121,8 @@ public class Script {
         sslsc.setSessionTimeout(0);
         sc.init(null, trustAllCerts, null);
 
-        javax.net.ssl.HttpsURLConnection
-                .setDefaultSSLSocketFactory(sc.getSocketFactory());
+        javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(sc
+                .getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier(verifier);
     }
 
@@ -129,16 +130,16 @@ public class Script {
             ManagedObjectReference vmwInstance,
             ManagedObjectReference fileManagerRef,
             NamePasswordAuthentication auth, String script, String hostname)
-                    throws Exception {
+            throws Exception {
 
         String fileUploadUrl = null;
         if (isWindows) {
             GuestWindowsFileAttributes guestFileAttributes = new GuestWindowsFileAttributes();
             guestFileAttributes.setAccessTime(DatatypeFactory.newInstance()
                     .newXMLGregorianCalendar(new GregorianCalendar()));
-            guestFileAttributes
-                    .setModificationTime(DatatypeFactory.newInstance()
-                            .newXMLGregorianCalendar(new GregorianCalendar()));
+            guestFileAttributes.setModificationTime(DatatypeFactory
+                    .newInstance().newXMLGregorianCalendar(
+                            new GregorianCalendar()));
             fileUploadUrl = vimPort.initiateFileTransferToGuest(fileManagerRef,
                     vmwInstance, auth, WINDOWS_GUEST_FILE_PATH,
                     guestFileAttributes, script.length(), true);
@@ -147,9 +148,9 @@ public class Script {
             guestFileAttributes.setPermissions(Long.valueOf(500));
             guestFileAttributes.setAccessTime(DatatypeFactory.newInstance()
                     .newXMLGregorianCalendar(new GregorianCalendar()));
-            guestFileAttributes
-                    .setModificationTime(DatatypeFactory.newInstance()
-                            .newXMLGregorianCalendar(new GregorianCalendar()));
+            guestFileAttributes.setModificationTime(DatatypeFactory
+                    .newInstance().newXMLGregorianCalendar(
+                            new GregorianCalendar()));
             fileUploadUrl = vimPort.initiateFileTransferToGuest(fileManagerRef,
                     vmwInstance, auth, LINUX_GUEST_FILE_PATH,
                     guestFileAttributes, script.length(), true);
@@ -230,28 +231,27 @@ public class Script {
         String rest = script.substring(script.indexOf(DELIMITER) + 1,
                 script.length());
         StringBuffer sb = new StringBuffer();
-        int numNics = Integer.parseInt(
-                sp.getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        int numNics = Integer.parseInt(sp
+                .getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
 
         if (isWindows) {
-            String value = sp.getServiceSetting(
-                    VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN);
+            String value = sp
+                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN);
             sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN + "="
                     + value + DELIMITER);
-            value = sp.getServiceSetting(
-                    VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
+            value = sp
+                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
             sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD
                     + "=" + value + DELIMITER);
-            value = sp.getServiceSetting(
-                    VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
+            value = sp
+                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
             sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN + "="
                     + value + DELIMITER);
-            value = sp.getServiceSetting(
-                    VMPropertyHandler.TS_DOMAIN_NAME);
-            sb.append("set " + VMPropertyHandler.TS_DOMAIN_NAME + "="
-                    + value + DELIMITER);
-            value = sp.getServiceSetting(
-                    VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
+            value = sp.getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME);
+            sb.append("set " + VMPropertyHandler.TS_DOMAIN_NAME + "=" + value
+                    + DELIMITER);
+            value = sp
+                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
             sb.append("set " + VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD
                     + "=" + value + DELIMITER);
             value = sp
@@ -366,10 +366,9 @@ public class Script {
             sb.append(VMPropertyHandler.TS_SCRIPT_PWD + "='" + value + "'"
                     + DELIMITER);
 
-            value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME);
-            sb.append(VMPropertyHandler.TS_DOMAIN_NAME + "='" + value
-                    + "'" + DELIMITER);
+            value = sp.getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME);
+            sb.append(VMPropertyHandler.TS_DOMAIN_NAME + "='" + value + "'"
+                    + DELIMITER);
 
             value = sp.getServiceSetting(VMPropertyHandler.REQUESTING_USER);
             sb.append(VMPropertyHandler.REQUESTING_USER + "='" + value + "'"
@@ -400,8 +399,8 @@ public class Script {
         String vcenter = paramHandler
                 .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
         VimPortType vimPort = vmw.getConnection().getService();
-        ServiceConnection conn = new ServiceConnection(vimPort,
-                vmw.getConnection().getServiceContent());
+        ServiceConnection conn = new ServiceConnection(vimPort, vmw
+                .getConnection().getServiceContent());
         ManagedObjectAccessor moa = new ManagedObjectAccessor(conn);
         ManagedObjectReference guestOpManger = vmw.getConnection()
                 .getServiceContent().getGuestOperationsManager();
@@ -425,10 +424,10 @@ public class Script {
         uploadScriptFileToVM(vimPort, vmwInstance, fileManagerRef, auth,
                 scriptPatched, vSphereURL.getHost());
         logger.debug("Executing CreateTemporaryFile guest operation");
-        String tempFilePath = vimPort.createTemporaryFileInGuest(fileManagerRef,
-                vmwInstance, auth, "", "", "");
-        logger.debug("Successfully created a temporary file at: " + tempFilePath
-                + " inside the guest");
+        String tempFilePath = vimPort.createTemporaryFileInGuest(
+                fileManagerRef, vmwInstance, auth, "", "", "");
+        logger.debug("Successfully created a temporary file at: "
+                + tempFilePath + " inside the guest");
 
         GuestProgramSpec spec = new GuestProgramSpec();
 
@@ -454,30 +453,27 @@ public class Script {
                 procInfo = vimPort.listProcessesInGuest(processManagerRef,
                         vmwInstance, auth, pidsList);
             } catch (Exception e) {
-                logger.warn(
-                        "listProcessesInGuest() failed. setting new Linux root password for authentication");
+                logger.warn("listProcessesInGuest() failed. setting new Linux root password for authentication");
 
                 if (isWindows) {
-                    auth.setPassword(paramHandler.getServiceSetting(
-                            VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
+                    auth.setPassword(paramHandler
+                            .getServiceSetting(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
                 } else {
-                    auth.setPassword(paramHandler.getServiceSetting(
-                            VMPropertyHandler.TS_LINUX_ROOT_PWD));
+                    auth.setPassword(paramHandler
+                            .getServiceSetting(VMPropertyHandler.TS_LINUX_ROOT_PWD));
                 }
             }
             Thread.sleep(5 * 1000);
         } while (procInfo != null && procInfo.get(0).getEndTime() == null);
 
         if (procInfo != null && procInfo.get(0).getExitCode() != 0) {
-            logger.error(
-                    "Script return code: " + procInfo.get(0).getExitCode());
+            logger.error("Script return code: " + procInfo.get(0).getExitCode());
             FileTransferInformation fileTransferInformation = null;
             fileTransferInformation = vimPort.initiateFileTransferFromGuest(
                     fileManagerRef, vmwInstance, auth, tempFilePath);
             String fileDownloadUrl = fileTransferInformation.getUrl()
                     .replaceAll("\\*", vSphereURL.getHost());
-            logger.debug(
-                    "Downloading the output file from :" + fileDownloadUrl);
+            logger.debug("Downloading the output file from :" + fileDownloadUrl);
             String scriptOutput = downloadFile(fileDownloadUrl);
             logger.error("Script execution output: " + scriptOutput);
         }

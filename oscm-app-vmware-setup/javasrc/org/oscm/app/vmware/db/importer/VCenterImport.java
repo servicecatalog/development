@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -47,26 +55,29 @@ public class VCenterImport extends GenericImport {
                     addTableRow(conn, vcenterId, vcenterName, url, userid,
                             password, tkey);
                 } catch (Exception e) {
-                    logger.error("failed to add row:  " + tkey + " " + vcenterId + " " + vcenterName);
-                	logger.error(e.getMessage());
+                    logger.error("failed to add row:  " + tkey + " "
+                            + vcenterId + " " + vcenterName);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     createSequence(conn, vcenterId);
                 } catch (Exception e) {
-                    logger.error("failed to create sequence for   " + tkey + " " + vcenterId + " " + vcenterName);
-                	logger.error(e.getMessage());
+                    logger.error("failed to create sequence for   " + tkey
+                            + " " + vcenterId + " " + vcenterName);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     line = csv.readNext();
                 } catch (Exception e) {
                     conn.rollback();
-                	logger.error("Failed to read line from CSV file after row: " + tkey + " " + vcenterId + " " + vcenterName);
-                	logger.error(e.getMessage());
-                	return;
+                    logger.error("Failed to read line from CSV file after row: "
+                            + tkey + " " + vcenterId + " " + vcenterName);
+                    logger.error(e.getMessage());
+                    return;
                 }
             }
             conn.commit();
@@ -94,7 +105,7 @@ public class VCenterImport extends GenericImport {
 
     private void addTableRow(Connection con, String vcId, String vcName,
             String url, String userid, String password, String tkey)
-                    throws Exception {
+            throws Exception {
 
         String query = "insert into vcenter (TKEY, NAME, IDENTIFIER, URL, USERID, PASSWORD) values(?, ?, ?, ?, ?, ?)";
 

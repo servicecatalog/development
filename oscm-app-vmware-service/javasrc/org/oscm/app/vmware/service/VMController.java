@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 07.05.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -91,12 +91,11 @@ public class VMController implements APPlatformController {
             id.setChangedParameters(settings.getParameters());
 
             if (platformService.exists(Controller.ID, id.getInstanceId())) {
-                logger.error(
-                        "Other instance with same name already registered in CTMG: ["
-                                + id.getInstanceId() + "]");
-                throw new APPlatformException(
-                        Messages.getAll("error_instance_exists",
-                                new Object[] { id.getInstanceId() }));
+                logger.error("Other instance with same name already registered in CTMG: ["
+                        + id.getInstanceId() + "]");
+                throw new APPlatformException(Messages.getAll(
+                        "error_instance_exists",
+                        new Object[] { id.getInstanceId() }));
             }
 
             validateParameters(null, ph, settings.getOrganizationId(),
@@ -141,8 +140,7 @@ public class VMController implements APPlatformController {
             ProvisioningSettings newSettings) throws APPlatformException {
 
         try {
-            VMPropertyHandler oldParams = new VMPropertyHandler(
-                    currentSettings);
+            VMPropertyHandler oldParams = new VMPropertyHandler(currentSettings);
 
             VMPropertyHandler newParams = new VMPropertyHandler(newSettings);
 
@@ -152,8 +150,8 @@ public class VMController implements APPlatformController {
             newParams.setRequestingUser(newSettings.getRequestingUser());
             newParams.setImportOfExistingVM(false);
 
-            StateMachine.initializeProvisioningSettings(newParams.getSettings(),
-                    "modify_vm.xml");
+            StateMachine.initializeProvisioningSettings(
+                    newParams.getSettings(), "modify_vm.xml");
 
             InstanceStatus result = new InstanceStatus();
             result.setChangedParameters(newSettings.getParameters());
@@ -182,9 +180,8 @@ public class VMController implements APPlatformController {
         } catch (SuspendException e) {
             throw e;
         } catch (Throwable t) {
-            logger.error(
-                    "Failed to get instance status for instance " + instanceId,
-                    t);
+            logger.error("Failed to get instance status for instance "
+                    + instanceId, t);
             throw new SuspendException(
                     "Failed to get instance status for instance " + instanceId,
                     t);
@@ -198,8 +195,8 @@ public class VMController implements APPlatformController {
         String nextState = stateMachine.getStateId();
         switch (nextState) {
         case "REPEAT_FAILED_STATE":
-            String failedState = stateMachine
-                    .loadPreviousStateFromHistory(ph.getProvisioningSettings());
+            String failedState = stateMachine.loadPreviousStateFromHistory(ph
+                    .getProvisioningSettings());
             ph.setSetting(VMPropertyHandler.TASK_KEY, "");
             ph.setSetting(VMPropertyHandler.TASK_STARTTIME, "");
             ph.setSetting(VMPropertyHandler.SM_STATE, failedState);
@@ -235,16 +232,16 @@ public class VMController implements APPlatformController {
      *             thrown when validation fails
      */
     private void validateParameters(VMPropertyHandler oldParams,
-            VMPropertyHandler newParams, String customerOrgId,
-            String instanceId) throws APPlatformException {
+            VMPropertyHandler newParams, String customerOrgId, String instanceId)
+            throws APPlatformException {
         logger.debug("instanceId: " + instanceId + " customerOrgId: "
                 + customerOrgId);
         long memory = newParams.getConfigMemoryMB();
         if (memory % 4 != 0) {
             logger.debug("Validation error on memory size [" + memory + "MB]");
-            throw new APPlatformException(
-                    Messages.getAll("error_invalid_memory",
-                            new Object[] { Long.valueOf(memory) }));
+            throw new APPlatformException(Messages.getAll(
+                    "error_invalid_memory",
+                    new Object[] { Long.valueOf(memory) }));
         }
 
         if (oldParams != null) {
@@ -252,26 +249,24 @@ public class VMController implements APPlatformController {
             Double[] oldDataDisksMB = oldParams.getDataDisksMB();
             Double[] newDataDisksMB = newParams.getDataDisksMB();
             if (oldDataDisksMB.length > newDataDisksMB.length) {
-                logger.warn(
-                        "Reducing the number of data disks is not possible. instanceId: "
-                                + oldParams.getInstanceName() + " old number: "
-                                + oldParams.getDataDisksMB().length
-                                + " new number: "
-                                + newParams.getDataDisksMB().length);
+                logger.warn("Reducing the number of data disks is not possible. instanceId: "
+                        + oldParams.getInstanceName()
+                        + " old number: "
+                        + oldParams.getDataDisksMB().length
+                        + " new number: "
+                        + newParams.getDataDisksMB().length);
                 diskSizeReduction = true;
             } else if (oldDataDisksMB.length >= newDataDisksMB.length) {
                 for (int i = 0; i < oldDataDisksMB.length; i++) {
                     Double dataDiskMB = oldDataDisksMB[i];
-                    if (dataDiskMB.longValue() > newDataDisksMB[i]
-                            .longValue()) {
+                    if (dataDiskMB.longValue() > newDataDisksMB[i].longValue()) {
                         diskSizeReduction = true;
-                        logger.error(
-                                "Data disk size reduction is not possible. instanceId: "
-                                        + oldParams.getInstanceName()
-                                        + " old size: "
-                                        + oldParams.getConfigDiskSpaceMB()
-                                        + " new size: "
-                                        + newParams.getConfigDiskSpaceMB());
+                        logger.error("Data disk size reduction is not possible. instanceId: "
+                                + oldParams.getInstanceName()
+                                + " old size: "
+                                + oldParams.getConfigDiskSpaceMB()
+                                + " new size: "
+                                + newParams.getConfigDiskSpaceMB());
                         break;
                     }
                 }
@@ -284,11 +279,10 @@ public class VMController implements APPlatformController {
 
             if (oldParams.getConfigDiskSpaceMB() > newParams
                     .getConfigDiskSpaceMB()) {
-                logger.error(
-                        "System disk size reduction is not possible. old size: "
-                                + oldParams.getConfigDiskSpaceMB()
-                                + " new size: "
-                                + newParams.getConfigDiskSpaceMB());
+                logger.error("System disk size reduction is not possible. old size: "
+                        + oldParams.getConfigDiskSpaceMB()
+                        + " new size: "
+                        + newParams.getConfigDiskSpaceMB());
                 throw new APPlatformException(
                         Messages.getAll("error_invalid_diskspacereduction"));
             }
@@ -301,7 +295,7 @@ public class VMController implements APPlatformController {
 
     /**
      * Validates that Windows service parameter are consistent.
-     *
+     * 
      * @throws APPlatformException
      *             thrown when validation fails
      */
@@ -311,10 +305,10 @@ public class VMController implements APPlatformController {
                 .isServiceSettingTrue(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
         boolean domainName = params
                 .getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME) != null;
-        boolean admin = params.getServiceSetting(
-                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN) != null;
-        boolean adminPwd = params.getServiceSetting(
-                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD) != null;
+        boolean admin = params
+                .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN) != null;
+        boolean adminPwd = params
+                .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD) != null;
         logger.debug("isDomainJoin: " + isDomainJoin);
 
         if (isDomainJoin && !domainName) {
@@ -355,9 +349,8 @@ public class VMController implements APPlatformController {
                 status.setIsReady(false);
                 status.setRunWithTimer(true);
                 status.setChangedParameters(settings.getParameters());
-                logger.debug(
-                        "Received finish event. Instance provisioning will be continued for instance "
-                                + instanceId);
+                logger.debug("Received finish event. Instance provisioning will be continued for instance "
+                        + instanceId);
             }
             return status;
         } catch (Throwable t) {

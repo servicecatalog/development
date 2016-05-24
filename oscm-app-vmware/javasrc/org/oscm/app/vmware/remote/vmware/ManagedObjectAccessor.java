@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2013 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: Jan 18, 2013                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -158,8 +158,8 @@ public class ManagedObjectAccessor {
      * @throws InvalidPropertyFaultMsg
      */
     private ObjectContent[] getObjectProperties(ManagedObjectReference mobj,
-            String[] properties)
-            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
+            String[] properties) throws InvalidPropertyFaultMsg,
+            RuntimeFaultFaultMsg {
         if (mobj == null) {
             return null;
         }
@@ -319,8 +319,7 @@ public class ManagedObjectAccessor {
             token = null;
             if (rslts != null) {
                 token = rslts.getToken();
-                if (rslts.getObjects() != null
-                        && !rslts.getObjects().isEmpty()) {
+                if (rslts.getObjects() != null && !rslts.getObjects().isEmpty()) {
                     listobjcontent.addAll(rslts.getObjects());
                 }
             }
@@ -368,8 +367,8 @@ public class ManagedObjectAccessor {
         pSpecHost.getPathSet().add("summary.hardware.memorySize");
         pSpecHost.getPathSet().add("summary.hardware.numCpuCores");
         pSpecHost.getPathSet().add("summary.quickStats.distributedCpuFairness");
-        pSpecHost.getPathSet()
-                .add("summary.quickStats.distributedMemoryFairness");
+        pSpecHost.getPathSet().add(
+                "summary.quickStats.distributedMemoryFairness");
         pSpecHost.getPathSet().add("summary.quickStats.overallCpuUsage");
         pSpecHost.getPathSet().add("summary.quickStats.overallMemoryUsage");
 

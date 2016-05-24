@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 14.05.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -41,29 +41,29 @@ public class NetworkManager {
         List<VirtualEthernetCard> vmNics = getNetworkAdapter(configInfo);
         return vmNics.size();
     }
-    
+
     public static String getNetworkName(VMwareClient vmw,
-            ManagedObjectReference vmwInstance,int numNic) throws Exception {
+            ManagedObjectReference vmwInstance, int numNic) throws Exception {
         logger.debug("");
 
-        
         List<ManagedObjectReference> networkList = (List<ManagedObjectReference>) vmw
                 .getServiceUtil().getDynamicProperty(vmwInstance, "network");
-        
+
         String name = null;
-        if(networkList != null && networkList.size() >= numNic ){
-        	name = (String)vmw
-                    .getServiceUtil().getDynamicProperty(networkList.get(numNic-1), "name");
-            NetworkSummary summary = (NetworkSummary) vmw
-                    .getServiceUtil().getDynamicProperty(networkList.get(numNic-1), "summary");
+        if (networkList != null && networkList.size() >= numNic) {
+            name = (String) vmw.getServiceUtil().getDynamicProperty(
+                    networkList.get(numNic - 1), "name");
+            NetworkSummary summary = (NetworkSummary) vmw.getServiceUtil()
+                    .getDynamicProperty(networkList.get(numNic - 1), "summary");
 
             logger.debug("name: " + name + " ipPoolId: "
                     + summary.getIpPoolName() + " ipPoolName: "
                     + summary.getName());
         }
-        
-        if(name == null ){
-            throw new Exception("Failed to retrieve network name from template.");
+
+        if (name == null) {
+            throw new Exception(
+                    "Failed to retrieve network name from template.");
         }
         return name;
     }
@@ -81,7 +81,7 @@ public class NetworkManager {
     public static void configureNetworkAdapter(VMwareClient vmw,
             VirtualMachineConfigSpec vmConfigSpec,
             VMPropertyHandler paramHandler, ManagedObjectReference vmwInstance)
-                    throws Exception {
+            throws Exception {
         logger.debug("");
 
         VirtualMachineConfigInfo configInfo = (VirtualMachineConfigInfo) vmw
@@ -94,8 +94,12 @@ public class NetworkManager {
         if (numberOfNICs != vmNics.size()) {
             throw new Exception(
                     "the number of NICs in virtual machine does not match the service parameter. VM: "
-                            + configInfo.getName() + " NICs: " + vmNics.size()
-                            + " " + VMPropertyHandler.TS_NUMBER_OF_NICS + ": "
+                            + configInfo.getName()
+                            + " NICs: "
+                            + vmNics.size()
+                            + " "
+                            + VMPropertyHandler.TS_NUMBER_OF_NICS
+                            + ": "
                             + numberOfNICs);
         }
 
@@ -103,22 +107,22 @@ public class NetworkManager {
             String newNetworkName = paramHandler.getNetworkAdapter(i);
             VirtualEthernetCard vmNic = vmNics.get(i - 1);
             String vmNetworkName = getNetworkName(vmw, vmwInstance, i);
-            if (newNetworkName != null && newNetworkName.length() > 0 && !newNetworkName.equals(vmNetworkName)) {
+            if (newNetworkName != null && newNetworkName.length() > 0
+                    && !newNetworkName.equals(vmNetworkName)) {
                 ManagedObjectReference newNetworkRef = getNetworkFromHost(vmw,
                         vmwInstance, newNetworkName);
-                
+
                 replaceNetworkAdapter(vmConfigSpec, vmNic, newNetworkRef,
-                		newNetworkName);
-            }
-            else{
-            	connectNIC(vmConfigSpec, vmNic, vmNetworkName);
+                        newNetworkName);
+            } else {
+                connectNIC(vmConfigSpec, vmNic, vmNetworkName);
             }
         }
     }
 
     private static ManagedObjectReference getNetworkFromHost(VMwareClient vmw,
             ManagedObjectReference vmwInstance, String networkName)
-                    throws Exception {
+            throws Exception {
         logger.debug("networkName: " + networkName);
 
         VirtualMachineRuntimeInfo vmRuntimeInfo = (VirtualMachineRuntimeInfo) vmw
@@ -139,8 +143,8 @@ public class NetworkManager {
         }
 
         if (netCard == null) {
-            String hostName = (String) vmw.getServiceUtil()
-                    .getDynamicProperty(hostRef, "name");
+            String hostName = (String) vmw.getServiceUtil().getDynamicProperty(
+                    hostRef, "name");
             logger.error("Network " + networkName + " not found on host "
                     + hostName);
             logger.debug("available networks are: " + networks.toString());
@@ -163,25 +167,25 @@ public class NetworkManager {
 
         return nics;
     }
-    
+
     private static void replaceNetworkAdapter(
             VirtualMachineConfigSpec vmConfigSpec, VirtualDevice oldNIC,
             ManagedObjectReference newNetworkRef, String newNetworkName)
-                    throws Exception {
-    	logger.debug("new network: " + newNetworkName);
+            throws Exception {
+        logger.debug("new network: " + newNetworkName);
         VirtualEthernetCardNetworkBackingInfo nicBacking = new VirtualEthernetCardNetworkBackingInfo();
         nicBacking.setDeviceName(newNetworkName);
         nicBacking.setNetwork(newNetworkRef);
         nicBacking.setUseAutoDetect(true);
         oldNIC.setBacking(nicBacking);
 
-         VirtualDeviceConnectInfo info = new VirtualDeviceConnectInfo();
-         info.setConnected(true);
-         info.setStartConnected(true);
-         info.setAllowGuestControl(true);
-         oldNIC.setConnectable(info);
-//        oldNIC.getConnectable().setConnected(true);
-//        oldNIC.getConnectable().setStartConnected(true);
+        VirtualDeviceConnectInfo info = new VirtualDeviceConnectInfo();
+        info.setConnected(true);
+        info.setStartConnected(true);
+        info.setAllowGuestControl(true);
+        oldNIC.setConnectable(info);
+        // oldNIC.getConnectable().setConnected(true);
+        // oldNIC.getConnectable().setStartConnected(true);
         VirtualDeviceConfigSpec vmDeviceSpec = new VirtualDeviceConfigSpec();
         vmDeviceSpec.setOperation(VirtualDeviceConfigSpecOperation.EDIT);
         vmDeviceSpec.setDevice(oldNIC);
@@ -191,7 +195,7 @@ public class NetworkManager {
     private static void connectNIC(VirtualMachineConfigSpec vmConfigSpec,
             VirtualDevice oldNIC, String vmNetworkName) throws Exception {
 
-    	logger.debug("networkName: " + vmNetworkName);
+        logger.debug("networkName: " + vmNetworkName);
 
         VirtualDeviceConnectInfo info = new VirtualDeviceConnectInfo();
         info.setConnected(true);

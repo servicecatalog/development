@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2013 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 22.04.2013                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.remote.bes;
 
 import org.oscm.app.v1_0.BSSWebServiceFactory;

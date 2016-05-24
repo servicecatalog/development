@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -43,21 +51,31 @@ public class IPPoolImport extends GenericImport {
                 String vlan = line.get(IPPoolCSV.COL_VLAN);
                 String ipaddress = line.get(IPPoolCSV.COL_IPADDRESS);
                 try {
-                    int vlanTkey = getVlanTkey(vcenter, datacenter, cluster, vlan);
+                    int vlanTkey = getVlanTkey(vcenter, datacenter, cluster,
+                            vlan);
                     addTableRow(conn, ipaddress, vlanTkey);
                 } catch (Exception e) {
-                	logger.error("Failed to add row: " + vcenter + " " + datacenter + " " + cluster + " " + vlan + " " + ipaddress);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to add row: " + vcenter + " "
+                            + datacenter + " " + cluster + " " + vlan + " "
+                            + ipaddress);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     line = csv.readNext();
                 } catch (Exception e) {
-                	logger.error("Failed to read line from CSV file after row: " + vcenter + " " + datacenter + " " + cluster + " " + vlan + " " + ipaddress);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to read line from CSV file after row: "
+                            + vcenter
+                            + " "
+                            + datacenter
+                            + " "
+                            + cluster
+                            + " "
+                            + vlan + " " + ipaddress);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
             }
             conn.commit();

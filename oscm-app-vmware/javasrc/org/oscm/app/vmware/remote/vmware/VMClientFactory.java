@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.remote.vmware;
 
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
@@ -6,8 +14,8 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VMClientFactory
-        extends BaseKeyedPooledObjectFactory<String, VMwareClient> {
+public class VMClientFactory extends
+        BaseKeyedPooledObjectFactory<String, VMwareClient> {
 
     private static final Logger logger = LoggerFactory
             .getLogger(VMClientFactory.class);
@@ -27,8 +35,7 @@ public class VMClientFactory
     }
 
     @Override
-    public boolean validateObject(String vcenter,
-            PooledObject<VMwareClient> p) {
+    public boolean validateObject(String vcenter, PooledObject<VMwareClient> p) {
         logger.debug("vcenter: " + vcenter);
         return p.getObject().isConnected();
     }

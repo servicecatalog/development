@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 04.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.business.balancer;
 
 import java.io.StringReader;
@@ -71,12 +72,12 @@ public class LoadBalancerConfiguration {
                         + " is not available in the inventory.");
             } else {
                 vmHost.setEnabled(host.getBoolean("[@enabled]", false));
-                vmHost.setMemoryLimit(
-                        VMwareValue.parse(host.getString("[@memory_limit]")));
-                vmHost.setCPULimit(
-                        VMwareValue.parse(host.getString("[@cpu_limit]")));
-                vmHost.setVMLimit(
-                        VMwareValue.parse(host.getString("[@vm_limit]")));
+                vmHost.setMemoryLimit(VMwareValue.parse(host
+                        .getString("[@memory_limit]")));
+                vmHost.setCPULimit(VMwareValue.parse(host
+                        .getString("[@cpu_limit]")));
+                vmHost.setVMLimit(VMwareValue.parse(host
+                        .getString("[@vm_limit]")));
                 hostList.add(vmHost);
 
                 VMwareBalancer<VMwareStorage> stb = parseBalancer(host,
@@ -96,8 +97,8 @@ public class LoadBalancerConfiguration {
                         + " is not available in the inventory.");
             } else {
                 vmStorage.setEnabled(storage.getBoolean("[@enabled]", false));
-                vmStorage.setLimit(VMwareValue
-                        .parse(storage.getString("[@limit]", "90%")));
+                vmStorage.setLimit(VMwareValue.parse(storage.getString(
+                        "[@limit]", "90%")));
                 storageList.add(vmStorage);
             }
         }

@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -49,18 +57,20 @@ public class DatacenterImport extends GenericImport {
                 try {
                     addTableRow(conn, vcenter, datacenter, dcId);
                 } catch (Exception e) {
-                	logger.error("Failed to add row: " + vcenter + " " + datacenter + " " + dcId);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to add row: " + vcenter + " "
+                            + datacenter + " " + dcId);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
                 try {
                     line = csv.readNext();
                 } catch (Exception e) {
-                	logger.error("Failed to read line from CSV file after row: " + vcenter + " " + datacenter + " " + dcId);
-                	logger.error(e.getMessage());
+                    logger.error("Failed to read line from CSV file after row: "
+                            + vcenter + " " + datacenter + " " + dcId);
+                    logger.error(e.getMessage());
                     conn.rollback();
-                	return;
+                    return;
                 }
             }
             conn.commit();
