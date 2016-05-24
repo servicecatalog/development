@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2011 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 27.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -26,9 +26,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class DynamicEquipartitionHostBalancer extends HostBalancer {
-
-    private static final Logger logger = LoggerFactory
-            .getLogger(DynamicEquipartitionHostBalancer.class);
 
     @Override
     public void setConfiguration(HierarchicalConfiguration xmlConfig) {

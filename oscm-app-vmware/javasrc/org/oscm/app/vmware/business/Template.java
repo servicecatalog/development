@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 14.05.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -78,33 +78,34 @@ public class Template {
                 .getDecendentMoRef(null, "Datacenter", datacenter);
         if (vmDataCenter == null) {
             logger.error("Datacenter not found. dataCenter: " + datacenter);
-            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
-                    "error_invalid_datacenter", new Object[] { datacenter }));
+            throw new APPlatformException(Messages.get(
+                    paramHandler.getLocale(), "error_invalid_datacenter",
+                    new Object[] { datacenter }));
         }
 
-        ManagedObjectReference vmTpl = vmw.getServiceUtil()
-                .getDecendentMoRef(vmDataCenter, "VirtualMachine", template);
+        ManagedObjectReference vmTpl = vmw.getServiceUtil().getDecendentMoRef(
+                vmDataCenter, "VirtualMachine", template);
         if (vmTpl == null) {
             logger.error("Template not found in datacenter. datacenter: "
                     + datacenter + " template: " + template);
-            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
-                    "error_invalid_template", new Object[] { template }));
+            throw new APPlatformException(Messages.get(
+                    paramHandler.getLocale(), "error_invalid_template",
+                    new Object[] { template }));
         }
 
         Long templateDiskSpace = (Long) vmw.getServiceUtil()
                 .getDynamicProperty(vmTpl, "summary.storage.unshared");
         if (templateDiskSpace == null) {
-            logger.error(
-                    "Missing disk size in template. template: " + template);
-            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
-                    "error_missing_template_size"));
+            logger.error("Missing disk size in template. template: " + template);
+            throw new APPlatformException(Messages.get(
+                    paramHandler.getLocale(), "error_missing_template_size"));
         }
 
         VirtualMachineConfigInfo configSpec = (VirtualMachineConfigInfo) vmw
                 .getServiceUtil().getDynamicProperty(vmTpl, "config");
 
-        double tplDiskSpace = VMwareValue
-                .fromBytes(templateDiskSpace.longValue()).getValue(Unit.MB);
+        double tplDiskSpace = VMwareValue.fromBytes(
+                templateDiskSpace.longValue()).getValue(Unit.MB);
         if (paramHandler.getConfigDiskSpaceMB() != .0) {
             double requestedDiskSpace = paramHandler.getConfigDiskSpaceMB();
             List<VirtualDevice> devices = configSpec.getHardware().getDevice();
@@ -116,11 +117,11 @@ public class Template {
                     + template);
             if (requestedDiskSpaceKB < capacityInKB) {
                 String minValExp = new DecimalFormat("#0.#")
-                        .format(VMwareValue.fromMegaBytes(capacityInKB / 1024.0)
-                                .getValue(Unit.GB));
-                logger.error(
-                        "Requested disk space is smaller than template disk space. template: "
-                                + template);
+                        .format(VMwareValue
+                                .fromMegaBytes(capacityInKB / 1024.0).getValue(
+                                        Unit.GB));
+                logger.error("Requested disk space is smaller than template disk space. template: "
+                        + template);
                 throw new APPlatformException(Messages.get(
                         paramHandler.getLocale(), "error_invalid_diskspace",
                         new Object[] { minValExp }));
@@ -154,9 +155,10 @@ public class Template {
         String systemvariante = "";
 
         String comment = Messages.get(paramHandler.getLocale(), "vm_comment",
-                new Object[] { paramHandler.getSettings().getOrganizationName(),
-                        paramHandler.getSettings().getSubscriptionId(), reqUser,
-                        respPerson, systemvariante });
+                new Object[] {
+                        paramHandler.getSettings().getOrganizationName(),
+                        paramHandler.getSettings().getSubscriptionId(),
+                        reqUser, respPerson, systemvariante });
         vmConfSpec.setAnnotation(comment);
         cloneSpec.setConfig(vmConfSpec);
 
@@ -173,8 +175,8 @@ public class Template {
 
         if (moRefTargetFolder == null) {
             logger.error("Target folder " + targetFolder + " not found.");
-            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
-                    "error_invalid_target_folder",
+            throw new APPlatformException(Messages.get(
+                    paramHandler.getLocale(), "error_invalid_target_folder",
                     new Object[] { targetFolder }));
         }
 
@@ -210,7 +212,8 @@ public class Template {
         }
 
         boolean isLinux = guestid.startsWith("cent")
-                || guestid.startsWith("debian") || guestid.startsWith("freebsd")
+                || guestid.startsWith("debian")
+                || guestid.startsWith("freebsd")
                 || guestid.startsWith("oracle")
                 || guestid.startsWith("other24xLinux")
                 || guestid.startsWith("other26xLinux")
@@ -238,17 +241,15 @@ public class Template {
 
             String[] dnsserver = paramHandler.getDNSServer(1).split(",");
             for (String server : dnsserver) {
-                logger.debug(
-                        "Linux -> CustomizationGlobalIPSettings -> DNS server: "
-                                + server);
+                logger.debug("Linux -> CustomizationGlobalIPSettings -> DNS server: "
+                        + server);
                 gIP.getDnsServerList().add(server.trim());
             }
 
             String[] dnssuffix = paramHandler.getDNSSuffix(1).split(",");
             for (String suffix : dnssuffix) {
-                logger.debug(
-                        "Linux -> CustomizationGlobalIPSettings -> DNS suffix: "
-                                + suffix);
+                logger.debug("Linux -> CustomizationGlobalIPSettings -> DNS suffix: "
+                        + suffix);
                 gIP.getDnsSuffixList().add(suffix.trim());
             }
         }
@@ -275,15 +276,15 @@ public class Template {
             guiUnattended.setTimeZone(DEFAULT_TIMEZONE);
             // }
 
-            if (paramHandler.isServiceSettingTrue(
-                    VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN)) {
+            if (paramHandler
+                    .isServiceSettingTrue(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN)) {
                 CustomizationIdentification identification = new CustomizationIdentification();
-                String domainName = paramHandler.getServiceSettingValidated(
-                        VMPropertyHandler.TS_DOMAIN_NAME);
-                String domainAdmin = paramHandler.getServiceSettingValidated(
-                        VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN);
-                String domainAdminPwd = paramHandler.getServiceSettingValidated(
-                        VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
+                String domainName = paramHandler
+                        .getServiceSettingValidated(VMPropertyHandler.TS_DOMAIN_NAME);
+                String domainAdmin = paramHandler
+                        .getServiceSettingValidated(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN);
+                String domainAdminPwd = paramHandler
+                        .getServiceSettingValidated(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
 
                 logger.debug("Join Domain " + domainName + " admin: "
                         + domainAdmin + " pwd: " + domainAdminPwd);
@@ -297,16 +298,16 @@ public class Template {
                 sprep.setIdentification(identification);
             } else {
                 CustomizationIdentification identification = new CustomizationIdentification();
-                String workgroup = paramHandler.getServiceSettingValidated(
-                        VMPropertyHandler.TS_WINDOWS_WORKGROUP);
+                String workgroup = paramHandler
+                        .getServiceSettingValidated(VMPropertyHandler.TS_WINDOWS_WORKGROUP);
                 identification.setJoinWorkgroup(workgroup);
                 sprep.setIdentification(identification);
 
-                String adminPwd = paramHandler.getServiceSettingValidated(
-                        VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
+                String adminPwd = paramHandler
+                        .getServiceSettingValidated(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
 
-                logger.debug(
-                        "Create workgroup " + workgroup + " pwd: " + adminPwd);
+                logger.debug("Create workgroup " + workgroup + " pwd: "
+                        + adminPwd);
 
                 CustomizationPassword password = new CustomizationPassword();
                 password.setValue(adminPwd);
@@ -316,8 +317,8 @@ public class Template {
 
             sprep.setGuiUnattended(guiUnattended);
 
-            String command = paramHandler.getServiceSetting(
-                    VMPropertyHandler.TS_SYSPREP_RUNONCE_COMMAND);
+            String command = paramHandler
+                    .getServiceSetting(VMPropertyHandler.TS_SYSPREP_RUNONCE_COMMAND);
 
             if (command != null) {
                 logger.debug("sysprep runonce command: " + command);
@@ -341,8 +342,8 @@ public class Template {
             userData.setFullName(fullname);
             userData.setOrgName("Created by OSCM");
 
-            String licenseKey = paramHandler.getServiceSetting(
-                    VMPropertyHandler.TS_WINDOWS_LICENSE_KEY);
+            String licenseKey = paramHandler
+                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_LICENSE_KEY);
 
             if (licenseKey != null && licenseKey.trim().length() > 0) {
                 userData.setProductId(licenseKey);
@@ -429,8 +430,9 @@ public class Template {
      * the load balancing mechanism is used to determine host and storage
      */
     private VirtualMachineRelocateSpec setHostAndStorage(VMwareClient vmw,
-            VMPropertyHandler paramHandler, ManagedObjectReference vmDataCenter,
-            String datacenter, String cluster) throws Exception {
+            VMPropertyHandler paramHandler,
+            ManagedObjectReference vmDataCenter, String datacenter,
+            String cluster) throws Exception {
         logger.debug("datacenter: " + datacenter + " cluster: " + cluster);
         String xmlData = paramHandler.getHostLoadBalancerConfig();
         VirtualMachineRelocateSpec relocSpec = new VirtualMachineRelocateSpec();
@@ -440,8 +442,7 @@ public class Template {
         String hostName = paramHandler
                 .getServiceSetting(VMPropertyHandler.TS_TARGET_HOST);
         if (hostName == null || hostName.trim().length() == 0) {
-            logger.debug(
-                    "target host not set. get host and storage from loadbalancer");
+            logger.debug("target host not set. get host and storage from loadbalancer");
             VMwareDatacenterInventory inventory = readDatacenterInventory(vmw,
                     datacenter, cluster);
             LoadBalancerConfiguration balancerConfig = new LoadBalancerConfiguration(
@@ -453,8 +454,7 @@ public class Template {
             storageName = storage.getName();
         } else {
             if (storageName == null || storageName.trim().length() == 0) {
-                logger.debug(
-                        "target storage not set. get host and storage from loadbalancer");
+                logger.debug("target storage not set. get host and storage from loadbalancer");
                 VMwareDatacenterInventory inventory = readDatacenterInventory(
                         vmw, datacenter, cluster);
                 VMwareHost host = inventory.getHost(hostName);
@@ -463,10 +463,10 @@ public class Template {
             }
         }
 
-        logger.info(
-                "Target Host: " + hostName + " Target Storage: " + storageName);
-        ManagedObjectReference vmHost = vmw.getServiceUtil()
-                .getDecendentMoRef(vmDataCenter, "HostSystem", hostName);
+        logger.info("Target Host: " + hostName + " Target Storage: "
+                + storageName);
+        ManagedObjectReference vmHost = vmw.getServiceUtil().getDecendentMoRef(
+                vmDataCenter, "HostSystem", hostName);
         if (vmHost == null) {
             logger.error("Target host " + hostName + " not found");
             throw new APPlatformException(Messages.getAll("error_invalid_host",
@@ -475,8 +475,8 @@ public class Template {
 
         ManagedObjectReference vmHostCluster = (ManagedObjectReference) vmw
                 .getServiceUtil().getDynamicProperty(vmHost, "parent");
-        ManagedObjectReference vmPool = vmw.getServiceUtil()
-                .getDecendentMoRef(vmHostCluster, "ResourcePool", "Resources");
+        ManagedObjectReference vmPool = vmw.getServiceUtil().getDecendentMoRef(
+                vmHostCluster, "ResourcePool", "Resources");
         if (vmPool == null) {
             logger.error("Resourcepool not found");
             throw new APPlatformException(Messages.getAll("error_invalid_pool",
@@ -484,8 +484,8 @@ public class Template {
         }
 
         ManagedObjectReference vmDatastore = null;
-        Object vmHostDatastores = vmw.getServiceUtil()
-                .getDynamicProperty(vmHost, "datastore");
+        Object vmHostDatastores = vmw.getServiceUtil().getDynamicProperty(
+                vmHost, "datastore");
         if (vmHostDatastores instanceof List<?>) {
             for (Object vmHostDatastore : (List<?>) vmHostDatastores) {
                 if (vmHostDatastore instanceof ManagedObjectReference) {
@@ -498,19 +498,18 @@ public class Template {
                         break;
                     }
                 } else {
-                    logger.warn(
-                            "Expected datastore information as 'ManagedObjectReference' but recieved object of type "
-                                    + (vmHostDatastore == null ? "[null]"
-                                            : vmHostDatastore.getClass()
-                                                    .getSimpleName()));
+                    logger.warn("Expected datastore information as 'ManagedObjectReference' but recieved object of type "
+                            + (vmHostDatastore == null ? "[null]"
+                                    : vmHostDatastore.getClass()
+                                            .getSimpleName()));
                 }
             }
         }
         if (vmDatastore == null) {
             logger.error("Target datastore " + storageName + " not found");
-            throw new APPlatformException(
-                    Messages.getAll("error_invalid_datastore",
-                            new Object[] { storageName, hostName }));
+            throw new APPlatformException(Messages.getAll(
+                    "error_invalid_datastore", new Object[] { storageName,
+                            hostName }));
         }
 
         relocSpec.setDatastore(vmDatastore);
@@ -529,19 +528,17 @@ public class Template {
         ManagedObjectReference dcMoRef = serviceUtil.getDecendentMoRef(null,
                 "Datacenter", datacenter);
 
-        ManagedObjectReference clusterMoRef = serviceUtil
-                .getDecendentMoRef(dcMoRef, "ClusterComputeResource", cluster);
+        ManagedObjectReference clusterMoRef = serviceUtil.getDecendentMoRef(
+                dcMoRef, "ClusterComputeResource", cluster);
 
         List<ManagedObjectReference> hostMoRefs = (List<ManagedObjectReference>) serviceUtil
                 .getDynamicProperty(clusterMoRef, "host");
 
         VMwareDatacenterInventory inventory = new VMwareDatacenterInventory();
         for (ManagedObjectReference hostRef : hostMoRefs) {
-            List<DynamicProperty> dps = serviceUtil
-                    .getDynamicProperty(hostRef,
-                            new String[] { "name",
-                                    "summary.hardware.memorySize",
-                                    "summary.hardware.numCpuCores" });
+            List<DynamicProperty> dps = serviceUtil.getDynamicProperty(hostRef,
+                    new String[] { "name", "summary.hardware.memorySize",
+                            "summary.hardware.numCpuCores" });
             String host = "";
             for (DynamicProperty dp : dps) {
                 String key = dp.getName();
@@ -555,11 +552,9 @@ public class Template {
             List<ManagedObjectReference> storageRefs = (List<ManagedObjectReference>) serviceUtil
                     .getDynamicProperty(hostRef, "datastore");
             for (ManagedObjectReference storageRef : storageRefs) {
-                dps = serviceUtil
-                        .getDynamicProperty(storageRef,
-                                new String[] { "summary.name",
-                                        "summary.capacity",
-                                        "summary.freeSpace" });
+                dps = serviceUtil.getDynamicProperty(storageRef,
+                        new String[] { "summary.name", "summary.capacity",
+                                "summary.freeSpace" });
 
                 String storageName = "";
                 for (DynamicProperty dp : dps) {
@@ -592,9 +587,9 @@ public class Template {
             List<ManagedObjectReference> vmRefs = (List<ManagedObjectReference>) serviceUtil
                     .getDynamicProperty(hostRef, "vm");
             for (ManagedObjectReference vmRef : vmRefs) {
-                dps = serviceUtil.getDynamicProperty(vmRef,
-                        new String[] { "name", "summary.config.memorySizeMB",
-                                "summary.config.numCpu", "runtime.host" });
+                dps = serviceUtil.getDynamicProperty(vmRef, new String[] {
+                        "name", "summary.config.memorySizeMB",
+                        "summary.config.numCpu", "runtime.host" });
                 inventory.addVirtualMachine(dps, serviceUtil);
             }
 

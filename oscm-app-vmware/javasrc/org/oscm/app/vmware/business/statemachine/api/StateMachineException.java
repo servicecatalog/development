@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2016 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 22.01.2016                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -12,7 +12,7 @@ import org.oscm.app.v1_0.exceptions.APPlatformException;
 
 /**
  * @author kulle
- *
+ * 
  */
 public class StateMachineException extends APPlatformException {
 

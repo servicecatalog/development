@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 01.08.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -75,6 +75,7 @@ public class LoggerMocking {
      */
     public static void addConsoleDebug(SimpleLogger mogger) {
         Answer<Void> answer = new Answer<Void>() {
+            @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 Object[] arguments = invocation.getArguments();
                 if (arguments != null && arguments.length > 0

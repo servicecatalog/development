@@ -14,17 +14,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>APP VMware Controller Konfiguration</title>
+<title>Controller Configuration</title>
 <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
 
-    <h1>Controller Konfiguration</h1>
-    <span class="statusPanel"> The following error occured during the last operation:
+    <h1>Controller Configuration</h1>
+    <span class="statusPanel"> The following error occurred during the last operation:
         <p>
             Statuscode:
             <%=pageContext.getErrorData().getStatusCode()%><br /> Request-URI:
-            <%=pageContext.getErrorData().getRequestURI()%><br /> Servletname:
+            <%=pageContext.getErrorData().getRequestURI()%><br /> Servlet name:
             <%=pageContext.getErrorData().getServletName()%><br /> Exception:
             <%=exception%>
         </p>

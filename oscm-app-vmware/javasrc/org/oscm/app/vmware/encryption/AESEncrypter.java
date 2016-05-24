@@ -1,12 +1,12 @@
-package org.oscm.app.vmware.encryption;
-
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
- *                                                                              
- *  Creation Date: 20.09.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
+package org.oscm.app.vmware.encryption;
 
 import java.security.GeneralSecurityException;
 
@@ -21,10 +21,9 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class AESEncrypter {
     /** The Constant ENCRYPTION_KEY - generated only once here. */
-    private final static byte[] ENCRYPTION_KEY = StringScrambler
-            .decode(new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,
-                    0xF962DCA0907D0398L, 0xF54F221334184933L })
-            .getBytes();
+    private final static byte[] ENCRYPTION_KEY = StringScrambler.decode(
+            new long[] { 0x1BD9AC5E8CE971CDL, 0x98034879ACCC8904L,
+                    0xF962DCA0907D0398L, 0xF54F221334184933L }).getBytes();
 
     /* => "aERkc2TCpkw58zLWR2YiIh" */
 

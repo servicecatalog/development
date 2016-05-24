@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2013 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: Jan 18, 2013                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -56,8 +56,8 @@ public class VMwareClient implements AutoCloseable {
         this.url = credentials.getURL();
         this.user = credentials.getUserId();
         this.password = credentials.getPassword();
-        logger.debug(
-                "Created VMware client for url " + url + " and user " + user);
+        logger.debug("Created VMware client for url " + url + " and user "
+                + user);
     }
 
     /**
@@ -100,8 +100,8 @@ public class VMwareClient implements AutoCloseable {
                 connection = new ServiceConnection(vimPort, serviceContent);
                 repeatLogin = false;
             } catch (Exception e) {
-                logger.error(
-                        "Failed to login. URL: " + url + " UserId: " + user, e);
+                logger.error("Failed to login. URL: " + url + " UserId: "
+                        + user, e);
                 if (numFailedLogins > 2) {
                     throw e;
                 }

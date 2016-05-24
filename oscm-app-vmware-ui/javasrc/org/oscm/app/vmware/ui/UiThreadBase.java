@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2013 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 22.04.2013                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.ui;
 
 import java.text.SimpleDateFormat;
@@ -108,12 +109,12 @@ public abstract class UiThreadBase implements Runnable {
         IdentityService idSvc = bes.getWebService(IdentityService.class,
                 iniCredentials);
         if (custCredentials != null) {
-            custCredentials.setUserKey(
-                    getUserKeyById(idSvc, custCredentials.getUserId()));
+            custCredentials.setUserKey(getUserKeyById(idSvc,
+                    custCredentials.getUserId()));
         }
         if (adminCredentials != null) {
-            adminCredentials.setUserKey(
-                    getUserKeyById(idSvc, adminCredentials.getUserId()));
+            adminCredentials.setUserKey(getUserKeyById(idSvc,
+                    adminCredentials.getUserId()));
         }
 
         idSvc = bes.getWebService(IdentityService.class, tpCredentials);
@@ -139,8 +140,8 @@ public abstract class UiThreadBase implements Runnable {
      * Send logfile to technical provider after process has been finished
      */
     public void sendResultMail(String recipient) {
-        String subject = Messages.get("en",
-                "mail_VM_import_completion.subject");
+        String subject = Messages
+                .get("en", "mail_VM_import_completion.subject");
         String text = Messages.get("en", "mail_VM_import_completion.text",
                 new Object[] { getProgressStatus() });
         // Convert line breaks
@@ -202,8 +203,8 @@ public abstract class UiThreadBase implements Runnable {
      * Add log error output
      */
     public void addLogError(Throwable t) {
-        String errmsg = (t.getMessage() != null) ? t.getMessage()
-                : t.getClass().getName();
+        String errmsg = (t.getMessage() != null) ? t.getMessage() : t
+                .getClass().getName();
 
         logger.error(errmsg, t);
         addLogln("<b><font color='red'>*** " + errmsg + "</font></b>");

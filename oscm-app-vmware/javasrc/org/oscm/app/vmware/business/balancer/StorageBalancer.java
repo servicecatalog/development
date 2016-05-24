@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2011 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 24.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -76,10 +76,10 @@ public abstract class StorageBalancer implements VMwareBalancer<VMwareStorage> {
      *            the properties defining the requested instance
      * @return <code>true</code> when all conditions and limits are met
      */
-    public boolean isValid(VMwareStorage storage,
-            VMPropertyHandler properties) {
-        return storage != null && storage.isEnabled()
-        // add memory because respective swap space will be required
+    public boolean isValid(VMwareStorage storage, VMPropertyHandler properties) {
+        return storage != null
+                && storage.isEnabled()
+                // add memory because respective swap space will be required
                 && storage.checkLimit(properties.getTemplateDiskSpaceMB()
                         + properties.getConfigMemoryMB());
     }

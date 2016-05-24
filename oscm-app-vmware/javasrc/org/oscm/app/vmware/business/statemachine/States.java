@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.business.statemachine;
 
 import java.lang.reflect.InvocationTargetException;
@@ -71,9 +79,8 @@ public class States {
             logger.error("Failed to call action method '" + state.getAction()
                     + "' of state '" + state.getId() + "' for class '" + clazz
                     + "' and instance " + instanceId, e);
-            throw new StateMachineException(
-                    "Runtime error in action method: " + e.getMessage(), e,
-                    instanceId, clazz, state.getAction());
+            throw new StateMachineException("Runtime error in action method: "
+                    + e.getMessage(), e, instanceId, clazz, state.getAction());
         }
     }
 }

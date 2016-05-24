@@ -1,10 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Author: Dirk Bernsau                                                      
- *                                                                              
- *  Creation Date: 12.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -54,7 +52,9 @@ public class VMwareClientFactory {
 
         if (credentials.getURL() == null || credentials.getUserId() == null
                 || credentials.getPassword() == null) {
-            String message = Messages.get(locale, "error_db_vsphere_api_info",
+            String message = Messages.get(
+                    locale,
+                    "error_db_vsphere_api_info",
                     new Object[] { vcenter, credentials.getURL(),
                             credentials.getUserId() });
             logger.error(message);

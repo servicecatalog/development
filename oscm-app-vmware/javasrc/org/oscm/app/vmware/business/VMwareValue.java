@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 25.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -41,8 +41,8 @@ public class VMwareValue {
         if (expression.endsWith("%")) {
             try {
                 // Parse percentage value
-                long limitPercentage = Long.parseLong(
-                        expression.substring(0, expression.length() - 1));
+                long limitPercentage = Long.parseLong(expression.substring(0,
+                        expression.length() - 1));
                 if (limitPercentage >= 0) {
                     result.value = limitPercentage / 100.0;
                     result.isRelative = true;
@@ -120,7 +120,7 @@ public class VMwareValue {
 
     @Override
     public String toString() {
-        return (isRelative ? DF.format(value * 100) + "%"
-                : DF.format(value) + (unit != null ? unit.name() : ""));
+        return (isRelative ? DF.format(value * 100) + "%" : DF.format(value)
+                + (unit != null ? unit.name() : ""));
     }
 }

@@ -1,12 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2011 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Author: Dirk Bernsau                                                      
- *                                                                              
- *  Creation Date: Jul 12, 2012                                                      
- *                                                                              
- *  Completion Time: Jul 12, 2012                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -40,8 +36,8 @@ public class VMwareClientFactoryTest {
         // given
         String url = null;
         String vcenter = "vcenter";
-        VMwareCredentials credentials = new VMwareCredentials(url,
-                "userId", "password");
+        VMwareCredentials credentials = new VMwareCredentials(url, "userId",
+                "password");
 
         // when
         factory.validateState(vcenter, credentials);

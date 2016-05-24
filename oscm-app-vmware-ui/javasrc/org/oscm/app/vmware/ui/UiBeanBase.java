@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2013 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 22.04.2013                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.ui;
 
 import java.io.Serializable;
@@ -79,8 +80,8 @@ public abstract class UiBeanBase implements Serializable {
         try {
             PasswordAuthentication tpUser = new PasswordAuthentication(
                     userId.toString(), password.toString());
-            controllerSettings = platformService
-                    .getControllerSettings(Controller.ID, tpUser);
+            controllerSettings = platformService.getControllerSettings(
+                    Controller.ID, tpUser);
         } catch (APPlatformException e1) {
             getLogger().error("UiBeanBase.getControllerSettings()", e1);
         }

@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -15,8 +23,7 @@ public class VCenterCSV extends CSVFileParser {
     public final static char DEFAULT_DELIMITER = ',';
 
     private final static String MANDATORY_COLUMNS[] = new String[] { COL_TKEY,
-            COL_VCENTER_NAME, COL_VCENTER_IDENTIFIER, COL_USER_ID,
-            COL_PASSWORD };
+            COL_VCENTER_NAME, COL_VCENTER_IDENTIFIER, COL_USER_ID, COL_PASSWORD };
 
     private final static String MANDATORY_COLUMN_VALUES[] = new String[] {
             COL_TKEY, COL_VCENTER_NAME, COL_VCENTER_IDENTIFIER, COL_USER_ID,

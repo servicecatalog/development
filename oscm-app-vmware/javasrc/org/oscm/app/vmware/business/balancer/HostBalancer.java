@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2012 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 26.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -79,7 +79,8 @@ public abstract class HostBalancer implements VMwareBalancer<VMwareHost> {
      * @return <code>true</code> when all conditions and limits are met
      */
     public boolean isValid(VMwareHost host, VMPropertyHandler properties) {
-        boolean result = host != null && host.isEnabled() && host.checkVmLimit()
+        boolean result = host != null && host.isEnabled()
+                && host.checkVmLimit()
                 && host.checkCpuLimit(properties.getConfigCPUs())
                 && host.checkMemoryLimit(properties.getConfigMemoryMB());
         if (logger.isDebugEnabled() && host != null) {

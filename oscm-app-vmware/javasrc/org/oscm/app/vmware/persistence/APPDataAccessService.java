@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) FUJITSU LIMITED - ALL RIGHTS RESERVED. 
+ *  Copyright FUJITSU LIMITED 2016                                        
  *       
- *  Creation Date: 2012-06-11                                                       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.persistence;
 
 import java.sql.Connection;
@@ -199,8 +200,8 @@ public class APPDataAccessService {
         }
 
         if (userId == null) {
-            throw new RuntimeException(
-                    "Failed to retrieve userId for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve userId for orgId "
+                    + orgId);
         }
 
         return userId;
@@ -224,8 +225,8 @@ public class APPDataAccessService {
         }
 
         if (userKey == -1) {
-            throw new RuntimeException(
-                    "Failed to retrieve userKey for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve userKey for orgId "
+                    + orgId);
         }
 
         return userKey;
@@ -251,8 +252,8 @@ public class APPDataAccessService {
         }
 
         if (userPwd == null) {
-            throw new RuntimeException(
-                    "Failed to retrieve password for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve password for orgId "
+                    + orgId);
         }
 
         userPwd = decryptPassword(userPwd, "USERPWD_" + orgId);
@@ -296,20 +297,17 @@ public class APPDataAccessService {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
-                        + Controller.ID + "') as key,");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
-                        + Controller.ID + "') as id,");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
-                        + Controller.ID + "') as password");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
+                + Controller.ID + "') as key,");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
+                + Controller.ID + "') as id,");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
+                + Controller.ID + "') as password");
         sql.append(";");
 
         try (Connection connection = getDatasource().getConnection();
-                PreparedStatement stmt = connection
-                        .prepareStatement(sql.toString())) {
+                PreparedStatement stmt = connection.prepareStatement(sql
+                        .toString())) {
 
             @SuppressWarnings("resource")
             ResultSet resultSet = stmt.executeQuery();
@@ -322,8 +320,8 @@ public class APPDataAccessService {
             }
         }
 
-        credentials.setPassword(
-                decryptPassword(credentials.getPassword(), "BSS_USER_PWD"));
+        credentials.setPassword(decryptPassword(credentials.getPassword(),
+                "BSS_USER_PWD"));
 
         logger.debug("loaded technology provider credentials for user "
                 + credentials.getUserId() + "(" + credentials.getUserKey()
@@ -348,8 +346,7 @@ public class APPDataAccessService {
         } catch (SQLException e) {
             logger.error(
                     "Failed to retrieve controller settings for controller "
-                            + Controller.ID,
-                    e);
+                            + Controller.ID, e);
             throw e;
         }
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 13.05.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -54,14 +54,14 @@ public class VM extends Template {
                 .getDynamicProperty(vmInstance, "config");
         folder = (ManagedObjectReference) vmw.getServiceUtil()
                 .getDynamicProperty(vmInstance, "parent");
-        guestInfo = (GuestInfo) vmw.getServiceUtil()
-                .getDynamicProperty(vmInstance, "guest");
+        guestInfo = (GuestInfo) vmw.getServiceUtil().getDynamicProperty(
+                vmInstance, "guest");
 
         if (vmInstance == null || configSpec == null || folder == null
                 || guestInfo == null) {
             logger.warn("failed to retrieve VM");
-            throw new Exception(
-                    "Failed to retrieve information of VM " + instanceName);
+            throw new Exception("Failed to retrieve information of VM "
+                    + instanceName);
         }
     }
 
@@ -72,7 +72,8 @@ public class VM extends Template {
     public boolean isLinux() {
         String guestid = configSpec.getGuestId();
         boolean isLinux = guestid.startsWith("cent")
-                || guestid.startsWith("debian") || guestid.startsWith("freebsd")
+                || guestid.startsWith("debian")
+                || guestid.startsWith("freebsd")
                 || guestid.startsWith("oracle")
                 || guestid.startsWith("other24xLinux")
                 || guestid.startsWith("other26xLinux")
@@ -98,19 +99,19 @@ public class VM extends Template {
 
         if (!paramHandler
                 .isServiceSettingTrue(VMPropertyHandler.TS_IMPORT_EXISTING_VM)
-                && !paramHandler.getInstanceName()
-                        .equals(guestInfo.getHostName())) {
+                && !paramHandler.getInstanceName().equals(
+                        guestInfo.getHostName())) {
             throw new Exception(
                     "Instancename and hostname do not match. Hostname: "
                             + guestInfo.getHostName() + "  Instancename: "
                             + paramHandler.getInstanceName());
         }
 
-        String targetFolder = (String) vmw.getServiceUtil()
-                .getDynamicProperty(folder, "name");
+        String targetFolder = (String) vmw.getServiceUtil().getDynamicProperty(
+                folder, "name");
 
-        Integer ramMB = (Integer) vmw.getServiceUtil()
-                .getDynamicProperty(vmInstance, "summary.config.memorySizeMB");
+        Integer ramMB = (Integer) vmw.getServiceUtil().getDynamicProperty(
+                vmInstance, "summary.config.memorySizeMB");
         paramHandler.setSetting(VMPropertyHandler.TS_AMOUNT_OF_RAM,
                 ramMB.toString());
         paramHandler.setSetting(VMPropertyHandler.TS_NUMBER_OF_CPU,
@@ -131,8 +132,8 @@ public class VM extends Template {
         List<GuestNicInfo> nicList = guestInfo.getNet();
         for (GuestNicInfo info : nicList) {
             if (info.getIpAddress() != null && info.getIpAddress().size() > 0) {
-                paramHandler.setSetting("NIC" + i + "_IP_ADDRESS",
-                        info.getIpAddress().get(0));
+                paramHandler.setSetting("NIC" + i + "_IP_ADDRESS", info
+                        .getIpAddress().get(0));
                 if (info.getNetwork() != null) {
                     paramHandler.setSetting("NIC" + i + "_NETWORK_ADAPTER",
                             info.getNetwork());
@@ -174,14 +175,14 @@ public class VM extends Template {
         ManagedObjectReference startTask = vmw.getConnection().getService()
                 .powerOnVMTask(vmInstance, null);
 
-        TaskInfo tInfo = (TaskInfo) vmw.getServiceUtil()
-                .getDynamicProperty(startTask, "info");
+        TaskInfo tInfo = (TaskInfo) vmw.getServiceUtil().getDynamicProperty(
+                startTask, "info");
         return tInfo;
     }
 
     public TaskInfo stop(boolean forceStop) throws Exception {
-        logger.debug(
-                "instanceName: " + instanceName + " forceStop: " + forceStop);
+        logger.debug("instanceName: " + instanceName + " forceStop: "
+                + forceStop);
         TaskInfo tInfo = null;
 
         if (forceStop) {
@@ -189,8 +190,8 @@ public class VM extends Template {
                     + instanceName);
             ManagedObjectReference stopTask = vmw.getConnection().getService()
                     .powerOffVMTask(vmInstance);
-            tInfo = (TaskInfo) vmw.getServiceUtil().getDynamicProperty(stopTask,
-                    "info");
+            tInfo = (TaskInfo) vmw.getServiceUtil().getDynamicProperty(
+                    stopTask, "info");
         } else {
 
             if (isRunning()) {
@@ -250,10 +251,13 @@ public class VM extends Template {
         String reqUser = paramHandler
                 .getServiceSetting(VMPropertyHandler.REQUESTING_USER);
 
-        String comment = Messages.get(paramHandler.getLocale(), "vm_comment",
-                new Object[] { paramHandler.getSettings().getOrganizationName(),
-                        paramHandler.getSettings().getSubscriptionId(),
-                        reqUser });
+        String comment = Messages
+                .get(paramHandler.getLocale(), "vm_comment",
+                        new Object[] {
+                                paramHandler.getSettings()
+                                        .getOrganizationName(),
+                                paramHandler.getSettings().getSubscriptionId(),
+                                reqUser });
         vmConfigSpec.setAnnotation(comment);
 
         DiskManager.reconfigureDisks(vmw, vmConfigSpec, paramHandler,
@@ -263,11 +267,11 @@ public class VM extends Template {
                 vmInstance);
 
         logger.debug("Call vSphere API: reconfigVMTask()");
-        ManagedObjectReference reconfigureTask = service
-                .reconfigVMTask(vmInstance, vmConfigSpec);
+        ManagedObjectReference reconfigureTask = service.reconfigVMTask(
+                vmInstance, vmConfigSpec);
 
-        return (TaskInfo) vmw.getServiceUtil()
-                .getDynamicProperty(reconfigureTask, "info");
+        return (TaskInfo) vmw.getServiceUtil().getDynamicProperty(
+                reconfigureTask, "info");
     }
 
     public TaskInfo updateCommentField(String comment) throws Exception {
@@ -276,11 +280,11 @@ public class VM extends Template {
         VirtualMachineConfigSpec vmConfigSpec = new VirtualMachineConfigSpec();
         vmConfigSpec.setAnnotation(comment);
         logger.debug("Call vSphere API: reconfigVMTask()");
-        ManagedObjectReference reconfigureTask = service
-                .reconfigVMTask(vmInstance, vmConfigSpec);
+        ManagedObjectReference reconfigureTask = service.reconfigVMTask(
+                vmInstance, vmConfigSpec);
 
-        return (TaskInfo) vmw.getServiceUtil()
-                .getDynamicProperty(reconfigureTask, "info");
+        return (TaskInfo) vmw.getServiceUtil().getDynamicProperty(
+                reconfigureTask, "info");
     }
 
     /**
@@ -313,8 +317,7 @@ public class VM extends Template {
             return VMwareGuestSystemStatus.GUEST_READY;
         }
 
-        logger.debug(createLogForGetState(properties, isConnected,
-                validIp));
+        logger.debug(createLogForGetState(properties, isConnected, validIp));
 
         return VMwareGuestSystemStatus.GUEST_NOTREADY;
     }
@@ -365,8 +368,10 @@ public class VM extends Template {
 
     boolean isValidHostname() {
         String hostname = guestInfo.getHostName();
-        return hostname != null && hostname.length() > 0 && hostname
-                .toUpperCase().startsWith(instanceName.toUpperCase());
+        return hostname != null
+                && hostname.length() > 0
+                && hostname.toUpperCase()
+                        .startsWith(instanceName.toUpperCase());
     }
 
     boolean isValidIp(VMPropertyHandler configuration) {
@@ -462,8 +467,7 @@ public class VM extends Template {
             if (vdInfo instanceof VirtualDisk) {
                 countDisks++;
                 if (countDisks == disk) {
-                    long gigabyte = ((VirtualDisk) vdInfo).getCapacityInKB()
-                            / 1024 / 1024;
+                    long gigabyte = ((VirtualDisk) vdInfo).getCapacityInKB() / 1024 / 1024;
                     size = Long.toString(gigabyte);
                     break;
                 }
@@ -500,8 +504,9 @@ public class VM extends Template {
                 .getDecendentMoRef(null, "Datacenter", datacenter);
         if (dataCenterRef == null) {
             logger.error("Datacenter not found. dataCenter: " + datacenter);
-            throw new APPlatformException(Messages.get(paramHandler.getLocale(),
-                    "error_invalid_datacenter", new Object[] { datacenter }));
+            throw new APPlatformException(Messages.get(
+                    paramHandler.getLocale(), "error_invalid_datacenter",
+                    new Object[] { datacenter }));
         }
 
         String hostName = paramHandler
@@ -525,12 +530,12 @@ public class VM extends Template {
         ManagedObjectReference customFieldsManager = vmw.getConnection()
                 .getServiceContent().getCustomFieldsManager();
         List<CustomFieldDef> customFieldDef = (List<CustomFieldDef>) vmw
-                .getServiceUtil()
-                .getDynamicProperty(customFieldsManager, "field");
+                .getServiceUtil().getDynamicProperty(customFieldsManager,
+                        "field");
 
         List<CustomFieldStringValue> customValues = (List<CustomFieldStringValue>) vmw
-                .getServiceUtil()
-                .getDynamicProperty(vmInstance, "summary.customValue");
+                .getServiceUtil().getDynamicProperty(vmInstance,
+                        "summary.customValue");
 
         for (CustomFieldDef field : customFieldDef) {
             for (CustomFieldStringValue value : customValues) {

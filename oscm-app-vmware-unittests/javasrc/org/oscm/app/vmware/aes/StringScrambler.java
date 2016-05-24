@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                             
- *                                                                              
- *  Creation Date: 20.09.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -12,7 +12,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Random;
 
 /**
- * class for decoding an obfuscated/scrambled string
+ * Class for decoding an obfuscated/scrambled string
  */
 public final class StringScrambler {
     /**

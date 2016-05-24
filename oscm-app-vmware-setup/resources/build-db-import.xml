@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
 <project name="APP VMWare controller database import tasks" default="" basedir=".">
 
 	<description>

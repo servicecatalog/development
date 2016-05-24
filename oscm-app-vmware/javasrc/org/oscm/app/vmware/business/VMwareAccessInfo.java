@@ -1,10 +1,11 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2014 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 24.04.2014                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
+
 package org.oscm.app.vmware.business;
 
 import org.oscm.app.v1_0.exceptions.APPlatformException;
@@ -97,8 +98,8 @@ public class VMwareAccessInfo {
     }
 
     private String getResponsibleUser() {
-        String respuser = paramHandler
-                .getResponsibleUserAsString(paramHandler.getLocale());
+        String respuser = paramHandler.getResponsibleUserAsString(paramHandler
+                .getLocale());
         if (respuser == null) {
             respuser = "";
         }

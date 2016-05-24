@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.db.importer;
 
 import java.io.InputStream;
@@ -18,10 +26,12 @@ public class VLANCSV extends CSVFileParser {
     public final static char DEFAULT_DELIMITER = ',';
 
     private final static String MANDATORY_COLUMNS[] = new String[] { COL_NAME,
-    		COL_GATEWAY, COL_SUBNET_MASK, COL_ENABLED, COL_VCENTER, COL_DATACENTER, COL_CLUSTER, COL_DNSSERVER, COL_DNSSUFFIX };
+            COL_GATEWAY, COL_SUBNET_MASK, COL_ENABLED, COL_VCENTER,
+            COL_DATACENTER, COL_CLUSTER, COL_DNSSERVER, COL_DNSSUFFIX };
 
     private final static String MANDATORY_COLUMN_VALUES[] = new String[] {
-            COL_NAME, COL_GATEWAY, COL_SUBNET_MASK, COL_ENABLED, COL_VCENTER, COL_DATACENTER, COL_CLUSTER, COL_DNSSERVER, COL_DNSSUFFIX };
+            COL_NAME, COL_GATEWAY, COL_SUBNET_MASK, COL_ENABLED, COL_VCENTER,
+            COL_DATACENTER, COL_CLUSTER, COL_DNSSERVER, COL_DNSSUFFIX };
 
     public VLANCSV(InputStream stream) throws Exception {
         super(stream, DEFAULT_ENCODING, DEFAULT_DELIMITER, MANDATORY_COLUMNS,

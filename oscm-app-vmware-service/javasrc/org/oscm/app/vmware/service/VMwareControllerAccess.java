@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) FUJITSU LIMITED - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 30.10.2014                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
 public class VMwareControllerAccess implements ControllerAccess {
 
     private static final long serialVersionUID = -7227238594317311419L;
-    private Logger LOGGER = LoggerFactory.getLogger(VMwareControllerAccess.class);
+    private Logger LOGGER = LoggerFactory
+            .getLogger(VMwareControllerAccess.class);
     private ControllerSettings settings;
 
     @Override

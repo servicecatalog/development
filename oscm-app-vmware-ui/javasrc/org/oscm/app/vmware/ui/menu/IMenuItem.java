@@ -1,12 +1,20 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.app.vmware.ui.menu;
 
 public interface IMenuItem {
 
-	String getLabel();
+    String getLabel();
 
-	String getLink();
+    String getLink();
 
-	int getPosition();
+    int getPosition();
 
-	boolean isEnabled();
+    boolean isEnabled();
 }

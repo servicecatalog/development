@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2011 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                              
- *  Creation Date: 27.07.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                        
+ *       
+ *  Creation Date: 2016-05-24                                                       
  *                                                                              
  *******************************************************************************/
 
@@ -40,24 +40,24 @@ public class EquipartitionHostBalancer extends HostBalancer {
         super.setConfiguration(xmlConfig);
         if (xmlConfig != null) {
             try {
-                cpuWeight = Double
-                        .parseDouble(xmlConfig.getString("[@cpuWeight]", "1"));
+                cpuWeight = Double.parseDouble(xmlConfig.getString(
+                        "[@cpuWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
                 // ignore
             }
             try {
-                memWeight = Double.parseDouble(
-                        xmlConfig.getString("[@memoryWeight]", "1"));
+                memWeight = Double.parseDouble(xmlConfig.getString(
+                        "[@memoryWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
                 // ignore
             }
             try {
-                vmWeight = Double
-                        .parseDouble(xmlConfig.getString("[@vmWeight]", "1"));
+                vmWeight = Double.parseDouble(xmlConfig.getString(
+                        "[@vmWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
@@ -109,9 +109,8 @@ public class EquipartitionHostBalancer extends HostBalancer {
             logger.debug("CPU spread:    " + getLogString(cpuCounts));
             logger.debug("VM spread:     " + getLogString(vmCounts));
         }
-        int indexOfHost = assess(
-                new double[][] { memCounts, cpuCounts, vmCounts },
-                new double[] { memWeight, cpuWeight, vmWeight });
+        int indexOfHost = assess(new double[][] { memCounts, cpuCounts,
+                vmCounts }, new double[] { memWeight, cpuWeight, vmWeight });
         try {
             return validHosts.get(indexOfHost);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -231,8 +230,8 @@ public class EquipartitionHostBalancer extends HostBalancer {
                 weightedSpread += values[hostAttribute][hostIndex]
                         * internalWeigths[hostAttribute];
             }
-            weightedValues.append((hostIndex > 0 ? ", " : "["))
-                    .append(weightedSpread);
+            weightedValues.append((hostIndex > 0 ? ", " : "[")).append(
+                    weightedSpread);
             if (resultIndex < 0 || weightedSpread < lowestSpread) {
                 resultIndex = hostIndex;
                 lowestSpread = weightedSpread;
@@ -240,8 +239,8 @@ public class EquipartitionHostBalancer extends HostBalancer {
         }
         if (logger.isDebugEnabled()) {
             weightedValues.append("]");
-            logger.debug(
-                    "Weighted spreads for hosts: " + weightedValues.toString());
+            logger.debug("Weighted spreads for hosts: "
+                    + weightedValues.toString());
         }
         return resultIndex;
     }
