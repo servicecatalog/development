@@ -926,7 +926,7 @@ public class SubscriptionDao {
     private String createLocalizedServiceNameSubQuery(String tableAlias) {
         return " SELECT localize.value FROM localizedresource localize WHERE localize.objectkey="
                 + tableAlias
-                + ".template_tkey AND localize.locale=:locale AND localize.objecttype=:objecttype ";
+                + ".template_tkey AND (localize.locale=:locale OR localize.locale='en') AND localize.objecttype=:objecttype limit 1";
     }
 
     private String createStatusesAndQueryPart(
