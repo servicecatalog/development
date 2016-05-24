@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -28,9 +28,9 @@ import com.vmware.vim25.ManagedObjectReference;
  * The data center inventory contains information about all resources available
  * in the vCenter. The inventory is filled by adding property sets obtained from
  * a VMware property collector.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareDatacenterInventory {
 
@@ -46,7 +46,7 @@ public class VMwareDatacenterInventory {
 
     /**
      * Adds a storage instance to the inventory based on given properties.
-     * 
+     *
      * @return the created storage instance
      */
     public VMwareStorage addStorage(String host,
@@ -62,11 +62,11 @@ public class VMwareDatacenterInventory {
             if ("summary.name".equals(key) && dp.getVal() != null) {
                 result.setName(dp.getVal().toString());
             } else if ("summary.capacity".equals(key) && dp.getVal() != null) {
-                result.setCapacity(VMwareValue.fromBytes(Long.parseLong(dp
-                        .getVal().toString())));
+                result.setCapacity(VMwareValue
+                        .fromBytes(Long.parseLong(dp.getVal().toString())));
             } else if ("summary.freeSpace".equals(key) && dp.getVal() != null) {
-                result.setFreeStorage(VMwareValue.fromBytes(Long.parseLong(dp
-                        .getVal().toString())));
+                result.setFreeStorage(VMwareValue
+                        .fromBytes(Long.parseLong(dp.getVal().toString())));
             }
         }
         storages.put(result.getName(), result);
@@ -83,7 +83,7 @@ public class VMwareDatacenterInventory {
 
     /**
      * Adds a host instance to the inventory based on given properties.
-     * 
+     *
      * @return the created host instance
      */
     public VMwareHost addHostSystem(List<DynamicProperty> properties) {
@@ -99,9 +99,9 @@ public class VMwareDatacenterInventory {
                 result.setName(dp.getVal().toString());
             } else if ("summary.hardware.memorySize".equals(key)
                     && dp.getVal() != null) {
-                result.setMemorySizeMB(VMwareValue.fromBytes(
-                        Long.parseLong(dp.getVal().toString())).getValue(
-                        Unit.MB));
+                result.setMemorySizeMB(VMwareValue
+                        .fromBytes(Long.parseLong(dp.getVal().toString()))
+                        .getValue(Unit.MB));
             } else if ("summary.hardware.numCpuCores".equals(key)
                     && dp.getVal() != null) {
                 result.setCpuCores(Integer.parseInt(dp.getVal().toString()));
@@ -113,7 +113,7 @@ public class VMwareDatacenterInventory {
 
     /**
      * Adds a VM instance to the inventory based on given properties.
-     * 
+     *
      * @return the created VM instance
      */
     public VMwareVirtualMachine addVirtualMachine(
@@ -131,7 +131,8 @@ public class VMwareDatacenterInventory {
                 result.setName(dp.getVal().toString());
             } else if ("summary.config.memorySizeMB".equals(key)
                     && dp.getVal() != null) {
-                result.setMemorySizeMB(Integer.parseInt(dp.getVal().toString()));
+                result.setMemorySizeMB(
+                        Integer.parseInt(dp.getVal().toString()));
             } else if ("summary.config.numCpu".equals(key)
                     && dp.getVal() != null) {
                 result.setNumCpu(Integer.parseInt(dp.getVal().toString()));
@@ -161,7 +162,7 @@ public class VMwareDatacenterInventory {
     /**
      * Initializes the allocation data of the host by summing up all configured
      * (not the actual used) resources of all VMs deployed on each host.
-     * 
+     *
      */
     public void initialize() {
         for (VMwareHost hostSystem : hostsSystems.values()) {
@@ -173,10 +174,10 @@ public class VMwareDatacenterInventory {
             VMwareHost hostSystem = hostsSystems.get(vm.getHostName());
             if (hostSystem != null) {
                 long vmMemMBytes = vm.getMemorySizeMB();
-                hostSystem.setAllocatedMemoryMB(hostSystem
-                        .getAllocatedMemoryMB() + vmMemMBytes);
-                hostSystem.setAllocatedCPUs(hostSystem.getAllocatedCPUs()
-                        + vm.getNumCpu());
+                hostSystem.setAllocatedMemoryMB(
+                        hostSystem.getAllocatedMemoryMB() + vmMemMBytes);
+                hostSystem.setAllocatedCPUs(
+                        hostSystem.getAllocatedCPUs() + vm.getNumCpu());
                 hostSystem.setAllocatedVMs(hostSystem.getAllocatedVMs() + 1);
             }
         }

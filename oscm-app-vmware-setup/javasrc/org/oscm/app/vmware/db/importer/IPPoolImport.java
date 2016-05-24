@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -66,12 +66,7 @@ public class IPPoolImport extends GenericImport {
                     line = csv.readNext();
                 } catch (Exception e) {
                     logger.error("Failed to read line from CSV file after row: "
-                            + vcenter
-                            + " "
-                            + datacenter
-                            + " "
-                            + cluster
-                            + " "
+                            + vcenter + " " + datacenter + " " + cluster + " "
                             + vlan + " " + ipaddress);
                     logger.error(e.getMessage());
                     conn.rollback();

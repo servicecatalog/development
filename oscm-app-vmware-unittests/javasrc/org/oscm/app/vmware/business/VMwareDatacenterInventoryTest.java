@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -21,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.oscm.app.vmware.business.VMwareDatacenterInventory;
 import org.oscm.app.vmware.business.balancer.DynamicEquipartitionStorageBalancer;
 import org.oscm.app.vmware.business.model.VMwareHost;
 import org.oscm.app.vmware.business.model.VMwareStorage;
@@ -33,7 +32,7 @@ import com.vmware.vim25.ManagedObjectReference;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareDatacenterInventoryTest {
 
@@ -44,10 +43,9 @@ public class VMwareDatacenterInventoryTest {
     public void setup() throws Exception {
         inventory = new VMwareDatacenterInventory();
         serviceUtil = Mockito.mock(ManagedObjectAccessor.class);
-        Mockito.when(
-                serviceUtil.getDynamicProperty(
-                        Matchers.any(ManagedObjectReference.class),
-                        Matchers.anyString())).thenReturn("hostname");
+        Mockito.when(serviceUtil.getDynamicProperty(
+                Matchers.any(ManagedObjectReference.class),
+                Matchers.anyString())).thenReturn("hostname");
     }
 
     @Test
@@ -71,8 +69,8 @@ public class VMwareDatacenterInventoryTest {
     @Test
     public void testAddDatastore_cap0() {
 
-        List<DynamicProperty> properties = createDataStoreProperties("ds1",
-                "0", "50");
+        List<DynamicProperty> properties = createDataStoreProperties("ds1", "0",
+                "50");
         VMwareStorage storage = inventory.addStorage("host", properties);
         assertNotNull(storage);
         assertTrue(1 == storage.getLevel());
@@ -85,8 +83,8 @@ public class VMwareDatacenterInventoryTest {
     @Test
     public void testAddDatastore_noProps() {
         assertNull(inventory.addStorage("host", null));
-        assertNull(inventory.addStorage("host",
-                new ArrayList<DynamicProperty>()));
+        assertNull(
+                inventory.addStorage("host", new ArrayList<DynamicProperty>()));
     }
 
     @Test
@@ -116,7 +114,8 @@ public class VMwareDatacenterInventoryTest {
         assertEquals("host1", host.getName());
         assertTrue(512 == host.getMemorySizeMB());
         assertTrue(2 == host.getCpuCores());
-        assertTrue(host.getBalancer() instanceof DynamicEquipartitionStorageBalancer);
+        assertTrue(host
+                .getBalancer() instanceof DynamicEquipartitionStorageBalancer);
     }
 
     @Test
@@ -137,8 +136,8 @@ public class VMwareDatacenterInventoryTest {
     @Test
     public void testAddVM() throws Exception {
 
-        List<DynamicProperty> properties = createVMProperties("vm1", "512",
-                "2", "host1");
+        List<DynamicProperty> properties = createVMProperties("vm1", "512", "2",
+                "host1");
         VMwareVirtualMachine vm = inventory.addVirtualMachine(properties,
                 serviceUtil);
         assertNotNull(vm);
@@ -155,8 +154,8 @@ public class VMwareDatacenterInventoryTest {
     @Test
     public void testAddVM_noProps() throws Exception {
         assertNull(inventory.addVirtualMachine(null, serviceUtil));
-        assertNull(inventory.addVirtualMachine(
-                new ArrayList<DynamicProperty>(), serviceUtil));
+        assertNull(inventory.addVirtualMachine(new ArrayList<DynamicProperty>(),
+                serviceUtil));
     }
 
     @Test
@@ -172,10 +171,9 @@ public class VMwareDatacenterInventoryTest {
 
     @Test
     public void testAddVM_nullHostSystem() throws Exception {
-        Mockito.when(
-                serviceUtil.getDynamicProperty(
-                        Matchers.any(ManagedObjectReference.class),
-                        Matchers.anyString())).thenReturn(null);
+        Mockito.when(serviceUtil.getDynamicProperty(
+                Matchers.any(ManagedObjectReference.class),
+                Matchers.anyString())).thenReturn(null);
         List<DynamicProperty> properties = createVMProperties("vm", "512", "4",
                 "host1");
         VMwareVirtualMachine vm = inventory.addVirtualMachine(properties,
@@ -187,14 +185,13 @@ public class VMwareDatacenterInventoryTest {
     @Test
     public void testInitialize() throws Exception {
 
-        Mockito.when(
-                serviceUtil.getDynamicProperty(
-                        Matchers.any(ManagedObjectReference.class),
-                        Matchers.anyString())).thenReturn("hostname")
+        Mockito.when(serviceUtil.getDynamicProperty(
+                Matchers.any(ManagedObjectReference.class),
+                Matchers.anyString())).thenReturn("hostname")
                 .thenReturn("other");
 
-        List<DynamicProperty> properties = createVMProperties("vm1", "512",
-                "2", "hostname");
+        List<DynamicProperty> properties = createVMProperties("vm1", "512", "2",
+                "hostname");
         inventory.addVirtualMachine(properties, serviceUtil);
         properties = createVMProperties("vm2", "4096", "4", "hostname");
         inventory.addVirtualMachine(properties, serviceUtil);
@@ -214,7 +211,8 @@ public class VMwareDatacenterInventoryTest {
                 "summary.hardware.numCpuCores", cpuCount);
     }
 
-    private static List<DynamicProperty> createProperties(Object... properties) {
+    private static List<DynamicProperty> createProperties(
+            Object... properties) {
         LinkedList<DynamicProperty> result = new LinkedList<DynamicProperty>();
         DynamicProperty p = null;
         for (int i = 0; i < properties.length; i++) {

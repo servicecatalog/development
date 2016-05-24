@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -13,16 +13,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.oscm.app.vmware.business.VMwareDatacenterInventory;
-import org.oscm.app.vmware.business.VMwareValue;
 import org.oscm.app.vmware.business.VMwareValue.Unit;
 import org.oscm.app.vmware.business.model.VMwareHost;
 
 /**
  * Unit tests for the VMwareLimit.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class VMwareValueTest {
 
@@ -261,11 +259,11 @@ public class VMwareValueTest {
         assertTrue(1024 == VMwareValue.parse("1GB").getValue(Unit.MB));
         assertTrue(1024 == VMwareValue.parse("1TB").getValue(Unit.GB));
         assertTrue(1024 == VMwareValue.parse("1PB").getValue(Unit.TB));
-        assertTrue(1024 * 1024 * 1024 == VMwareValue.parse("1PB").getValue(
-                Unit.MB));
+        assertTrue(1024 * 1024 * 1024 == VMwareValue.parse("1PB")
+                .getValue(Unit.MB));
         assertTrue((1d / 1024d) == VMwareValue.parse("1KB").getValue(Unit.MB));
-        assertTrue((2d / 1024d / 1024d) == VMwareValue.parse("2KB").getValue(
-                Unit.GB));
+        assertTrue((2d / 1024d / 1024d) == VMwareValue.parse("2KB")
+                .getValue(Unit.GB));
         assertTrue(1 == VMwareValue.parse("1").getValue(Unit.MB));
         assertTrue(1 == VMwareValue.parse("1").getValue(null));
         assertTrue(1 == VMwareValue.parse("100%").getValue(Unit.MB));

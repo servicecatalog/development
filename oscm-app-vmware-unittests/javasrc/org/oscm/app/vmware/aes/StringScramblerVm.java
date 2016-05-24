@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.aes;
@@ -21,7 +21,7 @@ public final class StringScramblerVm {
     /**
      * The opposite to this method, obfuscate, is found in
      * com.fujitsu.est.tools.StringScrambler.
-     * 
+     *
      * @return original string
      */
     public static final String decode(final long[] obfuscated) {

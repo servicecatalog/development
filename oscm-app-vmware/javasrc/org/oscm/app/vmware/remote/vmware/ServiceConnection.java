@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -14,7 +14,7 @@ import com.vmware.vim25.VimPortType;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class ServiceConnection {
 
@@ -28,7 +28,7 @@ public class ServiceConnection {
 
     /**
      * Returns the service interface of the connection.
-     * 
+     *
      * @return the service interface
      */
     public VimPortType getService() {
@@ -37,7 +37,7 @@ public class ServiceConnection {
 
     /**
      * Returns the service content of the connection.
-     * 
+     *
      * @return the service content
      */
     public ServiceContent getServiceContent() {
@@ -46,7 +46,7 @@ public class ServiceConnection {
 
     /**
      * Internally disconnect the client.
-     * 
+     *
      * @throws RuntimeFaultFaultMsg
      */
     protected void disconnect() throws RuntimeFaultFaultMsg {

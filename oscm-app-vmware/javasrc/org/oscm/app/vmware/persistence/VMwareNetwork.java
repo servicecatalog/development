@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.persistence;
@@ -11,9 +11,9 @@ package org.oscm.app.vmware.persistence;
 /**
  * A bag for network settings that belong to an IP address and have been
  * retrieved from the database.
- * 
+ *
  * @author petrovski
- * 
+ *
  */
 public class VMwareNetwork {
 

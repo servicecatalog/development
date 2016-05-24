@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -143,7 +143,7 @@ public class Script {
 
     private String downloadFile(String url) throws Exception {
         HttpURLConnection conn = null;
-        int returnErrorCode = HttpsURLConnection.HTTP_OK;
+        int returnErrorCode = HttpURLConnection.HTTP_OK;
         StringWriter writer = new StringWriter();
         try {
             URL urlSt = new URL(url);
@@ -165,7 +165,7 @@ public class Script {
             }
         }
 
-        if (HttpsURLConnection.HTTP_OK != returnErrorCode) {
+        if (HttpURLConnection.HTTP_OK != returnErrorCode) {
             throw new Exception("Failed to download script file " + url);
         }
 
@@ -206,7 +206,7 @@ public class Script {
         LOG.debug("Uploading the file to :" + fileUploadUrl);
 
         HttpURLConnection conn = null;
-        int returnErrorCode = HttpsURLConnection.HTTP_OK;
+        int returnErrorCode = HttpURLConnection.HTTP_OK;
 
         try {
             URL urlSt = new URL(fileUploadUrl);
@@ -230,7 +230,7 @@ public class Script {
             }
         }
 
-        if (HttpsURLConnection.HTTP_OK != returnErrorCode) {
+        if (HttpURLConnection.HTTP_OK != returnErrorCode) {
             throw new Exception("Failed to upload file. HTTP response code: "
                     + returnErrorCode);
         }

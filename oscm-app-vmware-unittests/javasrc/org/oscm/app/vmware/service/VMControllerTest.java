@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                           
- *                                                                                                                                 
- *  Creation Date: 23.05.2016                                                      
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 23.05.2016
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.service;

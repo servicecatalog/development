@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.balancer;
@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Common superclass for all host balancers.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public abstract class HostBalancer implements VMwareBalancer<VMwareHost> {
 
@@ -71,7 +71,7 @@ public abstract class HostBalancer implements VMwareBalancer<VMwareHost> {
     /**
      * Checks whether the given host system is capable of hosting the requested
      * VM configuration within its configured limits.
-     * 
+     *
      * @param host
      *            the host system in question
      * @param properties
@@ -79,8 +79,7 @@ public abstract class HostBalancer implements VMwareBalancer<VMwareHost> {
      * @return <code>true</code> when all conditions and limits are met
      */
     public boolean isValid(VMwareHost host, VMPropertyHandler properties) {
-        boolean result = host != null && host.isEnabled()
-                && host.checkVmLimit()
+        boolean result = host != null && host.isEnabled() && host.checkVmLimit()
                 && host.checkCpuLimit(properties.getConfigCPUs())
                 && host.checkMemoryLimit(properties.getConfigMemoryMB());
         if (logger.isDebugEnabled() && host != null) {

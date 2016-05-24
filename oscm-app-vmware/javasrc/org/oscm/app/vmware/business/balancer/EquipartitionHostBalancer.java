@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.balancer;
@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Balancer implementation determining the best host for deployment by
  * statistical calculation based on usage data.
- * 
+ *
  * @author Dirk Bernsau
- * 
+ *
  */
 public class EquipartitionHostBalancer extends HostBalancer {
 
@@ -40,24 +40,24 @@ public class EquipartitionHostBalancer extends HostBalancer {
         super.setConfiguration(xmlConfig);
         if (xmlConfig != null) {
             try {
-                cpuWeight = Double.parseDouble(xmlConfig.getString(
-                        "[@cpuWeight]", "1"));
+                cpuWeight = Double
+                        .parseDouble(xmlConfig.getString("[@cpuWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
                 // ignore
             }
             try {
-                memWeight = Double.parseDouble(xmlConfig.getString(
-                        "[@memoryWeight]", "1"));
+                memWeight = Double.parseDouble(
+                        xmlConfig.getString("[@memoryWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
                 // ignore
             }
             try {
-                vmWeight = Double.parseDouble(xmlConfig.getString(
-                        "[@vmWeight]", "1"));
+                vmWeight = Double
+                        .parseDouble(xmlConfig.getString("[@vmWeight]", "1"));
             } catch (NullPointerException e) {
                 // ignore
             } catch (NumberFormatException e) {
@@ -109,8 +109,9 @@ public class EquipartitionHostBalancer extends HostBalancer {
             logger.debug("CPU spread:    " + getLogString(cpuCounts));
             logger.debug("VM spread:     " + getLogString(vmCounts));
         }
-        int indexOfHost = assess(new double[][] { memCounts, cpuCounts,
-                vmCounts }, new double[] { memWeight, cpuWeight, vmWeight });
+        int indexOfHost = assess(
+                new double[][] { memCounts, cpuCounts, vmCounts },
+                new double[] { memWeight, cpuWeight, vmWeight });
         try {
             return validHosts.get(indexOfHost);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -132,7 +133,7 @@ public class EquipartitionHostBalancer extends HostBalancer {
      * If the normalizer values are set, the respective value and the addition
      * will be normalized (divided by the normalizer value) before calculating
      * the spread.
-     * 
+     *
      * @param values
      *            base value set for the calculation
      * @param addition
@@ -230,8 +231,8 @@ public class EquipartitionHostBalancer extends HostBalancer {
                 weightedSpread += values[hostAttribute][hostIndex]
                         * internalWeigths[hostAttribute];
             }
-            weightedValues.append((hostIndex > 0 ? ", " : "[")).append(
-                    weightedSpread);
+            weightedValues.append((hostIndex > 0 ? ", " : "["))
+                    .append(weightedSpread);
             if (resultIndex < 0 || weightedSpread < lowestSpread) {
                 resultIndex = hostIndex;
                 lowestSpread = weightedSpread;
@@ -239,8 +240,8 @@ public class EquipartitionHostBalancer extends HostBalancer {
         }
         if (logger.isDebugEnabled()) {
             weightedValues.append("]");
-            logger.debug("Weighted spreads for hosts: "
-                    + weightedValues.toString());
+            logger.debug(
+                    "Weighted spreads for hosts: " + weightedValues.toString());
         }
         return resultIndex;
     }

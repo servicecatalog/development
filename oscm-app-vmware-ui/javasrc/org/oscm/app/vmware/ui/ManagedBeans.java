@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.ui;
@@ -25,7 +25,7 @@ import org.oscm.app.vmware.i18n.Messages;
 
 /**
  * @author kulle
- * 
+ *
  */
 public class ManagedBeans {
 
@@ -33,7 +33,8 @@ public class ManagedBeans {
             APPlatformService platformService) throws AuthenticationException,
             ConfigurationException, APPlatformException {
 
-        HashMap<String, String> controllerSettings = getControllerSettings(platformService);
+        HashMap<String, String> controllerSettings = getControllerSettings(
+                platformService);
 
         ProvisioningSettings settings = new ProvisioningSettings(
                 new HashMap<String, String>(), controllerSettings,

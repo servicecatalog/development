@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.bes;
@@ -45,15 +45,15 @@ public class ServiceParamRetrieval {
         try {
             BesClient bes = new BesClient();
             Credentials credentials = ph.getTPUser();
-            SubscriptionService subSvc = bes.getWebService(
-                    SubscriptionService.class, credentials);
+            SubscriptionService subSvc = bes
+                    .getWebService(SubscriptionService.class, credentials);
 
             VOSubscriptionDetails subscr = subSvc.getSubscriptionForCustomer(
                     customerOrgId, ph.getSettings().getSubscriptionId());
 
             APPDataAccessService das = new APPDataAccessService();
-            credentials = das.getCredentials(subscr.getSubscribedService()
-                    .getSellerId());
+            credentials = das.getCredentials(
+                    subscr.getSubscribedService().getSellerId());
             ServiceProvisioningService provSvc = bes.getWebService(
                     ServiceProvisioningService.class, credentials);
             VOService svc = subscr.getSubscribedService();
@@ -75,7 +75,8 @@ public class ServiceParamRetrieval {
 
         List<VOParameter> serviceParams = service.getParameters();
         for (VOParameter p : serviceParams) {
-            if (p.getParameterDefinition().getParameterId().equals(parameterId)) {
+            if (p.getParameterDefinition().getParameterId()
+                    .equals(parameterId)) {
                 logger.debug("found parameter in marketable service. "
                         + parameterId + ": " + p.getValue());
                 return p.getValue();
@@ -104,16 +105,16 @@ public class ServiceParamRetrieval {
         xml.setExpressionEngine(new XPathExpressionEngine());
         xml.load(in);
 
-        List<HierarchicalConfiguration> params = xml
-                .configurationsAt("//ParameterDefinition[@configurable=\"false\"]");
+        List<HierarchicalConfiguration> params = xml.configurationsAt(
+                "//ParameterDefinition[@configurable=\"false\"]");
         for (HierarchicalConfiguration param : params) {
             if (param.getString("@id").equals(parameterId)) {
                 return param.getString("@default");
             }
         }
 
-        throw new Exception("Failed to retrieve service parameter "
-                + parameterId);
+        throw new Exception(
+                "Failed to retrieve service parameter " + parameterId);
     }
 
 }
