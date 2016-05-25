@@ -684,7 +684,7 @@ public class MarketplaceServiceLocalBeanTest {
         organization.setOrganizationId("organizationId");
 
         //when
-        service.grantAccessToMarketPlaceToOrganizations(marketplace, organization);
+        service.grantAccessToMarketPlaceToOrganization(marketplace, organization);
 
         //then
         verify(service.ds, times(1)).persist(any(MarketplaceAccess.class));
@@ -727,4 +727,5 @@ public class MarketplaceServiceLocalBeanTest {
         //then
         verify(service.ds, times(1)).remove(any(MarketplaceAccess.class));
     }
+
 }

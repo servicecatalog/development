@@ -136,6 +136,18 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getAllAccessibleMarketplacesForOrganization(long organizationKey) {
+
+        Query query = ds.createNamedQuery("Marketplace.getAllAccessible");
+        query.setParameter("organization_tkey", organizationKey);
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public List<Marketplace> getMarketplacesForSupplier() {
 
         Organization supplier = ds.getCurrentUser().getOrganization();
@@ -1030,7 +1042,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public void grantAccessToMarketPlaceToOrganizations(Marketplace marketplace, Organization organization)
+    public void grantAccessToMarketPlaceToOrganization(Marketplace marketplace, Organization organization)
         throws NonUniqueBusinessKeyException {
         MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
         marketplaceAccess.setMarketplace_tkey(marketplace.getKey());

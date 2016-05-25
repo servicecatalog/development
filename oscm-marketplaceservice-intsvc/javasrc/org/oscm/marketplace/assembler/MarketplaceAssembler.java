@@ -114,6 +114,13 @@ public class MarketplaceAssembler extends BaseAssembler {
         return domObj;
     }
 
+    public static Marketplace toMarketplaceWithKey(VOMarketplace voObj)
+        throws ValidationException {
+        Marketplace mp = toMarketplace(voObj);
+        mp.setKey(voObj.getKey());
+        return mp;
+    }
+
     public static void validate(VOMarketplace voObj) throws ValidationException {
         BLValidator.isId("marketplaceId", voObj.getMarketplaceId(), true);
     }

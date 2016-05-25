@@ -333,6 +333,21 @@ public class MarketplaceServiceBean implements MarketplaceService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+
+        List<Marketplace> tempList = marketplaceServiceLocal
+            .getAllAccessibleMarketplacesForOrganization(dm.getCurrentUser().getOrganization().getKey());
+        List<VOMarketplace> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer, dm
+            .getCurrentUser().getLocale());
+        for (Marketplace mp : tempList) {
+            result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
+        }
+        return result;
+    }
+
+    @Override
     @RolesAllowed({ "MARKETPLACE_OWNER", "PLATFORM_OPERATOR" })
     public VOMarketplace updateMarketplace(VOMarketplace marketplace)
             throws ObjectNotFoundException, OperationNotPermittedException,
@@ -1069,11 +1084,20 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
         for (VOOrganization voOrganization : authorizedOrganizations) {
             Organization organization = OrganizationAssembler.toOrganization(voOrganization);
-            marketplaceServiceLocal.grantAccessToMarketPlaceToOrganizations(marketplace, organization);
+            marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(marketplace, organization);
         }
         for (VOOrganization voOrganization : unauthorizedOrganizations) {
             marketplaceServiceLocal.removeMarketplaceAccess(marketplace.getKey(), voOrganization.getKey());
         }
+    }
+
+    @Override
+    @RolesAllowed("MARKETPLACE_OWNER")
+    public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
+        throws ValidationException, NonUniqueBusinessKeyException {
+        Organization organization = OrganizationAssembler.toOrganization(voOrganization);
+        Marketplace marketplace = MarketplaceAssembler.toMarketplaceWithKey(voMarketplace);
+        marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(marketplace, organization);
     }
 
     @Override

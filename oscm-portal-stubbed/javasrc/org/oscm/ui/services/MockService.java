@@ -2278,6 +2278,11 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+        return null;
+    }
+
+    @Override
     public VOMarketplace updateMarketplace(VOMarketplace marketplace)
             throws ObjectNotFoundException, OperationNotPermittedException,
             ConcurrentModificationException, ValidationException,
@@ -2372,6 +2377,12 @@ public class MockService implements IdentityService, SubscriptionService,
     public void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
         List<VOOrganization> unauthorizedOrganizations)
         throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+
+    }
+
+    @Override
+    public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
+        throws ValidationException, NonUniqueBusinessKeyException {
 
     }
 

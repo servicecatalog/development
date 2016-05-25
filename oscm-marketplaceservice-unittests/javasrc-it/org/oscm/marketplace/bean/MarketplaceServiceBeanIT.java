@@ -1394,4 +1394,106 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
         });
 
     }
+
+    @Test
+    public void testGetAllAccessibleMarketplacesForOrg() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+            ROLE_MARKETPLACE_OWNER);
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "CLOSED",
+                    false, mgr);
+
+                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "OPEN",
+                    false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(platformOperatorOrg);
+                List<VOOrganization> authorizedOrganizations = new ArrayList<>();
+                authorizedOrganizations.add(voOrganization);
+
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), authorizedOrganizations, new
+                    ArrayList<VOOrganization>());
+
+                Marketplace mpClosed = mgr.getReference(Marketplace.class,
+                    marketClosed.getKey());
+
+                Marketplace mpOpen = mgr.getReference(Marketplace.class,
+                    marketOpen.getKey());
+
+                assertTrue(mpClosed.isRestricted());
+                assertFalse(mpOpen.isRestricted());
+
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+
+                boolean closedFound = false;
+                boolean openFound = false;
+                for (VOMarketplace voMarketplace : accessibleMarketplaces) {
+                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                        closedFound = true;
+                        continue;
+                    }
+                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                        openFound = true;
+                    }
+                }
+
+                assertTrue(closedFound);
+                assertTrue(openFound);
+                return mpClosed;
+            }
+        });
+    }
+
+    @Test
+    public void testGetAllAccessibleMarketplacesForOrg_onlyOpen() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+            ROLE_MARKETPLACE_OWNER);
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "CLOSED1",
+                    false, mgr);
+
+                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "OPEN1",
+                    false, mgr);
+
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), new
+                    ArrayList<VOOrganization>(), new
+                    ArrayList<VOOrganization>());
+
+                Marketplace mpClosed = mgr.getReference(Marketplace.class,
+                    marketClosed.getKey());
+
+                Marketplace mpOpen = mgr.getReference(Marketplace.class,
+                    marketOpen.getKey());
+
+                assertTrue(mpClosed.isRestricted());
+                assertFalse(mpOpen.isRestricted());
+
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+
+                boolean closedFound = false;
+                boolean openFound = false;
+                for (VOMarketplace voMarketplace : accessibleMarketplaces) {
+                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                        closedFound = true;
+                        continue;
+                    }
+                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                        openFound = true;
+                    }
+                }
+
+                assertFalse(closedFound);
+                assertTrue(openFound);
+                return mpClosed;
+            }
+        });
+    }
 }

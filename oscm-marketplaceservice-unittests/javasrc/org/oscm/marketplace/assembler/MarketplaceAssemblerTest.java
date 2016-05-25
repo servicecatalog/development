@@ -157,6 +157,19 @@ public class MarketplaceAssemblerTest {
                 .isCategoriesEnabled());
     }
 
+    @Test
+    public void testToMarketplaceWithKey() throws Exception {
+        voMpDefault.setKey(5);
+        Marketplace domMp = MarketplaceAssembler.toMarketplaceWithKey(voMpDefault);
+        assertNotNull(domMp);
+        assertEquals(voMpDefault.getKey(), domMp.getKey());
+        assertEquals(voMpDefault.getVersion(), domMp.getVersion());
+        assertEquals(voMpDefault.getMarketplaceId(), domMp.getMarketplaceId());
+        assertTrue(voMpDefault.isOpen() == domMp.isOpen());
+        assertTrue(voMpDefault.isCategoriesEnabled() == domMp
+            .isCategoriesEnabled());
+    }
+
     @Test(expected = SaaSSystemException.class)
     public void testUpdateMarketplace_conflictingKeys() throws Exception {
         voMpDefault.setKey(2);

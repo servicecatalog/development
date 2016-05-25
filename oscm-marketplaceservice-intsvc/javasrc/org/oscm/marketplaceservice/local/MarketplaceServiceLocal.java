@@ -55,6 +55,9 @@ public interface MarketplaceServiceLocal {
      */
     public List<Marketplace> getAllMarketplaces();
 
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Marketplace> getAllAccessibleMarketplacesForOrganization(long organizationKey);
+
     /**
      * Returns the list of the marketplaces where the supplier or the partner
      * can publish to.
@@ -482,7 +485,7 @@ public interface MarketplaceServiceLocal {
      * @throws NonUniqueBusinessKeyException
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    void grantAccessToMarketPlaceToOrganizations(Marketplace marketplace, Organization organization)
+    void grantAccessToMarketPlaceToOrganization(Marketplace marketplace, Organization organization)
         throws NonUniqueBusinessKeyException;
 
     /**

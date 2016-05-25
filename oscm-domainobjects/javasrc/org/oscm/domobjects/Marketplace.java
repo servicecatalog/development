@@ -38,6 +38,9 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 @NamedQueries({
         @NamedQuery(name = "Marketplace.findByBusinessKey", query = "SELECT mp FROM Marketplace mp WHERE mp.dataContainer.marketplaceId = :marketplaceId"),
         @NamedQuery(name = "Marketplace.getAll", query = "SELECT mp FROM Marketplace mp"),
+        @NamedQuery(name = "Marketplace.getAllAccessible", query = "SELECT mp FROM Marketplace mp WHERE mp"
+            + ".dataContainer.restricted = FALSE OR EXISTS (SELECT ma FROM MarketplaceAccess ma WHERE ma"
+            + ".marketplace_tkey = mp.key AND ma.organization_tkey = :organization_tkey)"),
         @NamedQuery(name = "Marketplace.getByOwner", query = "SELECT mp FROM Marketplace mp, Organization o WHERE mp.organization = o AND o.dataContainer.organizationId=:organizationId"),
         @NamedQuery(name = "Marketplace.findByService", query = "SELECT mp FROM Marketplace mp, CatalogEntry ce WHERE ce.marketplace = mp AND ce.product=:service"),
         @NamedQuery(name = "Marketplace.findMarketplacesForPublishingForOrg", query = "SELECT mp FROM Marketplace mp WHERE ( (mp.dataContainer.open = FALSE AND EXISTS (SELECT mto FROM MarketplaceToOrganization mto WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessDenied)) )") })
@@ -79,6 +82,9 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     @OneToMany(mappedBy = "marketplace", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<MarketplaceToOrganization> marketplaceToOrganizations = new ArrayList<MarketplaceToOrganization>();
+
+    @OneToMany(mappedBy = "marketplace", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
 
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.REMOVE }, fetch = FetchType.LAZY, optional = true)
     private PublicLandingpage publicLandingpage;
@@ -249,5 +255,13 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     public boolean isRestricted() {
         return dataContainer.isRestricted();
+    }
+
+    public List<MarketplaceAccess> getMarketplaceAccesses() {
+        return marketplaceAccesses;
+    }
+
+    public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
+        this.marketplaceAccesses = marketplaceAccesses;
     }
 }

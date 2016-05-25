@@ -63,6 +63,11 @@ public class MarketplaceServiceStub implements MarketplaceService {
     }
 
     @Override
+    public List<VOMarketplace> getAccessibleMarketplacesForOperator() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public VOMarketplace updateMarketplace(VOMarketplace marketplace)
             throws ObjectNotFoundException, OperationNotPermittedException,
             ConcurrentModificationException, ValidationException {
@@ -164,6 +169,12 @@ public class MarketplaceServiceStub implements MarketplaceService {
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
+        throws ValidationException, NonUniqueBusinessKeyException {
+
     }
 
     @Override

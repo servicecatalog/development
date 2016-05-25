@@ -166,6 +166,9 @@ public interface MarketplaceService {
 
     public List<VOMarketplace> getMarketplacesForOperator();
 
+    @RolesAllowed("PLATFORM_OPERATOR")
+    List<VOMarketplace> getAccessibleMarketplacesForOperator();
+
     /**
      * Modifies the name and/or owner of the given marketplace.
      * <p>
@@ -536,6 +539,18 @@ public interface MarketplaceService {
     void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
         List<VOOrganization> unauthorizedOrganizations)
             throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException;
+
+    /**
+     * This method is used to grant access to given marketplace to given organization.
+     *
+     * @param voMarketplace
+     * @param voOrganization
+     * @throws ValidationException
+     * @throws NonUniqueBusinessKeyException
+     */
+    @RolesAllowed("MARKETPLACE_OWNER")
+    void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
+        throws ValidationException, NonUniqueBusinessKeyException;
 
     /**
      * Method is used to remove restrictions to the given marketplace.
