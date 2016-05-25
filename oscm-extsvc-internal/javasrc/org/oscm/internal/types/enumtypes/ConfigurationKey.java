@@ -25,7 +25,7 @@ import org.oscm.internal.types.constants.HiddenUIConstants;
  */
 public enum ConfigurationKey {
 
-    @Doc({ "Optional: Special character encoding for emails sent in japanese",
+    @Doc({ "Optional: Special character encoding for emails sent in Japanese",
             "locale. Default is UTF-8." })
     MAIL_JA_CHARSET(false, "UTF-8", "string"),
 
@@ -343,7 +343,7 @@ public enum ConfigurationKey {
     @Example("POST")
     SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD(false, "POST", "string"),
 
-    @Doc({ "Path to the trusstore holding the IdP certificate." })
+    @Doc({ "Path to the truststore holding the IdP certificate." })
     @Example("<path>/cacerts.jks")
     SSO_IDP_TRUSTSTORE(false, null, "string"),
 
@@ -360,11 +360,11 @@ public enum ConfigurationKey {
     SSO_STS_ENCKEY_LEN(false, null, "long", Long.valueOf(1L), Long
             .valueOf(Integer.MAX_VALUE), true),
 
-    @Doc({ "Specifies whether the audit logging is enabled" })
+    @Doc({ "Specifies whether audit logging is enabled." })
     @Example("false")
     AUDIT_LOG_ENABLED(true, "false", "boolean"),
 
-    @Doc({ "Specifies the batch size for audit logging" })
+    @Doc({ "Specifies the batch size for audit logging." })
     @Example("100")
     AUDIT_LOG_MAX_ENTRIES_RETRIEVED(true, "1000", "long", Long.valueOf(1), Long
             .valueOf(1000), false),
@@ -377,17 +377,17 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<MEXAddress>")
     SSO_STS_METADATA_URL(false, null, "url", true),
 
-    @Doc({ "the max number of users that can be registered on the platform" })
+    @Doc({ "The maximum number of users that can be registered on the platform." })
     @Example("10")
     MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long
             .valueOf(9223372036854775807L), false),
 
-    @Doc({ "The time interval in milliseconds at which the amount of user registered on the platform is checked" })
+    @Doc({ "The time interval in milliseconds at which the amount of users registered on the platform is checked." })
     @Example("43200000")
     TIMER_INTERVAL_USER_COUNT(true, "43200000", "long", Long.valueOf(1L), Long
             .valueOf(9223372036854775807L), false),
 
-    @Doc({ "Specifies whether payment information is required for subscribing services for all customers" })
+    @Doc({ "Determines whether customers need to specify payment information for subscribing to services." })
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, "false", "boolean");
 
