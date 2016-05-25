@@ -8,9 +8,12 @@
 
 package org.oscm.rest.trigger;
 
+import java.util.UUID;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -24,8 +27,9 @@ import org.oscm.rest.common.Since;
 import com.sun.jersey.api.core.InjectParam;
 
 /**
+ * Rest root resource for trigger component
+ * 
  * @author miethaner
- *
  */
 @Path(CommonParams.PATH_VERSION)
 public class RestTrigger {
@@ -49,7 +53,7 @@ public class RestTrigger {
      * 
      * @return the endpoint resource
      */
-    @Path("/triggerdefinitions")
+    @Path(TriggerParams.PATH_DEFINITIONS)
     public TriggerDefinitionEndpoint redirectToDefinitions() {
 
         EndpointBackend<TriggerDefinition, TriggerRequestParameters> backend = new TriggerDefinitionBackend();
@@ -62,7 +66,7 @@ public class RestTrigger {
      * 
      * @author miethaner
      */
-    private class TriggerProcessEndpoint extends
+    protected class TriggerProcessEndpoint extends
             RestEndpoint<TriggerProcess, TriggerRequestParameters> {
 
         private TriggerProcessEndpointBackend backend;
@@ -74,7 +78,7 @@ public class RestTrigger {
 
         @Since(CommonParams.VERSION_1)
         @PUT
-        @Path("/{id}/approve")
+        @Path(CommonParams.PATH_ID + TriggerParams.PATH_TRIGGER_APPROVE)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putApprove(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
@@ -82,14 +86,7 @@ public class RestTrigger {
 
             int version = getVersion(request);
 
-            params.validateResourceId();
-            params.validateParameters();
-            content.validateContent();
-
-            params.setVersion(version);
-            params.update();
-            content.setVersion(version);
-            content.update();
+            prepareData(version, params, true, content);
 
             backend.putApprove(params, content);
 
@@ -98,7 +95,7 @@ public class RestTrigger {
 
         @Since(CommonParams.VERSION_1)
         @PUT
-        @Path("/{id}/reject")
+        @Path(CommonParams.PATH_ID + TriggerParams.PATH_TRIGGER_REJECT)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putReject(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
@@ -106,14 +103,7 @@ public class RestTrigger {
 
             int version = getVersion(request);
 
-            params.validateResourceId();
-            params.validateParameters();
-            content.validateContent();
-
-            params.setVersion(version);
-            params.update();
-            content.setVersion(version);
-            content.update();
+            prepareData(version, params, true, content);
 
             backend.putReject(params, content);
 
@@ -122,7 +112,7 @@ public class RestTrigger {
 
         @Since(CommonParams.VERSION_1)
         @PUT
-        @Path("/{id}/cancel")
+        @Path(CommonParams.PATH_ID + TriggerParams.PATH_TRIGGER_CANCEL)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putCancel(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
@@ -130,18 +120,39 @@ public class RestTrigger {
 
             int version = getVersion(request);
 
-            params.validateResourceId();
-            params.validateParameters();
-            content.validateContent();
-
-            params.setVersion(version);
-            params.update();
-            content.setVersion(version);
-            content.update();
+            prepareData(version, params, true, content);
 
             backend.putCancel(params, content);
 
             return Response.noContent().build();
+        }
+
+        /**
+         * Sub class to prevent type erasure for the generic endpoint
+         * 
+         * @author miethaner
+         */
+        private class TriggerProcessParameterEndpoint extends
+                RestEndpoint<TriggerProcessParameter, TriggerRequestParameters> {
+
+            public TriggerProcessParameterEndpoint(
+                    EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend) {
+                super(backend);
+            }
+        }
+
+        /**
+         * Redirects to the /parameters endpoint
+         * 
+         * @return the endpoint resource
+         */
+        @Path(TriggerParams.PATH_PROCESS_ID + TriggerParams.PATH_PARAMETERS)
+        public TriggerProcessParameterEndpoint redirectToProcessParameters(
+                @PathParam(TriggerParams.PARAM_PROCESS_ID) UUID processId) {
+
+            EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend = new TriggerProcessParameterBackend(
+                    processId);
+            return new TriggerProcessParameterEndpoint(backend);
         }
     }
 
@@ -150,7 +161,7 @@ public class RestTrigger {
      * 
      * @return the endpoint resource
      */
-    @Path("/triggerprocesses")
+    @Path(TriggerParams.PATH_PROCESSES)
     public TriggerProcessEndpoint redirectToProcesses() {
 
         TriggerProcessEndpointBackend backend = new TriggerProcessBackend();
@@ -172,40 +183,15 @@ public class RestTrigger {
     }
 
     /**
-     * Redirects to the /triggerprocessidentifiers endpoint
+     * Redirects to the /triggeractions endpoint
      * 
      * @return the endpoint resource
      */
-    @Path("/triggerprocessidentifiers")
-    public TriggerProcessIdentifierEndpoint redirectToProcessIdentifiers() {
+    @Path(TriggerParams.PATH_ACTIONS)
+    public TriggerProcessIdentifierEndpoint redirectToActions() {
 
         EndpointBackend<TriggerAction, TriggerRequestParameters> backend = new TriggerActionBackend();
         return new TriggerProcessIdentifierEndpoint(backend);
     }
 
-    /**
-     * Sub class to prevent type erasure for the generic endpoint
-     * 
-     * @author miethaner
-     */
-    private class TriggerProcessParameterEndpoint extends
-            RestEndpoint<TriggerProcessParameter, TriggerRequestParameters> {
-
-        public TriggerProcessParameterEndpoint(
-                EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend) {
-            super(backend);
-        }
-    }
-
-    /**
-     * Redirects to the /triggerprocessparameters endpoint
-     * 
-     * @return the endpoint resource
-     */
-    @Path("/triggerprocessparameters")
-    public TriggerProcessParameterEndpoint redirectToProcessParameters() {
-
-        EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend = new TriggerProcessParameterBackend();
-        return new TriggerProcessParameterEndpoint(backend);
-    }
 }

@@ -15,10 +15,9 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.Representation;
 
 /**
- * Representation class of trigger process identifiers.
+ * Representation class of trigger action.
  * 
  * @author miethaner
- *
  */
 public class TriggerAction extends Representation {
 
@@ -48,13 +47,13 @@ public class TriggerAction extends Representation {
     @Override
     public void update() {
 
-        // nothing to update in version 1
+        // nothing to update
     }
 
     @Override
     public void convert() {
 
-        // nothing to convert in version 1
+        // nothing to convert
     }
 
 }
