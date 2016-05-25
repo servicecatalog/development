@@ -37,8 +37,8 @@ public class CommonParams {
     public static final String PARAM_LIMIT = "limit";
 
     // path params
-    public static final String PATH_VERSION = "{" + PARAM_VERSION + "}";
-    public static final String PATH_ID = "{" + PARAM_ID + "}";
+    public static final String PATH_VERSION = "/{" + PARAM_VERSION + "}";
+    public static final String PATH_ID = "/{" + PARAM_ID + "}";
 
     // pattern for version validation
     public static final String PATTERN_VERSION = "v[0-9]+";

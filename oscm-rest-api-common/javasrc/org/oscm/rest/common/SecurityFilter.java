@@ -27,9 +27,9 @@ public class SecurityFilter implements ContainerRequestFilter {
     public ContainerRequest filter(ContainerRequest request)
             throws WebApplicationException {
 
-        // if (!securityContext.isSecure()) {
-        // throw WebException.forbidden().build(); // TODO: add more info
-        // }
+        if (!request.isSecure()) {
+            throw WebException.forbidden().build(); // TODO: add more info
+        }
 
         if (request.getUserPrincipal() == null) {
             throw WebException.forbidden().build(); // TODO add more info

@@ -22,9 +22,18 @@ public abstract class Representation {
     private transient int version;
     private UUID id;
 
+    /**
+     * Creates new representation
+     */
     public Representation() {
     }
 
+    /**
+     * Creates new representation with resource id
+     * 
+     * @param id
+     *            the resource id
+     */
     public Representation(UUID id) {
         this.id = id;
     }

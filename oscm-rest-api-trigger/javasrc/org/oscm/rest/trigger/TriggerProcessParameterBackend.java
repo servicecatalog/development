@@ -9,6 +9,7 @@
 package org.oscm.rest.trigger;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -21,6 +22,12 @@ import org.oscm.rest.common.EndpointBackend;
  */
 public class TriggerProcessParameterBackend implements
         EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> {
+
+    private UUID processId;
+
+    public TriggerProcessParameterBackend(UUID processId) {
+        this.processId = processId;
+    }
 
     @Override
     public TriggerProcessParameter getItem(TriggerRequestParameters params)
