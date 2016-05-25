@@ -125,13 +125,13 @@ public class TriggerProcess extends Representation {
     @Override
     public void update() {
 
-        // nothing to update in version 1
+        // nothing to update
     }
 
     @Override
     public void convert() {
 
-        // nothing to convert in version 1
+        // nothing to convert
     }
 
 }

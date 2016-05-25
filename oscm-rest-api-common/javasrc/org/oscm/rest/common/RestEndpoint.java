@@ -57,16 +57,12 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
     public Response getItem(@Context Request request, @InjectParam K params) {
 
         int version = getVersion(request);
-        params.validateResourceId();
-        params.validateParameters();
 
-        params.setVersion(version);
-        params.update();
+        prepareData(version, params, true, null);
 
         T item = backend.getItem(params);
 
-        item.setVersion(version);
-        item.convert();
+        reviseData(version, item);
 
         return Response.ok(item).build();
     }
@@ -80,18 +76,14 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateParameters();
-
-        params.setVersion(version);
-        params.update();
+        prepareData(version, params, false, null);
 
         Collection<T> items = backend.getCollection(params);
 
         RepresentationCollection<T> collection = new RepresentationCollection<T>(
                 items);
 
-        collection.setVersion(version);
-        collection.convert();
+        reviseData(version, collection);
 
         return Response.ok(collection).build();
     }
@@ -105,14 +97,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateResourceId();
-        params.validateParameters();
-        content.validateContent();
-
-        params.setVersion(version);
-        params.update();
-        content.setVersion(version);
-        content.update();
+        prepareData(version, params, true, content);
 
         String newId = backend.postItem(params, content);
 
@@ -131,13 +116,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateParameters();
-        content.validateContent();
-
-        params.setVersion(version);
-        params.update();
-        content.setVersion(version);
-        content.update();
+        prepareData(version, params, false, content);
 
         String newId = backend.postCollection(params, content);
 
@@ -156,14 +135,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateResourceId();
-        params.validateParameters();
-        content.validateContent();
-
-        params.setVersion(version);
-        params.update();
-        content.setVersion(version);
-        content.update();
+        prepareData(version, params, true, content);
 
         backend.putItem(params, content);
 
@@ -179,13 +151,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateParameters();
-        content.validateContent();
-
-        params.setVersion(version);
-        params.update();
-        content.setVersion(version);
-        content.update();
+        prepareData(version, params, false, content);
 
         backend.putCollection(params, content);
 
@@ -199,11 +165,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateResourceId();
-        params.validateParameters();
-
-        params.setVersion(version);
-        params.update();
+        prepareData(version, params, true, null);
 
         backend.deleteItem(params);
 
@@ -218,10 +180,7 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         int version = getVersion(request);
 
-        params.validateParameters();
-
-        params.setVersion(version);
-        params.update();
+        prepareData(version, params, false, null);
 
         backend.deleteCollection(params);
 
@@ -248,4 +207,54 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         return ((Integer) property).intValue();
     }
+
+    /**
+     * Prepares the data for the backend call
+     * 
+     * @param version
+     *            the version to update
+     * @param params
+     *            the injected parameters
+     * @param withId
+     *            if true validate resource id
+     * @param rep
+     *            the representation (can be null)
+     * @throws WebApplicationException
+     */
+    protected void prepareData(int version, K params, boolean withId,
+            Representation rep) throws WebApplicationException {
+
+        if (withId) {
+            params.validateResourceId();
+        }
+
+        params.validateParameters();
+
+        params.setVersion(version);
+        params.update();
+
+        if (rep != null) {
+            rep.validateContent();
+
+            rep.setVersion(version);
+            rep.update();
+        }
+    }
+
+    /**
+     * Revises the data after the backend call
+     * 
+     * @param version
+     *            the version to convert to
+     * @param rep
+     *            the representation
+     */
+    protected void reviseData(int version, Representation rep) {
+
+        if (rep != null) {
+            rep.setVersion(version);
+            rep.convert();
+        }
+    }
+
 }
