@@ -270,8 +270,7 @@ public class SubscriptionDao {
 
         Set<String> statesAsString = getSubscriptionStatesAsString(states);
         Query query = dataManager.createNativeQuery(queryString);
-        query.setParameter("customer",
-                Long.valueOf(user.getOrganization().getKey()));
+        query.setParameter("organization", Long.valueOf(user.getOrganization().getKey()));
         query.setParameter("offerer", Long.valueOf(vendorKey));
         query.setParameter("states", statesAsString);
 
