@@ -74,7 +74,7 @@ public class RepresentationCollection<T extends Representation> extends
             item.update();
         }
 
-        // nothing to update in version 1
+        // nothing to update
     }
 
     @Override
@@ -84,7 +84,7 @@ public class RepresentationCollection<T extends Representation> extends
             item.convert();
         }
 
-        // nothing to convert in version 1
+        // nothing to convert
     }
 
 }

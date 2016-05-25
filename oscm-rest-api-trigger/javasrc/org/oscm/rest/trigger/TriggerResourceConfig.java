@@ -27,7 +27,7 @@ import com.sun.jersey.api.core.ResourceConfig;
  * 
  * @author miethaner
  */
-@ApplicationPath("/trigger")
+@ApplicationPath(TriggerParams.PATH_TRIGGER)
 public class TriggerResourceConfig extends ResourceConfig {
 
     private Map<String, Object> properties;
