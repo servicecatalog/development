@@ -35,7 +35,6 @@ import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscriptionForList;
 import org.oscm.internal.subscriptions.SubscriptionsService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 
 // Session, because we need to have sort order and filtering stored in session.
 @SessionScoped
