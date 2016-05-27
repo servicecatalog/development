@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.12.2013                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.subscriptionservice.dao;
 
 import java.util.HashMap;
@@ -231,7 +239,7 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
         final PaginationSubForUser pagination = new PaginationSubForUser(0, 10);
         pagination.setSorting(sorting);
         pagination.setFilterSet(filterSet);
-        
+
         Map<String, Boolean> changedSelectedSubs = new HashMap<String, Boolean>();
         changedSelectedSubs.put("sub1", true);
         pagination.setSelectedUsersIds(changedSelectedSubs);
@@ -249,7 +257,7 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
         // then
         Assert.assertEquals(0, result.size());
     }
-    
+
     private Organization createOrg(final String organizationId,
             final OrganizationRoleType... roles) throws Exception {
         return runTX(new Callable<Organization>() {
@@ -266,8 +274,8 @@ public class UserSubscriptionDaoIT extends EJBTestBase {
         return runTX(new Callable<PlatformUser>() {
             @Override
             public PlatformUser call() throws Exception {
-                return Organizations.createUserForOrg(ds, organization, isAdmin,
-                        userId);
+                return Organizations.createUserForOrg(ds, organization,
+                        isAdmin, userId);
             }
         });
     }

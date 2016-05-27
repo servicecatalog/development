@@ -1,14 +1,14 @@
 /*******************************************************************************
- * Copyright FUJITSU LIMITED 2016                                           
- *                                                                                                                                  
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                  
+ *                                                                                                                                 
+ *  Creation Date: 10.12.2014                                                      
+ *                                                                              
  *******************************************************************************/
 
 package org.oscm.converter.strategy.api;
 
-import java.util.Collection;
 import java.util.List;
-
-import javax.persistence.Query;
 
 import org.oscm.converter.api.Converter;
 import org.oscm.converter.strategy.ConversionStrategy;
@@ -38,44 +38,58 @@ public class ToExtPriceModelStrategy extends AbstractConversionStrategy
         VOPriceModel voPriceModel = new VOPriceModel();
 
         voPriceModel.setKey(priceModel.getKey());
-        voPriceModel.setType(PriceModelType.valueOf(priceModel.getType().name()));
+        voPriceModel.setType(PriceModelType
+                .valueOf(priceModel.getType().name()));
         voPriceModel.setVersion(priceModel.getVersion());
         List<PricedEvent> consideredEvents = priceModel.getConsideredEvents();
-        List<VOPricedEvent> voPricedEvents = Converter.convertList(consideredEvents, PricedEvent.class, VOPricedEvent.class, getDataService());
+        List<VOPricedEvent> voPricedEvents = Converter.convertList(
+                consideredEvents, PricedEvent.class, VOPricedEvent.class,
+                getDataService());
         voPriceModel.setConsideredEvents(voPricedEvents);
         if (priceModel.getCurrency() != null) {
-            voPriceModel.setCurrencyISOCode(priceModel.getCurrency().getCurrencyISOCode());
+            voPriceModel.setCurrencyISOCode(priceModel.getCurrency()
+                    .getCurrencyISOCode());
         }
         voPriceModel.setFreePeriod(priceModel.getFreePeriod());
         voPriceModel.setOneTimeFee(priceModel.getOneTimeFee());
         if (priceModel.getPeriod() != null) {
-            voPriceModel.setPeriod(PricingPeriod.valueOf(priceModel.getPeriod().name()));
+            voPriceModel.setPeriod(PricingPeriod.valueOf(priceModel.getPeriod()
+                    .name()));
         }
         voPriceModel.setPricePerPeriod(priceModel.getPricePerPeriod());
-        voPriceModel.setPricePerUserAssignment(priceModel.getPricePerUserAssignment());
-        List<VOPricedRole> voPricedRoles = Converter.convertList(priceModel.getRoleSpecificUserPrices(), PricedProductRole.class, VOPricedRole.class, getDataService());
+        voPriceModel.setPricePerUserAssignment(priceModel
+                .getPricePerUserAssignment());
+        List<VOPricedRole> voPricedRoles = Converter.convertList(
+                priceModel.getRoleSpecificUserPrices(),
+                PricedProductRole.class, VOPricedRole.class, getDataService());
         voPriceModel.setRoleSpecificUserPrices(voPricedRoles);
-        List<VOPricedParameter> voPricedParameters = Converter.convertList(priceModel.getSelectedParameters(), PricedParameter.class, VOPricedParameter.class, getDataService());
+        List<VOPricedParameter> voPricedParameters = Converter.convertList(
+                priceModel.getSelectedParameters(), PricedParameter.class,
+                VOPricedParameter.class, getDataService());
         voPriceModel.setSelectedParameters(voPricedParameters);
-        List<VOSteppedPrice> steppedPrices = Converter.convertList(priceModel.getSteppedPrices(), SteppedPrice.class, VOSteppedPrice.class, getDataService());
+        List<VOSteppedPrice> steppedPrices = Converter.convertList(
+                priceModel.getSteppedPrices(), SteppedPrice.class,
+                VOSteppedPrice.class, getDataService());
         voPriceModel.setSteppedPrices(steppedPrices);
 
-        final List<LocalizedObjectTypes> localizedObjectTypes = priceModel.getLocalizedObjectTypes();
+        final List<LocalizedObjectTypes> localizedObjectTypes = priceModel
+                .getLocalizedObjectTypes();
         final String locale = getDataService().getCurrentUser().getLocale();
-        final List<LocalizedResource> localizedResources = getLocalizedResource(localizedObjectTypes, Long.valueOf(priceModel.getKey()), locale);
+        final List<LocalizedResource> localizedResources = getLocalizedResource(
+                localizedObjectTypes, Long.valueOf(priceModel.getKey()), locale);
 
         for (LocalizedResource resource : localizedResources) {
-            if (resource.getObjectType().equals(LocalizedObjectTypes.PRICEMODEL_DESCRIPTION)){
+            if (resource.getObjectType().equals(
+                    LocalizedObjectTypes.PRICEMODEL_DESCRIPTION)) {
                 voPriceModel.setDescription(resource.getValue());
-            }
-            else if (resource.getObjectType().equals(LocalizedObjectTypes.PRICEMODEL_LICENSE)) {
+            } else if (resource.getObjectType().equals(
+                    LocalizedObjectTypes.PRICEMODEL_LICENSE)) {
                 voPriceModel.setLicense(resource.getValue());
             }
 
         }
 
         return voPriceModel;
-
 
     }
 

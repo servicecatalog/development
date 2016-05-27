@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2014 FUJITSU Limited - ALL RIGHTS RESERVED.                  
+ *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 18.12.2014                                                      
+ *  Creation Date: 18.02.2014                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -97,9 +97,8 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         }
     }
 
-
     public void showPersistedPriceModel(VOService selectedService) {
-        
+
         VOPriceModel priceModel = selectedService.getPriceModel();
 
         if (priceModel != null && priceModel.isExternal()) {
@@ -114,7 +113,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         }
         resetPriceModel();
     }
-    
+
     public void resetPriceModel() {
         getModel().setSelectedPriceModel(null);
         getModel().setSelectedPriceModelContent(null);
@@ -125,8 +124,8 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
             PriceModel externalPriceModel) {
         PriceModelContent priceModelContent = externalPriceModel.get(locale);
         if (priceModelContent == null) {
-            priceModelContent = externalPriceModel
-                    .get(getAppBean().getDefaultLocale());
+            priceModelContent = externalPriceModel.get(getAppBean()
+                    .getDefaultLocale());
         }
         return priceModelContent;
     }
@@ -148,7 +147,7 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         displayHandler.display();
         return;
     }
-    
+
     public void reloadPriceModel(ServiceType serviceType, VOService service) {
         if (service.getServiceType() == serviceType) {
             showPersistedPriceModel(service);
@@ -156,8 +155,9 @@ public abstract class ExternalPriceModelCtrl extends BaseBean {
         }
         resetPriceModel();
     }
-    
-    public void initPersistedPriceModel(ServiceType serviceType, VOService selectedService) {
+
+    public void initPersistedPriceModel(ServiceType serviceType,
+            VOService selectedService) {
         if (selectedService == null) {
             return;
         }

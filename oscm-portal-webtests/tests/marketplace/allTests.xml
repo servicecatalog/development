@@ -34,6 +34,7 @@
     <ant antfile="./marketplace/testTableState.xml" />
     <ant antfile="./marketplace/testManageOperations.xml" />
     <ant antfile="./marketplace/testReferenceToUnits.xml" />
+    <ant antfile="./marketplace/testServiceParameters.xml" />
     <!-- finally: bug retesting (please leave it as final action) -->
      <ant antfile="./marketplace/bugRetestingMPL.xml" />
     <ant antfile="./marketplace/testPasswordRecovery.xml" />
