@@ -156,4 +156,9 @@ public class ConfigurationServiceStub implements ConfigurationService,
                 Configuration.GLOBAL_CONTEXT).getValue();
     }
 
+    @Override
+    public boolean isPaymentInfoAvailable() {
+        return true;
+    }
+
 }

@@ -238,6 +238,7 @@ public class BaseBean {
     public static final String WARNING_OWNER_NOT_A_UNIT_ADMIN = "warning.editSubscription.subscriptionOwner.administrator";
     public static final String WARNING_OWNER_IS_SUB_MAN = "warning.editSubscription.subscriptionOwner.subscriptionManager";
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
+    public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";

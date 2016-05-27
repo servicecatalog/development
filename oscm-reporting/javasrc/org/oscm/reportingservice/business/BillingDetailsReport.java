@@ -20,22 +20,21 @@ import java.util.TimeZone;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.oscm.domobjects.UserGroup;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
 import org.oscm.converter.DateConverter;
 import org.oscm.converter.PriceConverter;
 import org.oscm.converter.XMLConverter;
 import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
 import org.oscm.reportingservice.business.model.billing.RDOSubscription;
 import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.dao.BillingDao;
 import org.oscm.reportingservice.dao.BillingDao.ReportBillingData;
 import org.oscm.reportingservice.dao.UnitDao;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 /**
  * @author kulle
@@ -46,7 +45,7 @@ public class BillingDetailsReport {
     private final BillingDao billingDao;
     final UserGroupServiceLocalBean userGroupService;
     private final UnitDao unitDao;
-
+    
     public BillingDetailsReport(BillingDao billingDao, UnitDao unitDao,
             UserGroupServiceLocalBean userGroupService) {
         this.billingDao = billingDao;
@@ -82,6 +81,7 @@ public class BillingDetailsReport {
                 summaryTemplToDoc);
         if (summaries != null && !summaries.isEmpty()) {
             RDOSummary summary = summaries.get(0);
+
             RDOSubscription rdoSubscription = new RDOSubscription();
             rdoSubscription.setCurrency(summary.getCurrency());
             rdoSubscription.setDiscount(summary.getDiscount());
@@ -96,6 +96,7 @@ public class BillingDetailsReport {
             rdoSubscription.setSubscriptionId(summary.getSubscriptionId());
             result.getSubscriptions().add(rdoSubscription);
         }
+        
         result.getSummaries().addAll(summaries);
 
         return result;
@@ -147,5 +148,4 @@ public class BillingDetailsReport {
         }
         return result;
     }
-
 }

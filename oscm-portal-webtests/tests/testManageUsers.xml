@@ -137,8 +137,8 @@
       <clickLink href="/operator/manageConfiguration.jsf" />
       <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'TIMER_INTERVAL_USER_COUNT')]" />
       <verifyXPath xpath="//*[@class='rf-dt-c' and contains(text(), 'MAX_NUMBER_ALLOWED_USERS')]" />
-      <verifyElementText htmlId="configurationSettings:settingTable:19:configurationValue" text="10" />
-      <verifyElementText htmlId="configurationSettings:settingTable:53:configurationValue" text="43200000" />
+      <verifyElementText htmlId="configurationSettings:settingTable:20:configurationValue" text="10" />
+      <verifyElementText htmlId="configurationSettings:settingTable:54:configurationValue" text="43200000" />
       <login.logout />
     </webtest>
 
@@ -154,7 +154,7 @@
 
       <!--not exceed the maxRegisteredUserNumber,show black color-->
       <clickLink href="/operator/manageConfiguration.jsf" />
-      <setInputField htmlId="configurationSettings:settingTable:19:configurationValue" value="#{numberOfUsers}" />
+      <setInputField htmlId="configurationSettings:settingTable:20:configurationValue" value="#{numberOfUsers}" />
       <clickButton htmlid="configurationSettings:saveButton" />
       <clickLink href="/operator/manageUsers.jsf" />
       <verifyXPath xpath="//*[@id='numberOfUsersForm:registeredUsersCountBlack']" />

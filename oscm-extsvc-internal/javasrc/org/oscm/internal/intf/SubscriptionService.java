@@ -51,10 +51,15 @@ public interface SubscriptionService {
      * @param paymentInfo
      *            a value object specifying the payment information to be used
      *            for the subscription, or <code>null</code> if the service is
-     *            free of charge
+     *            free of charge. In the case when HIDE_PAYMENT_INFORMATION
+     *            setting equals TRUE and the service is not free of charge,
+     *            Invoice is used as default payment type
      * @param billingContact
      *            the billing contact to be assigned to the subscription, if the
-     *            service is not free of charge
+     *            service is not free of charge. In the case when
+     *            HIDE_PAYMENT_INFORMATION setting equals TRUE and the service
+     *            is not free of charge, the organization address is used as
+     *            billingContact
      * @param udas
      *            a list of custom attributes to set
      * @return the saved subscription, or <code>null</code> if the operation was
@@ -369,10 +374,15 @@ public interface SubscriptionService {
      *            free of charge to a chargeable one. When passing
      *            <code>null</code>, the existing payment information of the
      *            subscription remains unchanged and will again be used after
-     *            the upgrade or downgrade.
+     *            the upgrade or downgrade. In the case when HIDE_PAYMENT_INFORMATION
+     *            setting equals TRUE and the service is not free of charge,
+     *            Invoice is used as default payment type
      * @param billingContact
      *            the billing contact to be assigned to the subscription, if the
-     *            service is not free of charge
+     *            service is not free of charge. In the case when
+     *            HIDE_PAYMENT_INFORMATION setting equals TRUE and the service
+     *            is not free of charge, the organization address is used as
+     *            billingContact
      * @param udas
      *            a list of custom attributes to set
      * @return the changed subscription, or <code>null</code> if the operation
@@ -1230,4 +1240,10 @@ public interface SubscriptionService {
      */
     VOSubscriptionDetails getSubscriptionDetailsWithoutOwnerCheck(
             long subscriptionKey) throws ObjectNotFoundException;
+
+    /**
+     * @return true - if user doesn't need to provide billing contact and payment information in subscription process.
+     *         false - otherwise
+     */
+    boolean isPaymentInfoHidden();
 }

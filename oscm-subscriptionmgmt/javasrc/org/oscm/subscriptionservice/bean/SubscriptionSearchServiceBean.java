@@ -216,6 +216,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         List<Uda> result = ftQuery.list();
         SubscriptionDao subscriptionDao = getSubscriptionDao();
         for (Uda item : result) {
+
             if (!UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
                     .getConfigurationType())) {
                 if (UdaTargetType.CUSTOMER.equals(item.getUdaDefinition()

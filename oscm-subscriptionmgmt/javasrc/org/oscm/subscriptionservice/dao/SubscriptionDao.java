@@ -27,12 +27,12 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.paginator.Filter;
-import org.oscm.paginator.Sorting;
 import org.oscm.paginator.TableColumns;
+import org.oscm.paginator.Sorting;
 
 /**
  * @author Mao
- * 
+ *
  */
 @Interceptors({ ExceptionMapper.class })
 public class SubscriptionDao {

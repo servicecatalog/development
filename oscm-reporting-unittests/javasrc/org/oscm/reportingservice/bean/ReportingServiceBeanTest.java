@@ -8,8 +8,10 @@
 
 package org.oscm.reportingservice.bean;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -18,6 +20,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,13 +50,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
 import org.oscm.domobjects.BillingResult;
+import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationReference;
@@ -65,9 +68,16 @@ import org.oscm.domobjects.Session;
 import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ReportType;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOReport;
 import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
+import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.business.model.externalservices.RDOExternal;
 import org.oscm.reportingservice.business.model.supplierrevenue.RDOPlatformRevenue;
@@ -76,16 +86,12 @@ import org.oscm.reportingservice.stubs.QueryStub;
 import org.oscm.reportingservice.stubs.ResultSetMetaDataStub;
 import org.oscm.reportingservice.stubs.ResultSetStub;
 import org.oscm.test.stubs.BillingServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ReportType;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOReport;
+import org.oscm.types.constants.Configuration;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * The tests for the payment processing status report of the reporting service.
@@ -112,6 +118,8 @@ public class ReportingServiceBeanTest {
     private static final String VALID_SESSION_ID3 = "valid_session3";
     private static final long VALID_BILLING_KEY = 83476L;
     private static final long NON_EXISTING_BILLING_KEY = 0L;
+    
+    private static final String EMPTY = "";
 
     private ReportingServiceBean reporting;
     private ReportingServiceBeanLocal reportingLocal;
@@ -128,7 +136,6 @@ public class ReportingServiceBeanTest {
     private ResultSetStub rs;
     private ResultSetMetaDataStub rsmd;
     private LocalizerServiceStub localizerStub;
-    private ConfigurationServiceStub configurationStub;
     private final Set<OrganizationToRole> roles = new HashSet<OrganizationToRole>();
     private Organization organization;
     private Map<OrganizationRoleType, List<Report>> roleToReports;
@@ -139,6 +146,7 @@ public class ReportingServiceBeanTest {
     private String currentOrgId;
     private static String userLocale = "en";
     private static Locale defaultLocale = Locale.ENGLISH;
+    private ConfigurationServiceLocal cnfgServLocal;
 
     @SuppressWarnings("unchecked")
     @Before
@@ -146,34 +154,26 @@ public class ReportingServiceBeanTest {
         filesToUse.add(TEST_XML_FILE);
 
         roleToReports = new HashMap<OrganizationRoleType, List<Report>>();
-        roleToReports.put(
-                OrganizationRoleType.CUSTOMER,
-                getReportList(ReportName.EVENT.value(),
-                        ReportName.SUBSCRIPTION.value()));
+        roleToReports.put(OrganizationRoleType.CUSTOMER, getReportList(
+                ReportName.EVENT.value(), ReportName.SUBSCRIPTION.value()));
 
-        roleToReports.put(
-                OrganizationRoleType.SUPPLIER,
+        roleToReports.put(OrganizationRoleType.SUPPLIER,
                 getReportList(ReportName.SUPPLIER_PRODUCT.value(),
                         ReportName.SUPPLIER_CUSTOMER.value(),
                         ReportName.SUPPLIER_BILLING.value(),
                         ReportName.SUPPLIER_PAYMENT_RESULT_STATUS.value()));
 
-        roleToReports.put(
-                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+        roleToReports.put(OrganizationRoleType.TECHNOLOGY_PROVIDER,
                 getReportList(ReportName.PROVIDER_EVENT.value(),
                         ReportName.PROVIDER_SUPPLIER.value(),
                         ReportName.PROVIDER_SUBSCRIPTION.value(),
                         ReportName.PROVIDER_INSTANCE.value()));
 
-        roleToReports
-                .put(OrganizationRoleType.PLATFORM_OPERATOR,
-                        getReportList(ReportName.SUPPLIER_BILLING_OF_SUPPLIER
-                                .value(),
-                                ReportName.SUPPLIER_BILLING_DETAILS_OF_SUPPLIER
-                                        .value(),
-                                ReportName.SUPPLIER_CUSTOMER_OF_SUPPLIER
-                                        .value(),
-                                ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value()));
+        roleToReports.put(OrganizationRoleType.PLATFORM_OPERATOR,
+                getReportList(ReportName.SUPPLIER_BILLING_OF_SUPPLIER.value(),
+                        ReportName.SUPPLIER_BILLING_DETAILS_OF_SUPPLIER.value(),
+                        ReportName.SUPPLIER_CUSTOMER_OF_SUPPLIER.value(),
+                        ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value()));
 
         localizerStub = new LocalizerServiceStub() {
 
@@ -192,13 +192,23 @@ public class ReportingServiceBeanTest {
                         objectKey, objectType);
             }
         };
-        configurationStub = new ConfigurationServiceStub();
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_ENGINEURL, REPORT_ENGINEURL);
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_SOAP_ENDPOINT, REPORT_SOAP_ENDPOINT);
-        configurationStub.setConfigurationSetting(
-                ConfigurationKey.REPORT_WSDLURL, REPORT_WSDLURL);
+
+        cnfgServLocal = mock(ConfigurationServiceLocal.class);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_ENGINEURL,
+                Configuration.GLOBAL_CONTEXT, REPORT_ENGINEURL))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_ENGINEURL,
+                                Configuration.GLOBAL_CONTEXT);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_SOAP_ENDPOINT,
+                Configuration.GLOBAL_CONTEXT, REPORT_SOAP_ENDPOINT))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_SOAP_ENDPOINT,
+                                Configuration.GLOBAL_CONTEXT);
+        doReturn(new ConfigurationSetting(ConfigurationKey.REPORT_WSDLURL,
+                Configuration.GLOBAL_CONTEXT, REPORT_WSDLURL))
+                        .when(cnfgServLocal).getConfigurationSetting(
+                                ConfigurationKey.REPORT_WSDLURL,
+                                Configuration.GLOBAL_CONTEXT);
 
         reporting = spy(new ReportingServiceBean());
         reportingLocal = spy(new ReportingServiceBeanLocal());
@@ -220,7 +230,7 @@ public class ReportingServiceBeanTest {
             @Override
             public DomainObject<?> getReferenceByBusinessKey(
                     DomainObject<?> findTemplate)
-                    throws ObjectNotFoundException {
+                            throws ObjectNotFoundException {
                 if (findTemplate instanceof Report) {
                     Report report = (Report) findTemplate;
                     if (INVALID_REPORT_ID.equals(report.getReportName())) {
@@ -288,7 +298,8 @@ public class ReportingServiceBeanTest {
 
             @Override
             public List<BillingResult> generateBillingForAnyPeriod(
-                    long startOfPeriod, long endOfPeriod, long organizationKey) {
+                    long startOfPeriod, long endOfPeriod,
+                    long organizationKey) {
 
                 usedBillingResults.clear();
 
@@ -341,17 +352,17 @@ public class ReportingServiceBeanTest {
 
         reporting.dataService = dm;
         reporting.localizerService = localizerStub;
-        reporting.configurationService = configurationStub;
+        reporting.configurationService = cnfgServLocal;
         reportingLocal.sessionService = prodMgmt;
         reportingLocal.billingService = billing;
         reportingLocal.dataService = dm;
         reportingLocal.localizerService = localizerStub;
-        reportingLocal.configurationService = configurationStub;
+        reportingLocal.configurationService = cnfgServLocal;
 
         doReturn(null).when(reportingLocal).getFromCache(anyString(),
                 any(Class.class));
-        doNothing().when(reportingLocal)
-                .putToCache(anyString(), any(RDO.class));
+        doNothing().when(reportingLocal).putToCache(anyString(),
+                any(RDO.class));
     }
 
     @After
@@ -370,8 +381,8 @@ public class ReportingServiceBeanTest {
         session.setPlatformUserKey(INVALID_USER_ID);
         VOReportResult report = reporting.getReport(VALID_SESSION_ID,
                 "someReportId");
-        Assert.assertEquals("No object must be returned", 0, report.getData()
-                .size());
+        Assert.assertEquals("No object must be returned", 0,
+                report.getData().size());
     }
 
     @Test
@@ -380,8 +391,8 @@ public class ReportingServiceBeanTest {
         session.setPlatformUserKey(INVALID_USER_ID);
 
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, "someReportId", "someReportId");
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                "someReportId", "someReportId");
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -390,8 +401,8 @@ public class ReportingServiceBeanTest {
     @Test
     public void getReportOfASupplier_nonExistingSupplierOrgId() {
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, null, "someReportId");
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                null, "someReportId");
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -403,8 +414,8 @@ public class ReportingServiceBeanTest {
         session.setPlatformUserKey(INVALID_USER_ID);
 
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, "someReportId", "someReportId");
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                "someReportId", "someReportId");
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -416,8 +427,8 @@ public class ReportingServiceBeanTest {
         givenOperatorReportData(OrganizationRoleType.SUPPLIER);
 
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, currentOrgId, "someReportId");
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                currentOrgId, "someReportId");
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -429,9 +440,8 @@ public class ReportingServiceBeanTest {
         givenOperatorReportData(OrganizationRoleType.RESELLER);
 
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, currentOrgId,
-                ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value());
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                currentOrgId, ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value());
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -443,9 +453,8 @@ public class ReportingServiceBeanTest {
         givenOperatorReportData(OrganizationRoleType.BROKER);
 
         // when
-        VOReportResult report = reporting.getReportOfASupplier(
-                VALID_SESSION_ID, currentOrgId,
-                ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value());
+        VOReportResult report = reporting.getReportOfASupplier(VALID_SESSION_ID,
+                currentOrgId, ReportName.SUPPLIER_PRODUCT_OF_SUPPLIER.value());
 
         // then
         assertEquals("No object must be returned", 0, report.getData().size());
@@ -458,8 +467,8 @@ public class ReportingServiceBeanTest {
 
         VOReportResult voReport = reporting.getReport(VALID_SESSION_ID,
                 REPORT_ID);
-        Assert.assertEquals("No object must be returned", 0, voReport.getData()
-                .size());
+        Assert.assertEquals("No object must be returned", 0,
+                voReport.getData().size());
     }
 
     @Test
@@ -475,8 +484,8 @@ public class ReportingServiceBeanTest {
                 REPORT_ID);
 
         // then
-        assertEquals("One object must be returned", 1, voReport.getData()
-                .size());
+        assertEquals("One object must be returned", 1,
+                voReport.getData().size());
         assertEquals("Wrong content in retrieved report data", "Result",
                 XMLConverter.getNodeTextContentByXPath(
                         getFirstElement(voReport).getOwnerDocument(),
@@ -498,9 +507,10 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("test", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/PRODUCTID/text()"));
+        assertEquals("test",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/PRODUCTID/text()"));
     }
 
     @Test
@@ -518,13 +528,15 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("test", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/PRODUCTID/text()"));
+        assertEquals("test",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/PRODUCTID/text()"));
     }
 
     @Test
-    public void getReport_asSupplier_nullValueInStringResult() throws Exception {
+    public void getReport_asSupplier_nullValueInStringResult()
+            throws Exception {
         // given
         dataSet.addRow(Arrays.asList((Object) null));
         dataSet.getMetaData().add(1, "DESCRIPTION", "VARCHAR", Types.VARCHAR);
@@ -577,8 +589,8 @@ public class ReportingServiceBeanTest {
     public void testGetReportAsTechnologyProvider() throws Exception {
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
         VOReportResult reportResult = reporting.getReport(VALID_SESSION_ID,
                 roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER)
                         .get(0).getReportName());
@@ -594,8 +606,8 @@ public class ReportingServiceBeanTest {
         givenDataSetMetaData(Arrays.asList("PRODUCTID"));
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
 
         // when
         VOReportResult reportResult = reporting.getReport(VALID_SESSION_ID,
@@ -604,9 +616,10 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("test", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/PRODUCTID/text()"));
+        assertEquals("test",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/PRODUCTID/text()"));
     }
 
     @Test
@@ -617,8 +630,8 @@ public class ReportingServiceBeanTest {
         givenDataSetMetaData(Arrays.asList("XMLDATA"));
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
 
         // when
         VOReportResult reportResult = reporting.getReport(VALID_SESSION_ID,
@@ -627,20 +640,22 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/XMLDATA/text()"));
+        assertEquals("",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/XMLDATA/text()"));
     }
 
     @Test
-    public void testGetReportAsTechnologyProviderAndSupplier() throws Exception {
+    public void testGetReportAsTechnologyProviderAndSupplier()
+            throws Exception {
         roles.add(addOrgToRole(organization, OrganizationRoleType.SUPPLIER));
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
         List<Report> newReports = roleToReports
                 .get(OrganizationRoleType.SUPPLIER);
-        newReports.addAll(roleToReports
-                .get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
+        newReports.addAll(
+                roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
         namedQuery.setReports(newReports);
         VOReportResult reportResult = reporting.getReport(VALID_SESSION_ID,
                 roleToReports.get(OrganizationRoleType.SUPPLIER).get(0)
@@ -657,12 +672,12 @@ public class ReportingServiceBeanTest {
     @Test
     public void getReportOfASupplier_billing() throws Exception {
         // given
-        givenDataSetRow(Arrays
-                .asList((Object) getTestFileAsString(TEST_XML_FILE_2)));
+        givenDataSetRow(
+                Arrays.asList((Object) getTestFileAsString(TEST_XML_FILE_2)));
         givenDataSetMetaData(Arrays.asList("resultxml"));
         roles.add(addOrgToRole(organization, OrganizationRoleType.SUPPLIER));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.PLATFORM_OPERATOR));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.PLATFORM_OPERATOR));
 
         // when
         VOReportResult reportResult = reporting.getReportOfASupplier(
@@ -671,27 +686,21 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals(
-                "XXXX",
-                XMLConverter
-                        .getNodeTextContentByXPath(
-                                getFirstElement(reportResult)
-                                        .getOwnerDocument(),
-                                "/row/RESULTXML/BillingDetails/OrganizationDetails/Email/text()"));
-        assertEquals(
-                "XXXX",
-                XMLConverter
-                        .getNodeTextContentByXPath(
-                                getFirstElement(reportResult)
-                                        .getOwnerDocument(),
-                                "/row/RESULTXML/BillingDetails/OrganizationDetails/Name/text()"));
-        assertEquals(
-                "XXXX",
-                XMLConverter
-                        .getNodeTextContentByXPath(
-                                getFirstElement(reportResult)
-                                        .getOwnerDocument(),
-                                "/row/RESULTXML/BillingDetails/OrganizationDetails/Address/text()"));
+        assertEquals("XXXX",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult)
+                                .getOwnerDocument(),
+                "/row/RESULTXML/BillingDetails/OrganizationDetails/Email/text()"));
+        assertEquals("XXXX",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult)
+                                .getOwnerDocument(),
+                "/row/RESULTXML/BillingDetails/OrganizationDetails/Name/text()"));
+        assertEquals("XXXX",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult)
+                                .getOwnerDocument(),
+                "/row/RESULTXML/BillingDetails/OrganizationDetails/Address/text()"));
 
     }
 
@@ -699,8 +708,8 @@ public class ReportingServiceBeanTest {
         givenDataSetRow(Arrays.asList((Object) "test"));
         givenDataSetMetaData(Arrays.asList("PRODUCTID"));
         roles.add(addOrgToRole(organization, orgRole));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.PLATFORM_OPERATOR));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.PLATFORM_OPERATOR));
     }
 
     @Test
@@ -715,9 +724,10 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("test", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/PRODUCTID/text()"));
+        assertEquals("test",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/PRODUCTID/text()"));
     }
 
     @Test
@@ -732,9 +742,10 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, reportResult.getData().size());
-        assertEquals("test", XMLConverter.getNodeTextContentByXPath(
-                getFirstElement(reportResult).getOwnerDocument(),
-                "/row/PRODUCTID/text()"));
+        assertEquals("test",
+                XMLConverter.getNodeTextContentByXPath(
+                        getFirstElement(reportResult).getOwnerDocument(),
+                        "/row/PRODUCTID/text()"));
     }
 
     @Test
@@ -806,8 +817,8 @@ public class ReportingServiceBeanTest {
     public void testGetAvailableReportsAsTechnologyProvider() throws Exception {
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.TECHNOLOGY_PROVIDER));
         List<VOReport> reportList = reporting
                 .getAvailableReports(ReportType.ALL);
         Assert.assertEquals(4, reportList.size());
@@ -841,8 +852,8 @@ public class ReportingServiceBeanTest {
     public void testGetAvailableReportsAsOperator() throws Exception {
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.PLATFORM_OPERATOR));
-        namedQuery.setReports(roleToReports
-                .get(OrganizationRoleType.PLATFORM_OPERATOR));
+        namedQuery.setReports(
+                roleToReports.get(OrganizationRoleType.PLATFORM_OPERATOR));
         List<VOReport> reportList = reporting
                 .getAvailableReports(ReportType.ALL);
         Assert.assertEquals(4, reportList.size());
@@ -927,8 +938,8 @@ public class ReportingServiceBeanTest {
                     .newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(new FileInputStream(file));
-            return XMLConverter.convertToString(doc, false).replace(
-                    "<!-- Copyright FUJITSU LIMITED 2016-->", "");
+            return XMLConverter.convertToString(doc, false)
+                    .replace("<!-- Copyright FUJITSU LIMITED 2016-->", "");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -937,32 +948,32 @@ public class ReportingServiceBeanTest {
     @Test
     public void testGetSupplierRevenueAsSupplier() throws Exception {
         roles.add(addOrgToRole(organization, OrganizationRoleType.SUPPLIER));
-        RDOPlatformRevenue result = reporting.getPlatformRevenueReport(
-                VALID_SESSION_ID, null, null);
+        RDOPlatformRevenue result = reporting
+                .getPlatformRevenueReport(VALID_SESSION_ID, null, null);
         Assert.assertNotNull("Result must not be null", result);
-        Assert.assertEquals("Result must not contain entries", 0, result
-                .getSupplierDetails().size());
+        Assert.assertEquals("Result must not contain entries", 0,
+                result.getSupplierDetails().size());
     }
 
     @Test
     public void testGetSupplierRevenueAsCustomer() throws Exception {
         roles.add(addOrgToRole(organization, OrganizationRoleType.CUSTOMER));
-        RDOPlatformRevenue result = reporting.getPlatformRevenueReport(
-                VALID_SESSION_ID, null, null);
+        RDOPlatformRevenue result = reporting
+                .getPlatformRevenueReport(VALID_SESSION_ID, null, null);
         Assert.assertNotNull("Result must not be null", result);
-        Assert.assertEquals("Result must not contain entries", 0, result
-                .getSupplierDetails().size());
+        Assert.assertEquals("Result must not contain entries", 0,
+                result.getSupplierDetails().size());
     }
 
     @Test
     public void testGetSupplierRevenueAsTechnologyProvider() throws Exception {
         roles.add(addOrgToRole(organization,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER));
-        RDOPlatformRevenue result = reporting.getPlatformRevenueReport(
-                VALID_SESSION_ID, null, null);
+        RDOPlatformRevenue result = reporting
+                .getPlatformRevenueReport(VALID_SESSION_ID, null, null);
         Assert.assertNotNull("Result must not be null", result);
-        Assert.assertEquals("Result must not contain entries", 0, result
-                .getSupplierDetails().size());
+        Assert.assertEquals("Result must not contain entries", 0,
+                result.getSupplierDetails().size());
     }
 
     @Test
@@ -982,8 +993,8 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, result.getSupplierDetails().size());
-        assertEquals("[NOT_LISTED_IN_MARKETPLACE]", result
-                .getSummaryByMarketplace().get(0).getMarketplace());
+        assertEquals("[NOT_LISTED_IN_MARKETPLACE]",
+                result.getSummaryByMarketplace().get(0).getMarketplace());
     }
 
     @Test
@@ -1003,8 +1014,8 @@ public class ReportingServiceBeanTest {
 
         // assert
         assertEquals(1, result.getSupplierDetails().size());
-        assertEquals("mpid", result.getSummaryByMarketplace().get(0)
-                .getMarketplace());
+        assertEquals("mpid",
+                result.getSummaryByMarketplace().get(0).getMarketplace());
     }
 
     @Test
@@ -1024,8 +1035,8 @@ public class ReportingServiceBeanTest {
 
         // assert
         assertEquals(1, result.getSupplierDetails().size());
-        assertEquals("mpid", result.getSummaryByMarketplace().get(0)
-                .getMarketplace());
+        assertEquals("mpid",
+                result.getSummaryByMarketplace().get(0).getMarketplace());
     }
 
     @Test
@@ -1044,8 +1055,8 @@ public class ReportingServiceBeanTest {
 
         // assert
         assertEquals(1, result.getSupplierDetails().size());
-        assertEquals("mp (mpid)", result.getSummaryByMarketplace().get(0)
-                .getMarketplace());
+        assertEquals("mp (mpid)",
+                result.getSummaryByMarketplace().get(0).getMarketplace());
     }
 
     /**
@@ -1084,13 +1095,15 @@ public class ReportingServiceBeanTest {
     @Test
     public void getBillingDetailsOfASupplierReport() {
         // given
-
+        
+        doReturn(true).when(cnfgServLocal).isPaymentInfoAvailable(); 
+        
         givenDataSetRow(Arrays.asList((Object) 1000L,
                 getTestFileAsString(TEST_XML_FILE), "supplierName",
                 "supplerAddress"));
 
-        givenDataSetMetaData(Arrays.asList("creationtime", "resultxml", "name",
-                "address"));
+        givenDataSetMetaData(
+                Arrays.asList("creationtime", "resultxml", "name", "address"));
         // when
         RDODetailedBilling report = reporting
                 .getBillingDetailsOfASupplierReport(VALID_SESSION_ID,
@@ -1098,9 +1111,64 @@ public class ReportingServiceBeanTest {
 
         // then
         assertEquals(1, report.getSummaries().size());
-        assertEquals("XXXX", report.getSummaries().get(0).getOrganizationName());
-        assertEquals("XXXX", report.getSummaries().get(0)
-                .getOrganizationAddress());
+        assertEquals("XXXX",
+                report.getSummaries().get(0).getOrganizationName());
+        assertEquals("XXXX",
+                report.getSummaries().get(0).getOrganizationAddress());
 
+    }
+
+    @Test
+    public void testCustomerPaymentPreviewReportWithHiddenPaymentInfo()
+            throws Exception {
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
+        // when
+        reporting.getCustomerPaymentPreview(VALID_SESSION_ID);
+
+        // then
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDOCustomerPaymentPreview.class));
+
+    }
+
+    @Test
+    public void testBillingDetailsReportWithHiddenPaymentInfo()
+            throws Exception {
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
+        // when
+        reporting.getBillingDetailsReport(VALID_SESSION_ID, VALID_BILLING_KEY);
+
+        // then
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDODetailedBilling.class));
+    }
+    
+    @Test
+    public void testBillingDetailsOfASupplierReportWithHiddenPaymentInfo()
+            throws Exception {
+        
+        //given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        
+        givenDataSetRow(Arrays.asList((Object) 1000L,
+                getTestFileAsString(TEST_XML_FILE), "supplierName",
+                "supplerAddress"));
+
+        givenDataSetMetaData(
+                Arrays.asList("creationtime", "resultxml", "name", "address"));
+        
+        // when
+        RDODetailedBilling report = reporting.getBillingDetailsOfASupplierReport(VALID_SESSION_ID,VALID_BILLING_KEY);
+
+        // then
+        verify(reportingLocal, times(1)).hidePaymentInfo(any(RDODetailedBilling.class));
+        
+        RDOSummary summary = report.getSummaries().get(0);
+        assertThat(summary.getPaymentType(), is(EMPTY));
+        assertThat(summary.getOrganizationAddress(), is(EMPTY));
     }
 }
