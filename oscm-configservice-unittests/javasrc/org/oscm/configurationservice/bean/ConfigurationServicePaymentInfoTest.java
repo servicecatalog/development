@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-5-20
+ *
+ *******************************************************************************/
 package org.oscm.configurationservice.bean;
 
 import static org.junit.Assert.assertFalse;
