@@ -60,6 +60,7 @@ import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.paymentservice.local.PaymentServiceLocal;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningServiceLocal;
@@ -134,6 +135,7 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         container.addBean(commSvcMock);
         container.addBean(mock(LocalizerServiceLocal.class));
         container.addBean(new DataServiceBean());
+        container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(mock(MarketplaceService.class));
         container.addBean(new PaymentTypeDao());
         container.addBean(mock(IdentityServiceLocal.class));
@@ -157,7 +159,6 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         container.addBean(new MarketplaceAuditLogCollector());
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());
-
         marketplaceService = container.get(MarketplaceService.class);
         ds = container.get(DataService.class);
 
