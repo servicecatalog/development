@@ -728,4 +728,20 @@ public class MarketplaceServiceLocalBeanTest {
         verify(service.ds, times(1)).remove(any(MarketplaceAccess.class));
     }
 
+    @Test
+    public void testDoesAccessToMarketplaceExistForOrganization() throws ObjectNotFoundException {
+        //given
+        MarketplaceAccess access = new MarketplaceAccess();
+        access.setMarketplace_tkey(1L);
+        access.setOrganization_tkey(1L);
+
+        doReturn(access).when(service.ds).getReferenceByBusinessKey(any(MarketplaceAccess.class));
+
+        //when
+        boolean result = service.doesAccessToMarketplaceExistForOrganization(1L,1L);
+
+        //then
+        assertTrue(result);
+    }
+
 }

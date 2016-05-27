@@ -1110,4 +1110,21 @@ public class MarketplaceServiceBean implements MarketplaceService {
         marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(marketplaceId, false);
         marketplaceServiceLocal.removeMarketplaceAccesses(marketplace.getKey());
     }
+
+    @Override
+    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
+        throws ObjectNotFoundException {
+
+        VOMarketplace voMarketplace = getMarketplaceById(marketplaceId);
+        if (!voMarketplace.isRestricted()) {
+            return true;
+        }
+        Organization orga = new Organization();
+        orga.setOrganizationId(organizationId);
+        Organization organization = (Organization) dm
+            .getReferenceByBusinessKey(orga);
+        return marketplaceServiceLocal.doesAccessToMarketplaceExistForOrganization(voMarketplace.getKey(), organization
+            .getKey());
+    }
+
 }

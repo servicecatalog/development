@@ -2398,6 +2398,12 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
+        throws ObjectNotFoundException {
+        return false;
+    }
+
+    @Override
     public void refreshLdapUser() throws ValidationException {
 
     }

@@ -1442,6 +1442,13 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
 
                 assertTrue(closedFound);
                 assertTrue(openFound);
+
+                boolean resultClosed = marketplaceService.doesOrganizationHaveAccessMarketplace(marketClosed
+                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
+                boolean resultOpen = marketplaceService.doesOrganizationHaveAccessMarketplace(marketOpen
+                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
+                assertTrue(resultClosed);
+                assertTrue(resultOpen);
                 return mpClosed;
             }
         });

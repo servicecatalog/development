@@ -571,4 +571,14 @@ public interface MarketplaceService {
      */
     public List<VOMarketplace> getRestrictedMarketplaces();
 
+    /**
+     * Gives information if given organization has access to marketplace.
+     *
+     * @param marketplaceId
+     * @param organizationId
+     * @return true - if organization has access to marketplace, false - otherwise
+     * @throws ObjectNotFoundException
+     */
+    boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
+        throws ObjectNotFoundException;
 }

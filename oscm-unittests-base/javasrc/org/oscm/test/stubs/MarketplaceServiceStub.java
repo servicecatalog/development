@@ -189,4 +189,10 @@ public class MarketplaceServiceStub implements MarketplaceService {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
+        throws ObjectNotFoundException {
+        return false;
+    }
+
 }

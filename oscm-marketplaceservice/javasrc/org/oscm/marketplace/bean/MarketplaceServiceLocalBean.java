@@ -1084,4 +1084,18 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         
         return marketplaces;
     }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public boolean doesAccessToMarketplaceExistForOrganization(long marketplaceKey, long organizationKey) {
+        MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
+        marketplaceAccess.setMarketplace_tkey(marketplaceKey);
+        marketplaceAccess.setOrganization_tkey(organizationKey);
+        try {
+            MarketplaceAccess mp = (MarketplaceAccess) ds.getReferenceByBusinessKey(marketplaceAccess);
+        } catch (ObjectNotFoundException e) {
+            return false;
+        }
+        return marketplaceAccess != null;
+    }
 }

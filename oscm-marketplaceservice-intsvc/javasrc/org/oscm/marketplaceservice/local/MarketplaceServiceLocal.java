@@ -517,4 +517,7 @@ public interface MarketplaceServiceLocal {
      */
     public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
             long orgKey);
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    boolean doesAccessToMarketplaceExistForOrganization(long marketplaceKey, long organizationKey);
 }
