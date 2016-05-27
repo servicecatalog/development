@@ -21,10 +21,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ValueChangeEvent;
+import javax.servlet.http.HttpSession;
 
 import org.oscm.string.Strings;
+import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.model.Marketplace;
@@ -532,6 +536,19 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     public boolean isUiRenderEnabled() {
         return !this.isDisabledForEdit() && this.marketplace != null
                 && this.marketplace.getKey() != 0;
+    }
+    
+    public boolean isRestricted() {
+        
+        String mpId = super.getMarketplaceId();
+        
+        VOMarketplace marketplace = new VOMarketplace();
+        try {
+            marketplace= getMarketplaceService().getMarketplaceById(mpId);
+        } catch (ObjectNotFoundException e) {
+            //TODO    
+        }
+        return marketplace.isRestricted();
     }
 
 }
