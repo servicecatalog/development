@@ -1,19 +1,27 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                  
+ *                                                                                                                                 
+ *  Creation Date: 10.12.2014                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.paginator;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class PaginationSubForUser extends Pagination{
-    
+public class PaginationSubForUser extends Pagination {
+
     /**
      * 
      */
     private static final long serialVersionUID = 4319531062720949097L;
 
     private Map<String, String> changedRoles = new HashMap<String, String>();
-    
+
     private Map<String, Boolean> selectedUsersIds = new HashMap<String, Boolean>();
-    
+
     public PaginationSubForUser() {
     }
 

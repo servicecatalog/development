@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.12.2014                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.usergroupservice.dao;
 
 import java.math.BigInteger;
@@ -254,9 +262,12 @@ public class UserGroupUsersDao {
         return query;
     }
 
-    private String createChangedRolesAndQueryPart(PaginationUsersInUnit pagination) {
-        Map<UnitRoleType, String> statusesEntry = pagination.getLocalizedRolesMap();
-        Map<String, Boolean> selectedUsersIds = pagination.getSelectedUsersIds();
+    private String createChangedRolesAndQueryPart(
+            PaginationUsersInUnit pagination) {
+        Map<UnitRoleType, String> statusesEntry = pagination
+                .getLocalizedRolesMap();
+        Map<String, Boolean> selectedUsersIds = pagination
+                .getSelectedUsersIds();
         Map<String, String> changedRoles = pagination.getChangedRoles();
         if (selectedUsersIds.isEmpty()) {
             return "";
@@ -270,7 +281,8 @@ public class UserGroupUsersDao {
                 continue;
             }
             if (changedRoles.containsKey(entry.getKey())) {
-                UnitRoleType unitRoleType = UnitRoleType.valueOf(changedRoles.get(entry.getKey()));
+                UnitRoleType unitRoleType = UnitRoleType.valueOf(changedRoles
+                        .get(entry.getKey()));
                 String localizedRole = statusesEntry.get(unitRoleType);
                 query += " when unituser.userId='" + entry.getKey()
                         + "' then '" + localizedRole + "' ";

@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                  
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
  *  Creation Date: 05.02.2015                                                      
  *                                                                              
@@ -86,8 +86,8 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         ctrl.initialize();
 
         // then
-        verify(ctrl, times(0))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(0)).showPersistedPriceModel(
+                Mockito.any(VOServiceDetails.class));
     }
 
     @Test
@@ -162,67 +162,64 @@ public class ExternalPriceModelCtrlTest extends ExternalPriceModelTest {
         ctrl.showPersistedPriceModel(selectedService);
 
         // then
-        assertEquals(MediaType.APPLICATION_JSON,
-                model.getSelectedPriceModelContent().getContentType());
-        assertEquals(jsonPM,
-                new String(model.getSelectedPriceModelContent().getContent()));
+        assertEquals(MediaType.APPLICATION_JSON, model
+                .getSelectedPriceModelContent().getContentType());
+        assertEquals(jsonPM, new String(model.getSelectedPriceModelContent()
+                .getContent()));
 
     }
 
     @Test
     public void reloadPriceModelTest_forService() {
         // given
-        VOServiceDetails voServiceDetails = createVOServiceDetails(
-                ServiceType.TEMPLATE);
+        VOServiceDetails voServiceDetails = createVOServiceDetails(ServiceType.TEMPLATE);
 
         // when
         ctrl.reloadPriceModel(ServiceType.TEMPLATE, voServiceDetails);
 
         // then
-        verify(ctrl, times(1))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(1)).showPersistedPriceModel(
+                Mockito.any(VOServiceDetails.class));
     }
 
     @Test
     public void reloadPriceModelTest_forSubscription() {
         // given
-        VOServiceDetails voServiceDetails = createVOServiceDetails(
-                ServiceType.SUBSCRIPTION);
+        VOServiceDetails voServiceDetails = createVOServiceDetails(ServiceType.SUBSCRIPTION);
 
         // when
         ctrl.reloadPriceModel(ServiceType.SUBSCRIPTION, voServiceDetails);
 
         // then
-        verify(ctrl, times(1))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(1)).showPersistedPriceModel(
+                Mockito.any(VOServiceDetails.class));
     }
 
     @Test
     public void reloadPriceModelTest_forCustSubscription() {
         // given
-        VOServiceDetails voServiceDetails = createVOServiceDetails(
-                ServiceType.CUSTOMER_SUBSCRIPTION);
+        VOServiceDetails voServiceDetails = createVOServiceDetails(ServiceType.CUSTOMER_SUBSCRIPTION);
 
         // when
-        ctrl.reloadPriceModel(ServiceType.CUSTOMER_SUBSCRIPTION, voServiceDetails);
+        ctrl.reloadPriceModel(ServiceType.CUSTOMER_SUBSCRIPTION,
+                voServiceDetails);
 
         // then
-        verify(ctrl, times(1))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(1)).showPersistedPriceModel(
+                Mockito.any(VOServiceDetails.class));
     }
 
     @Test
     public void reloadPriceModelTest_forCustomer() {
         // given
-        VOServiceDetails voServiceDetails = createVOServiceDetails(
-                ServiceType.CUSTOMER_TEMPLATE);
+        VOServiceDetails voServiceDetails = createVOServiceDetails(ServiceType.CUSTOMER_TEMPLATE);
 
         // when
         ctrl.reloadPriceModel(ServiceType.CUSTOMER_TEMPLATE, voServiceDetails);
 
         // then
-        verify(ctrl, times(1))
-                .showPersistedPriceModel(Mockito.any(VOServiceDetails.class));
+        verify(ctrl, times(1)).showPersistedPriceModel(
+                Mockito.any(VOServiceDetails.class));
     }
 
     private VOServiceDetails createVOServiceDetails(ServiceType serviceType) {

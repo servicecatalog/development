@@ -84,7 +84,7 @@ public class PaymentConfigurationBean extends BaseBean implements Serializable {
         if (enabledPaymentTypes == null) {
             Set<VOPaymentType> availablePaymentTypes = getAccountingService()
                     .getAvailablePaymentTypesForOrganization();
-            enabledPaymentTypes = new ArrayList<SelectedPaymentType>();
+            enabledPaymentTypes = new ArrayList<>();
             for (VOPaymentType pt : availablePaymentTypes) {
                 enabledPaymentTypes.add(new SelectedPaymentType(pt));
             }

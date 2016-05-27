@@ -1,12 +1,10 @@
-/**+++*****************************************************
- *
- * Copyright (c) FUJITSU Limited 2010
- * All rights reserved.
- *
- * Company:      FUJITSU Limited
- * Package name: com.fujitsu.fnst.bada.utils
- *
- **---****************************************************/
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2009                                                      
+ *                                                                              
+ *******************************************************************************/
 
 package org.oscm.integrationtests.mockproduct;
 

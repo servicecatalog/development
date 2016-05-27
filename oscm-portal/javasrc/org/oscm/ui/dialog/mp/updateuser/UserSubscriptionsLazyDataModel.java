@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2015                                                      
+ *                                                                              
+ *******************************************************************************/
 package org.oscm.ui.dialog.mp.updateuser;
 
 import java.util.ArrayList;
@@ -29,8 +36,8 @@ import org.richfaces.model.SortField;
 
 @ViewScoped
 @ManagedBean(name = "userSubscriptionsLazyDataModel")
-public class UserSubscriptionsLazyDataModel
-        extends RichLazyDataModel<Subscription> {
+public class UserSubscriptionsLazyDataModel extends
+        RichLazyDataModel<Subscription> {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(UserSubscriptionsLazyDataModel.class);
@@ -73,28 +80,26 @@ public class UserSubscriptionsLazyDataModel
         List<Subscription> resultList = Collections.emptyList();
         String userId = model.getUser().getUserId();
 
-        if (refreshDataModel!=null) {
+        if (refreshDataModel != null) {
             try {
                 List<POSubscription> userSubscriptions = userService
                         .getUserAssignableSubscriptions(pagination, userId);
 
                 resultList = toSubscriptionList(userSubscriptions);
-                
-                if(!resultList.isEmpty()){
-                    
-                    for(Subscription sub:resultList){
+
+                if (!resultList.isEmpty()) {
+
+                    for (Subscription sub : resultList) {
                         model.getAllSubscriptions().put(sub.getId(), sub);
                     }
                 }
-                
+
             } catch (SaaSApplicationException e) {
                 logger.logError(Log4jLogger.SYSTEM_LOG, e,
                         LogMessageIdentifier.ERROR);
             }
             model.setSubscriptions(resultList);
-            
-            
-            
+
         } else {
             resultList = model.getSubscriptions();
         }
@@ -129,8 +134,8 @@ public class UserSubscriptionsLazyDataModel
             sub.setRoles(items);
 
             if (model.getSelectedSubsIds().containsKey(subscriptionId)) {
-                Boolean selected = model.getSelectedSubsIds()
-                        .get(subscriptionId);
+                Boolean selected = model.getSelectedSubsIds().get(
+                        subscriptionId);
                 sub.setSelected(selected);
             } else {
                 sub.setSelected(poSub.isAssigned());
@@ -155,8 +160,8 @@ public class UserSubscriptionsLazyDataModel
             }
 
             if (model.getChangedRoles().containsKey(subscriptionId)) {
-                String displayedRole = model.getChangedRoles()
-                        .get(subscriptionId);
+                String displayedRole = model.getChangedRoles().get(
+                        subscriptionId);
                 for (SelectItem item : items) {
                     if (item.getLabel().equals(displayedRole)) {
                         selectedRole = (String) item.getValue();
@@ -187,12 +192,12 @@ public class UserSubscriptionsLazyDataModel
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithChangedData(pagination);
 
-            Long totalCount = userService
-                    .getUserAssignableSubscriptionsNumber(pagination, userId);
+            Long totalCount = userService.getUserAssignableSubscriptionsNumber(
+                    pagination, userId);
 
             setTotalCount(totalCount.intValue());
-            
-            if(totalCount.intValue()==0){
+
+            if (totalCount.intValue() == 0) {
                 List<Subscription> emptyList = Collections.emptyList();
                 model.setSubscriptions(emptyList);
             }

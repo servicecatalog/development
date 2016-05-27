@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2015                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.taskhandling.operations;
 
 import static org.mockito.Matchers.any;
@@ -24,20 +32,20 @@ import org.oscm.taskhandling.facade.ServiceFacade;
 import org.oscm.taskhandling.payloads.ExternalPriceModelPayload;
 
 public class ExternalPriceModelHandlerTest {
-    
+
     private static UUID UUID = new UUID(0, 10000);
     private static String SUBSCRIPTION_ID = "Trial Subscription";
     private static String TENANT_ID = "89407ff7";
-    
+
     ExternalPriceModelHandler handler = null;
-    
+
     ExternalPriceModelService externalPriceModelServiceMock;
     DataService dataServiceMock;
     ExternalPriceModelPayload payload;
     PriceModel priceModel;
     Organization organization;
     Subscription subscription;
-    
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Before
     public void setUp() throws Exception {
@@ -48,68 +56,72 @@ public class ExternalPriceModelHandlerTest {
         organization = new Organization();
         organization.setOrganizationId(TENANT_ID);
         organization.setKey(1000);
-        
+
         subscription = new Subscription();
         subscription.setSubscriptionId(SUBSCRIPTION_ID);
         Product product = new Product();
         product.setPriceModel(new org.oscm.domobjects.PriceModel());
-        
+
         subscription.setProduct(product);
-        
-        when(dataServiceMock.getReferenceByBusinessKey(any(Organization.class))).thenReturn((DomainObject) organization);
-        when(dataServiceMock.find(any(Subscription.class))).thenReturn((DomainObject) subscription);
+
+        when(dataServiceMock.getReferenceByBusinessKey(any(Organization.class)))
+                .thenReturn((DomainObject) organization);
+        when(dataServiceMock.find(any(Subscription.class))).thenReturn(
+                (DomainObject) subscription);
     }
-    
+
     private ServiceFacade createServiceFacade() throws Exception {
         ServiceFacade facade = new ServiceFacade();
 
         externalPriceModelServiceMock = mock(ExternalPriceModelService.class);
         facade.setExternalPriceModelService(externalPriceModelServiceMock);
-        
+
         dataServiceMock = mock(DataService.class);
         facade.setDataService(dataServiceMock);
-        
+
         return facade;
     }
-    
-    private ExternalPriceModelPayload preparePayload(){
+
+    private ExternalPriceModelPayload preparePayload() {
         ExternalPriceModelPayload externalPriceModelPayload = new ExternalPriceModelPayload();
         externalPriceModelPayload.setPriceModel(priceModel);
-        
+
         return externalPriceModelPayload;
     }
-    
-    private PriceModel preparePriceModel(){
+
+    private PriceModel preparePriceModel() {
         PriceModel priceModel = new PriceModel(UUID);
-        
+
         HashMap<ContextKey, ContextValue<?>> context = new HashMap<ContextKey, ContextValue<?>>();
-        context.put(ContextKey.SUBSCRIPTION_ID, new ContextValueString(SUBSCRIPTION_ID));
+        context.put(ContextKey.SUBSCRIPTION_ID, new ContextValueString(
+                SUBSCRIPTION_ID));
         context.put(ContextKey.TENANT_ID, new ContextValueString(TENANT_ID));
         priceModel.setContext(context);
-        
+
         return priceModel;
     }
-    
-    private PriceModel preparePriceModelWithMissingSubscriptionId(){
+
+    private PriceModel preparePriceModelWithMissingSubscriptionId() {
         PriceModel priceModel = new PriceModel(UUID);
-        
+
         HashMap<ContextKey, ContextValue<?>> context = new HashMap<ContextKey, ContextValue<?>>();
         context.put(ContextKey.TENANT_ID, new ContextValueString(TENANT_ID));
         priceModel.setContext(context);
-        
+
         return priceModel;
     }
-    
-    private PriceModel preparePriceModelWithMissingTenantId(){
+
+    private PriceModel preparePriceModelWithMissingTenantId() {
         PriceModel priceModel = new PriceModel(UUID);
-        
+
         HashMap<ContextKey, ContextValue<?>> context = new HashMap<ContextKey, ContextValue<?>>();
-        context.put(ContextKey.SUBSCRIPTION_ID, new ContextValueString(SUBSCRIPTION_ID));
+        context.put(ContextKey.SUBSCRIPTION_ID, new ContextValueString(
+                SUBSCRIPTION_ID));
         priceModel.setContext(context);
-        
+
         return priceModel;
     }
-    
+
     @Test
     public void testExecute() throws Exception {
 
@@ -125,8 +137,8 @@ public class ExternalPriceModelHandlerTest {
         verify(externalPriceModelServiceMock).updateCache(priceModel);
         verify(dataServiceMock).refresh(subscription);
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testExecuteWithMissingSubscriptionId() throws Exception {
 
         // given
@@ -137,11 +149,11 @@ public class ExternalPriceModelHandlerTest {
         // when
         handler.execute();
 
-        // then 
+        // then
         // expected Exception
     }
-    
-    @Test(expected=NullPointerException.class)
+
+    @Test(expected = NullPointerException.class)
     public void testExecuteWithMissingTenantId() throws Exception {
 
         // given
@@ -152,7 +164,7 @@ public class ExternalPriceModelHandlerTest {
         // when
         handler.execute();
 
-        // then 
+        // then
         // expected Exception
     }
 }
