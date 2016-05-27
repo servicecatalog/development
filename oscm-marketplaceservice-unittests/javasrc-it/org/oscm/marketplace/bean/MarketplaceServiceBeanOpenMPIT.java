@@ -134,6 +134,7 @@ public class MarketplaceServiceBeanOpenMPIT extends EJBTestBase {
         container.addBean(commSvcMock);
         container.addBean(mock(LocalizerServiceLocal.class));
         container.addBean(new DataServiceBean());
+        container.addBean(mock(MarketplaceService.class));
         container.addBean(new PaymentTypeDao());
         container.addBean(mock(IdentityServiceLocal.class));
         container.addBean(mock(SubscriptionServiceLocal.class));

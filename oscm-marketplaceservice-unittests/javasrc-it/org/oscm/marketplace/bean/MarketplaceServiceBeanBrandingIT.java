@@ -31,6 +31,7 @@ import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.serviceprovisioningservice.auditlog.ServiceAuditLogCollector;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningPartnerServiceLocalBean;
 import org.oscm.test.EJBTestBase;
@@ -74,6 +75,7 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
 
     private void setupWithContainer() throws Exception {
         container.addBean(new DataServiceBean());
+        container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(new CommunicationServiceStub());
         container.addBean(new ConfigurationServiceStub());

@@ -119,6 +119,7 @@ public class ManageAccessCtrl {
                 getMarketplaceService()
                         .openMarketplace(model.getSelectedMarketplaceId());
             }
+            populateOrganizations(model.getSelectedMarketplaceId());
         } catch (SaaSApplicationException e) {
             e.printStackTrace();
             ui.handleException(e);

@@ -41,6 +41,8 @@ import javax.interceptor.Interceptors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.vo.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
@@ -163,20 +165,6 @@ import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UserDeletionConstraintException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServicePaymentConfiguration;
-import org.oscm.internal.vo.VOTechnicalService;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUdaDefinition;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Session Bean implementation class AccountServiceBean
@@ -230,6 +218,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     protected MarketingPermissionServiceLocal marketingPermissionService;
+
+    @EJB(beanInterface = MarketplaceService.class)
+    protected MarketplaceService marketplaceService;
 
     @EJB
     SubscriptionAuditLogCollector subscriptionAuditLogCollector;
@@ -1011,6 +1002,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         Organization storedOrganization = saveOrganizationWithUniqueIdAndInvoicePayment(
                 organization, user.getLocale());
 
+        grantAccessToTheMarketplace(marketplaceId, storedOrganization);
+
         setDomicileCountry(storedOrganization, domicileCountry);
 
         updateOrganizationDescription(organization.getKey(), description);
@@ -1096,6 +1089,24 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         dm.refresh(storedOrganization);
 
         return storedOrganization;
+    }
+    
+    private void grantAccessToTheMarketplace(String marketplaceId,
+            Organization storedOrganization) throws ObjectNotFoundException,
+            ValidationException, NonUniqueBusinessKeyException {
+        if (marketplaceId == null || "".equals(marketplaceId)) {
+            return;
+        }
+        VOMarketplace voMarketplace = marketplaceService
+                .getMarketplaceById(marketplaceId);
+        if (voMarketplace.isRestricted()) {
+            VOOrganization voOrganization = new VOOrganization();
+            voOrganization.setKey(storedOrganization.getKey());
+            voOrganization
+                    .setOrganizationId(storedOrganization.getOrganizationId());
+            marketplaceService.grantAccessToMarketPlaceToOrganization(
+                    voMarketplace, voOrganization);
+        }
     }
 
     UserGroup createDefaultUserGroup(Organization org) {
