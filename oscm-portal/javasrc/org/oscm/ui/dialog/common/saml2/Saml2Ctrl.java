@@ -100,6 +100,7 @@ public class Saml2Ctrl{
 
     String generateLogoutRequest(AuthnRequestGenerator reqGenerator) throws SAML2AuthnRequestException {
         try {
+            sessionService.deletePlatformSession(getRequest().getSession().getId());
             final JAXBElement<LogoutRequestType> rootElement =
                     reqGenerator.generateLogoutRequest(sessionService.getSAMLSessionStringForSessionId(getSessionId()));
             return reqGenerator.encode(signElement(rootElement));
