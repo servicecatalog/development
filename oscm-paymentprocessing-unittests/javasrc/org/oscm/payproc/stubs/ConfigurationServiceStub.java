@@ -101,4 +101,9 @@ public class ConfigurationServiceStub implements ConfigurationServiceLocal {
     public String getBaseURL() {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public boolean isPaymentInfoAvailable() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -5,14 +5,15 @@
  *  Creation Date: 05.02.2009                                                      
  *                                                                              
  *******************************************************************************/
-
 package org.oscm.search.subscriptions;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,6 +88,7 @@ public class SearchServiceBeanTest {
         FullTextQuery parFTS = mock(FullTextQuery.class);
         FullTextQuery udaFTS = mock(FullTextQuery.class);
         FullTextQuery udaDefFTS = mock(FullTextQuery.class);
+
         doReturn(subFTS).when(session).createFullTextQuery(any(Query.class),
                 eq(Subscription.class));
         doReturn(parFTS).when(session).createFullTextQuery(any(Query.class),

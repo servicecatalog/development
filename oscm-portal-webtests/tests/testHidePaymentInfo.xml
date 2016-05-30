@@ -1,0 +1,91 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<project default="testHidePaymentInfo" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testHidePaymentInfo">
+    
+    <webtest name="setup visibility">
+      <common.setConfigurationSettingValue settingName='HIDE_PAYMENT_INFORMATION' settingValue='TRUE' />
+    </webtest>
+
+    <webtest name="test warning on Manage Payment Types">
+      <operator.createorganization />
+      <mail.readPasswordAndUrlFromMail />
+      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}"
+        password="#{userPwd}" />
+      <clickLink href="/organization/managePaymentEnablement.jsf" />
+      <verifyXPath
+        xpath="*//div[@id='warnPanel']/span/span/span[contains(text(), 'Payment types are not used on this platform.')]" />
+      <login.logout />
+    </webtest>
+
+    <webtest name="test subscription proces">
+      <mail.cleanInbox />
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace"
+        mIdProperty="marketplaceId" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}"
+        userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <techservice.import file="${techService.import.file}" />
+      <setup:service.define serviceId="ExtIntSrv0" name="ExtIntSrv0" description="Ext Int Test"
+        configuratorUrl="http://localhost:8680/oscm-service-configurator/" configurableChecked="true" namedUser="1"
+        image="data/images/icon6.png" marketplaceId="${marketplaceId}" />
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month"
+        basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:service.activate serviceIds="ExtIntSrv" start="0" count="1" />
+      <common.ignorePageScriptError />
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <clickElement htmlId="showDetails0" />
+      <clickLink htmlId="getItForLoggedUser" />
+      <clickElement htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="*//a[@id='confirmForm:confirmLink']" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickElement htmlId="confirmForm:confirmLink" />
+      <verifyXPath
+        xpath="*//span[@id='infoMessages']/span/span[contains(text(), 'The subscription ExtIntSrv0 has been successfully created')]" />
+      <not>
+        <verifyXPath xpath="*//span[contains(text(), 'Payment')]" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="test payment menu visibility for organization administrator">
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account />
+      <not>
+        <verifyXPath xpath="*//div[contains(@class, 'menubox')]/h4[contains(text(), 'Payment')]" />
+        <verifyXPath xpath="*//div[@id, 'payments']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="test payment menu visibility for unit administrator">
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_user.createGroup groupId="Group1A" groupDescription="Group 1A description" hasService="true" />
+      <mpl_goto.account.users />
+      <mpl_user.create userId="UnitAdmin" />
+      <mpl_user.display userId="#{userId}" />
+      <mpl_user.selectUserGroup groupIndex="0" groupRole="Administrator" />
+      <clickButton label="${button.save}" />
+      <mpl_login.logout />
+      <mail.readPasswordAndUrlFromMail />
+      <storeProperty name="unitAdminName" value="#{userId}" propertyType="ant" />
+      <mpl_login.loginWithChangePassword mid="${marketplaceId}" userId="#{userId}"
+        oldPassword="#{userPwd}" />
+      <mpl_goto.account />
+      <not>
+        <verifyXPath xpath="*//div[contains(@class, 'menubox')]/h4[contains(text(), 'Payment')]" />
+        <verifyXPath xpath="*//div[@id, 'payments']" />
+      </not>
+      <mpl_login.logout />
+    </webtest>
+
+    <webtest name="cleanup">
+      <common.setConfigurationSettingValue settingName='HIDE_PAYMENT_INFORMATION' settingValue='FALSE' />
+      <mail.cleanInbox />
+    </webtest>
+  </target>
+</project>

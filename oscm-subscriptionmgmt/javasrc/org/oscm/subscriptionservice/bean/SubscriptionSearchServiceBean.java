@@ -226,6 +226,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         FullTextQuery ftQuery = fts.createFullTextQuery(query, Uda.class);
         List<Uda> result = ftQuery.list();
         for (Uda item : result) {
+
             if (!UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
                     .getConfigurationType())) {
                 if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item.getUdaDefinition()

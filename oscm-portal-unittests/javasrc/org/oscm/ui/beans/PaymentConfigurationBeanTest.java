@@ -37,12 +37,9 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.domobjects.PaymentType;
-import org.oscm.ui.model.CustomerPaymentTypes;
-import org.oscm.ui.model.SelectedPaymentType;
-import org.oscm.ui.model.ServicePaymentTypes;
 import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.vo.VOOrganization;
@@ -50,6 +47,9 @@ import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
 import org.oscm.internal.vo.VOPaymentType;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.ui.model.CustomerPaymentTypes;
+import org.oscm.ui.model.SelectedPaymentType;
+import org.oscm.ui.model.ServicePaymentTypes;
 
 /**
  * Tests for the {@link PaymentConfigurationBean}.
@@ -70,6 +70,7 @@ public class PaymentConfigurationBeanTest {
     private Set<VOPaymentType> serviceDefault;
     private List<VOOrganizationPaymentConfiguration> customerConfig;
     private List<VOServicePaymentConfiguration> serviceConfig;
+    private ConfigurationService configurationService;
 
     @Captor
     ArgumentCaptor<Set<VOPaymentType>> acCustomerDefault;
@@ -115,6 +116,9 @@ public class PaymentConfigurationBeanTest {
         // avoid exceptions when accessing JSFUtils...
         doNothing().when(bean).addInfoOrProgressMessage(anyBoolean(),
                 anyString(), anyString());
+        configurationService = mock(ConfigurationService.class);
+        bean.setCfgService(configurationService);
+        doReturn(true).when(configurationService).isPaymentInfoAvailable();
     }
 
     @Test

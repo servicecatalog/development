@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -24,6 +25,8 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.UserGroup;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDOPaymentPreviewSummary;
 import org.oscm.reportingservice.business.model.billing.RDOSubscription;
@@ -32,8 +35,6 @@ import org.oscm.reportingservice.dao.BillingDao;
 import org.oscm.reportingservice.dao.UnitDao;
 import org.oscm.types.exceptions.BillingRunFailed;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -48,7 +49,7 @@ public class CustomerPaymentPreviewReport {
     final BillingServiceLocal billing;
     final UserGroupServiceLocalBean userGroupService;
     BillingResultParser brParser;
-
+    
     public CustomerPaymentPreviewReport(BillingDao dao, UnitDao unitDao,
             BillingServiceLocal billing, UserGroupServiceLocalBean userGroupService) {
         this.billingDao = dao;

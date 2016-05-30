@@ -31,8 +31,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.w3c.dom.Document;
-
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.billingservice.service.model.BillingRun;
 import org.oscm.converter.PriceConverter;
@@ -45,14 +43,15 @@ import org.oscm.domobjects.PaymentResult;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.UserRole;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.dao.BillingDao;
 import org.oscm.reportingservice.dao.BillingDao.ReportData;
 import org.oscm.reportingservice.dao.UnitDao;
 import org.oscm.stream.Streams;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.w3c.dom.Document;
 
 /**
  * @author kulle
@@ -314,7 +313,7 @@ public class CustomerPaymentPreviewReportTest {
                         any(PriceConverter.class),
                         eq(Long.valueOf(INVOCATION_TIME)));
     }
-
+    
     private void mockCalculateBillingResultsForPaymentPreview(
             long organizationKey) throws Exception {
         BillingResult billingResult = new BillingResult();
