@@ -70,6 +70,7 @@ public class Saml2Ctrl{
 
 
     private UiDelegate uiDelegate ;
+    private boolean fromLogout;
 
     public String initModelAndCheckForErrors() {
 
@@ -83,6 +84,12 @@ public class Saml2Ctrl{
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
             storeRequestIdInSession(reqGenerator.getRequestId());
+            if (fromLogout) {
+                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
+                        .getExternalContext().getRequest();
+                final HttpSession session = request.getSession();
+                session.invalidate();
+            }
         } catch (SAML2AuthnRequestException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_AUTH_REQUEST_GENERATION_FAILED);
@@ -228,5 +235,12 @@ public class Saml2Ctrl{
         return uiDelegate;
     }
 
+    public boolean isFromLogout() {
+        return fromLogout;
+    }
+
+    public void setFromLogout(boolean fromLogout) {
+        this.fromLogout = fromLogout;
+    }
 
 }
