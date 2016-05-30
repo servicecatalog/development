@@ -100,8 +100,10 @@ public class Saml2Ctrl{
 
     String generateLogoutRequest(AuthnRequestGenerator reqGenerator) throws SAML2AuthnRequestException {
         try {
+            String samlSessionId = sessionService.getSAMLSessionStringForSessionId(getSessionId());
+            sessionService.deletePlatformSession(getRequest().getSession().getId());
             final JAXBElement<LogoutRequestType> rootElement =
-                    reqGenerator.generateLogoutRequest(sessionService.getSAMLSessionStringForSessionId(getSessionId()));
+                    reqGenerator.generateLogoutRequest(samlSessionId);
             return reqGenerator.encode(signElement(rootElement));
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
