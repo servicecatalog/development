@@ -28,6 +28,7 @@ import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.subscriptionservice.bean.SubscriptionSearchServiceBean;
 
 public class SearchServiceBeanTest {
@@ -85,18 +86,23 @@ public class SearchServiceBeanTest {
         FullTextQuery subFTS = mock(FullTextQuery.class);
         FullTextQuery parFTS = mock(FullTextQuery.class);
         FullTextQuery udaFTS = mock(FullTextQuery.class);
+        FullTextQuery udaDefFTS = mock(FullTextQuery.class);
         doReturn(subFTS).when(session).createFullTextQuery(any(Query.class),
                 eq(Subscription.class));
         doReturn(parFTS).when(session).createFullTextQuery(any(Query.class),
                 eq(Parameter.class));
         doReturn(udaFTS).when(session).createFullTextQuery(any(Query.class),
                 eq(Uda.class));
+        doReturn(udaDefFTS).when(session).createFullTextQuery(any(Query.class),
+                eq(UdaDefinition.class));
         Collection<Long[]> longs = new ArrayList<>();
         Collection<Parameter[]> params = new ArrayList<>();
         Collection<Uda[]> udas = new ArrayList<>();
+        Collection<Uda[]> udaDefs = new ArrayList<>();
         longs.add(new Long[] { 10L });
         doReturn(longs).when(subFTS).list();
         doReturn(params).when(parFTS).list();
         doReturn(udas).when(udaFTS).list();
+        doReturn(udaDefs).when(udaDefFTS).list();
     }
 }
