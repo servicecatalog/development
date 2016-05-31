@@ -674,7 +674,6 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
-    @Deprecated
     private String createMarketplaceQueryWithUnitsFilterString(
             Pagination pagination, String queryFilter) {
         String dateFormat = pagination.getDateFormat();

@@ -101,10 +101,6 @@ public interface SubscriptionListServiceLocal {
     @Deprecated
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner);
 
-    List<Subscription> getSubscriptionsForOrganization(
-            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination)
-                    throws OrganizationAuthoritiesException;
-
     /**
      * Returns a list of Subscriptions which are owned by the defined
      * PlatformUser. In addition results may be filtered.
