@@ -230,7 +230,8 @@ public class BaseBean {
     public static final String ERROR_INVALID_GROUP = "error.group.invalid";
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
-
+    public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
+    
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
     public static final String WARNING_SUPPORTEDLANGUAGE_LOCALE_INVALID = "warning.supportedlanguage.locale.invalid";
