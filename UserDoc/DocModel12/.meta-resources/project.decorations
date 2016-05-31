@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.go.decoration="http://instinctools.com/com.go.decoration" xmlns:com.go.decoration.ditamodel="http://instinctools.com/com.go.decoration.ditamodel" xmlns:model="http://instinctools.com/com.go.dita.mapeditor.decoration">
+  <com.go.decoration:DecorationType name="customCSS" parentId="oxygen"/>
+  <com.go.decoration:DecorationType name="Fujitsu PDF" parentId="pdf"/>
+  <com.go.decoration:DecorationType name="Fujitsu RTF" parentId="wordrtf"/>
+  <com.go.decoration:DecorationType name="Fujitsu HTML" parentId="xhtml"/>
+  <model:MapElementDecoration groupId="Map elements" decorationTypeId="com.go.dita.mapeditor.decoration.mapEditor" key="map__linktext" empty="false" expandable="true" titleBackColor="fffbf6" borderColor="feb546" iconPath="linktext.png" titleContent="LinkText">
+    <element href="platform:/plugin/com.go.dita.modeling.model.dita11/dita_1.1/map.stmodule#//@elements.10"/>
+    <editableElements name="${text}" label="" policy="Textarea"/>
+    <editableElements name="${status}" label="status"/>
+  </model:MapElementDecoration>
+  <com.go.decoration.ditamodel:ModelAttribute groupId="DITA Model" decorationTypeId="customCSS" key="applyDecoration" type="boolean" value="true">
+    <element href="platform:/plugin/com.go.dita.modeling.model.dita11/dita_1.1/commonElements.mod.module#//@elements.4"/>
+  </com.go.decoration.ditamodel:ModelAttribute>
+  <com.go.decoration.ditamodel:ModelAttribute groupId="DITA Model" decorationTypeId="customCSS" key="isFile" type="boolean" value="false">
+    <element href="platform:/plugin/com.go.dita.modeling.model.dita11/dita_1.1/commonElements.mod.module#//@elements.4"/>
+  </com.go.decoration.ditamodel:ModelAttribute>
+  <com.go.decoration.ditamodel:ModelAttribute groupId="DITA Model" decorationTypeId="customCSS" key="text" type="String" value="*[class~=&quot;topic/title&quot;]{&#xD;&#xA;&#x9;font-size:24pt;&#xD;&#xA;}">
+    <element href="platform:/plugin/com.go.dita.modeling.model.dita11/dita_1.1/commonElements.mod.module#//@elements.4"/>
+  </com.go.decoration.ditamodel:ModelAttribute>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu PDF" key="customization.dir" type="String" value="/DocModel12/pdf.customization"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="args.copycss" type="String" value="yes"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="postprocessing.script" type="String" value="/DocModel12/html.customization/html_postprocessing.script.xml"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="args.css" type="String" value="/DocModel12/html.customization/book.css"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="args.xhtml.toc" type="String" value="helpcontent_webif"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="args.outext" type="String" value="htm"/>
+  <com.go.decoration:DecorationAttribute groupId="Publishing parameters" decorationTypeId="Fujitsu HTML" key="args.xhtml.classattr" type="String" value="no"/>
+</xmi:XMI>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<com.go.modeling.ditacommon:Package xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:com.go.modeling.ditacommon="http://instinctools.com/go/ditacommon" name="DocModel12" publicId="-//XDOC//Fujitsu_Model">
+  <dependence href="platform:/plugin/com.go.dita.modeling.model.dita12.technicalContent/resources/dita-1.2-technicalContent.package#/"/>
+</com.go.modeling.ditacommon:Package>

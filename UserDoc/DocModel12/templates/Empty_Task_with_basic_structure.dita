@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE task PUBLIC "-//OASIS//DTD DITA Task//EN" "task.dtd" >
+<task id="Empty_Task_with_basic_structure1232113756562">
+  <title/>
+  <prolog></prolog>
+  <taskbody>
+    <context></context>
+    <steps>
+      <step>
+        <cmd></cmd>
+        <info></info>
+        <stepresult></stepresult>
+      </step>
+    </steps>
+    <result></result>
+  </taskbody>
+</task>

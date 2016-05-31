@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="postprocess" default="html" basedir=".">
+
+	<property name="base.dir" value="${args.input}${file.separator}..${file.separator}help"/>
+	
+	<target name="init" />
+
+	<target name="html" description="Build a Web Interface help"
+		depends="init">
+
+		<!-- *Copy required files to output folder -->
+		<copy todir="${output.dir}" overwrite="yes">
+			<fileset dir="${base.dir}">
+				<include name="index_webif.htm" />
+				<include name="default.html" />
+				<include name="online_img.png" />
+			</fileset>
+		</copy>
+
+		<!-- *Add css reference to the table of contents -->
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			token="&lt;head&gt;"
+			value="&lt;head&gt;&lt;link href=&quot;book.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;" />
+
+		<!--
+			*Add title and heading to the table of contents and to the HTML frame
+		-->
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			propertyFile="${base.dir}${file.separator}html.properties">
+			<replacefilter token="&lt;body&gt;" property="heading.key" />
+		</replace>
+
+		<replace file="${output.dir}${file.separator}index_webif.htm"
+			propertyFile="${base.dir}${file.separator}html.properties">
+			<replacefilter token="@@@title@@@" property="bes.key" />
+			<replacefilter token="@@@noframes@@@" property="noframes.key" />
+		</replace>
+		
+		<!-- *Remove the DOCTYPE from the toc file for better look compatibility with previous version  of toolkit-->
+		
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			token='&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;'
+			value="" />
+		
+		
+		<delete file="${output.dir}${file.separator}dita.list"/>
+		<delete file="${output.dir}${file.separator}dita.xml.properties"/>
+
+	</target>
+
+</project> 

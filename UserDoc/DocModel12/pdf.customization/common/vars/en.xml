@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ######################################################################################### -->
+<!--
+*
+*
+*
+-->
+<!-- ######################################################################################### -->
+
+
+<!-- ######################################################################################### -->
+<vars xmlns="http://www.idiominc.com/opentopic/vars">
+
+
+<!-- ######################################################################################### -->
+<!-- header:
+	here you can define the header text. Valid param ref-names are:
+	- number (chapter-number)
+	- title (chapter-title)
+-->
+
+	<variable id="header.toc">Table of Contents</variable>
+	<!-- jko: 2006-04-21 old
+	<variable id="header.abstract"><param ref-name="number"/>: <param ref-name="title"/></variable>
+	-->
+	<!-- jko: 2006-04-21 new -->
+	<variable id="header.abstract"><param ref-name="title"/></variable>
+	<!-- end -->
+	<variable id="header.preface"><param ref-name="title"/></variable>
+	<variable id="header.chapter"><param ref-name="number"/>: <param ref-name="title"/></variable>
+	<variable id="header.appendix">Appendix <param ref-name="number"/>: <param ref-name="title"/></variable>
+	<variable id="header.glossary">Glossary</variable>
+	<variable id="header.index">Index</variable>
+
+
+<!-- ######################################################################################### -->
+<!-- toc variables -->
+
+	<!-- headline for TOC -->
+	<variable id="toc.headline">Table of Contents</variable>
+
+	<variable id="Table of Contents">Table of Contents</variable>
+	
+
+<!-- ========================================================================================= -->
+<!-- level1 numbers -->
+
+	<!-- The string is used to label a level1 chapter number within toc -->
+	<variable id="toc.chapter.number"><param ref-name="number"/></variable>
+
+	<!-- The string is used to label a level1 appendix number within toc -->
+	<variable id="toc.appendix.number">Appendix&#160;<param ref-name="number"/></variable>
+
+	<!-- The string is used to label a level1 glossary number within toc -->
+	<variable id="toc.glossary.number">Glossary</variable>
+
+	<!-- The string is used to label a level1 preface number within toc -->
+<!-- jko: 2006-04-21 old
+	<variable id="toc.preface.number"><param ref-name="number"/></variable>
+-->
+<!-- jko: 2006-04-21 new -->
+	<variable id="toc.preface.number"></variable>
+	<variable id="toc.index.number">Index</variable>
+<!-- end -->
+	<!-- The string is used to label a level1 abstract number within toc -->
+	<variable id="toc.abstract.number"><param ref-name="number"/></variable>
+
+
+<!-- ========================================================================================= -->
+<!-- level 1 titles -->
+
+	<!-- The string is used to label a level1 chapter title within toc -->
+	<variable id="toc.chapter.title"><param ref-name="title"/></variable>
+
+	<!-- The string is used to label a level1 appendix title within toc -->
+	<variable id="toc.appendix.title"><param ref-name="title"/></variable>
+
+	<!-- The string is used to label a level1 glossary title within toc -->
+	<variable id="toc.glossary.title"></variable>
+
+	<!-- The string is used to label a level1 preface title within toc -->
+	<variable id="toc.preface.title"><param ref-name="title"/></variable>
+
+	<!-- The string is used to label a level1 abstract title within toc -->
+	<variable id="toc.abstract.title"><param ref-name="title"/></variable>
+<!-- jko: 2006-04-21 new -->
+	<!-- The string is used to label a level1 abstract title within toc -->
+	<variable id="toc.index.title"></variable>
+<!-- end -->
+
+
+
+
+<!-- ========================================================================================= -->
+<!-- Labels for bookmark numbers -->
+
+	<!-- Label for a level 1 chapter number in the bookmark tree -->
+	<variable id="bookmark.chapter.number"><param ref-name="number"/></variable>
+
+	<!-- Label for a level 1 appendix number in the bookmark tree -->
+	<variable id="bookmark.appendix.number">Appendix&#160;<param ref-name="number"/>:</variable>
+
+	<!-- Label for a level 1 glossary number in the bookmark tree -->
+	<variable id="bookmark.glossary.number"></variable>
+
+	<!-- Label for a level 1 preface number in the bookmark tree -->
+	<variable id="bookmark.preface.number"></variable>
+
+	<!-- Label for a level 1 abstract number in the bookmark tree -->
+	<variable id="bookmark.abstract.number"><param ref-name="number"/></variable>
+
+
+
+
+<!-- ######################################################################################### -->
+
+	<!-- The formatting used to display ordered lists (e.g., "1., 2." or
+			"1), 2)" -->
+	<variable id="Ordered List Number"><param ref-name="number"/>. </variable>
+
+	<!-- The unordered list bullet   -->
+	<variable id="Unordered List bullet">&#x2022;</variable>
+
+	<!-- The heading string to put at the top of the Index -->
+	<variable id="Index">Index</variable>
+
+	<variable id="Index Continued String">continued</variable>
+
+	<!-- Text to use for appendix titles.-->
+	<variable id="Appendix">Appendix </variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element. -->
+	<variable id="Note">Note:</variable>
+
+	<!-- Text to use for figure titles. Renders as part of <fig>/<title>
+			elements. -->
+	<variable id="Figure">Figure <param ref-name="number"/>: <param ref-name="title"/></variable>
+
+<!-- GS 2006-11-14: Removed blank before 'on page'; this blank is now generated by links.xsl -->
+	<!-- Template for generated page number of a reference
+			in printed manual. -->
+<!-- GS 2009-03-02: Insert a non-breaking space after the string 'on page' -->
+	<variable id="On the page">on page&#160;<param ref-name="pagenum"/></variable>
+
+	<!-- Text to use for appendix titles.-->
+	<variable id="Appendix with number">Appendix <param ref-name="number"/></variable>
+
+
+<!-- GS 2006-11-14: The subsequent variables are not used with IBPM -->
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'tip'. -->
+	<variable id="Tip">Tip</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'tip'. -->
+	<variable id="Important">Important</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'fastpath'. -->
+	<variable id="Fastpath">Fastpath</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'remember'. -->
+	<variable id="Remember">Remember</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'attention'. -->
+	<variable id="Attention">Attention</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'caution'. -->
+	<variable id="Caution">Caution</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'danger'. -->
+	<variable id="Danger">Danger</variable>
+
+	<!-- Text to use for 'Note' label generated from <note> element
+			with 'type' attribute set to 'restriction'. -->
+	<variable id="Restriction">Restriction</variable>
+
+	<!-- Text to use for table titles. Renders as part of <table>/<title>
+			elements. -->
+	<variable id="Table">Table <param ref-name="number"/>: <param ref-name="title"/></variable>
+
+	<!-- Text to use for related links label.
+			Renders as part of <related-links> element. -->
+	<variable id="Related Links">Related Links</variable>
+
+	<!-- Default cross-reference text prefix. Used to generate reference
+			text in case it's not specified in source. -->
+	<variable id="Cross-Reference">Cross-Reference to:</variable>
+
+	<!-- Default content-reference text prefix. Used to generate reference
+			text in case target cannot be resolved. -->
+	<variable id="Content-Reference">Content-Reference to:</variable>
+
+	<!-- Default title text for referenced section title. Used to generate
+			reference text in case reference has no explicit content and
+			referenced section has no title. -->
+	<variable id="Untitled section">Untitled section.</variable>
+
+	<!-- Default title text for referenced list item. Used to generate
+			reference text in case reference has no explicit content and
+			reference target is a list item. -->
+	<variable id="List item">List item.</variable>
+
+	<!-- Default title text for referenced footnote. Used to generate
+			reference text in case reference has no explicit content and
+			reference target is a footnote. -->
+	<variable id="Foot note">Footnote.</variable>
+
+	<!-- Text to use for a generated label of navigation title. Renders
+			as part of <navtitle> element. -->
+	<variable id="Navigation title">Navigation title</variable>
+
+	<!-- Text to use for a generated label of search title. Renders
+			as part of <searchtitle> element. -->
+	<!-- variable id="Search title">Search title</variable -->
+	<variable id="Search title"></variable>
+
+	<!-- Text to use for chapter titles.-->
+	<variable id="Chapter with number">Chapter <param ref-name="number"/></variable>
+
+	<!-- Text to use for part titles.-->
+	<variable id="Part with number">Part <param ref-name="number"/></variable>
+
+	<!-- Text to use for a label generated from <required-cleanup> element. -->
+	<variable id="Required-Cleanup">[Required-Cleanup]</variable>
+
+	<!-- Template for generated page number of a reference
+			in printed manual, when referenced element has no title. -->
+	<variable id="Page"> page <param ref-name="pagenum"/></variable>
+
+	<!-- Template for generated page number of a reference
+			in chm/html, when referenced element has no title. -->
+	<variable id="This link">this link</variable>
+
+	<!-- Image path to use for a note of "note" type. -->
+	<variable id="note Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "attention" type. -->
+	<variable id="attention Note Image Path">Configuration/OpenTopic/cfg/common/artwork/warning.gif</variable>
+
+	<!-- Image path to use for a note of "caution" type. -->
+	<variable id="caution Note Image Path">Configuration/OpenTopic/cfg/common/artwork/warning.gif</variable>
+
+	<!-- Image path to use for a note of "danger" type. -->
+	<variable id="danger Note Image Path">Configuration/OpenTopic/cfg/common/artwork/warning.gif</variable>
+
+	<!-- Image path to use for a note of "fastpath" type. -->
+	<variable id="fastpath Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "important" type. -->
+	<variable id="important Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "remember" type. -->
+	<variable id="remember Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "restriction" type. -->
+	<variable id="restriction Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "tip" type. -->
+	<variable id="tip Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!-- Image path to use for a note of "other" type. -->
+	<variable id="other Note Image Path">Configuration/OpenTopic/cfg/common/artwork/hand.gif</variable>
+
+	<!--
+		Strings used in the online-help publishing.
+	-->
+
+	<!-- The title of the "contents" button in online-help output -->
+	<variable id="Contents button title">Contents</variable>
+
+	<!-- The title of the "index" button in online-help output -->
+	<variable id="Index button title">Index</variable>
+
+	<!-- The title of the "search" button in online-help output -->
+	<variable id="Search button title">Search</variable>
+
+	<!-- The title of the "back" button in online-help output -->
+	<variable id="Back button title">Back</variable>
+
+	<!-- The title of the "forward" button in online-help output -->
+	<variable id="Forward button title">Forward</variable>
+
+	<!-- The title of the "main page" button in online-help output -->
+	<variable id="Main page button title">Main Page</variable>
+
+	<!-- The title of the "previous page" button in online-help output -->
+	<variable id="Previous page button title">Previous Page</variable>
+
+	<!-- The title of the "next page" button in online-help output -->
+	<variable id="Next page button title">Next Page</variable>
+
+	<!-- The "online help" document title prefix in online-help output -->
+	<variable id="Online help prefix">Online Help</variable>
+
+	<!-- The search by index field title in online-help output -->
+	<variable id="Search index field title">Search for the keyword:</variable>
+
+	<!-- The search by index button title in online-help output -->
+	<variable id="Search index button title">View</variable>
+
+	<!-- The search by text field title in online-help output -->
+	<variable id="Search text field title">Search help for:</variable>
+
+	<!-- The search by text button title in online-help output -->
+	<variable id="Search text button title">Search</variable>
+</vars>

@@ -1,4 +1,1 @@
-"VCenter","Datacenter","Cluster","Name","Gateway","SubnetMask","DNSServer","DNSSuffix","Enabled"
-"estvcenterdev1","bespoc","esscluster","VLAN1","10.10.1.1","255.255.251.0","10.10.1.11","fujitsu1.com","true"
-"estvcenterdev1","bespoc","esscluster","VLAN2","10.10.1.2","255.255.252.0","10.10.1.22","fujitsu2.com","true"
-"estvcenterdev1","bespoc","esscluster","VM Network","10.10.1.3","255.255.253.0","10.10.1.33","fujitsu3.com","true"
+VCenter,Datacenter,Cluster,Name,Gateway,SubnetMask,DNSServer,DNSSuffix,Enabled

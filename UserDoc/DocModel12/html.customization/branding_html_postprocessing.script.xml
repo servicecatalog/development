@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="postprocess" default="html" basedir=".">
+
+	<property name="base.dir" value="${args.input}${file.separator}..${file.separator}help"/>
+	
+	<target name="init" />
+
+	<target name="build" description="Build a Web Interface help"
+		depends="init">
+
+		<!-- *Copy required files to output folder -->
+		<copy todir="${output.dir}" overwrite="yes">
+			<fileset dir="${base.dir}">
+				<include name="index_webif.htm" />
+				<include name="default.html" />
+				<include name="online_img.png" />
+			</fileset>
+		</copy>
+
+		<!-- *Add css reference to the table of contents -->
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			token="&lt;head&gt;"
+			value="&lt;head&gt;&lt;link href=&quot;book.css&quot; type=&quot;text/css&quot; rel=&quot;stylesheet&quot; /&gt;" />
+
+		<!--
+			*Add title and heading to the table of contents and to the HTML frame
+		-->
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			propertyFile="${base.dir}${file.separator}html.properties">
+			<replacefilter token="&lt;body&gt;" property="heading.key" />
+		</replace>
+
+		<replace file="${output.dir}${file.separator}index_webif.htm"
+			propertyFile="${base.dir}${file.separator}html.properties">
+			<replacefilter token="@@@title@@@" property="bes.key" />
+			<replacefilter token="@@@noframes@@@" property="noframes.key" />
+		</replace>
+		
+		<!-- *Remove the DOCTYPE from the toc file for better look compatibility with previous version  of toolkit-->
+		
+		<replace
+			file="${output.dir}${file.separator}${args.xhtml.toc}.${args.outext}"
+			token='&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"&gt;'
+			value="" />
+		
+		
+		<delete file="${output.dir}${file.separator}dita.list"/>
+		<delete file="${output.dir}${file.separator}dita.xml.properties"/>
+    </target>
+
+	<condition property="MPBranding">
+		<matches string="${args.input}" pattern="/DocSources12/en/MPBranding.ditamap"/>
+	</condition>
+	<condition property="MPBrandingFJ">
+		<matches string="${args.input}" pattern="/DocSources12/en/MPBrandingFJ.ditamap"/>
+	</condition>
+	<condition property="BrandingFCIP">
+		<matches string="${args.input}" pattern="/DocSources12/en/BrandingFCIP.ditamap"/>
+	</condition>
+	
+	<target name="MPBranding" depends="build" if="MPBranding">
+	<copy
+		file="${output.dir}${file.separator}book.css"
+		todir="${output.dir}${file.separator}MPBranding">
+	</copy>
+	<copy
+		file="${output.dir}${file.separator}commonltr.css"
+		todir="${output.dir}${file.separator}MPBranding">
+	</copy>
+	<replace 
+		dir="${output.dir}${file.separator}MPBranding/">
+		<replacefilter 
+			token="../commonltr.css" 
+			value="commonltr.css"/>
+	</replace>
+	<replace 
+		dir="${output.dir}${file.separator}MPBranding/">
+		<replacefilter 
+			token="../book.css" 
+			value="book.css"/>
+	</replace>
+	<move
+		file="${output.dir}${file.separator}MPBranding"
+		tofile="${output.dir}${file.separator}Readme">
+	</move>
+    </target>	
+
+	<target name="MPBrandingFJ" depends="build" if="MPBrandingFJ">
+		<copy
+			file="${output.dir}${file.separator}book.css"
+			todir="${output.dir}${file.separator}MPBrandingFJ">
+		</copy>
+		<copy
+			file="${output.dir}${file.separator}commonltr.css"
+			todir="${output.dir}${file.separator}MPBrandingFJ">
+		</copy>
+		<replace 
+			dir="${output.dir}${file.separator}MPBrandingFJ/">
+			<replacefilter 
+				token="../commonltr.css" 
+				value="commonltr.css"/>
+		</replace>
+		<replace 
+			dir="${output.dir}${file.separator}MPBrandingFJ/">
+			<replacefilter 
+				token="../book.css" 
+				value="book.css"/>
+		</replace>
+		<move
+			file="${output.dir}${file.separator}MPBrandingFJ"
+			tofile="${output.dir}${file.separator}Readme">
+		</move>
+		
+	</target>	
+	
+	<target name="BrandingFCIP" depends="build" if="BrandingFCIP">
+		<copy
+			file="${output.dir}${file.separator}book.css"
+			todir="${output.dir}${file.separator}BrandingFCIP">
+		</copy>
+		<copy
+			file="${output.dir}${file.separator}commonltr.css"
+			todir="${output.dir}${file.separator}BrandingFCIP">
+		</copy>
+		<replace 
+			dir="${output.dir}${file.separator}BrandingFCIP/">
+			<replacefilter 
+				token="../commonltr.css" 
+				value="commonltr.css"/>
+		</replace>
+		<replace 
+			dir="${output.dir}${file.separator}BrandingFCIP/">
+			<replacefilter 
+				token="../book.css" 
+				value="book.css"/>
+		</replace>
+		<move
+			file="${output.dir}${file.separator}BrandingFCIP"
+			tofile="${output.dir}${file.separator}Readme">
+		</move>
+		
+	</target>	
+
+<target name="html" description="Build a Web Interface help"
+		depends="init, build, MPBranding, MPBrandingFJ, BrandingFCIP" />
+		
+
+</project> 

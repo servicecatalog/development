@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:com.go.topicmap="http://go.com/topicmap" xmlns:notation="http://www.eclipse.org/gmf/runtime/1.0.1/notation">
+  <com.go.topicmap:TopicMap name="Test classification">
+    <topics name="Design" type="Departments"/>
+    <topics name="Production" type="Departments"/>
+    <topics name="Finance" type="Departments"/>
+    <topics name="Legal" type="Departments"/>
+    <topics name="component1" type="Component"/>
+    <topics name="component2" type="Component"/>
+    <topics name="component3" type="Component"/>
+    <topics name="Germany" type="Location"/>
+    <topics name="USA" type="Location"/>
+    <topics name="China" type="Location"/>
+  </com.go.topicmap:TopicMap>
+  <notation:Diagram type="Topicmap" element="/0" name="My.topicmap" measurementUnit="Pixel">
+    <children type="1001" element="/0/@topics.0">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="35" y="50"/>
+    </children>
+    <children type="1001" element="/0/@topics.1">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="35" y="95"/>
+    </children>
+    <children type="1001" element="/0/@topics.2">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="35" y="140"/>
+    </children>
+    <children type="1001" element="/0/@topics.3">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="35" y="185"/>
+    </children>
+    <children type="1001" element="/0/@topics.4">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="250" y="50"/>
+    </children>
+    <children type="1001" element="/0/@topics.5">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="250" y="100"/>
+    </children>
+    <children type="1001" element="/0/@topics.6">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="250" y="150"/>
+    </children>
+    <children type="1001" element="/0/@topics.7">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="505" y="140"/>
+    </children>
+    <children type="1001" element="/0/@topics.8">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="505" y="50"/>
+    </children>
+    <children type="1001" element="/0/@topics.9">
+      <children type="4001"/>
+      <children type="4002"/>
+      <styles xsi:type="notation:ShapeStyle"/>
+      <layoutConstraint xsi:type="notation:Bounds" x="505" y="95"/>
+    </children>
+    <styles xsi:type="notation:DiagramStyle"/>
+  </notation:Diagram>
+</xmi:XMI>

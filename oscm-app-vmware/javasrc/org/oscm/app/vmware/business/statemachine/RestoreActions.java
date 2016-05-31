@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business.statemachine;
@@ -21,7 +21,7 @@ import com.vmware.vim25.ManagedObjectReference;
 
 /**
  * @author kulle
- * 
+ *
  */
 public class RestoreActions extends Actions {
 
@@ -30,6 +30,7 @@ public class RestoreActions extends Actions {
 
     private static final String EVENT_RUN = "run";
 
+    @SuppressWarnings("resource")
     @StateMachineAction
     public String restoreSnapshot(String instanceId,
             ProvisioningSettings settings,
@@ -56,9 +57,9 @@ public class RestoreActions extends Actions {
 
             ManagedObjectReference targetHost = null;
             boolean suppressPowerOn = false;
-            ManagedObjectReference task = client
-                    .getService()
-                    .revertToSnapshotTask(snapshot, targetHost, suppressPowerOn);
+            ManagedObjectReference task = client.getService()
+                    .revertToSnapshotTask(snapshot, targetHost,
+                            suppressPowerOn);
 
             ph.setTask(client.retrieveTaskInfoKey(task));
             return EVENT_RUN;
@@ -71,8 +72,8 @@ public class RestoreActions extends Actions {
         } finally {
             if (client != null) {
                 try {
-                    VMClientPool.getInstance().getPool()
-                            .returnObject(vcenter, client);
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            client);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }

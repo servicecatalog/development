@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.i18n;
@@ -22,12 +22,12 @@ import org.oscm.app.v1_0.data.LocalizedText;
 /**
  * This class represents a singleton [GoF] facility for the I18N handling based
  * on locale specific message files.
- * 
+ *
  * A message file is a standard Java property file that contains key- value
  * pairs. The key represents the message id and the value the I18N string.
- * 
+ *
  * The I18N location is distinguished by the file name. For example
- * 
+ *
  * messages_jp.properties stands for the japanese message file.
  * messages_EN_us.properties stands for the US english message file.
  */

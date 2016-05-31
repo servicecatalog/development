@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -37,8 +37,8 @@ public class GenericImport {
             Class.forName(driverClass);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-            throw new RuntimeException("DriverClass '" + driverClass
-                    + "' could not be found");
+            throw new RuntimeException(
+                    "DriverClass '" + driverClass + "' could not be found");
         }
 
         this.driverURL = driverURL;
@@ -64,13 +64,13 @@ public class GenericImport {
             return new FileInputStream(csvFile);
         } catch (FileNotFoundException e) {
             logger.error("Failed to create file input stream.", e);
-            throw new RuntimeException("Failed to create file input stream '"
-                    + csvFile + "'.");
+            throw new RuntimeException(
+                    "Failed to create file input stream '" + csvFile + "'.");
         }
     }
 
-    protected int getVlanTkey(String vcenter, String datacenter,
-            String cluster, String vlan) throws Exception {
+    protected int getVlanTkey(String vcenter, String datacenter, String cluster,
+            String vlan) throws Exception {
         String query = "select tkey from vlan where name = ? and cluster_tkey = (select tkey from cluster where name = ? and datacenter_tkey = (select tkey from datacenter where name = ? and vcenter_tkey = (select tkey from vcenter where name = ?)))";
         int tkey = -1;
         try (Connection con = getConnection();
@@ -119,9 +119,8 @@ public class GenericImport {
         }
 
         if (tkey == -1) {
-            throw new Exception("Failed to retrieve tkey for cluster "
-                    + cluster + " datacenter: " + datacenter + " vcenter: "
-                    + vcenter);
+            throw new Exception("Failed to retrieve tkey for cluster " + cluster
+                    + " datacenter: " + datacenter + " vcenter: " + vcenter);
         }
 
         return tkey;

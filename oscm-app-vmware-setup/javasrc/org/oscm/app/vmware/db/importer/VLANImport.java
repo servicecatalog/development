@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.db.importer;
@@ -26,8 +26,8 @@ public class VLANImport extends GenericImport {
             throw new RuntimeException(
                     "Usage: VLANImport <driverClass> <driverURL> <userName> <userPwd> <csvFile>");
         }
-        VLANImport ipImport = new VLANImport(args[0], args[1], args[2],
-                args[3], args[4]);
+        VLANImport ipImport = new VLANImport(args[0], args[1], args[2], args[3],
+                args[4]);
         ipImport.execute();
     }
 
@@ -72,12 +72,7 @@ public class VLANImport extends GenericImport {
                     line = csv.readNext();
                 } catch (Exception e) {
                     logger.error("Failed to read line from CSV file after row: "
-                            + vcenter
-                            + " "
-                            + datacenter
-                            + " "
-                            + cluster
-                            + " "
+                            + vcenter + " " + datacenter + " " + cluster + " "
                             + vlan + " " + dnsServer + " " + dnsSuffix);
                     logger.error(e.getMessage());
                     conn.rollback();

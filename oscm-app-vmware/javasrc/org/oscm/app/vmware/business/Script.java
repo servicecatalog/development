@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.business;
@@ -23,6 +23,7 @@ import javax.net.ssl.SSLSession;
 import javax.xml.datatype.DatatypeFactory;
 
 import org.apache.commons.io.IOUtils;
+import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.persistence.DataAccessService;
 import org.oscm.app.vmware.remote.bes.ServiceParamRetrieval;
 import org.oscm.app.vmware.remote.vmware.ManagedObjectAccessor;
@@ -42,15 +43,32 @@ import com.vmware.vim25.VimPortType;
 
 public class Script {
 
-    public static final String WINDOWS_GUEST_FILE_PATH = "C:\\Windows\\Temp\\runonce.bat";
-    public static final String LINUX_GUEST_FILE_PATH = "/tmp/runonce.sh";
+    private static final Logger LOG = LoggerFactory.getLogger(Script.class);
 
-    private static final Logger logger = LoggerFactory.getLogger(Script.class);
+    private static final String WINDOWS_GUEST_FILE_PATH = "C:\\Windows\\Temp\\runonce.bat";
+    private static final String LINUX_GUEST_FILE_PATH = "/tmp/runonce.sh";
+
+    private OS os;
+    private VMPropertyHandler ph;
+    private ServiceParamRetrieval sp;
 
     private String guestUserId;
     private String guestPassword;
     private String script;
-    private boolean isWindows;
+
+    public enum OS {
+        LINUX("\n"), WINDOWS("\r\n");
+
+        private String lineEnding;
+
+        private OS(String lineEnding) {
+            this.lineEnding = lineEnding;
+        }
+
+        public String getLineEnding() {
+            return lineEnding;
+        }
+    }
 
     private class TrustAllTrustManager implements javax.net.ssl.TrustManager,
             javax.net.ssl.X509TrustManager {
@@ -58,12 +76,6 @@ public class Script {
         @Override
         public java.security.cert.X509Certificate[] getAcceptedIssuers() {
             return null;
-        }
-
-        @SuppressWarnings("unused")
-        public boolean isServerTrusted(
-                java.security.cert.X509Certificate[] certs) {
-            return true;
         }
 
         @SuppressWarnings("unused")
@@ -87,23 +99,26 @@ public class Script {
         }
     }
 
-    public Script(String guestUserId, String guestPassword, String scriptURL,
-            boolean isWindows) throws Exception {
-        this.guestUserId = guestUserId;
-        this.guestPassword = guestPassword;
-        this.isWindows = isWindows;
+    public Script(VMPropertyHandler ph, OS os) throws Exception {
+        this.ph = ph;
+        this.os = os;
 
-        logger.debug("userid: " + guestUserId + " pwd: " + guestPassword
-                + " script: " + scriptURL);
+        sp = new ServiceParamRetrieval(ph);
+        guestUserId = ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_USERID);
+        guestPassword = ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD);
+
         // TODO load certificate from vSphere host and install somehow
         disableSSL();
-        script = downloadFile(scriptURL);
+
+        script = downloadFile(
+                ph.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL));
     }
 
+    /**
+     * Declare a host name verifier that will automatically enable the
+     * connection. The host name verifier is invoked during the SSL handshake.
+     */
     private void disableSSL() throws Exception {
-        // Declare a host name verifier that will automatically enable
-        // the connection. The host name verifier is invoked during
-        // the SSL handshake.
         javax.net.ssl.HostnameVerifier verifier = new HostnameVerifier() {
             @Override
             public boolean verify(String urlHostName, SSLSession session) {
@@ -121,9 +136,40 @@ public class Script {
         sslsc.setSessionTimeout(0);
         sc.init(null, trustAllCerts, null);
 
-        javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(sc
-                .getSocketFactory());
+        javax.net.ssl.HttpsURLConnection
+                .setDefaultSSLSocketFactory(sc.getSocketFactory());
         HttpsURLConnection.setDefaultHostnameVerifier(verifier);
+    }
+
+    private String downloadFile(String url) throws Exception {
+        HttpURLConnection conn = null;
+        int returnErrorCode = HttpURLConnection.HTTP_OK;
+        StringWriter writer = new StringWriter();
+        try {
+            URL urlSt = new URL(url);
+            conn = (HttpURLConnection) urlSt.openConnection();
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Content-Type", "application/octet-stream");
+            conn.setRequestMethod("GET");
+            try (InputStream in = conn.getInputStream();) {
+                IOUtils.copy(in, writer, "UTF-8");
+            }
+            returnErrorCode = conn.getResponseCode();
+        } catch (Exception e) {
+            LOG.error("Failed to download script file " + url, e);
+            throw new Exception("Failed to download script file " + url);
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+
+        if (HttpURLConnection.HTTP_OK != returnErrorCode) {
+            throw new Exception("Failed to download script file " + url);
+        }
+
+        return writer.toString();
     }
 
     private void uploadScriptFileToVM(VimPortType vimPort,
@@ -133,13 +179,13 @@ public class Script {
             throws Exception {
 
         String fileUploadUrl = null;
-        if (isWindows) {
+        if (os == OS.WINDOWS) {
             GuestWindowsFileAttributes guestFileAttributes = new GuestWindowsFileAttributes();
             guestFileAttributes.setAccessTime(DatatypeFactory.newInstance()
                     .newXMLGregorianCalendar(new GregorianCalendar()));
-            guestFileAttributes.setModificationTime(DatatypeFactory
-                    .newInstance().newXMLGregorianCalendar(
-                            new GregorianCalendar()));
+            guestFileAttributes
+                    .setModificationTime(DatatypeFactory.newInstance()
+                            .newXMLGregorianCalendar(new GregorianCalendar()));
             fileUploadUrl = vimPort.initiateFileTransferToGuest(fileManagerRef,
                     vmwInstance, auth, WINDOWS_GUEST_FILE_PATH,
                     guestFileAttributes, script.length(), true);
@@ -148,19 +194,19 @@ public class Script {
             guestFileAttributes.setPermissions(Long.valueOf(500));
             guestFileAttributes.setAccessTime(DatatypeFactory.newInstance()
                     .newXMLGregorianCalendar(new GregorianCalendar()));
-            guestFileAttributes.setModificationTime(DatatypeFactory
-                    .newInstance().newXMLGregorianCalendar(
-                            new GregorianCalendar()));
+            guestFileAttributes
+                    .setModificationTime(DatatypeFactory.newInstance()
+                            .newXMLGregorianCalendar(new GregorianCalendar()));
             fileUploadUrl = vimPort.initiateFileTransferToGuest(fileManagerRef,
                     vmwInstance, auth, LINUX_GUEST_FILE_PATH,
                     guestFileAttributes, script.length(), true);
         }
 
         fileUploadUrl = fileUploadUrl.replaceAll("\\*", hostname);
-        logger.debug("Uploading the file to :" + fileUploadUrl);
+        LOG.debug("Uploading the file to :" + fileUploadUrl);
 
         HttpURLConnection conn = null;
-        int returnErrorCode = HttpsURLConnection.HTTP_OK;
+        int returnErrorCode = HttpURLConnection.HTTP_OK;
 
         try {
             URL urlSt = new URL(fileUploadUrl);
@@ -176,7 +222,7 @@ public class Script {
             }
             returnErrorCode = conn.getResponseCode();
         } catch (Exception e) {
-            logger.error("Failed to upload file.", e);
+            LOG.error("Failed to upload file.", e);
             throw new Exception("Failed to upload file.");
         } finally {
             if (conn != null) {
@@ -184,223 +230,151 @@ public class Script {
             }
         }
 
-        if (HttpsURLConnection.HTTP_OK != returnErrorCode) {
+        if (HttpURLConnection.HTTP_OK != returnErrorCode) {
             throw new Exception("Failed to upload file. HTTP response code: "
                     + returnErrorCode);
         }
     }
 
-    private String downloadFile(String url) throws Exception {
-        HttpURLConnection conn = null;
-        int returnErrorCode = HttpsURLConnection.HTTP_OK;
-        StringWriter writer = new StringWriter();
-        try {
-            URL urlSt = new URL(url);
-            conn = (HttpURLConnection) urlSt.openConnection();
-            conn.setDoInput(true);
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/octet-stream");
-            conn.setRequestMethod("GET");
-            try (InputStream in = conn.getInputStream();) {
-                IOUtils.copy(in, writer, "UTF-8");
-            }
-            returnErrorCode = conn.getResponseCode();
-        } catch (Exception e) {
-            logger.error("Failed to download script file " + url, e);
-            throw new Exception("Failed to download script file " + url);
-        } finally {
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
+    private String insertServiceParameter() throws Exception {
+        LOG.debug("Script before patching:\n" + script);
 
-        if (HttpsURLConnection.HTTP_OK != returnErrorCode) {
-            throw new Exception("Failed to download script file " + url);
-        }
-
-        return writer.toString();
-    }
-
-    private String insertServiceParameter(VMPropertyHandler ph)
-            throws Exception {
-        logger.debug("");
-
-        ServiceParamRetrieval sp = new ServiceParamRetrieval(ph);
-        String DELIMITER = (isWindows ? "\r\n" : "\n");
-        String firstLine = script.substring(0, script.indexOf(DELIMITER));
-        String rest = script.substring(script.indexOf(DELIMITER) + 1,
+        String firstLine = script.substring(0,
+                script.indexOf(os.getLineEnding()));
+        String rest = script.substring(script.indexOf(os.getLineEnding()) + 1,
                 script.length());
+
         StringBuffer sb = new StringBuffer();
-        int numNics = Integer.parseInt(sp
-                .getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
-
-        if (isWindows) {
-            String value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN);
-            sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN + "="
-                    + value + DELIMITER);
-            value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD);
-            sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD
-                    + "=" + value + DELIMITER);
-            value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
-            sb.append("set " + VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN + "="
-                    + value + DELIMITER);
-            value = sp.getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME);
-            sb.append("set " + VMPropertyHandler.TS_DOMAIN_NAME + "=" + value
-                    + DELIMITER);
-            value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD);
-            sb.append("set " + VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD
-                    + "=" + value + DELIMITER);
-            value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_WINDOWS_WORKGROUP);
-            sb.append("set " + VMPropertyHandler.TS_WINDOWS_WORKGROUP + "="
-                    + value + DELIMITER);
-
-            while (numNics > 0) {
-                String param = getIndexedParam(
-                        VMPropertyHandler.TS_NIC1_DNS_SERVER, numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SUFFIX,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_GATEWAY,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_IP_ADDRESS,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                param = getIndexedParam(
-                        VMPropertyHandler.TS_NIC1_NETWORK_ADAPTER, numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append("set " + param + "=" + value + DELIMITER);
-
-                numNics--;
-            }
-
-            sb.append("set " + VMPropertyHandler.TS_INSTANCENAME + "="
-                    + ph.getInstanceName() + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL);
-            sb.append("set " + VMPropertyHandler.TS_SCRIPT_URL + "=" + value
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_USERID);
-            sb.append("set " + VMPropertyHandler.TS_SCRIPT_USERID + "=" + value
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD);
-            sb.append("set " + VMPropertyHandler.TS_SCRIPT_PWD + "=" + value
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.REQUESTING_USER);
-            sb.append("set " + VMPropertyHandler.REQUESTING_USER + "=" + value
-                    + DELIMITER);
-
+        if (os == OS.WINDOWS) {
+            addServiceParametersForWindowsVms(sb);
         } else {
-            String value = sp
-                    .getServiceSetting(VMPropertyHandler.TS_LINUX_ROOT_PWD);
-            sb.append(VMPropertyHandler.TS_LINUX_ROOT_PWD + "='" + value + "'"
-                    + DELIMITER);
-
-            while (numNics > 0) {
-                String param = getIndexedParam(
-                        VMPropertyHandler.TS_NIC1_DNS_SERVER, numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SUFFIX,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_GATEWAY,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_IP_ADDRESS,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-
-                param = getIndexedParam(
-                        VMPropertyHandler.TS_NIC1_NETWORK_ADAPTER, numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-
-                param = getIndexedParam(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
-                        numNics);
-                value = sp.getServiceSetting(param);
-                sb.append(param + "='" + value + "'" + DELIMITER);
-                numNics--;
-            }
-
-            sb.append(VMPropertyHandler.TS_INSTANCENAME + "='"
-                    + ph.getInstanceName() + "'" + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_URL);
-            sb.append(VMPropertyHandler.TS_SCRIPT_URL + "='" + value + "'"
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_USERID);
-            sb.append(VMPropertyHandler.TS_SCRIPT_USERID + "='" + value + "'"
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD);
-            sb.append(VMPropertyHandler.TS_SCRIPT_PWD + "='" + value + "'"
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME);
-            sb.append(VMPropertyHandler.TS_DOMAIN_NAME + "='" + value + "'"
-                    + DELIMITER);
-
-            value = sp.getServiceSetting(VMPropertyHandler.REQUESTING_USER);
-            sb.append(VMPropertyHandler.REQUESTING_USER + "='" + value + "'"
-                    + DELIMITER);
-
+            addServiceParametersForLinuxVms(sb);
         }
+        addOsIndependetServiceParameters(sb);
 
         String patchedScript;
-
-        if (isWindows) {
-            patchedScript = sb.toString() + DELIMITER + firstLine + DELIMITER
-                    + rest;
+        if (os == OS.WINDOWS) {
+            patchedScript = sb.toString() + os.getLineEnding() + firstLine
+                    + os.getLineEnding() + rest;
         } else {
-            patchedScript = firstLine + DELIMITER + sb.toString() + DELIMITER
-                    + rest;
+            patchedScript = firstLine + os.getLineEnding() + sb.toString()
+                    + os.getLineEnding() + rest;
         }
+
+        LOG.debug("Patched script:\n" + patchedScript);
         return patchedScript;
+    }
+
+    private void addServiceParametersForWindowsVms(StringBuffer sb)
+            throws Exception, APPlatformException {
+
+        sb.append(buildParameterCommand(
+                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN));
+        sb.append(buildParameterCommand(
+                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD));
+        sb.append(buildParameterCommand(
+                VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
+        sb.append(buildParameterCommand(
+                VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
+        sb.append(
+                buildParameterCommand(VMPropertyHandler.TS_WINDOWS_WORKGROUP));
+    }
+
+    private void addServiceParametersForLinuxVms(StringBuffer sb)
+            throws Exception, APPlatformException {
+
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_LINUX_ROOT_PWD));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
+    }
+
+    private void addOsIndependetServiceParameters(StringBuffer sb)
+            throws Exception {
+
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_INSTANCENAME,
+                ph.getInstanceName()));
+        sb.append(buildParameterCommand(VMPropertyHandler.REQUESTING_USER));
+        addScriptParameters(sb);
+        addNetworkServiceParameters(sb);
+        addDataDiskParameters(sb);
+    }
+
+    private void addScriptParameters(StringBuffer sb) throws Exception {
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_URL));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_USERID));
+        sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_PWD));
+    }
+
+    private void addDataDiskParameters(StringBuffer sb) throws Exception {
+        for (String key : ph.getDataDiskMountPointParameterKeys()) {
+            sb.append(buildParameterCommand(key));
+        }
+        for (String key : ph.getDataDiskSizeParameterKeys()) {
+            sb.append(buildParameterCommand(key));
+        }
+    }
+
+    private void addNetworkServiceParameters(StringBuffer sb) throws Exception {
+        int numNics = Integer.parseInt(
+                sp.getServiceSetting(VMPropertyHandler.TS_NUMBER_OF_NICS));
+        while (numNics > 0) {
+            String param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SERVER,
+                    numNics);
+            sb.append(buildParameterCommand(param));
+
+            param = getIndexedParam(VMPropertyHandler.TS_NIC1_DNS_SUFFIX,
+                    numNics);
+            sb.append(buildParameterCommand(param));
+
+            param = getIndexedParam(VMPropertyHandler.TS_NIC1_GATEWAY, numNics);
+            sb.append(buildParameterCommand(param));
+
+            param = getIndexedParam(VMPropertyHandler.TS_NIC1_IP_ADDRESS,
+                    numNics);
+            sb.append(buildParameterCommand(param));
+
+            param = getIndexedParam(VMPropertyHandler.TS_NIC1_NETWORK_ADAPTER,
+                    numNics);
+            sb.append(buildParameterCommand(param));
+
+            param = getIndexedParam(VMPropertyHandler.TS_NIC1_SUBNET_MASK,
+                    numNics);
+            sb.append(buildParameterCommand(param));
+
+            numNics--;
+        }
+    }
+
+    private String buildParameterCommand(String key) throws Exception {
+        return buildParameterCommand(key, sp.getServiceSetting(key));
+    }
+
+    private String buildParameterCommand(String key, String value) {
+        switch (os) {
+        case LINUX:
+            return key + "='" + value + "'" + os.getLineEnding();
+        case WINDOWS:
+            return "set " + key + "=" + value + os.getLineEnding();
+        default:
+            throw new IllegalStateException("OS type" + os.name()
+                    + " not supported by Script execution");
+        }
     }
 
     private String getIndexedParam(String param, int index) {
         return param.replace('1', Integer.toString(index).charAt(0));
     }
 
-    public void execute(VMwareClient vmw, ManagedObjectReference vmwInstance,
-            VMPropertyHandler paramHandler) throws Exception {
-        logger.debug("");
+    public void execute(VMwareClient vmw, ManagedObjectReference vmwInstance)
+            throws Exception {
 
-        String vcenter = paramHandler
+        LOG.debug("");
+
+        String vcenter = ph
                 .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
         VimPortType vimPort = vmw.getConnection().getService();
-        ServiceConnection conn = new ServiceConnection(vimPort, vmw
-                .getConnection().getServiceContent());
+        ServiceConnection conn = new ServiceConnection(vimPort,
+                vmw.getConnection().getServiceContent());
         ManagedObjectAccessor moa = new ManagedObjectAccessor(conn);
         ManagedObjectReference guestOpManger = vmw.getConnection()
                 .getServiceContent().getGuestOperationsManager();
@@ -414,24 +388,22 @@ public class Script {
         auth.setPassword(guestPassword);
         auth.setInteractiveSession(false);
 
-        logger.debug("downloaded script :" + script);
-        String scriptPatched = insertServiceParameter(paramHandler);
-        logger.debug("patched script :" + scriptPatched);
+        String scriptPatched = insertServiceParameter();
 
-        DataAccessService das = new DataAccessService(paramHandler.getLocale());
+        DataAccessService das = new DataAccessService(ph.getLocale());
         URL vSphereURL = new URL(das.getCredentials(vcenter).getURL());
 
         uploadScriptFileToVM(vimPort, vmwInstance, fileManagerRef, auth,
                 scriptPatched, vSphereURL.getHost());
-        logger.debug("Executing CreateTemporaryFile guest operation");
-        String tempFilePath = vimPort.createTemporaryFileInGuest(
-                fileManagerRef, vmwInstance, auth, "", "", "");
-        logger.debug("Successfully created a temporary file at: "
-                + tempFilePath + " inside the guest");
+        LOG.debug("Executing CreateTemporaryFile guest operation");
+        String tempFilePath = vimPort.createTemporaryFileInGuest(fileManagerRef,
+                vmwInstance, auth, "", "", "");
+        LOG.debug("Successfully created a temporary file at: " + tempFilePath
+                + " inside the guest");
 
         GuestProgramSpec spec = new GuestProgramSpec();
 
-        if (isWindows) {
+        if (os == OS.WINDOWS) {
             spec.setProgramPath(WINDOWS_GUEST_FILE_PATH);
             spec.setArguments(" > " + tempFilePath);
         } else {
@@ -439,43 +411,45 @@ public class Script {
             spec.setArguments(" > " + tempFilePath + " 2>&1");
         }
 
-        logger.debug("Starting the specified program inside the guest");
+        LOG.debug("Starting the specified program inside the guest");
         long pid = vimPort.startProgramInGuest(processManagerRef, vmwInstance,
                 auth, spec);
-        logger.debug("Process ID of the program started is: " + pid + "");
+        LOG.debug("Process ID of the program started is: " + pid + "");
 
         List<GuestProcessInfo> procInfo = null;
         List<Long> pidsList = new ArrayList<Long>();
         pidsList.add(pid);
         do {
-            logger.debug("Waiting for the process to finish running.");
+            LOG.debug("Waiting for the process to finish running.");
             try {
                 procInfo = vimPort.listProcessesInGuest(processManagerRef,
                         vmwInstance, auth, pidsList);
             } catch (Exception e) {
-                logger.warn("listProcessesInGuest() failed. setting new Linux root password for authentication");
+                LOG.warn(
+                        "listProcessesInGuest() failed. setting new Linux root password for authentication",
+                        e);
 
-                if (isWindows) {
-                    auth.setPassword(paramHandler
-                            .getServiceSetting(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
+                if (os == OS.WINDOWS) {
+                    auth.setPassword(ph.getServiceSetting(
+                            VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
                 } else {
-                    auth.setPassword(paramHandler
-                            .getServiceSetting(VMPropertyHandler.TS_LINUX_ROOT_PWD));
+                    auth.setPassword(ph.getServiceSetting(
+                            VMPropertyHandler.TS_LINUX_ROOT_PWD));
                 }
             }
             Thread.sleep(5 * 1000);
         } while (procInfo != null && procInfo.get(0).getEndTime() == null);
 
         if (procInfo != null && procInfo.get(0).getExitCode() != 0) {
-            logger.error("Script return code: " + procInfo.get(0).getExitCode());
+            LOG.error("Script return code: " + procInfo.get(0).getExitCode());
             FileTransferInformation fileTransferInformation = null;
             fileTransferInformation = vimPort.initiateFileTransferFromGuest(
                     fileManagerRef, vmwInstance, auth, tempFilePath);
             String fileDownloadUrl = fileTransferInformation.getUrl()
                     .replaceAll("\\*", vSphereURL.getHost());
-            logger.debug("Downloading the output file from :" + fileDownloadUrl);
+            LOG.debug("Downloading the output file from :" + fileDownloadUrl);
             String scriptOutput = downloadFile(fileDownloadUrl);
-            logger.error("Script execution output: " + scriptOutput);
+            LOG.error("Script execution output: " + scriptOutput);
         }
 
     }

@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -32,7 +32,7 @@ import com.vmware.vim25.VimPortType;
 
 /**
  * @author Dirk Bernsau
- * 
+ *
  */
 public class ManagedObjectAccessor {
 
@@ -48,7 +48,7 @@ public class ManagedObjectAccessor {
 
     /**
      * Retrieve a property from the given object reference.
-     * 
+     *
      * @param mor
      *            the object reference
      * @param propertyName
@@ -121,7 +121,7 @@ public class ManagedObjectAccessor {
     /**
      * Determines if a method 'methodName' without arguments exists for the
      * given object.
-     * 
+     *
      * @param object
      *            the object in question
      * @param methodName
@@ -145,21 +145,21 @@ public class ManagedObjectAccessor {
     /**
      * Retrieve contents for a single object based on the property collector
      * registered with the service.
-     * 
+     *
      * @param collector
      *            Property collector registered with service
      * @param mobj
      *            Managed Object Reference to get contents for
      * @param properties
      *            names of properties of object to retrieve
-     * 
+     *
      * @return retrieved object contents
      * @throws RuntimeFaultFaultMsg
      * @throws InvalidPropertyFaultMsg
      */
     private ObjectContent[] getObjectProperties(ManagedObjectReference mobj,
-            String[] properties) throws InvalidPropertyFaultMsg,
-            RuntimeFaultFaultMsg {
+            String[] properties)
+            throws InvalidPropertyFaultMsg, RuntimeFaultFaultMsg {
         if (mobj == null) {
             return null;
         }
@@ -185,7 +185,7 @@ public class ManagedObjectAccessor {
     /**
      * Uses the new RetrievePropertiesEx method to emulate the now deprecated
      * RetrieveProperties method
-     * 
+     *
      * @param filterSpecs
      * @return list of object content
      * @throws RuntimeFaultFaultMsg
@@ -229,7 +229,7 @@ public class ManagedObjectAccessor {
 
     /**
      * Retrieves an object with given name and type.
-     * 
+     *
      * @param object
      *            the starting point for the hierarchical search (
      *            <code>null</code> to start from root folder
@@ -253,16 +253,16 @@ public class ManagedObjectAccessor {
     /**
      * Returns all the managed object references of the specified type that are
      * present under the container.
-     * 
+     *
      * @param folder
      *            {@link ManagedObjectReference} of the container to begin the
      *            search from
      * @param morefType
      *            type of the managed entity that needs to be searched
-     * 
+     *
      * @return map of name and MoRef of the managed objects present. May be
      *         empty but not <code>null</code>
-     * 
+     *
      * @throws InvalidPropertyFaultMsg
      * @throws RuntimeFaultFaultMsg
      */
@@ -319,7 +319,8 @@ public class ManagedObjectAccessor {
             token = null;
             if (rslts != null) {
                 token = rslts.getToken();
-                if (rslts.getObjects() != null && !rslts.getObjects().isEmpty()) {
+                if (rslts.getObjects() != null
+                        && !rslts.getObjects().isEmpty()) {
                     listobjcontent.addAll(rslts.getObjects());
                 }
             }
@@ -367,8 +368,8 @@ public class ManagedObjectAccessor {
         pSpecHost.getPathSet().add("summary.hardware.memorySize");
         pSpecHost.getPathSet().add("summary.hardware.numCpuCores");
         pSpecHost.getPathSet().add("summary.quickStats.distributedCpuFairness");
-        pSpecHost.getPathSet().add(
-                "summary.quickStats.distributedMemoryFairness");
+        pSpecHost.getPathSet()
+                .add("summary.quickStats.distributedMemoryFairness");
         pSpecHost.getPathSet().add("summary.quickStats.overallCpuUsage");
         pSpecHost.getPathSet().add("summary.quickStats.overallMemoryUsage");
 

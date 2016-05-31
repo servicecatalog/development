@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.remote.vmware;
@@ -27,18 +27,10 @@ public class VMClientPool {
         startPool();
     }
 
-    /**
-     * 
-     * @return the org.apache.commons.pool.KeyedObjectPool class
-     */
     public KeyedObjectPool<String, VMwareClient> getPool() {
         return pool;
     }
 
-    /**
-     * 
-     * @return the org.apache.commons.pool.KeyedObjectPool class
-     */
     public void startPool() {
         pool = new GenericKeyedObjectPool<String, VMwareClient>(
                 new VMClientFactory());

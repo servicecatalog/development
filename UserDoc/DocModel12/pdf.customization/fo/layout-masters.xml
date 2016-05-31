@@ -1,0 +1,269 @@
+﻿<?xml version="1.0"?>
+
+
+<fo:layout-master-set xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
+
+	<fo:simple-page-master master-name="A4-default"
+		page-width="595.35pt"
+		page-height="841.95pt">
+
+
+		<fo:region-body margin-top="100pt"
+				margin-bottom="120pt"
+				margin-left="100pt"
+				margin-right="60pt"
+				/>
+<!--region-name="body"-->
+
+		<fo:region-before extent="100pt"
+				region-name="header"
+				display-align="after"
+				/>
+
+		<fo:region-after extent="120pt"
+				region-name="footer"
+				display-align="before"
+				/>
+
+
+		<fo:region-start extent="60pt"
+				region-name="left"
+				/>
+
+		<fo:region-end extent="60pt"
+				region-name="right"
+				/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="A4-index"
+		page-width="595.35pt"
+		page-height="841.95pt">
+		
+		
+		<fo:region-body margin-top="100pt"
+			margin-bottom="120pt"
+			margin-left="100pt"
+			margin-right="60pt"
+			column-count="2"
+		/>
+		<!--region-name="body"-->
+		
+		<fo:region-before extent="100pt"
+			region-name="header"
+			display-align="after"
+		/>
+		
+		<fo:region-after extent="120pt"
+			region-name="footer"
+			display-align="before"
+		/>
+		
+		
+		<fo:region-start extent="60pt"
+			region-name="left"
+		/>
+		
+		<fo:region-end extent="60pt"
+			region-name="right"
+		/>
+	</fo:simple-page-master>
+	
+
+<!--
+	<fo:simple-page-master master-name="index-page"
+		page-width="595.35pt"
+		page-height="841.95pt">
+
+		<fo:region-body margin-top="100pt"
+				margin-bottom="120pt"
+				margin-left="100pt"
+				margin-right="60pt"
+				/>
+
+		<fo:region-before extent="100pt"
+				region-name="header"
+				display-align="after"
+				/>
+
+		<fo:region-after extent="120pt"
+				region-name="footer"
+				display-align="before"
+				/>
+
+
+		<fo:region-start extent="100pt"
+				region-name="left"
+				/>
+
+		<fo:region-end extent="60pt"
+				region-name="right"
+				/>
+        </fo:simple-page-master>
+-->
+
+<!-- GS 2006-12-04: master for title page -->
+	<fo:simple-page-master master-name="front-matter-first"
+		page-width="595.35pt"
+		page-height="841.95pt">		
+		<!-- <fo:region-body background-repeat="no-repeat" background-image="artwork:Customization/OpenTopic/common/artwork/TitlePageGraphic.png"
+				 margin-top="0pt"
+				 margin-bottom="0pt"
+				 margin-left="0pt"
+				 margin-right="0pt"
+             /> -->
+        	<!-- <fo:region-body margin-top="0pt" margin-bottom="0pt" margin-left="0pt" margin-right="0pt"/>
+            <fo:region-before extent="0pt" region-name="front-header" />
+			<fo:region-after extent="137pt" region-name="front-footer"/>
+            <fo:region-start extent="0pt" region-name="front-left" />
+            <fo:region-end extent="0pt" region-name="front-right" /> -->
+            <fo:region-body margin-bottom="0pt" margin-left="0pt" margin-right="0pt" margin-top="0pt" />
+      		<fo:region-before display-align="after" extent="846.222pt" region-name="front-header" />
+      		<fo:region-after extent="137pt" region-name="front-footer" />
+        </fo:simple-page-master>
+
+
+<!-- GS 2006-12-04: master for copyright page -->
+	<fo:simple-page-master master-name="copy-right"
+		page-width="595.35pt"
+		page-height="841.95pt">
+
+		<fo:region-body margin-top="100pt"
+				margin-bottom="120pt"
+				margin-left="100pt"
+				margin-right="100pt"
+				/>
+        
+            <fo:region-before extent="0pt" region-name="header" />
+            <fo:region-after extent="0pt" region-name="footer" />
+            <fo:region-start extent="0pt" region-name="left" />
+            <fo:region-end extent="0pt" region-name="right" />
+
+        </fo:simple-page-master>
+
+
+
+<fo:page-sequence-master master-name="body-sequence">
+		<fo:repeatable-page-master-alternatives>
+<!--			<fo:conditional-page-master-reference page-position="first" master-reference="A4-default"/>-->
+<!--			<fo:conditional-page-master-reference master-reference="A4-default" page-position="last" blank-or-not-blank="blank"/>-->
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+	<fo:page-sequence-master master-name="toc-sequence">
+		<fo:repeatable-page-master-alternatives>
+	<!--		<fo:conditional-page-master-reference master-reference="A4-default" page-position="first"/>-->
+	<!--		<fo:conditional-page-master-reference master-reference="A4-default" page-position="last" blank-or-not-blank="blank"/>-->
+			<fo:conditional-page-master-reference master-reference="A4-default"/> 
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+
+	<fo:page-sequence-master master-name="front-matter">
+		<fo:repeatable-page-master-alternatives>
+<!--			<fo:conditional-page-master-reference master-reference="A4-default" page-position="first"/>-->
+<!--			<fo:conditional-page-master-reference master-reference="A4-default" page-position="last" blank-or-not-blank="blank"/>-->
+<!-- GS 2006-12-04: updated for title page generation-->
+<!--			<fo:conditional-page-master-reference master-reference="A4-default"/> -->
+			<fo:conditional-page-master-reference master-reference="front-matter-first" odd-or-even="odd"/> 
+			<fo:conditional-page-master-reference master-reference="copy-right" odd-or-even="even"/> 
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+
+	<fo:page-sequence-master master-name="chapter-sequence">
+		<fo:repeatable-page-master-alternatives>
+<!--			<fo:conditional-page-master-reference page-position="first" master-reference="A4-default"/>-->
+<!--			<fo:conditional-page-master-reference master-reference="A4-default" page-position="last" blank-or-not-blank="blank"/>-->
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+	<fo:page-sequence-master master-name="abstract-sequence">
+		<fo:repeatable-page-master-alternatives>
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+	
+	<fo:page-sequence-master master-name="ditamap-body-sequence">
+        <fo:repeatable-page-master-alternatives>
+        	<fo:conditional-page-master-reference master-reference="A4-default"/>
+            <!-- <fo:conditional-page-master-reference master-reference="body-odd" odd-or-even="odd"/>
+            <fo:conditional-page-master-reference master-reference="body-even" odd-or-even="even"/> -->
+        </fo:repeatable-page-master-alternatives>
+    </fo:page-sequence-master>
+
+	<fo:page-sequence-master master-name="index-sequence">
+		<fo:repeatable-page-master-alternatives>
+	<!--		<fo:conditional-page-master-reference page-position="first" master-reference="A4-default"/>-->
+		<!-- jko: 2006-05-25: master-reference changed from "index-page" to "A4-default" -->
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+	<fo:page-sequence-master master-name="common-page-with-columns">
+		<fo:repeatable-page-master-alternatives>
+			<fo:conditional-page-master-reference master-reference="A4-index"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+<!--	<fo:simple-page-master master-name="common-page-with-columns" page-width="210mm" page-height="297mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="30mm" margin-right="15mm" column-count="2"/>
+		<fo:region-before extent="20mm"/>
+		<fo:region-after  extent="20mm"/>
+	</fo:simple-page-master>
+-->
+	<fo:page-sequence-master master-name="preface-sequence">
+		<fo:repeatable-page-master-alternatives>
+	<!--		<fo:conditional-page-master-reference page-position="first" master-reference="A4-default"/>-->
+<!--			<fo:conditional-page-master-reference master-reference="A4-default" page-position="last" blank-or-not-blank="blank"/>-->
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+	<fo:page-sequence-master master-name="glossary-sequence">
+		<fo:repeatable-page-master-alternatives>
+	<!--		<fo:conditional-page-master-reference page-position="first" master-reference="A4-default"/>-->
+			<fo:conditional-page-master-reference master-reference="A4-default"/>
+		</fo:repeatable-page-master-alternatives>
+	</fo:page-sequence-master>
+
+	<fo:simple-page-master master-name="front-matter-odd" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="odd-frontmatter-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="odd-frontmatter-footer"/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="front-matter-even" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="even-frontmatter-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="even-frontmatter-footer"/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="body-odd" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="odd-body-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="odd-body-footer"/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="body-even" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="even-body-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="even-body-footer"/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="body-first" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="first-body-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="first-body-footer"/>
+	</fo:simple-page-master>
+
+	<fo:simple-page-master master-name="body-last" page-width="215.9mm" page-height="279.4mm">
+		<fo:region-body margin-top="20mm" margin-bottom="20mm" margin-left="20mm" margin-right="20mm"/>
+		<fo:region-before extent="20mm" display-align="before" region-name="last-body-header"/>
+		<fo:region-after extent="20mm" display-align="after" region-name="last-body-footer"/>
+	</fo:simple-page-master>
+
+
+</fo:layout-master-set>

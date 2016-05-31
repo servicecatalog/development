@@ -1,9 +1,9 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                        
- *       
- *  Creation Date: 2016-05-24                                                       
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 2016-05-24
+ *
  *******************************************************************************/
 
 package org.oscm.app.vmware.persistence;
@@ -75,7 +75,8 @@ public class DataAccessService {
                 seq = String.format("%0" + numDigits + "d", seqnum);
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve value from sequence " + seqName, e);
+            logger.error("Failed to retrieve value from sequence " + seqName,
+                    e);
             String message = Messages.get(locale, "error_db_seq", seqName);
             throw new Exception(message);
         }
@@ -98,15 +99,15 @@ public class DataAccessService {
                 identifier = rs.getString("identifier");
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve identifier from vcenter "
-                    + vcenter, e);
+            logger.error(
+                    "Failed to retrieve identifier from vcenter " + vcenter, e);
             String message = Messages.get(locale, "error_db_vcenter", vcenter);
             throw new Exception(message);
         }
 
         if (identifier == null) {
-            logger.error("Failed to retrieve identifier from vcenter "
-                    + vcenter);
+            logger.error(
+                    "Failed to retrieve identifier from vcenter " + vcenter);
             String message = Messages.get(locale, "error_db_vcenter", vcenter);
             throw new Exception(message);
         }
@@ -180,8 +181,8 @@ public class DataAccessService {
     }
 
     private void retrieveDatacenter(VCenter vcenter) throws Exception {
-        logger.debug("vcenter: " + vcenter.name + " vcenter_tkey: "
-                + vcenter.tkey);
+        logger.debug(
+                "vcenter: " + vcenter.name + " vcenter_tkey: " + vcenter.tkey);
         vcenter.datacenter = new ArrayList<Datacenter>();
         String query = "SELECT tkey,name,identifier FROM datacenter WHERE vcenter_tkey = ?";
         try (Connection con = getDatasource().getConnection();
@@ -260,12 +261,14 @@ public class DataAccessService {
                         rs.getString("userid"), rs.getString("password"));
             }
         } catch (SQLException e) {
-            logger.error("Failed to retrieve credentials from vcenter: "
-                    + vcenter, e);
+            logger.error(
+                    "Failed to retrieve credentials from vcenter: " + vcenter,
+                    e);
             throw e;
         }
 
-        if (credentials.getURL() == null || credentials.getURL().length() == 0) {
+        if (credentials.getURL() == null
+                || credentials.getURL().length() == 0) {
             throw new Exception("No URL defined for vcenter: " + vcenter);
         }
 
@@ -329,7 +332,8 @@ public class DataAccessService {
         } catch (Exception e) {
             logger.error(
                     "Failed to retrieve load balancer configuration for cluster "
-                            + cluster, e);
+                            + cluster,
+                    e);
         }
 
         return xml;
@@ -338,8 +342,9 @@ public class DataAccessService {
 
     public List<VLAN> getVLANs(Cluster cluster) throws Exception {
         List<VLAN> vlans = new ArrayList<VLAN>();
-        logger.debug("cluster: " + cluster.name + " cluster_tkey: "
-                + cluster.tkey + " datacenter_tkey: " + cluster.datacenter_tkey);
+        logger.debug(
+                "cluster: " + cluster.name + " cluster_tkey: " + cluster.tkey
+                        + " datacenter_tkey: " + cluster.datacenter_tkey);
 
         String query = "SELECT tkey,name,enabled FROM vlan WHERE cluster_tkey = ?";
         try (Connection con = getDatasource().getConnection();
@@ -356,8 +361,8 @@ public class DataAccessService {
                 vlans.add(vlan);
             }
         } catch (SQLException e) {
-            logger.error(
-                    "Failed to retrieve VLANs for cluster " + cluster.name, e);
+            logger.error("Failed to retrieve VLANs for cluster " + cluster.name,
+                    e);
             throw e;
         }
 
@@ -397,8 +402,8 @@ public class DataAccessService {
         try (Connection con = getDatasource().getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);) {
             for (VLAN vlan : vlans) {
-                logger.debug("name: " + vlan.getName() + " tkey: "
-                        + vlan.getTKey());
+                logger.debug(
+                        "name: " + vlan.getName() + " tkey: " + vlan.getTKey());
                 stmt.setBoolean(1, vlan.isEnabled());
                 stmt.setString(2, vlan.getName());
                 stmt.setInt(3, vlan.getTKey());
@@ -428,7 +433,8 @@ public class DataAccessService {
                 + "  cluster: " + cluster + "  vlan: " + vlan);
         String query = "SELECT SUBNET_MASK,GATEWAY,DNSSERVER,DNSSUFFIX FROM VLAN WHERE NAME = ? AND CLUSTER_TKEY = ?";
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
             if (cluster_tkey == -1) {
                 throw new SQLException(
                         "Failed to retrieve network settings. Unknown cluster "
@@ -454,8 +460,8 @@ public class DataAccessService {
                                 + vlan);
             }
         } catch (SQLException e) {
-            logger.error(
-                    "Failed to retrieve network settings for VLAN " + vlan, e);
+            logger.error("Failed to retrieve network settings for VLAN " + vlan,
+                    e);
             throw e;
         }
 
@@ -515,8 +521,9 @@ public class DataAccessService {
             logger.debug("retrieved vlan " + vlan
                     + " with number of free ip addresses: " + numFreeIPs);
             if (numFreeIPs == 0) {
-                logger.error("Failed to retrieve vlan. No free IP address available in VLAN "
-                        + vlan);
+                logger.error(
+                        "Failed to retrieve vlan. No free IP address available in VLAN "
+                                + vlan);
             }
         } catch (Exception e) {
             logger.error("Failed to retrieve vlans for vcenter: " + vcenter
@@ -559,7 +566,8 @@ public class DataAccessService {
         String query3 = "UPDATE IPPOOL SET IN_USE = TRUE WHERE IP_ADDRESS = ? AND VLAN_TKEY = ?";
 
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
             if (cluster_tkey == -1) {
                 logger.error("Failed to reserve IP address. Unknown cluster "
                         + cluster);
@@ -580,8 +588,8 @@ public class DataAccessService {
                     vlanTKey = rs.getInt("VLAN_TKEY");
                 }
             }
-            logger.debug("retrieved vlan tkey " + vlanTKey
-                    + " and ip address: " + ipaddress);
+            logger.debug("retrieved vlan tkey " + vlanTKey + " and ip address: "
+                    + ipaddress);
             if (vlanTKey == -1) {
                 logger.error("Failed to reserve IP address for vcenter: "
                         + vcenter + "  datacenter: " + datacenter
@@ -592,8 +600,9 @@ public class DataAccessService {
             }
 
             if (ipaddress == null) {
-                logger.error("Failed to reserve IP address. No free IP address available in VLAN "
-                        + vlan);
+                logger.error(
+                        "Failed to reserve IP address. No free IP address available in VLAN "
+                                + vlan);
                 String message = Messages.get(locale,
                         "error_db_no_free_ipaddress", vlan);
                 throw new Exception(message);
@@ -624,30 +633,36 @@ public class DataAccessService {
         String query3 = "UPDATE IPPOOL SET IN_USE = TRUE WHERE IP_ADDRESS = ? AND VLAN_TKEY = (SELECT TKEY from VLAN WHERE NAME = ? AND CLUSTER_TKEY = ?)";
 
         if (vcenter == null) {
-            logger.error("Failed to mark IP address as used. vCenter not defined.");
+            logger.error(
+                    "Failed to mark IP address as used. vCenter not defined.");
             return false;
         }
         if (datacenter == null) {
-            logger.error("Failed to mark IP address as used. Datacenter not defined.");
+            logger.error(
+                    "Failed to mark IP address as used. Datacenter not defined.");
             return false;
         }
         if (cluster == null) {
-            logger.error("Failed to mark IP address as used. Cluster not defined.");
+            logger.error(
+                    "Failed to mark IP address as used. Cluster not defined.");
             return false;
         }
         if (vlan == null) {
-            logger.error("Failed to mark IP address as used. VLAN not defined.");
+            logger.error(
+                    "Failed to mark IP address as used. VLAN not defined.");
             return false;
         }
         if (ipAddress == null) {
-            logger.error("Failed to mark IP address as used. IP address not defined.");
+            logger.error(
+                    "Failed to mark IP address as used. IP address not defined.");
             return false;
         }
 
         boolean success = true;
 
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
             if (cluster_tkey == -1) {
                 throw new SQLException("Unknown cluster " + cluster);
             }
@@ -667,8 +682,8 @@ public class DataAccessService {
                 }
             }
             if (!foundIPAddress) {
-                throw new SQLException("IP address " + ipAddress
-                        + " is not registered.");
+                throw new SQLException(
+                        "IP address " + ipAddress + " is not registered.");
             }
             if (inUse) {
                 throw new SQLException("IP address " + ipAddress
@@ -721,7 +736,8 @@ public class DataAccessService {
         String query1 = "SELECT TKEY from VLAN WHERE NAME = ? AND CLUSTER_TKEY = ?";
         String query2 = "SELECT IN_USE FROM IPPOOL WHERE IP_ADDRESS = ? AND VLAN_TKEY = ?";
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
             if (cluster_tkey == -1) {
                 logger.error("Failed to validate IP address. Unknown cluster "
                         + cluster);
@@ -742,8 +758,8 @@ public class DataAccessService {
                 }
             }
             if (vlan_tkey == -1) {
-                logger.error("Failed to validate IP address. Unknown VLAN "
-                        + vlan);
+                logger.error(
+                        "Failed to validate IP address. Unknown VLAN " + vlan);
                 String message = Messages.get(locale,
                         "error_db_validate_ip_unknown_vlan", vlan);
                 throw new Exception(message);
@@ -764,13 +780,14 @@ public class DataAccessService {
                 logger.error("Failed to validate IP address " + ipAddress
                         + ". Not found in VLAN " + vlan);
                 String message = Messages.get(locale,
-                        "error_db_validate_ip_not_found", new Object[] {
-                                ipAddress, vlan });
+                        "error_db_validate_ip_not_found",
+                        new Object[] { ipAddress, vlan });
                 throw new Exception(message);
             }
         }
-        logger.debug("In-Use-Status of IP address: " + ipAddress + " is "
-                + inUse);
+        logger.debug(
+                "In-Use-Status of IP address: " + ipAddress + " is " + inUse);
+
         return inUse;
     }
 
@@ -804,7 +821,8 @@ public class DataAccessService {
         String query1 = "SELECT TKEY from VLAN WHERE NAME = ? AND CLUSTER_TKEY = ?";
         String query2 = "SELECT IN_USE FROM IPPOOL WHERE IP_ADDRESS = ? AND VLAN_TKEY = ?";
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
             if (cluster_tkey == -1) {
                 logger.error("Failed to validate IP address. Unknown cluster "
                         + cluster);
@@ -825,8 +843,8 @@ public class DataAccessService {
                 }
             }
             if (vlan_tkey == -1) {
-                logger.error("Failed to validate IP address. Unknown VLAN "
-                        + vlan);
+                logger.error(
+                        "Failed to validate IP address. Unknown VLAN " + vlan);
                 String message = Messages.get(locale,
                         "error_db_validate_ip_unknown_vlan", vlan);
                 throw new Exception(message);
@@ -920,7 +938,8 @@ public class DataAccessService {
         String query = "UPDATE IPPOOL SET IN_USE = FALSE WHERE IP_ADDRESS = ? AND VLAN_TKEY = (SELECT TKEY FROM VLAN WHERE CLUSTER_TKEY = ? AND NAME = ?)";
 
         try (Connection con = getDatasource().getConnection();) {
-            int cluster_tkey = getClusterTKey(con, vcenter, datacenter, cluster);
+            int cluster_tkey = getClusterTKey(con, vcenter, datacenter,
+                    cluster);
 
             if (cluster_tkey == -1) {
                 throw new SQLException(
