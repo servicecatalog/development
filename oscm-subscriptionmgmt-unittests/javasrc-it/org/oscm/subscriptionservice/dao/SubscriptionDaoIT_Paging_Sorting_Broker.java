@@ -26,19 +26,15 @@ import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
+import org.oscm.paginator.*;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.paginator.Filter;
-import org.oscm.paginator.SortOrder;
-import org.oscm.paginator.Sorting;
-import org.oscm.paginator.TableColumns;
 
 /**
  * @author ono

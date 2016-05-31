@@ -8,22 +8,11 @@
 
 package org.oscm.ui.beans;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -43,19 +32,12 @@ import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.subscriptions.POSubscriptionAndCustomer;
 import org.oscm.internal.subscriptions.SubscriptionsService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServiceDetails;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUdaDefinition;
+import org.oscm.internal.vo.*;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.ui.model.BPLazyDataModel;
 import org.oscm.ui.model.Discount;
 import org.oscm.ui.model.UdaRow;
@@ -437,7 +419,7 @@ public class SubscriptionViewBeanTest {
     @Test
     public void getSubscriptionsAndCustomers_OrganizationAuthoritiesException() throws Exception {
         // given
-        when(subscriptionsService.getSubscriptionsAndCustomersForManagers(any(Pagination.class))).thenThrow(
+        when(subscriptionsService.getSubscriptionsAndCustomersForManagers(any(PaginationFullTextFilter.class))).thenThrow(
                 new OrganizationAuthoritiesException());
         poSubscriptionAndCustomers = givenPOSubscriptionAndCustomersList();
 
@@ -448,7 +430,7 @@ public class SubscriptionViewBeanTest {
         model.getDataList(0, 2, filters, sorters, true);
 
         // then
-        verify(subscriptionsService, times(1)).getSubscriptionsAndCustomersForManagers(any(Pagination.class));
+        verify(subscriptionsService, times(1)).getSubscriptionsAndCustomersForManagers(any(PaginationFullTextFilter.class));
         assertEquals(0, bean.getSubscriptionsListSize());
     }
 

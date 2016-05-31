@@ -19,10 +19,10 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.UsageLicense;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POSubscription;
+import org.oscm.paginator.Pagination;
 import org.oscm.paginator.PaginationInt;
 
 /**
@@ -101,10 +101,6 @@ public interface SubscriptionListServiceLocal {
     @Deprecated
     public List<Subscription> getSubscriptionsForOwner(PlatformUser owner);
 
-    List<Subscription> getSubscriptionsForOrganization(
-            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination)
-                    throws OrganizationAuthoritiesException;
-
     /**
      * Returns a list of Subscriptions which are owned by the defined
      * PlatformUser. In addition results may be filtered.
@@ -116,20 +112,6 @@ public interface SubscriptionListServiceLocal {
     List<Subscription> getSubscriptionsForOrganizationWithFiltering(
             Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination, Collection<Long> subscriptionKeys)
                     throws OrganizationAuthoritiesException;
-
-    /**
-     * Returns a list of Subscriptions which are owned by the defined
-     * PlatformUser.
-     *
-     * @param owner
-     *            The PlatformUser whose subscriptions will be retrieved
-     * @param pagination
-     *            the pagination, sorting, and filtering parameters
-     *
-     * @return the list of {@link Subscription}s owned by the user
-     */
-    public List<Subscription> getSubscriptionsForOwner(PlatformUser owner, Pagination pagination)
-            throws OrganizationAuthoritiesException;
 
     /**
      * Check if usable subscription exist or not for target template product.

@@ -20,13 +20,13 @@ import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.paginator.Filter;
+import org.oscm.paginator.Pagination;
 import org.oscm.paginator.TableColumns;
 import org.oscm.paginator.Sorting;
 
@@ -45,17 +45,6 @@ public class SubscriptionDao {
 
     private final static String SUBSCRIPTIONS_FOR_USER_WITH_KEYS = SUBSCRIPTIONS_FOR_USER
             + "AND s.tkey IN (:keys) ";
-
-    private final static String SUBSCRIPTIONS_FOR_OWNER = "SELECT s.* FROM Subscription s "
-            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-            + "WHERE s.owner_tkey=:ownerKey ";
-
-    private final static String SUBSCRIPTION_FOR_OWNER_WITH_STATES = "SELECT s.* FROM Subscription s "
-            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-            + "WHERE s.status IN (:states) AND s.owner_tkey=:ownerKey ";
 
     private final static String SUBSCRIPTIONS_FOR_ORG = "SELECT s.* FROM Subscription s "
             + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
@@ -199,47 +188,6 @@ public class SubscriptionDao {
     }
 
     @SuppressWarnings("unchecked")
-    List<Subscription> getSubscriptionsForVendor(Organization org,
-            Set<SubscriptionStatus> states, Pagination pagination,
-            String queryString) {
-
-        Set<String> statesAsString = getSubscriptionStatesAsString(states);
-        Query query = dataManager.createNativeQuery(queryString,
-                Subscription.class);
-        query.setParameter("offerer", Long.valueOf(org.getKey()));
-        query.setParameter("states", statesAsString);
-
-        setPaginationParameters(pagination, query);
-
-        return query.getResultList();
-    }
-
-    @Deprecated
-    @SuppressWarnings("unchecked")
-    List<Subscription> getSubscriptionsForOrg(PlatformUser user,
-            Set<SubscriptionStatus> states, Pagination pagination,
-            String queryString) {
-
-        Set<String> statesAsString = getSubscriptionStatesAsString(states);
-        Query query = dataManager.createNativeQuery(queryString,
-                Subscription.class);
-        try {
-            query.setParameter("locale", user.getLocale());
-            query.setParameter("objecttype",
-                    LocalizedObjectTypes.PRODUCT_MARKETING_NAME.name());
-        } catch (IllegalArgumentException exc) {
-            logger.logDebug("Parameters are not found in the query. Not an error, just sorting is not applied.");
-        }
-        query.setParameter("organization",
-                Long.valueOf(user.getOrganization().getKey()));
-        query.setParameter("states", statesAsString);
-
-        setPaginationParameters(pagination, query);
-
-        return query.getResultList();
-    }
-
-    @SuppressWarnings("unchecked")
     List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Set<SubscriptionStatus> states,
             org.oscm.paginator.Pagination pagination, String queryString,
@@ -313,36 +261,6 @@ public class SubscriptionDao {
         setPaginationParameters(pagination, query);
 
         return query.getResultList();
-    }
-
-    /**
-     * @param pagination
-     * @param query
-     */
-    private void setPaginationParameters(
-            org.oscm.paginator.Pagination pagination, Query query) {
-        setSortingParameter(query, pagination);
-        setFilterParameters(query, pagination);
-
-        query.setFirstResult(pagination.getOffset());
-        query.setMaxResults(pagination.getLimit());
-    }
-
-    private void setSortingParameter(Query query,
-            org.oscm.paginator.Pagination pagination) {
-        if (pagination.getSorting() != null) {
-            query.setParameter("sortColumn", pagination.getSorting()
-                    .getColumn().name());
-        }
-    }
-
-    private void setFilterParameters(Query query,
-            org.oscm.paginator.Pagination pagination) {
-        if (pagination.getFilterSet() != null) {
-            for (Filter filter : pagination.getFilterSet()) {
-                setFilterParameter(query, filter);
-            }
-        }
     }
 
     private void setPaginationParameters(Pagination pagination, Query query) {
@@ -643,42 +561,8 @@ public class SubscriptionDao {
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
 
-    private String marketplacePaginatedQuery(String selectWhereQuery,
-            org.oscm.paginator.Pagination pagination) {
-        String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
-        if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryOrderByString(pagination
-                    .getSorting().getOrder().name(),
-                    pagination.getLocalizedStatusesMap());
-        }
-
-        String queryFilter = "";
-        if (pagination.getFilterSet() != null) {
-            queryFilter = createMarketplaceQueryFilterString(queryFilter,
-                    pagination.getFilterSet(), pagination.getDateFormat(),
-                    pagination.getLocalizedStatusesMap());
-        }
-        return selectWhereQuery + queryFilter + queryOrderBy;
-    }
-
-    @Deprecated
     private String marketplacePaginatedQueryWithUnits(String selectWhereQuery,
             Pagination pagination) {
-        String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
-        if (pagination.getSorting() != null) {
-            queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(pagination);
-        }
-
-        String queryFilter = "";
-        if (pagination.getFilterSet() != null) {
-            queryFilter = createMarketplaceQueryWithUnitsFilterString(
-                    pagination, queryFilter);
-        }
-        return selectWhereQuery + queryFilter + queryOrderBy;
-    }
-
-    private String marketplacePaginatedQueryWithUnits(String selectWhereQuery,
-            org.oscm.paginator.Pagination pagination) {
         String queryOrderBy = "ORDER BY to_char(s.activationdate, '999999999999999') DESC ";
         if (pagination.getSorting() != null) {
             queryOrderBy = createMarketplaceQueryWithUnitsOrderByString(pagination);
@@ -707,20 +591,8 @@ public class SubscriptionDao {
         return selectWhereQuery + queryFilter + queryOrderBy;
     }
 
-    @Deprecated
     private String createMarketplaceQueryWithUnitsOrderByString(
             Pagination pagination) {
-        Map<SubscriptionStatus, String> localizedStatusesMap = pagination
-                .getLocalizedStatusesMap();
-        String orderByName = pagination.getSorting().getOrder().name();
-
-        String queryOrderBy = buildQueryOrderBy(localizedStatusesMap,
-                orderByName);
-        return queryOrderBy;
-    }
-
-    private String createMarketplaceQueryWithUnitsOrderByString(
-            org.oscm.paginator.Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination
                 .getLocalizedStatusesMap();
         String orderByName = pagination.getSorting().getOrder().name();
@@ -801,20 +673,8 @@ public class SubscriptionDao {
         return queryOrderBy;
     }
 
-    @Deprecated
     private String createMarketplaceQueryWithUnitsFilterString(
             Pagination pagination, String queryFilter) {
-        String dateFormat = pagination.getDateFormat();
-        Map<SubscriptionStatus, String> localizedStatusesMap = pagination
-                .getLocalizedStatusesMap();
-        Iterator<Filter> filterIterator = pagination.getFilterSet().iterator();
-        queryFilter = buildFilteredQueryWithUnits(queryFilter, dateFormat,
-                localizedStatusesMap, filterIterator);
-        return queryFilter;
-    }
-
-    private String createMarketplaceQueryWithUnitsFilterString(
-            org.oscm.paginator.Pagination pagination, String queryFilter) {
         String dateFormat = pagination.getDateFormat();
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination
                 .getLocalizedStatusesMap();
@@ -1034,17 +894,8 @@ public class SubscriptionDao {
         return result > 0;
     }
 
-    @Deprecated
     public List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
-        String queryString = marketplacePaginatedQueryWithUnits(
-                SUBSCRIPTIONS_FOR_ORG, pagination);
-        return getSubscriptionsForOrg(user, states, pagination, queryString);
-    }
-
-    public List<Subscription> getSubscriptionsForOrg(PlatformUser user,
-            org.oscm.paginator.Pagination pagination,
-            Set<SubscriptionStatus> states) {
         String queryString = marketplacePaginatedQueryWithUnits(
                 SUBSCRIPTIONS_FOR_ORG, pagination);
         return getSubscriptionsForOrg(user, states, pagination, queryString);
@@ -1063,22 +914,6 @@ public class SubscriptionDao {
                 SUBSCRIPTIONS_FOR_ORG_WITH_KEYS, pagination);
         return getSubscriptionsForOrg(user, states, pagination, queryString,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
-    }
-
-    @Deprecated
-    public List<Subscription> getSubscriptionsForUserWithRoles(
-            Set<UserRoleType> userRoleTypes, PlatformUser user,
-            Pagination pagination, Set<SubscriptionStatus> states) {
-        if (userRoleTypes.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Query query = dataManager
-                .createNativeQuery(
-                        getSubscriptionsForUserWithRolesQuery(userRoleTypes,
-                                pagination), Subscription.class);
-        setSubscriptionsForUserWithRolesQueryParams(user, states, query);
-        setPaginationParameters(pagination, query);
-        return query.getResultList();
     }
 
     public List<Subscription> getSubscriptionsForUserWithRoles(
@@ -1126,46 +961,6 @@ public class SubscriptionDao {
         setSubscriptionKeysParameter(query,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
         return query.getResultList();
-    }
-
-    @Deprecated
-    private String getSubscriptionsForUserWithRolesQuery(
-            Set<UserRoleType> userRoleTypes, Pagination pagination) {
-        StringBuilder queryBuilder = new StringBuilder();
-        queryBuilder.append("SELECT * FROM ((");
-        boolean isAdded;
-        for (Iterator<UserRoleType> i = userRoleTypes.iterator(); i.hasNext();) {
-            UserRoleType userRoleType = i.next();
-            isAdded = false;
-            if (UserRoleType.UNIT_ADMINISTRATOR.equals(userRoleType)) {
-                queryBuilder.append(SUBSCRIPTIONS_FOR_UNIT_ADMIN);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
-
-                // Bug 11958 allow subscr owner to manage his subscription
-                queryBuilder.append(" ) UNION ( ");
-                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
-                isAdded = true;
-            }
-            if (UserRoleType.SUBSCRIPTION_MANAGER.equals(userRoleType)) {
-                queryBuilder.append(SUBSCRIPTIONS_FOR_OWNER_FULLINFO);
-                queryBuilder
-                        .append(createMarketplaceQueryWithUnitsFilterString(
-                                pagination, " "));
-                isAdded = true;
-            }
-            if (isAdded && i.hasNext()) {
-                queryBuilder.append(" ) UNION ( ");
-            }
-        }
-
-        queryBuilder.append(" )) AS s ");
-        queryBuilder.append(getOrderBy(pagination));
-        return queryBuilder.toString();
     }
 
     private String getSubscriptionsForUserWithRolesQuery(
@@ -1248,16 +1043,6 @@ public class SubscriptionDao {
         return queryBuilder.toString();
     }
 
-    @Deprecated
-    private String getOrderBy(Pagination pagination) {
-        Map<SubscriptionStatus, String> localizedStatusesMap = pagination
-                .getLocalizedStatusesMap();
-        StringBuilder orderByBuilder = new StringBuilder();
-        getOrderByQueryWithUnit(pagination.getSorting(), localizedStatusesMap,
-                orderByBuilder);
-        return orderByBuilder.toString();
-    }
-
     private String getOrderBy(org.oscm.paginator.Pagination pagination) {
         Map<SubscriptionStatus, String> localizedStatusesMap = pagination
                 .getLocalizedStatusesMap();
@@ -1315,21 +1100,6 @@ public class SubscriptionDao {
         }
     }
 
-    public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
-            Pagination pagination) {
-        String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_OWNER,
-                pagination);
-        return getSubscriptionsForOwner(owner, pagination, queryString);
-    }
-
-    @Deprecated
-    public List<Subscription> getSubscriptionsForUser(PlatformUser user,
-            Pagination pagination) {
-        String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_USER,
-                pagination);
-        return getSubscriptionsForUser(user, pagination, queryString);
-    }
-
     public List<Subscription> getSubscriptionsForUser(PlatformUser user,
             org.oscm.paginator.Pagination pagination) {
         String queryString = marketplacePaginatedQuery(SUBSCRIPTIONS_FOR_USER,
@@ -1344,17 +1114,6 @@ public class SubscriptionDao {
                 SUBSCRIPTIONS_FOR_USER_WITH_KEYS, pagination);
         return getSubscriptionsForUser(user, pagination, queryString,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
-    }
-
-    private List<Subscription> getSubscriptionsForUser(PlatformUser user,
-            Pagination pagination, String queryString) {
-
-        Query query = getSubscriptionsForUserNativeQuery(user, queryString);
-
-        setPaginationParameters(pagination, query);
-
-        return ParameterizedTypes.list(query.getResultList(),
-                Subscription.class);
     }
 
     private Query getSubscriptionsForUserNativeQuery(PlatformUser user,

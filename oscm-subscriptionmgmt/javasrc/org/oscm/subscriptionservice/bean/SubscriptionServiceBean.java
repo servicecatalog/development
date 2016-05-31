@@ -85,7 +85,6 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationStatus;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -121,6 +120,8 @@ import org.oscm.internal.vo.VOUserSubscription;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.notification.vo.VOProperty;
 import org.oscm.operation.data.OperationResult;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.provisioning.data.User;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -5384,13 +5385,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-            Pagination pagination) {
-        return getSubscriptionDao().getSubscriptionsForUser(user, pagination);
-    }
-
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-                                                          org.oscm.paginator.Pagination pagination) {
+                                                          PaginationFullTextFilter pagination) {
         String fullTextFilterValue = pagination.getFullTextFilterValue();
         List<Subscription> subscriptions = Collections.emptyList();
         if (StringUtils.isNotEmpty(fullTextFilterValue)) {
@@ -5422,22 +5417,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
     }
 
     @Override
-    public List<Subscription> getSubscriptionsForCurrentUser(
-            Pagination pagination) {
-        PlatformUser user = dataManager.getCurrentUser();
-        return getSubscriptionsForUserInt(user, pagination);
-    }
-
-    @Override
     public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
-            org.oscm.paginator.Pagination pagination) {
+            PaginationFullTextFilter pagination) {
         PlatformUser user = dataManager.getCurrentUser();
         return getSubscriptionsForUserInt(user, pagination);
     }
 
     @Override
     public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
-            org.oscm.paginator.Pagination pagination) {
+            PaginationFullTextFilter pagination) {
         PlatformUser user = dataManager.getCurrentUser();
         return getSubscriptionsForUserInt(user, pagination).size();
     }
@@ -5459,9 +5447,5 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
-    }
-
-    public void setSubscriptionSearchService(SubscriptionSearchService subscriptionSearchService) {
-        this.subscriptionSearchService = subscriptionSearchService;
     }
 }

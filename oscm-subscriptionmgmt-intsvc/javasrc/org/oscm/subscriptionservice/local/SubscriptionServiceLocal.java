@@ -15,10 +15,11 @@ import org.oscm.domobjects.RoleDefinition;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UsageLicense;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.types.exceptions.UserAlreadyAssignedException;
 import org.oscm.types.exceptions.UserNotAssignedException;
 import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MandatoryUdaMissingException;
@@ -504,23 +505,6 @@ public interface SubscriptionServiceLocal {
      * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
      * <p>
      * Required role: any user role in an organization
-     * 
-     * @param pagination
-     *            the parameters which describe the range of result data and the
-     *            sort order
-     *
-     *
-     * @return the list of subscriptions
-     */
-
-    public List<Subscription> getSubscriptionsForCurrentUser(Pagination pagination);
-
-    /**
-     * Retrieves the subscriptions the calling user is assigned to. The list
-     * includes subscriptions whose status is <code>ACTIVE</code>,
-     * <code>PENDING</code>, <code>SUSPENDED</code>, or <code>EXPIRED</code>.
-     * <p>
-     * Required role: any user role in an organization
      * Results are filtered by the value given as parameter.
      *
      * @param pagination
@@ -530,7 +514,7 @@ public interface SubscriptionServiceLocal {
      * @return the list of subscriptions
      */
     public List<Subscription> getSubscriptionsForCurrentUserWithFiltering(
-            org.oscm.paginator.Pagination pagination);
+            PaginationFullTextFilter pagination);
 
     /**
      * Retrieves the size of subscriptions the calling user is assigned to. The list
@@ -547,7 +531,7 @@ public interface SubscriptionServiceLocal {
      * @return the list of subscriptions
      */
     public Integer getSubscriptionsSizeForCurrentUserWithFiltering(
-            org.oscm.paginator.Pagination pagination);
+            PaginationFullTextFilter pagination);
 
     /**
      * Returns the usage license referenced by subscription key and user.
