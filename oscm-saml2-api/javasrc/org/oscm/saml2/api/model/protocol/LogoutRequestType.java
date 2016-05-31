@@ -24,16 +24,15 @@ import javax.xml.datatype.XMLGregorianCalendar;
 import org.oscm.saml2.api.model.assertion.BaseIDAbstractType;
 import org.oscm.saml2.api.model.assertion.EncryptedElementType;
 import org.oscm.saml2.api.model.assertion.NameIDType;
-import org.oscm.saml2.api.model.xmldsig.SignatureType;
 
 /**
  * <p>
  * Java class for LogoutRequestType complex type.
- * 
+ *
  * <p>
  * The following schema fragment specifies the expected content contained within
  * this class.
- * 
+ *
  * <pre>
  * &lt;complexType name="LogoutRequestType">
  *   &lt;complexContent>
@@ -52,12 +51,12 @@ import org.oscm.saml2.api.model.xmldsig.SignatureType;
  *   &lt;/complexContent>
  * &lt;/complexType>
  * </pre>
- * 
- * 
+ *
+ *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "LogoutRequestType", propOrder = { "signature", "baseID", "nameID",
-        "encryptedID", "sessionIndex"})
+@XmlType(name = "LogoutRequestType", propOrder = { "baseID", "nameID",
+        "encryptedID", "sessionIndex" })
 public class LogoutRequestType extends RequestAbstractType {
 
     @XmlElement(name = "BaseID", namespace = "urn:oasis:names:tc:SAML:2.0:assertion")
@@ -68,8 +67,6 @@ public class LogoutRequestType extends RequestAbstractType {
     protected EncryptedElementType encryptedID;
     @XmlElement(name = "SessionIndex")
     protected List<String> sessionIndex;
-    @XmlElement(name = "Signature")
-    protected SignatureType signature;
     @XmlAttribute(name = "Reason")
     protected String reason;
     @XmlAttribute(name = "NotOnOrAfter")
@@ -78,9 +75,9 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the baseID property.
-     * 
+     *
      * @return possible object is {@link BaseIDAbstractType }
-     * 
+     *
      */
     public BaseIDAbstractType getBaseID() {
         return baseID;
@@ -88,10 +85,10 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Sets the value of the baseID property.
-     * 
+     *
      * @param value
      *            allowed object is {@link BaseIDAbstractType }
-     * 
+     *
      */
     public void setBaseID(BaseIDAbstractType value) {
         this.baseID = value;
@@ -99,9 +96,9 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the nameID property.
-     * 
+     *
      * @return possible object is {@link NameIDType }
-     * 
+     *
      */
     public NameIDType getNameID() {
         return nameID;
@@ -109,10 +106,10 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Sets the value of the nameID property.
-     * 
+     *
      * @param value
      *            allowed object is {@link NameIDType }
-     * 
+     *
      */
     public void setNameID(NameIDType value) {
         this.nameID = value;
@@ -120,9 +117,9 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the encryptedID property.
-     * 
+     *
      * @return possible object is {@link EncryptedElementType }
-     * 
+     *
      */
     public EncryptedElementType getEncryptedID() {
         return encryptedID;
@@ -130,10 +127,10 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Sets the value of the encryptedID property.
-     * 
+     *
      * @param value
      *            allowed object is {@link EncryptedElementType }
-     * 
+     *
      */
     public void setEncryptedID(EncryptedElementType value) {
         this.encryptedID = value;
@@ -141,25 +138,25 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the sessionIndex property.
-     * 
+     *
      * <p>
      * This accessor method returns a reference to the live list, not a
      * snapshot. Therefore any modification you make to the returned list will
      * be present inside the JAXB object. This is why there is not a
      * <CODE>set</CODE> method for the sessionIndex property.
-     * 
+     *
      * <p>
      * For example, to add a new item, do as follows:
-     * 
+     *
      * <pre>
      * getSessionIndex().add(newItem);
      * </pre>
-     * 
-     * 
+     *
+     *
      * <p>
      * Objects of the following type(s) are allowed in the list {@link String }
-     * 
-     * 
+     *
+     *
      */
     public List<String> getSessionIndex() {
         if (sessionIndex == null) {
@@ -170,9 +167,9 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Gets the value of the reason property.
-     * 
+     *
      * @return possible object is {@link String }
-     * 
+     *
      */
     public String getReason() {
         return reason;
@@ -180,25 +177,14 @@ public class LogoutRequestType extends RequestAbstractType {
 
     /**
      * Sets the value of the reason property.
-     * 
+     *
      * @param value
      *            allowed object is {@link String }
-     * 
+     *
      */
     public void setReason(String value) {
         this.reason = value;
     }
-
-    @Override
-    public SignatureType getSignature() {
-        return signature;
-    }
-
-    public void setSignature(SignatureType signature) {
-        this.signature = signature;
-    }
-
-
 
     /**
      * Gets the value of the notOnOrAfter property.

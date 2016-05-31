@@ -21,7 +21,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
@@ -85,10 +88,8 @@ public class Saml2Ctrl{
             model.setLogoffUrl(this.getLogoffUrl());
             storeRequestIdInSession(reqGenerator.getRequestId());
             if (fromLogout) {
-                HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance()
-                        .getExternalContext().getRequest();
-                final HttpSession session = request.getSession();
-                session.invalidate();
+                handleDeleteSession();
+                handleDeleteCookies();
             }
         } catch (SAML2AuthnRequestException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
@@ -111,14 +112,36 @@ public class Saml2Ctrl{
             sessionService.deletePlatformSession(getRequest().getSession().getId());
             final JAXBElement<LogoutRequestType> rootElement =
                     reqGenerator.generateLogoutRequest(samlSessionId);
-            return reqGenerator.encode(signElement(rootElement));
+            Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
+            final String convertedSAMLEnvelope = XMLConverter.convertToString(
+                    marshaller.marshallElement(rootElement), false);
+            return reqGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
         } catch (DatatypeConfigurationException e) {
             e.printStackTrace();
             return null;
         } catch (TransformerException e) {
             e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
+    }
+
+    private void handleDeleteSession() {
+        final HttpSession session = getRequest().getSession();
+        session.invalidate();
+    }
+
+    private void handleDeleteCookies() {
+        final Cookie[] cookies = getRequest().getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                getResponse().addCookie(cookie);
+            }
+        }
     }
 
     private <T> String signElement(JAXBElement<T> element) throws TransformerException {
@@ -219,6 +242,11 @@ public class Saml2Ctrl{
     protected HttpServletRequest getRequest() {
         return (HttpServletRequest) FacesContext.getCurrentInstance()
                 .getExternalContext().getRequest();
+    }
+
+    protected HttpServletResponse getResponse() {
+        return (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
     }
 
     public String getSaml2PostUrl() {

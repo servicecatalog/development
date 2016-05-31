@@ -11,7 +11,9 @@ package org.oscm.saml2.api;
 import java.util.Random;
 
 import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -20,12 +22,14 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.saml2.api.model.protocol.NameIDPolicyType;
 
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * @author roderus
@@ -155,14 +159,31 @@ public class AuthnRequestGenerator {
         logoutRequest.setIssueInstant(
                 GregorianCalendars.newXMLGregorianCalendarSystemTime());
         logoutRequest.setIssuer(issuer);
-        logoutRequest.setNameID(issuer);
-        logoutRequest.getNameID().setFormat("http://schemas.xmlsoap.org/claims/UPN");
-        logoutRequest.getSessionIndex().add(idpSessionIndex);
 
         JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
                 .createLogoutRequest(logoutRequest);
 
-        return logoutRequestJAXB;
+        Element element = null;
+        final Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
+        try {
+            final Document document = marshaller.marshallElement(logoutRequestJAXB);
+            element = samlBean
+                    .signLogoutRequestElement(document.getDocumentElement());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            logoutRequestJAXB = marshaller.unmarshallDocument(element,LogoutRequestType.class);
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+        logoutRequest = logoutRequestJAXB.getValue();
+
+        issuer.setFormat("http://schemas.xmlsoap.org/claims/UPN");
+        logoutRequest.setNameID(issuer);
+        logoutRequest.getSessionIndex().add(idpSessionIndex);
+        return protocolObjFactory.createLogoutRequest(logoutRequest);
     }
 
     <T> String marshal(JAXBElement<T> authnRequest) throws Exception {
