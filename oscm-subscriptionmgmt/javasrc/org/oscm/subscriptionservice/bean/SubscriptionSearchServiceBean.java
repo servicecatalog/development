@@ -26,10 +26,7 @@ import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.*;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
@@ -54,6 +51,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     public static final String SUBSCRIPTION_ID = "dataContainer.subscriptionId";
     public static final String UDA_VALUE = "dataContainer.udaValue";
     public static final String PARAMETER_VALUE = "dataContainer.value";
+    public static final String UDA_DEFINITION_VALUE = "dataContainer.defaultValue";
 
     @EJB
     private DataService dm;
@@ -103,7 +101,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
                             + " subscriptions by uda value");
 
                     query = getLuceneQueryForFields(singleString,
-                            UDA_VALUE);
+                            UDA_DEFINITION_VALUE);
                     runResult.addAll(searchUdaDefinitionsViaLucene(query, fts));
                     logger.logDebug("I have found " + voList.size()
                             + " subscriptions by uda definitions value");
@@ -226,13 +224,13 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         FullTextQuery ftQuery = fts.createFullTextQuery(query, Uda.class);
         List<Uda> result = ftQuery.list();
         for (Uda item : result) {
-
-            if (!UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
+            if (UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
                     .getConfigurationType())) {
-                if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item.getUdaDefinition()
+                continue;
+            }
+            if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item.getUdaDefinition()
                         .getTargetType())) {
-                    set.add(item.getTargetObjectKey());
-                }
+                set.add(item.getTargetObjectKey());
             }
         }
         return set;
@@ -244,21 +242,24 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         FullTextQuery ftQuery = fts.createFullTextQuery(query, UdaDefinition.class);
         List<UdaDefinition> result = ftQuery.list();
         SubscriptionDao subscriptionDao = getSubscriptionDao();
+        Set<Long> udaDefsFound = new HashSet<>();
         for (UdaDefinition item : result) {
-            if (!UdaConfigurationType.SUPPLIER.equals(item
+            if (UdaConfigurationType.SUPPLIER.equals(item
                     .getConfigurationType())) {
                 continue;
             }
             if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item
                     .getTargetType())) {
-                set.add(item.getOrganizationKey());
+                udaDefsFound.add(item.getKey());
+            }
+        }
 
-                List<Object[]> subs = subscriptionDao
-                    .getSubscriptionIdsForOrg(dm.getCurrentUser(),
-                            getStates(), item.getOrganizationKey());
-                for (Object[] subColumns : subs) {
-                    set.add(((BigInteger) subColumns[0]).longValue());
-                }
+        if (!udaDefsFound.isEmpty()) {
+            List<BigInteger> subs = subscriptionDao
+                    .getSubscriptionsWithDefaultUdaValuesAndVendor(dm.getCurrentUser(),
+                            getStates(), udaDefsFound);
+            for (BigInteger subIds : subs) {
+                set.add(subIds.longValue());
             }
         }
         return set;

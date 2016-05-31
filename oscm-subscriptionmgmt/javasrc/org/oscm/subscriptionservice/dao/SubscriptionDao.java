@@ -66,14 +66,15 @@ public class SubscriptionDao {
     private final static String SUBSCRIPTIONS_FOR_ORG_WITH_KEYS = SUBSCRIPTIONS_FOR_ORG
             + "AND s.tkey IN (:keys) ";
 
-    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR = "SELECT s.* FROM Subscription s "
-            + "LEFT JOIN product p ON (s.product_tkey = p.tkey) "
-            + "LEFT JOIN organization oCustomer ON s.organizationkey = oCustomer.tkey "
-            + "LEFT JOIN usergroup ug ON ug.tkey = s.usergroup_tkey "
-            + "WHERE s.status IN (:states) AND s.organizationkey=:organization AND p.vendorkey=:offerer ";
-
-    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_WITH_KEYS = SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR
-            + "AND s.tkey IN (:keys) ";
+    private final static String SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE = "SELECT sub.tkey FROM Uda c  LEFT JOIN udaDefinition udaDef " +
+            "ON c.udaDefinitionKey=udaDef.tKey " +
+            "LEFT JOIN subscription sub ON sub.tkey = c.targetObjectKey " +
+            "LEFT JOIN product p on sub.product_tkey=p.tkey " +
+            "WHERE c.udaValue in ('') " +
+            "AND udaDef.tKey IN (:udaDefinitions) " +
+            "AND udaDef.organizationKey=p.vendorkey " +
+            "AND sub.organizationkey = :organization " +
+            "AND sub.status IN (:states)";
 
     private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
             + "FROM Subscription s "
@@ -265,14 +266,15 @@ public class SubscriptionDao {
     }
 
     @SuppressWarnings("unchecked")
-    List<Object[]> getSubscriptionIdsForVendor(PlatformUser user,
-            Set<SubscriptionStatus> states, String queryString, long vendorKey) {
+    List<BigInteger> getSubscriptionIdsForVendorsForUdaDefs(PlatformUser user,
+                                                          Set<SubscriptionStatus> states, String queryString,
+                                                          Set<Long> udaDefsFound) {
 
         Set<String> statesAsString = getSubscriptionStatesAsString(states);
         Query query = dataManager.createNativeQuery(queryString);
         query.setParameter("organization", Long.valueOf(user.getOrganization().getKey()));
-        query.setParameter("offerer", Long.valueOf(vendorKey));
         query.setParameter("states", statesAsString);
+        query.setParameter("udaDefinitions", getLongsAsBigInts(udaDefsFound));
 
         return query.getResultList();
     }
@@ -949,6 +951,14 @@ public class SubscriptionDao {
         return statesAsString;
     }
 
+    Set<BigInteger> getLongsAsBigInts(Iterable<Long> ids) {
+        Set<BigInteger> statesAsString = new HashSet<>();
+        for (Long s : ids) {
+            statesAsString.add(BigInteger.valueOf(s.longValue()));
+        }
+        return statesAsString;
+    }
+
     public List<Subscription> getSubscriptionsForMyBrokerCustomers(
             Organization org) {
         Query query = dataManager
@@ -1040,10 +1050,10 @@ public class SubscriptionDao {
         return getSubscriptionsForOrg(user, states, pagination, queryString);
     }
 
-    public List<Object[]> getSubscriptionIdsForOrg(PlatformUser user,
-            Set<SubscriptionStatus> states, long vendorKey) {
-        return getSubscriptionIdsForVendor(user, states,
-                SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR, vendorKey);
+    public List<BigInteger> getSubscriptionsWithDefaultUdaValuesAndVendor(PlatformUser user,
+                                                                        Set<SubscriptionStatus> states, Set<Long> udaDefsFound) {
+        return getSubscriptionIdsForVendorsForUdaDefs(user, states,
+                SUBSCRIPTIONS_FOR_ORG_FROM_VENDOR_UDA_WITHOUT_VALUE, udaDefsFound);
     }
 
     public List<Subscription> getSubscriptionsForOrgWithFiltering(
@@ -1053,14 +1063,6 @@ public class SubscriptionDao {
                 SUBSCRIPTIONS_FOR_ORG_WITH_KEYS, pagination);
         return getSubscriptionsForOrg(user, states, pagination, queryString,
                 subscriptionKeys.toArray(new Long[subscriptionKeys.size()]));
-    }
-
-    public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
-            Pagination pagination, Set<SubscriptionStatus> states) {
-
-        String queryString = marketplacePaginatedQueryWithUnits(
-                SUBSCRIPTION_FOR_OWNER_WITH_STATES, pagination);
-        return getSubscriptionsForOwner(owner, states, pagination, queryString);
     }
 
     @Deprecated
@@ -1388,12 +1390,9 @@ public class SubscriptionDao {
     private void setSubscriptionKeysParameter(Query query,
             Long... subscriptionKeys) {
         if (subscriptionKeys != null && subscriptionKeys.length > 0) {
-            Set<BigInteger> subscriptionKeysStrings = new HashSet<>();
-            for (Long subscriptionKey : subscriptionKeys) {
-                subscriptionKeysStrings.add(BigInteger.valueOf(subscriptionKey
-                        .longValue()));
-            }
-            query.setParameter("keys", subscriptionKeysStrings);
+            List<Long> ids = new ArrayList<>();
+            Collections.addAll(ids, subscriptionKeys);
+            query.setParameter("keys", getLongsAsBigInts(ids));
         }
     }
 
