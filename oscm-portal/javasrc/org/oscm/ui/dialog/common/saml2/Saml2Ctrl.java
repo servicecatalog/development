@@ -21,21 +21,33 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.transform.TransformerException;
 
+import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
+import org.oscm.saml2.api.Marshalling;
+import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
+
+import org.w3c.dom.Document;
 
 /**
  * @author roderus
@@ -50,6 +62,9 @@ public class Saml2Ctrl{
     @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
 
+    @EJB(beanInterface = SamlService.class)
+    private SamlService samlBean;
+
     @EJB(beanInterface = SessionService.class)
     private SessionService sessionService;
 
@@ -58,6 +73,7 @@ public class Saml2Ctrl{
 
 
     private UiDelegate uiDelegate ;
+    private boolean fromLogout;
 
     public String initModelAndCheckForErrors() {
 
@@ -66,12 +82,15 @@ public class Saml2Ctrl{
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
-            model.setEncodedAuthnLogoutRequest(reqGenerator.getEncodedLogoutRequest(
-                    sessionService.getSAMLSessionStringForSessionId(getSessionId())));
+            model.setEncodedAuthnLogoutRequest(generateLogoutRequest(reqGenerator));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
             storeRequestIdInSession(reqGenerator.getRequestId());
+            if (fromLogout) {
+                handleDeleteSession();
+                handleDeleteCookies();
+            }
         } catch (SAML2AuthnRequestException e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_AUTH_REQUEST_GENERATION_FAILED);
@@ -85,6 +104,61 @@ public class Saml2Ctrl{
         }
 
         return null;
+    }
+
+    String generateLogoutRequest(AuthnRequestGenerator reqGenerator) throws SAML2AuthnRequestException {
+        try {
+            String samlSessionId = sessionService.getSAMLSessionStringForSessionId(getSessionId());
+            sessionService.deletePlatformSession(getRequest().getSession().getId());
+            final JAXBElement<LogoutRequestType> rootElement =
+                    reqGenerator.generateLogoutRequest(samlSessionId);
+            Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
+            final String convertedSAMLEnvelope = XMLConverter.convertToString(
+                    marshaller.marshallElement(rootElement), false);
+            return reqGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
+        } catch (DatatypeConfigurationException e) {
+            e.printStackTrace();
+            return null;
+        } catch (TransformerException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private void handleDeleteSession() {
+        final HttpSession session = getRequest().getSession();
+        session.invalidate();
+    }
+
+    private void handleDeleteCookies() {
+        final Cookie[] cookies = getRequest().getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setValue("");
+                cookie.setPath("/");
+                cookie.setMaxAge(0);
+                getResponse().addCookie(cookie);
+            }
+        }
+    }
+
+    private <T> String signElement(JAXBElement<T> element) throws TransformerException {
+        Marshalling<T> marshaller = new Marshalling<>();
+        Document samlRequestDoc = null;
+        try {
+            samlRequestDoc = marshaller.marshallElement(element);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        samlRequestDoc = samlBean
+                .signLogoutRequestElement(
+                        samlRequestDoc.getDocumentElement())
+                .getOwnerDocument();
+        String authnRequestString = XMLConverter.convertToString(
+                samlRequestDoc, false);
+        return XMLConverter.removeEOLCharsFromXML(authnRequestString);
     }
 
     String getSessionId() {
@@ -141,7 +215,7 @@ public class Saml2Ctrl{
     AuthnRequestGenerator getAuthnRequestGenerator()
             throws SAML2AuthnRequestException {
         Boolean isHttps = Boolean.valueOf(getRequest().isSecure());
-        return new AuthnRequestGenerator(getIssuer(), isHttps);
+        return new AuthnRequestGenerator(getIssuer(), isHttps, configurationService, samlBean);
     }
 
     String getIssuer() throws SAML2AuthnRequestException {
@@ -170,6 +244,11 @@ public class Saml2Ctrl{
                 .getExternalContext().getRequest();
     }
 
+    protected HttpServletResponse getResponse() {
+        return (HttpServletResponse) FacesContext.getCurrentInstance()
+                .getExternalContext().getResponse();
+    }
+
     public String getSaml2PostUrl() {
         String url = this.getRequest().getRequestURL().toString();
         url = url.replaceAll(getRequest().getServletPath(),
@@ -184,5 +263,12 @@ public class Saml2Ctrl{
         return uiDelegate;
     }
 
+    public boolean isFromLogout() {
+        return fromLogout;
+    }
+
+    public void setFromLogout(boolean fromLogout) {
+        this.fromLogout = fromLogout;
+    }
 
 }

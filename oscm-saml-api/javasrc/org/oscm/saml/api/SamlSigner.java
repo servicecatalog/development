@@ -295,6 +295,9 @@ public class SamlSigner {
             attribute = attributeMap.getNamedItem(Assertion.ASSERTION_ID);
         } else if ("Request".equals(name)) {
             attribute = attributeMap.getNamedItem("RequestID");
+        } else if ("LogoutRequest".equals(name)){
+            element.setIdAttribute("ID", true);
+            attribute = attributeMap.getNamedItem("ID");
         } else {
             throw new SaaSSystemException(EXCEPTION_PREFIX
                     + "Unsupported element to be signed: <" + name + "> ");
