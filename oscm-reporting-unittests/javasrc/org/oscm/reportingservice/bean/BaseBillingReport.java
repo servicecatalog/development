@@ -29,6 +29,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.junit.After;
 import org.junit.Before;
+
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
@@ -47,6 +48,7 @@ import org.oscm.string.Strings;
 import org.oscm.test.stubs.BillingServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.types.constants.Configuration;
+
 import org.w3c.dom.Document;
 
 /**

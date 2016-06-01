@@ -25,5 +25,6 @@ public interface SignerService {
      * @param logoutRequest
      * @return
      */
+
     Element signLogoutRequest(Element logoutRequest) throws Exception;
 }

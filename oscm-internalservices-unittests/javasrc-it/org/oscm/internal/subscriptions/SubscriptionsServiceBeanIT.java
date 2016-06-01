@@ -20,10 +20,17 @@ import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
+
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserRole;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tables.Pagination;

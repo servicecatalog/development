@@ -50,6 +50,7 @@
 		<project>oscm-reporting</project>
 		<project>oscm-review</project>
 		<project>oscm-saml-api</project>
+		<project>oscm-saml-tools</project>
 		<project>oscm-server-common</project>
 		<project>oscm-server-util</project>
 		<project>oscm-serviceprovisioning</project>
