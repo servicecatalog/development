@@ -32,6 +32,7 @@ public class SignerServiceBean implements SignerService {
 
     @Override
     public Element signLogoutRequest(Element logoutRequest) throws Exception {
+        //TODO: new runtime exception - signature failed
         Saml20KeyLoader keyLoader = new Saml20KeyLoader(configService);
         Saml20Signer signer = new SamlSigner(keyLoader.getPrivateKey());
 

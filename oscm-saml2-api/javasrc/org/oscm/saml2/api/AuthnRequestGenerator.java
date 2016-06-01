@@ -20,6 +20,7 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.model.assertion.NameIDType;
@@ -67,7 +68,7 @@ public class AuthnRequestGenerator {
      * @throws SAML2AuthnRequestException
      */
     public String getEncodedAuthnRequest() throws SAML2AuthnRequestException {
-        String authnRequest = null;
+        String authnRequest;
         try {
             authnRequest = marshal(generateAuthnRequest());
         } catch (SAML2AuthnRequestException e) {
@@ -85,7 +86,7 @@ public class AuthnRequestGenerator {
      * @throws SAML2AuthnRequestException
      */
     public String getEncodedLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
-        String authnRequest = null;
+        String authnRequest;
         try {
             authnRequest = marshal(generateLogoutRequest(idpSessionIndex));
         } catch (SAML2AuthnRequestException e) {
@@ -181,6 +182,8 @@ public class AuthnRequestGenerator {
         } catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_SIGNING_SAML_FAULT);
+            //TODO: remove it, new exception should be thrown from signer.
+            throw new SaaSSystemException(e);
         }
         return logoutRequestJAXB;
     }
