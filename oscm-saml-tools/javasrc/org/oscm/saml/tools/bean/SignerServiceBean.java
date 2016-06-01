@@ -13,7 +13,6 @@ import javax.xml.bind.JAXBElement;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.saml.api.Saml20Signer;
 import org.oscm.saml.api.SamlSigner;
@@ -23,7 +22,7 @@ import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.w3c.dom.Element;
 
 @Stateless
-@Remote(SamlService.class)
+@Remote(SignerService.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class SignerServiceBean implements SignerService {
 
