@@ -8,8 +8,6 @@
 
 package org.oscm.internal.types.exception;
 
-import javax.xml.bind.annotation.XmlType;
-
 import org.oscm.internal.types.exception.beans.SAML2StatusCodeInvalidExceptionBean;
 
 /**
