@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2014                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.internal.usermanagement;
 
 import java.io.Serializable;
@@ -35,7 +43,7 @@ public class POUserInUnit implements Serializable {
     public String getUserId() {
         return poUser.getUserId();
     }
-    
+
     public String getFirstName() {
         return poUser.getFirstName();
     }

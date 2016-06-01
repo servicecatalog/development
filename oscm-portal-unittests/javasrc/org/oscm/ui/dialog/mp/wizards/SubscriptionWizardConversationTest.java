@@ -297,6 +297,29 @@ public class SubscriptionWizardConversationTest {
         // then
         assertEquals("", result);
     }
+    
+    @Test
+    public void selectServiceHIDE_PAYMENT_INFO() {
+        // given
+        initDataForSelectServiceWithoutParams();
+        doNothing().when(bean).addMessage(any(FacesMessage.Severity.class),
+                anyString());
+        doReturn(true).when(subscriptionService).isPaymentInfoHidden();
+        
+        VOUserDetails voUserDetails = new VOUserDetails();
+        voUserDetails.setKey(1000L);
+        Set<UserRoleType> userRoles = new HashSet<>();
+        userRoles.add(UserRoleType.ORGANIZATION_ADMIN);
+        voUserDetails.setUserRoles(userRoles);
+        doReturn(voUserDetails).when(ui).getUserFromSessionWithoutException();
+        VOSubscriptionDetails subscription = new VOSubscriptionDetails();
+        bean.getModel().setSubscription(subscription);
+        
+        // when
+        String result = bean.selectService();
+        // then
+        assertEquals("success", result);
+    }
 
     @Test
     public void testNext() {
@@ -1294,6 +1317,22 @@ public class SubscriptionWizardConversationTest {
         parameterDefinition.setKey(100L);
         parameter.setParameterDefinition(parameterDefinition);
         parameters.add(parameter);
+        vo.setParameters(parameters);
+        vo.setKey(1000L);
+        Service s = new Service(vo);
+        bean.getModel().setService(s);
+        List<PricedParameterRow> pricedParameterRows = new ArrayList<>();
+        PricedParameterRow pricedParameterRow = new PricedParameterRow();
+        pricedParameterRows.add(pricedParameterRow);
+        bean.getModel().setServiceParameters(pricedParameterRows);
+        bean.getModel().getUseExternalConfigurator();
+        bean.getModel().setHideExternalConfigurator(false);
+    }
+    
+    private void initDataForSelectServiceWithoutParams() {
+        VOService vo = new VOService();
+        vo.setConfiguratorUrl("http://");
+        List<VOParameter> parameters = new ArrayList<>();
         vo.setParameters(parameters);
         vo.setKey(1000L);
         Service s = new Service(vo);

@@ -20,7 +20,6 @@ import static org.mockito.Mockito.spy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import javax.persistence.Query;
 
@@ -28,9 +27,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRole;
@@ -43,6 +42,15 @@ import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.IdentityServiceLocal;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOUda;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.subscriptionservice.auditlog.SubscriptionAuditLogCollector;
 import org.oscm.subscriptionservice.dao.OrganizationDao;
@@ -54,16 +62,6 @@ import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.triggerservice.local.TriggerProcessMessageData;
 import org.oscm.triggerservice.local.TriggerQueueServiceLocal;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOUda;
 
 public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
     private static final long PRODUCT_TEMPLATE_KEY = 4711L;
@@ -101,7 +99,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
     private UserGroupServiceLocalBean userGroupService;
     private final OrganizationDao orgDao = mock(OrganizationDao.class);
     private final List<PlatformUser> givenUsers = new ArrayList<PlatformUser>();
-
+    private ConfigurationServiceLocal cfgService;
+    
     @Before
     public void setup() throws Exception {
         createDomainObjects();
@@ -123,6 +122,7 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         subscriptionServiceBean.tqs = mock(TaskQueueServiceLocal.class);
         subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
         subscriptionServiceBean.audit = mock(SubscriptionAuditLogCollector.class);
+        
         productDao = mock(ProductDao.class);
         doReturn(productDao).when(subscriptionServiceBean).getProductDao();
         terminateBean = spy(new TerminateSubscriptionBean());
@@ -147,6 +147,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         subscriptionServiceBean.tenantProvisioning = tenantProvisioningMock;
         userGroupService = mock(UserGroupServiceLocalBean.class);
         subscriptionServiceBean.userGroupService = userGroupService;
+        cfgService = mock(ConfigurationServiceLocal.class);
+        subscriptionServiceBean.cfgService = cfgService;
         queryMock = mock(Query.class);
     }
 
@@ -277,7 +279,8 @@ public class SubscriptionServiceBeanSubscribeToPartnerServiceTest {
         doReturn(orgDao).when(subscriptionServiceBean.manageBean)
                 .getOrganizationDao();
         doReturn(givenUsers).when(orgDao).getOrganizationAdmins(anyLong());
-
+        doReturn(true).when(cfgService).isPaymentInfoAvailable();
+        
         // when
         VOSubscription voSub = subscriptionServiceBean
                 .subscribeToService(subscription, service, null, null, null,

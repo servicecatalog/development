@@ -1,6 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                                                                                                                                                                                                    
+ *  Copyright FUJITSU LIMITED 2016                  
+ *                                                                                                                                 
+ *  Creation Date: 10.12.2014                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -29,24 +31,25 @@ import org.oscm.internal.types.exception.BillingApplicationException;
 @LocalBean
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class PriceModelPluginBean {
-    
+
     @EJB
     BillingAdapterDAO billingAdapterDAO;
-    
-    public PriceModel getPriceModel(String billingId, Set<Locale> locales,
-            Map<ContextKey, ContextValue<?>> context) throws BillingApplicationException{
 
-        PriceModel priceModel = newPriceModelPluginProxy(
-                billingId).getPriceModel(context, locales);
+    public PriceModel getPriceModel(String billingId, Set<Locale> locales,
+            Map<ContextKey, ContextValue<?>> context)
+            throws BillingApplicationException {
+
+        PriceModel priceModel = newPriceModelPluginProxy(billingId)
+                .getPriceModel(context, locales);
 
         return priceModel;
     }
-    
+
     PriceModelPluginProxy newPriceModelPluginProxy(String billingId)
             throws BillingApplicationException {
         return new PriceModelPluginProxy(getBillingAdapter(billingId));
     }
-    
+
     private BillingAdapter getBillingAdapter(String billingId)
             throws BillingApplicationException {
         BillingAdapter billingAdapter = new BillingAdapter();
@@ -60,5 +63,5 @@ public class PriceModelPluginBean {
         }
         return billingAdapter;
     }
-    
+
 }

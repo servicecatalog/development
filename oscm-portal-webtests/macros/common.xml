@@ -7,13 +7,13 @@
       </groovy>
     </sequential>
   </macrodef>
-	
+
   <macrodef name="common.reSetPageScriptError">
     <sequential>
-	  <groovy>
+      <groovy>
 	    step.context.webClient.throwExceptionOnScriptError = true
 	  </groovy>
-	</sequential>
+    </sequential>
   </macrodef>
 
   <macrodef name="common.clickAndVerfyLink">
@@ -69,35 +69,35 @@
     <attribute name="label" />
     <attribute name="errorFieldId" default="errorMessages" />
     <attribute name="regex" default="true" />
-  	<attribute name="enableFieldId" default="false" />
+    <attribute name="enableFieldId" default="false" />
     <sequential>
       <ifStep test='@{enableFieldId}'>
         <then>
           <ifStep description="Check string w or w/o regex" test="@{regex}">
             <then>
-        	  <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
-        	  <verifyProperty name="errorMsg" value="@{label}" regex="true" />
-        	</then>
+              <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+            </then>
             <else>
-        	  <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
-        	  <verifyProperty name="errorMsg" value="@{label}" regex="false" />
-        	</else>
+              <storeXPath description="Check error message" xpath="//*[@id='@{errorFieldId}']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{label}" regex="false" />
+            </else>
           </ifStep>
         </then>
-      	<else>
-      	  <ifStep description="Check string w or w/o regex" test="@{regex}">
-      	    <then>
-      		  <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
-      		  <verifyProperty name="errorMsg" value="@{label}" regex="true" />
-      		</then>
-      		<else>
-      		  <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
-      		  <verifyProperty name="errorMsg" value="@{label}" regex="false" />
-      		</else>
-      	  </ifStep>
-      	</else>
+        <else>
+          <ifStep description="Check string w or w/o regex" test="@{regex}">
+            <then>
+              <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{label}" regex="true" />
+            </then>
+            <else>
+              <storeXPath description="Check error message" xpath="//*[@id='errorMessages:']//*[contains(@class, 'rf-msgs-sum')]/text()" property="errorMsg" />
+              <verifyProperty name="errorMsg" value="@{label}" regex="false" />
+            </else>
+          </ifStep>
+        </else>
       </ifStep>
-      
+
     </sequential>
   </macrodef>
 
@@ -116,7 +116,7 @@
       </ifStep>
     </sequential>
   </macrodef>
-  
+
   <macrodef name="common.verifyInputFields">
     <sequential>
       <groovy description="check maxlength">
@@ -517,7 +517,7 @@
     </sequential>
   </macrodef>
 
-  
+
   <!-- verify error message in an modal dialog -->
   <macrodef name="common.verifyModalErrorPanel">
     <attribute name="label" />
@@ -615,7 +615,7 @@
       </dataDriven>
     </sequential>
   </macrodef>
-  
+
   <macrodef name="common.storePropertyWithRetry">
     <attribute name="propertyName" />
     <attribute name="propertyValue" />
@@ -643,6 +643,21 @@
           <fail message="ERROR: Variable '@{propertyName}' is not resolved! Maybe storeProperty mechanism sucks... or variable resolving by ANT." />
         </else>
       </ifStep>
+    </sequential>
+  </macrodef>
+
+  <macrodef name="common.setConfigurationSettingValue">
+    <attribute name="settingName" />
+    <attribute name="settingValue" />
+    <sequential>
+      <operatorPortal.login />
+      <clickLink href="/operator/manageConfiguration.jsf" />
+      <storeXPath property="hiddenElementFieldId" xpath="//td[text()='@{settingName}']/..//input/@id" propertyType="ant" />
+      <storeXPath property="hiddenElementFieldValue" xpath="//td[text()='@{settingName}']/..//input/@value" propertyType="ant" />
+      <setInputField htmlId="${hiddenElementFieldId}" value="@{settingValue}" />
+      <clickElement htmlId="configurationSettings:saveButton" />
+      <common.verifySuccess label="${info.configuration.saved}" />
+      <login.logout />
     </sequential>
   </macrodef>
 

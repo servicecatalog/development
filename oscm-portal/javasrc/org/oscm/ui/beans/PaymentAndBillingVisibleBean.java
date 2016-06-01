@@ -12,10 +12,12 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOPaymentInfo;
 import org.oscm.internal.vo.VOPaymentType;
@@ -34,7 +36,10 @@ public class PaymentAndBillingVisibleBean implements Serializable {
 
     @ManagedProperty(value = "#{billingContactBean}")
     private BillingContactBean billingContactBean;
-
+    
+    @EJB
+    private ConfigurationService configurationService;
+    
     private Boolean isPaymentVisible;
     private Boolean isBillingVisible;
 
@@ -63,7 +68,11 @@ public class PaymentAndBillingVisibleBean implements Serializable {
 
         return false;
     }
-
+    
+    public boolean isPaymentTabVisible() {
+        return configurationService.isPaymentInfoAvailable();
+    }
+    
     public UserBean getUserBean() {
         return userBean;
     }

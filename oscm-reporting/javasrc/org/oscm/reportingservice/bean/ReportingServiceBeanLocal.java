@@ -17,8 +17,6 @@ import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
@@ -33,6 +31,14 @@ import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ReportType;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.vo.VOReport;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.reportingservice.business.BillingDetailsReport;
 import org.oscm.reportingservice.business.CustomerEventReport;
 import org.oscm.reportingservice.business.CustomerPaymentPreviewReport;
@@ -50,8 +56,11 @@ import org.oscm.reportingservice.business.SupplierCustomerReport;
 import org.oscm.reportingservice.business.SupplierPaymentReport;
 import org.oscm.reportingservice.business.SupplierProductReport;
 import org.oscm.reportingservice.business.SupplierRevenueShareReport;
+import org.oscm.reportingservice.business.model.RDO;
 import org.oscm.reportingservice.business.model.billing.RDOCustomerPaymentPreview;
 import org.oscm.reportingservice.business.model.billing.RDODetailedBilling;
+import org.oscm.reportingservice.business.model.billing.RDOPaymentPreviewSummary;
+import org.oscm.reportingservice.business.model.billing.RDOSummary;
 import org.oscm.reportingservice.business.model.billing.VOReportResult;
 import org.oscm.reportingservice.business.model.externalservices.RDOExternal;
 import org.oscm.reportingservice.business.model.partnerrevenue.RDOPartnerReport;
@@ -70,12 +79,6 @@ import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ReportType;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.vo.VOReport;
 
 /**
  * ReportingServiceBeanLocal is used to be injected to
@@ -107,7 +110,9 @@ public class ReportingServiceBeanLocal {
 
     @EJB(beanInterface = UserGroupServiceLocalBean.class)
     protected UserGroupServiceLocalBean userGroupService;
-
+    
+    private static final String EMPTY = "";
+    
     public VOReportResult getReport(String sessionId, String reportId) {
 
         PlatformUser platformUser = loadUser(sessionId);
@@ -131,15 +136,16 @@ public class ReportingServiceBeanLocal {
 
             if ("Subscription".equals(reportId)) {
                 CustomerSubscriptionReport report = new CustomerSubscriptionReport(
-                        new SubscriptionDao(dataService), new UnitDao(
-                                dataService));
+                        new SubscriptionDao(dataService),
+                        new UnitDao(dataService));
                 report.buildReport(platformUser, rtv);
             } else if ("Event".equals(reportId)) {
                 CustomerEventReport report = new CustomerEventReport(
-                        new EventDao(dataService), new SubscriptionDao(
-                                dataService), new UnitDao(dataService));
-                report.buildReport(rtv, platformUser, localizerService
-                        .getDefaultLocale().getLanguage());
+                        new EventDao(dataService),
+                        new SubscriptionDao(dataService),
+                        new UnitDao(dataService));
+                report.buildReport(rtv, platformUser,
+                        localizerService.getDefaultLocale().getLanguage());
             } else if ("Supplier_Product".equals(reportId)) {
                 SupplierProductReport report = new SupplierProductReport(
                         new SubscriptionDao(dataService));
@@ -150,13 +156,13 @@ public class ReportingServiceBeanLocal {
                 report.buildReport(organizationID, rtv);
             } else if ("Supplier_Billing".equals(reportId)) {
                 SupplierBillingReport report = new SupplierBillingReport(
-                        new SubscriptionDao(dataService), new BillingDao(
-                                dataService));
+                        new SubscriptionDao(dataService),
+                        new BillingDao(dataService));
                 report.buildReport(organizationID, rtv);
             } else if ("Provider_Event".equals(reportId)) {
                 ProviderEventReport report = new ProviderEventReport(
-                        new SubscriptionDao(dataService), new EventDao(
-                                dataService));
+                        new SubscriptionDao(dataService),
+                        new EventDao(dataService));
                 report.buildReport(organizationID, rtv);
             } else if ("Provider_Supplier".equals(reportId)) {
                 ProviderSupplierReport report = new ProviderSupplierReport(
@@ -175,8 +181,8 @@ public class ReportingServiceBeanLocal {
                 report.buildReport(organizationID, rtv);
             } else if ("Supplier_PaymentResultStatus".equals(reportId)) {
                 SupplierPaymentReport report = new SupplierPaymentReport(
-                        new PaymentDao(dataService), new SubscriptionDao(
-                                dataService));
+                        new PaymentDao(dataService),
+                        new SubscriptionDao(dataService));
                 report.buildReport(organization.getKey(), rtv);
             }
 
@@ -193,8 +199,8 @@ public class ReportingServiceBeanLocal {
 
     private boolean isReportAvailableForOrganization(Organization organization,
             String reportId) {
-        List<Report> reports = getReportsByRoles(mapReportTypeToRoles(
-                organization, ReportType.ALL));
+        List<Report> reports = getReportsByRoles(
+                mapReportTypeToRoles(organization, ReportType.ALL));
         for (Report report : reports) {
             if (report.getReportName().equals(reportId)) {
                 return true;
@@ -232,8 +238,7 @@ public class ReportingServiceBeanLocal {
             result = organization.getGrantedRoles();
             break;
         case NON_CUSTOMER:
-            result = new HashSet<>(
-                    organization.getGrantedRoles());
+            result = new HashSet<>(organization.getGrantedRoles());
             removeOrgToRole(OrganizationRoleType.CUSTOMER, result);
             break;
         }
@@ -276,23 +281,21 @@ public class ReportingServiceBeanLocal {
     private String getEngineUrl() {
         String url = configurationService
                 .getConfigurationSetting(ConfigurationKey.REPORT_ENGINEURL,
-                        Configuration.GLOBAL_CONTEXT).getValue();
-        url = ReportEngineUrl.replace(
-                url,
-                ReportEngineUrl.KEY_SOAPENDPOINT,
+                        Configuration.GLOBAL_CONTEXT)
+                .getValue();
+        url = ReportEngineUrl.replace(url, ReportEngineUrl.KEY_SOAPENDPOINT,
                 configurationService.getConfigurationSetting(
                         ConfigurationKey.REPORT_SOAP_ENDPOINT,
                         Configuration.GLOBAL_CONTEXT).getValue());
-        url = ReportEngineUrl.replace(
-                url,
-                ReportEngineUrl.KEY_WSDLURL,
+        url = ReportEngineUrl.replace(url, ReportEngineUrl.KEY_WSDLURL,
                 configurationService.getConfigurationSetting(
                         ConfigurationKey.REPORT_WSDLURL,
                         Configuration.GLOBAL_CONTEXT).getValue());
         return url;
     }
 
-    public RDOCustomerPaymentPreview getCustomerPaymentPreview(String sessionId) {
+    public RDOCustomerPaymentPreview getCustomerPaymentPreview(
+            String sessionId) {
 
         try {
             RDOCustomerPaymentPreview cachedResult = getFromCache(sessionId,
@@ -303,8 +306,14 @@ public class ReportingServiceBeanLocal {
             CustomerPaymentPreviewReport report = new CustomerPaymentPreviewReport(
                     new BillingDao(dataService), new UnitDao(dataService),
                     billingService, userGroupService);
+
             RDOCustomerPaymentPreview result = report
                     .buildReport(loadUser(sessionId));
+
+            if (!configurationService.isPaymentInfoAvailable()) {
+                hidePaymentInfo(result);
+            }
+
             putToCache(sessionId, result);
 
             return result;
@@ -324,9 +333,9 @@ public class ReportingServiceBeanLocal {
     }
 
     <T> void putToCache(String cacheKey, T result) {
-        ReportingResultCache.put(dataService, cacheKey
-                + result.getClass().getName(), System.currentTimeMillis(),
-                result);
+        ReportingResultCache.put(dataService,
+                cacheKey + result.getClass().getName(),
+                System.currentTimeMillis(), result);
     }
 
     public RDODetailedBilling getBillingDetailsReport(String sessionId,
@@ -346,17 +355,21 @@ public class ReportingServiceBeanLocal {
 
         try {
             BillingDetailsReport billingReport = new BillingDetailsReport(
-                    new BillingDao(dataService), new UnitDao(dataService), userGroupService);
+                    new BillingDao(dataService), new UnitDao(dataService),
+                    userGroupService);
             RDODetailedBilling result = billingReport.buildReport(user,
                     billingKey);
+            
+            if (!configurationService.isPaymentInfoAvailable()) {
+                hidePaymentInfo(result);
+            }
+            
             putToCache(cacheKey, result);
 
             return result;
         } catch (Exception e) {
             SaaSSystemException sse = new SaaSSystemException(e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_GENERATE_BILLING_DETAIL_REPORT_FAILED);
             throw sse;
         }
@@ -383,8 +396,7 @@ public class ReportingServiceBeanLocal {
         try {
             PlatformRevenueReport report = new PlatformRevenueReport(
                     dataService);
-            return report.buildReport(loadUser(sessionId),
-                    fromTime, toTime);
+            return report.buildReport(loadUser(sessionId), fromTime, toTime);
         } catch (Exception e) {
             SaaSSystemException se = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
@@ -398,8 +410,8 @@ public class ReportingServiceBeanLocal {
             int month, int year) {
         try {
             PartnerReport partnerReport = new PartnerReport(dataService);
-            return partnerReport.buildBrokerReport(
-                    loadUser(sessionId), month, year);
+            return partnerReport.buildBrokerReport(loadUser(sessionId), month,
+                    year);
         } catch (Exception e) {
             SaaSSystemException se = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
@@ -413,8 +425,8 @@ public class ReportingServiceBeanLocal {
             int month, int year) {
         try {
             PartnerReport partnerReport = new PartnerReport(dataService);
-            return partnerReport.buildResellerReport(
-                    loadUser(sessionId), month, year);
+            return partnerReport.buildResellerReport(loadUser(sessionId), month,
+                    year);
         } catch (Exception e) {
             SaaSSystemException se = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
@@ -428,8 +440,8 @@ public class ReportingServiceBeanLocal {
             int month, int year) {
         try {
             PartnerReport partnerReport = new PartnerReport(dataService);
-            return partnerReport.buildPartnerReport(
-                    loadUser(sessionId), month, year);
+            return partnerReport.buildPartnerReport(loadUser(sessionId), month,
+                    year);
         } catch (Exception e) {
             SaaSSystemException se = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
@@ -451,8 +463,8 @@ public class ReportingServiceBeanLocal {
             }
             SupplierRevenueShareReport supplierReport = new SupplierRevenueShareReport(
                     dataService);
-            RDOSupplierRevenueShareReport result = supplierReport.buildReport(
-                    loadUser(sessionId), month, year);
+            RDOSupplierRevenueShareReport result = supplierReport
+                    .buildReport(loadUser(sessionId), month, year);
             putToCache(cacheKey, result);
 
             return result;
@@ -470,8 +482,8 @@ public class ReportingServiceBeanLocal {
 
         try {
             String cacheKey = sessionId + month + year;
-            RDOSupplierRevenueShareReports cachedResult = getFromCache(
-                    cacheKey, RDOSupplierRevenueShareReports.class);
+            RDOSupplierRevenueShareReports cachedResult = getFromCache(cacheKey,
+                    RDOSupplierRevenueShareReports.class);
             if (cachedResult != null) {
                 return cachedResult;
             }
@@ -512,15 +524,17 @@ public class ReportingServiceBeanLocal {
                     new BillingDao(dataService));
             RDODetailedBilling result = billingReport.buildReport(platformUser,
                     billingKey);
-
+            
+            if (!configurationService.isPaymentInfoAvailable()) {
+                hidePaymentInfo(result);
+            }
+            
             putToCache(cacheKey, result);
 
             return result;
         } catch (Exception e) {
             SaaSSystemException sse = new SaaSSystemException(e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_GENERATE_BILLING_DETAIL_REPORT_FAILED);
             throw sse;
         }
@@ -568,8 +582,8 @@ public class ReportingServiceBeanLocal {
                 report.buildReport(supplierOrgId, rtv, true);
             } else if ("Supplier_BillingOfASupplier".equals(reportId)) {
                 SupplierBillingReport report = new SupplierBillingReport(
-                        new SubscriptionDao(dataService), new BillingDao(
-                                dataService));
+                        new SubscriptionDao(dataService),
+                        new BillingDao(dataService));
                 report.buildReport(supplierOrgId, rtv, true);
             }
 
@@ -580,5 +594,27 @@ public class ReportingServiceBeanLocal {
                     LogMessageIdentifier.ERROR_GENERATE_REPORT_FAILED);
             throw ex;
         }
+    }
+    
+    void hidePaymentInfo(RDO rdo){
+        
+        List<RDOSummary> summaries = new ArrayList<>();
+        
+        if(rdo instanceof RDOCustomerPaymentPreview){
+            
+            RDOCustomerPaymentPreview rdoPaymentPreview = (RDOCustomerPaymentPreview) rdo;  
+            summaries.addAll(rdoPaymentPreview.getSummaries());
+
+        } else if(rdo instanceof RDODetailedBilling){
+            
+            RDODetailedBilling rdoDetailedBilling = (RDODetailedBilling) rdo;
+            summaries.addAll(rdoDetailedBilling.getSummaries());
+        }
+        
+        for(RDOSummary summary : summaries){
+            summary.setPaymentType(EMPTY);
+            summary.setOrganizationAddress(EMPTY);
+        }
+        
     }
 }

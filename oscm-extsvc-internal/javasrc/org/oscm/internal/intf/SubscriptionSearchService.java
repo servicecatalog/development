@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                             
+ *                                                                              
+ *  Creation Date: 20.04.2016                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.internal.intf;
 
 import org.oscm.internal.types.exception.InvalidPhraseException;
@@ -7,7 +15,7 @@ import javax.ejb.Local;
 import java.util.Collection;
 
 /**
- * Interface for full text subsription search.
+ * Interface for full text subscription search.
  */
 @Local
 public interface SubscriptionSearchService {

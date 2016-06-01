@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
  *  Creation Date: 10.12.2014                                                      
  *                                                                              
@@ -43,14 +43,18 @@ public class LocalizedBillingResourceAssembler {
             .getLogger(LocalizedBillingResourceAssembler.class);
 
     public static List<LocalizedBillingResource> createLocalizedBillingResources(
-            PriceModel localizedPriceModel, LocalizedBillingResourceType localizedBillingResourceType) throws BillingApplicationException {
+            PriceModel localizedPriceModel,
+            LocalizedBillingResourceType localizedBillingResourceType)
+            throws BillingApplicationException {
         List<LocalizedBillingResource> localizedBillingresources = new ArrayList<LocalizedBillingResource>();
 
         LocalizedBillingResourceType lrt = localizedBillingResourceType;
         if (localizedPriceModel.getContext() != null) {
-            if (localizedPriceModel.getContext().containsKey(ContextKey.SUBSCRIPTION_ID)) {
+            if (localizedPriceModel.getContext().containsKey(
+                    ContextKey.SUBSCRIPTION_ID)) {
                 lrt = LocalizedBillingResourceType.PRICEMODEL_SUBSCRIPTION;
-            } else if (localizedPriceModel.getContext().containsKey(ContextKey.CUSTOMER_ID)) {
+            } else if (localizedPriceModel.getContext().containsKey(
+                    ContextKey.CUSTOMER_ID)) {
                 lrt = LocalizedBillingResourceType.PRICEMODEL_CUSTOMER;
             } else {
                 lrt = LocalizedBillingResourceType.PRICEMODEL_SERVICE;
@@ -70,14 +74,14 @@ public class LocalizedBillingResourceAssembler {
     }
 
     public static LocalizedBillingResource createPriceModel(UUID objectID,
-            Locale locale, PriceModelContent priceModelDescription, LocalizedBillingResourceType localizedBillingResourceType)
+            Locale locale, PriceModelContent priceModelDescription,
+            LocalizedBillingResourceType localizedBillingResourceType)
             throws BillingApplicationException {
 
         validatePriceModelContent(priceModelDescription);
 
         LocalizedBillingResource localizedBillingresource = new LocalizedBillingResource(
-                objectID, locale.getLanguage(),
-                localizedBillingResourceType);
+                objectID, locale.getLanguage(), localizedBillingResourceType);
         localizedBillingresource.setDataType(priceModelDescription
                 .getContentType());
         localizedBillingresource.setValue(priceModelDescription.getContent());
@@ -87,20 +91,21 @@ public class LocalizedBillingResourceAssembler {
 
     static void validatePriceModelContent(PriceModelContent priceModelContent)
             throws BillingApplicationException {
-        
-        if (MediaType.APPLICATION_JSON.equals(priceModelContent.getContentType())){
-            
-            if(!isValidJSON(new String(priceModelContent.getContent()))){
+
+        if (MediaType.APPLICATION_JSON.equals(priceModelContent
+                .getContentType())) {
+
+            if (!isValidJSON(new String(priceModelContent.getContent()))) {
                 throw new BillingApplicationException(
-                    "The external price model description is not a valid JSON string.");
+                        "The external price model description is not a valid JSON string.");
             }
-            
+
         }
     }
 
     static boolean isValidJSON(String jsonString)
             throws BillingApplicationException {
-        
+
         ObjectMapper om = new ObjectMapper();
         try {
             JsonParser parser = om.getFactory().createParser(jsonString);

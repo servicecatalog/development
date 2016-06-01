@@ -12,9 +12,11 @@
 
 package org.oscm.reportingservice.bean;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -200,6 +202,7 @@ public class ReportingServiceBeanBillingTest extends BaseBillingReport {
     @Test
     public void getBillingDetailsReport() throws Exception {
         // given
+        
         TimeZone.setDefault(TimeZone.getTimeZone("GMT+1"));
 
         mockResultData(XML_FILE_1, "TheServiceId", "TheServiceLocalized");
@@ -1481,5 +1484,23 @@ public class ReportingServiceBeanBillingTest extends BaseBillingReport {
         RDOParameter paramForUserRole = userRole1
                 .getParameter("CONCURRENT_USER");
         assertEquals("10.00000", paramForUserRole.getFactor());
+    }
+    
+    @Test
+    public void detailedBillingReport_hidePaymentInformation()
+            throws Exception {
+        // given
+        doReturn(false).when(cnfgServLocal).isPaymentInfoAvailable();
+        mockResultData(XML_FILE_3);
+        roles.add(addOrgToRole(organization, OrganizationRoleType.SUPPLIER));
+
+        // when
+        RDODetailedBilling result = reporting.getBillingDetailsReport(
+                VALID_SESSION_ID, 2);
+
+        // then
+        RDOSummary summary = result.getSummaries().get(0);
+        assertThat(summary.getOrganizationAddress(), is(EMPTY));
+        assertThat(summary.getPaymentType(), is(EMPTY));
     }
 }

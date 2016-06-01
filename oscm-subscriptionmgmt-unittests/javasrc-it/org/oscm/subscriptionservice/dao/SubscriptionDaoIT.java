@@ -9,7 +9,7 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -680,4 +680,12 @@ public class SubscriptionDaoIT extends EJBTestBase {
         });
     }
 
+
+    Set<String> getSubscriptionStatesAsString(Set<SubscriptionStatus> states) {
+        Set<String> statesAsString = new HashSet<String>();
+        for (SubscriptionStatus s : states) {
+            statesAsString.add(s.name());
+        }
+        return statesAsString;
+    }
 }

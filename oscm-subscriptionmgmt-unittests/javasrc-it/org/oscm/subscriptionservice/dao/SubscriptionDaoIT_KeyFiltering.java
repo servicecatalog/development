@@ -94,7 +94,6 @@ public class SubscriptionDaoIT_KeyFiltering extends EJBTestBase {
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(mock(IdentityService.class));
-
         ds = new DataServiceBean() {
             @Override
             public PlatformUser getCurrentUser() {

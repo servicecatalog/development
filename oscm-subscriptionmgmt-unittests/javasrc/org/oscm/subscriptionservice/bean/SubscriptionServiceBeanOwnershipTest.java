@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Organization;
@@ -63,6 +63,7 @@ public class SubscriptionServiceBeanOwnershipTest {
     private final String subscriptionID = "SUBID";
     private final String userId = "USERID";
     private VOSubscription voSub;
+    private ConfigurationServiceLocal cfgService;
 
     @Before
     public void setup() {
@@ -74,7 +75,10 @@ public class SubscriptionServiceBeanOwnershipTest {
         DataService dsMock = mock(DataService.class);
         bean.dataManager = dsMock;
         idManager = mock(IdentityServiceLocal.class);
-
+        
+        cfgService = mock(ConfigurationServiceLocal.class);
+        bean.cfgService = cfgService;
+        
         bean.manageBean = manageBean;
         manageBean.dataManager = dsMock;
 
@@ -97,6 +101,7 @@ public class SubscriptionServiceBeanOwnershipTest {
         manageBean.userGroupService = mock(UserGroupServiceLocalBean.class);
         doReturn(Collections.EMPTY_LIST).when(manageBean.userGroupService)
                 .getUserGroupsForUserWithRole(anyLong(), anyLong());
+        doReturn(true).when(cfgService).isPaymentInfoAvailable();
 
     }
 

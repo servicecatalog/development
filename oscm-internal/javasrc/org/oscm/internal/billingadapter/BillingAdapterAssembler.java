@@ -57,6 +57,9 @@ public class BillingAdapterAssembler {
 
     public static POBillingAdapter toPOBillingAdapter(BillingAdapter adapter) {
         POBillingAdapter result = new POBillingAdapter();
+        if(adapter==null){
+            return result;
+        }
         result.setKey(adapter.getKey());
         result.setBillingIdentifier(adapter.getBillingIdentifier());
         result.setName(adapter.getName());
