@@ -22,12 +22,12 @@ import javax.servlet.http.HttpSession;
 
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SessionService;
-import org.oscm.internal.types.exception.SessionIndexNotFoundException;
+import org.oscm.internal.types.exception.SAML2StatusCodeInvalidException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.saml2.api.SAMLLogoutResponseValidator;
 import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
@@ -45,6 +45,7 @@ public class IdPLogoutFilter implements Filter {
     String excludeUrlPattern;
     AuthenticationSettings authSettings;
     SAMLResponseExtractor samlResponseExtractor;
+    SAMLLogoutResponseValidator samlLogoutResponseValidator;
     SessionService ssl;
 
     public SessionService getSsl() {
@@ -96,7 +97,17 @@ public class IdPLogoutFilter implements Filter {
                     httpRequest.removeAttribute("SAMLResponse");
                     httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                             Boolean.FALSE);
-                    if (samlResponseExtractor.errorInLogoutResponse(samlResponse)) {
+                    try {
+                        samlLogoutResponseValidator = new SAMLLogoutResponseValidator();
+                        if (!samlLogoutResponseValidator.responseStatusCodeSuccessful(samlResponse)) {
+                            httpRequest.setAttribute(
+                                    Constants.REQ_ATTR_ERROR_KEY,
+                                    BaseBean.ERROR_INVALID_SAML_RESPONSE_STATUS_CODE);
+                            redirector.forward(httpRequest, httpResponse,
+                                    BaseBean.ERROR_PAGE);
+                            return;
+                        }
+                    }catch (SAML2StatusCodeInvalidException e) {
                         httpRequest.setAttribute(
                                 Constants.REQ_ATTR_ERROR_KEY,
                                 BaseBean.ERROR_INVALID_SAML_RESPONSE);

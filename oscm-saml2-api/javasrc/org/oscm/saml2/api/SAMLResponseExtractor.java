@@ -10,6 +10,8 @@ package org.oscm.saml2.api;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -17,6 +19,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
+
+import org.oscm.internal.types.exception.SAML2StatusCodeInvalidException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,9 +34,8 @@ import com.sun.xml.wss.saml.util.SAMLUtil;
 
 /**
  * Class for retrieving the userid from a saml:response received from an IdP.
- * 
+ *
  * @author farmaki
- * 
  */
 public class SAMLResponseExtractor {
 
@@ -58,9 +61,13 @@ public class SAMLResponseExtractor {
 
     private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']//*[local-name()='AuthnStatement']//@*[local-name()='SessionIndex']";
 
+    private static final String STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR = "//*[local-name()='Status']//*[local-name()='StatusCode']//@*[local-name()='Value']";
+
+
+
     /**
      * Retrieves the userid from an encoded saml:Response String.
-     * 
+     *
      * @param encodedSamlResponse
      *            the encoded saml response
      * @return the userid as a String
@@ -69,7 +76,7 @@ public class SAMLResponseExtractor {
     public String getUserId(String encodedSamlResponse)
             throws UserIdNotFoundException {
 
-        String userId = null;
+        String userId;
 
         try {
             userId = getUserId_decoded(decode(encodedSamlResponse));
@@ -96,7 +103,7 @@ public class SAMLResponseExtractor {
     public String getSessionIndex(String encodedSamlResponse)
             throws SessionIndexNotFoundException {
 
-        String sessionIndex = null;
+        String sessionIndex;
 
         try {
             sessionIndex = getSessionIndexDecoded(decode(encodedSamlResponse));
@@ -112,8 +119,9 @@ public class SAMLResponseExtractor {
         return sessionIndex;
     }
 
-    private String getSessionIndexDecoded(String samlResponse) throws SessionIndexNotFoundException {
-        String sessionIndex = null;
+    private String getSessionIndexDecoded(String samlResponse)
+            throws SessionIndexNotFoundException {
+        String sessionIndex;
 
         try {
             Document document = XMLConverter.convertToDocument(samlResponse,
@@ -144,7 +152,7 @@ public class SAMLResponseExtractor {
 
     private String getUserId_decoded(String samlResponse)
             throws UserIdNotFoundException {
-        String userid = null;
+        String userid;
 
         try {
             Document document = XMLConverter.convertToDocument(samlResponse,
@@ -173,7 +181,8 @@ public class SAMLResponseExtractor {
         return userid;
     }
 
-    String extractUserId(Document samlResponse) throws XPathExpressionException {
+    String extractUserId(Document samlResponse)
+            throws XPathExpressionException {
         String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML2_ATTRIBUTE_USERID_XPATH_EXPR);
         if (userId != null) {
@@ -197,18 +206,19 @@ public class SAMLResponseExtractor {
         return userId;
     }
 
-    String extractSessionIndex(Document samlResponse) throws XPathExpressionException {
-        String samlSessionId = XMLConverter.getNodeTextContentByXPath(samlResponse,
-                SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR);
+    String extractSessionIndex(Document samlResponse)
+            throws XPathExpressionException {
+        String samlSessionId = XMLConverter.getNodeTextContentByXPath(
+                samlResponse, SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR);
         return samlSessionId;
     }
 
     public String getUserId(SAMLAssertion samlResponse)
             throws UserIdNotFoundException {
-        String samlAssertionString = null;
+        String samlAssertionString;
         try {
-            Element samlAssertion = SAMLUtil.createSAMLAssertion(samlResponse
-                    .getSamlReader());
+            Element samlAssertion = SAMLUtil
+                    .createSAMLAssertion(samlResponse.getSamlReader());
             samlAssertionString = XMLConverter.convertToString(samlAssertion,
                     false);
         } catch (XWSSecurityException | XMLStreamException
@@ -228,15 +238,6 @@ public class SAMLResponseExtractor {
         return decodedString;
     }
 
-    public boolean isFromAuthorisation(String encodedSamlResponse) {
-        try {
-            return decode(encodedSamlResponse).contains("SessionIndex");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     public boolean isFromLogout(String encodedSamlResponse) {
         try {
             return decode(encodedSamlResponse).contains("LogoutResponse");
@@ -246,12 +247,31 @@ public class SAMLResponseExtractor {
         return false;
     }
 
-    public boolean errorInLogoutResponse(String encodedSamlResponse) {
+    public String getSAMLLogoutResponseStatusCode(String encodedSamlResponse) {
+        Document document = null;
         try {
-            return !decode(encodedSamlResponse).contains("<samlp:StatusCode xmlns:samlp=\"urn:oasis:names:tc:SAML:2.0:protocol\" Value=\"urn:oasis:names:tc:SAML:2.0:status:Success\"");
-        } catch (IOException e) {
+            document = XMLConverter.convertToDocument(decode(encodedSamlResponse),
+                    true);
+        } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         }
-        return false;
+        try {
+            String resultWithNameSpace = XMLConverter.getNodeTextContentByXPath(document,
+                    STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR);
+            return removeNameSpaceFromStatus(resultWithNameSpace);
+        } catch (XPathExpressionException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
+    private String removeNameSpaceFromStatus(String statusWithNameSpace) {
+        String[] splitted = statusWithNameSpace.split(":");
+        String result = splitted[splitted.length - 1];
+        return result;
+    }
+
+
+
+
 }
