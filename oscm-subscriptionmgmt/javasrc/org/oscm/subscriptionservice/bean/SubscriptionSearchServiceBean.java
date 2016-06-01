@@ -256,7 +256,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
         if (!udaDefsFound.isEmpty()) {
             List<BigInteger> subs = subscriptionDao
-                    .getSubscriptionsWithDefaultUdaValuesAndVendor(dm.getCurrentUser(),
+                    .getSubscriptionsWithDefaultUdaValuesAndVendor(getDm().getCurrentUser(),
                             getStates(), udaDefsFound);
             for (BigInteger subIds : subs) {
                 set.add(subIds.longValue());
