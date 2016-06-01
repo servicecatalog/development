@@ -293,6 +293,10 @@ public class VM extends Template {
                 "info");
     }
 
+    private boolean isNotEmpty(String validate) {
+        return validate != null && validate.length() > 0;
+    }
+
     public VMwareGuestSystemStatus getState(VMPropertyHandler properties)
             throws Exception {
 
@@ -300,13 +304,31 @@ public class VM extends Template {
         boolean validHostname = isValidHostname();
         boolean validIp = isValidIp(properties);
 
+        if (isLinux()) {
+            boolean firstStart = isNotEmpty(guestInfo.getHostName())
+                    && guestInfo.getIpAddress() == null
+                    && "running".equals(guestInfo.getGuestState())
+                    && areGuestToolsRunning() && areNetworkCardsConnected();
+
+            boolean secondStart = validHostname && isConnected && validIp
+                    && isGuestSystemRunning() && areGuestToolsRunning();
+
+            if (firstStart || secondStart) {
+                LOG.debug("firstStart: " + firstStart + " secondStart: "
+                        + secondStart);
+                return VMwareGuestSystemStatus.GUEST_READY;
+            }
+
+            LOG.debug(createLogForGetState(properties, isConnected, validIp));
+            return VMwareGuestSystemStatus.GUEST_NOTREADY;
+        }
+
         if (validHostname && isConnected && validIp && isGuestSystemRunning()
                 && areGuestToolsRunning()) {
             return VMwareGuestSystemStatus.GUEST_READY;
         }
 
         LOG.debug(createLogForGetState(properties, isConnected, validIp));
-
         return VMwareGuestSystemStatus.GUEST_NOTREADY;
     }
 
