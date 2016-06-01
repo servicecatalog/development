@@ -301,8 +301,7 @@ public class VM extends Template {
         boolean validIp = isValidIp(properties);
 
         if (isLinux()) {
-            boolean firstStart = isNotEmpty(guestInfo.getHostName())
-                    && guestInfo.getIpAddress() == null
+            boolean firstStart = isNotEmpty(guestInfo.getHostName()) && !validIp
                     && isGuestSystemRunning() && areGuestToolsRunning()
                     && networkCardsConnected;
 
@@ -316,8 +315,8 @@ public class VM extends Template {
                 return VMwareGuestSystemStatus.GUEST_READY;
             }
 
-            LOG.debug(createLogForGetState(properties, networkCardsConnected,
-                    validIp));
+            LOG.debug(createLogForGetState(validHostname, properties,
+                    networkCardsConnected, validIp));
             return VMwareGuestSystemStatus.GUEST_NOTREADY;
         }
 
@@ -326,18 +325,20 @@ public class VM extends Template {
             return VMwareGuestSystemStatus.GUEST_READY;
         }
 
-        LOG.debug(createLogForGetState(properties, networkCardsConnected,
-                validIp));
+        LOG.debug(createLogForGetState(validHostname, properties,
+                networkCardsConnected, validIp));
         return VMwareGuestSystemStatus.GUEST_NOTREADY;
     }
 
-    private String createLogForGetState(VMPropertyHandler configuration,
-            boolean isConnected, boolean validIp) {
+    private String createLogForGetState(boolean validHostname,
+            VMPropertyHandler configuration, boolean isConnected,
+            boolean validIp) {
 
         StringBuilder sb = new StringBuilder();
         sb.append("Guest system is not ready yet ");
         sb.append("[");
-        sb.append("hostname=" + guestInfo.getHostName() + ", ");
+        sb.append("hostname (" + validHostname + ") =" + guestInfo.getHostName()
+                + ", ");
         sb.append("ipReady=" + validIp + ", ");
         for (int i = 1; i <= configuration.getNumberOfNetworkAdapter(); i++) {
             GuestNicInfo info = getNicInfo(configuration.getNetworkAdapter(i));
