@@ -14,11 +14,14 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
+import javax.faces.context.FacesContext;
 
-import org.oscm.ui.beans.BaseBean;
 import org.oscm.internal.billingadapter.BillingAdapterService;
 import org.oscm.internal.billingadapter.ConnectionPropertyItem;
 import org.oscm.internal.billingadapter.POBillingAdapter;
@@ -31,6 +34,8 @@ import org.oscm.internal.types.exception.DuplicateAdapterException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.common.UiDelegate;
 
 /**
  * @author stavreva
@@ -55,7 +60,7 @@ public class BillingAdapterCtrl extends BaseBean {
     public void setModel(BillingAdapterModel model) {
         this.model = model;
     }
-
+    
     public void getInitialize() {
         if (!model.isInitialized()) {
             int index = reinitializeAdapters();
@@ -82,7 +87,7 @@ public class BillingAdapterCtrl extends BaseBean {
             adapterWrappers.add(new BillingAdapterWrapper(adapter));
             if (adapter.isDefaultAdapter()) {
                 defaultIndex = i;
-        }
+            }
             model.setBillingAdapters(adapterWrappers);
         }
         return defaultIndex;
@@ -106,7 +111,8 @@ public class BillingAdapterCtrl extends BaseBean {
             throw new ObjectNotFoundException(ClassEnum.BILLING_ADAPTER,
                     billingIdentifier);
         }
-        model.getBillingAdapters().set(model.getSelectedIndex(), new BillingAdapterWrapper(adapter));
+        model.getBillingAdapters().set(model.getSelectedIndex(),
+                new BillingAdapterWrapper(adapter));
     }
 
     public POBillingAdapter getBillingAdapter(String billingIdentifier) {
@@ -120,11 +126,12 @@ public class BillingAdapterCtrl extends BaseBean {
         return response.getResultList(POBillingAdapter.class);
     }
 
-    BillingAdapterService getBillingAdapterService() {
+    public BillingAdapterService getBillingAdapterService() {
         return billingAdapterService;
     }
 
     public String save() {
+        setDisabledAddBtn(false);
         if (model == null) {
             return OUTCOME_ERROR;
         }
@@ -132,14 +139,13 @@ public class BillingAdapterCtrl extends BaseBean {
         String retVal = OUTCOME_SUCCESS;
 
         POBillingAdapter selectedBillingAdapter = getSelectedBillingAdapter();
-        
+
         try {
             getBillingAdapterService()
                     .saveBillingAdapter(selectedBillingAdapter);
 
             updateAdapter(selectedBillingAdapter.getBillingIdentifier());
             ui.handle(INFO_ADAPTER_SAVED);
-            setDisabledAddBtn(false);
 
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
@@ -151,7 +157,7 @@ public class BillingAdapterCtrl extends BaseBean {
     }
 
     public String setDefaultAdapter() throws SaaSApplicationException {
-
+        setDisabledAddBtn(false);
         model = getModel();
 
         if (model == null) {
@@ -161,7 +167,7 @@ public class BillingAdapterCtrl extends BaseBean {
         String retVal = OUTCOME_SUCCESS;
 
         int selectedIndex = model.getSelectedIndex();
-        
+
         try {
             getBillingAdapterService().setDefaultBillingAdapter(
                     model.getBillingAdapters().get(selectedIndex).getAdapter());
@@ -178,6 +184,7 @@ public class BillingAdapterCtrl extends BaseBean {
     }
 
     public String deleteAdapter() throws SaaSApplicationException {
+        setDisabledAddBtn(false);
         if (model == null) {
             return OUTCOME_ERROR;
         }
@@ -238,7 +245,6 @@ public class BillingAdapterCtrl extends BaseBean {
         return "";
     }
 
-
     /**
      * @return the disabled
      */
@@ -256,18 +262,37 @@ public class BillingAdapterCtrl extends BaseBean {
 
     private POBillingAdapter getSelectedBillingAdapter() {
         int selectedIndex = model.getSelectedIndex();
-        return model.getBillingAdapters().get(selectedIndex)
-                .getAdapter();
+        return model.getBillingAdapters().get(selectedIndex).getAdapter();
     }
-    
-    private void setSelectedPanel(int index){
-        String selectedPanel = model.getPanelBarItemPrefix() + ":" + index
-                + ":" + model.getPanelBarItemSufix();
+
+    private void setSelectedPanel(int index) {
+        String selectedPanel = model.getPanelBarItemPrefix() + ":" + index + ":"
+                + model.getPanelBarItemSufix();
         model.setSelectedIndex(index);
         model.setSelectedPanel(selectedPanel);
     }
 
-    public void setBillingAdapterService(BillingAdapterService billingAdapterService) {
+    public void setBillingAdapterService(
+            BillingAdapterService billingAdapterService) {
         this.billingAdapterService = billingAdapterService;
+    }
+
+    public void setUiDelegate(UiDelegate ui) {
+        this.ui = ui;
+    }
+
+    public void validateDuplicatedId(final FacesContext context,
+            final UIComponent component, final Object value) {
+
+        String billingId = value.toString();
+        POBillingAdapter billingAdapter = getBillingAdapter(billingId);
+
+        if (billingAdapter.getBillingIdentifier() != null && billingId.equals(billingAdapter.getBillingIdentifier())) {
+            ((UIInput) component).setValid(false);
+            addMessage(component.getClientId(context),
+                    FacesMessage.SEVERITY_ERROR,
+                    ERROR_BILLING_ID_ALREADY_EXISTS,
+                    new Object[] { billingId });
+        }
     }
 }

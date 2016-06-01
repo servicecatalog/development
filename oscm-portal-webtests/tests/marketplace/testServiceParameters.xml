@@ -1,0 +1,183 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE project SYSTEM "../../dtd/Project.dtd">
+<project default="testMPL_serviceParameters" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../../macros/marketplace/all.xml" />
+  
+  <macrodef name="this.stepsForFreeService">
+  <sequential>
+  <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <setRadioButton htmlId="configurationForm:parameterConfigTable:3:radioOption" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      <verifyInputField htmlId="confirmForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:3:radioOption' and @checked='checked']" />
+      <clickLink htmlId="confirmForm:previousLink" />
+      <not>
+        <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      </not>
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <clickLink htmlId="confirmForm:editConfigurationLink" />
+      <not>
+        <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      </not>
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
+      </sequential>
+  </macrodef>
+  
+  <macrodef name="this.stepsForChargeableService">
+  <sequential>
+  <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <setRadioButton htmlId="configurationForm:parameterConfigTable:3:radioOption" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <mpl_user.selectBillingContact />
+      <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
+      <clickLink htmlId="payment:nextLink" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      <verifyInputField htmlId="confirmForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:3:radioOption' and @checked='checked']" />
+      <clickLink htmlId="confirmForm:previousLink" />
+      <clickLink htmlId="payment:previousLink" />
+      <not>
+        <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      </not>
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <clickLink htmlId="payment:previousLink" />
+      <not>
+        <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      </not>
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <clickLink htmlId="payment:nextLink" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      <clickLink htmlId="confirmForm:editConfigurationLink" />
+      <not>
+        <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      </not>
+      <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
+      <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
+      <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="100" />
+      <clickElement htmlId="priceModelTab:header" />
+      <verifyInputField htmlId="configurationForm2:parameterTable:8:integerValue" value="100" />
+      <verifyXPath xpath="*//input[@id='configurationForm2:parameterTable:8:integerValue' and @disabled='disabled']" />
+      <clickLink htmlId="configurationForm2:nextLink" />
+      <clickLink htmlId="payment:nextLink" />
+      <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
+      <verifyInputField htmlId="confirmForm:parameterConfigTable:8:integerValue" value="100" />
+      </sequential>
+  </macrodef>
+
+  <target name="testMPL_serviceParameters">
+    <webtest name="testMPL_serviceParameters_setup">
+      <operator.addCurrency />
+      <scenario.setupSupplier />
+      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace"
+        mIdProperty="marketplaceId" />
+      <operator.addAvailablePaymentTypes orgId="${supplierId}" />
+      <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}"
+        userId="${supplierUserId}" password="secret" />
+      <login.login url="${supplierUrl}" userId="${supplierUserId}" />
+      <setup:payment.configureDefault customerTypes="" serviceTypes="CREDIT_CARD,DIRECT_DEBIT,INVOICE" />
+      <common.clickAndVerfyLink label="${organization.managePaymentEnablement.title}" />
+      <setCheckbox htmlId="managePayment:default2" checked="true" />
+      <setCheckbox htmlId="managePayment:customerTable:0:cust2" checked="true" />
+      <clickButton label="${button.save}" />
+      <techservice.import file="./data/TechnicalServices.xml" />
+      <setup:service.define serviceId="ExtIntSrv0" name="ExtIntSrv0" description="Ext Int Test"
+        image="data/images/icon6.png" marketplaceId="${marketplaceId}" configurableChecked="true" />
+      <setup:service.define serviceId="ExtIntSrv1" name="ExtIntSrv1" description="Ext Int Test"
+        image="data/images/icon6.png" marketplaceId="${marketplaceId}" configurableChecked="true" />
+
+      <setup:pricemodel.define serviceId="ExtIntSrv0" isFree="false" description="Only 19,- per Month"
+        basePrice="19" steppedPriceForParameter="0" steppedPriceForEvent="0" />
+      <setup:pricemodel.define serviceId="ExtIntSrv1" isFree="true" description="Free of charge" />
+      <service.publish serviceId="ExtIntSrv0" marketplaceId="${marketplaceId}" />
+      <service.publish serviceId="ExtIntSrv1" marketplaceId="${marketplaceId}" />
+      <service.upgradeDef fromServiceId="ExtIntSrv0" toServiceIndex="0" />
+      <service.upgradeDef fromServiceId="ExtIntSrv1" toServiceIndex="0" />
+      <setup:service.activate serviceIds="ExtIntSrv0" />
+      <setup:service.activate serviceIds="ExtIntSrv1" />
+      <mpl_goto.marketplace mid="${marketplaceId}" />
+    </webtest>
+    
+    <!-- TEST CASE 1
+      1. Select free service and click [Show details]
+      2. Click [Get it now]
+      3. Change values of params:
+           'Number2 of folders that can be created.' from 200 to 55
+           'Incremental memory storage' to 'Maximum storage (4GB)'
+      4. Click [Next]
+      5. Check if on Confirmation page values of changed parameters are correct and if parameters table is not editable
+      6. Click [Previous]
+      7. Check if parameters values are correct and if parameters table is editable
+      8. Click [Next]
+      9. Click 'Edit configuration' link
+      10.Check if parameters values are correct and if parameters table is editable
+     -->
+    <webtest name="testMPL_serviceParameters_freeService">
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.service svcButtonId="showDetails1" svcName="ExtIntSrv1" isFree="true" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <this.stepsForFreeService />
+      <mpl_login.logout />
+    </webtest>
+    
+    <!-- TEST CASE 2
+      1. Select service with costs and click [Show details]
+      2. Click [Get it now]
+      3. Change values of params:
+           'Number2 of folders that can be created.' from 200 to 55
+           'Incremental memory storage' to 'Maximum storage (4GB)'
+      4. Click [Next]
+      5. Enter billing info and click [Next]
+      6. Check if on Confirmation page values of changed parameters are correct and if parameters table is not editable
+      7. Click [Previous] x 2
+      8. Check if parameters values are correct and if parameters table is editable
+      9. Click [Next]
+      10.Click [Previous]
+      11.Check if parameters values are correct and if parameters table is editable
+      12.Click [Next] x 2
+      13.Check if on Confirmation page values of changed parameters are correct and if parameters table is not editable
+      14.Click 'Edit configuration' link
+      15.Check if parameters values are correct and if parameters table is editable
+      16.Change value of 'Number2 of folders that can be created.' from 55 to 100
+      17.Click 'Price model' tab
+      18.Check if value of 'Number2 of folders that can be created.'is 100 and if table with parameters is disabled
+      19.Click [Next] on 'Price model' tab
+      20.Click [Next] on payment page
+      21.Check if value of 'Number2 of folders that can be created.'is 100 and if table with parameters is disabled
+      22.Accept the license agreement and click [Confirm]
+     -->
+    <webtest name="testMPL_serviceParameters_serviceWithCosts">
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.service svcButtonId="showDetails0" svcName="ExtIntSrv0" isFree="false" />
+      <clickElement htmlId="getItForLoggedUser" />
+      <this.stepsForChargeableService />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <mpl_login.logout />
+    </webtest>
+    
+    <webtest name="testMPL_serviceParameters_upgrade_downgrade">
+      <mpl_login.user mid="${marketplaceId}" userId="${supplierUserId}" />
+      <mpl_goto.account.subscriptions />
+      <clickLink xpath="//*[@id='subListForm:subscriptionsList:0']/td[1]/a" />
+      <clickElement htmlId="tabUpgrade:header" />
+      <clickElement xpath="*//a[contains(@id, 'serviceButton')]" />
+      <this.stepsForFreeService />
+      <clickLink htmlId="configurationForm:nextLink" />
+      <setCheckbox htmlId="confirmForm:agreeCheckbox" checked="true" />
+      <clickLink htmlId="confirmForm:confirmLink" />
+      <clickElement htmlId="tabUpgrade:header" />
+      <clickElement xpath="*//a[contains(@id, 'serviceButton')]" />
+      <this.stepsForChargeableService />
+      <mpl_login.logout />
+    </webtest>
+
+  </target>
+</project>

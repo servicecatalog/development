@@ -1,272 +1,284 @@
 <!-- Copyright FUJITSU LIMITED 2016-->
 <project default="testBillingPlugin">
-  <import file="../macros/marketplace/all.xml" />
+	<import file="../macros/marketplace/all.xml" />
 
-  <target name="testBillingPlugin">
+	<target name="testBillingPlugin">
 
-    <webtest name="testBillingPlugin - setup visibility">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageConfiguration.jsf" />
-      <storeXPath property="hiddenElementFieldId" xpath="//td[text()='HIDDEN_UI_ELEMENTS']/..//input/@id" propertyType="ant" />
-      <storeXPath property="hiddenElementFieldValue" xpath="//td[text()='HIDDEN_UI_ELEMENTS']/..//input/@value" propertyType="ant" />
-      <setInputField htmlId="${hiddenElementFieldId}" value="" />
-      <clickElement htmlId="configurationSettings:saveButton" />
-      <common.verifySuccess label="${info.configuration.saved}" />
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - setup visibility">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageConfiguration.jsf" />
+			<storeXPath property="hiddenElementFieldId" xpath="//td[text()='HIDDEN_UI_ELEMENTS']/..//input/@id" propertyType="ant" />
+			<storeXPath property="hiddenElementFieldValue" xpath="//td[text()='HIDDEN_UI_ELEMENTS']/..//input/@value" propertyType="ant" />
+			<setInputField htmlId="${hiddenElementFieldId}" value="" />
+			<clickElement htmlId="configurationSettings:saveButton" />
+			<common.verifySuccess label="${info.configuration.saved}" />
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11886 - Inner Chart Navigation on Table View">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterId" text="Billing system ID" />
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11886 - Inner Chart Navigation on Table View">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterId" text="Billing system ID" />
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11916">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterName" text="Short description" />
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11916">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<verifyElementText htmlId="panels:1:panelAdapterItemForm:labeladapterName" text="Short description" />
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11885 - Operation/Manage billing systems Add button can be pressed multiple times">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <verifyXPath xpath="//*[contains(@id, 'addButtonDisabled')]" />
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11885 - Operation/Manage billing systems Add button can be pressed multiple times">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<verifyXPath xpath="//*[contains(@id, 'addButtonDisabled')]" />
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11883 - Operation/Manage billing systems fields not verified">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <dataDriven tableContainer="data/pageFields/manageBillingAdapters.xls">
-        <storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
-        <storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
-        <storeProperty name="required" value="${required}" propertyType="dynamic" />
-        <ifStep description="Test if required" test="#{required}">
-          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
-        </ifStep>
-        <dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
-          <common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
-          <common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
-        </dataDriven>
-      </dataDriven>
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11883 - Operation/Manage billing systems fields not verified">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<dataDriven tableContainer="data/pageFields/manageBillingAdapters.xls">
+				<storeProperty name="fieldId" value="${fieldId}" propertyType="dynamic" />
+				<storeProperty name="fieldType" value="${fieldType}" propertyType="dynamic" />
+				<storeProperty name="required" value="${required}" propertyType="dynamic" />
+				<ifStep description="Test if required" test="#{required}">
+					<common.testFieldValidation fieldId="#{fieldId}" fieldValue="" error="${javax.faces.component.UIInput.REQUIRED}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
+				</ifStep>
+				<dataDriven tableContainer="data/invalidInput/#{fieldType}.xls">
+					<common.initializeDataDrivenErrorMessage errormsg="${errormsg}" att0="${att0}" />
+					<common.testFieldValidation fieldId="#{fieldId}" fieldValue="${value}" error="${expectedMessage}" buttonLinkId="panels:1:panelAdapterItemForm:saveButton" />
+				</dataDriven>
+			</dataDriven>
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11902 - Set as Default button not working">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
-      <clickButton label="Save" />
-      <clickLink htmlId="panels:1:panelAdapterItemForm:setDefaultButton" />
-      <verifyXPath xpath="//*[text()[contains(.,'Test service (Default)')]]" />
-      <clickLink htmlId="panels:0:panelAdapterItemForm:setDefaultButton" />
-      <clickLink htmlId="panels:1:panelAdapterItemForm:deleteButton" />
-      <verifyXPath xpath="//*[text()[contains(.,'NATIVE_BILLING')]]" />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11902 - Set as Default button not working">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
+			<clickButton label="Save" />
+			<clickLink htmlId="panels:1:panelAdapterItemForm:setDefaultButton" />
+			<verifyXPath xpath="//*[text()[contains(.,'Test service (Default)')]]" />
+			<clickLink htmlId="panels:0:panelAdapterItemForm:setDefaultButton" />
+			<clickLink htmlId="panels:1:panelAdapterItemForm:deleteButton" />
+			<verifyXPath xpath="//*[text()[contains(.,'NATIVE_BILLING')]]" />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11912 - Operation/Manage billing systems, connection properties - does not remove empty line">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <!-- Try to add a new billing adapter -->
-      <clickButton label="Add" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:connectionPropertyValue']" value="Test connection1" />
-      <!-- Try to add  a second connection property -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="Second property" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionPropertyValue']" value="Test connection2" />
-      <!-- Add third connection property -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <verifyXPath xpath="//*[@value='Test connection1']" />
-      <verifyXPath xpath="//*[@value='Second property']" />
-      <verifyXPath xpath="//*[@value='Test connection2']" />
-      <!-- Remove the second property -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <verifyXPath xpath="//*[not(@value='Second property')]" />
-      <verifyXPath xpath="//*[not(@value='Test connection2')]" />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11912 - Operation/Manage billing systems, connection properties - does not remove empty line">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<!-- Try to add a new billing adapter -->
+			<clickButton label="Add" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:connectionPropertyValue']" value="Test connection1" />
+			<!-- Try to add  a second connection property -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="Second property" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionPropertyValue']" value="Test connection2" />
+			<!-- Add third connection property -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<verifyXPath xpath="//*[@value='Test connection1']" />
+			<verifyXPath xpath="//*[@value='Second property']" />
+			<verifyXPath xpath="//*[@value='Test connection2']" />
+			<!-- Remove the second property -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<verifyXPath xpath="//*[not(@value='Second property')]" />
+			<verifyXPath xpath="//*[not(@value='Test connection2')]" />
+		</webtest>
 
-    <webtest name="testBillingPlugin - Bug 11919 - Technical service/View billing systems ':' missing after labels">
-      <mail.cleanInbox />
-      <operator.createorganization />
-      <mail.readPasswordAndUrlFromMail />
-      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
-      <clickLink href="/techservice/viewBillingAdapters.jsf" />
-      <verifyXPath xpath="//*[text()[contains(.,'Billing system ID:')]]" />
-      <verifyXPath xpath="//*[text()[contains(.,'Short description:')]]" />
-    </webtest>
+		<webtest name="testBillingPlugin - Bug 11919 - Technical service/View billing systems ':' missing after labels">
+			<mail.cleanInbox />
+			<operator.createorganization />
+			<mail.readPasswordAndUrlFromMail />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<clickLink href="/techservice/viewBillingAdapters.jsf" />
+			<verifyXPath xpath="//*[text()[contains(.,'Billing system ID:')]]" />
+			<verifyXPath xpath="//*[text()[contains(.,'Short description:')]]" />
+		</webtest>
 
-    <webtest name="testBillingPlugin - setup adapter">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageBillingAdapters.jsf" />
-      <common.ignorePageScriptError />
-      <clickButton label="Add" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="FILE_BILLING" />
-      <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="File Billing" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:connectionPropertyValue']" value="java:global/oscm-file-adapter/oscm-file-adapter" />
+		<webtest name="testBillingPlugin - setup adapter">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterId" value="FILE_BILLING" />
+			<setInputField name="panels:1:panelAdapterItemForm:adapterName" value="File Billing" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:connectionPropertyValue']" value="java:global/oscm-file-adapter/oscm-file-adapter" />
 
-      <!-- Add a org.omg.CORBA.ORBInitialPort -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="org.omg.CORBA.ORBInitialPort" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionPropertyValue']" value="8637" />
+			<!-- Add a org.omg.CORBA.ORBInitialPort -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="org.omg.CORBA.ORBInitialPort" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionPropertyValue']" value="8637" />
 
-      <!-- Add a org.omg.CORBA.ORBInitialHost -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionProperty']" value="org.omg.CORBA.ORBInitialHost" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionPropertyValue']" value="localhost" />
+			<!-- Add a org.omg.CORBA.ORBInitialHost -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionProperty']" value="org.omg.CORBA.ORBInitialHost" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionPropertyValue']" value="localhost" />
 
-      <!-- java.naming.provider.url -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionProperty']" value="java.naming.provider.url" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionPropertyValue']" value="http://localhost:8680" />
+			<!-- java.naming.provider.url -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionProperty']" value="java.naming.provider.url" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionPropertyValue']" value="http://localhost:8680" />
 
-      <!-- java.naming.factory.initial -->
-      <clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
-      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty']" value="java.naming.factory.initial" />
-      <setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionPropertyValue']" value="com.sun.enterprise.naming.SerialInitContextFactory" />
+			<!-- java.naming.factory.initial -->
+			<clickElement xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty']" />
+			<setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty']" value="java.naming.factory.initial" />
+			<setInputField xpath="//input[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionPropertyValue']" value="com.sun.enterprise.naming.SerialInitContextFactory" />
 
-      <clickButton label="Save" />
-    </webtest>
+			<clickButton label="Save" />
+		</webtest>
 
-    <webtest name="testBillingPlugin - verifyExternalPriceModel">
-      <mail.cleanInbox />
-      <operator.addCurrency />
-      <operator.createorganization />
-      <mail.readPasswordAndUrlFromMail />
-      <storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
-      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
-      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
-      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+		<webtest name="testBillingPlugin - add duplicated ID">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageBillingAdapters.jsf" />
+			<common.ignorePageScriptError />
+			<clickButton label="Add" />
+			<setInputField name="panels:2:panelAdapterItemForm:adapterId" value="FILE_BILLING" />
+			<setInputField name="panels:2:panelAdapterItemForm:adapterName" value="File Billing" />
+			<clickButton label="Save" />
+			
+			<verifyText text="The billing system FILE_BILLING already exists. Please enter a different ID." />
+		</webtest>
 
-      <operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Ext Marketplace" failonerror="true" />
+		<webtest name="testBillingPlugin - verifyExternalPriceModel">
+			<mail.cleanInbox />
+			<operator.addCurrency />
+			<operator.createorganization />
+			<mail.readPasswordAndUrlFromMail />
+			<storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+			<storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+			<storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+			<storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
 
-      <login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
+			<operator.createMarketplace mIdProperty="mId" ownerId="#{orgId}" baseurl="#{baseUrl}" name="Ext Marketplace" failonerror="true" />
 
-      <techservice.import file="data/TechnicalServiceExternalBilling.xml" />
+			<login.initialLoginAndChangePassword url="#{orgUrl}" userId="#{userId}" password="#{userPwd}" />
 
-      <storeProperty name="techServiceId" value="MockService with external billing" />
-      <storeProperty name="marketServiceName" value="Market Service with external billing" propertyType="dynamic" />
+			<techservice.import file="data/TechnicalServiceExternalBilling.xml" />
 
-      <service.define marketplaceId="${mId}" serviceId="#{marketServiceName}" techServiceId="#{techServiceId}" />
+			<storeProperty name="techServiceId" value="MockService with external billing" />
+			<storeProperty name="marketServiceName" value="Market Service with external billing" propertyType="dynamic" />
 
-      <common.clickAndVerfyLink label="${priceModel.service.title}" />
+			<service.define marketplaceId="${mId}" serviceId="#{marketServiceName}" techServiceId="#{techServiceId}" />
 
-      <clickLink href="/priceModel/servicePriceModel.jsf" />
-      <clickElement xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
+			<common.clickAndVerfyLink label="${priceModel.service.title}" />
 
-      <clickElement xpath="//a[@id='editForm:saveButton']" />
+			<clickLink href="/priceModel/servicePriceModel.jsf" />
+			<clickElement xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
 
-      <!-- Define publishing options -->
-      <clickLink href="/service/publish.jsf" />
-      <clickElement xpath="//a[@id='editForm:saveButton']" />
+			<clickElement xpath="//a[@id='editForm:saveButton']" />
 
-      <!-- Service activation -->
-      <clickLink href="/service/activation.jsf" />
-      <setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
-      <clickElement xpath="//a[@id='serviceDeActivationForm:deActivateButtonLink']" />
+			<!-- Define publishing options -->
+			<clickLink href="/service/publish.jsf" />
+			<clickElement xpath="//a[@id='editForm:saveButton']" />
 
-      <clickLink href="/shop/gotoMarketplace.jsf" />
-      <setSelectField htmlId="gotoMarketplaceForm:marketplace" value="${mId}" />
-      <clickLink htmlId="goForm:gotoBtnLink" />
-      <!-- Check if service price from the external billing price model is shown on the landing page -->
-      <verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
+			<!-- Service activation -->
+			<clickLink href="/service/activation.jsf" />
+			<setCheckbox htmlId="serviceDeActivationForm:activationTable:0:active" checked="true" />
+			<clickElement xpath="//a[@id='serviceDeActivationForm:deActivateButtonLink']" />
 
-      <!-- Go to Browse all services -->
-      <clickElement xpath="//a[@id='linkBrowseAll']" />
-      <!-- Check if service price is shown on the Browse All Services page -->
-      <verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
+			<clickLink href="/shop/gotoMarketplace.jsf" />
+			<setSelectField htmlId="gotoMarketplaceForm:marketplace" value="${mId}" />
+			<clickLink htmlId="goForm:gotoBtnLink" />
+			<!-- Check if service price from the external billing price model is shown on the landing page -->
+			<verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
 
-      <!-- Go to Service Details -->
-      <clickElement xpath="//a[@id='showDetails0']" />
-      <!-- Check if service price is shown on the Service Details page -->
-      <verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
-      <!-- Check if Tab with external price model details is shown -->
-      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
-      <!-- Check if [Show details] button is shown -->
-      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
-      <login.logout />
-    </webtest>
+			<!-- Go to Browse all services -->
+			<clickElement xpath="//a[@id='linkBrowseAll']" />
+			<!-- Check if service price is shown on the Browse All Services page -->
+			<verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
 
-    <webtest name="testBillingPlugin - subscriptionProccess">
-      <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
-      <mpl_goto.marketplace mid="${mId}" />
-      <!-- Go to Browse all services -->
-      <clickElement xpath="//a[@id='linkBrowseAll']" />
-      <!-- Go to Service Details -->
-      <common.ignorePageScriptError />
-      <clickElement xpath="//a[@id='showDetails0']" />
-      <!-- Start subscription proccess -->
-      <common.ignorePageScriptError />
-      <clickLink htmlId="buyme" />
-      <clickElement htmlId="getItForLoggedUser" />
-      <setInputField htmlId="configurationForm:subscriptionIdText" value="Trial Subscription" />
-      <!-- Check if Tab with external price model details is shown -->
-      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
-      <!-- Check if [Display] button is shown -->
-      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
-      <!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
-      <clickButton name="configurationForm:next" />
-      <mpl_verify.subscriptionProgress currentStep="Confirmation" />
-      <!-- Verify acceptance of external price model -->
-      <verifyXPath xpath="//span[@id='confirmForm:pmAccept']" />
-      <!-- Finish the subscription process -->
-      <setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
-      <clickButton name="confirmForm:confirm" />
-      <!-- Check if Tab with external price model details is shown -->
-      <verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
-      <!-- Check if [Display] button is shown -->
-      <verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
-      <login.logout />
-    </webtest>
+			<!-- Go to Service Details -->
+			<clickElement xpath="//a[@id='showDetails0']" />
+			<!-- Check if service price is shown on the Service Details page -->
+			<verifyXPath xpath="//h2[@class='servicePrice' and contains(text(), 'Starting at 5.81')]" />
+			<!-- Check if Tab with external price model details is shown -->
+			<verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+			<!-- Check if [Show details] button is shown -->
+			<verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+			<login.logout />
+		</webtest>
 
-    <!-- Login as supplier and verify if for subscription with external price model the display button is shown -->
-    <webtest name="testBillingPlugin - view Subscription">
-      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
-      <clickLink href="/subscription/view.jsf" />
-      <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
-      <verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
-      <login.logout />
-    </webtest>
+		<webtest name="testBillingPlugin - subscriptionProccess">
+			<mpl_login.user mid="${mId}" userId="${supplierUserId}" />
+			<mpl_goto.marketplace mid="${mId}" />
+			<!-- Go to Browse all services -->
+			<clickElement xpath="//a[@id='linkBrowseAll']" />
+			<!-- Go to Service Details -->
+			<common.ignorePageScriptError />
+			<clickElement xpath="//a[@id='showDetails0']" />
+			<!-- Start subscription proccess -->
+			<common.ignorePageScriptError />
+			<clickLink htmlId="buyme" />
+			<clickElement htmlId="getItForLoggedUser" />
+			<setInputField htmlId="configurationForm:subscriptionIdText" value="Trial Subscription" />
+			<!-- Check if Tab with external price model details is shown -->
+			<verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+			<!-- Check if [Display] button is shown -->
+			<verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+			<!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
+			<clickButton name="configurationForm:next" />
+			<mpl_verify.subscriptionProgress currentStep="Confirmation" />
+			<!-- Verify acceptance of external price model -->
+			<verifyXPath xpath="//span[@id='confirmForm:pmAccept']" />
+			<!-- Finish the subscription process -->
+			<setCheckbox name="confirmForm:agreeCheckbox" checked="true" />
+			<clickButton name="confirmForm:confirm" />
+			<!-- Check if Tab with external price model details is shown -->
+			<verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
+			<!-- Check if [Display] button is shown -->
+			<verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+			<login.logout />
+		</webtest>
 
-    <!-- Chec if the external price model for the subscription can be successfully uploaded -->
-    <webtest name="testBillingPlugin - upload price model for subscription">
-      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
-      <clickLink href="/priceModel/subscriptionPriceModel.jsf" />
-      <clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
-      <verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
-      <verifyXPath xpath="//span[@id='editForm:displayExternalPriceModelButtonDisabled']" />
-      <clickElement htmlId="editForm:uploadExternalPriceModelButton" />
-      <verifyText text="External price model has been successfully uploaded." />
-      <clickElement htmlId="editForm:saveButton" />
-      <verifyText text="has been successfully saved." />
-      <login.logout />
-    </webtest>
+		<!-- Login as supplier and verify if for subscription with external price model the display button is shown -->
+		<webtest name="testBillingPlugin - view Subscription">
+			<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+			<clickLink href="/subscription/view.jsf" />
+			<clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
+			<verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
+			<login.logout />
+		</webtest>
 
-    <webtest name="testBillingPlugin - cleanup">
-      <operatorPortal.login />
-      <clickLink href="/operator/manageConfiguration.jsf" />
-      <setInputField htmlId="${hiddenElementFieldId}" value="${hiddenElementFieldValue}" />
-      <clickElement htmlId="configurationSettings:saveButton" />
-      <common.verifySuccess label="${info.configuration.saved}" />
-      <login.logout />
-      <mail.cleanInbox />
-    </webtest>
+		<!-- Chec if the external price model for the subscription can be successfully uploaded -->
+		<webtest name="testBillingPlugin - upload price model for subscription">
+			<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+			<clickLink href="/priceModel/subscriptionPriceModel.jsf" />
+			<clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
+			<verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
+			<verifyXPath xpath="//span[@id='editForm:displayExternalPriceModelButtonDisabled']" />
+			<clickElement htmlId="editForm:uploadExternalPriceModelButton" />
+			<verifyText text="The external price model has been successfully imported." />
+			<clickElement htmlId="editForm:saveButton" />
+			<verifyText text="has been successfully saved." />
+			<login.logout />
+		</webtest>
 
-  </target>
+		<webtest name="testBillingPlugin - cleanup">
+			<operatorPortal.login />
+			<clickLink href="/operator/manageConfiguration.jsf" />
+			<setInputField htmlId="${hiddenElementFieldId}" value="${hiddenElementFieldValue}" />
+			<clickElement htmlId="configurationSettings:saveButton" />
+			<common.verifySuccess label="${info.configuration.saved}" />
+			<login.logout />
+			<mail.cleanInbox />
+		</webtest>
+
+	</target>
 
 </project>

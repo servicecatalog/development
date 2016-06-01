@@ -3637,6 +3637,37 @@ public class AccountServiceBeanIT extends EJBTestBase {
         return product;
     }
 
+    private Set<Product> prepareProductWithExternalPriceModel(final String providerId,
+            final String supplierId, final boolean chargeable,
+            final Set<String> paymentTypes, final boolean createPriceModel)
+            throws Exception {
+
+        Set<Product> product = runTX(new Callable<Set<Product>>() {
+
+            @Override
+            public Set<Product> call() throws Exception {
+                Set<Product> result = new HashSet<>();
+                Organization provider = getOrganization(providerId);
+                TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
+                        mgr, provider, "TP_" + System.currentTimeMillis() + "_"
+                                + ServiceStatus.ACTIVE, false,
+                        ServiceAccessType.LOGIN, false, true);
+
+                Organization supplier = getOrganization(supplierId);
+                Product product = Products.createProduct(supplier, tp, true,
+                        "PR_" + System.currentTimeMillis() + "_"
+                                + ServiceStatus.ACTIVE, null, mgr);
+                product.setStatus(ServiceStatus.ACTIVE);
+                // add template product
+                result.add(product);
+
+                return result;
+            }
+        });
+
+        return product;
+    }
+
     @Test
     public void testDeregisterOrganizationWithInactiveSubscription()
             throws Exception {
@@ -5848,6 +5879,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
         // prepare services without price model
         for (int i = 0; i < numNoPriceModel; i++) {
             prepareProduct(providerId, supplierIds.get(0), false, paymentTypes,
+                    false);
+        }
+
+        // prepare services with external price model
+        for (int i = 0; i < numNoPriceModel; i++) {
+            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0), false, paymentTypes,
                     false);
         }
 

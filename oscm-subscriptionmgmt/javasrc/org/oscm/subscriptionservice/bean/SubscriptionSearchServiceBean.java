@@ -1,3 +1,11 @@
+/*******************************************************************************
+ *                                                                              
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: 05.02.2015                                                      
+ *                                                                              
+ *******************************************************************************/
+
 package org.oscm.subscriptionservice.bean;
 
 import java.math.BigInteger;
@@ -23,6 +31,7 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
@@ -207,19 +216,24 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         List<Uda> result = ftQuery.list();
         SubscriptionDao subscriptionDao = getSubscriptionDao();
         for (Uda item : result) {
-            if (UdaTargetType.CUSTOMER.equals(item.getUdaDefinition()
-                    .getTargetType())) {
-                // Uda for organization, so get all subscription for
-                // organization
-                List<Object[]> subs = subscriptionDao.getSubscriptionIdsForOrg(
-                        dm.getCurrentUser(), getStates(), item
-                                .getUdaDefinition().getOrganizationKey());
-                for (Object[] subColumns : subs) {
-                    set.add(((BigInteger) subColumns[0]).longValue());
+
+            if (!UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
+                    .getConfigurationType())) {
+                if (UdaTargetType.CUSTOMER.equals(item.getUdaDefinition()
+                        .getTargetType())) {
+                    // Uda for organization, so get all subscription for
+                    // organization
+                    List<Object[]> subs = subscriptionDao
+                            .getSubscriptionIdsForOrg(dm.getCurrentUser(),
+                                    getStates(), item.getUdaDefinition()
+                                            .getOrganizationKey());
+                    for (Object[] subColumns : subs) {
+                        set.add(((BigInteger) subColumns[0]).longValue());
+                    }
+                    break;
+                } else {
+                    set.add(item.getTargetObjectKey());
                 }
-                break;
-            } else {
-                set.add(item.getTargetObjectKey());
             }
         }
         return set;

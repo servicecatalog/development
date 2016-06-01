@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
  *  Creation Date: 10.12.2014                                                      
  *                                                                              
@@ -34,8 +34,7 @@ public class PriceModelPluginProxy extends BasicBillingProxy {
     PriceModelPluginService locatePriceModelPluginService()
             throws BillingApplicationException {
         if (priceModelPluginService == null) {
-            priceModelPluginService = locateBillingAdapterService(
-                    PriceModelPluginService.class);
+            priceModelPluginService = locateBillingAdapterService(PriceModelPluginService.class);
         }
         return priceModelPluginService;
     }

@@ -126,4 +126,13 @@ public interface ConfigurationServiceLocal {
      * @return base url
      */
     public String getBaseURL();
+    
+    /**
+     * checks if payment information is available
+     * 
+     * @return <code>true</code> if information is available (default value), otherwise
+     *         <code>false</code>
+     * @see ConfigurationKey#HIDDEN_UI_ELEMENTS
+     */
+    public boolean isPaymentInfoAvailable();
 }

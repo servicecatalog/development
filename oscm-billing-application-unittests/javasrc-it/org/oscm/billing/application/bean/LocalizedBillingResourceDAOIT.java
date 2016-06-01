@@ -1,7 +1,9 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
- *                                                                                                                                                                                                                                                               
+ *  Copyright FUJITSU LIMITED 2016                  
+ *                                                                                                                                 
+ *  Creation Date: 10.12.2014                                                      
+ *                                                                              
  *******************************************************************************/
 
 package org.oscm.billing.application.bean;
@@ -80,7 +82,7 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
 
     private LocalizedBillingResource findLocalizedBillingResourceInDB(
             final LocalizedBillingResource localizedBillingResource)
-                    throws Exception {
+            throws Exception {
         return runTX(new Callable<LocalizedBillingResource>() {
             @Override
             public LocalizedBillingResource call() throws Exception {
@@ -112,21 +114,20 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 EXTERNAL_PRICE_MODEL_EN_JSON.getBytes());
 
         // when
-        LocalizedBillingResource dbResource = updateLocalizedBillingResource(
-                newResource);
+        LocalizedBillingResource dbResource = updateLocalizedBillingResource(newResource);
 
         // then
         assertTrue(dbResource.getKey() != 0L);
-        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(
-                newResource);
+        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(newResource);
         assertEquals("Wrong version", 0, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
-        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL_SERVICE,
+        assertEquals("Wrong type",
+                LocalizedBillingResourceType.PRICEMODEL_SERVICE,
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON,
-                new String(newResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON, new String(
+                newResourceInDB.getValue()));
     }
 
     @Test
@@ -142,17 +143,15 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
                 EXTERNAL_PRICE_MODEL_EN_HTML.getBytes());
 
         // when
-        LocalizedBillingResource dbResource = updateLocalizedBillingResource(
-                changedResource);
+        LocalizedBillingResource dbResource = updateLocalizedBillingResource(changedResource);
 
         // then
-        LocalizedBillingResource changedResourceInDB = findLocalizedBillingResourceInDB(
-                changedResource);
+        LocalizedBillingResource changedResourceInDB = findLocalizedBillingResourceInDB(changedResource);
         assertEquals("Wrong version", 1, changedResourceInDB.getVersion());
         assertEquals("Wrong data type", MediaType.APPLICATION_XML,
                 changedResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_HTML,
-                new String(changedResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_HTML, new String(
+                changedResourceInDB.getValue()));
         assertTrue(dbResource.getKey() != 0L);
     }
 
@@ -180,15 +179,15 @@ public class LocalizedBillingResourceDAOIT extends EJBTestBase {
         updateLocalizedBillingResource(newResource);
 
         // then
-        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(
-                newResource);
+        LocalizedBillingResource newResourceInDB = findLocalizedBillingResourceInDB(newResource);
         assertEquals("Wrong version", 1, newResourceInDB.getVersion());
         assertEquals("Wrong locale", "en", newResourceInDB.getLocale());
-        assertEquals("Wrong type", LocalizedBillingResourceType.PRICEMODEL_SERVICE,
+        assertEquals("Wrong type",
+                LocalizedBillingResourceType.PRICEMODEL_SERVICE,
                 newResourceInDB.getResourceType());
         assertEquals("Wrong data type", MediaType.APPLICATION_JSON,
                 newResourceInDB.getDataType());
-        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON,
-                new String(newResourceInDB.getValue()));
+        assertEquals("Wrong value", EXTERNAL_PRICE_MODEL_EN_JSON, new String(
+                newResourceInDB.getValue()));
     }
 }

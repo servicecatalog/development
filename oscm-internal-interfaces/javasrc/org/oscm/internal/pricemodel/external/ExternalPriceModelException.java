@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                 
  *                                                                                                                                 
  *  Creation Date: 17.12.2014                                                      
  *                                                                              
@@ -14,8 +14,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
  * Exception thrown when the external price model is not available
  * 
  */
-public class ExternalPriceModelException extends
-        SaaSApplicationException {
+public class ExternalPriceModelException extends SaaSApplicationException {
 
     private static final long serialVersionUID = 7194031787151261199L;
 

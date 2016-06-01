@@ -1,8 +1,8 @@
 /*******************************************************************************
  *                                                                              
- *  COPYRIGHT (C) 2015 FUJITSU Limited - ALL RIGHTS RESERVED.                  
- *                                                                                                                                 
- *  Creation Date: 24.02.2015                                                      
+ *  Copyright FUJITSU LIMITED 2016                                             
+ *                                                                              
+ *  Creation Date: 20.04.2015                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -19,7 +19,7 @@ import org.oscm.internal.vo.VOServiceDetails;
 
 /**
  * @author iversen
- *
+ * 
  */
 @ManagedBean
 @ViewScoped

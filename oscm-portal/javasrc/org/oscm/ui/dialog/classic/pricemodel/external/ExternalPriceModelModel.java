@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                  
+ *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
  *  Creation Date: 18.12.2014                                                      
  *                                                                              
@@ -55,8 +55,9 @@ public class ExternalPriceModelModel {
      * @return
      */
     public String getContentAsJSON() {
-        if (selectedPriceModelContent != null && MediaType.APPLICATION_JSON
-                .equals(selectedPriceModelContent.getContentType())) {
+        if (selectedPriceModelContent != null
+                && MediaType.APPLICATION_JSON.equals(selectedPriceModelContent
+                        .getContentType())) {
             return new String(selectedPriceModelContent.getContent(),
                     StandardCharsets.UTF_8);
         } else {
