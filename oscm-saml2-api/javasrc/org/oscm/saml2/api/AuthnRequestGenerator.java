@@ -40,7 +40,6 @@ public class AuthnRequestGenerator {
     private final static Integer HTTPS_INDEX = Integer.valueOf(0);
     private final static Integer HTTP_INDEX = Integer.valueOf(1);
     private final static String SAML_VERSION = "2.0";
-    private ConfigurationService configService;
 
     private Random prng = new Random();
     private String issuer;
@@ -57,9 +56,8 @@ public class AuthnRequestGenerator {
     }
 
     public AuthnRequestGenerator(String issuer, Boolean isHttps,
-                                 ConfigurationService configurationService, SignerService samlBean) {
+                                 SignerService samlBean) {
         this(issuer, isHttps);
-        this.configService = configurationService;
         this.samlBean = samlBean;
     }
 

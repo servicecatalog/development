@@ -46,8 +46,6 @@ import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 
-import org.w3c.dom.Document;
-
 /**
  * @author roderus
  *
@@ -203,7 +201,7 @@ public class Saml2Ctrl{
     AuthnRequestGenerator getAuthnRequestGenerator()
             throws SAML2AuthnRequestException {
         Boolean isHttps = Boolean.valueOf(getRequest().isSecure());
-        return new AuthnRequestGenerator(getIssuer(), isHttps, configurationService, samlBean);
+        return new AuthnRequestGenerator(getIssuer(), isHttps, samlBean);
     }
 
     String getIssuer() throws SAML2AuthnRequestException {

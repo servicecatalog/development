@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
-import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
@@ -46,7 +45,7 @@ public class AuthnRequestGeneratorTest {
     @Before
     public void setup() throws Exception {
         signer = mock(SignerService.class);
-        generator = new AuthnRequestGenerator("Issuer Name", Boolean.TRUE, mock(ConfigurationService.class), signer);
+        generator = new AuthnRequestGenerator("Issuer Name", Boolean.TRUE, signer);
         Marshalling<LogoutRequestType>
                 marshaller = new Marshalling<>();
         org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
