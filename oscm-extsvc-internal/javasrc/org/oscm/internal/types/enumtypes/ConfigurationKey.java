@@ -377,8 +377,8 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<MEXAddress>")
     SSO_STS_METADATA_URL(false, null, "url", true),
 
-    @Doc({ "URL of Identity Provider logout service" })
-    @Example("http://<host>:<port>/<MEXAddress>")
+    @Doc({ "URL of the Identity Provider's single logout service" })
+    @Example("https://<host>:<port>/<LogoutServiceEndpoint>")
     SSO_LOGOUT_URL(false, null, "url", false),
 
     @Doc({ "the max number of users that can be registered on the platform" })
