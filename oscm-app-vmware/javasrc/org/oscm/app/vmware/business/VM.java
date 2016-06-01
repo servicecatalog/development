@@ -293,25 +293,22 @@ public class VM extends Template {
                 "info");
     }
 
-    private boolean isNotEmpty(String validate) {
-        return validate != null && validate.length() > 0;
-    }
-
     public VMwareGuestSystemStatus getState(VMPropertyHandler properties)
             throws Exception {
 
-        boolean isConnected = areNetworkCardsConnected();
+        boolean networkCardsConnected = areNetworkCardsConnected();
         boolean validHostname = isValidHostname();
         boolean validIp = isValidIp(properties);
 
         if (isLinux()) {
             boolean firstStart = isNotEmpty(guestInfo.getHostName())
                     && guestInfo.getIpAddress() == null
-                    && "running".equals(guestInfo.getGuestState())
-                    && areGuestToolsRunning() && areNetworkCardsConnected();
+                    && isGuestSystemRunning() && areGuestToolsRunning()
+                    && networkCardsConnected;
 
-            boolean secondStart = validHostname && isConnected && validIp
-                    && isGuestSystemRunning() && areGuestToolsRunning();
+            boolean secondStart = validHostname && validIp
+                    && isGuestSystemRunning() && areGuestToolsRunning()
+                    && networkCardsConnected;
 
             if (firstStart || secondStart) {
                 LOG.debug("firstStart: " + firstStart + " secondStart: "
@@ -319,16 +316,18 @@ public class VM extends Template {
                 return VMwareGuestSystemStatus.GUEST_READY;
             }
 
-            LOG.debug(createLogForGetState(properties, isConnected, validIp));
+            LOG.debug(createLogForGetState(properties, networkCardsConnected,
+                    validIp));
             return VMwareGuestSystemStatus.GUEST_NOTREADY;
         }
 
-        if (validHostname && isConnected && validIp && isGuestSystemRunning()
-                && areGuestToolsRunning()) {
+        if (validHostname && networkCardsConnected && validIp
+                && isGuestSystemRunning() && areGuestToolsRunning()) {
             return VMwareGuestSystemStatus.GUEST_READY;
         }
 
-        LOG.debug(createLogForGetState(properties, isConnected, validIp));
+        LOG.debug(createLogForGetState(properties, networkCardsConnected,
+                validIp));
         return VMwareGuestSystemStatus.GUEST_NOTREADY;
     }
 
@@ -355,6 +354,10 @@ public class VM extends Template {
         sb.append("]");
         String logStatement = sb.toString();
         return logStatement;
+    }
+
+    private boolean isNotEmpty(String validate) {
+        return validate != null && validate.length() > 0;
     }
 
     boolean areGuestToolsRunning() {
