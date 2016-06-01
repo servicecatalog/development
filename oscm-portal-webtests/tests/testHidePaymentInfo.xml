@@ -5,7 +5,8 @@
   <target name="testHidePaymentInfo">
     
     <webtest name="setup visibility">
-      <common.setConfigurationSettingValue settingName='HIDE_PAYMENT_INFORMATION' settingValue='TRUE' />
+      <setup:store.settings userkey="1000" password="" />
+      <setup:configuration.setValue informationId="HIDE_PAYMENT_INFORMATION" value="TRUE" />
     </webtest>
 
     <webtest name="test warning on Manage Payment Types">
@@ -23,8 +24,13 @@
       <mail.cleanInbox />
       <operator.addCurrency />
       <scenario.setupSupplier />
-      <operator.createMarketplace ownerId="${supplierId}" baseurl="#{baseUrl}" name="Local Marketplace"
-        mIdProperty="marketplaceId" />
+    	<storeProperty name="supplierUrl" value="#{orgUrl}" propertyType="ant" />
+    	      <storeProperty name="supplierId" value="#{orgId}" propertyType="ant" />
+    	      <storeProperty name="supplierUserId" value="#{userId}" propertyType="ant" />
+    	      <storeProperty name="supplierUserKey" value="#{userKey}" propertyType="ant" />
+    	
+      <operator.createMarketplace mIdProperty="marketplaceId" ownerId="#{supplierId}" baseurl="#{baseUrl}" name="Local Marketplace" failonerror="true" />
+
       <landingpage.setSortOrderForLandingpageWithLogin mId="${marketplaceId}"
         userId="${supplierUserId}" password="secret" />
       <login.login url="${supplierUrl}" userId="${supplierUserId}" />
