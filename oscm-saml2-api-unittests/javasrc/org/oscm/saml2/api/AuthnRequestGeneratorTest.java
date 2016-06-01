@@ -13,9 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.containsString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 import java.util.Calendar;
 
@@ -28,9 +26,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import org.oscm.internal.intf.SignerService;
+import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
+import org.w3c.dom.Element;
 
 /**
  * @author roderus
@@ -39,10 +40,23 @@ import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 public class AuthnRequestGeneratorTest {
 
     private AuthnRequestGenerator generator;
+    private SignerService signer;
 
     @Before
     public void setup() throws Exception {
-        generator = spy(new AuthnRequestGenerator("Issuer Name", Boolean.TRUE));
+        signer = mock(SignerService.class);
+        generator = new AuthnRequestGenerator("Issuer Name", Boolean.TRUE, signer);
+        Marshalling<LogoutRequestType>
+                marshaller = new Marshalling<>();
+        org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
+        protocolObjFactory = new org.oscm.saml2.api.model.protocol.ObjectFactory();
+        LogoutRequestType logoutRequestType = protocolObjFactory.createLogoutRequestType();
+        NameIDType issuerMock = mock(NameIDType.class);
+        doReturn("Issuer Name").when(issuerMock).getValue();
+        logoutRequestType.setIssuer(issuerMock);
+        JAXBElement<LogoutRequestType> logoutRequest = protocolObjFactory.createLogoutRequest(logoutRequestType);
+        Element documentElement = marshaller.marshallElement(logoutRequest).getDocumentElement();
+        doReturn(documentElement).when(signer).signLogoutRequest(any(Element.class));
     }
 
     @Test
@@ -62,6 +76,7 @@ public class AuthnRequestGeneratorTest {
     public void generateAuthnRequest_Error() throws Exception {
         // given
         final String errorMessage = "some error message";
+        generator = spy(generator);
         doThrow(new TransformerException(errorMessage)).when(generator)
                 .marshal(Matchers.<JAXBElement<AuthnRequestType>> any());
 
@@ -150,8 +165,7 @@ public class AuthnRequestGeneratorTest {
     public void getEncodedAuthnRequest() throws Exception {
         // given
         final String expectedAuthnRequest = "some_authn_request";
-        AuthnRequestGenerator generator = spy(new AuthnRequestGenerator(
-                "Issuer Name", Boolean.TRUE));
+        generator = spy(generator);
         doReturn(expectedAuthnRequest).when(generator).marshal(
                 Matchers.<JAXBElement<AuthnRequestType>> any());
 
@@ -164,21 +178,21 @@ public class AuthnRequestGeneratorTest {
     }
 
     @Test
-    public void generateLogoutRequest() throws DatatypeConfigurationException {
+    public void generateLogoutRequest() throws Exception {
         // given
         // when
         JAXBElement<LogoutRequestType> logoutRequest = generator
                 .generateLogoutRequest("sessionId");
 
         // then
-        assertEquals("Issuer Name", logoutRequest.getValue().getIssuer()
-                .getValue());
+        verify(signer, times(1)).signLogoutRequest(any(Element.class));
     }
 
     @Test
     public void generateLogoutRequest_Error() throws Exception {
         // given
         final String errorMessage = "some error message";
+        generator = spy(generator);
         doThrow(new TransformerException(errorMessage)).when(generator)
                 .marshal(Matchers.<JAXBElement<AuthnRequestType>> any());
 
@@ -195,8 +209,7 @@ public class AuthnRequestGeneratorTest {
     public void getEncodedLogoutRequest() throws Exception {
         // given
         final String expectedLogoutRequest = "some_authn_request";
-        AuthnRequestGenerator generator = spy(new AuthnRequestGenerator(
-                "Issuer Name", Boolean.TRUE));
+        generator = spy(generator);
         doReturn(expectedLogoutRequest).when(generator).marshal(
                 Matchers.<JAXBElement<AuthnRequestType>> any());
 
