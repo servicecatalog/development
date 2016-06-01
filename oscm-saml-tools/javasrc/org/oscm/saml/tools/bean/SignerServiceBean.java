@@ -8,7 +8,6 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
-import javax.xml.bind.JAXBElement;
 
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
@@ -29,17 +28,13 @@ public class SignerServiceBean implements SignerService {
     @EJB(beanInterface = ConfigurationServiceLocal.class)
     private ConfigurationServiceLocal configService;
 
-    private Marshalling<LogoutRequestType>
-            marshaller = new Marshalling<>();
-
     @Override
-    public JAXBElement signLogoutRequest(JAXBElement logoutRequest) throws Exception {
+    public Element signLogoutRequest(Element logoutRequest) throws Exception {
         Saml20KeyLoader keyLoader = new Saml20KeyLoader(configService);
         Saml20Signer signer = new SamlSigner(keyLoader.getPrivateKey());
 
         signer.setPublicCertificate(keyLoader.getPublicCertificate());
-        Element signed = signer.signSamlElement(marshaller.marshallElement(logoutRequest).getDocumentElement(), null);
-        return marshaller.unmarshallDocument(signed, LogoutRequestType.class);
+        return signer.signSamlElement(logoutRequest, null);
     }
 
 

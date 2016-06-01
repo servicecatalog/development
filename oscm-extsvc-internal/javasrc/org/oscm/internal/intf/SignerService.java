@@ -8,8 +8,9 @@
 
 package org.oscm.internal.intf;
 
+import org.w3c.dom.Element;
+
 import javax.ejb.Remote;
-import javax.xml.bind.JAXBElement;
 
 /**
  * Remote interface for signing SAML requests.
@@ -24,5 +25,5 @@ public interface SignerService {
      * @param logoutRequest
      * @return
      */
-    JAXBElement signLogoutRequest(JAXBElement logoutRequest) throws Exception;
+    Element signLogoutRequest(Element logoutRequest) throws Exception;
 }
