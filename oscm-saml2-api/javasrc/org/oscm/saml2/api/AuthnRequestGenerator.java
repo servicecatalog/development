@@ -20,17 +20,19 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.saml2.api.model.protocol.NameIDPolicyType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
  * @author roderus
- * 
  */
 public class AuthnRequestGenerator {
 
@@ -45,6 +47,8 @@ public class AuthnRequestGenerator {
     private String requestId;
     private SignerService samlBean;
 
+    private static final Log4jLogger logger = LoggerFactory
+            .getLogger(AuthnRequestGenerator.class);
     public AuthnRequestGenerator(String issuer, Boolean isHttps) {
         this.issuer = issuer;
         this.isHttps = isHttps;
@@ -52,7 +56,7 @@ public class AuthnRequestGenerator {
     }
 
     public AuthnRequestGenerator(String issuer, Boolean isHttps,
-            ConfigurationService configurationService, SignerService samlBean) {
+                                 ConfigurationService configurationService, SignerService samlBean) {
         this(issuer, isHttps);
         this.configService = configurationService;
         this.samlBean = samlBean;
@@ -76,9 +80,9 @@ public class AuthnRequestGenerator {
     }
 
     /**
+     * @param idpSessionIndex
      * @return BASE64-encoded SAML Authentication Request
      * @throws SAML2AuthnRequestException
-     * @param idpSessionIndex
      */
     public String getEncodedLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
         String authnRequest = null;
@@ -170,12 +174,13 @@ public class AuthnRequestGenerator {
     }
 
     protected JAXBElement<LogoutRequestType> signLogoutRequest(JAXBElement<LogoutRequestType> logoutRequestJAXB) {
-        try{
+        try {
             Element marshaled = marshallJAXBElement(logoutRequestJAXB);
             Element signed = samlBean.signLogoutRequest(marshaled);
             logoutRequestJAXB = unmarshallJAXBElement(signed);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SIGNING_SAML_FAULT);
         }
         return logoutRequestJAXB;
     }

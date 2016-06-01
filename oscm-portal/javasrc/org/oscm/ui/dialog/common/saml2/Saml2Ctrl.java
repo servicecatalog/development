@@ -74,6 +74,9 @@ public class Saml2Ctrl{
     private UiDelegate uiDelegate ;
     private boolean fromLogout;
 
+    private static final Log4jLogger logger = LoggerFactory
+            .getLogger(Saml2Ctrl.class);
+
     public String initModelAndCheckForErrors() {
 
         AuthnRequestGenerator reqGenerator;
@@ -116,12 +119,15 @@ public class Saml2Ctrl{
                     marshaller.marshallElement(rootElement), false);
             return reqGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
         } catch (DatatypeConfigurationException e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
             return null;
         } catch (TransformerException e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
         }
         return null;
     }

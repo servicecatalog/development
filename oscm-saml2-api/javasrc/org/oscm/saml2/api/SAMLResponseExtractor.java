@@ -10,8 +10,6 @@ package org.oscm.saml2.api;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -20,14 +18,17 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
 
-import org.oscm.internal.types.exception.SAML2StatusCodeInvalidException;
+import org.oscm.converter.XMLConverter;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
+import org.oscm.internal.types.exception.UserIdNotFoundException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import org.oscm.converter.XMLConverter;
-import org.oscm.internal.types.exception.UserIdNotFoundException;
 import com.sun.xml.ws.security.opt.impl.incoming.SAMLAssertion;
 import com.sun.xml.wss.XWSSecurityException;
 import com.sun.xml.wss.saml.util.SAMLUtil;
@@ -62,6 +63,9 @@ public class SAMLResponseExtractor {
     private static final String SESSION_INDEX_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']//*[local-name()='AuthnStatement']//@*[local-name()='SessionIndex']";
 
     private static final String STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR = "//*[local-name()='Status']//*[local-name()='StatusCode']//@*[local-name()='Value']";
+
+    private static final Log4jLogger logger = LoggerFactory
+            .getLogger(SAMLResponseExtractor.class);
 
 
 
@@ -242,7 +246,8 @@ public class SAMLResponseExtractor {
         try {
             return decode(encodedSamlResponse).contains("LogoutResponse");
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
         }
         return false;
     }
@@ -253,14 +258,16 @@ public class SAMLResponseExtractor {
             document = XMLConverter.convertToDocument(decode(encodedSamlResponse),
                     true);
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
         }
         try {
             String resultWithNameSpace = XMLConverter.getNodeTextContentByXPath(document,
                     STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR);
             return removeNameSpaceFromStatus(resultWithNameSpace);
         } catch (XPathExpressionException e) {
-            e.printStackTrace();
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
         }
         return null;
     }
