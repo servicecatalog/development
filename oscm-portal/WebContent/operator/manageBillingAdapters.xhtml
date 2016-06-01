@@ -29,7 +29,7 @@
               <adm:labelAndInputText id="adapterId" value="#{adapter.billingIdentifier}"
                 disabled="#{adapter.idFieldReadOnly}" label="#{msg['billingAdapterIdentifier']}"
                 converterId="trimConverter" required="true" maxlength="#{appBean.idLen}" onchange="setDirty(true);"
-                validatorId="idChar" />
+                validatorId="idChar" backingBean="#{billingAdapterCtrl}" validationMethod="validateDuplicatedId"/>
               <br />
               <adm:labelAndInputText id="adapterName" value="#{adapter.name}" label="#{msg['billingAdapter.name']}"
                 converterId="trimConverter" maxlength="#{appBean.idLen}" disabled="#{adapter.nativeBilling}" />
