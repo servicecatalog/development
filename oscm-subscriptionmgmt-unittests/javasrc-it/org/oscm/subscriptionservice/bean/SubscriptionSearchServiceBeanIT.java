@@ -27,6 +27,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -74,16 +75,18 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        verify(query, times(4)).list();
+        verify(query, times(5)).list();
         ArgumentCaptor<Query> queryArgumentCaptor = forClass(Query.class);
         verify(fullTextSession, times(1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Parameter.class));
         verify(fullTextSession, times(2)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Subscription.class));
         verify(fullTextSession, times(1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Uda.class));
+        verify(fullTextSession, times(1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(UdaDefinition.class));
 
         verifyQueryAttributes(queryArgumentCaptor,
                 "(dataContainer.subscriptionId:search)",
                 "(dataContainer.purchaseOrderNumber:search)",
                 "(dataContainer.udaValue:search)",
+                "(dataContainer.defaultValue:search)",
                 "(dataContainer.value:search)");
 
     }
@@ -103,16 +106,18 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        verify(query, times(8)).list();
+        verify(query, times(10)).list();
         ArgumentCaptor<Query> queryArgumentCaptor = forClass(Query.class);
         verify(fullTextSession, times(2)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Parameter.class));
         verify(fullTextSession, times(4)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Subscription.class));
         verify(fullTextSession, times(2)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Uda.class));
+        verify(fullTextSession, times(2)).createFullTextQuery(queryArgumentCaptor.capture(), eq(UdaDefinition.class));
 
         verifyQueryAttributes(queryArgumentCaptor,
                 "(dataContainer.subscriptionId:search)",
                 "(dataContainer.purchaseOrderNumber:search)",
                 "(dataContainer.udaValue:search)",
+                "(dataContainer.defaultValue:search)",
                 "(dataContainer.value:search)");
 
         verifyQueryAttributes(queryArgumentCaptor,
@@ -161,28 +166,32 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
             }
         });
         int queryParts = 3;
-        verify(query, times(queryParts *4)).list();
+        verify(query, times(queryParts * 5)).list();
         ArgumentCaptor<Query> queryArgumentCaptor = forClass(Query.class);
         verify(fullTextSession, times(queryParts *1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Parameter.class));
         verify(fullTextSession, times(queryParts *2)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Subscription.class));
         verify(fullTextSession, times(queryParts *1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(Uda.class));
+        verify(fullTextSession, times(queryParts *1)).createFullTextQuery(queryArgumentCaptor.capture(), eq(UdaDefinition.class));
 
         verifyQueryAttributes(queryArgumentCaptor,
                 "(dataContainer.subscriptionId:search)",
                 "(dataContainer.purchaseOrderNumber:search)",
                 "(dataContainer.udaValue:search)",
+                "(dataContainer.defaultValue:search)",
                 "(dataContainer.value:search)");
 
         verifyQueryAttributes(queryArgumentCaptor,
                 "(dataContainer.subscriptionId:multiple)",
                 "(dataContainer.purchaseOrderNumber:multiple)",
                 "(dataContainer.udaValue:multiple)",
+                "(dataContainer.defaultValue:search)",
                 "(dataContainer.value:multiple)");
 
         verifyQueryAttributes(queryArgumentCaptor,
                 "(dataContainer.subscriptionId:words)",
                 "(dataContainer.purchaseOrderNumber:words)",
                 "(dataContainer.udaValue:words)",
+                "(dataContainer.defaultValue:search)",
                 "(dataContainer.value:words)");
     }
 
