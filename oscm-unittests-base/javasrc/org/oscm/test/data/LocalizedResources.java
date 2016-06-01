@@ -63,18 +63,28 @@ public class LocalizedResources {
     /**
      * Creates a auto-generated localization for the given domain object key.
      */
-    public static void localizeProduct(DataService dm, long objKey)
+    public static void localizeProduct(DataService dm, long objKey, String locale)
             throws NonUniqueBusinessKeyException {
         create(dm, objKey, LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                 "Product " + productNumber + " ("
                         + LocalizedObjectTypes.PRODUCT_MARKETING_NAME + ")",
-                "en");
+                locale);
         create(dm, objKey, LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
-                PRODUCT_DESCR_SAMPLE_TEXT, "en");
+                PRODUCT_DESCR_SAMPLE_TEXT, locale);
         create(dm, objKey, LocalizedObjectTypes.PRODUCT_LICENSE_DESC,
-                PROCUCT_LICENSE_SAMPLE_TEXT, "en");
+                PROCUCT_LICENSE_SAMPLE_TEXT, locale);
         create(dm, objKey, LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION);
         productNumber++;
+    }
+
+    /**
+     * Creates a auto-generated localization for the given domain object key.
+     */
+    public static void localizeProduct(DataService dm, long objKey, String... locales)
+            throws NonUniqueBusinessKeyException {
+        for (String locale : locales) {
+            localizeProduct(dm, objKey, locale);
+        }
     }
 
     /**
