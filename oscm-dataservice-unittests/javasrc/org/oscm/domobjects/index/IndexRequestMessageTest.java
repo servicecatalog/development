@@ -17,11 +17,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Assert;
 import org.junit.Test;
 
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.LocalizedResource;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 
@@ -50,6 +46,20 @@ public class IndexRequestMessageTest {
 
         long key = 12;
         TechnicalProductTag tag = new TechnicalProductTag();
+        tag.setKey(key);
+
+        IndexRequestMessage message = IndexRequestMessage.get(tag,
+                ModificationType.MODIFY);
+        Assert.assertNotNull("Message expected", message);
+        assertEquals(tag.getClass(), message.getObjectClass());
+        assertEquals(key, message.getKey());
+    }
+
+    @Test
+    public void testUdaDefinitionMessage() throws Throwable {
+
+        long key = 12;
+        UdaDefinition tag = new UdaDefinition();
         tag.setKey(key);
 
         IndexRequestMessage message = IndexRequestMessage.get(tag,
