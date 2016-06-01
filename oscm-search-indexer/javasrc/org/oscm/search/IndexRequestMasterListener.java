@@ -236,6 +236,9 @@ public class IndexRequestMasterListener extends
     }
 
     private void handleObjectIndexing(Object parameter) {
+        if (parameter == null) {
+            return;
+        }
         Session session = getSession();
         if (session != null) {
             FullTextSession fts = Search.getFullTextSession(session);
