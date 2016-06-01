@@ -28,6 +28,7 @@ public class Response {
 
 	public static final String RESPONSE = "Response";
 	public static final String LOGOUT_REQUEST = "LogoutRequest";
+	public static final String ISSUER = "Issuer";
 	public static final String RESPONSE_ID = "ResponseID";
 	public static final String ISSUE_INSTANT = "IssueInstant";
 	public static final String IN_RESPONSE_TO = "InResponseTo";

@@ -73,6 +73,9 @@
     <ejb>oscm-marketplaceservice.jar</ejb>
   </module>
   <module>
+    <ejb>oscm-saml-tools.jar</ejb>
+  </module>
+  <module>
     <ejb>oscm-operatorsvc.jar</ejb>
   </module>
   <module>

@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataSet;
@@ -62,6 +63,7 @@ import org.oscm.test.stubs.BillingServiceStub;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.types.constants.Configuration;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
