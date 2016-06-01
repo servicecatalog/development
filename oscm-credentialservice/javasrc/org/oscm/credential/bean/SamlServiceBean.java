@@ -73,14 +73,6 @@ public class SamlServiceBean implements SamlService {
         return responseString;
     }
 
-    @Override
-    public Element signLogoutRequestElement(Element samlRequestElement) {
-        SamlKeyLoader keyLoader = new SamlKeyLoader(configService);
-        SamlSigner signer = new SamlSigner(keyLoader.getPrivateKey());
-        signer.setPublicCertificate(keyLoader.getPublicCertificate());
-        return signer.signSamlElement( samlRequestElement, null);
-    }
-
     static String signSamlResponse(String samlResponse, PrivateKey privateKey,
             X509Certificate publicCertificate) {
         ResponseParser parser = new ResponseParser(samlResponse);

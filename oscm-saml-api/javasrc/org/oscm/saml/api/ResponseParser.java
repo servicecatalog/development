@@ -35,6 +35,9 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.xml.Transformers;
 import org.oscm.internal.types.exception.SaaSSystemException;
 
+import static org.oscm.saml.api.Response.ISSUER;
+import static org.oscm.saml.api.Response.LOGOUT_REQUEST;
+
 /**
  * @author barzu
  */
@@ -129,6 +132,44 @@ public class ResponseParser {
             }
         }
         return assertions;
+    }
+
+    public Element getLogoutRequestElement() {
+        NodeList responseNodes = parser.parseTags(LOGOUT_REQUEST);
+        if (responseNodes.getLength() < 1) {
+            throw new IllegalStateException("No " + LOGOUT_REQUEST + " occurence");
+        }
+        if (responseNodes.getLength() > 1) {
+            throw new IllegalStateException("Duplicate " + LOGOUT_REQUEST + " occurence");
+        }
+        Node responseNode = responseNodes.item(0);
+        if (!(responseNode instanceof Element)) {
+            SaaSSystemException se = new SaaSSystemException(
+                    "Malformed " + LOGOUT_REQUEST + " element.");
+            logger.logError(Log4jLogger.SYSTEM_LOG, se,
+                    LogMessageIdentifier.ERROR_MALFORMED_ELEMENT, LOGOUT_REQUEST);
+            throw se;
+        }
+        return (Element) responseNode;
+    }
+
+    public Element getIssuerElement() {
+        NodeList responseNodes = parser.parseTags(ISSUER);
+        if (responseNodes.getLength() < 1) {
+            throw new IllegalStateException("No " + ISSUER + " occurence");
+        }
+        if (responseNodes.getLength() > 1) {
+            throw new IllegalStateException("Duplicate " + ISSUER + " occurence");
+        }
+        Node responseNode = responseNodes.item(0);
+        if (!(responseNode instanceof Element)) {
+            SaaSSystemException se = new SaaSSystemException(
+                    "Malformed " + ISSUER + " element.");
+            logger.logError(Log4jLogger.SYSTEM_LOG, se,
+                    LogMessageIdentifier.ERROR_MALFORMED_ELEMENT, ISSUER);
+            throw se;
+        }
+        return (Element) responseNode;
     }
 
     static class XmlParser {

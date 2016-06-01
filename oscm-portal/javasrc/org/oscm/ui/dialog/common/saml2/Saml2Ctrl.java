@@ -22,7 +22,6 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.Cookie;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -32,8 +31,8 @@ import javax.xml.transform.TransformerException;
 
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
@@ -62,8 +61,8 @@ public class Saml2Ctrl{
     @ManagedProperty(value = "#{saml2Model}")
     private Saml2Model model;
 
-    @EJB(beanInterface = SamlService.class)
-    private SamlService samlBean;
+    @EJB(beanInterface = SignerService.class)
+    private SignerService samlBean;
 
     @EJB(beanInterface = SessionService.class)
     private SessionService sessionService;

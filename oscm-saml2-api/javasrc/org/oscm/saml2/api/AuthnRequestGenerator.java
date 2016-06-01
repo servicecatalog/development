@@ -21,6 +21,7 @@ import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SamlService;
+import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
@@ -46,7 +47,7 @@ public class AuthnRequestGenerator {
     private String issuer;
     private Boolean isHttps;
     private String requestId;
-    private SamlService samlBean;
+    private SignerService samlBean;
 
     public AuthnRequestGenerator(String issuer, Boolean isHttps) {
         this.issuer = issuer;
@@ -55,7 +56,7 @@ public class AuthnRequestGenerator {
     }
 
     public AuthnRequestGenerator(String issuer, Boolean isHttps,
-            ConfigurationService configurationService, SamlService samlBean) {
+            ConfigurationService configurationService, SignerService samlBean) {
         this(issuer, isHttps);
         this.configService = configurationService;
         this.samlBean = samlBean;
@@ -163,19 +164,9 @@ public class AuthnRequestGenerator {
         JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
                 .createLogoutRequest(logoutRequest);
 
-        Element element = null;
-        final Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
-        try {
-            final Document document = marshaller.marshallElement(logoutRequestJAXB);
-            element = samlBean
-                    .signLogoutRequestElement(document.getDocumentElement());
+        try{
+            samlBean.signLogoutRequest(logoutRequestJAXB);
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        try {
-            logoutRequestJAXB = marshaller.unmarshallDocument(element,LogoutRequestType.class);
-        } catch (JAXBException e) {
             e.printStackTrace();
         }
         logoutRequest = logoutRequestJAXB.getValue();
