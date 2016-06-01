@@ -13,6 +13,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.spy;
 
+import java.io.File;
 import java.io.FileInputStream;
 
 import javax.xml.transform.TransformerException;
@@ -37,6 +38,8 @@ import org.oscm.internal.types.exception.UserIdNotFoundException;
 public class SAMLResponseExtractorTest {
 
     private final String FILE_UNSIGNED_RESPONSE = "javares/unsignedResponse.xml";
+    private final String FILE_UNSIGNED_LOGOUT_RESPONSE = "javares/openamUnsignedLogoutResponse.xml";
+    private final String FILE_UNSIGNED_LOGOUT_RESPONSE_INVALID_STATUS = "javares/openamUnsignedLogoutResponse_InvalidStatus.xml";
     private final String FILE_UNSIGNED_RESPONSE_MISSING_USERID = "javares/unsignedResponse_missingUserid.xml";
     private final String FILE_UNSIGNED_ASSERTION = "javares/unsignedAssertion.xml";
     private final String FILE_UNSIGNED_ASSERTION_MISSING_USERID = "javares/unsignedAssertion_noConfirmationData_noUserid.xml";
@@ -64,7 +67,7 @@ public class SAMLResponseExtractorTest {
     }
 
     private String getEncodedIdpResponse(String unsignedResponse)
-            throws Exception, TransformerException {
+            throws Exception {
         Document document = loadDocument(unsignedResponse);
         String idpResponse = XMLConverter.convertToString(document, true);
         String encodedIdpResponse = encode(idpResponse);
@@ -131,6 +134,27 @@ public class SAMLResponseExtractorTest {
         samlResponse.getUserId(encodedIdpResponse);
 
         // then a UserIdNotFoundException is expected
+    }
+
+    @Test
+    public void getStatusCodeFromLogoutResponse() throws Exception {
+        // given
+        String response = getEncodedIdpResponse(FILE_UNSIGNED_LOGOUT_RESPONSE);
+        // when
+        String statusCode = samlResponse.getSAMLLogoutResponseStatusCode(response);
+
+        // then
+        assertEquals("Success", statusCode);
+    }
+    @Test
+    public void getStatusCodeFromLogoutResponse_invalid() throws Exception {
+        // given
+        String response = getEncodedIdpResponse(FILE_UNSIGNED_LOGOUT_RESPONSE_INVALID_STATUS);
+        // when
+        String statusCode = samlResponse.getSAMLLogoutResponseStatusCode(response);
+
+        // then
+        assertEquals("Success", statusCode);
     }
 
 }

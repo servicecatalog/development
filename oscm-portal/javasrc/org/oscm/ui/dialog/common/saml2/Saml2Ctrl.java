@@ -82,12 +82,12 @@ public class Saml2Ctrl{
         try {
             reqGenerator = getAuthnRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
-            model.setEncodedAuthnLogoutRequest(generateLogoutRequest(reqGenerator));
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
             storeRequestIdInSession(reqGenerator.getRequestId());
             if (fromLogout) {
+                model.setEncodedAuthnLogoutRequest(generateLogoutRequest(reqGenerator));
                 handleDeleteSession();
                 handleDeleteCookies();
             }
@@ -142,23 +142,6 @@ public class Saml2Ctrl{
                 getResponse().addCookie(cookie);
             }
         }
-    }
-
-    private <T> String signElement(JAXBElement<T> element) throws TransformerException {
-        Marshalling<T> marshaller = new Marshalling<>();
-        Document samlRequestDoc = null;
-        try {
-            samlRequestDoc = marshaller.marshallElement(element);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        samlRequestDoc = samlBean
-                .signLogoutRequestElement(
-                        samlRequestDoc.getDocumentElement())
-                .getOwnerDocument();
-        String authnRequestString = XMLConverter.convertToString(
-                samlRequestDoc, false);
-        return XMLConverter.removeEOLCharsFromXML(authnRequestString);
     }
 
     String getSessionId() {
