@@ -2941,7 +2941,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     Long.toString(targetProduct.getKey()));
             throw mpme;
         }
-        if (targetPriceModel.isChargeable()) {
+        if (targetPriceModel.isChargeable() && !isPaymentInfoHidden()) {
             PaymentDataValidator.validateNotNull(paymentInfo, voBillingContact);
             PaymentInfo pi = dataManager.getReference(PaymentInfo.class,
                     paymentInfo.getKey());
