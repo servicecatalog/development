@@ -19,6 +19,7 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.paginator.Pagination;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -30,7 +31,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscriptionAndCustomer;
 import org.oscm.internal.subscriptions.SubscriptionsService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.vo.VOSubscriptionDetails;
 

@@ -26,12 +26,13 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.components.response.Response;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.paginator.Filter;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.paginator.TableColumns;
 import org.oscm.sessionservice.local.SessionServiceLocal;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
@@ -172,7 +173,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
 
     @Test
     public void getSubscriptionsForOrgWithFiltering() throws Exception {
-        final org.oscm.paginator.Pagination pagination = new org.oscm.paginator.Pagination();
+        final PaginationFullTextFilter pagination = new PaginationFullTextFilter();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {

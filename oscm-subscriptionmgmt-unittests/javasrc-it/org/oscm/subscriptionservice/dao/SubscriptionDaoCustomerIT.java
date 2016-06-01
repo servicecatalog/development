@@ -11,6 +11,7 @@ package org.oscm.subscriptionservice.dao;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -24,21 +25,10 @@ import javax.persistence.Query;
 import org.junit.Test;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.paginator.Filter;
 import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
@@ -46,10 +36,12 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
+import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
@@ -194,6 +186,62 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         // then
         assertEquals(1, result.size());
         assertEquals(key4, result.get(0).getKey());
+
+    }
+
+    @Test
+    public void getSubscriptionsWithDefaultUdaValuesAndVendor()
+            throws Exception {
+        // given
+        final UdaDefinition udaWithoutDefaultValButWithAfterSubscribing = runTX(new Callable<UdaDefinition>() {
+            @Override
+            public UdaDefinition call() throws Exception {
+                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION, "CUSTOMER_SUBSCRIPTION", "",
+                        UdaConfigurationType.USER_OPTION_OPTIONAL);
+            }
+        });
+        final UdaDefinition udaDefinitionWithValue = runTX(new Callable<UdaDefinition>() {
+            @Override
+            public UdaDefinition call() throws Exception {
+                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION, "CUSTOMER_SUBSCRIPTION2", "defaultValue",
+                        UdaConfigurationType.USER_OPTION_OPTIONAL);
+            }
+        });
+        final Subscription sub1 = createSubscription(customer1.getOrganizationId(),
+                product.getProductId(), "sub1", supplier1, null, null);
+        final Subscription sub4 = createSubscription(supplier1.getOrganizationId(),
+                product.getProductId(), "sub4", supplier1, null, null);
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Udas.createUda(ds, sub1, udaWithoutDefaultValButWithAfterSubscribing, "");
+                Udas.createUda(ds, sub1, udaDefinitionWithValue, "assignedValue");
+                Udas.createUda(ds, sub4, udaDefinitionWithValue, "assignedValue");
+                UdaDefinition udaDefinition = ds.find(UdaDefinition.class, udaWithoutDefaultValButWithAfterSubscribing.getKey());
+                udaDefinition.setDefaultValue("defaultValue");
+                ds.persist(udaDefinition);
+                return null;
+            }
+        });
+
+        final Set<Long> set = new HashSet<>();
+        set.addAll(Arrays.asList(Long.valueOf(sub1.getKey()), Long.valueOf(sub4.getKey())));
+
+        final Pagination pagination = new Pagination();
+        pagination.setFilterSet(new HashSet<Filter>());
+
+        // when
+        List<BigInteger> result = runTX(new Callable<List<BigInteger>>() {
+            @Override
+            public List<BigInteger> call() throws Exception {
+                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(customerAdmin1, SUB_STATES, set);
+            }
+        });
+
+        // then
+        assertEquals(1, result.size());
+        assertEquals(sub1.getKey(), result.get(0).longValue());
 
     }
 

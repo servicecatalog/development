@@ -42,18 +42,7 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.backend.impl.jms.AbstractJMSHibernateSearchController;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.domobjects.index.IndexRequestMessage;
@@ -166,15 +155,15 @@ public class IndexRequestMasterListener extends
                         Product.class));
                 return;
             }
-            handleProductIndexing(product);
+            handleObjectIndexing(object);
             return;
         }
         if (object instanceof PriceModel) {
-            handleProductIndexing(((PriceModel) object).getProduct());
+            handleObjectIndexing(((PriceModel) object).getProduct());
             return;
         }
         if (object instanceof CatalogEntry) {
-            handleProductIndexing(((CatalogEntry) object).getProduct());
+            handleObjectIndexing(((CatalogEntry) object).getProduct());
             return;
         }
         if (object instanceof TechnicalProductTag) {
@@ -201,7 +190,7 @@ public class IndexRequestMasterListener extends
         if (object instanceof Subscription) {
             Subscription subscription = (Subscription) object;
             if (isSubscriptionDeactivatedOrInvalid(subscription)) {
-                handleSubscriptionIndexing(subscription);
+                handleObjectIndexing(object);
             }
             return;
         }
@@ -213,15 +202,18 @@ public class IndexRequestMasterListener extends
                     Subscription subscription = product.getOwningSubscription();
                     if (subscription != null
                             && isSubscriptionDeactivatedOrInvalid(subscription)) {
-                        handleParameterIndexing(parameter);
+                        handleObjectIndexing(parameter);
                     }
                 }
                 return;
             }
         }
         if (object instanceof Uda) {
-            Uda uda = (Uda) object;
-            handleUdaIndexing(uda);
+            handleObjectIndexing(object);
+            return;
+        }
+        if (object instanceof UdaDefinition) {
+            handleObjectIndexing(object);
             return;
         }
     }
@@ -229,10 +221,6 @@ public class IndexRequestMasterListener extends
     private boolean isSubscriptionDeactivatedOrInvalid(Subscription subscription) {
         return subscription.getStatus() != SubscriptionStatus.DEACTIVATED
                 && subscription.getStatus() != SubscriptionStatus.INVALID;
-    }
-
-    private void handleProductIndexing(Product product) {
-        handleProductIndexing(Collections.singletonList(product));
     }
 
     private void handleProductIndexing(Collection<Product> products) {
@@ -247,33 +235,14 @@ public class IndexRequestMasterListener extends
         }
     }
 
-    private void handleSubscriptionIndexing(Subscription subscription) {
-        Session session = getSession();
-        if (session != null) {
-            FullTextSession fts = Search.getFullTextSession(session);
-            if (subscription != null) {
-                fts.index(subscription);
-            }
+    private void handleObjectIndexing(Object parameter) {
+        if (parameter == null) {
+            return;
         }
-    }
-
-    private void handleParameterIndexing(Parameter parameter) {
         Session session = getSession();
         if (session != null) {
             FullTextSession fts = Search.getFullTextSession(session);
-            if (parameter != null) {
-                fts.index(parameter);
-            }
-        }
-    }
-
-    private void handleUdaIndexing(Uda uda) {
-        Session session = getSession();
-        if (session != null) {
-            FullTextSession fts = Search.getFullTextSession(session);
-            if (uda != null) {
-                fts.index(uda);
-            }
+            fts.index(parameter);
         }
     }
 

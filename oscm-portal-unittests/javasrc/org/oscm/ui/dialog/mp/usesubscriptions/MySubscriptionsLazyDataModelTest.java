@@ -23,6 +23,7 @@ import javax.faces.context.ExternalContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.paginator.PaginationInt;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.ArrangeableState;
@@ -273,8 +274,8 @@ public class MySubscriptionsLazyDataModelTest {
         int totalCount = 1;
         List<POSubscription> expectedList = prepareList();
         Response resp = new Response(expectedList);
-        when(subscriptionsService.getMySubscriptionsWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(resp);
-        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
             public List<FilterField> getFilterFields() {
@@ -312,8 +313,8 @@ public class MySubscriptionsLazyDataModelTest {
         Response resp = new Response(expectedList);
         POSubscription selectedSubscription = mock(POSubscription.class);
         when(selectedSubscription.getKey()).thenReturn(-1L);
-        when(subscriptionsService.getMySubscriptionsWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(resp);
-        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(org.oscm.paginator.Pagination.class))).thenReturn(totalCount);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
         when(subscriptionsService.getMySubscriptionDetails(-1L)).thenReturn(null);
         ArrangeableState arrangeable = new ArrangeableState() {
             @Override
