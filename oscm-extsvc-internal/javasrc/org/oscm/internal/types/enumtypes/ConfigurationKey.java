@@ -387,7 +387,9 @@ public enum ConfigurationKey {
     TIMER_INTERVAL_USER_COUNT(true, "43200000", "long", Long.valueOf(1L), Long
             .valueOf(9223372036854775807L), false),
 
-    @Doc({ "Specifies whether payment information is required for subscribing services for all customers" })
+    @Doc({ "Specifies whether payment information is required for subscribing to services ",
+    	   "that use the native billing system and are not free of charge. ",
+    	   "Once set, the value cannot be changed."})
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, "false", "boolean");
 

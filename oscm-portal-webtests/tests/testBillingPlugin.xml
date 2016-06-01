@@ -251,7 +251,7 @@
       <verifyXPath xpath="//a[@id='editForm:uploadExternalPriceModelButton']" />
       <verifyXPath xpath="//span[@id='editForm:displayExternalPriceModelButtonDisabled']" />
       <clickElement htmlId="editForm:uploadExternalPriceModelButton" />
-      <verifyText text="External price model has been successfully imported." />
+      <verifyText text="The external price model has been successfully imported." />
       <clickElement htmlId="editForm:saveButton" />
       <verifyText text="has been successfully saved." />
       <login.logout />
