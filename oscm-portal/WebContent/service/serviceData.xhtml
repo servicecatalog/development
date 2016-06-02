@@ -131,9 +131,9 @@
 						value="#{msg['button.display']}" type="submit"
 						buttonType="preview" />
 
-					<h:commandButton id="hiddenDisplayExternalPriceModelButton"
-						action="#{partnerServiceViewCtrl.display}" style="display:none"
-						render="mainTmplMessagesPanel" />
+					<h:commandLink id="hiddenDisplayExternalPriceModelButton"
+						action="#{partnerServiceViewCtrl.display}" style="display:none" value="ShowPDF"
+						render="mainTmplMessagesPanel" target="_blank"/>
 				</adm:buttonPanel>
 
 			</a4j:outputPanel>
