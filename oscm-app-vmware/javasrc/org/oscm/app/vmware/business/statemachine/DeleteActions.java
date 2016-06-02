@@ -12,6 +12,7 @@ import java.util.Collections;
 
 import org.oscm.app.v1_0.data.InstanceStatus;
 import org.oscm.app.v1_0.data.ProvisioningSettings;
+import org.oscm.app.v1_0.exceptions.APPlatformException;
 import org.oscm.app.vmware.business.VM;
 import org.oscm.app.vmware.business.VMPropertyHandler;
 import org.oscm.app.vmware.business.statemachine.api.StateMachineAction;
@@ -29,6 +30,47 @@ public class DeleteActions extends Actions {
             .getLogger(DeleteActions.class);
 
     private static final String EVENT_DELETING = "deleting";
+
+    @StateMachineAction
+    public String checkVMExists(String instanceId,
+            ProvisioningSettings settings, InstanceStatus result) {
+
+        logger.debug("instance: " + instanceId);
+        String eventId = "exists";
+        VMPropertyHandler ph = new VMPropertyHandler(settings);
+        String instanceName = null;
+        try {
+            instanceName = ph.getInstanceName();
+        } catch (APPlatformException e1) {
+            logger.error("Failed to retrieve instancename");
+        }
+
+        String vcenter = ph
+                .getServiceSetting(VMPropertyHandler.TS_TARGET_VCENTER_SERVER);
+        VMwareClient vmClient = null;
+        try {
+            vmClient = VMClientPool.getInstance().getPool()
+                    .borrowObject(vcenter);
+            VM vm = new VM(vmClient, instanceName);
+            vm.isRunning();
+            eventId = "exists";
+        } catch (Exception e) {
+            eventId = "not exists";
+        } finally {
+            if (vmClient != null) {
+                try {
+                    VMClientPool.getInstance().getPool().returnObject(vcenter,
+                            vmClient);
+                } catch (Exception e) {
+                    logger.error("Failed to return VMware client into pool", e);
+                }
+            }
+        }
+
+        logger.debug("instance " + instanceName + " " + eventId);
+
+        return eventId;
+    }
 
     @SuppressWarnings("resource")
     @StateMachineAction
