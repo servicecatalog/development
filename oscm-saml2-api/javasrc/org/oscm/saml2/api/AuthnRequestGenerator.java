@@ -17,17 +17,13 @@ import org.apache.commons.codec.binary.Base64;
 
 import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
-import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.saml2.api.model.protocol.NameIDPolicyType;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,8 +43,6 @@ public class AuthnRequestGenerator {
     private String requestId;
     private SignerService samlBean;
 
-    private static final Log4jLogger logger = LoggerFactory
-            .getLogger(AuthnRequestGenerator.class);
     public AuthnRequestGenerator(String issuer, Boolean isHttps) {
         this.issuer = issuer;
         this.isHttps = isHttps;
@@ -178,8 +172,6 @@ public class AuthnRequestGenerator {
             Element signed = samlBean.signLogoutRequest(marshaled);
             logoutRequestJAXB = unmarshallJAXBElement(signed);
         } catch (Exception e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_SIGNING_SAML_FAULT);
             //TODO: remove it, new exception should be thrown from signer.
             throw new SaaSSystemException(e);
         }

@@ -22,7 +22,6 @@ import org.oscm.converter.XMLConverter;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 import org.w3c.dom.Document;
@@ -64,8 +63,6 @@ public class SAMLResponseExtractor {
 
     private static final String STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR = "//*[local-name()='Status']//*[local-name()='StatusCode']//@*[local-name()='Value']";
 
-    private static final Log4jLogger logger = LoggerFactory
-            .getLogger(SAMLResponseExtractor.class);
 
 
 
@@ -246,10 +243,9 @@ public class SAMLResponseExtractor {
         try {
             return decode(encodedSamlResponse).contains("LogoutResponse");
         } catch (IOException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
+            // TODO: Add specific exception
+            throw new RuntimeException(e);
         }
-        return false;
     }
 
     public String getSAMLLogoutResponseStatusCode(String encodedSamlResponse) {
@@ -257,19 +253,13 @@ public class SAMLResponseExtractor {
         try {
             document = XMLConverter.convertToDocument(decode(encodedSamlResponse),
                     true);
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
-        }
-        try {
             String resultWithNameSpace = XMLConverter.getNodeTextContentByXPath(document,
                     STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR);
             return removeNameSpaceFromStatus(resultWithNameSpace);
-        } catch (XPathExpressionException e) {
-            logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                    LogMessageIdentifier.ERROR_SAML_RESPONSE_PROCESSING);
+        } catch (ParserConfigurationException | SAXException | IOException |XPathExpressionException e) {
+            // TODO: Add specific exception
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     private String removeNameSpaceFromStatus(String statusWithNameSpace) {
