@@ -33,7 +33,7 @@
     <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
 
       <mp:subscriptionProcess active="configuration"
-        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
+        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable and not subscriptionWizardConversation.paymentConfigurationHidden}"
         service="#{subscriptionWizardConversation.model.service}" bean="#{subscriptionWizardConversation}">
 
         <!-- TABS -->

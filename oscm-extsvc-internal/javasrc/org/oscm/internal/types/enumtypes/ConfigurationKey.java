@@ -391,7 +391,7 @@ public enum ConfigurationKey {
     	   "that use the native billing system and are not free of charge. ",
     	   "Once set, the value cannot be changed."})
     @Example("false")
-    HIDE_PAYMENT_INFORMATION(false, "false", "boolean");
+    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true);
 
     // //////////////////////////////////////////////////////////////////////////////////
 
