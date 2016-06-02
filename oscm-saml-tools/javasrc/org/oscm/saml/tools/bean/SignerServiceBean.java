@@ -4,7 +4,6 @@
 
 package org.oscm.saml.tools.bean;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -17,9 +16,6 @@ import org.oscm.internal.intf.SignerService;
 import org.oscm.saml.api.Saml20Signer;
 import org.oscm.saml.api.SamlSigner;
 import org.oscm.saml.tools.Saml20KeyLoader;
-import org.oscm.saml2.api.Marshalling;
-import org.oscm.saml2.api.model.protocol.LogoutRequestType;
-
 import org.w3c.dom.Element;
 
 @Stateless
