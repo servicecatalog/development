@@ -186,9 +186,14 @@
     AdmUtils.contentsTitle();
     AdmUtils.setInfoPanel("progressMessages");
     AdmUtils.setInfoPanel("infoMessages");
-    
+
+    var currentViewId = "#{facesContext.viewRoot.viewId}";
+    var recoverPasswordView = currentViewId.indexOf("recoverPassword.xhtml");
+    var confirmRecoverPasswordView = currentViewId.indexOf("confirmStartPwdRecovery.xhtml");
     if(#{isMplRestricted and empty userBean.loggedInUser}){
-    	showLoginPanel('/marketplace/index.jsf');
+      if (recoverPasswordView == -1 &amp;&amp; confirmRecoverPasswordView == -1) {
+    	  showLoginPanel('/marketplace/index.jsf');
+    	}
     }
   </script>
   <h:outputText escape="false" value="#{trackingCodeCtrl.trackingCodeForCurrentMarketplace}" />

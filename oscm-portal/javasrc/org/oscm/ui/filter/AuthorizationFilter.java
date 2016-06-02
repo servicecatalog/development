@@ -673,6 +673,14 @@ public class AuthorizationFilter extends BaseBesFilter {
         return false;
     }
 
+    private MarketplaceService lookupMarketplaceService(
+        HttpServletRequest httpRequest) {
+        ServiceAccess serviceAccess = ServiceAccess
+            .getServiceAcccessFor(httpRequest.getSession());
+        return serviceAccess
+            .getService(MarketplaceService.class);
+    }
+
     boolean handleLoggedInUser(FilterChain chain,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             ServiceAccess serviceAccess, AuthorizationRequestData rdo)
@@ -680,6 +688,7 @@ public class AuthorizationFilter extends BaseBesFilter {
 
         VOUserDetails userDetails = rdo.getUserDetails();
         if (userDetails != null) {
+
             // if the user wants to use another organization he must login
             // again (the service sessions are destroyed as well)
 
