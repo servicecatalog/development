@@ -1,7 +1,12 @@
 <!-- Copyright FUJITSU LIMITED 2016-->
 <states class="org.oscm.app.vmware.business.statemachine.DeleteActions">
   
-  <state id="BEGIN" action="checkVMRunning">
+  <state id="BEGIN" action="checkVMExists">
+    <event id="not exists" state="SEND_MAIL_TO_ADMINISTRATOR" />
+    <event id="exists" state="CHECK_VM_RUNNING" />
+  </state>
+  
+  <state id="CHECK_VM_RUNNING" action="checkVMRunning">
     <event id="not running" state="DELETE" />
     <event id="running" state="STOP" />
     <event id="failed" state="ERROR" />
