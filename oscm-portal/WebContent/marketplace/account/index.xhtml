@@ -61,7 +61,7 @@
       </a4j:outputPanel>
 
       <a4j:outputPanel id="payments" layout="block" styleClass="col2span marginCenter marginBottomDefault"
-        rendered="#{userBean.loggedInAndAdmin and empty appBean.hiddenUIElements['marketplace.navigation.Payment']}">
+        rendered="#{userBean.loggedInAndAdmin and empty appBean.hiddenUIElements['marketplace.navigation.Payment'] and appBean.paymentInfoAvailable}">
         <a4j:outputPanel layout="block" styleClass="box serviceBox2span">
           <mp:outputStep value="#{msg['marketplace.account.payments.title']}" />
           <a4j:outputPanel layout="block" styleClass="accountBox">

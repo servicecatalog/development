@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
+import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
@@ -83,12 +84,16 @@ public class SubscriptionServicePendingUpdateStatusTest extends
     private static final long SUBSCRIPTION_KEY = 1000L;
     private static final String SUBSCRIPTION_ID = "subId";
     private DataService ds;
-
+    private ConfigurationServiceLocal cfgService;
+    
     @Before
     public void setup() throws Exception {
 
         bean = createMocksAndSpys();
-
+        
+        cfgService = mock(ConfigurationServiceLocal.class);
+        bean.cfgService = cfgService;
+        
         PlatformUser user = new PlatformUser();
         Organization org = new Organization();
         user.setOrganization(org);
@@ -124,7 +129,7 @@ public class SubscriptionServicePendingUpdateStatusTest extends
                 bean.prodSessionMgmt
                         .getProductSessionsForSubscriptionTKey(anyLong()))
                 .thenReturn(new ArrayList<Session>());
-
+        doReturn(true).when(cfgService).isPaymentInfoAvailable();
     }
 
     private SubscriptionServiceBean createMocksAndSpys() throws Exception {

@@ -26,7 +26,8 @@ import org.oscm.domobjects.annotations.BusinessKey;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {
         "organization_tkey", "billingContactId" }))
-@NamedQueries({ @NamedQuery(name = "BillingContact.findByBusinessKey", query = "select bc from BillingContact bc where bc.dataContainer.billingContactId=:billingContactId and bc.organization_tkey=:organization_tkey") })
+@NamedQueries({ @NamedQuery(name = "BillingContact.findByBusinessKey", query = "select bc from BillingContact bc where bc.dataContainer.billingContactId=:billingContactId and bc.organization_tkey=:organization_tkey"),
+    @NamedQuery(name = "BillingContact.findByOrgAndAddress", query = "select bc from BillingContact bc where bc.dataContainer.address=:address and bc.organization_tkey=:organization_tkey and bc.dataContainer.email=:email and bc.dataContainer.orgAddressUsed='TRUE'")})
 @BusinessKey(attributes = { "billingContactId", "organization_tkey" })
 public class BillingContact extends DomainObjectWithHistory<BillingContactData> {
 

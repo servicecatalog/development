@@ -18,11 +18,11 @@ import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POSubscription;
+import org.oscm.paginator.Pagination;
 import org.oscm.paginator.PaginationInt;
 import org.oscm.subscriptionservice.converter.SubscriptionListConverter;
 import org.oscm.subscriptionservice.dao.SubscriptionDao;
@@ -127,28 +127,9 @@ public class SubscriptionListServiceBean
         return new UsageLicenseDao(ds);
     }
 
-    @Deprecated
     @Override
     public List<Subscription> getSubscriptionsForOrganization(
             Set<SubscriptionStatus> states, Pagination pagination)
-                    throws OrganizationAuthoritiesException {
-        List<Subscription> result;
-        PlatformUser currentUser = ds.getCurrentUser();
-        if (currentUser.isOrganizationAdmin()) {
-            result = getSubscriptionsForOrg(currentUser, pagination, states);
-        } else {
-            Set<UserRoleType> userRoleTypes = currentUser
-                    .getAssignedRoleTypes();
-            userRoleTypes.retainAll(getValidRoleTypes());
-            result = getSubscriptionDao().getSubscriptionsForUserWithRoles(
-                    userRoleTypes, currentUser, pagination, states);
-        }
-        return result;
-    }
-
-    @Override
-    public List<Subscription> getSubscriptionsForOrganization(
-            Set<SubscriptionStatus> states, org.oscm.paginator.Pagination pagination)
                     throws OrganizationAuthoritiesException {
         List<Subscription> result;
         PlatformUser currentUser = ds.getCurrentUser();
@@ -189,16 +170,8 @@ public class SubscriptionListServiceBean
         return validRoleTypes;
     }
 
-    @Deprecated
     private List<Subscription> getSubscriptionsForOrg(PlatformUser user,
             Pagination pagination, Set<SubscriptionStatus> states) {
-        return getSubscriptionDao().getSubscriptionsForOrg(user, pagination,
-                states);
-
-    }
-
-    private List<Subscription> getSubscriptionsForOrg(PlatformUser user,
-                                                      org.oscm.paginator.Pagination pagination, Set<SubscriptionStatus> states) {
         return getSubscriptionDao().getSubscriptionsForOrg(user, pagination,
                 states);
 
@@ -209,12 +182,6 @@ public class SubscriptionListServiceBean
         return getSubscriptionDao().getSubscriptionsForOrgWithFiltering(user, pagination,
                 states, subscriptionKeys);
 
-    }
-
-    @Override
-    public List<Subscription> getSubscriptionsForOwner(PlatformUser owner,
-            Pagination pagination) throws OrganizationAuthoritiesException {
-        return getSubscriptionDao().getSubscriptionsForOwner(owner, pagination);
     }
 
     @Override

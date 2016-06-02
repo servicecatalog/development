@@ -69,5 +69,14 @@ public interface ConfigurationService {
      * @see ConfigurationKey#AUTH_MODE
      */
     public boolean isServiceProvider();
+    
+    /**
+     * checks if payment information is available
+     * 
+     * @return <code>true</code> if information is available (default value), otherwise
+     *         <code>false</code>
+     * @see ConfigurationKey#HIDDEN_UI_ELEMENTS
+     */
+    public boolean isPaymentInfoAvailable();
 
 }

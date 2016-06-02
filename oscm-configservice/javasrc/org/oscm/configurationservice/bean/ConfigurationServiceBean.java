@@ -53,8 +53,8 @@ import org.oscm.internal.vo.VOConfigurationSetting;
 @Interceptors({ ExceptionMapper.class })
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
-public class ConfigurationServiceBean implements ConfigurationService,
-        ConfigurationServiceLocal {
+public class ConfigurationServiceBean
+        implements ConfigurationService, ConfigurationServiceLocal {
 
     private static Log4jLogger logger = LoggerFactory
             .getLogger(ConfigurationServiceBean.class);
@@ -82,9 +82,8 @@ public class ConfigurationServiceBean implements ConfigurationService,
     }
 
     private void addToCache(ConfigurationSetting configSetting) {
-        cache.put(
-                getKey(configSetting.getInformationId(),
-                        configSetting.getContextId()), configSetting);
+        cache.put(getKey(configSetting.getInformationId(),
+                configSetting.getContextId()), configSetting);
     }
 
     private String getKey(ConfigurationKey informationId, String contextId) {
@@ -102,8 +101,8 @@ public class ConfigurationServiceBean implements ConfigurationService,
         ConfigurationSetting result = cache
                 .get(getKey(informationId, contextId));
         if (result == null) {
-            result = cache.get(getKey(informationId,
-                    Configuration.GLOBAL_CONTEXT));
+            result = cache
+                    .get(getKey(informationId, Configuration.GLOBAL_CONTEXT));
         }
 
         if (result == null) {
@@ -172,14 +171,14 @@ public class ConfigurationServiceBean implements ConfigurationService,
     public boolean isCustomerSelfRegistrationEnabled() {
         return getConfigurationSetting(
                 ConfigurationKey.CUSTOMER_SELF_REGISTRATION_ENABLED,
-                Configuration.GLOBAL_CONTEXT).getValue().equalsIgnoreCase(
-                "true");
+                Configuration.GLOBAL_CONTEXT).getValue()
+                        .equalsIgnoreCase("true");
     }
 
     @Override
     public boolean isServiceProvider() {
-        return AuthenticationMode.SAML_SP.name().equals(
-                getConfigurationSetting(ConfigurationKey.AUTH_MODE,
+        return AuthenticationMode.SAML_SP.name()
+                .equals(getConfigurationSetting(ConfigurationKey.AUTH_MODE,
                         Configuration.GLOBAL_CONTEXT).getValue());
     }
 
@@ -199,9 +198,7 @@ public class ConfigurationServiceBean implements ConfigurationService,
                 try {
                     dm.persist(configSetting);
                 } catch (NonUniqueBusinessKeyException e) {
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_PERSIST_CONFIGURATION_SETTING);
                 }
             }
@@ -272,8 +269,8 @@ public class ConfigurationServiceBean implements ConfigurationService,
         } else {
             BigDecimal oneDay = new BigDecimal(
                     DateConverter.MILLISECONDS_PER_DAY);
-            configuredDays = new BigDecimal(configuredBillingOffset).divide(
-                    oneDay, RoundingMode.DOWN);
+            configuredDays = new BigDecimal(configuredBillingOffset)
+                    .divide(oneDay, RoundingMode.DOWN);
         }
         return configuredDays.longValue() * DateConverter.MILLISECONDS_PER_DAY;
     }
@@ -305,6 +302,16 @@ public class ConfigurationServiceBean implements ConfigurationService,
                     Configuration.GLOBAL_CONTEXT).getValue();
         }
         return baseUrl;
+    }
+
+    @Override
+    public boolean isPaymentInfoAvailable() {
+
+        String setting = getConfigurationSetting(
+                ConfigurationKey.HIDE_PAYMENT_INFORMATION,
+                Configuration.GLOBAL_CONTEXT).getValue();
+
+        return !Boolean.parseBoolean(setting);
     }
 
 }

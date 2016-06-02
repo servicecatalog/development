@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.junit.Test;
+import org.oscm.paginator.Pagination;
 import org.richfaces.model.ArrangeableState;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -25,7 +26,6 @@ import org.richfaces.model.SortField;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscriptionAndCustomer;
 import org.oscm.internal.subscriptions.SubscriptionsService;
-import org.oscm.internal.tables.Pagination;
 
 public class BPLazyDataModelTest {
 

@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,34 +42,10 @@ import javax.faces.component.html.HtmlSelectOneRadio;
 import javax.faces.event.ValueChangeEvent;
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.collect.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.internal.vo.VOUser;
-import org.oscm.json.JsonConverter;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.BillingContactBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.beans.OrganizationBean;
-import org.oscm.ui.beans.PaymentInfoBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UdaBean;
-import org.oscm.ui.beans.UserBean;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionsHelper;
-import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
-import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitModel;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.model.User;
-import org.oscm.ui.stubs.ApplicationStub;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.ResourceBundleStub;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.intf.SessionService;
@@ -113,6 +88,30 @@ import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.json.JsonConverter;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.BillingContactBean;
+import org.oscm.ui.beans.MenuBean;
+import org.oscm.ui.beans.OrganizationBean;
+import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
+import org.oscm.ui.beans.PaymentInfoBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UdaBean;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.mp.subscriptionwizard.SubscriptionsHelper;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitModel;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.UdaRow;
+import org.oscm.ui.model.User;
+import org.oscm.ui.stubs.ApplicationStub;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.ResourceBundleStub;
+
+import com.google.common.collect.Sets;
 
 public class ManageSubscriptionCtrlTest {
 
@@ -143,6 +142,7 @@ public class ManageSubscriptionCtrlTest {
     private SubscriptionUnitModel subscriptionUnitModel;
     private UserGroupService userGroupService;
     private OperatorService operatorService;
+    private PaymentAndBillingVisibleBean paymentAndBillingVisibleBean;
 
     @Before
     public void setup() throws SaaSApplicationException {
@@ -154,6 +154,7 @@ public class ManageSubscriptionCtrlTest {
         subscriptionServiceInternal = mock(SubscriptionServiceInternal.class);
         subscriptionService = mock(SubscriptionService.class);
         billingContactBean = mock(BillingContactBean.class);
+        paymentAndBillingVisibleBean = mock(PaymentAndBillingVisibleBean.class);
         ctrl.ui = mock(UiDelegate.class);
         subscriptionsHelper = mock(SubscriptionsHelper.class);
         paymentInfoBean = mock(PaymentInfoBean.class);
@@ -182,6 +183,7 @@ public class ManageSubscriptionCtrlTest {
         subscriptionUnitCtrl.setModel(subscriptionUnitModel);
         ctrl.setSubscriptionUnitCtrl(subscriptionUnitCtrl);
         ctrl.setUserGroupService(userGroupService);
+        ctrl.setPaymentAndBillingVisibleBean(paymentAndBillingVisibleBean);
         
 
         waitingForApprovalTriggerProcesses = new ArrayList<>();

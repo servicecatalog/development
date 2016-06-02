@@ -544,7 +544,7 @@ input#Search:focus, #subListForm\:search:focus {
 }
 
 #subListForm\:subscriptionSearch > span > div {
-    float: left
+    float: left;
 }
 
 #subListForm\:submitLink {

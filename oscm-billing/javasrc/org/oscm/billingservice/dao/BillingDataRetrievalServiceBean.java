@@ -149,9 +149,9 @@ public class BillingDataRetrievalServiceBean implements
             address = billingContactHistory.getAddress();
             email = billingContactHistory.getEmail();
         }
-
-        OrganizationAddressData data = new OrganizationAddressData(address,
-                name, email, organizationId);
+        name = name == null ? "" : name;
+        OrganizationAddressData data = new OrganizationAddressData(address == null ? "" : address,
+                name == null ? "" : name, email == null ? "" : email, organizationId);
         data.setPaymentTypeId(paymentTypeId);
         return data;
     }

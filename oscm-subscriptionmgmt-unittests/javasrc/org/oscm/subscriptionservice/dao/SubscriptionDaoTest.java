@@ -15,11 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.Test;
-import org.oscm.internal.tables.Pagination;
-import org.oscm.paginator.Filter;
-import org.oscm.paginator.SortOrder;
-import org.oscm.paginator.Sorting;
-import org.oscm.paginator.TableColumns;
+import org.oscm.paginator.*;
 
 /**
  * @author stavreva
