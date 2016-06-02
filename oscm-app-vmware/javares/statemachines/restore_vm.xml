@@ -2,15 +2,15 @@
 <states class="org.oscm.app.vmware.business.statemachine.RestoreActions">
 
   <state id="BEGIN" action="restoreSnapshot">
-    <event id="run" state="RUNNING" />
+    <event id="run" state="INSPECT" />
     <event id="success" state="END" />
     <event id="fail" state="ERROR" />
   </state>
   
-  <state id="RUNNING" action="inspectTaskResult">
+  <state id="INSPECT" action="inspectTaskResult">
     <event id="success" state="CHECK" />
-    <event id="running" state="RUNNING" />
-    <event id="queued" state="RUNNING" />
+    <event id="running" state="INSPECT" />
+    <event id="queued" state="INSPECT" />
     <event id="error" state="REPEAT_FAILED_STATE" />
   </state>
   
@@ -43,10 +43,6 @@
     <event id="failed" state="ERROR" />
   </state>  
   
-  <state id="END" action="finish">
-    <event id="success" state="SUCCESS" />
-  </state>
-
   <state id="REPEAT_FAILED_STATE" />
 
   <state id="ERROR" />
