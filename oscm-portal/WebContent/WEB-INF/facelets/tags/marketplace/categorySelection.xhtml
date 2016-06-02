@@ -45,7 +45,7 @@
                 <h:commandLink value="#{cat.displayName}" action="#{categorySelectionBean.selectByCategory}"
                   actionListener="#{serviceListingBean.reloadData}"
                   styleClass="#{cat.categoryId eq categorySelectionBean.selectedCategoryId ? 'selectedCategory' : 'categoryItem'}"
-                  onclick="if(#{isMplRestricted and empty userBean.loggedInUser}){showLoginPanel('/marketplace/services.jsf');}">
+                  onclick="if(#{isMplRestricted and empty userBean.loggedInUser}){showLoginPanel('/marketplace/index.jsf');return false;}">
                   <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}"
                     value="#{cat.categoryId}" />
                   <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}"
