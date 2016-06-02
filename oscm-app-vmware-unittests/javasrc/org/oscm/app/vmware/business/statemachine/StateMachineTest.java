@@ -12,6 +12,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXBContext;
@@ -103,7 +104,29 @@ public class StateMachineTest {
                 return state;
             }
         }
-        throw new RuntimeException("State '" + stateId + "' not found");
+        throw new IllegalStateException("State '" + stateId + "' not found");
+    }
+
+    private void checkStateUniqueness(States states) {
+        List<String> foundStates = new ArrayList<String>();
+        for (State s : states.getStates()) {
+            if (foundStates.contains(s.getId())) {
+                throw new IllegalStateException(
+                        "State " + s.getId() + " is defined multiple times.");
+            }
+            foundStates.add(s.getId());
+        }
+    }
+
+    @Test
+    public void activateVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("activate_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
+
+        // then no exception expected
     }
 
     @Test
@@ -124,6 +147,17 @@ public class StateMachineTest {
 
         // when
         ensureActionMethods(states);
+
+        // then no exception expected
+    }
+
+    @Test
+    public void createVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("create_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
 
         // then no exception expected
     }
@@ -151,6 +185,17 @@ public class StateMachineTest {
     }
 
     @Test
+    public void deactivateVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("deactivate_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
+
+        // then no exception expected
+    }
+
+    @Test
     public void deactivateVm_checkForBrokenTransitions() throws Exception {
         // given
         States states = loadStates("deactivate_vm.xml");
@@ -168,6 +213,17 @@ public class StateMachineTest {
 
         // when
         ensureActionMethods(states);
+
+        // then no exception expected
+    }
+
+    @Test
+    public void deleteVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("delete_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
 
         // then no exception expected
     }
@@ -195,6 +251,17 @@ public class StateMachineTest {
     }
 
     @Test
+    public void modifyVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("modify_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
+
+        // then no exception expected
+    }
+
+    @Test
     public void modifyVm_checkForBrokenTransitions() throws Exception {
         // given
         States states = loadStates("modify_vm.xml");
@@ -212,6 +279,17 @@ public class StateMachineTest {
 
         // when
         ensureActionMethods(states);
+
+        // then no exception expected
+    }
+
+    @Test
+    public void restartVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("restart_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
 
         // then no exception expected
     }
@@ -239,6 +317,17 @@ public class StateMachineTest {
     }
 
     @Test
+    public void restoreVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("restore_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
+
+        // then no exception expected
+    }
+
+    @Test
     public void restoreVm_checkForBrokenTransitions() throws Exception {
         // given
         States states = loadStates("restore_vm.xml");
@@ -256,6 +345,17 @@ public class StateMachineTest {
 
         // when
         ensureActionMethods(states);
+
+        // then no exception expected
+    }
+
+    @Test
+    public void snapshotVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("snapshot_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
 
         // then no exception expected
     }
@@ -283,6 +383,17 @@ public class StateMachineTest {
     }
 
     @Test
+    public void startVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("start_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
+
+        // then no exception expected
+    }
+
+    @Test
     public void startVm_checkForBrokenTransitions() throws Exception {
         // given
         States states = loadStates("start_vm.xml");
@@ -300,6 +411,17 @@ public class StateMachineTest {
 
         // when
         ensureActionMethods(states);
+
+        // then no exception expected
+    }
+
+    @Test
+    public void stopVm_checkStateUniqueness() throws Exception {
+        // given
+        States states = loadStates("stop_vm.xml");
+
+        // when
+        checkStateUniqueness(states);
 
         // then no exception expected
     }
