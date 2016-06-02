@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -72,7 +73,6 @@ public class Saml2CtrlTest {
     private HttpServletRequest requestMock;
     @Mock
     private ConfigurationService configServiceMock;
-    @Mock
     private Log4jLogger loggerMock;
     @Mock
     private Saml2Model saml2ModelMock;
@@ -95,6 +95,7 @@ public class Saml2CtrlTest {
         doReturn(TEST_RELAY_STATE).when(saml2Ctrl).getRelayState();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
+        loggerMock = Mockito.mock(Log4jLogger.class);
         doReturn(loggerMock).when(saml2Ctrl).getLogger();
 
         doReturn(voConfigSetting).when(configServiceMock)
