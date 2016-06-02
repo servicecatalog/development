@@ -18,11 +18,13 @@
 
         <h:form id="jsfForm">
             <a4j:jsFunction name="jsSubmitRedirectFunction" action="#{saml2Ctrl.initModelAndCheckForErrors}"
-                            render="saml2PostFormPanel" oncomplete="document.getElementById('saml2Form').submit()" />
+                            render="saml2PostFormPanel" oncomplete="document.getElementById('saml2Form').submit()">
+            <a4j:param name="fromLogout" assignTo="#{saml2Ctrl.fromLogout}"/>
+            </a4j:jsFunction>
         </h:form>
 
         <script type="text/javascript">
-        jsSubmitRedirectFunction();
+        jsSubmitRedirectFunction(true);
     </script>
     </h:body>
 </ui:composition>
