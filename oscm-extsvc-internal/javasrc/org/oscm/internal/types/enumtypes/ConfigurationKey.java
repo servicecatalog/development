@@ -389,7 +389,7 @@ public enum ConfigurationKey {
 
     @Doc({ "Specifies whether payment information is required for subscribing services for all customers" })
     @Example("false")
-    HIDE_PAYMENT_INFORMATION(false, "false", "boolean", true);
+    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true);
 
     // //////////////////////////////////////////////////////////////////////////////////
 
