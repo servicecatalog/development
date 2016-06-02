@@ -281,7 +281,7 @@ public enum ConfigurationKey {
     @Example("<C:/security/keys/cacert.der>")
     IDP_PUBLIC_CERTIFICATE_FILE_PATH(true),
 
-    @Doc({ "The URL to the public certificate file in DER (.der) format, added by the IDP to the signature of SAML messages, so a SP can validate the signature." })
+    @Doc({ "The URL to the public certificate file in DER (.der) format, added by the SP to the signature of SAML messages, so a IDP can validate the signature." })
     @Example("<C:/security/keys/cacert.der>")
     SP_PUBLIC_CERTIFICATE_FILE_PATH(false),
 
