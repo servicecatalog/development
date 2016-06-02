@@ -15,8 +15,7 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ResourceLoader;
-import org.oscm.saml.api.KeyLoader;
-import org.oscm.saml.api.KeyLoader.Algorithm;
+import org.oscm.saml2.tools.KeyLoader;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -67,7 +66,7 @@ public class Saml20KeyLoader {
             InputStream in = new BufferedInputStream(new FileInputStream(
                     privateKeyPath));
             byte[] bytes = ResourceLoader.load(in);
-            return KeyLoader.getPrivateKey(bytes, Algorithm.RSA);
+            return KeyLoader.getPrivateKey(bytes, KeyLoader.Algorithm.RSA);
         } catch (FileNotFoundException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Unable to read file: " + privateKeyPath + ". "

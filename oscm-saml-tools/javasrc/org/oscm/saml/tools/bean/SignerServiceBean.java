@@ -13,9 +13,8 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.SignerService;
-import org.oscm.saml.api.Saml20Signer;
-import org.oscm.saml.api.SamlSigner;
 import org.oscm.saml.tools.Saml20KeyLoader;
+import org.oscm.saml2.tools.Saml20Signer;
 import org.w3c.dom.Element;
 
 @Stateless
@@ -30,7 +29,7 @@ public class SignerServiceBean implements SignerService {
     public Element signLogoutRequest(Element logoutRequest) throws Exception {
         //TODO: new runtime exception - signature failed
         Saml20KeyLoader keyLoader = new Saml20KeyLoader(configService);
-        Saml20Signer signer = new SamlSigner(keyLoader.getPrivateKey());
+        Saml20Signer signer = new Saml20Signer(keyLoader.getPrivateKey());
 
         signer.setPublicCertificate(keyLoader.getPublicCertificate());
         return signer.signSamlElement(logoutRequest, null);
