@@ -160,10 +160,6 @@ public class ObjectFactory {
         return new NameIDType();
     }
 
-    public SignatureType createSignatureType() {
-        return new SignatureType();
-    }
-
     /**
      * Create an instance of {@link AuthzDecisionStatementType }
      * 

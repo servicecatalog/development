@@ -42,6 +42,7 @@ import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.saml2.api.AuthnRequestGenerator;
+import org.oscm.saml2.api.LogoutRequestGenerator;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.UiDelegate;
 
@@ -67,6 +68,8 @@ public class Saml2CtrlTest {
     private Saml2Ctrl saml2Ctrl = new Saml2Ctrl();
     @Mock
     private VOConfigurationSetting voConfigSetting;
+    @Mock
+    private LogoutRequestGenerator logoutReqGenMock;
     @Mock
     private AuthnRequestGenerator authnReqGenMock;
     @Mock
@@ -94,7 +97,7 @@ public class Saml2CtrlTest {
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
         doReturn(TEST_RELAY_STATE).when(saml2Ctrl).getRelayState();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
-        doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
+        doReturn(logoutReqGenMock).when(saml2Ctrl).getLogoutRequestGenerator();
         loggerMock = Mockito.mock(Log4jLogger.class);
         doReturn(loggerMock).when(saml2Ctrl).getLogger();
 
