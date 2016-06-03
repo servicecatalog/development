@@ -33,10 +33,9 @@ public class HeadersTest {
                     + "resources" + java.io.File.separator + "work",
             "oscm-integrationtests-setup" + java.io.File.separator
                     + "resources" + java.io.File.separator + "workapp",
-            "oscm-portal-webtests" + java.io.File.separator
-                    + "results", "oscm-build"
-                    + java.io.File.separator + "result", java.io.File.separator
-                    + "bin");
+            "oscm-portal-webtests" + java.io.File.separator + "results",
+            "oscm-build" + java.io.File.separator + "result",
+            java.io.File.separator + "bin");
 
     @Test
     public void testIsContainCopyrightHeader() {
@@ -46,7 +45,8 @@ public class HeadersTest {
         File[] files = dir.listFiles();
         for (int i = 0; i < files.length; i++) {
             if (files[i].isDirectory()
-                    && files[i].getName().startsWith("fujitsu-")) {
+                    && (files[i].getName().startsWith("oscm-") || files[i]
+                            .getName().startsWith("ess-oscm-"))) {
                 projectCollection.add(files[i].getAbsolutePath());
             }
         }
@@ -106,8 +106,8 @@ public class HeadersTest {
                             "<!-- Copyright FUJITSU LIMITED 2016-->");
                 } else if (fileName.toLowerCase().endsWith(".properties")) {
                     if (fileName.toLowerCase().contains(
-                            "oscm-common-unittests"
-                                    + java.io.File.separator + "junit")
+                            "oscm-common-unittests" + java.io.File.separator
+                                    + "junit")
                             || fileName.contains("wt.testInWork.properties")) {
                         continue;
                     }

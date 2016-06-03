@@ -186,9 +186,9 @@
     </ant>
   </target>
   
-    <target name="AWS install pack.BUILD" description="Builds the portal help war file into the BES domain,the result can be found in oscm-build/result/package/oscm-portal-help">
+    <target name="OSCM install pack.BUILD" description="Builds the portal help war file into the BES domain,the result can be found in oscm-build/result/package/oscm-portal-help">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
-      <property name="projects" value="oscm-aws-install-pack" />
+      <property name="projects" value="oscm-install-pack" />
     </ant>
   </target>
 

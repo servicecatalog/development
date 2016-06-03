@@ -33,7 +33,7 @@
     <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
 
       <mp:subscriptionProcess active="configuration"
-        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
+        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable and not subscriptionWizardConversation.paymentConfigurationHidden}"
         service="#{subscriptionWizardConversation.model.service}" bean="#{subscriptionWizardConversation}">
 
         <!-- TABS -->
@@ -121,7 +121,7 @@
 
 
           <!-- TAB: PRICE MODEL -->
-          <rich:tab header="#{msg['service.priceModel']}"
+          <rich:tab header="#{msg['service.priceModel']}" id="priceModelTab"
             rendered="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
             onheaderclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
             <h:form id="configurationForm2" style="margin-bottom: 10px;">
@@ -134,8 +134,9 @@
               <mp:pixelline />
               <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
                 bean="#{subscriptionWizardConversation}" action="previous" style="float: left;" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
-                action="selectService" style="float: right;" keepDirty="true" />
+              <mp:button id="nextLink" value="#{msg['button.next']}"
+                onclick="setDirty(false); event.preventDefault(); #{rich:element('configurationForm:next')}.click();"
+                style="float: right;" keepDirty="true" />
               <br />
               <br />
             </h:form>
@@ -155,8 +156,9 @@
               <mp:pixelline />
               <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
                 bean="#{subscriptionWizardConversation}" action="previous" style="float: left;" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
-                action="selectService" style="float: right;" keepDirty="true" />
+              <mp:button id="next" value="#{msg['button.next']}"
+                onclick="setDirty(false); event.preventDefault(); #{rich:element('configurationForm:next')}.click();"
+                style="float: right;" keepDirty="true" />
             </h:form>
           </rich:tab>
 

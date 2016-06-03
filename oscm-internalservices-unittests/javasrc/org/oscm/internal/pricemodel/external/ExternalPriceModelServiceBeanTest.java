@@ -1,6 +1,6 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2015                 
+ *  Copyright FUJITSU LIMITED 2016                 
  *                                                                                                                                 
  *  Creation Date: 15.12.2014                                                      
  *                                                                              
@@ -56,12 +56,9 @@ public class ExternalPriceModelServiceBeanTest {
     private static final UUID PRICE_MODEL_UUID = UUID
             .fromString("392b159e-e60a-41c4-8495-4fd4b6252ed9");
     private ExternalPriceModelServiceBean externalPriceModelBean;
-    private final PriceModelPluginBean priceModelPluginBeanMock = mock(
-            PriceModelPluginBean.class);
-    private final LocalizedBillingResourceDAO billingResourceDAOMock = mock(
-            LocalizedBillingResourceDAO.class);
-    private final OperatorServiceLocalBean operatorServiceMock = mock(
-            OperatorServiceLocalBean.class);
+    private final PriceModelPluginBean priceModelPluginBeanMock = mock(PriceModelPluginBean.class);
+    private final LocalizedBillingResourceDAO billingResourceDAOMock = mock(LocalizedBillingResourceDAO.class);
+    private final OperatorServiceLocalBean operatorServiceMock = mock(OperatorServiceLocalBean.class);
     private List<SupportedLanguage> languageList = getSupportedLanguages("en",
             "de", "ja");
     private DataService dm = mock(DataService.class);
@@ -80,19 +77,18 @@ public class ExternalPriceModelServiceBeanTest {
     public void getPriceModelPresentationFromCache() {
         // given
         LocalizedBillingResource resource = new LocalizedBillingResource();
-        doReturn(resource).when(billingResourceDAOMock)
-                .get(any(LocalizedBillingResource.class));
+        doReturn(resource).when(billingResourceDAOMock).get(
+                any(LocalizedBillingResource.class));
 
         // when
         LocalizedBillingResource result = externalPriceModelBean
-                .getPriceModelContentFromCache(Locale.ENGLISH,
-                        PRICE_MODEL_UUID);
+                .getPriceModelContentFromCache(Locale.ENGLISH, PRICE_MODEL_UUID);
 
         // then
         assertEquals(resource, result);
     }
 
-    //@Test(expected = ExternalPriceModelException.class)
+    // @Test(expected = ExternalPriceModelException.class)
     public void updateCacheWithException() throws Exception {
         // given
         PriceModel priceModel = new PriceModel(PRICE_MODEL_UUID);
@@ -102,26 +98,28 @@ public class ExternalPriceModelServiceBeanTest {
         externalPriceModelBean.updateCache(priceModel);
     }
 
-    //@SuppressWarnings("unchecked")
-    //@Test
-    public void updateCache()
-            throws BillingApplicationException, ExternalPriceModelException {
+    // @SuppressWarnings("unchecked")
+    // @Test
+    public void updateCache() throws BillingApplicationException,
+            ExternalPriceModelException {
         // given
         List<LocalizedBillingResource> resources = getLocalizedResources();
         PriceModel priceModel = new PriceModel(PRICE_MODEL_UUID);
         doReturn(resources).when(billingResourceDAOMock)
                 .update(any(List.class));
-        doReturn(getLocalizedPriceModelContent()).when(priceModelPluginBeanMock)
-                .getPriceModel(anyString(), any(Set.class), any(Map.class));
+        doReturn(getLocalizedPriceModelContent())
+                .when(priceModelPluginBeanMock).getPriceModel(anyString(),
+                        any(Set.class), any(Map.class));
         doReturn(resources).when(externalPriceModelBean)
-                .convertToLocalizedBillingResource(any(PriceModel.class), any(LocalizedBillingResourceType.class));
+                .convertToLocalizedBillingResource(any(PriceModel.class),
+                        any(LocalizedBillingResourceType.class));
 
         doReturn(dm).when(externalPriceModelBean).getDm();
         PlatformUser user = new PlatformUser();
         user.setLocale("de");
         doReturn(user).when(dm).getCurrentUser();
         // when
-        //externalPriceModelBean.updateCache(priceModel);
+        // externalPriceModelBean.updateCache(priceModel);
 
         // then
         verify(billingResourceDAOMock).update(resources);
@@ -153,11 +151,13 @@ public class ExternalPriceModelServiceBeanTest {
     private List<LocalizedBillingResource> getLocalizedResources() {
         List<LocalizedBillingResource> resources = new ArrayList<LocalizedBillingResource>();
         LocalizedBillingResource resourceEn = new LocalizedBillingResource();
-        resourceEn.setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
+        resourceEn
+                .setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
         resourceEn.setLocale("en");
         resources.add(resourceEn);
         LocalizedBillingResource resourceDe = new LocalizedBillingResource();
-        resourceDe.setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
+        resourceDe
+                .setResourceType(LocalizedBillingResourceType.PRICEMODEL_SERVICE);
         resourceDe.setLocale("de");
         resources.add(resourceEn);
         return resources;
@@ -167,8 +167,8 @@ public class ExternalPriceModelServiceBeanTest {
     public void getPriceModelTagWithCache() {
         // given
         LocalizedBillingResource resource = new LocalizedBillingResource();
-        doReturn(resource).when(billingResourceDAOMock)
-                .get(any(LocalizedBillingResource.class));
+        doReturn(resource).when(billingResourceDAOMock).get(
+                any(LocalizedBillingResource.class));
 
         // when
         LocalizedBillingResource result = externalPriceModelBean
@@ -183,8 +183,8 @@ public class ExternalPriceModelServiceBeanTest {
             throws ExternalPriceModelException {
         // given
         LocalizedBillingResource resource = new LocalizedBillingResource();
-        doReturn(resource).when(billingResourceDAOMock)
-                .get(any(LocalizedBillingResource.class));
+        doReturn(resource).when(billingResourceDAOMock).get(
+                any(LocalizedBillingResource.class));
 
         // when
         externalPriceModelBean.getCachedPriceModelTag(Locale.ENGLISH, null);
@@ -193,19 +193,19 @@ public class ExternalPriceModelServiceBeanTest {
 
     @SuppressWarnings("unchecked")
     @Test
-    public void getPriceModelTagNoCache()
-            throws BillingApplicationException, ExternalPriceModelException {
+    public void getPriceModelTagNoCache() throws BillingApplicationException,
+            ExternalPriceModelException {
         // given
         List<LocalizedBillingResource> resources = getLocalizedResources();
 
-        doReturn(null).when(externalPriceModelBean)
-                .getPriceModelTagFromCache(any(Locale.class), any(UUID.class));
+        doReturn(null).when(externalPriceModelBean).getPriceModelTagFromCache(
+                any(Locale.class), any(UUID.class));
         doReturn(resources).when(billingResourceDAOMock)
                 .update(any(List.class));
 
         // when
-        String priceModelTag = externalPriceModelBean
-                .getCachedPriceModelTag(Locale.ENGLISH, PRICE_MODEL_UUID);
+        String priceModelTag = externalPriceModelBean.getCachedPriceModelTag(
+                Locale.ENGLISH, PRICE_MODEL_UUID);
 
         // then
         assertEquals("", priceModelTag);
@@ -218,14 +218,14 @@ public class ExternalPriceModelServiceBeanTest {
         // given
         String expected = "";
 
-        doReturn(null).when(externalPriceModelBean)
-                .getPriceModelTagFromCache(any(Locale.class), any(UUID.class));
+        doReturn(null).when(externalPriceModelBean).getPriceModelTagFromCache(
+                any(Locale.class), any(UUID.class));
         doThrow(new BillingApplicationException()).when(billingResourceDAOMock)
                 .update(any(List.class));
 
         // when
-        String priceModelTag = externalPriceModelBean
-                .getCachedPriceModelTag(Locale.ENGLISH, PRICE_MODEL_UUID);
+        String priceModelTag = externalPriceModelBean.getCachedPriceModelTag(
+                Locale.ENGLISH, PRICE_MODEL_UUID);
 
         // then
         assertEquals(expected, priceModelTag);
@@ -299,7 +299,7 @@ public class ExternalPriceModelServiceBeanTest {
                 MediaType.APPLICATION_JSON, content2.getBytes(), tag2);
         externalPriceModel.put(new Locale("en"), priceModelContent1);
         externalPriceModel.put(new Locale("de"), priceModelContent2);
-        
+
         Map<ContextKey, ContextValue<?>> contextMap = new HashMap<>();
         externalPriceModel.setContext(contextMap);
         return externalPriceModel;

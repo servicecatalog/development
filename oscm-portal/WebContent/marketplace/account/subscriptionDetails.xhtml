@@ -369,7 +369,7 @@
               }else{
                 return false;
               }"
-            rendered="#{manageSubscriptionModel.subscription.priceModel.chargeable and empty appBean.hiddenUIElements['marketplace.navigation.Payment']}">
+            rendered="#{manageSubscriptionModel.subscription.priceModel.chargeable and empty appBean.hiddenUIElements['marketplace.navigation.Payment'] and manageSubscriptionModel.paymentTabAvailable}">
             <h:form id="resetForm">
               <a4j:jsFunction name="restorePaymentTab" action="#{manageSubscriptionCtrl.leavePaymentTab}"
                 render="payment" />

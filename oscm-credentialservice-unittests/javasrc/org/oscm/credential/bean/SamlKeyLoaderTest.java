@@ -88,6 +88,11 @@ public class SamlKeyLoaderTest {
         public String getBaseURL() {
             throw new UnsupportedOperationException();
         }
+        
+        @Override
+        public boolean isPaymentInfoAvailable() {
+            return true;
+        }
     }
 
     private String getFilePath(String fileName) {

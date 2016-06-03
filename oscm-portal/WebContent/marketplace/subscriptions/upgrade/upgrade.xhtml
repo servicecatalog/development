@@ -35,7 +35,7 @@
     <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
 
       <mp:subscriptionProcess active="configuration"
-                              showPayment="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
+                              showPayment="#{upgradeWizardConversation.model.service.priceModel.chargeable and not upgradeWizardConversation.paymentConfigurationHidden}"
                               service="#{upgradeWizardConversation.model.service}" bean="#{upgradeWizardConversation}">
 
         <!-- TABS -->
@@ -118,7 +118,7 @@
 
 
           <!-- TAB: PRICE MODEL -->
-          <rich:tab header="#{msg['service.priceModel']}"
+          <rich:tab header="#{msg['service.priceModel']}" id="priceModelTab"
                     rendered="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
                     onheaderclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');">
             <h:form id="configurationForm2">
@@ -131,9 +131,10 @@
               <mp:pixelline />
               <!-- navigate back to subscription details using navigation rules -->
               <mp:button id="previousUpgrade" value="#{msg['button.previous']}" bean="#{upgradeWizardConversation}"
-                         action="previous" keepDirty="false" />
-              <mp:button id="next" value="#{msg['button.next']}" bean="#{upgradeWizardConversation}" action="selectService"
-                         style="float: right;" keepDirty="true" />
+                action="previous" keepDirty="false" />
+              <mp:button id="nextLink" value="#{msg['button.next']}"
+                onclick="setDirty(false); event.preventDefault(); #{rich:element('configurationForm:next')}.click();"
+                style="float: right;" keepDirty="true" />
             </h:form>
           </rich:tab>
         </rich:tabPanel>

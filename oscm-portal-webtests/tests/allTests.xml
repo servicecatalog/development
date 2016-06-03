@@ -79,6 +79,7 @@
     <ant antfile="testManageLanguages.xml" />
     <ant antfile="testManageUsers.xml" />
     <ant antfile="testProvisioningInterface.xml" />
+    <ant antfile="testHidePaymentInfo.xml" />
   </target>
 
   <target name="part2">

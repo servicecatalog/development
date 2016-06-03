@@ -27,7 +27,6 @@ public class Pagination implements Serializable, PaginationInt {
     private Set<Filter> filterSet;
     private String dateFormat;
     private Map<SubscriptionStatus, String> localizedStatusesMap;
-    private String fullTextFilterValue;
 
     public Pagination() {
         localizedStatusesMap = new HashMap<>();
@@ -83,11 +82,4 @@ public class Pagination implements Serializable, PaginationInt {
         return localizedStatusesMap;
     }
 
-    public String getFullTextFilterValue() {
-        return fullTextFilterValue;
-    }
-
-    public void setFullTextFilterValue(String fullTextFilterValue) {
-        this.fullTextFilterValue = fullTextFilterValue;
-    }
 }

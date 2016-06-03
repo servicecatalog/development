@@ -46,34 +46,6 @@ import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.json.JsonConverter;
-import org.oscm.json.JsonParameterValidator;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.BillingContactBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
-import org.oscm.ui.beans.PaymentInfoBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UdaBean;
-import org.oscm.ui.beans.UserBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.RolePriceHandler;
-import org.oscm.ui.common.SteppedPriceHandler;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
-import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
-import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
-import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
-import org.oscm.ui.generator.IdGenerator;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.PriceModel;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.intf.SubscriptionServiceInternal;
@@ -103,6 +75,34 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.json.JsonConverter;
+import org.oscm.json.JsonParameterValidator;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.BillingContactBean;
+import org.oscm.ui.beans.MenuBean;
+import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
+import org.oscm.ui.beans.PaymentInfoBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UdaBean;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.RolePriceHandler;
+import org.oscm.ui.common.SteppedPriceHandler;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.classic.pricemodel.external.ExternalPriceModelDisplayHandler;
+import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
+import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
+import org.oscm.ui.dialog.mp.userGroups.SubscriptionUnitCtrl;
+import org.oscm.ui.generator.IdGenerator;
+import org.oscm.ui.model.Discount;
+import org.oscm.ui.model.PriceModel;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.UdaRow;
 
 /**
  * all service detail information
@@ -220,6 +220,10 @@ public class SubscriptionWizardConversation implements Serializable {
             return "";
         }
         updateSelectedUnit();
+
+        if (isPaymentConfigurationHidden()) {
+            return OUTCOME_SUCCESS;
+        }
         if (svc != null && svc.getPriceModel().isChargeable()) {
             return OUTCOME_ENTER_PAYMENT;
         }
@@ -634,6 +638,11 @@ public class SubscriptionWizardConversation implements Serializable {
     }
 
     public String previousFromConfirmPage() {
+        
+        if(isPaymentConfigurationHidden()){
+            return OUTCOME_ENTER_SERVICE_CONFIGURATION;
+        }
+        
         String resultNav = OUTCOME_PREVIOUS;
         if (model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();
@@ -824,4 +833,7 @@ public class SubscriptionWizardConversation implements Serializable {
         return TIMEOUT;
     }
 
+    public boolean isPaymentConfigurationHidden() {
+        return getSubscriptionService().isPaymentInfoHidden();
+    }
 }

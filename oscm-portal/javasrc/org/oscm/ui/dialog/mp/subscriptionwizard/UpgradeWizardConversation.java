@@ -16,6 +16,7 @@ import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlC
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_ASYNC_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.INFO_SUBSCRIPTION_UPGRADED;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_PAYMENT;
+import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ENTER_SERVICE_CONFIGURATION;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_ERROR;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PREVIOUS;
 import static org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants.OUTCOME_PROCESS;
@@ -38,30 +39,6 @@ import javax.faces.application.FacesMessage;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.oscm.json.JsonConverter;
-import org.oscm.json.JsonParameterValidator;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.BillingContactBean;
-import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
-import org.oscm.ui.beans.PaymentInfoBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.beans.UserBean;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.RolePriceHandler;
-import org.oscm.ui.common.SteppedPriceComparator;
-import org.oscm.ui.common.SteppedPriceHandler;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
-import org.oscm.ui.model.Discount;
-import org.oscm.ui.model.Organization;
-import org.oscm.ui.model.PriceModel;
-import org.oscm.ui.model.PricedEventRow;
-import org.oscm.ui.model.PricedParameterRow;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.UdaRow;
-import org.oscm.ui.model.User;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.partnerservice.PartnerService;
@@ -90,6 +67,30 @@ import org.oscm.internal.vo.VOTriggerProcess;
 import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.json.JsonConverter;
+import org.oscm.json.JsonParameterValidator;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.BillingContactBean;
+import org.oscm.ui.beans.MenuBean;
+import org.oscm.ui.beans.PaymentAndBillingVisibleBean;
+import org.oscm.ui.beans.PaymentInfoBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.beans.UserBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.common.RolePriceHandler;
+import org.oscm.ui.common.SteppedPriceComparator;
+import org.oscm.ui.common.SteppedPriceHandler;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.mp.subscriptionDetails.SubscriptionDetailsCtrlConstants;
+import org.oscm.ui.model.Discount;
+import org.oscm.ui.model.Organization;
+import org.oscm.ui.model.PriceModel;
+import org.oscm.ui.model.PricedEventRow;
+import org.oscm.ui.model.PricedParameterRow;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.UdaRow;
+import org.oscm.ui.model.User;
 
 /**
  * Created by ChojnackiD on 2015-01-27.
@@ -452,6 +453,9 @@ public class UpgradeWizardConversation implements Serializable {
             }
         }
         model.setReadOnlyParams(true);
+        if (isPaymentConfigurationHidden()) {
+            return OUTCOME_SUCCESS;
+        }
         if (svc != null && svc.getPriceModel().isChargeable()) {
             return OUTCOME_ENTER_PAYMENT;
         }
@@ -461,6 +465,10 @@ public class UpgradeWizardConversation implements Serializable {
     public void addMessage(FacesMessage.Severity severityError, String msgKey) {
         JSFUtils.addMessage(null, severityError,
                 msgKey, null);
+    }
+
+    public boolean isPaymentConfigurationHidden() {
+        return getSubscriptionService().isPaymentInfoHidden();
     }
 
     /**
@@ -616,6 +624,11 @@ public class UpgradeWizardConversation implements Serializable {
     }
 
     public String previousFromConfirmPage() {
+        
+        if(isPaymentConfigurationHidden()){
+            return OUTCOME_PREVIOUS;
+        }
+        
         String resultNav = OUTCOME_PREVIOUS;
         if(model.getService().getPriceModel().isChargeable()) {
             resultNav = selectService();

@@ -34,7 +34,7 @@
 
     <a4j:outputPanel layout="block" styleClass="grid5span clearfix">
       <mp:subscriptionProcess active="confirmation" bean="#{subscriptionWizardConversation}"
-        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable}"
+        showPayment="#{subscriptionWizardConversation.model.service.priceModel.chargeable and not subscriptionWizardConversation.paymentConfigurationHidden}"
         service="#{subscriptionWizardConversation.model.service}">
         <a4j:outputPanel layout="block" styleClass="col5span clearfix">
           <h:form id="confirmForm">
@@ -105,7 +105,7 @@
             <h:commandButton id="hiddenConfigurationChange" onclick="showExternalConfigurator();"
               action="#{subscriptionWizardConversation.gotoConfiguration}" style="display: none;" immediate="true" />
 
-            <ui:fragment rendered="#{subscriptionWizardConversation.model.service.priceModel.chargeable}">
+            <ui:fragment rendered="#{subscriptionWizardConversation.model.service.priceModel.chargeable and not subscriptionWizardConversation.paymentConfigurationHidden}">
               <!-- billing address -->
               <h2 class="box_title" style="margin-top: 20px;">#{msg['subscription.confirm.details.title']}</h2>
               <a4j:outputPanel layout="block" styleClass="infoArea" style="margin-bottom:5px;">

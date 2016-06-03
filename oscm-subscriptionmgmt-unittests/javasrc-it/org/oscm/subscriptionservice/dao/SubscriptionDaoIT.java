@@ -9,7 +9,7 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -25,8 +25,8 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.tables.Pagination;
 import org.oscm.internal.types.enumtypes.*;
+import org.oscm.paginator.Pagination;
 import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.Numbers;
@@ -680,4 +680,12 @@ public class SubscriptionDaoIT extends EJBTestBase {
         });
     }
 
+
+    Set<String> getSubscriptionStatesAsString(Set<SubscriptionStatus> states) {
+        Set<String> statesAsString = new HashSet<String>();
+        for (SubscriptionStatus s : states) {
+            statesAsString.add(s.name());
+        }
+        return statesAsString;
+    }
 }

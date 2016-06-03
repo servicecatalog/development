@@ -1,0 +1,16 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<project default="testHidePaymentInfo" xmlns:setup="antlib:org.oscm.webtest.setup">
+  <import file="../macros/marketplace/all.xml" />
+
+  <target name="testHidePaymentInfo">
+    
+    <webtest name="test readonly setting">
+    	<operatorPortal.login />
+    	<clickLink href="/operator/manageConfiguration.jsf" />
+    	<not>
+          <verifyInputField xpath="//td[text()='HIDE_PAYMENT_INFORMATION']/..//input/@id" value=".*"/>
+    	</not>
+    </webtest>
+
+  </target>
+</project>

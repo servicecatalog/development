@@ -8,51 +8,153 @@
 
 package org.oscm.internal.subscriptions;
 
-import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
+import org.junit.Ignore;
 import org.junit.Test;
-
+import org.oscm.applicationservice.local.ApplicationServiceLocal;
+import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.internal.tables.Pagination;
+import org.oscm.domobjects.*;
+import org.oscm.i18nservice.bean.LocalizerServiceBean;
+import org.oscm.internal.components.response.Response;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.paginator.Filter;
+import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
+import org.oscm.paginator.TableColumns;
+import org.oscm.sessionservice.local.SessionServiceLocal;
+import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
+import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.LocalizedResources;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.Subscriptions;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * @author qiu
  * 
  */
+@Ignore
 public class SubscriptionsServiceBeanIT extends EJBTestBase {
-    private DataService mgr;
+    private DataService ds;
     private SubscriptionsService service;
-    private PlatformUser supplierUser;
+    private Organization tpAndSupplier;
+    private Organization customer;
+    private PlatformUser admin;
+    private Product product;
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+        ds = new DataServiceBean() {
+            @Override
+            public PlatformUser getCurrentUser() {
+                return givenUser(1, "userId", tpAndSupplier, UserRoleType.ORGANIZATION_ADMIN);
+            }
+        };
+        container.addBean(ds);
         container.enableInterfaceMocking(true);
-        mgr = mock(DataService.class);
-        container.addBean(mgr);
-        createOrganizationRoles(mgr);
-        Organization tpAndSupplier = Organizations.createOrganization(mgr,
-                OrganizationRoleType.SUPPLIER,
-                OrganizationRoleType.TECHNOLOGY_PROVIDER);
-        supplierUser = Organizations.createUserForOrg(mgr, tpAndSupplier, true,
-                "admin");
+        container.addBean(new LocalizerServiceBean());
+        container.addBean(new SubscriptionListServiceBean());
+        container.addBean(mock(ApplicationServiceLocal.class));
+        container.addBean(mock(SessionServiceLocal.class));
+        container.addBean(new SubscriptionServiceBean());
         container.addBean(new SubscriptionsServiceBean());
+        createOrganizationRoles(ds);
+        tpAndSupplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
+                OrganizationRoleType.TECHNOLOGY_PROVIDER);
+
+        customer = registerCustomer("customer", tpAndSupplier);
+        admin = createUser(customer, true, "unitAdmin");
+
+        product = createProduct("serviceB", "techServiceB",
+                tpAndSupplier.getOrganizationId(), ServiceAccessType.LOGIN);
+        LocalizedResources.localizeProduct(ds, product.getKey(), "en", "ja");
         service = container.get(SubscriptionsService.class);
-        doReturn(supplierUser).when(mgr).getCurrentUser();
+        createSubscription(customer.getOrganizationId(),
+                product.getProductId(), "sub1", tpAndSupplier, null, admin);
+
+    }
+
+    private Organization createOrg(final String organizationId,
+                                    final OrganizationRoleType... roles) throws Exception {
+        return runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                return Organizations.createOrganization(ds, organizationId,
+                        roles);
+            }
+        });
+    }
+
+    private PlatformUser createUser(final Organization organization,
+                                    final boolean isAdmin, final String userId) throws Exception {
+        return runTX(new Callable<PlatformUser>() {
+            @Override
+            public PlatformUser call() throws Exception {
+                return Organizations.createUserForOrg(ds, organization,
+                        isAdmin, userId);
+            }
+        });
+    }
+
+    private Organization registerCustomer(final String customerId,
+                                          final Organization vendor) throws Exception {
+        return runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                return Organizations.createCustomer(ds, vendor, customerId,
+                        false);
+            }
+        });
+    }
+
+    private Product createProduct(final String productId,
+                                  final String techProductId, final String organizationId,
+                                  final ServiceAccessType type) throws Exception {
+        return runTX(new Callable<Product>() {
+            @Override
+            public Product call() throws Exception {
+                return Products.createProduct(organizationId, productId,
+                        techProductId, ds, type);
+            }
+        });
+    }
+
+    private Subscription createSubscription(final String customerId,
+                                            final String productId, final String subscriptionId,
+                                            final Organization supplier, final UserGroup unit,
+                                            final PlatformUser owner) throws Exception {
+        return runTX(new Callable<Subscription>() {
+            @Override
+            public Subscription call() throws Exception {
+                Subscription sub = Subscriptions.createSubscription(ds,
+                        customerId, productId, subscriptionId, supplier);
+                if (unit != null) {
+                    sub = Subscriptions.assignToUnit(ds, sub, unit);
+                }
+                if (owner != null) {
+                    sub.setOwner(owner);
+                    ds.persist(sub);
+                    ds.flush();
+                }
+                return sub;
+            }
+        });
     }
 
     @Test(expected = EJBAccessException.class)
@@ -60,7 +162,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()));
+                container.login(String.valueOf(admin.getKey()));
                 try {
                     service.getSubscriptionsForOrg(null);
                 } catch (EJBException e) {
@@ -72,31 +174,25 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void getSubscriptionsForOrg_subManager() throws Exception {
+    public void getSubscriptionsForOrgWithFiltering() throws Exception {
+        final PaginationFullTextFilter pagination = new PaginationFullTextFilter();
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()),
+                container.login(String.valueOf(admin.getKey()),
                         UserRoleType.SUBSCRIPTION_MANAGER.name());
                 try {
-                    service.getSubscriptionsForOrg(null);
-                } catch (EJBException e) {
-                    throw e.getCausedByException();
-                }
-                return null;
-            }
-        });
-    }
-
-    @Test
-    public void getSubscriptionsForOrg_orgAdmin() throws Exception {
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()),
-                        UserRoleType.ORGANIZATION_ADMIN.name());
-                try {
-                    service.getSubscriptionsForOrg(null);
+                    Set<SubscriptionStatus> subscriptionStatuses = new HashSet<>();
+                    subscriptionStatuses.add(SubscriptionStatus.ACTIVE);
+                    Set<Filter> set = new HashSet<>();
+                    set.add(new Filter(TableColumns.SERVICE_NAME, "Product"));
+                    pagination.setFilterSet(set);
+                    Response subscriptionsForOrgWithFiltering = service.getSubscriptionsForOrgWithFiltering(subscriptionStatuses,
+                            pagination);
+                    List<POSubscriptionForList> resultList = subscriptionsForOrgWithFiltering.getResultList(POSubscriptionForList.class);
+                    for (POSubscriptionForList poSubscriptionForList : resultList) {
+                        assertTrue(poSubscriptionForList.getServiceName().equals("Product 1 (PRODUCT_MARKETING_NAME)"));
+                    }
                 } catch (EJBException e) {
                     throw e.getCausedByException();
                 }
@@ -110,7 +206,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()));
+                container.login(String.valueOf(admin.getKey()));
                 try {
                     service.getSubscriptionsForOrgSize(
                             new HashSet<SubscriptionStatus>(), new Pagination());
@@ -122,40 +218,16 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         });
     }
 
-    @Test
-    public void getSubscriptionsForOrgSize_subManager() throws Exception {
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()),
-                        UserRoleType.SUBSCRIPTION_MANAGER.name());
-                try {
-                    service.getSubscriptionsForOrgSize(
-                            new HashSet<SubscriptionStatus>(), new Pagination());
-                } catch (EJBException e) {
-                    throw e.getCausedByException();
-                }
-                return null;
-            }
-        });
+    private PlatformUser givenUser(long key, String id, Organization org,
+                                    UserRoleType roleType) {
+        PlatformUser user = new PlatformUser();
+        user.setKey(key);
+        user.setUserId(id);
+        user.setOrganization(org);
+        RoleAssignment roleAssign = new RoleAssignment();
+        roleAssign.setUser(user);
+        roleAssign.setRole(new UserRole(roleType));
+        user.getAssignedRoles().add(roleAssign);
+        return user;
     }
-
-    @Test
-    public void getSubscriptionsForOrgSize_orgAdmin() throws Exception {
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                container.login(String.valueOf(supplierUser.getKey()),
-                        UserRoleType.ORGANIZATION_ADMIN.name());
-                try {
-                    service.getSubscriptionsForOrgSize(
-                            new HashSet<SubscriptionStatus>(), new Pagination());
-                } catch (EJBException e) {
-                    throw e.getCausedByException();
-                }
-                return null;
-            }
-        });
-    }
-
 }

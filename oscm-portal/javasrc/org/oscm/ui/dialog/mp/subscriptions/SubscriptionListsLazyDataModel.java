@@ -22,6 +22,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
 import org.oscm.paginator.Pagination;
+import org.oscm.paginator.PaginationFullTextFilter;
 import org.richfaces.component.SortOrder;
 import org.richfaces.model.FilterField;
 import org.richfaces.model.SortField;
@@ -35,7 +36,6 @@ import org.oscm.internal.components.response.Response;
 import org.oscm.internal.subscriptions.POSubscriptionForList;
 import org.oscm.internal.subscriptions.SubscriptionsService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 
 // Session, because we need to have sort order and filtering stored in session.
 @SessionScoped
@@ -87,7 +87,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
 
     @Override
     public List<POSubscriptionForList> getDataList(int firstRow, int numRows, List<FilterField> filterFields, List<SortField> sortFields, Object refreshDataModel) {
-        Pagination pagination = new Pagination(firstRow, numRows);
+        PaginationFullTextFilter pagination = new PaginationFullTextFilter(firstRow, numRows);
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedStatuses(pagination);
@@ -110,7 +110,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
     @Override
     public int getTotalCount() {
         try {
-            Pagination pagination = new Pagination();
+            PaginationFullTextFilter pagination = new PaginationFullTextFilter();
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithLocalizedStatuses(pagination);
             pagination.setFullTextFilterValue(fullTextSearchFilterValue);
