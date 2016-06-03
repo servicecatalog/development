@@ -19,6 +19,7 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -48,6 +49,7 @@ import org.oscm.test.ejb.TestContainer;
  * @author qiu
  * 
  */
+@Ignore
 public class SubscriptionsServiceBeanIT extends EJBTestBase {
     private DataService ds;
     private SubscriptionsService service;
