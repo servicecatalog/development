@@ -37,10 +37,12 @@ import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUserDetails;
 
@@ -56,6 +58,7 @@ public class OperatorServiceBeanRegisterCustomerTest {
     private VOOrganization organization;
     private VOUserDetails userDetails;
     private final String marketplaceId = "marketplace_1";
+    private MarketplaceService marketplaceService;
     @Captor
     ArgumentCaptor<String> ac;
 
@@ -71,6 +74,9 @@ public class OperatorServiceBeanRegisterCustomerTest {
         operatorServiceBean.dm = dm;
         LocalizerServiceLocal localizer = mock(LocalizerServiceLocal.class);
         operatorServiceBean.localizer = localizer;
+        marketplaceService = mock(MarketplaceService.class);
+        operatorServiceBean.marketplaceService=marketplaceService;
+        
         createOrganization();
         createUser();
     }
@@ -157,18 +163,23 @@ public class OperatorServiceBeanRegisterCustomerTest {
     public void registerOrganization_CreateCustomerWithMarketplaceID()
             throws Exception {
         prepareForRegisterOrganization();
-        VOOrganization result = new VOOrganization();
-        try {
-            result = operatorServiceBean.registerOrganization(organization,
-                    null, userDetails, null, marketplaceId);
-        } finally {
-            verify(accountServiceMock, times(1)).registerOrganization(
-                    any(Organization.class), any(ImageResource.class),
-                    any(VOUserDetails.class), any(Properties.class),
-                    anyString(), ac.capture(), anyString());
-            assertEquals(marketplaceId, ac.getValue());
-            assertEquals(organization.getEmail(), result.getEmail());
-        }
+       
+        //given
+        VOMarketplace marketplace = createMarketplace(marketplaceId, "sampleName", false);
+        doReturn(marketplace).when(marketplaceService).getMarketplaceById(anyString());
+        
+        //when
+        VOOrganization org = operatorServiceBean.registerOrganization(organization,
+                null, userDetails, null, marketplaceId);
+        
+        //then
+        verify(accountServiceMock, times(1)).registerOrganization(
+                any(Organization.class), any(ImageResource.class),
+                any(VOUserDetails.class), any(Properties.class),
+                anyString(), ac.capture(), anyString());
+        assertEquals(marketplaceId, ac.getValue());
+        assertEquals(organization.getEmail(), org.getEmail());
+       
     }
 
     private void createOrganization() {
@@ -191,6 +202,16 @@ public class OperatorServiceBeanRegisterCustomerTest {
         userDetails.setSalutation(Salutation.MR);
         userDetails.setPhone("12345678");
         userDetails.setLocale("en");
+    }
+    
+    private VOMarketplace createMarketplace(String marketplaceId, String name, boolean isRestricted) {
+        
+        VOMarketplace marketplace = new VOMarketplace();
+        marketplace.setMarketplaceId(marketplaceId);
+        marketplace.setName(name);
+        marketplace.setRestricted(isRestricted);
+        
+        return marketplace;
     }
 
     private void prepareForRegisterOrganization() throws Exception {
