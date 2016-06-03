@@ -19,14 +19,11 @@ import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.AuthnRequestType;
-import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.saml2.api.model.protocol.NameIDPolicyType;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * @author roderus
@@ -72,34 +69,6 @@ public class AuthnRequestGenerator {
         return encodeBase64(authnRequest);
     }
 
-    /**
-     * @param idpSessionIndex
-     * @return BASE64-encoded SAML Authentication Request
-     * @throws SAML2AuthnRequestException
-     */
-    public String getEncodedLogoutRequest(String idpSessionIndex) throws SAML2AuthnRequestException {
-        String authnRequest;
-        try {
-            authnRequest = marshal(generateLogoutRequest(idpSessionIndex));
-        } catch (SAML2AuthnRequestException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new SAML2AuthnRequestException(
-                    e.getMessage(),
-                    SAML2AuthnRequestException.ReasonEnum.XML_TRANSFORMATION_ERROR);
-        }
-        return encodeBase64(authnRequest);
-    }
-
-    public <T> String encode(String element) throws SAML2AuthnRequestException {
-        try {
-            return encodeBase64(element);
-        } catch (Exception e) {
-            throw new SAML2AuthnRequestException(e.getMessage(),
-                    SAML2AuthnRequestException.ReasonEnum.XML_TRANSFORMATION_ERROR);
-        }
-    }
-
     public String getRequestId() {
         return requestId;
     }
@@ -132,62 +101,6 @@ public class AuthnRequestGenerator {
                 .createAuthnRequest(authnRequest);
 
         return authnRequestJAXB;
-    }
-
-    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex) throws DatatypeConfigurationException {
-
-        org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
-        protocolObjFactory = new org.oscm.saml2.api.model.protocol.ObjectFactory();
-        org.oscm.saml2.api.model.assertion.ObjectFactory assertionObjFactory;
-        assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
-
-        NameIDType issuer = assertionObjFactory.createNameIDType();
-
-        issuer.setValue(this.issuer);
-
-        LogoutRequestType logoutRequest = protocolObjFactory
-                .createLogoutRequestType();
-        logoutRequest.setID(requestId);
-        logoutRequest.setVersion("2.0");
-
-        logoutRequest.setIssueInstant(
-                GregorianCalendars.newXMLGregorianCalendarSystemTime());
-        logoutRequest.setIssuer(issuer);
-
-        JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
-                .createLogoutRequest(logoutRequest);
-
-        logoutRequestJAXB = signLogoutRequest(logoutRequestJAXB);
-        logoutRequest = logoutRequestJAXB.getValue();
-
-        issuer.setFormat("http://schemas.xmlsoap.org/claims/UPN");
-        logoutRequest.setNameID(issuer);
-        logoutRequest.getSessionIndex().add(idpSessionIndex);
-        return protocolObjFactory.createLogoutRequest(logoutRequest);
-    }
-
-    protected JAXBElement<LogoutRequestType> signLogoutRequest(JAXBElement<LogoutRequestType> logoutRequestJAXB) {
-        try {
-            Element marshaled = marshallJAXBElement(logoutRequestJAXB);
-            Element signed = samlBean.signLogoutRequest(marshaled);
-            logoutRequestJAXB = unmarshallJAXBElement(signed);
-        } catch (Exception e) {
-            //TODO: remove it, new exception should be thrown from signer.
-            throw new SaaSSystemException(e);
-        }
-        return logoutRequestJAXB;
-    }
-
-    private Element marshallJAXBElement(JAXBElement<LogoutRequestType> logoutRequestJAXB) throws Exception {
-        Marshalling<LogoutRequestType>
-                marshaller = new Marshalling<>();
-        return marshaller.marshallElement(logoutRequestJAXB).getDocumentElement();
-    }
-
-    private JAXBElement<LogoutRequestType> unmarshallJAXBElement(Element signed) throws Exception {
-        Marshalling<LogoutRequestType>
-                marshaller = new Marshalling<>();
-        return marshaller.unmarshallDocument(signed, LogoutRequestType.class);
     }
 
     <T> String marshal(JAXBElement<T> authnRequest) throws Exception {

@@ -38,6 +38,7 @@ import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
+import org.oscm.saml2.api.LogoutRequestGenerator;
 import org.oscm.saml2.api.Marshalling;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
@@ -78,16 +79,18 @@ public class Saml2Ctrl{
     public String initModelAndCheckForErrors() {
 
         AuthnRequestGenerator reqGenerator;
+        LogoutRequestGenerator logoutGenerator;
 
         try {
             reqGenerator = getAuthnRequestGenerator();
+            logoutGenerator = getLogoutRequestGenerator();
             model.setEncodedAuthnRequest(reqGenerator.getEncodedAuthnRequest());
             model.setRelayState(this.getRelayState());
             model.setAcsUrl(this.getAcsUrl().toExternalForm());
             model.setLogoffUrl(this.getLogoffUrl());
             storeRequestIdInSession(reqGenerator.getRequestId());
             if (fromLogout) {
-                model.setEncodedAuthnLogoutRequest(generateLogoutRequest(reqGenerator));
+                model.setEncodedAuthnLogoutRequest(generateLogoutRequest(logoutGenerator));
                 handleDeleteSession();
                 handleDeleteCookies();
             }
@@ -106,16 +109,16 @@ public class Saml2Ctrl{
         return null;
     }
 
-    String generateLogoutRequest(AuthnRequestGenerator reqGenerator) throws SAML2AuthnRequestException {
+    String generateLogoutRequest(LogoutRequestGenerator logoutGenerator) throws SAML2AuthnRequestException {
         try {
             String samlSessionId = sessionService.getSAMLSessionStringForSessionId(getSessionId());
             sessionService.deletePlatformSession(getRequest().getSession().getId());
             final JAXBElement<LogoutRequestType> rootElement =
-                    reqGenerator.generateLogoutRequest(samlSessionId);
+                    logoutGenerator.generateLogoutRequest(samlSessionId);
             Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
             final String convertedSAMLEnvelope = XMLConverter.convertToString(
                     marshaller.marshallElement(rootElement), false);
-            return reqGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
+            return logoutGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
         } catch (DatatypeConfigurationException e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
@@ -202,6 +205,12 @@ public class Saml2Ctrl{
             throws SAML2AuthnRequestException {
         Boolean isHttps = Boolean.valueOf(getRequest().isSecure());
         return new AuthnRequestGenerator(getIssuer(), isHttps, samlBean);
+    }
+
+    LogoutRequestGenerator getLogoutRequestGenerator()
+            throws SAML2AuthnRequestException {
+        Boolean isHttps = Boolean.valueOf(getRequest().isSecure());
+        return new LogoutRequestGenerator(getIssuer(), isHttps, samlBean);
     }
 
     String getIssuer() throws SAML2AuthnRequestException {

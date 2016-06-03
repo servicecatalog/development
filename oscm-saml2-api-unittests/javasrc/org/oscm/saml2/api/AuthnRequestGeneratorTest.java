@@ -177,47 +177,4 @@ public class AuthnRequestGeneratorTest {
         assertEquals(expectedAuthnRequest, new String(actualAuthReq));
     }
 
-    @Test
-    public void generateLogoutRequest() throws Exception {
-        // given
-        // when
-        JAXBElement<LogoutRequestType> logoutRequest = generator
-                .generateLogoutRequest("sessionId");
-
-        // then
-        verify(signer, times(1)).signLogoutRequest(any(Element.class));
-    }
-
-    @Test
-    public void generateLogoutRequest_Error() throws Exception {
-        // given
-        final String errorMessage = "some error message";
-        generator = spy(generator);
-        doThrow(new TransformerException(errorMessage)).when(generator)
-                .marshal(Matchers.<JAXBElement<AuthnRequestType>> any());
-
-        // when
-        try {
-            generator.getEncodedLogoutRequest("sessionId");
-            fail();
-        } catch (SAML2AuthnRequestException e) {
-            assertThat(e.getMessage(), containsString(errorMessage));
-        }
-    }
-
-    @Test
-    public void getEncodedLogoutRequest() throws Exception {
-        // given
-        final String expectedLogoutRequest = "some_authn_request";
-        generator = spy(generator);
-        doReturn(expectedLogoutRequest).when(generator).marshal(
-                Matchers.<JAXBElement<AuthnRequestType>> any());
-
-        // when
-        String encodedLogoutReq = generator.getEncodedLogoutRequest("sessionId");
-
-        // then
-        byte[] actualLogoutReq = Base64.decodeBase64(encodedLogoutReq.getBytes());
-        assertEquals(expectedLogoutRequest, new String(actualLogoutReq));
-    }
 }
