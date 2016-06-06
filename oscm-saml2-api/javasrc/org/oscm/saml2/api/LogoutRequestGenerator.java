@@ -83,7 +83,7 @@ public class LogoutRequestGenerator {
         return requestId;
     }
 
-    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex) throws DatatypeConfigurationException {
+    public JAXBElement<LogoutRequestType> generateLogoutRequest(String idpSessionIndex) throws Exception {
 
         org.oscm.saml2.api.model.protocol.ObjectFactory protocolObjFactory;
         protocolObjFactory = new org.oscm.saml2.api.model.protocol.ObjectFactory();
@@ -115,15 +115,10 @@ public class LogoutRequestGenerator {
         return protocolObjFactory.createLogoutRequest(logoutRequest);
     }
 
-    protected JAXBElement<LogoutRequestType> signLogoutRequest(JAXBElement<LogoutRequestType> logoutRequestJAXB) {
-        try {
-            Element marshaled = marshallJAXBElement(logoutRequestJAXB);
-            Element signed = samlBean.signLogoutRequest(marshaled);
-            logoutRequestJAXB = unmarshallJAXBElement(signed);
-        } catch (Exception e) {
-            //TODO: remove it, new exception should be thrown from signer.
-            throw new SaaSSystemException(e);
-        }
+    protected JAXBElement<LogoutRequestType> signLogoutRequest(JAXBElement<LogoutRequestType> logoutRequestJAXB) throws Exception {
+        Element marshaled = marshallJAXBElement(logoutRequestJAXB);
+        Element signed = samlBean.signLogoutRequest(marshaled);
+        logoutRequestJAXB = unmarshallJAXBElement(signed);
         return logoutRequestJAXB;
     }
 

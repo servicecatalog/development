@@ -35,6 +35,7 @@ import org.oscm.internal.intf.SessionService;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.SAMLSigningException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
@@ -126,7 +127,10 @@ public class Saml2Ctrl{
         } catch (TransformerException e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
-        } catch (Exception e) {
+        } catch (SAMLSigningException e){
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_SIGNING_SAML_FAULT);}
+        catch (Exception e) {
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_SAML_LOGOUT_GENERATION_FAILED);
         }
