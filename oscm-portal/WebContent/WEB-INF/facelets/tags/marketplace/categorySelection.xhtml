@@ -17,7 +17,7 @@
 
           <a4j:outputPanel styleClass="newlist clearfix menuButtonPanel">
             <h:commandButton style="display:none;" id="browseAllBtn" action="#{serviceListingBean.showServiceList}" />
-            <mp:button id="buttonBrowseAll" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}"
+            <mp:button id="buttonBrowseAllLink" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}"
               action="showServiceList"
               onclick="if(#{isMplRestricted and empty userBean.loggedInUser}){
             	  showLoginPanel('/marketplace/services.jsf');
