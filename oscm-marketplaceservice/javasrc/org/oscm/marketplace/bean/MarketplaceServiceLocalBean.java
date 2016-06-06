@@ -1092,7 +1092,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         marketplaceAccess.setMarketplace_tkey(marketplaceKey);
         marketplaceAccess.setOrganization_tkey(organizationKey);
         try {
-            MarketplaceAccess mp = (MarketplaceAccess) ds.getReferenceByBusinessKey(marketplaceAccess);
+            ds.getReferenceByBusinessKey(marketplaceAccess);
         } catch (ObjectNotFoundException e) {
             return false;
         }

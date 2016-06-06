@@ -8,10 +8,18 @@
 
 package org.oscm.operatorservice.bean;
 
-import java.lang.IllegalArgumentException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Currency;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -30,9 +38,29 @@ import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.billingservice.service.BillingServiceLocal;
 import org.oscm.configurationservice.assembler.ConfigurationSettingAssembler;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
-import org.oscm.converter.*;
+import org.oscm.converter.CsvCreator;
+import org.oscm.converter.LocaleHandler;
+import org.oscm.converter.ParameterizedTypes;
+import org.oscm.converter.PriceConverter;
+import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.BillingResult;
+import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.ImageResource;
+import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.OrganizationRefToPaymentType;
+import org.oscm.domobjects.OrganizationReference;
+import org.oscm.domobjects.OrganizationRole;
+import org.oscm.domobjects.OrganizationToRole;
+import org.oscm.domobjects.PSP;
+import org.oscm.domobjects.PSPAccount;
+import org.oscm.domobjects.PSPSetting;
+import org.oscm.domobjects.PaymentType;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.RevenueShareModel;
+import org.oscm.domobjects.SupportedCountry;
+import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -44,16 +72,45 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.interceptor.ServiceProviderInterceptor;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.*;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.AddMarketingPermissionException;
+import org.oscm.internal.types.exception.AuditLogTooManyRowsException;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.ImageException;
+import org.oscm.internal.types.exception.IncompatibleRolesException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.OrganizationAuthorityException;
+import org.oscm.internal.types.exception.PSPIdentifierForSellerException;
+import org.oscm.internal.types.exception.PaymentDataException;
 import org.oscm.internal.types.exception.PaymentDataException.Reason;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.*;
+import org.oscm.internal.vo.LdapProperties;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOImageResource;
+import org.oscm.internal.vo.VOOperatorOrganization;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOPSP;
+import org.oscm.internal.vo.VOPSPAccount;
+import org.oscm.internal.vo.VOPSPSetting;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOTimerInfo;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.paymentservice.assembler.PSPAccountAssembler;
 import org.oscm.paymentservice.assembler.PSPAssembler;
 import org.oscm.paymentservice.assembler.PSPSettingAssembler;
@@ -117,8 +174,8 @@ public class OperatorServiceBean implements OperatorService {
     @EJB(beanInterface = AuditLogServiceBean.class)
     protected AuditLogServiceBean auditLogService;
 
-    @EJB(beanInterface = MarketplaceService.class)
-    protected MarketplaceService marketplaceService;
+    @EJB(beanInterface = MarketplaceServiceLocal.class)
+    protected MarketplaceServiceLocal marketplaceService;
 
     @Resource
     protected SessionContext sessionCtx;
@@ -129,20 +186,23 @@ public class OperatorServiceBean implements OperatorService {
             VOImageResource voImageResource, VOUserDetails orgInitialUser,
             LdapProperties organizationProperties, String marketplaceID,
             OrganizationRoleType... rolesToGrant)
-            throws NonUniqueBusinessKeyException, ValidationException,
-            OrganizationAuthorityException, IncompatibleRolesException,
-            MailOperationException, OrganizationAuthoritiesException,
-            ObjectNotFoundException, ImageException {
+                    throws NonUniqueBusinessKeyException, ValidationException,
+                    OrganizationAuthorityException, IncompatibleRolesException,
+                    MailOperationException, OrganizationAuthoritiesException,
+                    ObjectNotFoundException, ImageException {
         try {
 
             if (rolesToGrant == null) {
                 rolesToGrant = new OrganizationRoleType[0];
             }
+            
+            String restrictedMpId = marketplaceID;
+            
             // the marketplaceID must not null when creating customer
             // the marketplaceID must ignore when creating other organization
             marketplaceID = checkMarketplaceIDForCreateOrganization(
                     marketplaceID, rolesToGrant);
-
+            
             if (rolesAreInvalid(rolesToGrant)) {
                 OrganizationAuthorityException iao = new OrganizationAuthorityException(
                         "Creation of organization failed, invalid role to be granted",
@@ -150,9 +210,7 @@ public class OperatorServiceBean implements OperatorService {
                                 + OrganizationRoleType.TECHNOLOGY_PROVIDER
                                 + ", " + OrganizationRoleType.BROKER + ", "
                                 + OrganizationRoleType.RESELLER });
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        iao,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, iao,
                         LogMessageIdentifier.WARN_REGISTER_ORGANIZATION_FAILED_INVALID_ROLE_GRANTED);
                 throw iao;
             }
@@ -163,9 +221,7 @@ public class OperatorServiceBean implements OperatorService {
                 ValidationException validationException = new ValidationException(
                         ValidationException.ReasonEnum.INVALID_OPERATOR_REVENUE_SHARE,
                         null, null);
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        validationException,
+                logger.logError(Log4jLogger.SYSTEM_LOG, validationException,
                         LogMessageIdentifier.ERROR_REGISTER_ORGANIZATION_FAILED_INVALID_OPERATOR_REVENUE_SHARE);
                 throw validationException;
             }
@@ -201,21 +257,19 @@ public class OperatorServiceBean implements OperatorService {
             }
 
             Organization createdOrganization = accMgmt.registerOrganization(
-                    organizationToCreate,
-                    imageResource,
-                    orgInitialUser,
-                    organizationProperties != null ? organizationProperties
-                            .asProperties() : null, organization
-                            .getDomicileCountry(), marketplaceID, organization
-                            .getDescription(), rolesToGrant);
+                    organizationToCreate, imageResource, orgInitialUser,
+                    organizationProperties != null
+                            ? organizationProperties.asProperties() : null,
+                    organization.getDomicileCountry(), marketplaceID,
+                    organization.getDescription(), rolesToGrant);
 
             addInvoice(createdOrganization);
+            grantAccessIfMarketplaceIsClosed(restrictedMpId, createdOrganization);
 
-            VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(
-                    createdOrganization, false, new LocalizerFacade(localizer,
-                            dm.getCurrentUser().getLocale()));
-
-            grantAccessIfMarketplaceIsClosed(marketplaceID, voOrganization);
+            VOOrganization voOrganization = OrganizationAssembler
+                    .toVOOrganization(createdOrganization, false,
+                            new LocalizerFacade(localizer,
+                                    dm.getCurrentUser().getLocale()));
 
             return voOrganization;
         } catch (ObjectNotFoundException e) {
@@ -238,16 +292,18 @@ public class OperatorServiceBean implements OperatorService {
         }
     }
 
-    private void grantAccessIfMarketplaceIsClosed(String marketplaceID, VOOrganization voOrganization)
-        throws ObjectNotFoundException, ValidationException, NonUniqueBusinessKeyException {
+    private void grantAccessIfMarketplaceIsClosed(String marketplaceID,
+            Organization organization) throws ObjectNotFoundException,
+                    ValidationException, NonUniqueBusinessKeyException {
         if (marketplaceID == null || "".equals(marketplaceID)) {
             return;
         }
-        VOMarketplace voMarketplace = marketplaceService
-                .getMarketplaceById(marketplaceID);
-        if (voMarketplace.isRestricted()) {
+        Marketplace marketplace = marketplaceService
+                .getMarketplaceForId(marketplaceID);
+
+        if (marketplace.isRestricted()) {
             marketplaceService.grantAccessToMarketPlaceToOrganization(
-                    voMarketplace, voOrganization);
+                    marketplace, organization);
         }
     }
 
@@ -261,9 +317,9 @@ public class OperatorServiceBean implements OperatorService {
      * @throws ValidationException
      * @throws ObjectNotFoundException
      */
-    private String checkMarketplaceIDForCreateOrganization(
-            String marketplaceID, OrganizationRoleType... roles)
-            throws ValidationException, ObjectNotFoundException {
+    private String checkMarketplaceIDForCreateOrganization(String marketplaceID,
+            OrganizationRoleType... roles)
+                    throws ValidationException, ObjectNotFoundException {
         if (roles.length == 0) {
             if (marketplaceID == null || marketplaceID.trim().length() == 0) {
                 ValidationException validationException = new ValidationException(
@@ -299,10 +355,10 @@ public class OperatorServiceBean implements OperatorService {
 
     private boolean rolesAreInvalid(OrganizationRoleType... roles) {
         for (OrganizationRoleType role : roles) {
-            if ((role == null)
-                    || (role != OrganizationRoleType.SUPPLIER
-                            && role != OrganizationRoleType.TECHNOLOGY_PROVIDER
-                            && role != OrganizationRoleType.BROKER && role != OrganizationRoleType.RESELLER)) {
+            if ((role == null) || (role != OrganizationRoleType.SUPPLIER
+                    && role != OrganizationRoleType.TECHNOLOGY_PROVIDER
+                    && role != OrganizationRoleType.BROKER
+                    && role != OrganizationRoleType.RESELLER)) {
                 return true;
             }
         }
@@ -343,11 +399,11 @@ public class OperatorServiceBean implements OperatorService {
      */
     private void createOperatorPriceModel(Organization org,
             BigDecimal operatorRevenueShare)
-            throws NonUniqueBusinessKeyException {
+                    throws NonUniqueBusinessKeyException {
         RevenueShareModel operatorPriceModel = new RevenueShareModel();
         operatorPriceModel.setRevenueShare(operatorRevenueShare);
-        operatorPriceModel
-                .setRevenueShareModelType(RevenueShareModelType.OPERATOR_REVENUE_SHARE);
+        operatorPriceModel.setRevenueShareModelType(
+                RevenueShareModelType.OPERATOR_REVENUE_SHARE);
 
         org.setOperatorPriceModel(operatorPriceModel);
         dm.persist(operatorPriceModel);
@@ -366,21 +422,19 @@ public class OperatorServiceBean implements OperatorService {
      */
     private void updateOperatorRevenueShare(Organization org,
             BigDecimal operatorRevenueShare)
-            throws NonUniqueBusinessKeyException, ValidationException {
+                    throws NonUniqueBusinessKeyException, ValidationException {
         if (operatorRevenueShareIsInvalid(operatorRevenueShare,
                 org.getGrantedRoleTypes())) {
             ValidationException validationException = new ValidationException(
                     ValidationException.ReasonEnum.INVALID_OPERATOR_REVENUE_SHARE,
                     null, null);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    validationException,
+            logger.logError(Log4jLogger.SYSTEM_LOG, validationException,
                     LogMessageIdentifier.ERROR_UPDATE_ORGANIZATION_FAILED_INVALID_OPERATOR_REVENUE_SHARE);
             throw validationException;
         } else if (operatorRevenueShare != null) {
             if (org.getOperatorPriceModel() != null) {
-                org.getOperatorPriceModel().setRevenueShare(
-                        operatorRevenueShare);
+                org.getOperatorPriceModel()
+                        .setRevenueShare(operatorRevenueShare);
             } else {
                 createOperatorPriceModel(org, operatorRevenueShare);
             }
@@ -396,8 +450,8 @@ public class OperatorServiceBean implements OperatorService {
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
      */
-    private void addInvoice(Organization org) throws ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+    private void addInvoice(Organization org)
+            throws ObjectNotFoundException, NonUniqueBusinessKeyException {
         if (!org.hasRole(OrganizationRoleType.SUPPLIER)
                 && !org.hasRole(OrganizationRoleType.RESELLER)) {
             return;
@@ -415,7 +469,8 @@ public class OperatorServiceBean implements OperatorService {
             apt.setPaymentType(paymentType);
             OrganizationRole role = (OrganizationRole) dm
                     .getReferenceByBusinessKey(new OrganizationRole(
-                            orgRef.getReferenceType() == OrganizationReferenceType.PLATFORM_OPERATOR_TO_RESELLER ? OrganizationRoleType.RESELLER
+                            orgRef.getReferenceType() == OrganizationReferenceType.PLATFORM_OPERATOR_TO_RESELLER
+                                    ? OrganizationRoleType.RESELLER
                                     : OrganizationRoleType.SUPPLIER));
             apt.setOrganizationRole(role);
             if (isSupplierSetsInvoiceAsDefaultEnabled()) {
@@ -437,8 +492,8 @@ public class OperatorServiceBean implements OperatorService {
         } else {
             refType = OrganizationReferenceType.PLATFORM_OPERATOR_TO_SUPPLIER;
         }
-        return OperatorServiceDataHandler.findOrCreateOrganizationReference(
-                operator, org, refType, dm);
+        return OperatorServiceDataHandler
+                .findOrCreateOrganizationReference(operator, org, refType, dm);
     }
 
     /**
@@ -467,8 +522,8 @@ public class OperatorServiceBean implements OperatorService {
 
     private void addOrganizationToRoleIntern(String organizationId,
             OrganizationRoleType role) throws OrganizationAuthorityException,
-            IncompatibleRolesException, ObjectNotFoundException,
-            AddMarketingPermissionException {
+                    IncompatibleRolesException, ObjectNotFoundException,
+                    AddMarketingPermissionException {
 
         if (role == null || role != OrganizationRoleType.SUPPLIER
                 && role != OrganizationRoleType.TECHNOLOGY_PROVIDER
@@ -480,9 +535,7 @@ public class OperatorServiceBean implements OperatorService {
                             + OrganizationRoleType.TECHNOLOGY_PROVIDER + " or "
                             + OrganizationRoleType.RESELLER + " or "
                             + OrganizationRoleType.BROKER });
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    iao,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, iao,
                     LogMessageIdentifier.WARN_UPDATE_ORGANIZATION_FAILED_INVALID_ROLE_GRANTED);
             throw iao;
         }
@@ -503,8 +556,9 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public void addOrganizationToRole(String organizationId,
             OrganizationRoleType role) throws OrganizationAuthorityException,
-            IncompatibleRolesException, ObjectNotFoundException,
-            OrganizationAuthoritiesException, AddMarketingPermissionException {
+                    IncompatibleRolesException, ObjectNotFoundException,
+                    OrganizationAuthoritiesException,
+                    AddMarketingPermissionException {
         try {
             addOrganizationToRoleIntern(organizationId, role);
         } catch (OrganizationAuthorityException e) {
@@ -524,18 +578,20 @@ public class OperatorServiceBean implements OperatorService {
 
     private void addAvailablePaymentTypesIntern(VOOrganization supplier,
             Set<String> types) throws ObjectNotFoundException,
-            OrganizationAuthorityException, PSPIdentifierForSellerException,
-            PaymentDataException {
+                    OrganizationAuthorityException,
+                    PSPIdentifierForSellerException, PaymentDataException {
 
         Organization operator = dm.getCurrentUser().getOrganization();
 
-        Organization organization = getOrganizationInt(supplier
-                .getOrganizationId());
+        Organization organization = getOrganizationInt(
+                supplier.getOrganizationId());
         OrganizationRole role = null;
         Set<OrganizationToRole> grantedRoles = organization.getGrantedRoles();
         for (OrganizationToRole organizationToRole : grantedRoles) {
-            if (organizationToRole.getOrganizationRole().getRoleName() == OrganizationRoleType.SUPPLIER
-                    || organizationToRole.getOrganizationRole().getRoleName() == OrganizationRoleType.RESELLER) {
+            if (organizationToRole.getOrganizationRole()
+                    .getRoleName() == OrganizationRoleType.SUPPLIER
+                    || organizationToRole.getOrganizationRole()
+                            .getRoleName() == OrganizationRoleType.RESELLER) {
                 role = organizationToRole.getOrganizationRole();
                 break;
             }
@@ -569,8 +625,8 @@ public class OperatorServiceBean implements OperatorService {
                 Query query = dm.createNamedQuery("PaymentType.getAll");
                 boolean notFirst = false;
                 StringBuffer validTypes = new StringBuffer();
-                for (PaymentType pt : ParameterizedTypes.iterable(
-                        query.getResultList(), PaymentType.class)) {
+                for (PaymentType pt : ParameterizedTypes
+                        .iterable(query.getResultList(), PaymentType.class)) {
                     if (notFirst) {
                         validTypes.append(", ");
                     }
@@ -578,25 +634,27 @@ public class OperatorServiceBean implements OperatorService {
                     validTypes.append(pt.getPaymentTypeId());
                 }
                 String message = "Unknown paymenttype '%s'. Valid values are: %s";
-                throw new PaymentDataException(String.format(message,
-                        paymentTypeId, validTypes.toString()),
+                throw new PaymentDataException(
+                        String.format(message, paymentTypeId,
+                                validTypes.toString()),
                         Reason.UNKNOWN_PAYMENT_TYPE);
             }
-            if (!orgHasAvailablePaymentType(paymentType, availablePaymentTypes)) {
-                if (paymentType.getCollectionType() == PaymentCollectionType.PAYMENT_SERVICE_PROVIDER
-                        && (organization.getPspAccountForPsp(paymentType
-                                .getPsp()) == null || organization
-                                .getPspAccountForPsp(paymentType.getPsp())
-                                .getPspIdentifier() == null)) {
+            if (!orgHasAvailablePaymentType(paymentType,
+                    availablePaymentTypes)) {
+                if (paymentType
+                        .getCollectionType() == PaymentCollectionType.PAYMENT_SERVICE_PROVIDER
+                        && (organization.getPspAccountForPsp(
+                                paymentType.getPsp()) == null
+                                || organization
+                                        .getPspAccountForPsp(
+                                                paymentType.getPsp())
+                                        .getPspIdentifier() == null)) {
                     // validate that the supplier's organization has the
                     // psp-identifier set for itself. If not, throw an exception
                     PSPIdentifierForSellerException mpi = new PSPIdentifierForSellerException(
-                            "Supplier '"
-                                    + organization.getKey()
+                            "Supplier '" + organization.getKey()
                                     + "' is missing the setting of the PSP identifier.");
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            mpi,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, mpi,
                             LogMessageIdentifier.WARN_DEFINE_SUPPORTED_PAYMENT_TYPE_FAILED,
                             Long.toString(organization.getKey()));
                     throw mpi;
@@ -612,9 +670,7 @@ public class OperatorServiceBean implements OperatorService {
                 } catch (NonUniqueBusinessKeyException e) {
                     // should not happen because AvailablePaymentType has no
                     // business key
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_NONUNIQUEKEY_EXCEPTION_ALTHOUGH_NO_BUSINESS_KEY);
                     throw new SaaSSystemException(
                             "Persisting new available payment failed.", e);
@@ -627,8 +683,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public void addAvailablePaymentTypes(VOOrganization supplier,
             Set<String> types) throws ObjectNotFoundException,
-            OrganizationAuthorityException, PSPIdentifierForSellerException,
-            PaymentDataException {
+                    OrganizationAuthorityException,
+                    PSPIdentifierForSellerException, PaymentDataException {
 
         // Delegate the call to the internal method.
         // Add transaction management here if needed.
@@ -706,9 +762,9 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public void setDistinguishedName(String organizationId,
-            String distinguishedName) throws ObjectNotFoundException,
-            DistinguishedNameException, OrganizationAuthoritiesException,
-            ValidationException {
+            String distinguishedName)
+                    throws ObjectNotFoundException, DistinguishedNameException,
+                    OrganizationAuthoritiesException, ValidationException {
         Organization organization = getOrganizationInt(organizationId);
 
         BLValidator.isDN("distinguishedName", distinguishedName, false);
@@ -725,7 +781,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public byte[] getOrganizationBillingData(long from, long to,
             String organizationId) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException {
+                    OrganizationAuthoritiesException {
 
         Organization organization = getOrganizationInt(organizationId);
 
@@ -787,7 +843,8 @@ public class OperatorServiceBean implements OperatorService {
                     ReasonEnum.INVALID_CURRENCY, "currencyISOCode",
                     new Object[] { currencyISOCode });
             logger.logWarn(Log4jLogger.SYSTEM_LOG, ve,
-                    LogMessageIdentifier.WARN_INVALID_CURRENCY, currencyISOCode);
+                    LogMessageIdentifier.WARN_INVALID_CURRENCY,
+                    currencyISOCode);
             throw ve;
         }
 
@@ -827,8 +884,8 @@ public class OperatorServiceBean implements OperatorService {
 
         ConfigurationSetting dbSetting = configService.getConfigurationSetting(
                 setting.getInformationId(), setting.getContextId());
-        dbSetting = ConfigurationSettingAssembler.updateConfigurationSetting(
-                setting, dbSetting);
+        dbSetting = ConfigurationSettingAssembler
+                .updateConfigurationSetting(setting, dbSetting);
 
         // necessary because of key and version check in BaseAssembler.
         // Search in configService.getConfigurationSetting uses the business
@@ -873,12 +930,13 @@ public class OperatorServiceBean implements OperatorService {
     public VOOperatorOrganization updateOrganization(
             VOOperatorOrganization voOrganization,
             VOImageResource voImageResource)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            ValidationException, ConcurrentModificationException,
-            DistinguishedNameException, OrganizationAuthorityException,
-            IncompatibleRolesException, PSPIdentifierForSellerException,
-            PaymentDataException, ImageException,
-            AddMarketingPermissionException, NonUniqueBusinessKeyException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, ValidationException,
+                    ConcurrentModificationException, DistinguishedNameException,
+                    OrganizationAuthorityException, IncompatibleRolesException,
+                    PSPIdentifierForSellerException, PaymentDataException,
+                    ImageException, AddMarketingPermissionException,
+                    NonUniqueBusinessKeyException {
         try {
             return updateOrganizationIntern(voOrganization, voImageResource);
         } catch (ObjectNotFoundException e) {
@@ -913,12 +971,13 @@ public class OperatorServiceBean implements OperatorService {
 
     VOOperatorOrganization updateOrganizationIntern(
             VOOperatorOrganization voOrganization,
-            VOImageResource voImageResource) throws ObjectNotFoundException,
-            ValidationException, ConcurrentModificationException,
-            DistinguishedNameException, OrganizationAuthorityException,
-            IncompatibleRolesException, PSPIdentifierForSellerException,
-            PaymentDataException, ImageException,
-            AddMarketingPermissionException, NonUniqueBusinessKeyException {
+            VOImageResource voImageResource)
+                    throws ObjectNotFoundException, ValidationException,
+                    ConcurrentModificationException, DistinguishedNameException,
+                    OrganizationAuthorityException, IncompatibleRolesException,
+                    PSPIdentifierForSellerException, PaymentDataException,
+                    ImageException, AddMarketingPermissionException,
+                    NonUniqueBusinessKeyException {
 
         // Get the corresponding organization object
         Organization tmpOrganization = new Organization();
@@ -927,8 +986,8 @@ public class OperatorServiceBean implements OperatorService {
                 .getReferenceByBusinessKey(tmpOrganization);
 
         if (isVendor(voOrganization)) {
-            organizationObj = OrganizationAssembler.updateVendor(
-                    organizationObj, voOrganization);
+            organizationObj = OrganizationAssembler
+                    .updateVendor(organizationObj, voOrganization);
         } else {
             if (voImageResource != null) {
                 // only suppliers and technology providers are allowed to
@@ -939,8 +998,8 @@ public class OperatorServiceBean implements OperatorService {
                                 + "' is not allowed because it is not a supplier or technology provider.",
                         ImageException.Reason.NO_SELLER);
             }
-            organizationObj = OrganizationAssembler.updateCustomer(
-                    organizationObj, voOrganization);
+            organizationObj = OrganizationAssembler
+                    .updateCustomer(organizationObj, voOrganization);
         }
 
         accMgmt.checkDistinguishedName(organizationObj);
@@ -989,16 +1048,14 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     private void updateOrganizationRoles(VOOperatorOrganization voOrganization,
-            Organization organizationObj)
-            throws OrganizationAuthorityException, IncompatibleRolesException,
-            ObjectNotFoundException, AddMarketingPermissionException {
+            Organization organizationObj) throws OrganizationAuthorityException,
+                    IncompatibleRolesException, ObjectNotFoundException,
+                    AddMarketingPermissionException {
 
         List<OrganizationRoleType> desiredRoles = voOrganization
                 .getOrganizationRoles();
-        OrganizationRoleValidator
-                .containsMultipleSellerRoles(
-                        desiredRoles,
-                        LogMessageIdentifier.WARN_ADDING_INCOMPATIBLE_ROLE_TO_ORGANIZATION_FAILED);
+        OrganizationRoleValidator.containsMultipleSellerRoles(desiredRoles,
+                LogMessageIdentifier.WARN_ADDING_INCOMPATIBLE_ROLE_TO_ORGANIZATION_FAILED);
         if (desiredRoles != null && desiredRoles.size() > 0) {
             for (OrganizationRoleType role : desiredRoles) {
                 if (!organizationObj.hasRole(role)) {
@@ -1050,7 +1107,7 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOOrganization> getOrganizations(String organizationIdPattern,
             List<OrganizationRoleType> organizationRoleTypes)
-            throws OrganizationAuthoritiesException {
+                    throws OrganizationAuthoritiesException {
         return getOrganizationsWithLimit(organizationIdPattern,
                 organizationRoleTypes, DB_SEARCH_LIMIT);
     }
@@ -1059,8 +1116,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOOrganization> getOrganizationsWithLimit(
             String organizationIdPattern,
-            List<OrganizationRoleType> organizationRoleTypes, Integer queryLimit)
-            throws OrganizationAuthoritiesException {
+            List<OrganizationRoleType> organizationRoleTypes,
+            Integer queryLimit) throws OrganizationAuthoritiesException {
         Query query = dm
                 .createNamedQuery("Organization.findOrganizationsByIdAndRole");
         query.setMaxResults(queryLimit.intValue());
@@ -1072,11 +1129,11 @@ public class OperatorServiceBean implements OperatorService {
         }
         query.setParameter("organizationRoleTypes", organizationRoleTypes);
 
-        LocalizerFacade lf = new LocalizerFacade(localizer, dm.getCurrentUser()
-                .getLocale());
+        LocalizerFacade lf = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         List<VOOrganization> result = new ArrayList<>();
-        for (Organization org : ParameterizedTypes.iterable(
-                query.getResultList(), Organization.class)) {
+        for (Organization org : ParameterizedTypes
+                .iterable(query.getResultList(), Organization.class)) {
             result.add(OrganizationAssembler.toVOOrganization(org, false, lf));
         }
 
@@ -1100,8 +1157,8 @@ public class OperatorServiceBean implements OperatorService {
         query.setParameter("userId", userIdPattern);
 
         List<VOUserDetails> result = new ArrayList<>();
-        for (PlatformUser user : ParameterizedTypes.iterable(
-                query.getResultList(), PlatformUser.class)) {
+        for (PlatformUser user : ParameterizedTypes
+                .iterable(query.getResultList(), PlatformUser.class)) {
             result.add(UserDataAssembler.toVOUserDetails(user));
         }
 
@@ -1109,11 +1166,12 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     @Override
-    @RolesAllowed({"ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR"})
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
     public List<VOUserDetails> getUnassignedUsersByOrg(Long subscriptionKey,
             Long organizationKey) {
-        Query query = dm
-                .createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname from  PlatformUser as usr "
+        Query query = dm.createNativeQuery(
+                "select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname from  PlatformUser as usr "
                         + " where not exists (select 1 from UsageLicense as lic1 where lic1.subscription_tkey=:subscriptionKey and lic1.user_tkey=usr.tkey) and usr.organizationkey=:organizationKey");
 
         query.setParameter("subscriptionKey", subscriptionKey);
@@ -1133,12 +1191,15 @@ public class OperatorServiceBean implements OperatorService {
     }
 
     @Override
-    @RolesAllowed({"ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER", "UNIT_ADMINISTRATOR"})
-    public List<VOUserDetails> getSubscriptionOwnersForAssignment(Long organizationKey) {
-        Query query = dm.createNativeQuery("select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname " +
-                "from platformuser as usr " +
-                "left outer join roleassignment as ass on usr.tkey=ass.user_tkey " +
-                "where usr.organizationkey=:organizationKey and (ass.userrole_tkey=8 or ass.userrole_tkey=9 or ass.userrole_tkey=1);");
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "SUBSCRIPTION_MANAGER",
+            "UNIT_ADMINISTRATOR" })
+    public List<VOUserDetails> getSubscriptionOwnersForAssignment(
+            Long organizationKey) {
+        Query query = dm.createNativeQuery(
+                "select distinct usr.tkey, usr.userid, usr.firstname, usr.lastname "
+                        + "from platformuser as usr "
+                        + "left outer join roleassignment as ass on usr.tkey=ass.user_tkey "
+                        + "where usr.organizationkey=:organizationKey and (ass.userrole_tkey=8 or ass.userrole_tkey=9 or ass.userrole_tkey=1);");
         query.setParameter("organizationKey", organizationKey);
         List<VOUserDetails> result = new ArrayList<>();
         List<Object[]> resultList = query.getResultList();
@@ -1195,12 +1256,12 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public byte[] getUserOperationLog(List<String> operationIds, long fromDate,
-            long toDate) throws ValidationException,
-            AuditLogTooManyRowsException {
+            long toDate)
+                    throws ValidationException, AuditLogTooManyRowsException {
 
         BLValidator.isValidDateRange(new Date(fromDate), new Date(toDate));
-        byte[] resultCsv = auditLogService.loadAuditLogs(operationIds,
-                fromDate, toDate);
+        byte[] resultCsv = auditLogService.loadAuditLogs(operationIds, fromDate,
+                toDate);
         return resultCsv;
     }
 
@@ -1220,17 +1281,17 @@ public class OperatorServiceBean implements OperatorService {
         Query query = dm.createNamedQuery("PSP.getAll");
         List<PSP> psps = ParameterizedTypes.list(query.getResultList(),
                 PSP.class);
-        result = PSPAssembler.toVos(psps, new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale()));
+        result = PSPAssembler.toVos(psps, new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale()));
 
         return result;
     }
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public VOPSP savePSP(VOPSP psp) throws ConcurrentModificationException,
-            ValidationException, NonUniqueBusinessKeyException,
-            ObjectNotFoundException {
+    public VOPSP savePSP(VOPSP psp)
+            throws ConcurrentModificationException, ValidationException,
+            NonUniqueBusinessKeyException, ObjectNotFoundException {
 
         ArgumentValidator.notNull("psp", psp);
         PSP pspToStore = null;
@@ -1288,8 +1349,8 @@ public class OperatorServiceBean implements OperatorService {
             existingSettings.put(Long.valueOf(setting.getKey()), setting);
         }
         for (VOPSPSetting setting : pspSettings) {
-            PSPSetting updatedSetting = existingSettings.remove(Long
-                    .valueOf(setting.getKey()));
+            PSPSetting updatedSetting = existingSettings
+                    .remove(Long.valueOf(setting.getKey()));
             if (updatedSetting == null) {
                 if (setting.getKey() != 0) {
                     updatedSetting = dm.getReference(PSPSetting.class,
@@ -1333,8 +1394,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOPSPAccount savePSPAccount(VOOrganization organization,
             VOPSPAccount account) throws ObjectNotFoundException,
-            OrganizationAuthorityException, ConcurrentModificationException,
-            ValidationException {
+                    OrganizationAuthorityException,
+                    ConcurrentModificationException, ValidationException {
 
         ArgumentValidator.notNull("organization", organization);
         ArgumentValidator.notNull("account", account);
@@ -1352,9 +1413,7 @@ public class OperatorServiceBean implements OperatorService {
                                     + OrganizationRoleType.RESELLER.name()),
                     new Object[] { OrganizationRoleType.SUPPLIER.name() + ", "
                             + OrganizationRoleType.RESELLER.name() });
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    oae,
+            logger.logError(Log4jLogger.SYSTEM_LOG, oae,
                     LogMessageIdentifier.ERROR_OPERATION_FAILED_ORGANIZATION_NOT_ROLE_AS_SUPPLIER,
                     "creating PSP account",
                     Long.toString(organization.getKey()),
@@ -1395,15 +1454,16 @@ public class OperatorServiceBean implements OperatorService {
                 // Must not occur, as PSPAccount has no business key
                 SaaSSystemException sse = new SaaSSystemException(
                         "Creating of PSPAccount failed", e);
-                logger.logError(LogMessageIdentifier.ERROR_NONUNIQUEKEY_EXCEPTION_ALTHOUGH_NO_BUSINESS_KEY);
+                logger.logError(
+                        LogMessageIdentifier.ERROR_NONUNIQUEKEY_EXCEPTION_ALTHOUGH_NO_BUSINESS_KEY);
                 throw sse;
             }
         }
 
         dm.flush();
-        VOPSPAccount result = PSPAccountAssembler
-                .toVo(pspAccount, new LocalizerFacade(localizer, dm
-                        .getCurrentUser().getLocale()));
+        VOPSPAccount result = PSPAccountAssembler.toVo(pspAccount,
+                new LocalizerFacade(localizer,
+                        dm.getCurrentUser().getLocale()));
 
         return result;
     }
@@ -1418,8 +1478,8 @@ public class OperatorServiceBean implements OperatorService {
         PSP currentPsp = dm.getReference(PSP.class, psp.getKey());
         List<PaymentType> paymentTypes = currentPsp.getPaymentTypes();
         List<VOPaymentType> result = new ArrayList<VOPaymentType>();
-        result.addAll(PaymentTypeAssembler
-                .toVOPaymentTypes(paymentTypes, new LocalizerFacade(localizer,
+        result.addAll(PaymentTypeAssembler.toVOPaymentTypes(paymentTypes,
+                new LocalizerFacade(localizer,
                         dm.getCurrentUser().getLocale())));
 
         return result;
@@ -1445,8 +1505,7 @@ public class OperatorServiceBean implements OperatorService {
 
         // if the identifier was changed or the object is not managed by the em
         if (dm.contains(pt)
-                && !pt.getPaymentTypeId()
-                        .equals(paymentType.getPaymentTypeId())
+                && !pt.getPaymentTypeId().equals(paymentType.getPaymentTypeId())
                 || !dm.contains(pt)) {
             // validate BK uniqueness
             PaymentType template = new PaymentType();
@@ -1464,9 +1523,9 @@ public class OperatorServiceBean implements OperatorService {
         }
         dm.flush();
 
-        VOPaymentType result = PaymentTypeAssembler
-                .toVOPaymentType(pt, new LocalizerFacade(localizer, dm
-                        .getCurrentUser().getLocale()));
+        VOPaymentType result = PaymentTypeAssembler.toVOPaymentType(pt,
+                new LocalizerFacade(localizer,
+                        dm.getCurrentUser().getLocale()));
         localizer.storeLocalizedResource(dm.getCurrentUser().getLocale(),
                 result.getKey(), LocalizedObjectTypes.PAYMENT_TYPE_NAME,
                 paymentType.getName());
@@ -1478,9 +1537,8 @@ public class OperatorServiceBean implements OperatorService {
     @RolesAllowed("PLATFORM_OPERATOR")
     public byte[] getSupplierRevenueList(long month) {
 
-        PriceConverter priceConverter = new PriceConverter(
-                LocaleHandler.getLocaleFromString(dm.getCurrentUser()
-                        .getLocale()));
+        PriceConverter priceConverter = new PriceConverter(LocaleHandler
+                .getLocaleFromString(dm.getCurrentUser().getLocale()));
         SupplierRevenueSqlResult result = SupplierRevenueSqlResult
                 .executeQuery(dm, month);
         String header = String
@@ -1494,12 +1552,12 @@ public class OperatorServiceBean implements OperatorService {
             row[1] = rowData.toDate;
             row[2] = rowData.supplierId;
             row[3] = rowData.supplierName;
-            row[4] = priceConverter.getValueToDisplay(new BigDecimal(
-                    rowData.amount), false);
+            row[4] = priceConverter
+                    .getValueToDisplay(new BigDecimal(rowData.amount), false);
             row[5] = rowData.currency;
             row[6] = rowData.marketplace;
-            csvResult.append(String.format("%s%n",
-                    CsvCreator.createCsvLine(row)));
+            csvResult.append(
+                    String.format("%s%n", CsvCreator.createCsvLine(row)));
         }
         byte[] resultCsv = XMLConverter.toUTF8(csvResult.toString());
 

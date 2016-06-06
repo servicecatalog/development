@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
-
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ImageResource;
@@ -37,14 +36,13 @@ import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.Salutation;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 /**
  * @author Wenxin Gao
@@ -58,7 +56,8 @@ public class OperatorServiceBeanRegisterCustomerTest {
     private VOOrganization organization;
     private VOUserDetails userDetails;
     private final String marketplaceId = "marketplace_1";
-    private MarketplaceService marketplaceService;
+    private MarketplaceServiceLocal marketplaceService;
+    
     @Captor
     ArgumentCaptor<String> ac;
 
@@ -74,7 +73,7 @@ public class OperatorServiceBeanRegisterCustomerTest {
         operatorServiceBean.dm = dm;
         LocalizerServiceLocal localizer = mock(LocalizerServiceLocal.class);
         operatorServiceBean.localizer = localizer;
-        marketplaceService = mock(MarketplaceService.class);
+        marketplaceService = mock(MarketplaceServiceLocal.class);
         operatorServiceBean.marketplaceService=marketplaceService;
         
         createOrganization();
@@ -139,34 +138,39 @@ public class OperatorServiceBeanRegisterCustomerTest {
     @Test
     public void registerOrganization_CreateSupplierWithMarketplaceID()
             throws Exception {
+        
+
+        //given
         prepareForRegisterOrganization();
         organization.setOperatorRevenueShare(BigDecimal.valueOf(15));
-        VOOrganization result = new VOOrganization();
-        try {
-            result = operatorServiceBean.registerOrganization(organization,
-                    null, userDetails, null, marketplaceId,
-                    OrganizationRoleType.SUPPLIER);
-        } finally {
-            // check the marketplaceID has been set null and the
-            // OrganizationRoleType has been send correctly
-            verify(accountServiceMock, times(1)).registerOrganization(
-                    any(Organization.class), any(ImageResource.class),
-                    any(VOUserDetails.class), any(Properties.class),
-                    anyString(), (String) eq(null), anyString(),
-                    eq(OrganizationRoleType.SUPPLIER));
-            // the organization should be returned correctly
-            assertEquals(organization.getEmail(), result.getEmail());
-        }
+        Marketplace marketplace = createMarketplace(marketplaceId);
+        doReturn(marketplace).when(marketplaceService).getMarketplaceForId(anyString());
+        
+        //when
+        VOOrganization result = operatorServiceBean.registerOrganization(organization,
+                null, userDetails, null, marketplaceId,
+                OrganizationRoleType.SUPPLIER);
+        
+        //then
+        // check the marketplaceID has been set null and the
+        // OrganizationRoleType has been send correctly
+        verify(accountServiceMock, times(1)).registerOrganization(
+                any(Organization.class), any(ImageResource.class),
+                any(VOUserDetails.class), any(Properties.class),
+                anyString(), (String) eq(null), anyString(),
+                eq(OrganizationRoleType.SUPPLIER));
+        // the organization should be returned correctly
+        assertEquals(organization.getEmail(), result.getEmail());    
     }
 
     @Test
     public void registerOrganization_CreateCustomerWithMarketplaceID()
             throws Exception {
-        prepareForRegisterOrganization();
        
         //given
-        VOMarketplace marketplace = createMarketplace(marketplaceId, "sampleName", false);
-        doReturn(marketplace).when(marketplaceService).getMarketplaceById(anyString());
+        prepareForRegisterOrganization();
+        Marketplace marketplace = createMarketplace(marketplaceId);
+        doReturn(marketplace).when(marketplaceService).getMarketplaceForId(anyString());
         
         //when
         VOOrganization org = operatorServiceBean.registerOrganization(organization,
@@ -204,12 +208,10 @@ public class OperatorServiceBeanRegisterCustomerTest {
         userDetails.setLocale("en");
     }
     
-    private VOMarketplace createMarketplace(String marketplaceId, String name, boolean isRestricted) {
+    private Marketplace createMarketplace(String marketplaceId) {
         
-        VOMarketplace marketplace = new VOMarketplace();
+        Marketplace marketplace = new Marketplace(marketplaceId);
         marketplace.setMarketplaceId(marketplaceId);
-        marketplace.setName(name);
-        marketplace.setRestricted(isRestricted);
         
         return marketplace;
     }
