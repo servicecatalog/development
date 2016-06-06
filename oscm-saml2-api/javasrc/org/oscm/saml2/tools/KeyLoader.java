@@ -2,7 +2,7 @@
  *  Copyright FUJITSU LIMITED 2016 
  *******************************************************************************/
 
-package org.oscm.saml.api;
+package org.oscm.saml2.tools;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,11 +17,11 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 
+import org.oscm.converter.ResourceLoader;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.converter.ResourceLoader;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.internal.types.exception.SaaSSystemException;
 
 public class KeyLoader {
 

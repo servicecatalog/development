@@ -3,7 +3,7 @@
  **
  * 
  */
-package org.oscm.saml.api;
+package org.oscm.saml2.tools;
 
 import java.security.*;
 import java.security.cert.X509Certificate;
@@ -40,6 +40,12 @@ import org.w3c.dom.NodeList;
  * @author barzu
  */
 public class Saml20Signer {
+
+    public static final String RESPONSE = "Response";
+    public static final String RESPONSE_ID = "ResponseID";
+    public static final String ASSERTION = "Assertion";
+    public static final String ASSERTION_ID = "AssertionID";
+    public static final String STATUS = "Status";
 
     private static final String EXCEPTION_PREFIX = "Unable to sign SAML XML element: ";
 
@@ -168,7 +174,7 @@ public class Saml20Signer {
         if (nodeList.getLength() <= 0) {
             // signing a SAML <Response>
             nodeList = element.getElementsByTagNameNS(SAML_PROTOCOL_NS_URI_V20,
-                    Status.STATUS);
+                    STATUS);
         }
         if (nodeList.getLength() <= 0) {
             return null;
@@ -273,11 +279,11 @@ public class Saml20Signer {
     private String getReferenceId(Element element) {
         String name = element.getLocalName();
         NamedNodeMap attributeMap = element.getAttributes();
-        Node attribute = null;
-        if (Response.RESPONSE.equals(name)) {
-            attribute = attributeMap.getNamedItem(Response.RESPONSE_ID);
-        } else if (Assertion.ASSERTION.equals(name)) {
-            attribute = attributeMap.getNamedItem(Assertion.ASSERTION_ID);
+        Node attribute;
+        if (RESPONSE.equals(name)) {
+            attribute = attributeMap.getNamedItem(RESPONSE_ID);
+        } else if (ASSERTION.equals(name)) {
+            attribute = attributeMap.getNamedItem(ASSERTION_ID);
         } else if ("Request".equals(name)) {
             attribute = attributeMap.getNamedItem("RequestID");
         } else if ("LogoutRequest".equals(name)){

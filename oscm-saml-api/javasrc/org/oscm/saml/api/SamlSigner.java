@@ -7,6 +7,7 @@ package org.oscm.saml.api;
 
 import java.security.PrivateKey;
 
+import org.oscm.saml2.tools.Saml20Signer;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
