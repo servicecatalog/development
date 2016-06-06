@@ -104,7 +104,7 @@ import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.dao.SubscriptionHistoryDao;
 import org.oscm.subscriptionservice.dao.UsageLicenseDao;
@@ -271,7 +271,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionServiceBean() {
             @Override
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {

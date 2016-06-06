@@ -42,7 +42,7 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
 import org.oscm.taskhandling.local.TaskMessage;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -69,6 +69,8 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUser;
+import static org.mockito.Mockito.mock;
+;
 
 /**
  * Unit tests for {@link UsageLicenseDao} using the test EJB container.
@@ -108,7 +110,7 @@ public class UsageLicenseDaoIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new LocalizerServiceStub());

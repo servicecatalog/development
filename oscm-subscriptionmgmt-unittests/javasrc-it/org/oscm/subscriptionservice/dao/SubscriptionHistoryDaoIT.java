@@ -31,7 +31,7 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.bean.ManageSubscriptionBean;
 import org.oscm.subscriptionservice.bean.ModifyAndUpgradeSubscriptionBean;
 import org.oscm.subscriptionservice.bean.SubscriptionServiceBean;
@@ -61,6 +61,8 @@ import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUser;
+import static org.mockito.Mockito.mock;
+
 
 public class SubscriptionHistoryDaoIT extends EJBTestBase {
     protected DataService mgr;
@@ -86,7 +88,7 @@ public class SubscriptionHistoryDaoIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new LocalizerServiceStub());

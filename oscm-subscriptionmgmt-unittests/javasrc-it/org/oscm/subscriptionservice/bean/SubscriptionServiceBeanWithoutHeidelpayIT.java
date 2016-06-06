@@ -79,6 +79,38 @@ import org.oscm.i18nservice.bean.LocalizerServiceStub;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.bean.IdManagementStub;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.intf.SubscriptionService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
+import org.oscm.internal.types.enumtypes.PaymentCollectionType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.SessionType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOInstanceInfo;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOSubscription;
+import org.oscm.internal.vo.VOSubscriptionDetails;
+import org.oscm.internal.vo.VOUda;
+import org.oscm.internal.vo.VOUsageLicense;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
@@ -86,7 +118,7 @@ import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceLocalizationBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.assembler.SubscriptionAssembler;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskMessage;
@@ -121,38 +153,7 @@ import org.oscm.types.enumtypes.EmailType;
 import org.oscm.types.enumtypes.PlatformParameterIdentifiers;
 import org.oscm.types.enumtypes.ProvisioningType;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.intf.SubscriptionService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.PaymentInformationException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VOCategory;
-import org.oscm.internal.vo.VOInstanceInfo;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOSubscription;
-import org.oscm.internal.vo.VOSubscriptionDetails;
-import org.oscm.internal.vo.VOUda;
-import org.oscm.internal.vo.VOUsageLicense;
-import org.oscm.internal.vo.VOUser;
+
 
 /**
  * @author qiu
@@ -209,7 +210,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionServiceBean() {
             @Override
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {

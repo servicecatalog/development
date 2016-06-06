@@ -55,7 +55,7 @@ import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -155,7 +155,7 @@ public class SubscriptionServiceBeanAllowOnBehalfActingIT extends EJBTestBase {
 
         container.addBean(new DataServiceBean());
         container.addBean(appMgmtStub = new ApplicationServiceStub());
-        container.addBean(new SessionManagementStub() {
+        container.addBean(new SessionServiceBean() {
             public List<Session> getProductSessionsForSubscriptionTKey(
                     long subscriptionTKey) {
                 Query query = mgr

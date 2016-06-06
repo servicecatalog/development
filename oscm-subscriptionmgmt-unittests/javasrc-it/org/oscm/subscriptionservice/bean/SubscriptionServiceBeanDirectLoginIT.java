@@ -69,7 +69,7 @@ import org.oscm.identityservice.bean.IdManagementStub;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.sessionservice.bean.SessionServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.taskhandling.local.TaskQueueServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
@@ -177,7 +177,7 @@ public class SubscriptionServiceBeanDirectLoginIT extends EJBTestBase {
             }
 
         });
-        container.addBean(new SessionManagementStub());
+        container.addBean(mock(SessionServiceBean.class));
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
         container.addBean(new CommunicationServiceStub());
