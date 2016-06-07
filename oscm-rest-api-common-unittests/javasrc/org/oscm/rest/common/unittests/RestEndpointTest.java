@@ -129,10 +129,8 @@ public class RestEndpointTest {
         MockRequestParameters params = new MockRequestParameters();
         params.setId(UUID.randomUUID());
 
-        Mockito.when(backend.postItem(params, rep)).thenReturn(
-                UUID.randomUUID().toString());
         Mockito.when(backend.postCollection(params, rep)).thenReturn(
-                UUID.randomUUID().toString());
+                UUID.randomUUID());
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
@@ -144,12 +142,7 @@ public class RestEndpointTest {
         UriBuilder builder = new UriBuilderImpl();
         Mockito.when(info.getAbsolutePathBuilder()).thenReturn(builder);
 
-        Response response = endpoint.postItem(request, info, params, rep);
-
-        assertEquals(response.getStatus(), CommonParams.STATUS_CREATED);
-        Mockito.verify(backend, Mockito.times(1)).postItem(params, rep);
-
-        response = endpoint.postCollection(request, info, params, rep);
+        Response response = endpoint.postCollection(request, info, params, rep);
 
         assertEquals(response.getStatus(), CommonParams.STATUS_CREATED);
         Mockito.verify(backend, Mockito.times(1)).postCollection(params, rep);
@@ -177,11 +170,6 @@ public class RestEndpointTest {
 
         assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
         Mockito.verify(backend, Mockito.times(1)).putItem(params, rep);
-
-        response = endpoint.putCollection(request, params, rep);
-
-        assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
-        Mockito.verify(backend, Mockito.times(1)).putCollection(params, rep);
     }
 
     @Test
@@ -207,10 +195,6 @@ public class RestEndpointTest {
         assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
         Mockito.verify(backend, Mockito.times(1)).deleteItem(params);
 
-        response = endpoint.deleteCollection(request, params);
-
-        assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
-        Mockito.verify(backend, Mockito.times(1)).deleteCollection(params);
     }
 
     @Test
@@ -245,14 +229,6 @@ public class RestEndpointTest {
         }
 
         try {
-            endpoint.postItem(requestWithout, null, params, null);
-            fail();
-        } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
-                    .getStatus());
-        }
-
-        try {
             endpoint.postCollection(requestWithout, null, params, null);
             fail();
         } catch (WebApplicationException e) {
@@ -269,14 +245,6 @@ public class RestEndpointTest {
         }
 
         try {
-            endpoint.putCollection(requestWithout, params, null);
-            fail();
-        } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
-                    .getStatus());
-        }
-
-        try {
             endpoint.deleteItem(requestWithout, params);
             fail();
         } catch (WebApplicationException e) {
@@ -285,23 +253,7 @@ public class RestEndpointTest {
         }
 
         try {
-            endpoint.deleteCollection(requestWithout, params);
-            fail();
-        } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
-                    .getStatus());
-        }
-
-        try {
             endpoint.getItem(requestWith, params);
-            fail();
-        } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
-                    .getStatus());
-        }
-
-        try {
-            endpoint.postItem(requestWith, null, params, null);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()

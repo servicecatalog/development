@@ -10,6 +10,7 @@ package org.oscm.rest.common;
 
 import java.net.URI;
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -90,25 +91,6 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
     @Since(CommonParams.VERSION_1)
     @POST
-    @Path(CommonParams.PATH_ID)
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response postItem(@Context Request request,
-            @Context UriInfo uriInfo, @InjectParam K params, T content) {
-
-        int version = getVersion(request);
-
-        prepareData(version, params, true, content);
-
-        String newId = backend.postItem(params, content);
-
-        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        URI uri = builder.path(newId).build();
-
-        return Response.created(uri).build();
-    }
-
-    @Since(CommonParams.VERSION_1)
-    @POST
     @Path("")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response postCollection(@Context Request request,
@@ -118,10 +100,10 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
 
         prepareData(version, params, false, content);
 
-        String newId = backend.postCollection(params, content);
+        UUID newId = backend.postCollection(params, content);
 
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
-        URI uri = builder.path(newId).build();
+        URI uri = builder.path(newId.toString()).build();
 
         return Response.created(uri).build();
     }
@@ -143,22 +125,6 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
     }
 
     @Since(CommonParams.VERSION_1)
-    @PUT
-    @Path("")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response putCollection(@Context Request request,
-            @InjectParam K params, T content) {
-
-        int version = getVersion(request);
-
-        prepareData(version, params, false, content);
-
-        backend.putCollection(params, content);
-
-        return Response.noContent().build();
-    }
-
-    @Since(CommonParams.VERSION_1)
     @DELETE
     @Path(CommonParams.PATH_ID)
     public Response deleteItem(@Context Request request, @InjectParam K params) {
@@ -168,21 +134,6 @@ public class RestEndpoint<T extends Representation, K extends RequestParameters>
         prepareData(version, params, true, null);
 
         backend.deleteItem(params);
-
-        return Response.noContent().build();
-    }
-
-    @Since(CommonParams.VERSION_1)
-    @DELETE
-    @Path("")
-    public Response deleteCollection(@Context Request request,
-            @InjectParam K params) {
-
-        int version = getVersion(request);
-
-        prepareData(version, params, false, null);
-
-        backend.deleteCollection(params);
 
         return Response.noContent().build();
     }

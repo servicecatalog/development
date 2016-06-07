@@ -31,6 +31,10 @@ public class TriggerParams {
     // only used to prevent double path param {id}
     public static final String PATH_PROCESS_ID = "/{" + PARAM_PROCESS_ID + "}";
 
+    public static final String ACTION_SUBSCRIBE = "SUBSCRIBE_TO_SERVICE";
+    public static final String ACTION_UNSUBSCRIBE = "UNSUBSCRIBE_FROM_SERVICE";
+    public static final String ACTION_MODIFY = "MODIFY_SUBSCRIPTION";
+
     private TriggerParams() {
     }
 }
