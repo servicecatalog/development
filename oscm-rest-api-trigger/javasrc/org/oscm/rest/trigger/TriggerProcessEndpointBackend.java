@@ -18,7 +18,7 @@ import org.oscm.rest.common.EndpointBackend;
  * @author miethaner
  */
 public interface TriggerProcessEndpointBackend extends
-        EndpointBackend<TriggerProcess, TriggerRequestParameters> {
+        EndpointBackend<TriggerProcessRepresentation, TriggerRequestParameters> {
 
     /**
      * Tries to approve the trigger process
@@ -30,7 +30,7 @@ public interface TriggerProcessEndpointBackend extends
      * @throws WebApplicationException
      */
     public void putApprove(TriggerRequestParameters params,
-            TriggerProcess content) throws WebApplicationException;
+            TriggerProcessRepresentation content) throws WebApplicationException;
 
     /**
      * Rejects the trigger process
@@ -42,7 +42,7 @@ public interface TriggerProcessEndpointBackend extends
      * @throws WebApplicationException
      */
     public void putReject(TriggerRequestParameters params,
-            TriggerProcess content) throws WebApplicationException;
+            TriggerProcessRepresentation content) throws WebApplicationException;
 
     /**
      * Cancels the trigger process
@@ -54,6 +54,6 @@ public interface TriggerProcessEndpointBackend extends
      * @throws WebApplicationException
      */
     public void putCancel(TriggerRequestParameters params,
-            TriggerProcess content) throws WebApplicationException;
+            TriggerProcessRepresentation content) throws WebApplicationException;
 
 }
