@@ -8,12 +8,15 @@
 
 package org.oscm.rest.trigger;
 
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Collection;
 
+import javax.ejb.EJB;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -21,8 +24,10 @@ import javax.ws.rs.core.Response;
 
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.EndpointBackend;
+import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestEndpoint;
 import org.oscm.rest.common.Since;
+import org.oscm.rest.trigger.TriggerActionRepresentation.Action;
 
 import com.sun.jersey.api.core.InjectParam;
 
@@ -39,14 +44,18 @@ public class RestTrigger {
      * 
      * @author miethaner
      */
-    private class TriggerDefinitionEndpoint extends
-            RestEndpoint<TriggerDefinition, TriggerRequestParameters> {
+    private class TriggerDefinitionEndpoint
+            extends
+            RestEndpoint<TriggerDefinitionRepresentation, TriggerRequestParameters> {
 
         public TriggerDefinitionEndpoint(
-                EndpointBackend<TriggerDefinition, TriggerRequestParameters> backend) {
+                EndpointBackend<TriggerDefinitionRepresentation, TriggerRequestParameters> backend) {
             super(backend);
         }
     }
+
+    @EJB
+    private TriggerDefinitionBackend triggerDefinitionBackend;
 
     /**
      * Redirects to the /triggerdefinitions endpoint
@@ -56,8 +65,30 @@ public class RestTrigger {
     @Path(TriggerParams.PATH_DEFINITIONS)
     public TriggerDefinitionEndpoint redirectToDefinitions() {
 
-        EndpointBackend<TriggerDefinition, TriggerRequestParameters> backend = new TriggerDefinitionBackend();
-        return new TriggerDefinitionEndpoint(backend);
+        return new TriggerDefinitionEndpoint(triggerDefinitionBackend);
+    }
+
+    /**
+     * Gets all available trigger actions
+     * 
+     * @return the endpoint resource
+     */
+    @GET
+    @Path(TriggerParams.PATH_ACTIONS)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getTriggerActions() {
+
+        Collection<TriggerActionRepresentation> list = new ArrayList<TriggerActionRepresentation>();
+        list.add(new TriggerActionRepresentation(null,
+                Action.SUBSCRIBE_TO_SERVICE));
+        list.add(new TriggerActionRepresentation(null,
+                Action.UNSUBSCRIBE_FROM_SERVICE));
+        list.add(new TriggerActionRepresentation(null,
+                Action.MODIFY_SUBSCRIPTION));
+
+        return Response
+                .ok(new RepresentationCollection<TriggerActionRepresentation>(
+                        list)).build();
     }
 
     /**
@@ -66,8 +97,9 @@ public class RestTrigger {
      * 
      * @author miethaner
      */
-    protected class TriggerProcessEndpoint extends
-            RestEndpoint<TriggerProcess, TriggerRequestParameters> {
+    protected class TriggerProcessEndpoint
+            extends
+            RestEndpoint<TriggerProcessRepresentation, TriggerRequestParameters> {
 
         private TriggerProcessEndpointBackend backend;
 
@@ -82,7 +114,7 @@ public class RestTrigger {
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putApprove(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
-                TriggerProcess content) {
+                TriggerProcessRepresentation content) {
 
             int version = getVersion(request);
 
@@ -99,7 +131,7 @@ public class RestTrigger {
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putReject(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
-                TriggerProcess content) {
+                TriggerProcessRepresentation content) {
 
             int version = getVersion(request);
 
@@ -116,7 +148,7 @@ public class RestTrigger {
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putCancel(@Context Request request,
                 @InjectParam TriggerRequestParameters params,
-                TriggerProcess content) {
+                TriggerProcessRepresentation content) {
 
             int version = getVersion(request);
 
@@ -127,34 +159,10 @@ public class RestTrigger {
             return Response.noContent().build();
         }
 
-        /**
-         * Sub class to prevent type erasure for the generic endpoint
-         * 
-         * @author miethaner
-         */
-        private class TriggerProcessParameterEndpoint extends
-                RestEndpoint<TriggerProcessParameter, TriggerRequestParameters> {
-
-            public TriggerProcessParameterEndpoint(
-                    EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend) {
-                super(backend);
-            }
-        }
-
-        /**
-         * Redirects to the /parameters endpoint
-         * 
-         * @return the endpoint resource
-         */
-        @Path(TriggerParams.PATH_PROCESS_ID + TriggerParams.PATH_PARAMETERS)
-        public TriggerProcessParameterEndpoint redirectToProcessParameters(
-                @PathParam(TriggerParams.PARAM_PROCESS_ID) UUID processId) {
-
-            EndpointBackend<TriggerProcessParameter, TriggerRequestParameters> backend = new TriggerProcessParameterBackend(
-                    processId);
-            return new TriggerProcessParameterEndpoint(backend);
-        }
     }
+
+    @EJB
+    private TriggerProcessBackend triggerProcessBackend;
 
     /**
      * Redirects to the /triggerprocesses endpoint
@@ -164,34 +172,7 @@ public class RestTrigger {
     @Path(TriggerParams.PATH_PROCESSES)
     public TriggerProcessEndpoint redirectToProcesses() {
 
-        TriggerProcessEndpointBackend backend = new TriggerProcessBackend();
-        return new TriggerProcessEndpoint(backend);
-    }
-
-    /**
-     * Sub class to prevent type erasure for the generic endpoint
-     * 
-     * @author miethaner
-     */
-    private class TriggerProcessIdentifierEndpoint extends
-            RestEndpoint<TriggerAction, TriggerRequestParameters> {
-
-        public TriggerProcessIdentifierEndpoint(
-                EndpointBackend<TriggerAction, TriggerRequestParameters> backend) {
-            super(backend);
-        }
-    }
-
-    /**
-     * Redirects to the /triggeractions endpoint
-     * 
-     * @return the endpoint resource
-     */
-    @Path(TriggerParams.PATH_ACTIONS)
-    public TriggerProcessIdentifierEndpoint redirectToActions() {
-
-        EndpointBackend<TriggerAction, TriggerRequestParameters> backend = new TriggerActionBackend();
-        return new TriggerProcessIdentifierEndpoint(backend);
+        return new TriggerProcessEndpoint(triggerProcessBackend);
     }
 
 }

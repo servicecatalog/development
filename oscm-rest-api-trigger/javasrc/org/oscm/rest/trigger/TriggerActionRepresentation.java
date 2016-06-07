@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 3, 2016                                                      
+ *  Creation Date: Jun 1, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -15,33 +15,45 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.Representation;
 
 /**
- * Representation class of trigger action.
+ * Representation class for trigger actions
  * 
  * @author miethaner
  */
-public class TriggerAction extends Representation {
+public class TriggerActionRepresentation extends Representation {
 
-    private String description;
+    public enum Action {
+        SUBSCRIBE_TO_SERVICE, UNSUBSCRIBE_FROM_SERVICE, MODIFY_SUBSCRIPTION
+    };
 
-    public TriggerAction() {
+    private Action description;
+
+    public TriggerActionRepresentation() {
     }
 
-    public TriggerAction(UUID id, String description) {
+    public TriggerActionRepresentation(UUID id, Action description) {
         super(id);
         this.description = description;
     }
 
-    public String getDescription() {
+    /**
+     * @return the description
+     */
+    public Action getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    /**
+     * @param description
+     *            the description to set
+     */
+    public void setDescription(Action description) {
         this.description = description;
     }
 
     @Override
     public void validateContent() throws WebApplicationException {
-        // TODO validate content
+
+        // nothing to validate
     }
 
     @Override
