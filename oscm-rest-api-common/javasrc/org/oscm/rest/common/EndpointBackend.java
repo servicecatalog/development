@@ -9,6 +9,7 @@
 package org.oscm.rest.common;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 
@@ -40,19 +41,8 @@ public interface EndpointBackend<T extends Representation, K extends RequestPara
     public Collection<T> getCollection(K params) throws WebApplicationException;
 
     /**
-     * Creates the given item for the given id
-     * 
-     * @param params
-     *            the query parameters and item id of the request
-     * @param content
-     *            the new item
-     * @return the new resource id
-     * @throws WebApplicationException
-     */
-    public String postItem(K params, T content) throws WebApplicationException;
-
-    /**
-     * Creates the given items
+     * Creates the given items. Method is named due to convention and does not
+     * process a collection
      * 
      * @param params
      *            the query parameters of the request
@@ -61,7 +51,7 @@ public interface EndpointBackend<T extends Representation, K extends RequestPara
      * @return the new resource id
      * @throws WebApplicationException
      */
-    public String postCollection(K params, T content)
+    public UUID postCollection(K params, T content)
             throws WebApplicationException;
 
     /**
@@ -76,18 +66,6 @@ public interface EndpointBackend<T extends Representation, K extends RequestPara
     public void putItem(K params, T content) throws WebApplicationException;
 
     /**
-     * Updates the given items
-     * 
-     * @param params
-     *            the query parameters of the request
-     * @param content
-     *            the updated items
-     * @throws WebApplicationException
-     */
-    public void putCollection(K params, T content)
-            throws WebApplicationException;
-
-    /**
      * Deletes the item with the given id
      * 
      * @param params
@@ -95,13 +73,4 @@ public interface EndpointBackend<T extends Representation, K extends RequestPara
      * @throws WebApplicationException
      */
     public void deleteItem(K params) throws WebApplicationException;
-
-    /**
-     * Deletes all valid items
-     * 
-     * @param params
-     *            the query parameters of the request
-     * @throws WebApplicationException
-     */
-    public void deleteCollection(K params) throws WebApplicationException;
 }
