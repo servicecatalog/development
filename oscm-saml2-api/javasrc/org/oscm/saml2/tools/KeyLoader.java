@@ -24,9 +24,9 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 public class KeyLoader {
-
-    private static final Log4jLogger logger = LoggerFactory
-            .getLogger(KeyLoader.class);
+//TODO add logger
+//    private static final Log4jLogger logger = LoggerFactory
+//            .getLogger(KeyLoader.class);
 
     public enum Algorithm {
         RSA
@@ -46,18 +46,18 @@ public class KeyLoader {
         } catch (NoSuchAlgorithmException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Unsupported private key algorithm: " + e.getMessage(), e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
-                    LogMessageIdentifier.ERROR_UNSUPPORTED_PRIVATE_KEY_ALGORITHM);
+//            logger.logError(
+//                    Log4jLogger.SYSTEM_LOG,
+//                    se,
+//                    LogMessageIdentifier.ERROR_UNSUPPORTED_PRIVATE_KEY_ALGORITHM);
             throw se;
         } catch (InvalidKeySpecException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Invalid private key specification: " + e.getMessage(), e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
-                    LogMessageIdentifier.ERROR_INVALID_PRIVATE_KEY_SPECIFICATION);
+//            logger.logError(
+//                    Log4jLogger.SYSTEM_LOG,
+//                    se,
+//                    LogMessageIdentifier.ERROR_INVALID_PRIVATE_KEY_SPECIFICATION);
             throw se;
         }
     }
@@ -76,18 +76,18 @@ public class KeyLoader {
         } catch (NoSuchAlgorithmException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Unsupported public key algorithm: " + e.getMessage(), e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
-                    LogMessageIdentifier.ERROR_UNSUPPORTED_PRIVATE_KEY_ALGORITHM);
+//            logger.logError(
+//                    Log4jLogger.SYSTEM_LOG,
+//                    se,
+//                    LogMessageIdentifier.ERROR_UNSUPPORTED_PRIVATE_KEY_ALGORITHM);
             throw se;
         } catch (InvalidKeySpecException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Invalid public key specification " + e.getMessage(), e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    se,
-                    LogMessageIdentifier.ERROR_INVALID_PRIVATE_KEY_SPECIFICATION);
+//            logger.logError(
+//                    Log4jLogger.SYSTEM_LOG,
+//                    se,
+//                    LogMessageIdentifier.ERROR_INVALID_PRIVATE_KEY_SPECIFICATION);
             throw se;
         }
     }
@@ -106,8 +106,8 @@ public class KeyLoader {
         } catch (CertificateException e) {
             SaaSSystemException se = new SaaSSystemException(
                     "Unable to read input stream: " + e.getMessage(), e);
-            logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                    LogMessageIdentifier.ERROR_FIND_INPUT_STREAM_FAILED);
+//            logger.logError(Log4jLogger.SYSTEM_LOG, se,
+//                    LogMessageIdentifier.ERROR_FIND_INPUT_STREAM_FAILED);
             throw se;
         } finally {
             try {
@@ -117,8 +117,8 @@ public class KeyLoader {
             } catch (IOException e) {
                 SaaSSystemException se = new SaaSSystemException(
                         "Unable to close input stream: " + e.getMessage(), e);
-                logger.logError(Log4jLogger.SYSTEM_LOG, se,
-                        LogMessageIdentifier.ERROR_CLOSE_INPUT_STREAM_FAILED);
+//                logger.logError(Log4jLogger.SYSTEM_LOG, se,
+//                        LogMessageIdentifier.ERROR_CLOSE_INPUT_STREAM_FAILED);
                 throw se;
             }
         }

@@ -15,7 +15,6 @@ import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAMLSigningException;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.saml.api.Saml20Signer;
 import org.oscm.saml.tools.Saml20KeyLoader;
 import org.oscm.saml2.tools.Saml20Signer;
 import org.w3c.dom.Element;

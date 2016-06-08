@@ -51,9 +51,10 @@ public class Saml20Signer {
 
     private static final String JSR_105_PROVIDER = "org.jcp.xml.dsig.internal.dom.XMLDSigRI";
     private static final String SAML_PROTOCOL_NS_URI_V20 = "urn:oasis:names:tc:SAML:2.0:protocol";
+//TODO add logger
 
-    private static final Log4jLogger logger = LoggerFactory
-            .getLogger(Saml20Signer.class);
+//    private static final Log4jLogger logger = LoggerFactory
+//            .getLogger(Saml20Signer.class);
 
     private PrivateKey privateKey;
     private PublicKey publicKey;
@@ -351,8 +352,8 @@ public class Saml20Signer {
     private static SaaSSystemException createSaaSSystemException(Throwable t) {
         SaaSSystemException e = new SaaSSystemException(EXCEPTION_PREFIX
                 + t.getMessage(), t);
-        logger.logError(Log4jLogger.SYSTEM_LOG, e,
-                LogMessageIdentifier.ERROR_PROVIDE_DIGITAL_SIGNING_OF_SAML);
+//        logger.logError(Log4jLogger.SYSTEM_LOG, e,
+//                LogMessageIdentifier.ERROR_PROVIDE_DIGITAL_SIGNING_OF_SAML);
         return e;
     }
 }
