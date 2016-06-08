@@ -47,7 +47,6 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRefToPaymentType;
 import org.oscm.domobjects.OrganizationReference;
@@ -195,14 +194,7 @@ public class OperatorServiceBean implements OperatorService {
             if (rolesToGrant == null) {
                 rolesToGrant = new OrganizationRoleType[0];
             }
-            
-            String restrictedMpId = marketplaceID;
-            
-            // the marketplaceID must not null when creating customer
-            // the marketplaceID must ignore when creating other organization
-            marketplaceID = checkMarketplaceIDForCreateOrganization(
-                    marketplaceID, rolesToGrant);
-            
+
             if (rolesAreInvalid(rolesToGrant)) {
                 OrganizationAuthorityException iao = new OrganizationAuthorityException(
                         "Creation of organization failed, invalid role to be granted",
@@ -264,7 +256,6 @@ public class OperatorServiceBean implements OperatorService {
                     organization.getDescription(), rolesToGrant);
 
             addInvoice(createdOrganization);
-            grantAccessIfMarketplaceIsClosed(restrictedMpId, createdOrganization);
 
             VOOrganization voOrganization = OrganizationAssembler
                     .toVOOrganization(createdOrganization, false,
@@ -288,67 +279,6 @@ public class OperatorServiceBean implements OperatorService {
             // BE07787: Don't persist the organization and the
             // organization admin if the mail server is unreachable
             sessionCtx.setRollbackOnly();
-            throw e;
-        }
-    }
-
-    private void grantAccessIfMarketplaceIsClosed(String marketplaceID,
-            Organization organization) throws ObjectNotFoundException,
-                    ValidationException, NonUniqueBusinessKeyException {
-        if (marketplaceID == null || "".equals(marketplaceID)) {
-            return;
-        }
-        Marketplace marketplace = marketplaceService
-                .getMarketplaceForId(marketplaceID);
-
-        if (marketplace.isRestricted()) {
-            marketplaceService.grantAccessToMarketPlaceToOrganization(
-                    marketplace, organization);
-        }
-    }
-
-    /**
-     * when creating a customer, the roles should be null or empty, then the
-     * marketplaceID is mandatory. when creating other organization, the
-     * marketplaceID should be null.
-     * 
-     * @param marketplaceID
-     * @param roles
-     * @throws ValidationException
-     * @throws ObjectNotFoundException
-     */
-    private String checkMarketplaceIDForCreateOrganization(String marketplaceID,
-            OrganizationRoleType... roles)
-                    throws ValidationException, ObjectNotFoundException {
-        if (roles.length == 0) {
-            if (marketplaceID == null || marketplaceID.trim().length() == 0) {
-                ValidationException validationException = new ValidationException(
-                        "Creation of customer failed, the marketplaceID must not be null");
-                throw validationException;
-            } else {
-                validateMarketplaceID(marketplaceID);
-            }
-        } else {
-            marketplaceID = null;
-        }
-        return marketplaceID;
-    }
-
-    /**
-     * validate the marketplace with the marketplaceID is existing
-     * 
-     * @param marketplaceId
-     * @throws ObjectNotFoundException
-     */
-    private void validateMarketplaceID(String marketplaceId)
-            throws ObjectNotFoundException {
-        Marketplace marketplace = new Marketplace();
-        marketplace.setMarketplaceId(marketplaceId);
-        try {
-            marketplace = (Marketplace) dm
-                    .getReferenceByBusinessKey(marketplace);
-        } catch (ObjectNotFoundException e) {
-            logger.logDebug("Marketplace not found: " + e.getMessage());
             throw e;
         }
     }

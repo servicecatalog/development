@@ -155,6 +155,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.paymentservice.local.PaymentServiceLocal;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -230,6 +231,9 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
 
     @EJB(beanInterface = MarketingPermissionServiceLocal.class)
     protected MarketingPermissionServiceLocal marketingPermissionService;
+
+    @EJB(beanInterface = MarketplaceServiceLocal.class)
+    protected MarketplaceServiceLocal marketplaceService;
 
     @EJB
     SubscriptionAuditLogCollector subscriptionAuditLogCollector;
@@ -988,7 +992,7 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                     throws NonUniqueBusinessKeyException, ValidationException,
                     MailOperationException, ObjectNotFoundException,
                     IncompatibleRolesException, OrganizationAuthorityException {
-
+        
         for (OrganizationRoleType roleToSet : roles) {
             if (roleToSet.equals(OrganizationRoleType.PLATFORM_OPERATOR)) {
                 OrganizationAuthorityException ioa = new OrganizationAuthorityException(
@@ -1006,6 +1010,8 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
                 DateFactory.getInstance().getTransactionTime());
         Organization storedOrganization = saveOrganizationWithUniqueIdAndInvoicePayment(
                 organization, user.getLocale());
+
+        grantAccessToTheMarketplace(marketplaceId, storedOrganization);
 
         setDomicileCountry(storedOrganization, domicileCountry);
 
@@ -1090,6 +1096,23 @@ public class AccountServiceBean implements AccountService, AccountServiceLocal {
         dm.refresh(storedOrganization);
 
         return storedOrganization;
+    }
+
+    private void grantAccessToTheMarketplace(String marketplaceId,
+            Organization storedOrganization) throws ObjectNotFoundException,
+                    ValidationException, NonUniqueBusinessKeyException {
+
+        if (marketplaceId == null || "".equals(marketplaceId)) {
+            return;
+        }
+
+        Marketplace marketplace = marketplaceService
+                .getMarketplaceForId(marketplaceId);
+
+        if (marketplace.isRestricted()) {
+            marketplaceService.grantAccessToMarketPlaceToOrganization(
+                    marketplace, storedOrganization);
+        }
     }
 
     UserGroup createDefaultUserGroup(Organization org) {
