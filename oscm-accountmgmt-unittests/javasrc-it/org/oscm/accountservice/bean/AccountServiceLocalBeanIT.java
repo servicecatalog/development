@@ -46,6 +46,7 @@ import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 public class AccountServiceLocalBeanIT extends EJBTestBase {
 
@@ -89,7 +90,8 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             public Void call() throws Exception {
                 asl.registerOrganization(orgToRegister, null, user,
-                        new Properties(), "DE", "mId", null, OrganizationRoleType.CUSTOMER);
+                        new Properties(), "DE", "mId", null,
+                        OrganizationRoleType.CUSTOMER);
                 return null;
             }
         });
@@ -146,22 +148,30 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         doNothing().when(ds).persist(storedValues.capture());
 
         LdapAccessServiceLocal ldapAccess = mock(LdapAccessServiceLocal.class);
-        doReturn(Collections.singletonList(new VOUserDetails())).when(
-                ldapAccess).search(any(Properties.class), anyString(),
-                anyString(), any(ILdapResultMapper.class), anyBoolean());
+        doReturn(Collections.singletonList(new VOUserDetails()))
+                .when(ldapAccess).search(any(Properties.class), anyString(),
+                        anyString(), any(ILdapResultMapper.class),
+                        anyBoolean());
         doReturn("user1").when(ldapAccess).dnSearch(any(Properties.class),
                 anyString(), anyString());
 
-        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(LdapSettingsManagementServiceLocal.class);
+        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(
+                LdapSettingsManagementServiceLocal.class);
         doReturn(getLdapProperties()).when(ldapSettingsMgmt)
                 .getOrganizationSettingsResolved(anyString());
         when(ldapSettingsMgmt.getDefaultValueForSetting(any(SettingType.class)))
                 .thenReturn("someDefault");
 
+        MarketplaceServiceLocal mplService = mock(
+                MarketplaceServiceLocal.class);
+        doReturn(getMarketplace("TestMpl")).when(mplService)
+                .getMarketplaceForId(anyString());
+
         container.addBean(ldapSettingsMgmt);
         container.addBean(localizerMock);
         container.addBean(ds);
         container.addBean(ldapAccess);
+        container.addBean(mplService);
     }
 
     private Organization validateStoredOrganization() {
@@ -175,5 +185,9 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         }
         assertEquals(1, orgCount);
         return org;
+    }
+
+    private Marketplace getMarketplace(String mplId) {
+        return new Marketplace(mplId);
     }
 }

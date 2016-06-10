@@ -47,6 +47,7 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.ImageResource;
+import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationRefToPaymentType;
 import org.oscm.domobjects.OrganizationReference;
@@ -194,7 +195,9 @@ public class OperatorServiceBean implements OperatorService {
             if (rolesToGrant == null) {
                 rolesToGrant = new OrganizationRoleType[0];
             }
-
+            
+            checkMarketplaceIDForCreateOrganization(marketplaceID, rolesToGrant);
+            
             if (rolesAreInvalid(rolesToGrant)) {
                 OrganizationAuthorityException iao = new OrganizationAuthorityException(
                         "Creation of organization failed, invalid role to be granted",
@@ -282,7 +285,49 @@ public class OperatorServiceBean implements OperatorService {
             throw e;
         }
     }
+    
+    /**
+     * when creating a customer, the roles should be null or empty, then the
+     * marketplaceID is mandatory.
+     * 
+     * @param marketplaceID
+     * @param roles
+     * @throws ValidationException
+     * @throws ObjectNotFoundException
+     */
+    private void checkMarketplaceIDForCreateOrganization(
+            String marketplaceID, OrganizationRoleType... roles)
+            throws ValidationException, ObjectNotFoundException {
+        if (roles.length == 0) {
+            if (marketplaceID == null || marketplaceID.trim().length() == 0) {
+                ValidationException validationException = new ValidationException(
+                        "Creation of customer failed, the marketplaceID must not be null");
+                throw validationException;
+            } else {
+                validateMarketplaceID(marketplaceID);
+            }
+        } 
+    }
 
+    /**
+     * validate the marketplace with the marketplaceID is existing
+     * 
+     * @param marketplaceId
+     * @throws ObjectNotFoundException
+     */
+    private void validateMarketplaceID(String marketplaceId)
+            throws ObjectNotFoundException {
+        Marketplace marketplace = new Marketplace();
+        marketplace.setMarketplaceId(marketplaceId);
+        try {
+            marketplace = (Marketplace) dm
+                    .getReferenceByBusinessKey(marketplace);
+        } catch (ObjectNotFoundException e) {
+            logger.logDebug("Marketplace not found: " + e.getMessage());
+            throw e;
+        }
+    }
+    
     private boolean rolesAreInvalid(OrganizationRoleType... roles) {
         for (OrganizationRoleType role : roles) {
             if ((role == null) || (role != OrganizationRoleType.SUPPLIER

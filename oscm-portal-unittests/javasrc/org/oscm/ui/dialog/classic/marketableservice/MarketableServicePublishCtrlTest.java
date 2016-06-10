@@ -13,18 +13,22 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.event.ValueChangeEvent;
@@ -36,10 +40,13 @@ import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.beans.UserBean;
 import org.oscm.ui.model.User;
+import org.oscm.ui.stubs.FacesContextStub;
 import org.oscm.ui.stubs.UIComponentStub;
 import org.oscm.ui.stubs.UiDelegateStub;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.ServiceProvisioningService;
 import org.oscm.internal.pricing.POMarketplacePriceModel;
 import org.oscm.internal.pricing.POOperatorPriceModel;
 import org.oscm.internal.pricing.POPartnerPriceModel;
@@ -58,6 +65,9 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.ServiceStateException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCategory;
+import org.oscm.internal.vo.VOCustomerService;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 import org.oscm.internal.vo.VOUserDetails;
 
@@ -81,6 +91,9 @@ public class MarketableServicePublishCtrlTest {
 
     @Before
     public void setup() throws Exception {
+        
+        new FacesContextStub(Locale.ENGLISH);
+        
         operatorRevenueShare.setRevenueShare(BigDecimal.ONE);
 
         VOUserDetails details = new VOUserDetails();
@@ -90,8 +103,13 @@ public class MarketableServicePublishCtrlTest {
         when(userBean.getUserFromSession()).thenReturn(new User(details));
         ms.pricingService = mock(PricingService.class);
         ms.categorizationService = mock(CategorizationService.class);
-        doNothing().when(ms.categorizationService).verifyCategoriesUpdated(
-                anyListOf(VOCategory.class));
+
+        doNothing().when(ms.categorizationService)
+                .verifyCategoriesUpdated(anyListOf(VOCategory.class));
+
+        ms.mplService = mock(MarketplaceService.class);
+        ms.serviceProvisioning = mock(ServiceProvisioningService.class);
+
         ms.ui = new UiDelegateStub() {
 
             @Override
@@ -107,11 +125,10 @@ public class MarketableServicePublishCtrlTest {
 
         ms.publishService = new PublishService() {
             @Override
-            public Response updateAndPublishService(
-                    POServiceForPublish service,
+            public Response updateAndPublishService(POServiceForPublish service,
                     List<POResalePermissionDetails> toGrant,
                     List<POResalePermissionDetails> toRevoke)
-                    throws ValidationException {
+                            throws ValidationException {
                 if (returnError) {
                     throw new ValidationException();
                 }
@@ -140,8 +157,8 @@ public class MarketableServicePublishCtrlTest {
                 if (returnError) {
                     throw new ObjectNotFoundException();
                 }
-                return new Response(Arrays.asList(new VOCategory(),
-                        new VOCategory()));
+                return new Response(
+                        Arrays.asList(new VOCategory(), new VOCategory()));
             }
 
             @Override
@@ -195,10 +212,10 @@ public class MarketableServicePublishCtrlTest {
 
         // then
         assertEquals(3L, ms.getModel().getSelectedServiceKey());
-        assertEquals(3L, ms.getModel().getServiceDetails().getService()
-                .getKey());
-        assertEquals(operatorRevenueShare, ms.getModel()
-                .getOperatorPriceModel().getRevenueShare());
+        assertEquals(3L,
+                ms.getModel().getServiceDetails().getService().getKey());
+        assertEquals(operatorRevenueShare,
+                ms.getModel().getOperatorPriceModel().getRevenueShare());
         assertEquals(MARKETPLACE_ID, ms.getModel().getInitialMarketplaceId());
     }
 
@@ -213,10 +230,10 @@ public class MarketableServicePublishCtrlTest {
 
         // then
         assertEquals(0L, ms.getModel().getSelectedServiceKey());
-        assertEquals(0L, ms.getModel().getServiceDetails().getService()
-                .getKey());
-        assertEquals(null, ms.getModel().getOperatorPriceModel()
-                .getRevenueShare());
+        assertEquals(0L,
+                ms.getModel().getServiceDetails().getService().getKey());
+        assertEquals(null,
+                ms.getModel().getOperatorPriceModel().getRevenueShare());
         assertFalse(ms.ui.hasErrors());
     }
 
@@ -232,10 +249,10 @@ public class MarketableServicePublishCtrlTest {
 
         // then
         assertEquals(0L, ms.getModel().getSelectedServiceKey());
-        assertEquals(0L, ms.getModel().getServiceDetails().getService()
-                .getKey());
-        assertEquals(null, ms.getModel().getOperatorPriceModel()
-                .getRevenueShare());
+        assertEquals(0L,
+                ms.getModel().getServiceDetails().getService().getKey());
+        assertEquals(null,
+                ms.getModel().getOperatorPriceModel().getRevenueShare());
         assertTrue(ms.ui.hasErrors());
     }
 
@@ -336,8 +353,8 @@ public class MarketableServicePublishCtrlTest {
                 ms.getModel().getServiceTemplates().get(2).getValue());
         assertEquals(Long.valueOf(3L),
                 ms.getModel().getServiceTemplates().get(3).getValue());
-        assertEquals("Product 3  (123)", ms.getModel().getServiceTemplates()
-                .get(3).getLabel());
+        assertEquals("Product 3  (123)",
+                ms.getModel().getServiceTemplates().get(3).getLabel());
     }
 
     @Test
@@ -360,10 +377,10 @@ public class MarketableServicePublishCtrlTest {
 
         // then
         assertEquals(3L, ms.getModel().getSelectedServiceKey());
-        assertEquals(3L, ms.getModel().getServiceDetails().getService()
-                .getKey());
-        assertEquals(operatorRevenueShare, ms.getModel()
-                .getOperatorPriceModel().getRevenueShare());
+        assertEquals(3L,
+                ms.getModel().getServiceDetails().getService().getKey());
+        assertEquals(operatorRevenueShare,
+                ms.getModel().getOperatorPriceModel().getRevenueShare());
     }
 
     private ValueChangeEvent select(Long selectedServiceKey) {
@@ -382,8 +399,8 @@ public class MarketableServicePublishCtrlTest {
         ms.getModel().setServiceDetails(new POServiceForPublish());
 
         // when
-        ms.marketplaceChanged(new ValueChangeEvent(new UIComponentStub(null),
-                null, "123"));
+        ms.marketplaceChanged(
+                new ValueChangeEvent(new UIComponentStub(null), null, "123"));
 
         // then
         assertEquals(2, ms.getModel().getCategorySelection().size());
@@ -396,8 +413,8 @@ public class MarketableServicePublishCtrlTest {
         returnError = true;
 
         // when
-        ms.marketplaceChanged(new ValueChangeEvent(new UIComponentStub(null),
-                null, "123"));
+        ms.marketplaceChanged(
+                new ValueChangeEvent(new UIComponentStub(null), null, "123"));
 
         // then
         assertEquals(0, ms.getModel().getCategorySelection().size());
@@ -414,10 +431,10 @@ public class MarketableServicePublishCtrlTest {
 
         // then
         assertEquals(0L, ms.getModel().getSelectedServiceKey());
-        assertEquals(0L, ms.getModel().getServiceDetails().getService()
-                .getKey());
-        assertEquals(null, ms.getModel().getOperatorPriceModel()
-                .getRevenueShare());
+        assertEquals(0L,
+                ms.getModel().getServiceDetails().getService().getKey());
+        assertEquals(null,
+                ms.getModel().getOperatorPriceModel().getRevenueShare());
         assertTrue(ms.ui.hasErrors());
     }
 
@@ -425,6 +442,9 @@ public class MarketableServicePublishCtrlTest {
     public void save() throws Exception {
         // given
         initForSave(false);
+        when(ms.mplService.getMarketplaceById(anyString()))
+                .thenReturn(getMarketplace("Mpl", false));
+
         // when
         String result = ms.save();
 
@@ -438,9 +458,11 @@ public class MarketableServicePublishCtrlTest {
     public void save_ConcurrentModificationException() throws Exception {
         // given
         initForSave(false);
-        doThrow(new ConcurrentModificationException()).when(
-                ms.categorizationService).verifyCategoriesUpdated(
-                anyListOf(VOCategory.class));
+        when(ms.mplService.getMarketplaceById(anyString()))
+                .thenReturn(getMarketplace("Mpl", false));
+        doThrow(new ConcurrentModificationException())
+                .when(ms.categorizationService)
+                .verifyCategoriesUpdated(anyListOf(VOCategory.class));
         // when
         String result = ms.save();
         // then
@@ -453,7 +475,8 @@ public class MarketableServicePublishCtrlTest {
         // given
         initForSave(false);
         returnError = true;
-
+        when(ms.mplService.getMarketplaceById(anyString()))
+                .thenReturn(getMarketplace("Mpl", false));
         // when
         ms.save();
 
@@ -466,6 +489,8 @@ public class MarketableServicePublishCtrlTest {
     public void save_ResellerIsNull() throws Exception {
         // given
         initForSave(true);
+        when(ms.mplService.getMarketplaceById(anyString()))
+                .thenReturn(getMarketplace("Mpl", false));
         // when
         ms.save();
 
@@ -480,7 +505,7 @@ public class MarketableServicePublishCtrlTest {
         // then
         assertNull(ms.getModel().getServiceDetails());
     }
-    
+
     @Test
     public void synchronizeUIWithObjects_DataSet() {
         // given
@@ -495,9 +520,11 @@ public class MarketableServicePublishCtrlTest {
         assertNotNull(ms.getModel().getServiceDetails().getCatalogEntry());
         assertEquals(1, ms.getModel().getServiceDetails().getCatalogEntry()
                 .getCategories().size());
-        assertEquals(ms.getModel().getCategorySelection().get(0).getCategory()
-                .getKey(), ms.getModel().getServiceDetails().getCatalogEntry()
-                .getCategories().get(0).getKey());
+        assertEquals(
+                ms.getModel().getCategorySelection().get(0).getCategory()
+                        .getKey(),
+                ms.getModel().getServiceDetails().getCatalogEntry()
+                        .getCategories().get(0).getKey());
     }
 
     @Test
@@ -506,8 +533,8 @@ public class MarketableServicePublishCtrlTest {
         List<VOCategory> categories1 = getVOCategoryList();
 
         // when
-        List<VOCategory> result = ms.getChangedAndSelectedCategories(
-                categories1, categories1);
+        List<VOCategory> result = ms
+                .getChangedAndSelectedCategories(categories1, categories1);
 
         // then
         assertEquals(categories1.size(), result.size());
@@ -520,14 +547,34 @@ public class MarketableServicePublishCtrlTest {
         List<VOCategory> categories2 = getVOCategoryList();
         categories2.add(new VOCategory());
         // when
-        List<VOCategory> result = ms.getChangedAndSelectedCategories(
-                categories1, categories2);
+        List<VOCategory> result = ms
+                .getChangedAndSelectedCategories(categories1, categories2);
 
         // then
-        assertEquals((categories1.size()+1), result.size());
+        assertEquals((categories1.size() + 1), result.size());
     }
 
-    
+    @Test
+    public void saveWithRestrictedMpl() throws Exception {
+        // given
+        initForSave(false);
+        when(ms.mplService.getMarketplaceById(anyString()))
+                .thenReturn(getMarketplace("Mpl", true));
+        when(ms.serviceProvisioning
+                .getServiceCustomerTemplates(any(VOService.class)))
+                        .thenReturn(getVOCustomerServiceList());
+        // when
+        String result = ms.save();
+
+        // then
+        verify(ms.serviceProvisioning, times(1))
+                .getServiceCustomerTemplates(any(VOService.class));
+        verify(ms.mplService, times(2)).doesOrganizationHaveAccessMarketplace(
+                anyString(), anyString());
+
+        assertEquals(BaseBean.OUTCOME_SUCCESS, result);
+    }
+
     private void initForSave(boolean resellerIsNull) throws Exception {
         ms.getModel().setSelectedServiceKey(3L);
         ms.initializeModel(ms.getModel().getSelectedServiceKey(), null, true);
@@ -555,8 +602,8 @@ public class MarketableServicePublishCtrlTest {
         POMarketplacePriceModel marketplacePricing = new POMarketplacePriceModel();
 
         Response response = mock(Response.class);
-        when(response.getResult(POMarketplacePriceModel.class)).thenReturn(
-                marketplacePricing);
+        when(response.getResult(POMarketplacePriceModel.class))
+                .thenReturn(marketplacePricing);
         when(ms.pricingService.getMarketplaceRevenueShares(anyString()))
                 .thenReturn(response);
     }
@@ -565,8 +612,8 @@ public class MarketableServicePublishCtrlTest {
         POOperatorPriceModel partnerPriceModel = new POOperatorPriceModel();
 
         Response response = mock(Response.class);
-        when(response.getResult(POOperatorPriceModel.class)).thenReturn(
-                partnerPriceModel);
+        when(response.getResult(POOperatorPriceModel.class))
+                .thenReturn(partnerPriceModel);
         when(ms.pricingService.getOperatorRevenueShare(3L))
                 .thenReturn(response);
     }
@@ -575,8 +622,8 @@ public class MarketableServicePublishCtrlTest {
         POPartnerPriceModel partnerPriceModel = new POPartnerPriceModel();
 
         Response response = mock(Response.class);
-        when(response.getResult(POPartnerPriceModel.class)).thenReturn(
-                partnerPriceModel);
+        when(response.getResult(POPartnerPriceModel.class))
+                .thenReturn(partnerPriceModel);
 
         POServiceForPricing service = new POServiceForPricing(3L, 0);
         when(ms.pricingService.getPartnerRevenueShareForService(service))
@@ -587,12 +634,11 @@ public class MarketableServicePublishCtrlTest {
         POPartnerPriceModel marketplacePricing = new POPartnerPriceModel();
 
         Response response = mock(Response.class);
-        when(response.getResult(POPartnerPriceModel.class)).thenReturn(
-                marketplacePricing);
-        when(
-                ms.pricingService
-                        .getPartnerRevenueSharesForMarketplace(anyString()))
-                .thenReturn(response);
+        when(response.getResult(POPartnerPriceModel.class))
+                .thenReturn(marketplacePricing);
+        when(ms.pricingService
+                .getPartnerRevenueSharesForMarketplace(anyString()))
+                        .thenReturn(response);
     }
 
     private List<VOCategory> getVOCategoryList() {
@@ -604,5 +650,21 @@ public class MarketableServicePublishCtrlTest {
         list.get(1).setCategoryId("abc");
         list.get(1).setKey(2L);
         return list;
+    }
+
+    private List<VOCustomerService> getVOCustomerServiceList() {
+        final List<VOCustomerService> list = new ArrayList<VOCustomerService>();
+        list.add(new VOCustomerService());
+        list.add(new VOCustomerService());
+        return list;
+    }
+
+    private VOMarketplace getMarketplace(String mplId, boolean restricted) {
+
+        VOMarketplace marketplace = new VOMarketplace();
+        marketplace.setMarketplaceId(mplId);
+        marketplace.setRestricted(restricted);
+
+        return marketplace;
     }
 }

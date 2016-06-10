@@ -2725,4 +2725,11 @@ public class MockService implements IdentityService, SubscriptionService,
     public boolean isPaymentInfoHidden() {
         return false;
     }
+
+    @Override
+    public List<VOCustomerService> getServiceCustomerTemplates(
+            VOService service) throws ObjectNotFoundException,
+                    OperationNotPermittedException {
+        return null;
+    }
 }

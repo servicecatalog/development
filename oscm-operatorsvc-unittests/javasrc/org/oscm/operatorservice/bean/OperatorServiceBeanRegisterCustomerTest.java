@@ -157,7 +157,7 @@ public class OperatorServiceBeanRegisterCustomerTest {
         verify(accountServiceMock, times(1)).registerOrganization(
                 any(Organization.class), any(ImageResource.class),
                 any(VOUserDetails.class), any(Properties.class),
-                anyString(), (String) eq(null), anyString(),
+                anyString(), (String) eq(marketplaceId), anyString(),
                 eq(OrganizationRoleType.SUPPLIER));
         // the organization should be returned correctly
         assertEquals(organization.getEmail(), result.getEmail());    
