@@ -9,6 +9,7 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -250,11 +251,13 @@ public class Saml20Signer {
         try {
             // specify the ENVELOPED signature format
             // (it is a must according to SAML 2.0 Core 5.4.1)
-            List<Transform> envelopedTransform = Collections
-                    .singletonList(getSignatureFactory().newTransform(
-                            CanonicalizationMethod.EXCLUSIVE,
-                            (TransformParameterSpec) null));
-
+            List<Transform> envelopedTransform = new ArrayList<>();
+            envelopedTransform.add(getSignatureFactory().newTransform(
+                    CanonicalizationMethod.ENVELOPED,
+                    (TransformParameterSpec) null));
+            envelopedTransform.add(getSignatureFactory().newTransform(
+                    CanonicalizationMethod.EXCLUSIVE,
+                    (TransformParameterSpec) null));
             // create the <Reference>
             return getSignatureFactory().newReference(
                     "#" + getReferenceId(element),

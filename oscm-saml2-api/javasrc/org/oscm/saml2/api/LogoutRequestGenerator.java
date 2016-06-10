@@ -11,7 +11,6 @@ package org.oscm.saml2.api;
 import java.util.Random;
 
 import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.commons.codec.binary.Base64;
 
@@ -19,7 +18,6 @@ import org.oscm.calendar.GregorianCalendars;
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.intf.SignerService;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.saml2.api.model.assertion.NameIDType;
 import org.oscm.saml2.api.model.protocol.LogoutRequestType;
 
@@ -91,7 +89,8 @@ public class LogoutRequestGenerator {
         assertionObjFactory = new org.oscm.saml2.api.model.assertion.ObjectFactory();
 
         NameIDType issuer = assertionObjFactory.createNameIDType();
-
+        NameIDType nameId = assertionObjFactory.createNameIDType();
+        nameId.setValue(this.issuer);
         issuer.setValue(this.issuer);
 
         LogoutRequestType logoutRequest = protocolObjFactory
@@ -106,12 +105,13 @@ public class LogoutRequestGenerator {
         JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
                 .createLogoutRequest(logoutRequest);
 
+        nameId.setFormat("http://schemas.xmlsoap.org/claims/UPN");
+        logoutRequest.setNameID(nameId);
+        logoutRequest.getSessionIndex().add(idpSessionIndex);
+        encodeBase64(logoutRequestJAXB.toString());
         logoutRequestJAXB = signLogoutRequest(logoutRequestJAXB);
         logoutRequest = logoutRequestJAXB.getValue();
 
-        issuer.setFormat("http://schemas.xmlsoap.org/claims/UPN");
-        logoutRequest.setNameID(issuer);
-        logoutRequest.getSessionIndex().add(idpSessionIndex);
         return protocolObjFactory.createLogoutRequest(logoutRequest);
     }
 
