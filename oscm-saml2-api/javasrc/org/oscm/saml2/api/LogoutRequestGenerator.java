@@ -92,27 +92,23 @@ public class LogoutRequestGenerator {
         NameIDType nameId = assertionObjFactory.createNameIDType();
         nameId.setValue(this.issuer);
         issuer.setValue(this.issuer);
+        nameId.setFormat("http://schemas.xmlsoap.org/claims/UPN");
 
         LogoutRequestType logoutRequest = protocolObjFactory
                 .createLogoutRequestType();
         logoutRequest.setID(requestId);
         logoutRequest.setVersion(SAML_VERSION);
-
         logoutRequest.setIssueInstant(
                 GregorianCalendars.newXMLGregorianCalendarSystemTime());
         logoutRequest.setIssuer(issuer);
+        logoutRequest.setNameID(nameId);
+        logoutRequest.getSessionIndex().add(idpSessionIndex);
 
         JAXBElement<LogoutRequestType> logoutRequestJAXB = protocolObjFactory
                 .createLogoutRequest(logoutRequest);
-
-        nameId.setFormat("http://schemas.xmlsoap.org/claims/UPN");
-        logoutRequest.setNameID(nameId);
-        logoutRequest.getSessionIndex().add(idpSessionIndex);
-        encodeBase64(logoutRequestJAXB.toString());
         logoutRequestJAXB = signLogoutRequest(logoutRequestJAXB);
-        logoutRequest = logoutRequestJAXB.getValue();
 
-        return protocolObjFactory.createLogoutRequest(logoutRequest);
+        return logoutRequestJAXB;
     }
 
     protected JAXBElement<LogoutRequestType> signLogoutRequest(JAXBElement<LogoutRequestType> logoutRequestJAXB) throws Exception {
@@ -137,7 +133,7 @@ public class LogoutRequestGenerator {
     <T> String marshal(JAXBElement<T> logoutRequest) throws Exception {
         Marshalling<T> marshaller = new Marshalling<>();
         Document samlRequestDoc = marshaller.marshallElement(logoutRequest);
-        String logoutRequestString = XMLConverter.convertToString(
+        String logoutRequestString = XMLConverter.convertLogoutRequestToString(
                 samlRequestDoc, false);
         return XMLConverter.removeEOLCharsFromXML(logoutRequestString);
     }

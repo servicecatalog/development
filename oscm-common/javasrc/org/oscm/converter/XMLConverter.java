@@ -137,6 +137,35 @@ public class XMLConverter {
             }
         }
     }
+//TODO refactor
+    public static String convertLogoutRequestToString(final Node document,
+                                         final boolean includeXmlDeclaration) throws TransformerException {
+
+        DOMSource domSource = new DOMSource(document);
+        return convertLogoutRequestToString(domSource, includeXmlDeclaration);
+    }
+
+    public static String convertLogoutRequestToString(Source source,
+            boolean includeXmlDeclaration) throws TransformerException {
+
+        Transformer transformer = Transformers.newTransformer();
+        if (!includeXmlDeclaration) {
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION,
+                    "yes");
+        }
+
+        StringWriter stringWriter = new StringWriter();
+        try {
+            transformer.transform(source, new StreamResult(stringWriter));
+            return stringWriter.toString();
+        } finally {
+            try {
+                stringWriter.close();
+            } catch (IOException e) {
+                // ignore
+            }
+        }
+    }
 
     /**
      * 

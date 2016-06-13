@@ -117,7 +117,7 @@ public class Saml2Ctrl{
             final JAXBElement<LogoutRequestType> rootElement =
                     logoutGenerator.generateLogoutRequest(samlSessionId);
             Marshalling<LogoutRequestType> marshaller = new Marshalling<>();
-            final String convertedSAMLEnvelope = XMLConverter.convertToString(
+            final String convertedSAMLEnvelope = XMLConverter.convertLogoutRequestToString(
                     marshaller.marshallElement(rootElement), false);
             return logoutGenerator.encode(XMLConverter.removeEOLCharsFromXML(convertedSAMLEnvelope));
         } catch (DatatypeConfigurationException e) {
