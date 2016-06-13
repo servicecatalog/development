@@ -20,6 +20,8 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
+import org.oscm.internal.intf.TriggerService;
+import org.oscm.internal.types.constants.HiddenUIConstants;
 import org.oscm.ui.authorization.Condition;
 import org.oscm.ui.authorization.Conditions;
 import org.oscm.ui.authorization.Conditions.Cache;
@@ -28,8 +30,6 @@ import org.oscm.ui.menu.MenuBuilder;
 import org.oscm.ui.menu.MenuGroup;
 import org.oscm.ui.menu.MenuGroupBuilder;
 import org.oscm.ui.model.User;
-import org.oscm.internal.intf.TriggerService;
-import org.oscm.internal.types.constants.HiddenUIConstants;
 
 /**
  * Bean keeping and managing the main menu.
@@ -211,6 +211,13 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
             @Override
             public boolean eval() {
                 return getApplicationBean().isReportingAvailable();
+            }
+        };
+
+        final Condition PAYMENTINFO_AVAILABLE = new Condition() {
+            @Override
+            public boolean eval() {
+                return getApplicationBean().isPaymentInfoAvailable();
             }
         };
 
@@ -401,7 +408,8 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
         group.addItem(
                 HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
                 LINK_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
-                or(SERVICE_MANAGER, RESELLER_MANAGER));
+                and(PAYMENTINFO_AVAILABLE,
+                        or(SERVICE_MANAGER, RESELLER_MANAGER)));
         group.addItem(HiddenUIConstants.MENU_ITEM_MANAGE_VAT,
                 LINK_ORGANIZATION_MANAGE_VATS, SERVICE_MANAGER);
         group.addItem(HiddenUIConstants.MENU_ITEM_SUBSCRIPTION_VIEW,

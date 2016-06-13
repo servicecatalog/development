@@ -11,11 +11,11 @@ package org.oscm.ui.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
-import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
  * @author kulle
@@ -57,35 +57,48 @@ public class BesServletRequestReader {
         return relativePath;
     }
 
-    protected static boolean isMarketplaceRequest(HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                Marketplace.MARKETPLACE_ROOT);
+    protected static boolean isMarketplaceRequest(
+            HttpServletRequest httpRequest) {
+        return httpRequest.getServletPath()
+                .startsWith(Marketplace.MARKETPLACE_ROOT);
     }
 
     protected static boolean isMarketplaceLoginPageRequest(
             HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                BaseBean.MARKETPLACE_LOGIN_PAGE);
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.MARKETPLACE_LOGIN_PAGE);
     }
 
     protected static boolean isMarketplaceErrorPageRequest(
             HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                BaseBean.MARKETPLACE_ERROR_PAGE);
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.MARKETPLACE_ERROR_PAGE);
     }
 
     protected static boolean isMarketplaceRedirect(
             HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                BaseBean.MARKETPLACE_REDIRECT);
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.MARKETPLACE_REDIRECT);
     }
 
     /**
      * Returns true if the request targets the landing page of the market place
      */
     protected static boolean isLandingPage(HttpServletRequest httpRequest) {
-        return httpRequest.getServletPath().startsWith(
-                BaseBean.MARKETPLACE_START_SITE);
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.MARKETPLACE_START_SITE);
+    }
+
+    /**
+     * Returns true if the request targets the manage payment types page of the
+     * admin portal
+     */
+    protected static boolean isManagePaymentTypesPage(
+            HttpServletRequest httpRequest) {
+        return httpRequest.getServletPath()
+                .startsWith(BaseBean.MANAGE_PAYMENT_TYPES_PAGE)
+                || httpRequest.getServletPath()
+                        .startsWith(BaseBean.MANAGE_PAYMENT_TYPES_PAGE_XHTML);
     }
 
     /**
@@ -144,8 +157,8 @@ public class BesServletRequestReader {
 
         String parameterValue = httpRequest.getParameter(parameterName);
         if (!ADMStringUtils.isBlank(parameterValue)) {
-            httpRequest.getSession()
-                    .setAttribute(parameterName, parameterValue);
+            httpRequest.getSession().setAttribute(parameterName,
+                    parameterValue);
         }
     }
 
@@ -153,7 +166,8 @@ public class BesServletRequestReader {
      * Check if given request is related to the market place or a subscription
      * of the marketplace.
      */
-    protected static boolean isMarketplaceLogin(HttpServletRequest httpRequest) {
+    protected static boolean isMarketplaceLogin(
+            HttpServletRequest httpRequest) {
         if (isMarketplaceRequest(httpRequest)) {
             return true;
         }
