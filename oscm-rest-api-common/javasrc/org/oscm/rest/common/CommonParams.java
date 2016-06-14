@@ -44,6 +44,9 @@ public class CommonParams {
     public static final String PATTERN_VERSION = "v[0-9]+";
     public static final int PATTERN_VERSION_OFFSET = 1;
 
+    // patterns for validation
+    public static final String PATTERN_STRING = "^[^<>%$§]{0,250}$";
+
     // http status values
     public static final int STATUS_SUCCESS = 200;
     public static final int STATUS_CREATED = 201;

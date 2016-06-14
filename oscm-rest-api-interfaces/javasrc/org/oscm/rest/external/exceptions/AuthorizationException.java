@@ -9,8 +9,9 @@
 package org.oscm.rest.external.exceptions;
 
 /**
+ * Custom authorization exception for REST API
+ * 
  * @author miethaner
- *
  */
 public class AuthorizationException extends Exception {
 

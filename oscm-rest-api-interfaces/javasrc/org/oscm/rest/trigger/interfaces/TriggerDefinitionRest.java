@@ -16,11 +16,11 @@ package org.oscm.rest.trigger.interfaces;
 public interface TriggerDefinitionRest {
 
     /**
-     * Gets the resource ID
+     * Gets the entity id
      * 
-     * @return the resource ID
+     * @return the entity id
      */
-    public String getResourceId();
+    public Long getId();
 
     /**
      * Gets the name and description of the definition
@@ -48,7 +48,7 @@ public interface TriggerDefinitionRest {
      * 
      * @return the organization id
      */
-    public String getOwnerId();
+    public Long getOwnerId();
 
     /**
      * Gets the corresponding organization object

@@ -8,10 +8,7 @@
 
 package org.oscm.rest.common;
 
-import java.util.UUID;
-
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 
 /**
@@ -24,13 +21,7 @@ public abstract class RequestParameters {
     private int version;
 
     @PathParam(CommonParams.PARAM_ID)
-    private UUID id;
-
-    @QueryParam(CommonParams.PARAM_OFFSET)
-    private Integer offset;
-
-    @QueryParam(CommonParams.PARAM_LIMIT)
-    private Integer limit;
+    private Long id;
 
     public int getVersion() {
         return version;
@@ -40,28 +31,12 @@ public abstract class RequestParameters {
         this.version = version;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
-    }
-
-    public Integer getOffset() {
-        return offset;
-    }
-
-    public void setOffset(Integer offset) {
-        this.offset = offset;
-    }
-
-    public Integer getLimit() {
-        return limit;
-    }
-
-    public void setLimit(Integer limit) {
-        this.limit = limit;
     }
 
     /**
@@ -70,7 +45,7 @@ public abstract class RequestParameters {
      * 
      * @throws WebApplicationException
      */
-    public void validateResourceId() throws WebApplicationException {
+    public void validateId() throws WebApplicationException {
 
         if (id == null) {
             throw WebException.notFound().build(); // TODO: add more info

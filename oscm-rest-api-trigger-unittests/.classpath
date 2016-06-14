@@ -5,5 +5,10 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-trigger"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jsr311-api-1.1.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-common"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-core-1.19.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server-1.19.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

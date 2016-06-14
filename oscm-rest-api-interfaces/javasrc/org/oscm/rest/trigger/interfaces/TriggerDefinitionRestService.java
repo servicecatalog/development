@@ -8,78 +8,80 @@
 
 package org.oscm.rest.trigger.interfaces;
 
-import java.util.List;
+import java.util.Collection;
 
 import javax.ejb.Remote;
 
 import org.oscm.rest.external.exceptions.AuthorizationException;
-import org.oscm.rest.external.exceptions.DatabaseConflictException;
-import org.oscm.rest.external.exceptions.DatabaseErrorException;
+import org.oscm.rest.external.exceptions.BadDataException;
+import org.oscm.rest.external.exceptions.ConflictException;
+import org.oscm.rest.external.exceptions.DataException;
+import org.oscm.rest.external.exceptions.NotFoundException;
 
 /**
- * Interface for trigger defintion services called by the rest api
+ * Interface for trigger definition services called by the rest api
  * 
  * @author miethaner
  */
 @Remote
 public interface TriggerDefinitionRestService {
 
-    // TODO throws ...Exception, Parameter input
-
     /**
      * Creates a new TriggerDefiniton entry from the given object and returns
-     * the generated resource UUID
+     * the generated entity key
      * 
      * @param definition
      *            the trigger definition object
      * @return the generated resource UUID
-     * @throws DatabaseErrorException
-     * @throws DatabaseConflictException
+     * @throws ConflictException
+     * @throws BadDataException
      */
-    public String createDefiniton(TriggerDefinitionRest definition)
-            throws DatabaseErrorException, DatabaseConflictException;
+    public Long createDefinition(TriggerDefinitionRest definition)
+            throws ConflictException, BadDataException;
 
     /**
-     * Deletes the TriggerDefiniton entry with the given resource ID
+     * Deletes the TriggerDefiniton entry with the given entity key
      * 
-     * @param id
-     *            the resource ID
-     * @throws DatabaseErrorException
-     * @throws DatabaseConflictException
+     * @param key
+     *            the entity key
+     * @throws ConflictException
      * @throws AuthorizationException
+     * @throws NotFoundException
      */
-    public void deleteDefinition(String id) throws DatabaseErrorException,
-            DatabaseConflictException, AuthorizationException;
+    public void deleteDefinition(Long key) throws ConflictException,
+            AuthorizationException, NotFoundException;
 
     /**
      * Updates the TriggerDefinition entry corresponding to the given object.
      * 
      * @param definition
-     *            the trigger definition object with resource ID
-     * @throws DatabaseErrorException
-     * @throws DatabaseConflictException
+     *            the trigger definition object with entity key
+     * @throws ConflictException
      * @throws AuthorizationException
+     * @throws NotFoundException
+     * @throws BadDataException
+     * @throws DataException
      */
     public void updateDefinition(TriggerDefinitionRest definition)
-            throws DatabaseErrorException, DatabaseConflictException,
-            AuthorizationException;
+            throws ConflictException, AuthorizationException,
+            NotFoundException, BadDataException, DataException;
 
     /**
      * Gets all available TriggerDefinition entries.
      * 
      * @return the trigger definition entries
      */
-    public List<TriggerDefinitionRest> getDefinitions();
+    public Collection<TriggerDefinitionRest> getDefinitions();
 
     /**
-     * Gets the TriggerDefinition entry with the given resource ID
+     * Gets the TriggerDefinition entry with the given entity key
      * 
-     * @param id
-     *            the resource ID
+     * @param key
+     *            the entity key
      * @return the trigger definition entry
-     * @throws DatabaseErrorException
      * @throws AuthorizationException
+     * @throws NotFoundException
      */
-    public TriggerDefinitionRest getDefinition(String id)
-            throws DatabaseErrorException, AuthorizationException;
+    public TriggerDefinitionRest getDefinition(Long key)
+            throws AuthorizationException, NotFoundException;
 }
