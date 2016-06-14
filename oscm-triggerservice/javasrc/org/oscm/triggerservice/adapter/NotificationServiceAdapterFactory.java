@@ -73,7 +73,7 @@ public class NotificationServiceAdapterFactory {
             adapter = new RestNotificationServiceAdapter();
             initAdapter(cs, ds, adapter, r);
 
-            break;
+            break;        
 
         default:
             throw new SaaSSystemException(

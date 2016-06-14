@@ -222,4 +222,5 @@ public class VOTriggerDefinition extends BaseVO implements
     public String getAction() {
         return getType().toString();
     }
+
 }
