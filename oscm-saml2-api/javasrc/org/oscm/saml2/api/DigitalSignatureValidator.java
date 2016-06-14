@@ -25,7 +25,7 @@ import org.oscm.internal.types.exception.DigitalSignatureValidationException;
  * @author kulle
  * 
  */
-class DigitalSignatureValidator {
+public class DigitalSignatureValidator {
 
     // private final static String CHARACTER_ENCODING = "UTF-8";
     private final static String XML_MECHANISM_TYPE = "DOM";
@@ -114,7 +114,7 @@ class DigitalSignatureValidator {
      * @return true if the signature validation has not failed, even if the
      *         reference validation failed.
      */
-    boolean workaroundOpenamBug(XMLSignature signature,
+    public boolean workaroundOpenamBug(XMLSignature signature,
             DOMValidateContext validationContext, boolean validationResult)
             throws XMLSignatureException {
         if (!validationResult) {
