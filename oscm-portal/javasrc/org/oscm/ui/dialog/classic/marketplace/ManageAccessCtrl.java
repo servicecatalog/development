@@ -120,11 +120,12 @@ public class ManageAccessCtrl {
                         .openMarketplace(model.getSelectedMarketplaceId());
             }
             populateOrganizations(model.getSelectedMarketplaceId());
+            addMessage(BaseBean.INFO_MARKETPLACE_ACCESS_SAVED);
         } catch (SaaSApplicationException e) {
             e.printStackTrace();
             ui.handleException(e);
         }
-        addMessage(BaseBean.INFO_MARKETPLACE_ACCESS_SAVED);
+        
         return BaseBean.OUTCOME_SUCCESS;
     }
 
