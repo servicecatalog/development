@@ -189,7 +189,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
 
     }
 
-    //TODO: fix failing test
+    @Test
     public void getSubscriptionsWithDefaultUdaValuesAndVendor()
             throws Exception {
         // given
@@ -226,10 +226,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         });
 
         final Set<Long> set = new HashSet<>();
-        set.addAll(Arrays.asList(Long.valueOf(sub1.getKey()), Long.valueOf(sub4.getKey())));
-
-        final Pagination pagination = new Pagination();
-        pagination.setFilterSet(new HashSet<Filter>());
+        set.addAll(Arrays.asList(Long.valueOf(udaDefinitionWithValue.getKey()), Long.valueOf(udaWithoutDefaultValButWithAfterSubscribing.getKey())));
 
         // when
         List<BigInteger> result = runTX(new Callable<List<BigInteger>>() {
@@ -369,6 +366,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         user.setKey(key);
         user.setUserId(id);
         user.setOrganization(org);
+        user.setLocale("en");
         RoleAssignment roleAssign = new RoleAssignment();
         roleAssign.setUser(user);
         roleAssign.setRole(new UserRole(roleType));
