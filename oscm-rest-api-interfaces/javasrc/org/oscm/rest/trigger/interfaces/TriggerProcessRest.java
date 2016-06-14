@@ -2,36 +2,31 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: May 25, 2016                                                      
+ *  Creation Date: Jun 10, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.rest.trigger.interfaces;
 
-import java.util.Date;
-
 /**
+ * Data interface for trigger processes
+ * 
  * @author miethaner
- *
  */
 public interface TriggerProcessRest {
 
-    public enum Status {
-        APPROVED, FAILED, REJECTED, CANCELED, WAITING_FOR_APPROVEL
-    }
+    /**
+     * Gets the entity id
+     * 
+     * @return the entity id
+     */
+    public Long getId();
 
-    public String getResourceId();
-
-    public Status getStatus();
-
+    /**
+     * Gets the comment for the process
+     * 
+     * @return the comment
+     */
     public String getComment();
-
-    public Date getActivitionTime();
-
-    public String getDefinitionId();
-
-    public String getAuthorId();
-
-    public UserRest getAuthor();
 
 }

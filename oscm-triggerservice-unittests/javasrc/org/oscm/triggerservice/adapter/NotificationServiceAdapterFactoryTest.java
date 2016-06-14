@@ -12,6 +12,8 @@
 
 package org.oscm.triggerservice.adapter;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -20,9 +22,11 @@ import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
-
+import org.mockito.Mockito;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.TriggerDefinition;
+import org.oscm.internal.types.enumtypes.TriggerTargetType;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
 
@@ -37,6 +41,26 @@ public class NotificationServiceAdapterFactoryTest {
     @Before
     public void setup() throws Exception {
         pcMock = mock(WSPortConnector.class);
+    }
+
+    @Test
+    public void getAdapter() throws Exception {
+
+        TriggerDefinition td = new TriggerDefinition();
+        td.setTarget("http://test:8080/test");
+        td.setTargetType(TriggerTargetType.REST_SERVICE);
+
+        Integer wsTimeout = new Integer(500);
+
+        ConfigurationServiceLocal cs = Mockito
+                .mock(ConfigurationServiceLocal.class);
+
+        DataService ds = Mockito.mock(DataService.class);
+
+        INotificationServiceAdapter adapter = NotificationServiceAdapterFactory
+                .getNotificationServiceAdapter(td, wsTimeout, cs, ds);
+
+        assertThat(adapter, instanceOf(RestNotificationServiceAdapter.class));
     }
 
     @Test

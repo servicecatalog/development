@@ -8,8 +8,6 @@
 
 package org.oscm.rest.common;
 
-import java.util.UUID;
-
 import javax.ws.rs.WebApplicationException;
 
 /**
@@ -20,7 +18,7 @@ import javax.ws.rs.WebApplicationException;
 public abstract class Representation {
 
     private transient int version;
-    private UUID id;
+    private Long id;
 
     /**
      * Creates new representation
@@ -34,7 +32,7 @@ public abstract class Representation {
      * @param id
      *            the resource id
      */
-    public Representation(UUID id) {
+    public Representation(Long id) {
         this.id = id;
     }
 
@@ -46,11 +44,11 @@ public abstract class Representation {
         this.version = version;
     }
 
-    public UUID getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

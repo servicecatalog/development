@@ -16,11 +16,11 @@ package org.oscm.rest.trigger.interfaces;
 public interface OrganizationRest {
 
     /**
-     * Gets the resource ID
+     * Gets the entity id
      * 
-     * @return the resource ID
+     * @return the entity id
      */
-    public String getResourceId();
+    public Long getId();
 
     /**
      * Gets the name of the organization

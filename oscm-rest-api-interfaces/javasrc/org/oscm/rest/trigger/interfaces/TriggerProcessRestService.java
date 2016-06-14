@@ -8,32 +8,56 @@
 
 package org.oscm.rest.trigger.interfaces;
 
-import java.util.List;
-import java.util.UUID;
-
 import javax.ejb.Remote;
 
+import org.oscm.rest.external.exceptions.AuthorizationException;
+import org.oscm.rest.external.exceptions.ConflictException;
+import org.oscm.rest.external.exceptions.DataException;
+import org.oscm.rest.external.exceptions.NotFoundException;
+
 /**
+ * Interface for trigger process services called by the rest api
+ * 
  * @author miethaner
- *
  */
 @Remote
 public interface TriggerProcessRestService {
 
-    public UUID createProcess(TriggerProcessRest process);
+    /**
+     * Approves the given trigger process
+     * 
+     * @param process
+     *            the trigger process data
+     * @throws NotFoundException
+     * @throws AuthorizationException
+     * @throws DataException
+     * @throws ConflictException
+     */
+    public void approve(TriggerProcessRest process) throws NotFoundException,
+            AuthorizationException, DataException, ConflictException;
 
-    public void deleteProcess(UUID id);
+    /**
+     * Rejects the given trigger process
+     * 
+     * @param process
+     *            the trigger process data
+     * @throws NotFoundException
+     * @throws AuthorizationException
+     * @throws DataException
+     */
+    public void reject(TriggerProcessRest process) throws NotFoundException,
+            AuthorizationException, DataException;
 
-    public void updateProcess(TriggerProcessRest process);
-
-    public TriggerProcessRest getProcess(UUID id);
-
-    public List<TriggerProcessRest> getProcesses();
-
-    public void approve(TriggerProcessRest process);
-
-    public void reject(TriggerProcessRest process);
-
-    public void cancel(TriggerProcessRest process);
+    /**
+     * Cancels the given trigger process
+     * 
+     * @param process
+     *            the trigger process data
+     * @throws NotFoundException
+     * @throws AuthorizationException
+     * @throws DataException
+     */
+    public void cancel(TriggerProcessRest process) throws NotFoundException,
+            AuthorizationException, DataException;
 
 }

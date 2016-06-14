@@ -52,5 +52,26 @@
   <target name="REST-Trigger.UNDEPLOY" description="Undeploys the Rest API war file into the BES domain">
     <undeployFromBesDomain target="server" appl="oscm-rest-api-trigger" failonerror="false" />
   </target>
+  
+    <target name="REST-Mock.BUILD" description="Builds the Rest API war file, the result can be found in oscm-build/result/package/oscm-rest-api-mock">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-rest-api-mock" />
+    </ant>
+    <patchForRedeployableWebContent file="${build.result.package.dir}/oscm-rest-api-mock/oscm-rest-api-mock.war" />
+  </target>
+
+  <target name="REST-Mock.DEPLOY" description="Deploys the Rest API war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-rest-api-mock/.glassfishStaleFiles" failonerror="false" />
+    <deployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-rest-api-mock/oscm-rest-api-mock.war" />
+  </target>
+
+  <target name="REST-Mock.REDEPLOY" description="Redeploys the Rest API war file into the BES domain">
+    <delete file="${bes.domain.apps}/oscm-rest-api-mock/.glassfishStaleFiles" failonerror="false" />
+    <redeployOnBesDomain target="server" appl="${build.result.package.dir}/oscm-rest-api-mock/oscm-rest-api-mock.war" appname="oscm-rest-api-mock" />
+  </target>
+
+  <target name="REST-Mock.UNDEPLOY" description="Undeploys the Rest API war file into the BES domain">
+    <undeployFromBesDomain target="server" appl="oscm-rest-api-mock" failonerror="false" />
+  </target>
     
 </project>
