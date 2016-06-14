@@ -82,8 +82,6 @@ public class TriggerBackendTest {
 
         assertEquals(id,
                 result.getItems().toArray(new DefinitionRepresentation[] {})[0]
-                        .getId());
-        Mockito.verify(service).getDefinitions();
     }
 
     @Test

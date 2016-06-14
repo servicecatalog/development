@@ -6,14 +6,17 @@
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.rest.trigger;
+package org.oscm.rest.trigger.data;
 
-import java.util.UUID;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.Representation;
-import org.oscm.rest.trigger.TriggerActionRepresentation.Action;
+import org.oscm.rest.common.WebException;
+import org.oscm.rest.trigger.data.ActionRepresentation.Action;
 import org.oscm.rest.trigger.interfaces.OrganizationRest;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 
@@ -22,32 +25,32 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
  * 
  * @author miethaner
  */
-public class TriggerDefinitionRepresentation extends Representation implements
+public class TriggerRepresentation extends Representation implements
         TriggerDefinitionRest {
 
     public static class Owner implements OrganizationRest {
-        private String id;
+        private Long id;
         private String description;
 
         public Owner() {
         }
 
-        public Owner(String id, String description) {
+        public Owner(Long id, String description) {
             this.id = id;
             this.description = description;
         }
 
         public Owner(OrganizationRest owner) {
-            this.id = owner.getResourceId();
+            this.id = owner.getId();
             this.description = owner.getName();
         }
 
         @Override
-        public String getResourceId() {
+        public Long getId() {
             return id;
         }
 
-        public void setResourceId(String id) {
+        public void setId(Long id) {
             this.id = id;
         }
 
@@ -62,20 +65,20 @@ public class TriggerDefinitionRepresentation extends Representation implements
     }
 
     public static class Links {
-        private String owner_id;
+        private Long owner_id;
 
         public Links() {
         }
 
-        public Links(String owner_id) {
+        public Links(Long owner_id) {
             this.owner_id = owner_id;
         }
 
-        public String getOwner_id() {
+        public Long getOwner_id() {
             return owner_id;
         }
 
-        public void setOwner_id(String owner_id) {
+        public void setOwner_id(Long owner_id) {
             this.owner_id = owner_id;
         }
     }
@@ -87,11 +90,11 @@ public class TriggerDefinitionRepresentation extends Representation implements
     private Action action;
     private Links links;
 
-    public TriggerDefinitionRepresentation() {
+    public TriggerRepresentation() {
     }
 
-    public TriggerDefinitionRepresentation(UUID id, String description,
-            Boolean suspend, String targetURL, Owner owner, Links links) {
+    public TriggerRepresentation(Long id, String description, Boolean suspend,
+            String targetURL, Owner owner, Links links) {
         super(id);
         this.description = description;
         this.suspend = suspend;
@@ -100,27 +103,22 @@ public class TriggerDefinitionRepresentation extends Representation implements
         this.links = links;
     }
 
-    public TriggerDefinitionRepresentation(TriggerDefinitionRest definition) {
-        this.setId(UUID.fromString(definition.getResourceId()));
+    public TriggerRepresentation(TriggerDefinitionRest definition) {
+        super(definition.getId());
         this.description = definition.getDescription();
         this.suspend = definition.isSuspending();
         this.target_url = definition.getTargetURL();
-        this.owner = new Owner(definition.getOwner().getResourceId(),
-                definition.getOwner().getName());
+        if (definition.getOwner() != null) {
+            this.owner = new Owner(definition.getOwner().getId(), definition
+                    .getOwner().getName());
+        } else {
+            this.owner = null;
+        }
         this.links = new Links(definition.getOwnerId());
     }
 
     @Override
-    public String getResourceId() {
-        return getId().toString();
-    }
-
-    public void setResourceId(String id) {
-        setId(UUID.fromString(id));
-    }
-
-    @Override
-    public String getOwnerId() {
+    public Long getOwnerId() {
         if (links != null) {
             return links.getOwner_id();
         } else {
@@ -128,7 +126,7 @@ public class TriggerDefinitionRepresentation extends Representation implements
         }
     }
 
-    public void setOwnerId(String owner_id) {
+    public void setOwnerId(Long owner_id) {
         if (links == null) {
             links = new Links();
         }
@@ -147,7 +145,11 @@ public class TriggerDefinitionRepresentation extends Representation implements
 
     @Override
     public String getAction() {
-        return action.toString();
+        if (action != null) {
+            return action.toString();
+        } else {
+            return null;
+        }
     }
 
     public void setAction(String action) {
@@ -188,7 +190,21 @@ public class TriggerDefinitionRepresentation extends Representation implements
     @Override
     public void validateContent() throws WebApplicationException {
 
-        // TODO validate content
+        if (description != null
+                && !description.matches(CommonParams.PATTERN_STRING)) {
+            throw WebException.badRequest().property("description")
+                    .message("property does not match allowed pattern").build();
+        }
+
+        if (target_url != null) {
+            try {
+                new URL(target_url);
+            } catch (MalformedURLException e) {
+                throw WebException.badRequest().property("target_url")
+                        .message("property does not match allowed pattern")
+                        .build();
+            }
+        }
     }
 
     @Override
