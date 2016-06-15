@@ -25,7 +25,7 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
  * 
  * @author miethaner
  */
-public class TriggerRepresentation extends Representation implements
+public class DefinitionRepresentation extends Representation implements
         TriggerDefinitionRest {
 
     public static class Owner implements OrganizationRest {
@@ -90,10 +90,10 @@ public class TriggerRepresentation extends Representation implements
     private Action action;
     private Links links;
 
-    public TriggerRepresentation() {
+    public DefinitionRepresentation() {
     }
 
-    public TriggerRepresentation(Long id, String description, Boolean suspend,
+    public DefinitionRepresentation(Long id, String description, Boolean suspend,
             String targetURL, Owner owner, Links links) {
         super(id);
         this.description = description;
@@ -103,7 +103,7 @@ public class TriggerRepresentation extends Representation implements
         this.links = links;
     }
 
-    public TriggerRepresentation(TriggerDefinitionRest definition) {
+    public DefinitionRepresentation(TriggerDefinitionRest definition) {
         super(definition.getId());
         this.description = definition.getDescription();
         this.suspend = definition.isSuspending();

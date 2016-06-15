@@ -24,7 +24,7 @@ import org.oscm.rest.external.exceptions.BadDataException;
 import org.oscm.rest.external.exceptions.ConflictException;
 import org.oscm.rest.external.exceptions.DataException;
 import org.oscm.rest.external.exceptions.NotFoundException;
-import org.oscm.rest.trigger.data.TriggerRepresentation;
+import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
 
@@ -34,7 +34,7 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
  * @author miethaner
  */
 @Stateless
-public class TriggerBackend {
+public class DefinitionBackend {
 
     @EJB
     private TriggerDefinitionRestService service;
@@ -43,13 +43,13 @@ public class TriggerBackend {
         this.service = service;
     }
 
-    public RestBackend.Get<TriggerRepresentation, TriggerParameters> getItem()
+    public RestBackend.Get<DefinitionRepresentation, TriggerParameters> getItem()
             throws WebApplicationException {
 
-        return new RestBackend.Get<TriggerRepresentation, TriggerParameters>() {
+        return new RestBackend.Get<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public TriggerRepresentation get(TriggerParameters params)
+            public DefinitionRepresentation get(TriggerParameters params)
                     throws WebApplicationException {
 
                 TriggerDefinitionRest definition;
@@ -63,41 +63,41 @@ public class TriggerBackend {
                     // TODO add more info
                 }
 
-                return new TriggerRepresentation(definition);
+                return new DefinitionRepresentation(definition);
             }
         };
     }
 
-    public Get<RepresentationCollection<TriggerRepresentation>, TriggerParameters> getCollection()
+    public Get<RepresentationCollection<DefinitionRepresentation>, TriggerParameters> getCollection()
             throws WebApplicationException {
 
-        return new RestBackend.Get<RepresentationCollection<TriggerRepresentation>, TriggerParameters>() {
+        return new RestBackend.Get<RepresentationCollection<DefinitionRepresentation>, TriggerParameters>() {
             @Override
-            public RepresentationCollection<TriggerRepresentation> get(
+            public RepresentationCollection<DefinitionRepresentation> get(
                     TriggerParameters params) throws WebApplicationException {
 
                 Collection<TriggerDefinitionRest> definitions = service
                         .getDefinitions();
 
-                Collection<TriggerRepresentation> representationList = new ArrayList<TriggerRepresentation>();
+                Collection<DefinitionRepresentation> representationList = new ArrayList<DefinitionRepresentation>();
 
                 for (TriggerDefinitionRest d : definitions) {
-                    representationList.add(new TriggerRepresentation(d));
+                    representationList.add(new DefinitionRepresentation(d));
                 }
 
-                return new RepresentationCollection<TriggerRepresentation>(
+                return new RepresentationCollection<DefinitionRepresentation>(
                         representationList);
             }
         };
     }
 
-    public RestBackend.Post<TriggerRepresentation, TriggerParameters> postCollection()
+    public RestBackend.Post<DefinitionRepresentation, TriggerParameters> postCollection()
             throws WebApplicationException {
 
-        return new RestBackend.Post<TriggerRepresentation, TriggerParameters>() {
+        return new RestBackend.Post<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public Object post(TriggerRepresentation content,
+            public Object post(DefinitionRepresentation content,
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
@@ -113,13 +113,13 @@ public class TriggerBackend {
         };
     }
 
-    public RestBackend.Put<TriggerRepresentation, TriggerParameters> putItem()
+    public RestBackend.Put<DefinitionRepresentation, TriggerParameters> putItem()
             throws WebApplicationException {
 
-        return new RestBackend.Put<TriggerRepresentation, TriggerParameters>() {
+        return new RestBackend.Put<DefinitionRepresentation, TriggerParameters>() {
 
             @Override
-            public void put(TriggerRepresentation content,
+            public void put(DefinitionRepresentation content,
                     TriggerParameters params) throws WebApplicationException {
 
                 try {

@@ -36,7 +36,7 @@ import org.oscm.rest.common.WebException;
 import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.data.ActionRepresentation;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
-import org.oscm.rest.trigger.data.TriggerRepresentation;
+import org.oscm.rest.trigger.data.DefinitionRepresentation;
 
 import com.sun.jersey.api.core.InjectParam;
 
@@ -50,13 +50,13 @@ import com.sun.jersey.api.core.InjectParam;
 public class RestTriggerResource extends RestResource {
 
     @EJB
-    private TriggerBackend triggerBackend;
+    private DefinitionBackend triggerBackend;
 
     @EJB
     private ProcessBackend processBackend;
 
-    public class Trigger implements
-            RestFrontend.Crud<TriggerRepresentation, TriggerParameters> {
+    public class Definition implements
+            RestFrontend.Crud<DefinitionRepresentation, TriggerParameters> {
 
         /**
          * Gets the trigger definition for the given id. Returns 404 if not
@@ -95,7 +95,7 @@ public class RestTriggerResource extends RestResource {
         @Consumes(MediaType.APPLICATION_JSON)
         @Override
         public Response postCollection(@Context Request request,
-                TriggerRepresentation content,
+                DefinitionRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
             return post(request, triggerBackend.postCollection(), content,
@@ -108,7 +108,7 @@ public class RestTriggerResource extends RestResource {
         @Consumes(MediaType.APPLICATION_JSON)
         @Override
         public Response putItem(@Context Request request,
-                TriggerRepresentation content,
+                DefinitionRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
             return put(request, triggerBackend.putItem(), content, params);
@@ -127,8 +127,8 @@ public class RestTriggerResource extends RestResource {
     }
 
     @Path(TriggerCommonParams.PATH_TRIGGER)
-    public Trigger redirectToTrigger() {
-        return new Trigger();
+    public Definition redirectToTrigger() {
+        return new Definition();
     }
 
     public class Action implements RestFrontend.Get<TriggerParameters> {
