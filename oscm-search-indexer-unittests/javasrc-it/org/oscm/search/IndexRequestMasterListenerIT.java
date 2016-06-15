@@ -146,6 +146,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             .asList("dataContainer.value");
     private static final List<String> expectedIndexedAttributesForUda = Arrays
             .asList("dataContainer.udaValue");
+    private static final List<String> expectedIndexedAttributesForUdaDefs = Arrays
+            .asList("dataContainer.defaultValue");
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -1480,6 +1482,28 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 expectedIndexedAttributesForUda);
     }
 
+    @Test
+    public void testindexUdaDefs() throws Throwable {
+        createUdaDefOnCustomer("UDADef1", "UDADef2", "UDADef3");
+        emptyUdaDefIndex();
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    irl.indexUdaDefs(fullTextSession);
+                }
+                return null;
+            }
+        });
+        assertUdaDefsDocsInIndex(
+                "Index must contain 3 document due to automatic indexing", 3,
+                expectedIndexedAttributesForUdaDefs.size(),
+                expectedIndexedAttributesForUdaDefs);
+    }
+
     private List<Uda> createUdaOnCustomer(final String... udaId)
             throws Exception {
         List<Uda> result = runTX(new Callable<List<Uda>>() {
@@ -1497,6 +1521,31 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                             UdaTargetType.CUSTOMER, id, null,
                             UdaConfigurationType.USER_OPTION_MANDATORY);
                     Uda uda = Udas.createUda(dm, customer, def, "42");
+                    result.add(uda);
+                }
+                return result;
+            }
+        });
+        return result;
+    }
+
+    private List<Uda> createUdaDefOnCustomer(final String... udaId)
+            throws Exception {
+        List<Uda> result = runTX(new Callable<List<Uda>>() {
+
+            @Override
+            public List<Uda> call() throws Exception {
+                Organization supplier = Organizations.createOrganization(dm,
+                        OrganizationRoleType.SUPPLIER);
+                Organization customer = Organizations.createOrganization(dm,
+                        OrganizationRoleType.CUSTOMER);
+
+                List<Uda> result = new ArrayList<>();
+                for (String id : udaId) {
+                    UdaDefinition def = Udas.createUdaDefinition(dm, supplier,
+                            UdaTargetType.CUSTOMER_SUBSCRIPTION, id, "default definition value",
+                            UdaConfigurationType.USER_OPTION_MANDATORY);
+                    Uda uda = Udas.createUda(dm, customer, def, null);
                     result.add(uda);
                 }
                 return result;
@@ -1557,6 +1606,24 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     }
 
+    private void emptyUdaDefIndex() throws Exception {
+        runTX(new Callable<Void>() {
+
+            @Override
+            public Void call() throws Exception {
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    fullTextSession.purgeAll(UdaDefinition.class);
+                }
+
+                return null;
+            }
+        });
+
+    }
+
     private void assertUdaDocsInIndex(final String comment,
             final int expectedNumDocs, final int expectedNumIndexedAttributes,
             final List<String> expectedAttributes) throws Exception {
@@ -1573,6 +1640,66 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                             .getSearchFactory();
                     IndexReader reader = searchFactory.getIndexReaderAccessor()
                             .open(Uda.class);
+
+                    try {
+                        assertEquals(comment, expectedNumDocs, reader.numDocs());
+                        if (expectedNumDocs > 0) {
+                            final FieldInfos indexedFieldNames = ReaderUtil
+                                    .getMergedFieldInfos(reader);
+                            for (String expectedAttr : expectedAttributes) {
+                                assertNotNull("attribute " + expectedAttr
+                                        + " does not exist in index: "
+                                        + indexedFieldNames,
+                                        indexedFieldNames
+                                                .fieldInfo(expectedAttr));
+                            }
+                            assertNotNull(
+                                    "attribute \"key\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames.fieldInfo("key"));
+                            assertNotNull(
+                                    "attribute \"_hibernate_class\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames
+                                            .fieldInfo("_hibernate_class"));
+                            assertEquals(
+                                    "More or less attributes indexed than expected, attributes retrieved from index: "
+                                            + indexedFieldNames,
+                                    expectedNumIndexedAttributes + 2,
+                                    indexedFieldNames.size());
+                            evaluatedIndex = true;
+                        }
+                    } finally {
+                        searchFactory.getIndexReaderAccessor().close(reader);
+                    }
+                }
+
+                return Boolean.valueOf(evaluatedIndex);
+            }
+        });
+
+        if (expectedNumDocs > 0) {
+            Assert.assertTrue("Index not found, no evaluation took place",
+                    evaluationTookPlace.booleanValue());
+        }
+    }
+
+    private void assertUdaDefsDocsInIndex(final String comment,
+            final int expectedNumDocs, final int expectedNumIndexedAttributes,
+            final List<String> expectedAttributes) throws Exception {
+        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+
+            @Override
+            public Boolean call() throws Exception {
+                boolean evaluatedIndex = false;
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    SearchFactory searchFactory = fullTextSession
+                            .getSearchFactory();
+                    IndexReader reader = searchFactory.getIndexReaderAccessor()
+                            .open(UdaDefinition.class);
 
                     try {
                         assertEquals(comment, expectedNumDocs, reader.numDocs());

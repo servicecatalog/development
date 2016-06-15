@@ -336,9 +336,9 @@ public class IndexRequestMasterListener extends
 
     protected void indexUdaDefs(FullTextSession fullTextSession) {
         org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT udaD FROM UdaDefinition udaD JOIN Uda uda ON uda.udaDefinitionKey=udaD.tkey where " +
-                        "udaD.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.configurationType!='SUPPLIER' and " +
-                        "uda.udaValue!='' and udaD.defaultvalue!=''");
+                .createQuery("SELECT udaD FROM UdaDefinition udaD, Uda uda where " +
+                        "udaD.dataContainer.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.dataContainer.configurationType!='SUPPLIER' and " +
+                        "uda.dataContainer.udaValue!='' and udaD.dataContainer.defaultValue!=''");
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
         indexObject(fullTextSession, results);
         results.close();
