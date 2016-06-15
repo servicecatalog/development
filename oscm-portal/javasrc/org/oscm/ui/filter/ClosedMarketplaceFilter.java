@@ -43,26 +43,24 @@ public class ClosedMarketplaceFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         redirector = new RequestRedirector(filterConfig);
         excludeUrlPattern = filterConfig
-            .getInitParameter("exclude-url-pattern");
+                .getInitParameter("exclude-url-pattern");
 
         ServiceAccess serviceAccess = new EJBServiceAccess();
-        marketplaceService = serviceAccess
-            .getService(MarketplaceService.class);
-        identityService = serviceAccess
-            .getService(IdentityService.class);
+        marketplaceService = serviceAccess.getService(MarketplaceService.class);
+        identityService = serviceAccess.getService(IdentityService.class);
     }
 
     /**
-     * If the request contains a SAML 2.0 response, forward to the originally
-     * requested resource is done. In case of service login, the request is
-     * forwarded to an auto-submit page, to do the login in UserBean. <br/>
-     * If the response does not contain a SAML 2.0 response, the next filter is
-     * called. See web.xml for excluded url pattern.
+     * If the request does not match exclude pattern, it is checked in the
+     * context of restricted marketplace. If requested marketplace is
+     * restricted, current user is checked if he has access to it. If not the
+     * request is forwarded to the page informing about insufficient rights. See
+     * web.xml for excluded url pattern.
      *
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
-        FilterChain chain) throws IOException, ServletException {
+            FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
