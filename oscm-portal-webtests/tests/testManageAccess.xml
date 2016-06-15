@@ -22,9 +22,6 @@
 		<webtest name="testManageAccess_withMarketplaceOwner">
 			<login.login url="${supplierUrl}" userId="${supplierUserId}" />
 			
-			<user.registerCustomer marketplaceId="${mId}" orgName="Customer1Org" userId="customer1" />
-			<user.registerCustomer marketplaceId="${mId}" orgName="Customer2Org" userId="customer2" />
-				
 			<clickLink href="/oscm-portal/shop/manageAccess.jsf" />
 			<setSelectField htmlId="manageAccessForm:marketplace" text="Restricted Marketplace (${supplierId})" />
 			<setCheckbox htmlId="manageAccessForm:isRestricted" checked="true" />
@@ -38,7 +35,8 @@
 			
 			<clickLink href="/oscm-portal/shop/manageAccess.jsf" />
 			<setSelectField htmlId="manageAccessForm:marketplace" text="Restricted Marketplace (${supplierId})" />
-			<setCheckbox htmlId="manageAccessForm:organizationsTable:1:organizationCheckbox" checked="true" />
+			<setInputField htmlId="manageAccessForm:organizationsTable:filterOrganizationId" value="${supplierId}" />
+			<setCheckbox xpath="//tr[@id='manageAccessForm:organizationsTable:0']//td//input[@type='checkbox']" checked="true" />
 			<clickButton label="${button.save}" />
 			
 			<clickLink href="/oscm-portal/shop/gotoMarketplace.jsf" />
