@@ -68,6 +68,7 @@ public class NotificationServiceAdapterFactory {
             initAdapter(cs, ds, adapter, port);
             break;
         case REST_SERVICE:
+
             ClientConfig cc = new DefaultClientConfig();
             cc.getClasses().add(GsonMessageProvider.class);
             Client c = Client.create(cc);

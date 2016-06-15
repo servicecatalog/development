@@ -37,12 +37,14 @@ import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
 import com.sun.jersey.api.client.ClientHandlerException;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.WebResource;
 
 /**
+ * Notification service adapter for REST web services
+ * 
  * @author miethaner
- *
  */
 public class RestNotificationServiceAdapter implements
         INotificationServiceAdapter {
@@ -111,7 +113,15 @@ public class RestNotificationServiceAdapter implements
             TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
                     process, subscription.getKey());
 
-            r.type(MediaType.APPLICATION_JSON_TYPE).post(rep);
+            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
+                    .put(ClientResponse.class, rep);
+
+            if (response == null
+                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
+                            .getStatusCode()) {
+                throw new SaaSSystemException(
+                        "Failed to send notification to rest endpoint");
+            }
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -139,7 +149,15 @@ public class RestNotificationServiceAdapter implements
             TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
                     process, sub.getKey());
 
-            r.type(MediaType.APPLICATION_JSON_TYPE).post(rep);
+            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
+                    .put(ClientResponse.class, rep);
+
+            if (response == null
+                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
+                            .getStatusCode()) {
+                throw new SaaSSystemException(
+                        "Failed to send notification to rest endpoint");
+            }
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -159,7 +177,15 @@ public class RestNotificationServiceAdapter implements
             TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
                     process, subscription.getKey());
 
-            r.type(MediaType.APPLICATION_JSON_TYPE).post(rep);
+            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
+                    .put(ClientResponse.class, rep);
+
+            if (response == null
+                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
+                            .getStatusCode()) {
+                throw new SaaSSystemException(
+                        "Failed to send notification to rest endpoint");
+            }
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
