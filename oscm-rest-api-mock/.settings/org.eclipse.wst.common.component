@@ -2,6 +2,7 @@
     <wb-module deploy-name="oscm-rest-api-mock">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/" source-path="/javasrc"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/javasrc"/>
         <property name="context-root" value="oscm-rest-api-mock"/>
         <property name="java-output-path" value="/oscm-rest-api-mock/build/classes"/>
     </wb-module>
