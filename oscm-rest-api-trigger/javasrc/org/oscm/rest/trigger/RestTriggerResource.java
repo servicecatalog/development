@@ -32,11 +32,10 @@ import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.RestFrontend;
 import org.oscm.rest.common.RestResource;
 import org.oscm.rest.common.Since;
-import org.oscm.rest.common.WebException;
 import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.data.ActionRepresentation;
-import org.oscm.rest.trigger.data.ProcessRepresentation;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
+import org.oscm.rest.trigger.data.ProcessRepresentation;
 
 import com.sun.jersey.api.core.InjectParam;
 
@@ -55,12 +54,16 @@ public class RestTriggerResource extends RestResource {
     @EJB
     private ProcessBackend processBackend;
 
+    /**
+     * Endpoint class for trigger definition
+     * 
+     * @author miethaner
+     */
     public class Definition implements
             RestFrontend.Crud<DefinitionRepresentation, TriggerParameters> {
 
         /**
-         * Gets the trigger definition for the given id. Returns 404 if not
-         * found.
+         * Gets the trigger definition for the given id.
          */
         @Since(CommonParams.VERSION_1)
         @GET
@@ -102,6 +105,9 @@ public class RestTriggerResource extends RestResource {
                     params);
         }
 
+        /**
+         * Updates the trigger definition with the given id.
+         */
         @Since(CommonParams.VERSION_1)
         @PUT
         @Path(CommonParams.PATH_ID)
@@ -114,6 +120,9 @@ public class RestTriggerResource extends RestResource {
             return put(request, triggerBackend.putItem(), content, params);
         }
 
+        /**
+         * Deletes the trigger definition with the given id.
+         */
         @Since(CommonParams.VERSION_1)
         @DELETE
         @Path(CommonParams.PATH_ID)
@@ -126,24 +135,33 @@ public class RestTriggerResource extends RestResource {
 
     }
 
+    /**
+     * Redirects to trigger definition endpoints
+     * 
+     * @return the trigger definition endpoints
+     */
     @Path(TriggerCommonParams.PATH_TRIGGER)
     public Definition redirectToTrigger() {
         return new Definition();
     }
 
+    /**
+     * Endpoint class for trigger action
+     * 
+     * @author miethaner
+     */
     public class Action implements RestFrontend.Get<TriggerParameters> {
 
-        @Since(CommonParams.VERSION_1)
-        @GET
-        @Path(CommonParams.PATH_ID)
-        @Produces(MediaType.APPLICATION_JSON)
         @Override
         public Response getItem(@Context Request request,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
-            throw WebException.notFound().build(); // TODO add more info
+            return null;
         }
 
+        /**
+         * Gets all available trigger actions
+         */
         @Since(CommonParams.VERSION_1)
         @GET
         @Produces(MediaType.APPLICATION_JSON)
@@ -178,13 +196,36 @@ public class RestTriggerResource extends RestResource {
         }
     }
 
+    /**
+     * Redirects to trigger action endpoints
+     * 
+     * @return the trigger action endpoints
+     */
     @Path(TriggerCommonParams.PATH_ACTIONS)
     public Action redirectToAction() {
         return new Action();
     }
 
+    /**
+     * Endpoint class for trigger process
+     * 
+     * @author miethaner
+     */
     public class Process {
 
+        /**
+         * Approves the process with the given id and forwards the given
+         * comment.
+         * 
+         * @param request
+         *            the request context
+         * @param content
+         *            the representation with the comment
+         * @param params
+         *            the request parameters
+         * @return the response without content
+         * @throws WebApplicationException
+         */
         @Since(CommonParams.VERSION_1)
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
@@ -196,6 +237,18 @@ public class RestTriggerResource extends RestResource {
             return put(request, processBackend.putApprove(), content, params);
         }
 
+        /**
+         * Rejects the process with the given id and forwards the given comment.
+         * 
+         * @param request
+         *            the request context
+         * @param content
+         *            the representation with the comment
+         * @param params
+         *            the request parameters
+         * @return the response without content
+         * @throws WebApplicationException
+         */
         @Since(CommonParams.VERSION_1)
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
@@ -207,6 +260,18 @@ public class RestTriggerResource extends RestResource {
             return put(request, processBackend.putReject(), content, params);
         }
 
+        /**
+         * Cancels the process with the given id and forwards the given comment.
+         * 
+         * @param request
+         *            the request context
+         * @param content
+         *            the representation with the comment
+         * @param params
+         *            the request parameters
+         * @return the response without content
+         * @throws WebApplicationException
+         */
         @Since(CommonParams.VERSION_1)
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
@@ -219,6 +284,11 @@ public class RestTriggerResource extends RestResource {
         }
     }
 
+    /**
+     * Redirects to trigger process endpoints
+     * 
+     * @return the trigger process endpoints
+     */
     @Path(TriggerCommonParams.PATH_PROCESSES)
     public Process redirectToProcess() {
         return new Process();
