@@ -17,9 +17,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.RepresentationCollection;
-import org.oscm.rest.trigger.TriggerBackend;
+import org.oscm.rest.trigger.DefinitionBackend;
 import org.oscm.rest.trigger.TriggerParameters;
-import org.oscm.rest.trigger.data.TriggerRepresentation;
+import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
 
@@ -38,16 +38,16 @@ public class TriggerBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
-        trigger.setOwner(new TriggerRepresentation.Owner());
+        trigger.setOwner(new DefinitionRepresentation.Owner());
 
         TriggerDefinitionRestService service = Mockito
                 .mock(TriggerDefinitionRestService.class);
 
         Mockito.when(service.getDefinition(params.getId())).thenReturn(trigger);
 
-        TriggerBackend backend = new TriggerBackend();
+        DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         Representation result = backend.getItem().get(params);
 
@@ -63,9 +63,9 @@ public class TriggerBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
-        trigger.setOwner(new TriggerRepresentation.Owner());
+        trigger.setOwner(new DefinitionRepresentation.Owner());
 
         Collection<TriggerDefinitionRest> col = new ArrayList<TriggerDefinitionRest>();
         col.add(trigger);
@@ -75,13 +75,13 @@ public class TriggerBackendTest {
 
         Mockito.when(service.getDefinitions()).thenReturn(col);
 
-        TriggerBackend backend = new TriggerBackend();
+        DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
-        RepresentationCollection<TriggerRepresentation> result = backend
+        RepresentationCollection<DefinitionRepresentation> result = backend
                 .getCollection().get(params);
 
         assertEquals(id,
-                result.getItems().toArray(new TriggerRepresentation[] {})[0]
+                result.getItems().toArray(new DefinitionRepresentation[] {})[0]
                         .getId());
         Mockito.verify(service).getDefinitions();
     }
@@ -94,16 +94,16 @@ public class TriggerBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
-        trigger.setOwner(new TriggerRepresentation.Owner());
+        trigger.setOwner(new DefinitionRepresentation.Owner());
 
         TriggerDefinitionRestService service = Mockito
                 .mock(TriggerDefinitionRestService.class);
 
         Mockito.when(service.createDefinition(trigger)).thenReturn(id);
 
-        TriggerBackend backend = new TriggerBackend();
+        DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         Object result = backend.postCollection().post(trigger, params);
 
@@ -119,14 +119,14 @@ public class TriggerBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
-        trigger.setOwner(new TriggerRepresentation.Owner());
+        trigger.setOwner(new DefinitionRepresentation.Owner());
 
         TriggerDefinitionRestService service = Mockito
                 .mock(TriggerDefinitionRestService.class);
 
-        TriggerBackend backend = new TriggerBackend();
+        DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         backend.putItem().put(trigger, params);
 
@@ -144,7 +144,7 @@ public class TriggerBackendTest {
         TriggerDefinitionRestService service = Mockito
                 .mock(TriggerDefinitionRestService.class);
 
-        TriggerBackend backend = new TriggerBackend();
+        DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         backend.deleteItem().delete(params);
 

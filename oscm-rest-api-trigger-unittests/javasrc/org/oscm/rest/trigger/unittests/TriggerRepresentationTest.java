@@ -15,7 +15,7 @@ import javax.ws.rs.WebApplicationException;
 
 import org.junit.Test;
 import org.oscm.rest.common.CommonParams;
-import org.oscm.rest.trigger.data.TriggerRepresentation;
+import org.oscm.rest.trigger.data.DefinitionRepresentation;
 
 /**
  * Unit test for TriggerRepresentation
@@ -27,7 +27,7 @@ public class TriggerRepresentationTest {
     @Test
     public void testValidationPositive() throws Exception {
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription("abc");
         trigger.setTargetURL("http://abc.de");
 
@@ -37,7 +37,7 @@ public class TriggerRepresentationTest {
     @Test
     public void testValidationNegative() throws Exception {
 
-        TriggerRepresentation trigger = new TriggerRepresentation();
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription("<abc>");
 
         try {
@@ -48,7 +48,7 @@ public class TriggerRepresentationTest {
                     .getStatus());
         }
 
-        trigger = new TriggerRepresentation();
+        trigger = new DefinitionRepresentation();
         trigger.setTargetURL("<http://");
 
         try {

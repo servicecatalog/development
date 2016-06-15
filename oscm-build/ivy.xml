@@ -529,8 +529,9 @@
         <dependency org="wsdl4j" name="wsdl4j" rev="1.6.1" transitive="false"/>
         <dependency org="com.google.code.gson" name="gson" rev="2.6.2" transitive="false"/>
         <dependency org="javax.ws.rs" name="jsr311-api" rev="1.1.1" transitive="false"/>
-        <dependency org="com.sun.jersey" name="jersey-core" rev="1.19.1" transitive="false"/>
-        <dependency org="com.sun.jersey" name="jersey-server" rev="1.19.1" transitive="false"/>
+        <dependency org="com.sun.jersey" name="jersey-core" rev="1.11.1" transitive="false"/>
+        <dependency org="com.sun.jersey" name="jersey-server" rev="1.11.1" transitive="false"/>
+        <dependency org="com.sun.jersey" name="jersey-client" rev="1.11.1" transitive="false"/>
         <exclude org="org.netbeans.api"/>
         <exclude org="*" ext="*" type="source"/>
         <exclude org="*" ext="*" type="javadoc"/>
