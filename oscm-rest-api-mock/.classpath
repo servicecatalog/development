@@ -9,8 +9,8 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-common"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-core-1.19.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server-1.19.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jsr311-api-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-core-1.11.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server-1.11.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
