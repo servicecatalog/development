@@ -140,7 +140,7 @@ public class RestTriggerResource extends RestResource {
      * 
      * @return the trigger definition endpoints
      */
-    @Path(TriggerCommonParams.PATH_TRIGGER)
+    @Path(TriggerCommonParams.PATH_DEFINITIONS)
     public Definition redirectToTrigger() {
         return new Definition();
     }
