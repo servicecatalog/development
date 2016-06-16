@@ -9,7 +9,11 @@
 package org.oscm.rest.common;
 
 import java.io.IOException;
+import java.sql.SQLException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -18,6 +22,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.sql.DataSource;
 
 import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
@@ -57,7 +62,18 @@ public class BasicAuthFilter implements Filter {
             String[] split = userPwd
                     .split(CommonParams.BASIC_AUTH_SEPARATOR, 2);
 
-            programmaticLogin.login(split[0], split[1].toCharArray(),
+            String userKey = "";
+            try {
+                userKey = getUserKeyFromId(split[0]);
+            } catch (NamingException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (SQLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            programmaticLogin.login(userKey, split[1].toCharArray(),
                     CommonParams.REALM, rq, rs);
         }
 
@@ -68,4 +84,16 @@ public class BasicAuthFilter implements Filter {
     public void destroy() {
 
     }
+
+    private String getUserKeyFromId(String userId) throws NamingException,
+            SQLException {
+        long userKey = -1;
+        Context context = new InitialContext();
+        DataSource ds = (DataSource) context.lookup("BSSDS");
+        KeyQuery keyQuery = new KeyQuery(ds, userId);
+        keyQuery.execute();
+        userKey = keyQuery.getUserKey();
+        return String.valueOf(userKey);
+    }
+
 }
