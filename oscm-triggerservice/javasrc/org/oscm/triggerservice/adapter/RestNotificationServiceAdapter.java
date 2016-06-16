@@ -21,8 +21,11 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.triggerservice.data.TriggerProcessRepresentation;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOOrganization;
 import org.oscm.vo.VOOrganizationPaymentConfiguration;
@@ -36,6 +39,7 @@ import org.oscm.vo.VOUsageLicense;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
+import com.google.gson.Gson;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -51,6 +55,9 @@ public class RestNotificationServiceAdapter implements
 
     private DataService ds;
     private WebResource r;
+
+    private final static Log4jLogger logger = LoggerFactory
+            .getLogger(RestNotificationServiceAdapter.class);
 
     @Override
     public void billingPerformed(String xmlBillingData) {
@@ -110,21 +117,18 @@ public class RestNotificationServiceAdapter implements
             TriggerProcess process = ds.getReference(TriggerProcess.class,
                     triggerProcess.getKey());
 
-            TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
-                    process, subscription.getKey());
+            Subscription sub = new Subscription();
+            sub.setKey(0);
+            sub.setSubscriptionId(subscription.getSubscriptionId());
 
-            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(ClientResponse.class, rep);
-
-            if (response == null
-                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
-                            .getStatusCode()) {
-                throw new SaaSSystemException(
-                        "Failed to send notification to rest endpoint");
-            }
+            handleRequest(process, sub);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
+            logger.logError(
+                    LogMessageIdentifier.ERROR_LOOKUP_WEB_SERVICE_FAILED,
+                    e.getMessage());
+
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
         }
@@ -146,18 +150,7 @@ public class RestNotificationServiceAdapter implements
 
             Subscription sub = (Subscription) q.getSingleResult();
 
-            TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
-                    process, sub.getKey());
-
-            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(ClientResponse.class, rep);
-
-            if (response == null
-                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
-                            .getStatusCode()) {
-                throw new SaaSSystemException(
-                        "Failed to send notification to rest endpoint");
-            }
+            handleRequest(process, sub);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -174,18 +167,10 @@ public class RestNotificationServiceAdapter implements
             TriggerProcess process = ds.getReference(TriggerProcess.class,
                     triggerProcess.getKey());
 
-            TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
-                    process, subscription.getKey());
+            Subscription sub = ds.getReference(Subscription.class,
+                    subscription.getKey());
 
-            ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE)
-                    .put(ClientResponse.class, rep);
-
-            if (response == null
-                    || response.getStatus() != ClientResponse.Status.NO_CONTENT
-                            .getStatusCode()) {
-                throw new SaaSSystemException(
-                        "Failed to send notification to rest endpoint");
-            }
+            handleRequest(process, sub);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -265,6 +250,24 @@ public class RestNotificationServiceAdapter implements
     @Override
     public void setDataService(DataService dataService) {
         this.ds = dataService;
+    }
+
+    private void handleRequest(TriggerProcess process, Subscription subscription) {
+        TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
+                process, subscription);
+
+        Gson gson = new Gson();
+        String json = gson.toJson(rep);
+
+        ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE).put(
+                ClientResponse.class, json);
+
+        if (response == null
+                || response.getStatus() != ClientResponse.Status.NO_CONTENT
+                        .getStatusCode()) {
+            throw new SaaSSystemException(
+                    "Failed to send notification to rest endpoint");
+        }
     }
 
 }

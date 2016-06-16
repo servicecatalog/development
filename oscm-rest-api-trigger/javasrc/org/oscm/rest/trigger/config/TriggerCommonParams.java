@@ -28,6 +28,11 @@ public class TriggerCommonParams {
     public static final String PATH_TRIGGER_CANCEL = "/cancel";
     public static final String PATH_ACTIONS = "/actions";
 
+    // properties
+    public static final String PROPERTY_DESCRIPTION = "description";
+    public static final String PROPERTY_TARGET_URL = "target_url";
+    public static final String PROPERTY_ACTION = "action";
+
     private TriggerCommonParams() {
     }
 }

@@ -59,7 +59,8 @@ public class VersionFilter implements ContainerRequestFilter {
                 Since since = (Since) annotation;
 
                 if (vnr < since.value()) {
-                    throw WebException.notFound().build(); // TODO add more info
+                    throw WebException.notFound()
+                            .message(CommonParams.ERROR_METHOD_VERSION).build();
                 }
             }
             if (method.isAnnotationPresent(Until.class)) {
@@ -68,8 +69,8 @@ public class VersionFilter implements ContainerRequestFilter {
                 Until until = (Until) annotation;
 
                 if (vnr >= until.value()) {
-                    throw WebException.notFound().build(); // TODO add more
-                    // info
+                    throw WebException.notFound()
+                            .message(CommonParams.ERROR_METHOD_VERSION).build();
                 }
             }
 
@@ -77,7 +78,8 @@ public class VersionFilter implements ContainerRequestFilter {
                     new Integer(vnr));
 
         } else {
-            throw WebException.notFound().build(); // TODO add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         return request;
@@ -95,11 +97,13 @@ public class VersionFilter implements ContainerRequestFilter {
     private int validateVersion(String version) throws WebApplicationException {
 
         if (version == null) {
-            throw WebException.notFound().build(); // TODO: add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         if (!version.matches(CommonParams.PATTERN_VERSION)) {
-            throw WebException.notFound().build(); // TODO: add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         int vnr = 0;
@@ -107,7 +111,8 @@ public class VersionFilter implements ContainerRequestFilter {
             vnr = Integer.parseInt(version
                     .substring(CommonParams.PATTERN_VERSION_OFFSET));
         } catch (NumberFormatException e) {
-            throw WebException.notFound().build(); // TODO: add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         boolean exists = false;
@@ -119,7 +124,8 @@ public class VersionFilter implements ContainerRequestFilter {
         }
 
         if (!exists) {
-            throw WebException.notFound().build(); // TODO: add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         return vnr;

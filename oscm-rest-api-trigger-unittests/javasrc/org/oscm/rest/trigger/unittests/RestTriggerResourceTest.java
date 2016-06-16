@@ -9,14 +9,11 @@
 package org.oscm.rest.trigger.unittests;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.junit.Test;
@@ -48,14 +45,6 @@ public class RestTriggerResourceTest {
 
         ContainerRequest request = Mockito.mock(ContainerRequest.class);
         Mockito.when(request.getProperties()).thenReturn(map);
-
-        try {
-            action.getItem(request, params);
-            fail();
-        } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
-                    .getStatus());
-        }
 
         Response response = action.getCollection(request, params);
         assertThat(response.getEntity(),

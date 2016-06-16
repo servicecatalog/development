@@ -48,7 +48,8 @@ public abstract class RequestParameters {
     public void validateId() throws WebApplicationException {
 
         if (id == null) {
-            throw WebException.notFound().build(); // TODO: add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_ID).build();
         }
     }
 

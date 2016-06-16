@@ -15,8 +15,6 @@ import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
 
-import org.oscm.rest.common.GsonMessageProvider;
-
 import com.sun.jersey.api.core.ResourceConfig;
 
 /**
@@ -38,11 +36,7 @@ public class MockResourceConfig extends ResourceConfig {
 
     @Override
     public Set<Class<?>> getProviderClasses() {
-        Set<Class<?>> provider = new HashSet<Class<?>>();
-
-        provider.add(GsonMessageProvider.class);
-
-        return provider;
+        return new HashSet<Class<?>>();
     }
 
     @Override

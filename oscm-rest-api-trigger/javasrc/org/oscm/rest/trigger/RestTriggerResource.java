@@ -36,6 +36,7 @@ import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.data.ActionRepresentation;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
+import org.oscm.rest.trigger.interfaces.TriggerProcessRest;
 
 import com.sun.jersey.api.core.InjectParam;
 
@@ -180,12 +181,11 @@ public class RestTriggerResource extends RestResource {
 
                     Collection<ActionRepresentation> col = new ArrayList<ActionRepresentation>();
                     col.add(new ActionRepresentation(null,
-                            ActionRepresentation.Action.SUBSCRIBE_TO_SERVICE));
-                    col.add(new ActionRepresentation(
-                            null,
-                            ActionRepresentation.Action.UNSUBSCRIBE_FROM_SERVICE));
+                            TriggerProcessRest.Action.SUBSCRIBE_TO_SERVICE));
                     col.add(new ActionRepresentation(null,
-                            ActionRepresentation.Action.MODIFY_SUBSCRIPTION));
+                            TriggerProcessRest.Action.UNSUBSCRIBE_FROM_SERVICE));
+                    col.add(new ActionRepresentation(null,
+                            TriggerProcessRest.Action.MODIFY_SUBSCRIPTION));
 
                     return new RepresentationCollection<ActionRepresentation>(
                             col);
@@ -251,7 +251,7 @@ public class RestTriggerResource extends RestResource {
          */
         @Since(CommonParams.VERSION_1)
         @PUT
-        @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
+        @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_REJECT)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putReject(@Context Request request,
                 ProcessRepresentation content,
@@ -274,7 +274,7 @@ public class RestTriggerResource extends RestResource {
          */
         @Since(CommonParams.VERSION_1)
         @PUT
-        @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
+        @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_CANCEL)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putCancel(@Context Request request,
                 ProcessRepresentation content,

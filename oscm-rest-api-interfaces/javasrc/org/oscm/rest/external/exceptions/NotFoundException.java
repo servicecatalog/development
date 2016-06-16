@@ -20,4 +20,9 @@ public class NotFoundException extends Exception {
     public NotFoundException(Throwable e) {
         super(e);
     }
+
+    @Override
+    public String getMessage() {
+        return getCause().getMessage();
+    }
 }

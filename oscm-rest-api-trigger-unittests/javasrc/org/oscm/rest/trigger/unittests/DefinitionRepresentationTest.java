@@ -22,14 +22,15 @@ import org.oscm.rest.trigger.data.DefinitionRepresentation;
  * 
  * @author miethaner
  */
-public class TriggerRepresentationTest {
+public class DefinitionRepresentationTest {
 
     @Test
     public void testValidationPositive() throws Exception {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription("abc");
-        trigger.setTargetURL("http://abc.de");
+        trigger.setTargetURL("http://abc.de/asdf");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
         trigger.validateContent();
     }
@@ -37,8 +38,14 @@ public class TriggerRepresentationTest {
     @Test
     public void testValidationNegative() throws Exception {
 
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 100; i++) {
+            sb.append("1234567890");
+        }
+
         DefinitionRepresentation trigger = new DefinitionRepresentation();
-        trigger.setDescription("<abc>");
+        trigger.setDescription(sb.toString());
 
         try {
             trigger.validateContent();
@@ -50,6 +57,17 @@ public class TriggerRepresentationTest {
 
         trigger = new DefinitionRepresentation();
         trigger.setTargetURL("<http://");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(CommonParams.STATUS_BAD_REQUEST, e.getResponse()
+                    .getStatus());
+        }
+
+        trigger = new DefinitionRepresentation();
+        trigger.setAction("SUB");
 
         try {
             trigger.validateContent();

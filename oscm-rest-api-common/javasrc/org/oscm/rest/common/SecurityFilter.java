@@ -28,11 +28,13 @@ public class SecurityFilter implements ContainerRequestFilter {
             throws WebApplicationException {
 
         if (!request.isSecure()) {
-            throw WebException.forbidden().build(); // TODO: add more info
+            throw WebException.forbidden()
+                    .message(CommonParams.ERROR_NOT_SECURE).build();
         }
 
         if (request.getUserPrincipal() == null) {
-            throw WebException.forbidden().build(); // TODO add more info
+            throw WebException.forbidden()
+                    .message(CommonParams.ERROR_NOT_AUTHENTICATED).build();
         }
 
         return request;

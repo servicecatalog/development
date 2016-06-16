@@ -16,8 +16,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.oscm.rest.common.RestResource;
 import org.oscm.rest.mock.data.TriggerProcessRepresentation;
+
+import com.google.gson.Gson;
 
 /**
  * Root resource for Mock endpoints
@@ -25,17 +26,19 @@ import org.oscm.rest.mock.data.TriggerProcessRepresentation;
  * @author miethaner
  */
 @Path("/process")
-public class RestMockResource extends RestResource {
+public class RestMockResource {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putProcess(TriggerProcessRepresentation content) {
+    public Response putProcess(String json) {
+
+        Gson gson = new Gson();
+        TriggerProcessRepresentation content = gson.fromJson(json,
+                TriggerProcessRepresentation.class);
 
         Logger logger = Logger.getLogger(getClass().getName());
 
-        logger.info("Triggerprocess: " + content.getId() + ", "
-                + content.getComment() + ", " + content.getDefinitionId()
-                + ", " + content.getAuthorId() + ", " + content.getStatusRest());
+        logger.info("Triggerprocess: " + content.getId() + ", " + json);
 
         return Response.noContent().build();
     }

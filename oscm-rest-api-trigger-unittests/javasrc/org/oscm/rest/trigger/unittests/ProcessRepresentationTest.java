@@ -36,8 +36,14 @@ public class ProcessRepresentationTest {
     @Test
     public void testValidationNegative() throws Exception {
 
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < 100; i++) {
+            sb.append("1234567890");
+        }
+
         ProcessRepresentation process = new ProcessRepresentation();
-        process.setComment(">abc");
+        process.setComment(sb.toString());
 
         try {
             process.validateContent();

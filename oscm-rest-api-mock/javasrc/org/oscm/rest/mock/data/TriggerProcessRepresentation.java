@@ -10,20 +10,12 @@ package org.oscm.rest.mock.data;
 
 import java.util.Date;
 
-import javax.ws.rs.WebApplicationException;
-
-import org.oscm.rest.common.Representation;
-
 /**
  * Representation class of trigger processes.
  * 
  * @author miethaner
  */
-public class TriggerProcessRepresentation extends Representation {
-
-    public enum Status {
-        APPROVED, FAILED, REJECTED, CANCELED, WAITING_FOR_APPROVEL
-    }
+public class TriggerProcessRepresentation {
 
     public static class Author {
         private Long id;
@@ -54,26 +46,115 @@ public class TriggerProcessRepresentation extends Representation {
         }
     }
 
+    public static class Subscription {
+        private Long id;
+        private String name;
+
+        public Subscription() {
+        }
+
+        public Subscription(Long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+    public static class Product {
+
+        public static class Parameter {
+            private String name;
+            private String value;
+
+            public Parameter() {
+            }
+
+            public Parameter(String name, String value) {
+                this.name = name;
+                this.value = value;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public String getValue() {
+                return value;
+            }
+
+            public void setValue(String value) {
+                this.value = value;
+            }
+        }
+
+        private String name;
+        private Parameter[] parameters;
+
+        public Product() {
+        }
+
+        public Product(String name, Parameter[] parameters) {
+            super();
+            this.name = name;
+            this.parameters = parameters;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public Parameter[] getParameters() {
+            return parameters;
+        }
+
+        public void setParameters(Parameter[] parameters) {
+            this.parameters = parameters;
+        }
+    }
+
     public static class Links {
-        private Long definition_id;
+        private Long trigger_id;
         private Long author_id;
         private Long subscription_id;
 
         public Links() {
         }
 
-        public Links(Long definition_id, Long author_id, Long subscription_id) {
-            this.definition_id = definition_id;
+        public Links(Long trigger_id, Long author_id, Long subscription_id) {
+            this.trigger_id = trigger_id;
             this.author_id = author_id;
             this.subscription_id = subscription_id;
         }
 
-        public Long getDefinition_id() {
-            return definition_id;
+        public Long getTrigger_id() {
+            return trigger_id;
         }
 
-        public void setDefinition_id(Long definition_id) {
-            this.definition_id = definition_id;
+        public void setTrigger_id(Long definition_id) {
+            this.trigger_id = definition_id;
         }
 
         public Long getAuthor_id() {
@@ -93,39 +174,45 @@ public class TriggerProcessRepresentation extends Representation {
         }
     }
 
+    private Long id;
     private Date activation_time;
-    private Status status;
+    private String status;
     private String comment;
     private Author author;
+    private Subscription subscription;
+    private Product product;
     private Links links;
 
     public TriggerProcessRepresentation() {
     }
 
     public TriggerProcessRepresentation(Long id, Date activation_time,
-            Status status, String comment, Author author, Links links) {
-        super(id);
+            String status, String comment, Author author,
+            Subscription subscription, Product product, Links links) {
+        this.id = id;
         this.activation_time = activation_time;
         this.status = status;
         this.comment = comment;
         this.author = author;
+        this.subscription = subscription;
+        this.product = product;
         this.links = links;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getStatusRest() {
-        if (status != null) {
-            return status.toString();
-        } else {
-            return null;
-        }
+        return status;
     }
 
     public void setStatus(String status) {
-        if (status != null) {
-            this.status = Status.valueOf(status);
-        } else {
-            this.status = null;
-        }
+        this.status = status;
     }
 
     public String getComment() {
@@ -144,20 +231,20 @@ public class TriggerProcessRepresentation extends Representation {
         this.activation_time = activition_time;
     }
 
-    public Long getDefinitionId() {
+    public Long getTriggerId() {
         if (links != null) {
-            return links.getDefinition_id();
+            return links.getTrigger_id();
         } else {
             return null;
         }
     }
 
-    public void setDefinitionId(Long definition_id) {
+    public void setTriggerId(Long definition_id) {
         if (links == null) {
             links = new Links();
         }
 
-        links.setDefinition_id(definition_id);
+        links.setTrigger_id(definition_id);
     }
 
     public Long getAuthorId() {
@@ -200,15 +287,19 @@ public class TriggerProcessRepresentation extends Representation {
         links.setSubscription_id(subscription_id);
     }
 
-    @Override
-    public void validateContent() throws WebApplicationException {
+    public Subscription getSubscription() {
+        return subscription;
     }
 
-    @Override
-    public void update() {
+    public void setSubscription(Subscription subscription) {
+        this.subscription = subscription;
     }
 
-    @Override
-    public void convert() {
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
     }
 }

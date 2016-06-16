@@ -28,7 +28,7 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
  * 
  * @author miethaner
  */
-public class TriggerBackendTest {
+public class DefinitionBackendTest {
 
     @Test
     public void testGetItem() throws Exception {

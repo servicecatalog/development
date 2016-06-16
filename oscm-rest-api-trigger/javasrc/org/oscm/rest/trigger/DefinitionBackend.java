@@ -56,11 +56,11 @@ public class DefinitionBackend {
                 try {
                     definition = service.getDefinition(params.getId());
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 }
 
                 return new DefinitionRepresentation(definition);
@@ -103,11 +103,11 @@ public class DefinitionBackend {
                 try {
                     return service.createDefinition(content);
                 } catch (BadDataException e) {
-                    throw WebException.badRequest().build();
-                    // TODO add more info
+                    throw WebException.badRequest().message(e.getMessage())
+                            .build();
                 } catch (ConflictException e) {
-                    throw WebException.conflict().build();
-                    // TODO add more info
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 }
             }
         };
@@ -125,20 +125,20 @@ public class DefinitionBackend {
                 try {
                     service.updateDefinition(content);
                 } catch (BadDataException e) {
-                    throw WebException.badRequest().build();
-                    // TODO add more info
+                    throw WebException.badRequest().message(e.getMessage())
+                            .build();
                 } catch (DataException e) {
-                    throw WebException.internalServerError().build();
-                    // TODO add more info
+                    throw WebException.internalServerError()
+                            .message(e.getMessage()).build();
                 } catch (ConflictException e) {
-                    throw WebException.conflict().build();
-                    // TODO add more info
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 }
             }
         };
@@ -156,14 +156,14 @@ public class DefinitionBackend {
                 try {
                     service.deleteDefinition(params.getId());
                 } catch (ConflictException e) {
-                    throw WebException.conflict().build();
-                    // TODO add more info
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 }
             }
         };

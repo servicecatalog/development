@@ -20,4 +20,9 @@ public class ConflictException extends Exception {
     public ConflictException(Throwable e) {
         super(e);
     }
+
+    @Override
+    public String getMessage() {
+        return getCause().getMessage();
+    }
 }

@@ -45,7 +45,7 @@ public class CommonParams {
     public static final int PATTERN_VERSION_OFFSET = 1;
 
     // patterns for validation
-    public static final String PATTERN_STRING = "^[^<>%$§]{0,250}$";
+    public static final String PATTERN_STRING = "^.{0,250}$";
 
     // http status values
     public static final int STATUS_SUCCESS = 200;
@@ -64,6 +64,16 @@ public class CommonParams {
     public static final String HEADER_AUTH = "Authorization";
     public static final String BASIC_AUTH_PREFIX = "Basic ";
     public static final String BASIC_AUTH_SEPARATOR = ":";
+
+    // error messages
+    public static final String ERROR_JSON_FORMAT = "Invalid JSON format";
+    public static final String ERROR_INVALID_ID = "ID not valid or unknown";
+    public static final String ERROR_INVALID_VERSION = "Version not valid or unknown";
+    public static final String ERROR_NOT_SECURE = "Connection is not secure";
+    public static final String ERROR_NOT_AUTHENTICATED = "User is not authenticated";
+    public static final String ERROR_METHOD_VERSION = "Method not available for used version";
+    public static final String ERROR_BAD_PROPERTY = "Property does not match allowed pattern";
+    public static final String ERROR_LOGIN_FAILED = "Incorrect user or password";
 
     private CommonParams() {
     }

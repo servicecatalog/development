@@ -61,7 +61,8 @@ public class GsonMessageProvider implements MessageBodyWriter<Representation>,
             return gson.fromJson(reader, genericType);
 
         } catch (JsonSyntaxException e) {
-            throw WebException.badRequest().build(); // TODO add more info
+            throw WebException.badRequest()
+                    .message(CommonParams.ERROR_JSON_FORMAT).build();
 
         } finally {
             reader.close();
@@ -96,8 +97,8 @@ public class GsonMessageProvider implements MessageBodyWriter<Representation>,
             gson.toJson(rep, genericType, writer);
 
         } catch (JsonSyntaxException e) {
-            throw WebException.internalServerError().build(); // TODO add more
-                                                              // info
+            throw WebException.internalServerError()
+                    .message(CommonParams.ERROR_JSON_FORMAT).build();
         } finally {
             writer.close();
         }

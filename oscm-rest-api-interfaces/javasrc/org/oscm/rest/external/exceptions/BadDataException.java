@@ -20,4 +20,9 @@ public class BadDataException extends Exception {
     public BadDataException(Throwable e) {
         super(e);
     }
+
+    @Override
+    public String getMessage() {
+        return getCause().getMessage();
+    }
 }

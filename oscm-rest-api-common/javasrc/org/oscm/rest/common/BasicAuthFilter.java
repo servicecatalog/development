@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 
+import com.sun.enterprise.security.auth.login.common.LoginException;
 import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
 
@@ -62,19 +63,17 @@ public class BasicAuthFilter implements Filter {
             String[] split = userPwd
                     .split(CommonParams.BASIC_AUTH_SEPARATOR, 2);
 
-            String userKey = "";
             try {
-                userKey = getUserKeyFromId(split[0]);
-            } catch (NamingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (SQLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                String userKey = getUserKeyFromId(split[0]);
+
+                programmaticLogin.login(userKey, split[1].toCharArray(),
+                        CommonParams.REALM, rq, rs);
+
+            } catch (NamingException | SQLException | LoginException e) {
+                rs.sendError(CommonParams.STATUS_UNAUTHORIZED,
+                        CommonParams.ERROR_LOGIN_FAILED);
             }
 
-            programmaticLogin.login(userKey, split[1].toCharArray(),
-                    CommonParams.REALM, rq, rs);
         }
 
         chain.doFilter(request, response);

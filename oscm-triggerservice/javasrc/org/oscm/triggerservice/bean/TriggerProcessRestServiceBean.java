@@ -47,7 +47,7 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
     protected DataService dm;
 
     @EJB(beanInterface = TriggerService.class)
-    private TriggerServiceBean service;
+    private TriggerService service;
 
     @Override
     public void approve(TriggerProcessRest process) throws NotFoundException,

@@ -149,7 +149,8 @@ public abstract class RestResource {
         Object property = cr.getProperties().get(CommonParams.PARAM_VERSION);
 
         if (property == null) {
-            throw WebException.notFound().build(); // TODO add more info
+            throw WebException.notFound()
+                    .message(CommonParams.ERROR_INVALID_VERSION).build();
         }
 
         return ((Integer) property).intValue();

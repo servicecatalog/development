@@ -48,17 +48,17 @@ public class ProcessBackend {
                 try {
                     service.approve(content);
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 } catch (DataException e) {
-                    throw WebException.internalServerError().build();
-                    // TODO add more info
+                    throw WebException.internalServerError()
+                            .message(e.getMessage()).build();
                 } catch (ConflictException e) {
-                    throw WebException.conflict().build();
-                    // TODO add more info
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 }
             }
         };
@@ -76,14 +76,14 @@ public class ProcessBackend {
                 try {
                     service.reject(content);
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 } catch (DataException e) {
-                    throw WebException.internalServerError().build();
-                    // TODO add more info
+                    throw WebException.internalServerError()
+                            .message(e.getMessage()).build();
                 }
             }
         };
@@ -101,14 +101,14 @@ public class ProcessBackend {
                 try {
                     service.cancel(content);
                 } catch (NotFoundException e) {
-                    throw WebException.notFound().build();
-                    // TODO add more info
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
                 } catch (AuthorizationException e) {
-                    throw WebException.forbidden().build();
-                    // TODO add more info
+                    throw WebException.forbidden().message(e.getMessage())
+                            .build();
                 } catch (DataException e) {
-                    throw WebException.internalServerError().build();
-                    // TODO add more info
+                    throw WebException.internalServerError()
+                            .message(e.getMessage()).build();
                 }
             }
         };

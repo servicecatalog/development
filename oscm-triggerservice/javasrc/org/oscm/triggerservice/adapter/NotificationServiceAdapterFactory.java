@@ -21,15 +21,12 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.rest.common.GsonMessageProvider;
 import org.oscm.triggerservice.data.SupportedVersions;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 /**
  * Retrieves the notification service adapter according to the concrete WSDL.
@@ -69,9 +66,7 @@ public class NotificationServiceAdapterFactory {
             break;
         case REST_SERVICE:
 
-            ClientConfig cc = new DefaultClientConfig();
-            cc.getClasses().add(GsonMessageProvider.class);
-            Client c = Client.create(cc);
+            Client c = Client.create();
 
             WebResource r = c.resource(td.getTarget());
 

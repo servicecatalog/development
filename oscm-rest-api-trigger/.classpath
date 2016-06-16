@@ -15,5 +15,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-interfaces"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-core-1.11.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server-1.11.1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

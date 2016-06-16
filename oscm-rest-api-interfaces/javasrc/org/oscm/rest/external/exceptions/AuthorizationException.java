@@ -20,4 +20,9 @@ public class AuthorizationException extends Exception {
     public AuthorizationException(Throwable e) {
         super(e);
     }
+
+    @Override
+    public String getMessage() {
+        return getCause().getMessage();
+    }
 }

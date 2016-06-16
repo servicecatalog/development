@@ -8,17 +8,16 @@
 
 package org.oscm.rest.trigger.data;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.WebException;
-import org.oscm.rest.trigger.data.ActionRepresentation.Action;
+import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.interfaces.OrganizationRest;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
+import org.oscm.rest.trigger.interfaces.TriggerProcessRest;
+import org.oscm.validator.ADMValidator;
 
 /**
  * Representation class of trigger definitions.
@@ -87,19 +86,21 @@ public class DefinitionRepresentation extends Representation implements
     private Boolean suspend;
     private String target_url;
     private Owner owner;
-    private Action action;
+    private String action;
     private Links links;
 
     public DefinitionRepresentation() {
     }
 
-    public DefinitionRepresentation(Long id, String description, Boolean suspend,
-            String targetURL, Owner owner, Links links) {
+    public DefinitionRepresentation(Long id, String description,
+            Boolean suspend, String targetURL, String action, Owner owner,
+            Links links) {
         super(id);
         this.description = description;
         this.suspend = suspend;
         this.target_url = targetURL;
         this.owner = owner;
+        this.action = action;
         this.links = links;
     }
 
@@ -108,6 +109,7 @@ public class DefinitionRepresentation extends Representation implements
         this.description = definition.getDescription();
         this.suspend = definition.isSuspending();
         this.target_url = definition.getTargetURL();
+        this.action = definition.getAction();
         if (definition.getOwner() != null) {
             this.owner = new Owner(definition.getOwner().getId(), definition
                     .getOwner().getName());
@@ -145,19 +147,11 @@ public class DefinitionRepresentation extends Representation implements
 
     @Override
     public String getAction() {
-        if (action != null) {
-            return action.toString();
-        } else {
-            return null;
-        }
+        return action;
     }
 
     public void setAction(String action) {
-        if (action == null) {
-            this.action = null;
-        } else {
-            this.action = Action.valueOf(action);
-        }
+        this.action = action;
     }
 
     @Override
@@ -192,17 +186,24 @@ public class DefinitionRepresentation extends Representation implements
 
         if (description != null
                 && !description.matches(CommonParams.PATTERN_STRING)) {
-            throw WebException.badRequest().property("description")
-                    .message("property does not match allowed pattern").build();
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_DESCRIPTION)
+                    .message(CommonParams.ERROR_BAD_PROPERTY).build();
         }
 
-        if (target_url != null) {
+        if (target_url != null && !ADMValidator.isUrl(target_url)) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_TARGET_URL)
+                    .message(CommonParams.ERROR_BAD_PROPERTY).build();
+        }
+
+        if (action != null) {
             try {
-                new URL(target_url);
-            } catch (MalformedURLException e) {
-                throw WebException.badRequest().property("target_url")
-                        .message("property does not match allowed pattern")
-                        .build();
+                TriggerProcessRest.Action.valueOf(action);
+            } catch (IllegalArgumentException e) {
+                throw WebException.badRequest()
+                        .property(TriggerCommonParams.PROPERTY_ACTION)
+                        .message(CommonParams.ERROR_BAD_PROPERTY).build();
             }
         }
     }

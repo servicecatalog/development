@@ -20,4 +20,9 @@ public class DataException extends Exception {
     public DataException(Throwable e) {
         super(e);
     }
+
+    @Override
+    public String getMessage() {
+        return getCause().getMessage();
+    }
 }
