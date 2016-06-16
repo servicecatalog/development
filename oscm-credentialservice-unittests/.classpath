@@ -13,6 +13,7 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-integrationtests-saml-sp"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml-api"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml2-api"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml-tools"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
