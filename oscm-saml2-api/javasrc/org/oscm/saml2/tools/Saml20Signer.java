@@ -154,7 +154,7 @@ public class Saml20Signer {
 
             // sign the element using the previously create context
             signature.sign(context);
-            verifySig(element);
+//            verifySig(element);
             return element;
 
         } catch (AccessControlException e) {
@@ -163,38 +163,38 @@ public class Saml20Signer {
             throw createSaaSSystemException(e);
         } catch (MarshalException e) {
             throw createSaaSSystemException(e);
-        } catch (IOException e) {
-            throw createSaaSSystemException(e);
-        } catch (CertificateException e) {
-            throw createSaaSSystemException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw createSaaSSystemException(e);
-        } catch (DigitalSignatureValidationException e) {
-            throw createSaaSSystemException(e);
-        } catch (KeyStoreException e) {
-            throw createSaaSSystemException(e);
+//        } catch (IOException e) {
+//            throw createSaaSSystemException(e);
+//        } catch (CertificateException e) {
+//            throw createSaaSSystemException(e);
+//        } catch (NoSuchAlgorithmException e) {
+//            throw createSaaSSystemException(e);
+//        } catch (DigitalSignatureValidationException e) {
+//            throw createSaaSSystemException(e);
+//        } catch (KeyStoreException e) {
+//            throw createSaaSSystemException(e);
         }
     }
 //todo remove it - temporary for signature validation
-    private boolean verifySig(Element element) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, DigitalSignatureValidationException {
-        String filePath = "C:/bin/glassfish3/glassfish/domains/integration-bes/config/keystore.jks";
-        KeyStore keystore = Keystores.initializeKeyStore(filePath,
-                "changeit");
-        DigitalSignatureValidator validator = new DigitalSignatureValidator(keystore);
-        final boolean validate = validator.validate(findChild(element.getChildNodes(), "Signature"));
-        return validate;
-    }
+//    private boolean verifySig(Element element) throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException, DigitalSignatureValidationException {
+//        String filePath = "C:/bin/glassfish3/glassfish/domains/integration-bes/config/keystore.jks";
+//        KeyStore keystore = Keystores.initializeKeyStore(filePath,
+//                "changeit");
+//        DigitalSignatureValidator validator = new DigitalSignatureValidator(keystore);
+//        final boolean validate = validator.validate(findChild(element.getChildNodes(), "Signature"));
+//        return validate;
+//    }
 
-    private Node findChild(NodeList childrenNodes, String expectedChildName) {
-        for (int j = 0; j < childrenNodes.getLength(); j++) {
-            final Node childNode = childrenNodes.item(j);
-            if (expectedChildName.equals(childNode
-                    .getLocalName())) {
-                return childNode;
-            }
-        }
-        return null;
-    }
+//    private Node findChild(NodeList childrenNodes, String expectedChildName) {
+//        for (int j = 0; j < childrenNodes.getLength(); j++) {
+//            final Node childNode = childrenNodes.item(j);
+//            if (expectedChildName.equals(childNode
+//                    .getLocalName())) {
+//                return childNode;
+//            }
+//        }
+//        return null;
+//    }
 
 
     /**
