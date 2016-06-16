@@ -1494,6 +1494,10 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 This software includes the following software subject to Individual License:
 
+   - VMware vSphere SDK 5.5, vim25
+   
+License text:
+
 VMware vSphere Software Development Kit License Agreement
  
 
