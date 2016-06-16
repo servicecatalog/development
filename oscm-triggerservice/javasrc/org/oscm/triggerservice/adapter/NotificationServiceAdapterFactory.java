@@ -21,7 +21,6 @@ import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.internal.types.exception.SaaSSystemException;
-
 import org.oscm.triggerservice.data.SupportedVersions;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
