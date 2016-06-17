@@ -240,10 +240,10 @@ public class TriggerDefinitionRestServiceBean implements
         if (getOwnOrganization().getKey() != triggerDefinition
                 .getOrganization().getKey()) {
             OperationNotPermittedException ex = new OperationNotPermittedException(
-                    "The client is not authorized for the operation on trigger resource "
+                    "The client has no authority for the operation."
                             + triggerDefinition.getKey());
             logger.logInfo(Log4jLogger.SYSTEM_LOG,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE,
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE_REJECT,
                     ex.getMessage());
             throw ex;
         }

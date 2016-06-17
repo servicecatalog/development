@@ -90,18 +90,17 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
 
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    public void deleteTriggerDefinitionInt(
-            long triggerDefinitionKey) throws ObjectNotFoundException,
-            DeletionConstraintException, OperationNotPermittedException {
-
-        
+    public void deleteTriggerDefinitionInt(long triggerDefinitionKey)
+            throws ObjectNotFoundException, DeletionConstraintException,
+            OperationNotPermittedException {
 
         TriggerDefinition triggerDefinition = dm.getReference(
                 TriggerDefinition.class, triggerDefinitionKey);
 
         checkOrgAuthority(triggerDefinition);
 
-        // check if there are trigger processes exist for current trigger definition.
+        // check if there are trigger processes exist for current trigger
+        // definition.
         // excepts the triggerDefinition can not be deleted
         Query query = dm
                 .createNamedQuery("TriggerProcess.getAllForTriggerDefinition");
@@ -120,7 +119,6 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         }
         dm.remove(triggerDefinition);
 
-        
     }
 
     private void checkOrgAuthority(TriggerDefinition triggerDefinition)
@@ -128,13 +126,14 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         if (getOwnOrganization().getKey() != triggerDefinition
                 .getOrganization().getKey()) {
             OperationNotPermittedException ex = new OperationNotPermittedException(
-                    "No authority to approve the action.");
-            logger.logError(Log4jLogger.SYSTEM_LOG, ex,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
+                    "The client has no authority for the operation.");
+            logger.logInfo(Log4jLogger.SYSTEM_LOG, 
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE_REJECT, ex.getMessage());
             throw ex;
         }
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     public void createTriggerDefinition(VOTriggerDefinition trigger)
             throws TriggerDefinitionDataException, ValidationException {
@@ -186,16 +185,17 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         }
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     public void deleteTriggerDefinition(long triggerKey)
             throws ObjectNotFoundException, DeletionConstraintException,
             OperationNotPermittedException {
-        
 
         this.deleteTriggerDefinitionInt(triggerKey);
 
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     public void deleteTriggerDefinition(VOTriggerDefinition vo)
             throws ObjectNotFoundException, DeletionConstraintException,
@@ -204,8 +204,7 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         TriggerDefinition triggerDefinition = dm.getReference(
                 TriggerDefinition.class, vo.getKey());
         TriggerDefinitionAssembler.verifyVersionAndKey(triggerDefinition, vo);
-        this.deleteTriggerDefinitionInt(triggerDefinition
-                .getKey());
+        this.deleteTriggerDefinitionInt(triggerDefinition.getKey());
     }
 
     @Override
@@ -248,6 +247,7 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
                 vo);
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     public List<VOTriggerDefinition> getTriggerDefinitions() {
 
@@ -318,6 +318,7 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         return organization;
     }
 
+    @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     public List<TriggerType> getTriggerTypes() {
 
@@ -350,7 +351,7 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
         }
         return triggerTypes;
     }
-    
+
     private void checkTriggerDefinitionChangeAllowed(VOTriggerDefinition vo,
             TriggerDefinition triggerDefinition)
             throws OperationNotPermittedException {

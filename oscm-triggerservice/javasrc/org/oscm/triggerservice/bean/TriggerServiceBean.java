@@ -248,9 +248,9 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
         if (triggerProcess.getTriggerDefinition().getOrganization().getKey() != dm
                 .getCurrentUser().getOrganization().getKey()) {
             OperationNotPermittedException e = new OperationNotPermittedException(
-                    "No authority to approve the action.");
+                    "The client has no authority for the operation.");
             logger.logError(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, e,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE_REJECT);
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -675,8 +675,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
             Query query = dm
                     .createNamedQuery("TriggerProcessParameter.getParam");
             query.setParameter("actionKey", Long.valueOf(actionKey));
-            query.setParameter(
-                    "paramName",
+            query.setParameter("paramName",
                     org.oscm.types.enumtypes.TriggerProcessParameterName
                             .valueOf(paramType.name()));
             return (TriggerProcessParameter) query.getSingleResult();
@@ -695,8 +694,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
      */
     private void validateConfiguredParameters(
             List<VOTriggerProcessParameter> parameters,
-            TriggerProcess triggerProcess)
-            throws ValidationException {
+            TriggerProcess triggerProcess) throws ValidationException {
 
         VOService service = null;
         for (VOTriggerProcessParameter parameter : parameters) {
@@ -718,25 +716,25 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
 
     private void updateParameterDefinitions(TriggerProcess triggerProcess,
             VOService service) {
-        TriggerProcessParameter triggerParameter = triggerProcess.getParamValueForName(
-                TriggerProcessParameterName.PRODUCT);
-        
-        if(triggerParameter == null) {
+        TriggerProcessParameter triggerParameter = triggerProcess
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT);
+
+        if (triggerParameter == null) {
             return;
         }
-        
-        Map<Long, VOParameterDefinition> keyToDefinition = new HashMap<>();        
+
+        Map<Long, VOParameterDefinition> keyToDefinition = new HashMap<>();
         VOService dbService = triggerParameter.getValue(VOService.class);
 
-        for(VOParameter dbParam : dbService.getParameters()) {
+        for (VOParameter dbParam : dbService.getParameters()) {
             VOParameterDefinition dbParamDef = dbParam.getParameterDefinition();
             keyToDefinition.put(Long.valueOf(dbParamDef.getKey()), dbParamDef);
         }
-        
-        for(VOParameter newParam : service.getParameters()) {
-            VOParameterDefinition paramDef = keyToDefinition.get(
-                    Long.valueOf(newParam.getParameterDefinition().getKey()));
-            if(paramDef != null) {
+
+        for (VOParameter newParam : service.getParameters()) {
+            VOParameterDefinition paramDef = keyToDefinition.get(Long
+                    .valueOf(newParam.getParameterDefinition().getKey()));
+            if (paramDef != null) {
                 newParam.setParameterDefinition(paramDef);
             }
         }
