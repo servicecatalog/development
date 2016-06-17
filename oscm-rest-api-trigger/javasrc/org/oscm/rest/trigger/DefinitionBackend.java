@@ -15,6 +15,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.RestBackend.Get;
@@ -121,6 +122,13 @@ public class DefinitionBackend {
             @Override
             public void put(DefinitionRepresentation content,
                     TriggerParameters params) throws WebApplicationException {
+
+                if (params.getMatch() == null) {
+                    throw WebException.badRequest()
+                            .message(CommonParams.ERROR_MATCH_MISSING).build();
+                }
+
+                content.setTag(params.getMatch());
 
                 try {
                     service.updateDefinition(content);

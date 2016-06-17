@@ -49,7 +49,7 @@ public abstract class RestResource {
 
         reviseData(version, item);
 
-        return Response.ok(item).build();
+        return Response.ok(item).tag(item.getTag()).build();
     }
 
     /**
@@ -176,6 +176,7 @@ public abstract class RestResource {
             params.validateId();
         }
 
+        params.validateTag();
         params.validateParameters();
 
         params.setVersion(version);
@@ -184,7 +185,7 @@ public abstract class RestResource {
         if (rep != null) {
             rep.validateContent();
 
-            rep.setVersion(version);
+            rep.setVersion(new Integer(version));
             rep.update();
         }
     }
@@ -200,7 +201,7 @@ public abstract class RestResource {
     protected void reviseData(int version, Representation rep) {
 
         if (rep != null) {
-            rep.setVersion(version);
+            rep.setVersion(new Integer(version));
             rep.convert();
         }
     }

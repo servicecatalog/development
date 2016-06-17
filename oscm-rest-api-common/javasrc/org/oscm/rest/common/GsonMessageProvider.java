@@ -92,8 +92,14 @@ public class GsonMessageProvider implements MessageBodyWriter<Representation>,
                 CommonParams.CHARSET);
 
         try {
-            Gson gson = new GsonBuilder().setVersion(rep.getVersion())
-                    .setDateFormat(CommonParams.FORMAT_DATE).create();
+            GsonBuilder builder = new GsonBuilder();
+            builder.setDateFormat(CommonParams.FORMAT_DATE);
+
+            if (rep.getVersion() != null) {
+                builder.setVersion(rep.getVersion().intValue());
+            }
+
+            Gson gson = builder.create();
             gson.toJson(rep, genericType, writer);
 
         } catch (JsonSyntaxException e) {

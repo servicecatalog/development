@@ -59,7 +59,7 @@ public class RepresentationCollection<T extends Representation> extends
     }
 
     @Override
-    public void setVersion(int version) {
+    public void setVersion(Integer version) {
         super.setVersion(version);
 
         for (T item : items) {

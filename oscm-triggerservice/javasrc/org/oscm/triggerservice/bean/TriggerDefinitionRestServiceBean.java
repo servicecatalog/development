@@ -95,6 +95,7 @@ public class TriggerDefinitionRestServiceBean implements
         this.dm = dm;
     }
 
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
     @Override
     public Long createDefinition(TriggerDefinitionRest definition)
             throws ConflictException, BadDataException {
@@ -195,7 +196,7 @@ public class TriggerDefinitionRestServiceBean implements
         } catch (ValidationException e) {
             throw new BadDataException(e);
         } catch (ConcurrentModificationException e) {
-            throw new DataException(e);
+            throw new ConflictException(e);
         } catch (TriggerDefinitionDataException e) {
             throw new ConflictException(e);
         } catch (OperationNotPermittedException e) {
@@ -295,6 +296,10 @@ public class TriggerDefinitionRestServiceBean implements
         }
 
         vo.setId(definition.getId());
+
+        if (definition.getTag() != null) {
+            vo.setVersion(Integer.parseInt(definition.getTag()));
+        }
 
         if (definition.getDescription() != null) {
             vo.setName(definition.getDescription());

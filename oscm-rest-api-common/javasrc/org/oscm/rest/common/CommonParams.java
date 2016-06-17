@@ -33,8 +33,8 @@ public class CommonParams {
     // parameter name
     public static final String PARAM_VERSION = "version";
     public static final String PARAM_ID = "id";
-    public static final String PARAM_OFFSET = "offset";
-    public static final String PARAM_LIMIT = "limit";
+    public static final String PARAM_MATCH = "If-Match";
+    public static final String PARAM_NONE_MATCH = "If-None-Match";
 
     // path params
     public static final String PATH_VERSION = "/{" + PARAM_VERSION + "}";
@@ -69,11 +69,13 @@ public class CommonParams {
     public static final String ERROR_JSON_FORMAT = "Invalid JSON format";
     public static final String ERROR_INVALID_ID = "ID not valid or unknown";
     public static final String ERROR_INVALID_VERSION = "Version not valid or unknown";
+    public static final String ERROR_INVALID_TAG = "Invalid ETag";
     public static final String ERROR_NOT_SECURE = "Connection is not secure";
     public static final String ERROR_NOT_AUTHENTICATED = "User is not authenticated";
     public static final String ERROR_METHOD_VERSION = "Method not available for used version";
     public static final String ERROR_BAD_PROPERTY = "Property does not match allowed pattern";
     public static final String ERROR_LOGIN_FAILED = "Authentication failed";
+    public static final String ERROR_MATCH_MISSING = "If-Match param is missing";
 
     private CommonParams() {
     }

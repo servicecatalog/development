@@ -16,7 +16,6 @@ import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.WebException;
 import org.oscm.rest.external.exceptions.AuthorizationException;
 import org.oscm.rest.external.exceptions.ConflictException;
-import org.oscm.rest.external.exceptions.DataException;
 import org.oscm.rest.external.exceptions.NotFoundException;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
 import org.oscm.rest.trigger.interfaces.TriggerProcessRestService;
@@ -53,9 +52,6 @@ public class ProcessBackend {
                 } catch (AuthorizationException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (DataException e) {
-                    throw WebException.internalServerError()
-                            .message(e.getMessage()).build();
                 } catch (ConflictException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
@@ -81,9 +77,9 @@ public class ProcessBackend {
                 } catch (AuthorizationException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (DataException e) {
-                    throw WebException.internalServerError()
-                            .message(e.getMessage()).build();
+                } catch (ConflictException e) {
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 }
             }
         };
@@ -106,9 +102,9 @@ public class ProcessBackend {
                 } catch (AuthorizationException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (DataException e) {
-                    throw WebException.internalServerError()
-                            .message(e.getMessage()).build();
+                } catch (ConflictException e) {
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
                 }
             }
         };

@@ -34,7 +34,7 @@ public interface TriggerProcessRestService {
      * @throws ConflictException
      */
     public void approve(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException, ConflictException;
+            AuthorizationException, ConflictException;
 
     /**
      * Rejects the given trigger process
@@ -46,7 +46,7 @@ public interface TriggerProcessRestService {
      * @throws DataException
      */
     public void reject(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException;
+            AuthorizationException, ConflictException;
 
     /**
      * Cancels the given trigger process
@@ -58,6 +58,6 @@ public interface TriggerProcessRestService {
      * @throws DataException
      */
     public void cancel(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException;
+            AuthorizationException, ConflictException;
 
 }

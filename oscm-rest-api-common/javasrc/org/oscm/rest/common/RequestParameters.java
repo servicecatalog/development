@@ -8,6 +8,7 @@
 
 package org.oscm.rest.common;
 
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 
@@ -22,6 +23,12 @@ public abstract class RequestParameters {
 
     @PathParam(CommonParams.PARAM_ID)
     private Long id;
+
+    @HeaderParam(CommonParams.PARAM_MATCH)
+    private String match;
+
+    @HeaderParam(CommonParams.PARAM_NONE_MATCH)
+    private String noneMatch;
 
     public int getVersion() {
         return version;
@@ -39,6 +46,22 @@ public abstract class RequestParameters {
         this.id = id;
     }
 
+    public String getMatch() {
+        return match;
+    }
+
+    public void setMatch(String match) {
+        this.match = match;
+    }
+
+    public String getNoneMatch() {
+        return noneMatch;
+    }
+
+    public void setNoneMatch(String noneMatch) {
+        this.noneMatch = noneMatch;
+    }
+
     /**
      * Validates the id string if it matches basic UUID format. Throws
      * NotFoundException if not valid.
@@ -50,6 +73,27 @@ public abstract class RequestParameters {
         if (id == null) {
             throw WebException.notFound()
                     .message(CommonParams.ERROR_INVALID_ID).build();
+        }
+    }
+
+    public void validateTag() throws WebApplicationException {
+
+        if (match != null) {
+            try {
+                Long.parseLong(match);
+            } catch (NumberFormatException e) {
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_INVALID_TAG).build();
+            }
+        }
+
+        if (noneMatch != null) {
+            try {
+                Long.parseLong(noneMatch);
+            } catch (NumberFormatException e) {
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_INVALID_TAG).build();
+            }
         }
     }
 

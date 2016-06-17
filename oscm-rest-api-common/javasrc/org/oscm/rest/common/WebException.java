@@ -112,7 +112,7 @@ public class WebException {
          * @return the exception builder
          */
         public ExceptionBuilder version(int version) {
-            body.setVersion(version);
+            body.setVersion(new Integer(version));
             return this;
         }
 

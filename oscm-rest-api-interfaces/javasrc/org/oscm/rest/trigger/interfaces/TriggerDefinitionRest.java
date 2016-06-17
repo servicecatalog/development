@@ -23,6 +23,13 @@ public interface TriggerDefinitionRest {
     public Long getId();
 
     /**
+     * Gets the entity concurrency tag
+     * 
+     * @return the entity tag
+     */
+    public String getTag();
+
+    /**
      * Gets the name and description of the definition
      * 
      * @return the description string

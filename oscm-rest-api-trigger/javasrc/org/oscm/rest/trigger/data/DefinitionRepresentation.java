@@ -106,6 +106,7 @@ public class DefinitionRepresentation extends Representation implements
 
     public DefinitionRepresentation(TriggerDefinitionRest definition) {
         super(definition.getId());
+        setTag(definition.getTag());
         this.description = definition.getDescription();
         this.suspend = definition.isSuspending();
         this.target_url = definition.getTargetURL();

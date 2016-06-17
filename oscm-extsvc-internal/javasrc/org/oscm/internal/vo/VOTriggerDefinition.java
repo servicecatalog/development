@@ -189,6 +189,11 @@ public class VOTriggerDefinition extends BaseVO implements
     }
 
     @Override
+    public String getTag() {
+        return Integer.toString(getVersion());
+    }
+
+    @Override
     public String getDescription() {
         return getName();
     }
@@ -217,5 +222,4 @@ public class VOTriggerDefinition extends BaseVO implements
     public String getAction() {
         return getType().toString();
     }
-
 }

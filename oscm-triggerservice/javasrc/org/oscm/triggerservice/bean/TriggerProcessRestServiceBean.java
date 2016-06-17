@@ -28,7 +28,6 @@ import org.oscm.internal.types.exception.TriggerProcessStatusException;
 import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.rest.external.exceptions.AuthorizationException;
 import org.oscm.rest.external.exceptions.ConflictException;
-import org.oscm.rest.external.exceptions.DataException;
 import org.oscm.rest.external.exceptions.NotFoundException;
 import org.oscm.rest.trigger.interfaces.TriggerProcessRest;
 import org.oscm.rest.trigger.interfaces.TriggerProcessRestService;
@@ -51,7 +50,7 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
 
     @Override
     public void approve(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException, ConflictException {
+            AuthorizationException, ConflictException {
 
         if (process.getId() == null) {
             throw new NotFoundException(new NullPointerException());
@@ -64,7 +63,7 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
         } catch (OperationNotPermittedException e) {
             throw new AuthorizationException(e);
         } catch (TriggerProcessStatusException e) {
-            throw new DataException(e);
+            throw new ConflictException(e);
         } catch (ExecutionTargetException e) {
             throw new ConflictException(e);
         }
@@ -73,7 +72,7 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
 
     @Override
     public void reject(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException {
+            AuthorizationException, ConflictException {
 
         if (process.getId() == null) {
             throw new NotFoundException(new NullPointerException());
@@ -90,14 +89,14 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
         } catch (OperationNotPermittedException e) {
             throw new AuthorizationException(e);
         } catch (TriggerProcessStatusException e) {
-            throw new DataException(e);
+            throw new ConflictException(e);
         }
 
     }
 
     @Override
     public void cancel(TriggerProcessRest process) throws NotFoundException,
-            AuthorizationException, DataException {
+            AuthorizationException, ConflictException {
 
         if (process.getId() == null) {
             throw new NotFoundException(new NullPointerException());
@@ -117,7 +116,7 @@ public class TriggerProcessRestServiceBean implements TriggerProcessRestService 
         } catch (OperationNotPermittedException e) {
             throw new AuthorizationException(e);
         } catch (TriggerProcessStatusException e) {
-            throw new DataException(e);
+            throw new ConflictException(e);
         }
     }
 
