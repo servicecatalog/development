@@ -146,7 +146,7 @@ public class TriggerDefinitionRestServiceBean implements
             // should not happen as the saved object doesn't have a business
             // key
             SaaSSystemException se = new SaaSSystemException(
-                    "TriggerDefinition has no business key.", e);
+                    "Trigger has no business key.", e);
             logger.logError(
                     Log4jLogger.SYSTEM_LOG,
                     se,
@@ -240,9 +240,11 @@ public class TriggerDefinitionRestServiceBean implements
         if (getOwnOrganization().getKey() != triggerDefinition
                 .getOrganization().getKey()) {
             OperationNotPermittedException ex = new OperationNotPermittedException(
-                    "No authority to approve the action.");
-            logger.logError(Log4jLogger.SYSTEM_LOG, ex,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE);
+                    "The client is not authorized for the operation on trigger resource "
+                            + triggerDefinition.getKey());
+            logger.logInfo(Log4jLogger.SYSTEM_LOG,
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE,
+                    ex.getMessage());
             throw ex;
         }
     }

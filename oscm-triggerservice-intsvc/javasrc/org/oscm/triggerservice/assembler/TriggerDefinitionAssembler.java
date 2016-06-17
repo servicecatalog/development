@@ -35,7 +35,7 @@ public class TriggerDefinitionAssembler extends BaseAssembler {
 
     public static final String FIELD_NAME_TARGET_TYPE = "targetType";
 
-    public static final String FIELD_NAME_TARGET = "target";
+    public static final String FIELD_NAME_TARGET = "target_url";
 
     public static final String FIELD_NAME_NAME = "name";
 

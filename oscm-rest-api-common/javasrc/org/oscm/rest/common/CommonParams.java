@@ -73,7 +73,7 @@ public class CommonParams {
     public static final String ERROR_NOT_AUTHENTICATED = "User is not authenticated";
     public static final String ERROR_METHOD_VERSION = "Method not available for used version";
     public static final String ERROR_BAD_PROPERTY = "Property does not match allowed pattern";
-    public static final String ERROR_LOGIN_FAILED = "Incorrect user or password";
+    public static final String ERROR_LOGIN_FAILED = "Authentication failed";
 
     private CommonParams() {
     }
