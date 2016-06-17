@@ -1119,25 +1119,24 @@ public class MarketplaceServiceBean implements MarketplaceService {
                     .updateMarketplaceAccessType(marketplaceId, true);
         }
 
-        Set<String> authorizedOrgIds = new HashSet<>();
-
         for (VOOrganization voOrganization : authorizedOrganizations) {
             Organization organization = OrganizationAssembler
                     .toOrganization(voOrganization);
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
-            authorizedOrgIds.add(organization.getOrganizationId());
         }
 
         // checking if on marketplace exist subscriptions -> if yes
         // automatically grant access to owning organizations
         List<Organization> subOrganizations = getMplSubscriptionsOrganizations(
                 marketplace);
+
         for (Organization subOrg : subOrganizations) {
-            if (!authorizedOrgIds.contains(subOrg.getOrganizationId())) {
+            if (!marketplaceServiceLocal
+                    .doesAccessToMarketplaceExistForOrganization(
+                            marketplace.getKey(), subOrg.getKey())) {
                 marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                         marketplace, subOrg);
-                authorizedOrgIds.add(subOrg.getOrganizationId());
             }
         }
 

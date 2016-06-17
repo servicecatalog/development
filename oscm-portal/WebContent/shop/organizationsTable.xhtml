@@ -37,13 +37,15 @@
                                        title="#{msg['group.select.services']}" immediate="true"
                                        value="#{manageAccessCtrl.model.allOrganizationsSelected}"
                                        onclick="setDirty(true);AdmUtils.dataTableSelectCheckboxes('#{formName}:organizationsTable', 'organizationCheckbox', this.checked, '#{size}');executeOperation();AdmUtils.cancelBubble(event);">
+             <f:ajax event="change" />
               </h:selectBooleanCheckbox>
             </a4j:outputPanel>
           </f:facet>
           <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}"
-                                   onclick="setDirty(true);initializeAllCheckbox();executeOperation();AdmUtils.cancelBubble(event);"
+                                   
                                    styleClass="checkbox-in-table">
-            <f:ajax event="change"/>
+            <a4j:ajax event="change" listener="#{manageAccessCtrl.organizationAccessChanged}"/>
+            <f:attribute name="organization" value="#{rowItem}" />
           </h:selectBooleanCheckbox>
         </rich:column>
 

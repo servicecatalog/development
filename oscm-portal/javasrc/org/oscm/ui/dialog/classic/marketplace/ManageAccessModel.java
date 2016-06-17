@@ -10,18 +10,19 @@
 
 package org.oscm.ui.dialog.classic.marketplace;
 
-import org.oscm.internal.marketplace.POOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.ui.model.Organization;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
+
+import org.oscm.internal.marketplace.POOrganization;
+import org.oscm.internal.vo.VOOrganization;
 
 @ManagedBean
 @ViewScoped
@@ -42,6 +43,8 @@ public class ManageAccessModel {
     private List<VOOrganization> unauthorizedOrganizations = new ArrayList<>();
 
     private boolean allOrganizationsSelected;
+    
+    private Set<String> organizationsToBeRemoved = new HashSet<>(); 
 
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
@@ -110,5 +113,14 @@ public class ManageAccessModel {
 
     public void setUnauthorizedOrganizations(List<VOOrganization> unauthorizedOrganizations) {
         this.unauthorizedOrganizations = unauthorizedOrganizations;
+    }
+
+    public Set<String> getOrganizationsToBeRemoved() {
+        return organizationsToBeRemoved;
+    }
+
+    public void setOrganizationsToBeRemoved(
+            Set<String> organizationsToBeRemoved) {
+        this.organizationsToBeRemoved = organizationsToBeRemoved;
     }
 }

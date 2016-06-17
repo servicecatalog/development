@@ -21,6 +21,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 
 import org.oscm.internal.intf.MarketplaceService;
@@ -132,6 +133,7 @@ public class ManageAccessCtrl {
     private void prepareOrganizationsListsForUpdate() {
         model.getAuthorizedOrganizations().clear();
         model.getUnauthorizedOrganizations().clear();
+        model.getOrganizationsToBeRemoved().clear();
         for (POOrganization poOrganization : model.getOrganizations()) {
             if (model.getOrganizationsAccesses().get(poOrganization.getKey())
                     && !poOrganization.isSelected()) {
@@ -143,6 +145,19 @@ public class ManageAccessCtrl {
                     && poOrganization.isSelected()) {
                 model.getAuthorizedOrganizations()
                         .add(toVOOrganization(poOrganization));
+            }
+        }
+    }
+    
+    public void organizationAccessChanged(AjaxBehaviorEvent event){
+        
+        POOrganization organization = (POOrganization) event.getComponent().getAttributes().get("organization");
+        
+        if (model.getOrganizationsAccesses().get(organization.getKey())) {
+            if(!organization.isSelected()){
+                model.getOrganizationsToBeRemoved().add(organization.getOrganizationId());
+            } else{
+                model.getOrganizationsToBeRemoved().remove(organization.getOrganizationId());
             }
         }
     }

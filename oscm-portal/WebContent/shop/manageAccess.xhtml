@@ -47,6 +47,7 @@
                                        onchange="setDirty(true)">
                 <a4j:ajax event="change" render="accessOrganizationsPanel"
                           listener="#{manageAccessCtrl.accessChanged}"/>
+                          <f:attribute name="key" value="test" />
               </h:selectBooleanCheckbox>
               <h:outputLabel value="#{msg['marketplace.manageAccess.isRestricted']}"/>
             </t:panelGroup>
@@ -64,15 +65,24 @@
         </a4j:outputPanel>
 
         <a4j:outputPanel id="buttonPanel">
-          <adm:buttonPanel>
-            <adm:button id="saveButton" value="#{msg['button.save']}" buttonType="save"
-                        disabled="#{empty manageAccessCtrl.model.selectedMarketplaceId}" bean="#{manageAccessCtrl}"
-                        action="save"/>
-          </adm:buttonPanel>
+            <h:commandButton id="confirmedButton" value="#{msg['button.save']}" action="#{manageAccessCtrl.save}"
+            style="display:none;" />
+            <adm:buttonPanel>
+              <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}" onclick="
+              if(#{manageAccessCtrl.model.organizationsToBeRemoved.size()}>0){
+            	  #{rich:component('removalWarning')}.show()} else{
+            		  setDirty(false);
+            		  AdmUtils.showProgress(true);
+            		  #{rich:element('confirmedButton')}.click();
+            	  }"
+                disabled="#{empty manageAccessCtrl.model.selectedMarketplaceId}" buttonType="save" />
+            </adm:buttonPanel>
         </a4j:outputPanel>
+        
       </a4j:outputPanel>
     </h:form>
-
+    
+    <adm:confirmPanel panelId="removalWarning" text="#{msg['marketplace.manageAccess.removalWarning']}" />
 
   </ui:define>
 </ui:composition>
