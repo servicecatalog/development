@@ -8,13 +8,12 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-interfaces"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-core-1.11.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-server-1.11.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-core.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
