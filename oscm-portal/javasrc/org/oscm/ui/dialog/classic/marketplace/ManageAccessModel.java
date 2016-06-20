@@ -22,6 +22,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.oscm.internal.marketplace.POOrganization;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 
 @ManagedBean
@@ -45,7 +46,9 @@ public class ManageAccessModel {
     private boolean allOrganizationsSelected;
     
     private Set<String> organizationsToBeRemoved = new HashSet<>(); 
-
+    
+    private VOMarketplace selectedMarketplace;
+    
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
     }
@@ -122,5 +125,13 @@ public class ManageAccessModel {
     public void setOrganizationsToBeRemoved(
             Set<String> organizationsToBeRemoved) {
         this.organizationsToBeRemoved = organizationsToBeRemoved;
+    }
+
+    public VOMarketplace getSelectedMarketplace() {
+        return selectedMarketplace;
+    }
+
+    public void setSelectedMarketplace(VOMarketplace selectedMarketplace) {
+        this.selectedMarketplace = selectedMarketplace;
     }
 }

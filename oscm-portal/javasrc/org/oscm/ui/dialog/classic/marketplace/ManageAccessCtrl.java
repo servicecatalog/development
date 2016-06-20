@@ -82,6 +82,7 @@ public class ManageAccessCtrl {
         try {
             VOMarketplace marketplace = marketplaceService
                     .getMarketplaceById(marketplaceId);
+            model.setSelectedMarketplace(marketplace);
             model.setSelectedMarketplaceRestricted(marketplace.isRestricted());
             populateOrganizations(marketplaceId);
         } catch (ObjectNotFoundException e) {
@@ -116,9 +117,11 @@ public class ManageAccessCtrl {
                         model.getSelectedMarketplaceId(),
                         model.getAuthorizedOrganizations(),
                         model.getUnauthorizedOrganizations());
+                model.getSelectedMarketplace().setRestricted(true);
             } else {
                 getMarketplaceService()
                         .openMarketplace(model.getSelectedMarketplaceId());
+                model.getSelectedMarketplace().setRestricted(false);
             }
             populateOrganizations(model.getSelectedMarketplaceId());
             addMessage(BaseBean.INFO_MARKETPLACE_ACCESS_SAVED);
