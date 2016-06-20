@@ -15,9 +15,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -25,11 +25,13 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
+import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -55,6 +57,7 @@ import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -65,6 +68,8 @@ import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.UserRoleAssignmentException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
@@ -119,6 +124,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @EJB
     MarketplaceServiceLocal marketplaceServiceLocal;
+
+    @EJB
+    ApplicationServiceLocal appServiceLocal;
 
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
@@ -1110,43 +1118,78 @@ public class MarketplaceServiceBean implements MarketplaceService {
             List<VOOrganization> authorizedOrganizations,
             List<VOOrganization> unauthorizedOrganizations)
                     throws OperationNotPermittedException,
-                    ObjectNotFoundException, NonUniqueBusinessKeyException {
+                    ObjectNotFoundException, NonUniqueBusinessKeyException,
+                    TechnicalServiceNotAliveException,
+                    TechnicalServiceOperationException {
 
         Marketplace marketplace = marketplaceServiceLocal
                 .getMarketplaceForId(marketplaceId);
+
+        boolean wasRestricted = marketplace.isRestricted();
+
         if (!marketplace.isRestricted()) {
             marketplace = marketplaceServiceLocal
                     .updateMarketplaceAccessType(marketplaceId, true);
         }
 
+        List<String> grantedOrganizations = new ArrayList<>();
         for (VOOrganization voOrganization : authorizedOrganizations) {
             Organization organization = OrganizationAssembler
                     .toOrganization(voOrganization);
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
+            grantedOrganizations.add(voOrganization.getOrganizationId());
         }
 
         // checking if on marketplace exist subscriptions -> if yes
         // automatically grant access to owning organizations
-        List<Organization> subOrganizations = getMplSubscriptionsOrganizations(
+        List<Subscription> subscriptions = getMplSubscriptionsOrganizations(
                 marketplace);
 
-        for (Organization subOrg : subOrganizations) {
-            if (!marketplaceServiceLocal
-                    .doesAccessToMarketplaceExistForOrganization(
-                            marketplace.getKey(), subOrg.getKey())) {
+        // map used when removing access for organizations
+        Map<String, List<Subscription>> organizationWithSubs = new HashMap<>();
+
+        for (Subscription subscription : subscriptions) {
+            Organization organization = subscription.getOrganization();
+
+            if (!organizationWithSubs
+                    .containsKey(organization.getOrganizationId())) {
+                organizationWithSubs.put(organization.getOrganizationId(),
+                        new ArrayList<Subscription>());
+            }
+            organizationWithSubs.get(organization.getOrganizationId())
+                    .add(subscription);
+
+            // subscription owning organization is added only when changing
+            // marketplace from open to restricted
+            if (!wasRestricted && !grantedOrganizations
+                    .contains(organization.getOrganizationId())) {
                 marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
-                        marketplace, subOrg);
+                        marketplace, organization);
+                grantedOrganizations.add(organization.getOrganizationId());
             }
         }
 
         for (VOOrganization voOrganization : unauthorizedOrganizations) {
             marketplaceServiceLocal.removeMarketplaceAccess(
                     marketplace.getKey(), voOrganization.getKey());
+
+            // suspending existing subscriptions in case owning organization's
+            // access is removed
+            if (organizationWithSubs
+                    .containsKey(voOrganization.getOrganizationId())) {
+                List<Subscription> subsToBeSuspended = organizationWithSubs
+                        .get(voOrganization.getOrganizationId());
+                for (Subscription subscription : subsToBeSuspended) {
+                    subscription.setStatus(SubscriptionStatus.SUSPENDED);
+                    appServiceLocal.deactivateInstance(subscription);
+                }
+            }
         }
+
     }
 
-    private List<Organization> getMplSubscriptionsOrganizations(
+    private List<Subscription> getMplSubscriptionsOrganizations(
             Marketplace mp) {
 
         Query query = dm.createNamedQuery("Subscription.getForMarketplace");
@@ -1154,12 +1197,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
         List<Subscription> subscriptions = ParameterizedTypes
                 .list(query.getResultList(), Subscription.class);
 
-        List<Organization> organizations = new ArrayList<>();
-
-        for (Subscription subscription : subscriptions) {
-            organizations.add(subscription.getOrganization());
-        }
-        return organizations;
+        return subscriptions;
     }
 
     @Override
