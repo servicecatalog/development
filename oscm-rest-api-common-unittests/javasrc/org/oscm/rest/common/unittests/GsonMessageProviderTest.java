@@ -22,9 +22,9 @@ import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
-import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.GsonMessageProvider;
 import org.oscm.rest.common.Representation;
 
@@ -116,7 +116,7 @@ public class GsonMessageProviderTest {
                     MediaType.APPLICATION_JSON_TYPE, null, stream);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_BAD_REQUEST, e.getResponse()
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
                     .getStatus());
         } catch (IOException e) {
             fail();
@@ -128,7 +128,7 @@ public class GsonMessageProviderTest {
         GsonMessageProvider provider = new GsonMessageProvider();
 
         MockRepresentation rep = new MockRepresentation();
-        rep.setVersion(V1);
+        rep.setVersion(new Integer(V1));
         rep.setId1(OLD_ID);
         rep.setId2(NEW_ID);
 
@@ -147,7 +147,7 @@ public class GsonMessageProviderTest {
         assertTrue(json.contains(OLD_ID));
         assertFalse(json.contains(NEW_ID));
 
-        rep.setVersion(V2);
+        rep.setVersion(new Integer(V2));
 
         stream = new ByteArrayOutputStream();
 

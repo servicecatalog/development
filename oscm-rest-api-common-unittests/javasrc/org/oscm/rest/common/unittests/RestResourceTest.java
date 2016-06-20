@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriBuilder;
 
 import org.junit.Test;
@@ -122,7 +123,7 @@ public class RestResourceTest extends RestResource {
 
         Response response = get(request, backendGet, params, true);
 
-        assertEquals(response.getStatus(), CommonParams.STATUS_SUCCESS);
+        assertEquals(Status.ACCEPTED.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
         assertThat(response.getEntity(), instanceOf(MockRepresentation.class));
     }
@@ -147,7 +148,7 @@ public class RestResourceTest extends RestResource {
 
         Response response = post(request, backendPost, content, params);
 
-        assertEquals(response.getStatus(), CommonParams.STATUS_CREATED);
+        assertEquals(Status.CREATED.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -167,7 +168,7 @@ public class RestResourceTest extends RestResource {
 
         Response response = put(request, backendPut, content, params);
 
-        assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -184,7 +185,7 @@ public class RestResourceTest extends RestResource {
 
         Response response = delete(request, backendDelete, params);
 
-        assertEquals(response.getStatus(), CommonParams.STATUS_NO_CONTENT);
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
 
     @Test
@@ -203,7 +204,7 @@ public class RestResourceTest extends RestResource {
             get(requestWithout, backendGet, params, false);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -211,7 +212,7 @@ public class RestResourceTest extends RestResource {
             post(requestWithout, backendPost, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -219,7 +220,7 @@ public class RestResourceTest extends RestResource {
             put(requestWithout, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -227,7 +228,7 @@ public class RestResourceTest extends RestResource {
             delete(requestWithout, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -235,7 +236,7 @@ public class RestResourceTest extends RestResource {
             get(requestWith, backendGet, params, true);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -243,7 +244,7 @@ public class RestResourceTest extends RestResource {
             put(requestWith, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
 
@@ -251,7 +252,7 @@ public class RestResourceTest extends RestResource {
             delete(requestWith, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
     }

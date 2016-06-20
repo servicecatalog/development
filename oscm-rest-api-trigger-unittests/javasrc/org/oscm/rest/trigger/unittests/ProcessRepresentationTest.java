@@ -12,9 +12,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response.Status;
 
 import org.junit.Test;
-import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
 
 /**
@@ -49,7 +49,7 @@ public class ProcessRepresentationTest {
             process.validateContent();
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_BAD_REQUEST, e.getResponse()
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
                     .getStatus());
         }
     }

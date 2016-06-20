@@ -18,6 +18,7 @@ import java.util.Map;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.junit.Test;
@@ -101,7 +102,7 @@ public class VersionFilterTest {
             testVersionFilter(version, false, 0, false, 0);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
     }
@@ -129,7 +130,7 @@ public class VersionFilterTest {
                     0);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
     }
@@ -156,7 +157,7 @@ public class VersionFilterTest {
             testVersionFilter(version, false, 0, true, CommonParams.VERSION_1);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(CommonParams.STATUS_NOT_FOUND, e.getResponse()
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
                     .getStatus());
         }
     }

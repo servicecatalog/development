@@ -23,6 +23,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import javax.ws.rs.core.Response.Status;
 
 import com.sun.enterprise.security.auth.login.common.LoginException;
 import com.sun.jersey.core.util.Base64;
@@ -70,7 +71,7 @@ public class BasicAuthFilter implements Filter {
                         CommonParams.REALM, rq, rs);
 
             } catch (NamingException | SQLException | LoginException e) {
-                rs.sendError(CommonParams.STATUS_UNAUTHORIZED,
+                rs.sendError(Status.UNAUTHORIZED.getStatusCode(),
                         CommonParams.ERROR_LOGIN_FAILED);
             }
 

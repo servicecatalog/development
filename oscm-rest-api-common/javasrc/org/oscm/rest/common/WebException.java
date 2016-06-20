@@ -11,6 +11,7 @@ package org.oscm.rest.common;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 /**
  * Builder class for custom WebAppExceptions.
@@ -88,6 +89,7 @@ public class WebException {
         }
 
         private ExceptionBody body;
+        private Status status;
 
         /**
          * Creates new exception builder
@@ -95,9 +97,10 @@ public class WebException {
          * @param code
          *            the http status code
          */
-        private ExceptionBuilder(int code) {
+        private ExceptionBuilder(Status status) {
+            this.status = status;
             body = new ExceptionBody();
-            body.setCode(code);
+            body.setCode(status.getStatusCode());
             body.setError(null);
             body.setProperty(null);
             body.setMessage(null);
@@ -173,42 +176,38 @@ public class WebException {
 
             Response response = null;
 
-            switch (body.code) {
-            case CommonParams.STATUS_BAD_REQUEST:
-                response = Response.status(CommonParams.STATUS_BAD_REQUEST)
+            switch (status) {
+            case BAD_REQUEST:
+                response = Response.status(Status.BAD_REQUEST).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
+                break;
+            case UNAUTHORIZED:
+                response = Response.status(Status.UNAUTHORIZED).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
+                break;
+            case FORBIDDEN:
+                response = Response.status(Status.FORBIDDEN).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
+                break;
+            case NOT_FOUND:
+                response = Response.status(Status.NOT_FOUND).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
+                break;
+            case CONFLICT:
+                response = Response.status(Status.CONFLICT).entity(body)
+                        .type(MediaType.APPLICATION_JSON_TYPE).build();
+                break;
+            case INTERNAL_SERVER_ERROR:
+                response = Response.status(Status.INTERNAL_SERVER_ERROR)
                         .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
                         .build();
                 break;
-            case CommonParams.STATUS_UNAUTHORIZED:
-                response = Response.status(CommonParams.STATUS_UNAUTHORIZED)
+            case SERVICE_UNAVAILABLE:
+                response = Response.status(Status.SERVICE_UNAVAILABLE)
                         .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
                         .build();
                 break;
-            case CommonParams.STATUS_FORBIDDEN:
-                response = Response.status(CommonParams.STATUS_FORBIDDEN)
-                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
-                        .build();
-                break;
-            case CommonParams.STATUS_NOT_FOUND:
-                response = Response.status(CommonParams.STATUS_NOT_FOUND)
-                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
-                        .build();
-                break;
-            case CommonParams.STATUS_CONFLICT:
-                response = Response.status(CommonParams.STATUS_CONFLICT)
-                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
-                        .build();
-                break;
-            case CommonParams.STATUS_INTERNAL_SERVER_ERROR:
-                response = Response
-                        .status(CommonParams.STATUS_INTERNAL_SERVER_ERROR)
-                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
-                        .build();
-                break;
-            case CommonParams.STATUS_UNAVAILABLE:
-                response = Response.status(CommonParams.STATUS_UNAVAILABLE)
-                        .entity(body).type(MediaType.APPLICATION_JSON_TYPE)
-                        .build();
+            default:
                 break;
             }
 
@@ -222,7 +221,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder badRequest() {
-        return new ExceptionBuilder(CommonParams.STATUS_BAD_REQUEST);
+        return new ExceptionBuilder(Status.BAD_REQUEST);
     }
 
     /**
@@ -231,7 +230,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder unauthorized() {
-        return new ExceptionBuilder(CommonParams.STATUS_UNAUTHORIZED);
+        return new ExceptionBuilder(Status.UNAUTHORIZED);
     }
 
     /**
@@ -240,7 +239,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder forbidden() {
-        return new ExceptionBuilder(CommonParams.STATUS_FORBIDDEN);
+        return new ExceptionBuilder(Status.FORBIDDEN);
     }
 
     /**
@@ -249,7 +248,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder notFound() {
-        return new ExceptionBuilder(CommonParams.STATUS_NOT_FOUND);
+        return new ExceptionBuilder(Status.NOT_FOUND);
     }
 
     /**
@@ -258,7 +257,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder conflict() {
-        return new ExceptionBuilder(CommonParams.STATUS_CONFLICT);
+        return new ExceptionBuilder(Status.CONFLICT);
     }
 
     /**
@@ -267,7 +266,7 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder internalServerError() {
-        return new ExceptionBuilder(CommonParams.STATUS_INTERNAL_SERVER_ERROR);
+        return new ExceptionBuilder(Status.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -276,6 +275,6 @@ public class WebException {
      * @return the exception builder
      */
     public static ExceptionBuilder unavailable() {
-        return new ExceptionBuilder(CommonParams.STATUS_UNAVAILABLE);
+        return new ExceptionBuilder(Status.SERVICE_UNAVAILABLE);
     }
 }
