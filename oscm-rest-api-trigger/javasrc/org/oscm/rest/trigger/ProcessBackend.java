@@ -12,6 +12,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.WebException;
 import org.oscm.rest.external.exceptions.AuthorizationException;
@@ -55,7 +56,16 @@ public class ProcessBackend {
                 } catch (ConflictException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
     }
@@ -80,7 +90,16 @@ public class ProcessBackend {
                 } catch (ConflictException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
     }
@@ -105,7 +124,16 @@ public class ProcessBackend {
                 } catch (ConflictException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
 

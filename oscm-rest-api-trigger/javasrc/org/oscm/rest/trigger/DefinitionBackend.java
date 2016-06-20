@@ -15,6 +15,7 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.RestBackend.Get;
@@ -61,6 +62,14 @@ public class DefinitionBackend {
                 } catch (AuthorizationException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
 
                 return new DefinitionRepresentation(definition);
@@ -76,8 +85,18 @@ public class DefinitionBackend {
             public RepresentationCollection<DefinitionRepresentation> get(
                     TriggerParameters params) throws WebApplicationException {
 
-                Collection<TriggerDefinitionRest> definitions = service
-                        .getDefinitions();
+                Collection<TriggerDefinitionRest> definitions = new ArrayList<TriggerDefinitionRest>();
+                try {
+                    definitions = service.getDefinitions();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
+                }
 
                 Collection<DefinitionRepresentation> representationList = new ArrayList<DefinitionRepresentation>();
 
@@ -108,7 +127,16 @@ public class DefinitionBackend {
                 } catch (ConflictException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
     }
@@ -139,7 +167,16 @@ public class DefinitionBackend {
                 } catch (NotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
     }
@@ -164,7 +201,16 @@ public class DefinitionBackend {
                 } catch (NotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
+                } catch (Exception e) {
+                    if (e instanceof javax.ejb.EJBAccessException) {
+                        throw WebException.forbidden()
+                                .message(CommonParams.ERROR_NOT_AUTHORIZED)
+                                .build();
+                    } else {
+                        throw e;
+                    }
                 }
+
             }
         };
     }

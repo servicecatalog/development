@@ -76,6 +76,7 @@ public class CommonParams {
     public static final String ERROR_BAD_PROPERTY = "Property does not match allowed pattern";
     public static final String ERROR_LOGIN_FAILED = "Authentication failed";
     public static final String ERROR_TAG_MISSING = "Tag param or header is missing";
+    public static final String ERROR_NOT_AUTHORIZED = "User is not authorized for the operation";
 
     private CommonParams() {
     }
