@@ -18,7 +18,7 @@ import javax.ws.rs.WebApplicationException;
 public abstract class Representation {
 
     private transient Integer version;
-    private String tag;
+    private String etag;
     private Long id;
 
     /**
@@ -46,11 +46,11 @@ public abstract class Representation {
     }
 
     public String getTag() {
-        return tag;
+        return etag;
     }
 
     public void setTag(String tag) {
-        this.tag = tag;
+        this.etag = tag;
     }
 
     public Long getId() {
