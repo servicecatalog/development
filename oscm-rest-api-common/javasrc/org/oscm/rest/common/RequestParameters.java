@@ -76,20 +76,35 @@ public abstract class RequestParameters {
         }
     }
 
+    /**
+     * Validates the If-Match and If-None-Match header content for tag format.
+     * Throws a BadRequestException if not valid.
+     * 
+     * @throws WebApplicationException
+     */
     public void validateTag() throws WebApplicationException {
 
         if (match != null) {
-            try {
-                Long.parseLong(match);
-            } catch (NumberFormatException e) {
-                throw WebException.badRequest()
-                        .message(CommonParams.ERROR_INVALID_TAG).build();
-            }
+            validateTag(match);
         }
 
         if (noneMatch != null) {
+            validateTag(noneMatch);
+        }
+    }
+
+    /**
+     * Validates the given string for tag format if not null. Throws a
+     * BadRequestException if not valid.
+     * 
+     * @param tag
+     *            the given tag string
+     * @throws WebApplicationException
+     */
+    public static void validateTag(String tag) throws WebApplicationException {
+        if (tag != null) {
             try {
-                Long.parseLong(noneMatch);
+                Long.parseLong(tag);
             } catch (NumberFormatException e) {
                 throw WebException.badRequest()
                         .message(CommonParams.ERROR_INVALID_TAG).build();

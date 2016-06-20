@@ -103,6 +103,8 @@ public abstract class RestResource {
 
         prepareData(version, params, true, content);
 
+        prepareTag(params, content, true);
+
         content.setId(params.getId());
 
         backend.put(content, params);
@@ -187,6 +189,42 @@ public abstract class RestResource {
 
             rep.setVersion(new Integer(version));
             rep.update();
+        }
+    }
+
+    /**
+     * Prepares tag for the backend call
+     * 
+     * @param params
+     *            the injected parameters
+     * @param rep
+     *            the representation (can be null)
+     * @param match
+     *            if true use If-Match else If-None-Match
+     * @throws WebApplicationException
+     */
+    protected void prepareTag(RequestParameters params, Representation rep,
+            boolean match) throws WebApplicationException {
+
+        params.validateTag();
+
+        if (rep != null) {
+            if (match) {
+                if (params.getMatch() != null) {
+                    rep.setTag(params.getMatch());
+                }
+            } else {
+                if (params.getNoneMatch() != null) {
+                    rep.setTag(params.getNoneMatch());
+                }
+            }
+
+            RequestParameters.validateTag(rep.getTag());
+
+            if (rep.getTag() == null) {
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_TAG_MISSING).build();
+            }
         }
     }
 

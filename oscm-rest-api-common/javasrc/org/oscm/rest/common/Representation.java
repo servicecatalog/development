@@ -18,7 +18,7 @@ import javax.ws.rs.WebApplicationException;
 public abstract class Representation {
 
     private transient Integer version;
-    private transient String tag;
+    private String tag;
     private Long id;
 
     /**
