@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.UUID;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
@@ -38,8 +37,7 @@ import com.google.gson.annotations.Until;
  */
 public class GsonMessageProviderTest {
 
-    private static final UUID ID = UUID
-            .fromString("14269f7a-2184-11e6-b67b-9e71128cae77");
+    private static final long ID = 1L;
     private static final String OLD_ID = "old";
     private static final String NEW_ID = "new";
     private static final String JSON = "{\"id\": \"" + ID + "\", \"id1\": \""
@@ -100,7 +98,7 @@ public class GsonMessageProviderTest {
             return;
         }
 
-        assertEquals(ID, rep.getId());
+        assertEquals(new Long(ID), rep.getId());
         assertEquals(OLD_ID, rep.getId1());
     }
 

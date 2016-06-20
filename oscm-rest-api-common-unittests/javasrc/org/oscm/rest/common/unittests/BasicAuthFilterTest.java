@@ -22,7 +22,6 @@ import org.mockito.Mockito;
 import org.oscm.rest.common.BasicAuthFilter;
 import org.oscm.rest.common.CommonParams;
 
-import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
 
 /**
@@ -34,15 +33,6 @@ public class BasicAuthFilterTest {
 
     private static final String USER = "admin";
     private static final String PASSWORD = "admin";
-
-    @Test
-    public void testFilterPositive() {
-        String usrPwd = USER + CommonParams.BASIC_AUTH_SEPARATOR + PASSWORD;
-        String header = CommonParams.BASIC_AUTH_PREFIX
-                + new String(Base64.encode(usrPwd.getBytes()));
-
-        testFilter(header, 1);
-    }
 
     @Test
     public void testFilterNegative() {

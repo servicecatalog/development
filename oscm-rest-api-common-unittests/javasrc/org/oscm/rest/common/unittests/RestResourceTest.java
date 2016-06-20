@@ -123,7 +123,7 @@ public class RestResourceTest extends RestResource {
 
         Response response = get(request, backendGet, params, true);
 
-        assertEquals(Status.ACCEPTED.getStatusCode(), response.getStatus());
+        assertEquals(Status.OK.getStatusCode(), response.getStatus());
         assertNotNull(response.getEntity());
         assertThat(response.getEntity(), instanceOf(MockRepresentation.class));
     }
@@ -156,6 +156,7 @@ public class RestResourceTest extends RestResource {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
+        content.setTag(new Long(1L).toString());
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
