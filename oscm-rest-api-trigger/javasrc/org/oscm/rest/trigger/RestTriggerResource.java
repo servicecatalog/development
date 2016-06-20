@@ -234,6 +234,7 @@ public class RestTriggerResource extends RestResource {
                 ProcessRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
+            content.setTag("0");
             return put(request, processBackend.putApprove(), content, params);
         }
 
@@ -257,6 +258,7 @@ public class RestTriggerResource extends RestResource {
                 ProcessRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
+            content.setTag("0");
             return put(request, processBackend.putReject(), content, params);
         }
 
@@ -281,6 +283,7 @@ public class RestTriggerResource extends RestResource {
         // ProcessRepresentation content,
         // @InjectParam TriggerParameters params)
         // throws WebApplicationException {
+        // content.setTag("0");
         // return put(request, processBackend.putCancel(), content, params);
         // }
     }
