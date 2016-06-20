@@ -21,11 +21,8 @@ import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.triggerservice.data.TriggerProcessRepresentation;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.UserRoleType;
 import org.oscm.vo.VOOrganization;
 import org.oscm.vo.VOOrganizationPaymentConfiguration;
@@ -40,6 +37,7 @@ import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
@@ -53,11 +51,10 @@ import com.sun.jersey.api.client.WebResource;
 public class RestNotificationServiceAdapter implements
         INotificationServiceAdapter {
 
+    private static final String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
+
     private DataService ds;
     private WebResource r;
-
-    private final static Log4jLogger logger = LoggerFactory
-            .getLogger(RestNotificationServiceAdapter.class);
 
     @Override
     public void billingPerformed(String xmlBillingData) {
@@ -125,10 +122,6 @@ public class RestNotificationServiceAdapter implements
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
-            logger.logError(
-                    LogMessageIdentifier.ERROR_LOOKUP_WEB_SERVICE_FAILED,
-                    e.getMessage());
-
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
         }
@@ -256,7 +249,7 @@ public class RestNotificationServiceAdapter implements
         TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
                 process, subscription);
 
-        Gson gson = new Gson();
+        Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         String json = gson.toJson(rep);
 
         ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE).put(
