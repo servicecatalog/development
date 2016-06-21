@@ -8,6 +8,7 @@
 
 package org.oscm.triggerservice.adapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -17,6 +18,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.ParameterDefinition;
+import org.oscm.domobjects.ParameterSet;
+import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -118,7 +123,25 @@ public class RestNotificationServiceAdapter implements
             sub.setKey(0);
             sub.setSubscriptionId(subscription.getSubscriptionId());
 
-            handleRequest(process, sub);
+            ParameterSet set = new ParameterSet();
+
+            List<Parameter> params = new ArrayList<Parameter>();
+
+            for (VOParameter vop : product.getParameters()) {
+                Parameter p = new Parameter();
+                ParameterDefinition pd = new ParameterDefinition();
+                pd.setParameterId(vop.getParameterDefinition().getParameterId());
+                p.setParameterDefinition(pd);
+                p.setValue(vop.getValue());
+                params.add(p);
+            }
+            set.setParameters(params);
+
+            Product prod = new Product();
+            prod.setProductId(product.getServiceId());
+            prod.setParameterSet(set);
+
+            handleRequest(process, sub, prod);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -143,7 +166,9 @@ public class RestNotificationServiceAdapter implements
 
             Subscription sub = (Subscription) q.getSingleResult();
 
-            handleRequest(process, sub);
+            Product prod = sub.getProduct();
+
+            handleRequest(process, sub, prod);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -162,8 +187,27 @@ public class RestNotificationServiceAdapter implements
 
             Subscription sub = ds.getReference(Subscription.class,
                     subscription.getKey());
+            sub.setSubscriptionId(subscription.getSubscriptionId());
 
-            handleRequest(process, sub);
+            Product prod = sub.getProduct();
+
+            ParameterSet set = new ParameterSet();
+
+            List<Parameter> params = new ArrayList<Parameter>();
+
+            for (VOParameter vop : modifiedParameters) {
+                Parameter p = new Parameter();
+                ParameterDefinition pd = new ParameterDefinition();
+                pd.setParameterId(vop.getParameterDefinition().getParameterId());
+                p.setParameterDefinition(pd);
+                p.setValue(vop.getValue());
+                params.add(p);
+            }
+            set.setParameters(params);
+
+            prod.setParameterSet(set);
+
+            handleRequest(process, sub, prod);
 
         } catch (ObjectNotFoundException | UniformInterfaceException
                 | ClientHandlerException e) {
@@ -245,9 +289,10 @@ public class RestNotificationServiceAdapter implements
         this.ds = dataService;
     }
 
-    private void handleRequest(TriggerProcess process, Subscription subscription) {
+    private void handleRequest(TriggerProcess process,
+            Subscription subscription, Product product) {
         TriggerProcessRepresentation rep = new TriggerProcessRepresentation(
-                process, subscription);
+                process, subscription, product);
 
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         String json = gson.toJson(rep);

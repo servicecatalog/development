@@ -46,14 +46,14 @@ public class TriggerProcessRepresentation {
         }
     }
 
-    public static class Subscription {
+    public static class SubscriptionRepresentation {
         private Long id;
         private String name;
 
-        public Subscription() {
+        public SubscriptionRepresentation() {
         }
 
-        public Subscription(Long id, String name) {
+        public SubscriptionRepresentation(Long id, String name) {
             this.id = id;
             this.name = name;
         }
@@ -75,16 +75,16 @@ public class TriggerProcessRepresentation {
         }
     }
 
-    public static class Product {
+    public static class ProductRepresentation {
 
-        public static class Parameter {
+        public static class ParameterRepresentation {
             private String name;
             private String value;
 
-            public Parameter() {
+            public ParameterRepresentation() {
             }
 
-            public Parameter(String name, String value) {
+            public ParameterRepresentation(String name, String value) {
                 this.name = name;
                 this.value = value;
             }
@@ -107,12 +107,13 @@ public class TriggerProcessRepresentation {
         }
 
         private String name;
-        private Parameter[] parameters;
+        private ParameterRepresentation[] parameters;
 
-        public Product() {
+        public ProductRepresentation() {
         }
 
-        public Product(String name, Parameter[] parameters) {
+        public ProductRepresentation(String name,
+                ParameterRepresentation[] parameters) {
             super();
             this.name = name;
             this.parameters = parameters;
@@ -126,11 +127,11 @@ public class TriggerProcessRepresentation {
             this.name = name;
         }
 
-        public Parameter[] getParameters() {
+        public ParameterRepresentation[] getParameters() {
             return parameters;
         }
 
-        public void setParameters(Parameter[] parameters) {
+        public void setParameters(ParameterRepresentation[] parameters) {
             this.parameters = parameters;
         }
     }
@@ -179,8 +180,8 @@ public class TriggerProcessRepresentation {
     private String status;
     private String comment;
     private Author author;
-    private Subscription subscription;
-    private Product product;
+    private SubscriptionRepresentation subscription;
+    private ProductRepresentation product;
     private Links links;
 
     public TriggerProcessRepresentation() {
@@ -188,7 +189,8 @@ public class TriggerProcessRepresentation {
 
     public TriggerProcessRepresentation(Long id, Date activation_time,
             String status, String comment, Author author,
-            Subscription subscription, Product product, Links links) {
+            SubscriptionRepresentation subscription,
+            ProductRepresentation product, Links links) {
         this.id = id;
         this.activation_time = activation_time;
         this.status = status;
@@ -287,19 +289,19 @@ public class TriggerProcessRepresentation {
         links.setSubscription_id(subscription_id);
     }
 
-    public Subscription getSubscription() {
+    public SubscriptionRepresentation getSubscription() {
         return subscription;
     }
 
-    public void setSubscription(Subscription subscription) {
+    public void setSubscription(SubscriptionRepresentation subscription) {
         this.subscription = subscription;
     }
 
-    public Product getProduct() {
+    public ProductRepresentation getProduct() {
         return product;
     }
 
-    public void setProduct(Product product) {
+    public void setProduct(ProductRepresentation product) {
         this.product = product;
     }
 }

@@ -12,13 +12,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.TriggerProcessParameter;
-import org.oscm.internal.vo.VOParameter;
-import org.oscm.internal.vo.VOService;
-import org.oscm.triggerservice.data.TriggerProcessRepresentation.Product.Parameter;
-import org.oscm.types.enumtypes.TriggerProcessParameterName;
+import org.oscm.triggerservice.data.TriggerProcessRepresentation.ProductRepresentation.ParameterRepresentation;
 
 /**
  * Representation class of trigger processes.
@@ -85,16 +83,16 @@ public class TriggerProcessRepresentation {
         }
     }
 
-    public static class Product {
+    public static class ProductRepresentation {
 
-        public static class Parameter {
+        public static class ParameterRepresentation {
             private String name;
             private String value;
 
-            public Parameter() {
+            public ParameterRepresentation() {
             }
 
-            public Parameter(String name, String value) {
+            public ParameterRepresentation(String name, String value) {
                 this.name = name;
                 this.value = value;
             }
@@ -117,12 +115,13 @@ public class TriggerProcessRepresentation {
         }
 
         private String name;
-        private Parameter[] parameters;
+        private ParameterRepresentation[] parameters;
 
-        public Product() {
+        public ProductRepresentation() {
         }
 
-        public Product(String name, Parameter[] parameters) {
+        public ProductRepresentation(String name,
+                ParameterRepresentation[] parameters) {
             super();
             this.name = name;
             this.parameters = parameters;
@@ -136,11 +135,11 @@ public class TriggerProcessRepresentation {
             this.name = name;
         }
 
-        public Parameter[] getParameters() {
+        public ParameterRepresentation[] getParameters() {
             return parameters;
         }
 
-        public void setParameters(Parameter[] parameters) {
+        public void setParameters(ParameterRepresentation[] parameters) {
             this.parameters = parameters;
         }
     }
@@ -190,7 +189,7 @@ public class TriggerProcessRepresentation {
     private String comment;
     private Author author;
     private SubscriptionRepresentation subscription;
-    private Product product;
+    private ProductRepresentation product;
     private Links links;
 
     public TriggerProcessRepresentation() {
@@ -198,8 +197,8 @@ public class TriggerProcessRepresentation {
 
     public TriggerProcessRepresentation(Long id, Date activation_time,
             String status, String comment, Author author,
-            SubscriptionRepresentation subscription, Product product,
-            Links links) {
+            SubscriptionRepresentation subscription,
+            ProductRepresentation product, Links links) {
         this.id = id;
         this.activation_time = activation_time;
         this.status = status;
@@ -211,38 +210,36 @@ public class TriggerProcessRepresentation {
     }
 
     public TriggerProcessRepresentation(TriggerProcess process,
-            Subscription subscription) {
+            Subscription subscription, Product product) {
         this.id = new Long(process.getKey());
         this.activation_time = new Date(process.getActivationDate());
         this.comment = null;
         this.status = process.getStatus().toString();
         this.author = new Author(new Long(process.getUser().getKey()), process
                 .getUser().getEmail());
-        this.subscription = new SubscriptionRepresentation(new Long(
-                subscription.getKey()), subscription.getSubscriptionId());
-        this.product = null;
+
         this.links = new Links(
                 new Long(process.getTriggerDefinition().getKey()), new Long(
-                        process.getUser().getKey()), new Long(
-                        subscription.getKey()));
+                        process.getUser().getKey()), null);
 
-        for (TriggerProcessParameter triggerParam : process
-                .getTriggerProcessParameters()) {
-            if (triggerParam.getName() == TriggerProcessParameterName.PRODUCT) {
-                VOService s = triggerParam.getValue(VOService.class);
+        if (subscription != null) {
+            this.subscription = new SubscriptionRepresentation(new Long(
+                    subscription.getKey()), subscription.getSubscriptionId());
+            this.links.setSubscription_id(new Long(subscription.getKey()));
+        }
 
-                List<Parameter> prodParams = new ArrayList<Parameter>();
+        if (product != null) {
+            List<ParameterRepresentation> prodParams = new ArrayList<ParameterRepresentation>();
 
-                for (VOParameter voParam : s.getParameters()) {
-                    prodParams.add(new Parameter(voParam
-                            .getParameterDefinition().getParameterId(), voParam
-                            .getValue()));
-                }
-
-                this.product = new Product(s.getServiceId(),
-                        prodParams.toArray(new Parameter[] {}));
-                continue;
+            for (Parameter voParam : product.getParameterSet().getParameters()) {
+                prodParams.add(new ParameterRepresentation(voParam
+                        .getParameterDefinition().getParameterId(), voParam
+                        .getValue()));
             }
+
+            this.product = new ProductRepresentation(
+                    product.getCleanProductId(),
+                    prodParams.toArray(new ParameterRepresentation[] {}));
         }
     }
 
@@ -342,11 +339,11 @@ public class TriggerProcessRepresentation {
         this.subscription = subscription;
     }
 
-    public Product getProduct() {
+    public ProductRepresentation getProduct() {
         return product;
     }
 
-    public void setProduct(Product product) {
+    public void setProduct(ProductRepresentation product) {
         this.product = product;
     }
 }
