@@ -102,7 +102,7 @@ public abstract class RequestParameters {
      * @throws WebApplicationException
      */
     public static void validateTag(String tag) throws WebApplicationException {
-        if (tag != null) {
+        if (tag != null && !"*".equals(tag)) {
             try {
                 Long.parseLong(tag);
             } catch (NumberFormatException e) {

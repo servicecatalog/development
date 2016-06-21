@@ -220,11 +220,6 @@ public abstract class RestResource {
             }
 
             RequestParameters.validateTag(rep.getTag());
-
-            if (rep.getTag() == null) {
-                throw WebException.badRequest()
-                        .message(CommonParams.ERROR_TAG_MISSING).build();
-            }
         }
     }
 

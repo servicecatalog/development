@@ -297,7 +297,7 @@ public class TriggerDefinitionRestServiceBean implements
 
         vo.setId(definition.getId());
 
-        if (definition.getTag() != null) {
+        if (definition.getTag() != null && !"*".equals(definition.getTag())) {
             vo.setVersion(Integer.parseInt(definition.getTag()));
         }
 
