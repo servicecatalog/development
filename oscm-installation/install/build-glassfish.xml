@@ -104,6 +104,9 @@
     <!--add resources  -->
     <antcall target="addResources" />
 
+    <!--add additional resources if exist  -->
+    <antcall target="addResourcesExtension" />
+
     <!--create JMS Resources  -->
     <antcall target="createJMSResources" />
 
@@ -221,14 +224,18 @@
   <target name="setConfigurationAttribute">
     <setAttribute attribute="${attribute}" />
   </target>
-
+  
   <target name="addResources" if="resources.xml.exists">
     <antcall target="deleteExistingResources" />
     <processResourcesXml />
-    <addRes />
+    <addRes />    
     <antcall target="createWebServicePort">
       <param name="target.name" value="server" />
     </antcall>
+  </target>
+
+  <target name="addResourcesExtension" if="resources-extension.xml.exists">
+    <addRes resfile="resources-extension.xml"/>    
   </target>
 
   <target name="deleteExistingResources" if="resources.exists">
@@ -385,6 +392,7 @@
     <available file="${domains.dir}/${domain.dir}/installer/configuration-attributes.properties" property="attributes.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/patch.properties" property="patch.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/resources-template.xml" property="resources.xml.exists" />
+    <available file="${domains.dir}/${domain.dir}/installer/resources-extension.xml" property="resources-extension.xml.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/lib.properties" property="lib.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/broker.properties" property="broker.exists" />
     <available file="${domains.dir}/${domain.dir}/installer/resources.properties" property="resources.exists" />

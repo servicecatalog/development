@@ -4,7 +4,8 @@
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/><classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
@@ -14,8 +15,12 @@
 	<classpathentry kind="lib" path="/libraries/apache-digester/javalib/commons-digester-1.8.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-beanutils/javalib/commons-beanutils-1.8.3.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/javax-faces/javalib/javax.faces.jar"/>
-	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/cssparser-0.9.14.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-a4j-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-rich-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-core-4.5.0.Final.jar"/><classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/cssparser-0.9.14.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-a4j-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-components-rich-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/richfaces-core-4.5.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/sac-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

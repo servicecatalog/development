@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<application xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/application_6.xsd" version="6">
+  <application-name>oscm-app-vmware</application-name>
+  <display-name>VMware Provisioning</display-name>
+  <module>
+    <web>
+      <web-uri>oscm-app-vmware-ui.war</web-uri>
+      <context-root>/oscm-app-vmware</context-root>
+    </web>
+  </module>
+  <module>
+    <ejb>oscm-app-vmware-service.jar</ejb>
+  </module>
+  <module>
+    <ejb>oscm-app-common.jar</ejb>
+  </module>
+  <library-directory>lib</library-directory>
+</application>
