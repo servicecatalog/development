@@ -187,9 +187,9 @@ public class RestNotificationServiceAdapter implements
 
             Subscription sub = ds.getReference(Subscription.class,
                     subscription.getKey());
-            sub.setSubscriptionId(subscription.getSubscriptionId());
 
-            Product prod = sub.getProduct();
+            Product prod = new Product();
+            prod.setProductId(sub.getProduct().getProductId());
 
             ParameterSet set = new ParameterSet();
 
