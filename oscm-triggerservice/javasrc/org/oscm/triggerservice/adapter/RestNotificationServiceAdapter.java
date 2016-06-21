@@ -297,7 +297,7 @@ public class RestNotificationServiceAdapter implements
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         String json = gson.toJson(rep);
 
-        ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE).put(
+        ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE).post(
                 ClientResponse.class, json);
 
         if (response == null

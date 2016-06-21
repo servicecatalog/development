@@ -16,7 +16,6 @@ import org.oscm.rest.common.WebException;
 import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.interfaces.OrganizationRest;
 import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
-import org.oscm.rest.trigger.interfaces.TriggerProcessRest;
 import org.oscm.validator.ADMValidator;
 
 /**
@@ -200,7 +199,7 @@ public class DefinitionRepresentation extends Representation implements
 
         if (action != null) {
             try {
-                TriggerProcessRest.Action.valueOf(action);
+                TriggerDefinitionRest.Action.valueOf(action);
             } catch (IllegalArgumentException e) {
                 throw WebException.badRequest()
                         .property(TriggerCommonParams.PROPERTY_ACTION)

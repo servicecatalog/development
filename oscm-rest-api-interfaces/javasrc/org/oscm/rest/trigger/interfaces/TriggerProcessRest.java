@@ -15,10 +15,6 @@ package org.oscm.rest.trigger.interfaces;
  */
 public interface TriggerProcessRest {
 
-    public enum Action {
-        SUBSCRIBE_TO_SERVICE, UNSUBSCRIBE_FROM_SERVICE, MODIFY_SUBSCRIPTION
-    };
-
     /**
      * Gets the entity id
      * 
