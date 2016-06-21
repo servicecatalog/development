@@ -11,7 +11,7 @@ package org.oscm.rest.trigger.data;
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.rest.common.Representation;
-import org.oscm.rest.trigger.interfaces.TriggerProcessRest.Action;
+import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest.Action;
 
 /**
  * Representation class for trigger actions

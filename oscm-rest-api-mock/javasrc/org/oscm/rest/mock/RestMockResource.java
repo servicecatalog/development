@@ -11,7 +11,7 @@ package org.oscm.rest.mock;
 import java.util.logging.Logger;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,9 +28,9 @@ import com.google.gson.Gson;
 @Path("/process")
 public class RestMockResource {
 
-    @PUT
+    @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response putProcess(String json) {
+    public Response postProcess(String json) {
 
         Gson gson = new Gson();
         TriggerProcessRepresentation content = gson.fromJson(json,
