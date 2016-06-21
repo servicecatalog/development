@@ -92,6 +92,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedStatuses(pagination);
         List<POSubscriptionForList> resultList = Collections.emptyList();
+        fullTextSearchFilterValue = fullTextSearchFilterValue == null ? null : fullTextSearchFilterValue.trim();
         pagination.setFullTextFilterValue(fullTextSearchFilterValue);
         try {
             Response response = subscriptionsService.getSubscriptionsForOrgWithFiltering(states, pagination);
@@ -113,6 +114,7 @@ public class SubscriptionListsLazyDataModel extends RichLazyDataModel<POSubscrip
             PaginationFullTextFilter pagination = new PaginationFullTextFilter();
             applyFilters(getArrangeable().getFilterFields(), pagination);
             decorateWithLocalizedStatuses(pagination);
+            fullTextSearchFilterValue = fullTextSearchFilterValue == null ? null : fullTextSearchFilterValue.trim();
             pagination.setFullTextFilterValue(fullTextSearchFilterValue);
             setTotalCount(subscriptionsService.getSubscriptionsForOrgSizeWithFiltering(
                     states, pagination).intValue());
