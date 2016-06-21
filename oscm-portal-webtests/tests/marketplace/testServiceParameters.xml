@@ -62,10 +62,11 @@
       <verifyInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="55" />
       <verifyXPath xpath="*//input[@id='configurationForm:parameterConfigTable:3:radioOption' and @value='3']" />
       <setInputField htmlId="configurationForm:parameterConfigTable:8:integerValue" value="100" />
-      <clickElement htmlId="priceModelTab:header" />
+      <clickLink xpath="//a[@id='priceModelModalLink']"/>
       <verifyInputField htmlId="configurationForm2:parameterTable:8:integerValue" value="100" />
       <verifyXPath xpath="*//input[@id='configurationForm2:parameterTable:8:integerValue' and @disabled='disabled']" />
-      <clickLink htmlId="configurationForm2:nextLink" />
+      <clickElement xpath="//input[@id='closePriceModelButton']" />
+      <clickLink htmlId="configurationForm:nextLink" />
       <clickLink htmlId="payment:nextLink" />
       <verifyXPath xpath="*//input[@id='confirmForm:parameterConfigTable:8:integerValue' and @disabled='disabled']" />
       <verifyInputField htmlId="confirmForm:parameterConfigTable:8:integerValue" value="100" />
