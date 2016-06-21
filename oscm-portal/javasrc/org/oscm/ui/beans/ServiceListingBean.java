@@ -323,14 +323,11 @@ public class ServiceListingBean extends BaseBean implements Serializable {
      */
     public String showServiceListSearch() {
         String phrase = getServicePagingBean().getSearchPhrase();
-        getRequest().setAttribute(Constants.REQ_ATTR_SEARCH_REQUEST, phrase);
-
         String tmp = TrimConverter.stripToNull(phrase);
         if (tmp == null) {
-            setErrorAttribute(BaseBean.ERROR_SEARCH_TEXT_EMPTY);
-            // Show empty result
-            searchResult = new ArrayList<Service>();
+            return showServiceList();
         }
+        getRequest().setAttribute(Constants.REQ_ATTR_SEARCH_REQUEST, phrase);
         getServicePagingBean().setFilterTag(null);
         return OUTCOME_SHOW_SERVICE_LIST;
     }
