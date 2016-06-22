@@ -29,12 +29,6 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.test.BaseAdmUmTest;
-import org.oscm.test.stubs.MarketplaceServiceStub;
-import org.oscm.ui.menu.MenuGroup;
-import org.oscm.ui.menu.MenuItem;
-import org.oscm.ui.model.User;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.TriggerService;
 import org.oscm.internal.types.constants.HiddenUIConstants;
@@ -42,6 +36,11 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.test.BaseAdmUmTest;
+import org.oscm.test.stubs.MarketplaceServiceStub;
+import org.oscm.ui.menu.MenuGroup;
+import org.oscm.ui.menu.MenuItem;
+import org.oscm.ui.model.User;
 
 /**
  * Tests the menu bean and menu group visibility.
@@ -224,7 +223,8 @@ public class MenuBeanTest {
                     @Override
                     public List<VOMarketplace> getMarketplacesOwned() {
                         VOMarketplace mp = new VOMarketplace();
-                        mp.setMarketplaceId(BaseAdmUmTest.GLOBAL_MARKETPLACE_NAME);
+                        mp.setMarketplaceId(
+                                BaseAdmUmTest.GLOBAL_MARKETPLACE_NAME);
                         return Arrays.asList(new VOMarketplace[] { mp });
                     }
                 };
@@ -282,19 +282,19 @@ public class MenuBeanTest {
         // -- INVISIBLE GROUPS -- //
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
     }
 
     @Test
@@ -312,14 +312,14 @@ public class MenuBeanTest {
         // -- INVISIBLE GROUPS -- //
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
     }
 
     @Test
@@ -337,14 +337,14 @@ public class MenuBeanTest {
         // -- INVISIBLE GROUPS -- //
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
     }
 
     @Test
@@ -362,14 +362,14 @@ public class MenuBeanTest {
                 .isVisible());
 
         // -- INVISIBLE GROUPS -- //
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
+                        .isVisible());
 
     }
 
@@ -387,17 +387,17 @@ public class MenuBeanTest {
                 .isVisible());
 
         // -- INVISIBLE GROUPS -- //
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
-                .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
+                        .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
 
     }
 
@@ -413,19 +413,19 @@ public class MenuBeanTest {
                 .isVisible());
         assertTrue(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
 
         // -- INVISIBLE GROUPS -- //
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
+                        .isVisible());
 
     }
 
@@ -442,16 +442,16 @@ public class MenuBeanTest {
         // -- INVISIBLE GROUPS -- //
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER)
                 .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
     }
 
     @Test
@@ -467,29 +467,30 @@ public class MenuBeanTest {
                 .isVisible());
 
         // -- INVISIBLE GROUPS -- //
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_TECHSERVICE)
+                        .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER)
                 .isVisible());
         assertFalse(getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_SERVICE)
                 .isVisible());
-        assertFalse(getGroup(
-                HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
-                .isVisible());
+        assertFalse(
+                getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_PRICE_MODEL)
+                        .isVisible());
     }
 
     @Test
     public void testMenuItemVisibility_Operator_GroupOperation() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.TRUE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.TRUE);
 
         // when
         setUser(OPERATOR);
 
         // then
-        MenuGroup manageMpGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
+        MenuGroup manageMpGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
         assertTrue(manageMpGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(manageMpGroup);
@@ -529,18 +530,15 @@ public class MenuBeanTest {
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
                 visibleMenuItems.get(10).getId());
 
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
                 visibleMenuItems.get(11).getId());
 
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
                 visibleMenuItems.get(12).getId());
-        
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
                 visibleMenuItems.get(13).getId());
-        
+
         assertEquals(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
                 visibleMenuItems.get(14).getId());
@@ -549,14 +547,15 @@ public class MenuBeanTest {
     @Test
     public void testMenuItemVisibility_Operator_NoManageLdapSettingsMenu() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.FALSE);
 
         // when
         setUser(OPERATOR);
 
         // then
-        MenuGroup operatorGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
+        MenuGroup operatorGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
         assertTrue(operatorGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(operatorGroup);
@@ -593,18 +592,15 @@ public class MenuBeanTest {
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_BILLING_DATA,
                 visibleMenuItems.get(9).getId());
 
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXECUTE_BILLING_TASKS,
                 visibleMenuItems.get(10).getId());
 
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_EXPORT_AUDIT_LOG_DATA,
                 visibleMenuItems.get(11).getId());
-        
-        assertEquals(
-                HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
+
+        assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
                 visibleMenuItems.get(12).getId());
-        
+
         assertEquals(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
                 visibleMenuItems.get(13).getId());
@@ -618,7 +614,8 @@ public class MenuBeanTest {
     public void testMenuItemVisibility_Operator_GroupMarketplace() {
         setUser(OPERATOR);
 
-        MenuGroup manageMpGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE);
+        MenuGroup manageMpGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE);
         assertTrue(manageMpGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(manageMpGroup);
@@ -646,7 +643,8 @@ public class MenuBeanTest {
     public void testMenuItemVisibility_MarketplaceOwner() {
         setUser(MARKETPLACE_OWNER);
 
-        MenuGroup manageMpGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE);
+        MenuGroup manageMpGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MARKETPLACE);
         assertTrue(manageMpGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(manageMpGroup);
@@ -684,14 +682,15 @@ public class MenuBeanTest {
     @Test
     public void testMenuItemVisibility_HaveChangePasswordMenu_Internal() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.TRUE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.TRUE);
 
         // when
         setUser(SERVICE_MANAGER);
 
         // then
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
         assertTrue(accountGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(accountGroup);
@@ -699,8 +698,8 @@ public class MenuBeanTest {
 
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
                 visibleMenuItems.get(0).getId());
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_PWD, visibleMenuItems
-                .get(1).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_PWD,
+                visibleMenuItems.get(1).getId());
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_UDAS,
                 visibleMenuItems.get(2).getId());
         assertEquals(
@@ -713,14 +712,15 @@ public class MenuBeanTest {
     @Test
     public void testMenuItemVisibility_NoChangePasswordMenu_SAMLSP_ServiceManager() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.FALSE);
 
         // when
         setUser(SERVICE_MANAGER);
 
         // then
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
         assertTrue(accountGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(accountGroup);
@@ -740,8 +740,8 @@ public class MenuBeanTest {
     @Test
     public void testMenuItemVisibility_HaveChangePasswordMenu_SAMLSP_ADMIN() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.FALSE);
         when(Boolean.valueOf(applicationBean.isReportingAvailable()))
                 .thenReturn(Boolean.TRUE);
 
@@ -749,7 +749,8 @@ public class MenuBeanTest {
         setUser(OPERATOR_ADMIN);
 
         // then
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
         assertTrue(accountGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(accountGroup);
@@ -758,10 +759,10 @@ public class MenuBeanTest {
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
                 visibleMenuItems.get(0).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_ADD, visibleMenuItems
-                .get(1).getId());
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_LIST, visibleMenuItems
-                .get(2).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_ADD,
+                visibleMenuItems.get(1).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_LIST,
+                visibleMenuItems.get(2).getId());
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_REPORT,
                 visibleMenuItems.get(3).getId());
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_TRIGGERS,
@@ -774,8 +775,8 @@ public class MenuBeanTest {
     @Test
     public void testMenuItemVisibility_HaveChangePasswordMenu_SAMLSP_CALLED_BY_KEY_1000() {
         // given
-        when(Boolean.valueOf(applicationBean.isInternalAuthMode())).thenReturn(
-                Boolean.FALSE);
+        when(Boolean.valueOf(applicationBean.isInternalAuthMode()))
+                .thenReturn(Boolean.FALSE);
         when(Boolean.valueOf(applicationBean.isReportingAvailable()))
                 .thenReturn(Boolean.TRUE);
 
@@ -783,7 +784,8 @@ public class MenuBeanTest {
         setUser(DEFAULT_PLATFORM_OPERATOR_KEY_1000);
 
         // then
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
         assertTrue(accountGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(accountGroup);
@@ -791,12 +793,12 @@ public class MenuBeanTest {
 
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_EDIT,
                 visibleMenuItems.get(0).getId());
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_PWD, visibleMenuItems
-                .get(1).getId());
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_ADD, visibleMenuItems
-                .get(2).getId());
-        assertEquals(HiddenUIConstants.MENU_ITEM_USER_LIST, visibleMenuItems
-                .get(3).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_PWD,
+                visibleMenuItems.get(1).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_ADD,
+                visibleMenuItems.get(2).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_USER_LIST,
+                visibleMenuItems.get(3).getId());
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_REPORT,
                 visibleMenuItems.get(4).getId());
         assertEquals(HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_TRIGGERS,
@@ -810,7 +812,8 @@ public class MenuBeanTest {
     public void testMenuItemVisibility_ExportBillingDataVisible_B10271() {
         setUser(OPERATOR);
 
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_MYACCOUNT);
 
         boolean isExportBillingDataVisible = isVisible(
                 HiddenUIConstants.MENU_ITEM_ORGANIZATION_EXPORT_BILLING_DATA,
@@ -823,7 +826,8 @@ public class MenuBeanTest {
     public void testMenuItemVisibility_ManageLanguages() {
         setUser(OPERATOR);
 
-        MenuGroup accountGroup = getGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
+        MenuGroup accountGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_OPERATOR);
 
         boolean isManageLanguagesVisible = isVisible(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_LANGUAGES,
@@ -849,6 +853,40 @@ public class MenuBeanTest {
 
         }
         return false;
+    }
+
+    @Test
+    public void testMenuItemVisibility_ManagePaymentType() {
+        // given
+        when(Boolean.valueOf(applicationBean.isPaymentInfoAvailable()))
+                .thenReturn(Boolean.TRUE);
+        // when
+        setUser(SERVICE_MANAGER);
+
+        // then
+        MenuGroup operatorGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER);
+        boolean isManagePaymentTypeVisible = isVisible(
+                HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
+                operatorGroup);
+        assertTrue(isManagePaymentTypeVisible);
+    }
+
+    @Test
+    public void testMenuItemVisibility_NoManagePaymentType() {
+        // given
+        when(Boolean.valueOf(applicationBean.isPaymentInfoAvailable()))
+                .thenReturn(Boolean.FALSE);
+        // when
+        setUser(SERVICE_MANAGER);
+
+        // then
+        MenuGroup operatorGroup = getGroup(
+                HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER);
+        boolean isManagePaymentTypeVisible = isVisible(
+                HiddenUIConstants.MENU_ITEM_ORGANIZATION_MANAGE_PAYMENT_ENABLEMENT,
+                operatorGroup);
+        assertFalse(isManagePaymentTypeVisible);
     }
 
 }

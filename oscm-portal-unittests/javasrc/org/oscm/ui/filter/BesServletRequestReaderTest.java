@@ -35,58 +35,60 @@ public class BesServletRequestReaderTest {
 
     @Test
     public void isRequestedToChangePassword_Null() throws Exception {
-        assertFalse(BesServletRequestReader
-                .isRequestedToChangePassword(request));
+        assertFalse(
+                BesServletRequestReader.isRequestedToChangePassword(request));
     }
 
     @Test
     public void isRequestedToChangePassword_Empty() throws Exception {
         when(request.getParameter(anyString())).thenReturn("");
-        assertFalse(BesServletRequestReader
-                .isRequestedToChangePassword(request));
+        assertFalse(
+                BesServletRequestReader.isRequestedToChangePassword(request));
     }
 
     @Test
     public void isRequestedToChangePassword_NewWhiteSpaces() throws Exception {
         when(request.getParameter(anyString())).thenReturn("oldPassword",
                 "      ", "      ");
-        assertTrue(BesServletRequestReader.isRequestedToChangePassword(request));
+        assertTrue(
+                BesServletRequestReader.isRequestedToChangePassword(request));
     }
 
     @Test
     public void isRequestedToChangePassword_OldWhiteSpaces() throws Exception {
         when(request.getParameter(anyString())).thenReturn("      ",
                 "newPassword", "newPassword");
-        assertTrue(BesServletRequestReader.isRequestedToChangePassword(request));
+        assertTrue(
+                BesServletRequestReader.isRequestedToChangePassword(request));
     }
 
     @Test
     public void isMarketplaceErrorPageRequest_Empty() {
         when(request.getServletPath()).thenReturn("");
-        assertFalse(BesServletRequestReader
-                .isMarketplaceErrorPageRequest(request));
+        assertFalse(
+                BesServletRequestReader.isMarketplaceErrorPageRequest(request));
     }
 
     @Test
     public void isMarketplaceErrorPageRequest_NotMarketplaceErrorPage() {
         when(request.getServletPath()).thenReturn("somePage");
-        assertFalse(BesServletRequestReader
-                .isMarketplaceErrorPageRequest(request));
+        assertFalse(
+                BesServletRequestReader.isMarketplaceErrorPageRequest(request));
     }
 
     @Test
     public void isMarketplaceErrorPageRequest_WithMarketplaceErrorPage() {
         when(request.getServletPath()).thenReturn("/marketplace/errorPage.jsf");
-        assertTrue(BesServletRequestReader
-                .isMarketplaceErrorPageRequest(request));
+        assertTrue(
+                BesServletRequestReader.isMarketplaceErrorPageRequest(request));
     }
 
     @Test
     public void isMarketplaceErrorPageRequest_MarketplaceErrorPageWithParameter() {
-        when(request.getServletPath()).thenReturn(
-                "/marketplace/errorPage.jsf?mId=111111");
-        assertTrue(BesServletRequestReader
-                .isMarketplaceErrorPageRequest(request));
+        when(request.getServletPath())
+                .thenReturn("/marketplace/errorPage.jsf?mId=111111");
+        assertTrue(
+                BesServletRequestReader.isMarketplaceErrorPageRequest(request));
     }
 
     /**
@@ -96,13 +98,12 @@ public class BesServletRequestReaderTest {
     public void isLandingPage() {
 
         // given landing page URL
-        when(request.getServletPath()).thenReturn(
-                "/marketplace/index.jsf?mId=1111");
+        when(request.getServletPath())
+                .thenReturn("/marketplace/index.jsf?mId=1111");
 
         // then URL is recognized as landing page
         assertTrue(BesServletRequestReader.isLandingPage(request));
     }
-
 
     /**
      * Asserts that a non-landing page URL is recognized as a non-landing page
@@ -116,5 +117,35 @@ public class BesServletRequestReaderTest {
 
         // than URL is recognized as a non-landing page
         assertFalse(BesServletRequestReader.isLandingPage(request));
+    }
+
+    @Test
+    public void isManagePaymentTypesPage() {
+        // given
+        when(request.getServletPath()).thenReturn(
+                "/organization/managePaymentEnablement.jsf?mId=1111");
+
+        // then
+        assertTrue(BesServletRequestReader.isManagePaymentTypesPage(request));
+    }
+
+    @Test
+    public void isManagePaymentTypesPage_XHTML() {
+        // given
+        when(request.getServletPath()).thenReturn(
+                "/organization/managePaymentEnablement.xhtml?mId=1111");
+
+        // then
+        assertTrue(BesServletRequestReader.isManagePaymentTypesPage(request));
+    }
+
+    @Test
+    public void isManagePaymentTypesPage_negative() {
+        // given
+        when(request.getServletPath())
+                .thenReturn("/marketplace/SOME_OTHER_PAGE.jsf?mId=1111");
+
+        // than URL is recognized as a non-landing page
+        assertFalse(BesServletRequestReader.isManagePaymentTypesPage(request));
     }
 }

@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright FUJITSU LIMITED 2016-->
 <project name="Download external libries" basedir="." default="copyLibraries" xmlns:ivy="antlib:org.apache.ivy.ant">
-  <description>This script downloads all 3rd party libraries from Maven repository.
-  </description>
+  <description>This script downloads all 3rd party libraries from Maven repository.</description>
+  
   <property name="ivy.lib.dir" value="${root.dir}/oscm-build/lib/"/>
+  
   <target name="resolve">
     <ivy:retrieve />
   </target>
+  
   <target name="copyLibraries" depends="resolve">
+	<copy file="${ivy.lib.dir}/hamcrest-core-1.3.jar" todir="${root.dir}/libraries/org.hamcrest/javalib"></copy>
+    <copy file="${ivy.lib.dir}/javaee-api-6.0.jar" todir="${root.dir}/libraries/javaee-api/javalib"></copy>
+    <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib"></copy>
+    <copy file="${ivy.lib.dir}/opencsv-3.7.jar" todir="${root.dir}/libraries/opencsv/javalib"></copy>
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib"></copy>
     <copy file="${ivy.lib.dir}/ant-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar"></copy>
     <copy file="${ivy.lib.dir}/ant-junit-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar"></copy>
@@ -54,11 +60,8 @@
     <copy file="${ivy.lib.dir}/commons-beanutils-1.8.3.jar" todir="${root.dir}/libraries/apache-beanutils/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-codec-1.7.jar" todir="${root.dir}/libraries/apache-codec/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-collections-3.2.2.jar" todir="${root.dir}/libraries/apache-collections/javalib"></copy>
-    <copy file="${ivy.lib.dir}/commons-lang3-3.1.jar" todir="${root.dir}/libraries/apache-commons-lang/javalib"></copy>
+    <copy file="${ivy.lib.dir}/commons-lang3-3.3.2.jar" todir="${root.dir}/libraries/apache-commons-lang/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-configuration-1.8.jar" todir="${root.dir}/libraries/apache-configuration/javalib"></copy>
-    <!-- jar is not used but sources
-    <copy file="${ivy.lib.dir}/commons-csv-1.0.jar" todir="${root.dir}/libraries/apache-csv/javasrc"></copy>
-     -->
     <copy file="${ivy.lib.dir}/commons-dbcp-1.3.jar" todir="${root.dir}/libraries/apache-dbcp/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-pool-1.5.4.jar" todir="${root.dir}/libraries/apache-dbcp/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-digester-1.8.1.jar" todir="${root.dir}/libraries/apache-digester/javalib"></copy>

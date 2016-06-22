@@ -41,16 +41,23 @@ public class EclipseProjectReaderTest {
     }
 
     @Test
-    public void testReadProjectLib() {
+    public void readProjectLib() {
+        // given
+
+        // when
         IEclipseProject p = reader.getDefinition("project-lib");
+
+        // then
         assertEquals("project-lib", p.getName());
         assertEquals("Project[project-lib]", p.toString());
-        assertEquals(platformfile("resources/testworkspace/project-lib"), p
-                .getLocation());
+
+        assertEquals(platformfile("resources/testworkspace/project-lib")
+                .getAbsoluteFile(), p.getLocation());
         assertEquals(Collections.emptyList(), p.getDependencies());
 
-        List<File> expectedLibraries = Collections
-                .singletonList(platformfile("resources/testworkspace/project-lib/javalib/samplelib.jar"));
+        List<File> expectedLibraries = Collections.singletonList(platformfile(
+                "resources/testworkspace/project-lib/javalib/samplelib.jar")
+                        .getAbsoluteFile());
         assertEquals(expectedLibraries, p.getLibraries());
         assertEquals(expectedLibraries, p.getExportedLibraries());
 
@@ -58,12 +65,17 @@ public class EclipseProjectReaderTest {
     }
 
     @Test
-    public void testReadProjectA() {
+    public void readProjectA() {
+        // given
+
+        // when
         IEclipseProject p = reader.getDefinition("project-a");
+
+        // then
         assertEquals("project-a", p.getName());
         assertEquals("Project[project-a]", p.toString());
-        assertEquals(platformfile("resources/testworkspace/project-a"), p
-                .getLocation());
+        assertEquals(platformfile("resources/testworkspace/project-a")
+                .getAbsolutePath(), p.getLocation().toString());
         List<IEclipseProject> dependencies = p.getDependencies();
         assertEquals(1, dependencies.size());
         assertEquals("project-lib", dependencies.get(0).getName());
@@ -72,19 +84,22 @@ public class EclipseProjectReaderTest {
         assertEquals("project-lib", dependencies.get(0).getName());
         assertEquals(Collections.emptyList(), p.getLibraries());
         assertEquals(Collections.emptyList(), p.getExportedLibraries());
-
-        List<File> expectedSourceFolders = Collections
-                .singletonList(platformfile("resources/testworkspace/project-a/javasrc"));
-        assertEquals(expectedSourceFolders, p.getJavaSourceFolders());
+        assertEquals(platformfile("resources/testworkspace/project-a/javasrc")
+                .getAbsoluteFile(), p.getJavaSourceFolders().get(0));
     }
 
     @Test
-    public void testReadProjectB() {
+    public void readProjectB() {
+        // given
+
+        // when
         IEclipseProject p = reader.getDefinition("project-b");
+
+        // then
         assertEquals("project-b", p.getName());
         assertEquals("Project[project-b]", p.toString());
-        assertEquals(platformfile("resources/testworkspace/project-b"), p
-                .getLocation());
+        assertEquals(platformfile("resources/testworkspace/project-b")
+                .getAbsolutePath(), p.getLocation().toString());
 
         List<IEclipseProject> dependencies = p.getDependencies();
         assertEquals(1, dependencies.size());

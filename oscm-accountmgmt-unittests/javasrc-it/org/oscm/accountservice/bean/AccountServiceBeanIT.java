@@ -3685,17 +3685,14 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Set<Product> result = new HashSet<>();
                 Organization provider = getOrganization(providerId);
                 TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        mgr, provider,
-                        "TP_" + System.currentTimeMillis() + "_"
-                                + ServiceStatus.ACTIVE,
-                        false, ServiceAccessType.LOGIN, false, true);
+                        mgr, provider, "TP_" + System.currentTimeMillis() + "_"
+                                + ServiceStatus.ACTIVE, false,
+                        ServiceAccessType.LOGIN, false, true);
 
                 Organization supplier = getOrganization(supplierId);
-                Product product = Products
-                        .createProduct(supplier,
-                                tp, true, "PR_" + System.currentTimeMillis()
-                                        + "_" + ServiceStatus.ACTIVE,
-                                null, mgr);
+                Product product = Products.createProduct(supplier, tp, true,
+                        "PR_" + System.currentTimeMillis() + "_"
+                                + ServiceStatus.ACTIVE, null, mgr);
                 product.setStatus(ServiceStatus.ACTIVE);
                 // add template product
                 result.add(product);

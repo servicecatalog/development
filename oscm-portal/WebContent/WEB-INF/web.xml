@@ -239,6 +239,10 @@
       </param-value>
     </init-param>
   </filter>
+  <filter>  
+    <filter-name>DisableUrlFilter</filter-name>  
+    <filter-class>org.oscm.ui.filter.DisableUrlFilter</filter-class>  
+  </filter>
 
   <!-- SERVLET FILTER MAPPINGS -->
   <!-- warning: changing the order of filter mappings has impact on the execution order of filters (filter chain) -->
@@ -332,6 +336,10 @@
   <filter-mapping>
     <filter-name>RoleBasedFilter</filter-name>
     <url-pattern>/marketplace/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>DisableUrlFilter</filter-name>
+    <url-pattern>/*</url-pattern>
   </filter-mapping>
 
   <error-page>

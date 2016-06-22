@@ -19,12 +19,17 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.UserGroup;
+import org.oscm.domobjects.UserRole;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -49,7 +54,7 @@ import org.oscm.test.ejb.TestContainer;
  * @author qiu
  * 
  */
-@Ignore
+
 public class SubscriptionsServiceBeanIT extends EJBTestBase {
     private DataService ds;
     private SubscriptionsService service;
@@ -74,7 +79,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         container.addBean(mock(SessionServiceLocal.class));
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new SubscriptionsServiceBean());
-        createOrganizationRoles(ds);
+
         tpAndSupplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
 
@@ -95,6 +100,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         return runTX(new Callable<Organization>() {
             @Override
             public Organization call() throws Exception {
+                createOrganizationRoles(ds);
                 return Organizations.createOrganization(ds, organizationId,
                         roles);
             }
@@ -228,6 +234,8 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         roleAssign.setUser(user);
         roleAssign.setRole(new UserRole(roleType));
         user.getAssignedRoles().add(roleAssign);
+        user.setLocale("en");
+
         return user;
     }
 }

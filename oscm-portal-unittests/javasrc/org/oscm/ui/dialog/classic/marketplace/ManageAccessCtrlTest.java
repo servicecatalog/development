@@ -32,8 +32,6 @@ import org.oscm.ui.stubs.FacesContextStub;
 
 public class ManageAccessCtrlTest {
 
-    // private FacesContextStub context;
-
     private ManageAccessCtrl ctrl;
     private ManageAccessModel model;
     private MarketplaceService marketplaceService;
@@ -113,9 +111,7 @@ public class ManageAccessCtrlTest {
     }
 
     @Test
-    public void testSave_organizationsLists()
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+    public void testSave_organizationsLists() throws Exception {
 
         // given
         setupValuesForSaveAction(true);
@@ -132,9 +128,7 @@ public class ManageAccessCtrlTest {
     }
 
     @Test
-    public void testSave_closeMarketplace()
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
+    public void testSave_closeMarketplace() throws Exception {
 
         // given
         setupValuesForSaveAction(true);
@@ -173,6 +167,12 @@ public class ManageAccessCtrlTest {
         model.setSelectedMarketplaceId(MARKETPLACE_ID);
         model.setOrganizations(preparePOOrganizationsList());
         model.setSelectedMarketplaceRestricted(restrictMarketplace);
+        
+        VOMarketplace marketplace = createSampleMarketplace(MARKETPLACE_NAME, MARKETPLACE_ID);
+        marketplace.setRestricted(restrictMarketplace);
+        
+        model.setSelectedMarketplace(marketplace);
+        
         doNothing().when(ctrl).addMessage(any(String.class));
     }
 
