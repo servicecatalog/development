@@ -2311,7 +2311,6 @@ public class ServiceProvisioningServiceBean implements
         } else {
 
             if (voPriceModel.isExternal()) {
-                setPriceModelToExternal(voPriceModel, priceModel);
                 priceModel.setExternal(true);
                 priceModel.setUuid(voPriceModel.getUuid());
             } else{
@@ -2360,15 +2359,6 @@ public class ServiceProvisioningServiceBean implements
         PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
                 priceModel, DateFactory.getInstance().getTransactionTime());
         priceModelHandler.resetToNonChargeable(PriceModelType.FREE_OF_CHARGE);
-        priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
-                voPriceModel.getKey(), oldPriceModelType);
-    }
-    
-    void setPriceModelToExternal(VOPriceModel voPriceModel, PriceModel priceModel) {
-        PriceModelType oldPriceModelType = priceModel.getType();
-        PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
-                priceModel, DateFactory.getInstance().getTransactionTime());
-        priceModelHandler.resetToNonChargeable(PriceModelType.UNKNOWN);
         priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
                 voPriceModel.getKey(), oldPriceModelType);
     }
