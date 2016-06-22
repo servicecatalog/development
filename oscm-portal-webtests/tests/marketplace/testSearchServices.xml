@@ -281,7 +281,7 @@
     </webtest>
   </target>
 
-  <target name="all" depends="testMPL_initSetup, testMPL_SearchServices, testMPL_SearchVerifyShortDescription,testMPL_SearchFailure, testMPL_CleanUp" />
+  <target name="all" depends="testMPL_initSetup, testMPL_SearchServices, testMPL_SearchVerifyShortDescription, testMPL_CleanUp" />
 
   <target name="disabled_tests" depends="testMPL_SearchServicesByCategory, testMPL_SearchVerifyLongDescription, testMPL_SearchVerifyTags"></target>	
 </project>
