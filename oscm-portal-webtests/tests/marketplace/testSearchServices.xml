@@ -261,16 +261,6 @@
     </webtest>
   </target>
 
-  <!-- Test failure -->
-  <target name="testMPL_SearchFailure" depends="testMPL_initSetup">
-    <webtest name="testMPL_SearchFailure">
-      <mpl_goto.marketplace mid="${mId}" />
-      <mpl_search.execute phrase="" />
-      <mpl_search.verifySearchResultPage nOfServices="0" />
-      <mpl_verify.errorPanel label="${error.search.emptyInput}" />
-    </webtest>
-  </target>
-
   <!-- Clean-up test data -->
   <target name="testMPL_CleanUp" depends="testMPL_initSetup">
     <webtest name="testSearchSerivces_deleteServices">
