@@ -10,12 +10,7 @@ package org.oscm.ui.dialog.classic.pricemodel.external;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -122,5 +117,17 @@ public class ExternalSubscriptionPriceModelTest extends ExternalPriceModelTest {
         // when
         ctrl.display();
 
+    }
+
+    @Test
+    public void testReloadPriceModelForViewSubscription() {
+        //given
+        doNothing().when(ctrl).showPersistedPriceModel(any(VOService.class));
+
+        //when
+        ctrl.reloadPriceModelForViewSubscription(new VOService());
+
+        //then
+        verify(ctrl, times(1)).showPersistedPriceModel(any(VOService.class));
     }
 }

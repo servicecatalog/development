@@ -55,7 +55,7 @@ import org.oscm.internal.vo.VOUdaDefinition;
  */
 @ViewScoped
 @ManagedBean(name = "subscriptionViewBean")
-public class SubscriptionViewBean implements Serializable {
+public class SubscriptionViewBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = -7186612015142245566L;
 
@@ -133,7 +133,12 @@ public class SubscriptionViewBean implements Serializable {
             if (model.getSelectedSubscription() != null) {
                 VOService voService = model.getSelectedSubscription().getSubscribedService();
                 if (voService.getPriceModel().isExternal()) {
-                    getExtSubBean().reloadPriceModel(voService);
+                    String url = getRequest().getServletPath();
+                    if (url.endsWith("subscriptionPriceModel.jsf")) {
+                        getExtSubBean().reloadPriceModel(voService);
+                    } else {
+                        getExtSubBean().reloadPriceModelForViewSubscription(voService);
+                    }
                 }
             }
             return BaseBean.OUTCOME_SUCCESS;

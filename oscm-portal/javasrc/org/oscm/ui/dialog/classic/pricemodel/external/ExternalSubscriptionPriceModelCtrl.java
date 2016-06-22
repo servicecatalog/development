@@ -79,4 +79,8 @@ public class ExternalSubscriptionPriceModelCtrl extends ExternalPriceModelCtrl {
         resetPriceModel();
     }
 
+    public void reloadPriceModelForViewSubscription(VOService voService) {
+        showPersistedPriceModel(voService);
+    }
+
 }
