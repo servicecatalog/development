@@ -98,13 +98,7 @@
       <!-- Verify role specific prices displays in service details -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
       <clickLink htmlId="showDetails2" />
-
-      <clickLink xpath="//a[@id='priceModelModalLink']"/>
-      <verifyXPath xpath="//form[@id='configurationForm2']"/>
-      <verifyElementText htmlId="roleTable:0:roleDescription" text="Administrator"/>
-      <clickElement xpath="//input[@id='closePriceModelButton']" />
       <clickLink htmlId="getItForLoggedUser" />
-      
       <!-- Verify role specific prices displays for subscribe -->
       <clickLink xpath="//a[@id='priceModelModalLink']"/>
       <verifyXPath xpath="//form[@id='configurationForm2']"/>
