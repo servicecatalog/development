@@ -19,10 +19,12 @@ import org.oscm.internal.types.exception.SaaSSystemException;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -50,11 +52,20 @@ public class SessionBean implements Serializable {
     private Long subscribeToServiceKey;
     private transient MarketplaceService marketplaceService = null;
     private Boolean selfRegistrationEnabled = null;
+    private String idpLogoutString;
 
     /**
      * The key of the last edited user group.
      */
     private String selectedUserGroupId;
+
+    public String getIdpLogoutString() {
+        return "http://www.wp.pl";
+    }
+
+    public void setIdpLogoutString(String idpLogoutString) {
+        this.idpLogoutString = idpLogoutString;
+    }
 
     /**
      * The key of the last edited user.
@@ -447,8 +458,9 @@ public class SessionBean implements Serializable {
         return marketplaceService;
     }
 
-    public String redirectToIdpLogout() {
-        return "http://www.wp.pl";
+    public void redirectToIdpLogout() throws IOException {
+        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        externalContext.redirect("http://stackoverflow.com");
     }
 
     public void setSelfRegistrationEnabled(Boolean selfRegistrationEnabled) {

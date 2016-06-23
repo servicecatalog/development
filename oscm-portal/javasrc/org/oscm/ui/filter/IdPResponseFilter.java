@@ -38,7 +38,8 @@ import org.oscm.ui.delegates.ServiceLocator;
  */
 public class IdPResponseFilter implements Filter {
 
-    private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdPResponseFilter.class);
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(IdPResponseFilter.class);
 
     private RequestRedirector redirector;
     private String excludeUrlPattern;
@@ -66,7 +67,8 @@ public class IdPResponseFilter implements Filter {
 
     protected AuthenticationSettings getAuthenticationSettings() {
         if (authSettings == null) {
-            authSettings =new AuthenticationSettings(new ServiceLocator().findService(ConfigurationService.class));
+            authSettings = new AuthenticationSettings(new ServiceLocator()
+                    .findService(ConfigurationService.class));
         }
         return authSettings;
     }
@@ -102,12 +104,17 @@ public class IdPResponseFilter implements Filter {
                 try {
                     String samlSessionId = getSamlResponseExtractor()
                             .getSessionIndex(samlResponse);
-                    String logoutRequest = logoutRequestGenerator.generateLogoutRequest(samlSessionId);
-                    getSessionBean().setLogoutRequest(logoutRequest);
+                    if (samlResponseExtractor.isFromLogout(samlResponse)) {
+                        String logoutRequest = logoutRequestGenerator
+                                .generateLogoutRequest(samlSessionId);
+                        getSessionBean().setLogoutRequest(logoutRequest);
+                    }
                     String relayState = httpRequest.getParameter("RelayState");
                     if (relayState != null) {
-                        String forwardUrl = getForwardUrl(httpRequest, relayState);
-                        redirector.forward(httpRequest, httpResponse, forwardUrl);
+                        String forwardUrl = getForwardUrl(httpRequest,
+                                relayState);
+                        redirector.forward(httpRequest, httpResponse,
+                                forwardUrl);
                         return;
                     }
                 } catch (SessionIndexNotFoundException e) {
@@ -116,8 +123,10 @@ public class IdPResponseFilter implements Filter {
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                             BaseBean.ERROR_INVALID_SAML_RESPONSE);
                 }
+
             }
-            if (httpRequest.getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
+            if (httpRequest
+                    .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
                 redirector.forward(httpRequest, httpResponse,
                         BaseBean.ERROR_PAGE);
                 return;
@@ -140,10 +149,11 @@ public class IdPResponseFilter implements Filter {
             forwardUrl = relayState;
         } else if (relayState.startsWith(Marketplace.MARKETPLACE_ADD)) {
             forwardUrl = relayState;
-        } else if (Constants.REQ_ATTR_LOGIN_TYPE_MPL.equals(httpRequest
-                .getAttribute(Constants.REQ_ATTR_SERVICE_LOGIN_TYPE))
+        } else if (Constants.REQ_ATTR_LOGIN_TYPE_MPL.equals(
+                httpRequest.getAttribute(Constants.REQ_ATTR_SERVICE_LOGIN_TYPE))
                 || relayState.startsWith(Marketplace.MARKETPLACE_ROOT)) {
-            forwardUrl = setRequestAttributesForAutosubmit(httpRequest, relayState);
+            forwardUrl = setRequestAttributesForAutosubmit(httpRequest,
+                    relayState);
         } else {
             forwardUrl = relayState;
         }
@@ -151,7 +161,8 @@ public class IdPResponseFilter implements Filter {
         return forwardUrl;
     }
 
-    void setLoginTypeAttribute(HttpServletRequest httpRequest, String relayState) {
+    void setLoginTypeAttribute(HttpServletRequest httpRequest,
+            String relayState) {
         BesServletRequestReader.copyURLParamToRequestAttribute(httpRequest,
                 Constants.REQ_ATTR_SERVICE_LOGIN_TYPE, relayState);
     }
@@ -165,7 +176,7 @@ public class IdPResponseFilter implements Filter {
         String generatedPassword = samlCredentials.generatePassword();
         if (generatedPassword == null) {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                BaseBean.ERROR_SAML_TIMEOUT);
+                    BaseBean.ERROR_SAML_TIMEOUT);
             result = BaseBean.MARKETPLACE_START_SITE;
         }
         httpRequest.setAttribute(Constants.REQ_ATTR_PASSWORD,
@@ -175,8 +186,8 @@ public class IdPResponseFilter implements Filter {
         return result;
     }
 
-    void setRequestAttributesForSelfRegistration(
-            HttpServletRequest httpRequest, String relayState) {
+    void setRequestAttributesForSelfRegistration(HttpServletRequest httpRequest,
+            String relayState) {
         SAMLCredentials samlCredentials = new SAMLCredentials(httpRequest);
         httpRequest.setAttribute(Constants.REQ_PARAM_USER_ID,
                 samlCredentials.getUserId());
@@ -208,8 +219,8 @@ public class IdPResponseFilter implements Filter {
 
     boolean isInvalidIdpUrl(AuthenticationSettings authSettings) {
         return ADMStringUtils.isBlank(authSettings.getIdentityProviderURL())
-                || ADMStringUtils.isBlank(authSettings
-                        .getIdentityProviderURLContextRoot());
+                || ADMStringUtils.isBlank(
+                        authSettings.getIdentityProviderURLContextRoot());
     }
 
     @Override
@@ -217,7 +228,7 @@ public class IdPResponseFilter implements Filter {
     }
 
     public SAMLResponseExtractor getSamlResponseExtractor() {
-        if(samlResponseExtractor == null) {
+        if (samlResponseExtractor == null) {
             samlResponseExtractor = new SAMLResponseExtractor();
         }
         return samlResponseExtractor;

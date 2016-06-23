@@ -73,7 +73,12 @@
             <h:form id="formLogout">
               <a4j:outputPanel layout="block" style="float:right;max-width: 90px;" >
                 <h:outputText value="&amp;nbsp;|&amp;nbsp;" escape="false" />
-                <h:commandLink id="logout" value="#{msg['logout']}" action="#{userBean.logoff}" />
+                <c:if test="#{userBean.internalAuthMode}">
+                  <h:commandLink id="logout" value="#{msg['logout']}" action="#{userBean.logoff}" />
+                </c:if>
+                <h:commandLink id="logout" action="#{sessionBean.redirectToIdpLogout}" >
+                  <h:outputText value="#{msg['logout']}" />
+                </h:commandLink>
               </a4j:outputPanel>
               <a4j:outputPanel layout="block" styleClass="shortenedText">
                 <h:outputText id="welcome" value="#{msg['welcome']} #{user.userId}" />
