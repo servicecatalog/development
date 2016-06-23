@@ -447,6 +447,10 @@ public class SessionBean implements Serializable {
         return marketplaceService;
     }
 
+    public String redirectToIdpLogout() {
+        return "http://www.wp.pl";
+    }
+
     public void setSelfRegistrationEnabled(Boolean selfRegistrationEnabled) {
         this.selfRegistrationEnabled = selfRegistrationEnabled;
     }
