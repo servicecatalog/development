@@ -251,7 +251,7 @@
 			<login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
 			<clickLink href="/subscription/view.jsf" />
 			<clickElement htmlId="subscriptionListForm:subscriptionsTable:0" />
-			<verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButtonDisabled']" />
+			<verifyXPath xpath="//span[@id='viewForm:displayExternalPriceModelButton']" />
 			<login.logout />
 		</webtest>
 
