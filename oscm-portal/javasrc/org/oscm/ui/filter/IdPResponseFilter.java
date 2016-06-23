@@ -41,10 +41,10 @@ public class IdPResponseFilter implements Filter {
 
     private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdPResponseFilter.class);
 
-    RequestRedirector redirector;
-    String excludeUrlPattern;
-    AuthenticationSettings authSettings;
-    SAMLResponseExtractor samlResponseExtractor;
+    private RequestRedirector redirector;
+    private String excludeUrlPattern;
+    private AuthenticationSettings authSettings;
+    private SAMLResponseExtractor samlResponseExtractor;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
