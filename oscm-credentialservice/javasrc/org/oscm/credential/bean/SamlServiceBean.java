@@ -75,7 +75,7 @@ public class SamlServiceBean implements SamlService {
     }
 
     @Override
-    public String generateLogoutRequest(String idpSessionIndex) {
+    public String generateLogoutRequest(String idpSessionIndex, String nameID) {
         throw new UnsupportedOperationException("Implementation of the logout is provided for SAML 2.0 version only");
     }
 

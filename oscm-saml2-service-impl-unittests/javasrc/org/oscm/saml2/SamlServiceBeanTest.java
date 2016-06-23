@@ -10,6 +10,7 @@ package org.oscm.saml2;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 
 /**
@@ -26,8 +27,8 @@ public class SamlServiceBeanTest {
     }
 
     @Test
-    public void generateLogoutRequestTest() {
-        classUnderStress.generateLogoutRequest("");
+    public void generateLogoutRequestTest() throws SaaSApplicationException {
+        classUnderStress.generateLogoutRequest("", "");
     }
 
     @Test(expected = UnsupportedOperationException.class)

@@ -13,6 +13,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.oscm.internal.intf.SamlService;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
  * @author mgrubski
@@ -24,7 +25,8 @@ public class LogoutRequestGenerator {
     @EJB(beanName = "saml2.0Bean")
     private SamlService samlService;
 
-    public String generateLogoutRequest(String samlSessionId) {
-        return samlService.generateLogoutRequest(samlSessionId);
+
+    public String generateLogoutRequest(String samlSessionId, String nameID) throws SaaSApplicationException {
+        return samlService.generateLogoutRequest(samlSessionId, nameID);
     }
 }

@@ -11,6 +11,7 @@ package org.oscm.saml2.api;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
  * Added by @chojnackid
@@ -25,8 +26,8 @@ public class LogoutRequestGeneratorTest {
     }
 
     @Test
-    public void generateLogoutRequestTest() {
-        String URL = classUnderStress.generateLogoutRequest("");
+    public void generateLogoutRequestTest() throws SaaSApplicationException {
+        String URL = classUnderStress.generateLogoutRequest("", "");
         Assert.assertNotNull(URL);
     }
 }

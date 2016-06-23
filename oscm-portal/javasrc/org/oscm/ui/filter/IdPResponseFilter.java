@@ -19,7 +19,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
+import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.LogoutRequestGenerator;
@@ -102,11 +104,13 @@ public class IdPResponseFilter implements Filter {
                         Boolean.TRUE);
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
                 try {
-                    String samlSessionId = getSamlResponseExtractor()
-                            .getSessionIndex(samlResponse);
                     if (samlResponseExtractor.isFromLogout(samlResponse)) {
+                        String samlSessionId = getSamlResponseExtractor()
+                                .getSessionIndex(samlResponse);
+                        String nameID = getSamlResponseExtractor()
+                                .getUserId(samlResponse);
                         String logoutRequest = logoutRequestGenerator
-                                .generateLogoutRequest(samlSessionId);
+                                .generateLogoutRequest(samlSessionId, nameID);
                         getSessionBean().setSamlLogoutRequest(logoutRequest);
                     }
                     String relayState = httpRequest.getParameter("RelayState");
@@ -120,6 +124,10 @@ public class IdPResponseFilter implements Filter {
                 } catch (SessionIndexNotFoundException e) {
                     LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_SESSION_INDEX_NOT_FOUND);
+                    httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                            BaseBean.ERROR_INVALID_SAML_RESPONSE);
+                } catch (SaaSApplicationException e) {
+                    LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                             BaseBean.ERROR_INVALID_SAML_RESPONSE);
                 }
