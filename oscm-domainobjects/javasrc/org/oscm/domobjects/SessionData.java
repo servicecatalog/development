@@ -65,6 +65,12 @@ public class SessionData extends DomainDataContainer {
     private SessionType sessionType;
 
     /**
+     * SAML session identifier.
+     */
+    @Column(nullable = true)
+    private String idpSession;
+
+    /**
      * The name of the node the session was created on.
      */
     @Column(nullable = false)
@@ -85,6 +91,8 @@ public class SessionData extends DomainDataContainer {
     public String getPlatformUserId() {
         return platformUserId;
     }
+
+    public String getIdpSession() { return idpSession; }
 
     public void setSubscriptionTKey(Long subscriptionTKey) {
         this.subscriptionTKey = subscriptionTKey;
@@ -126,4 +134,7 @@ public class SessionData extends DomainDataContainer {
         this.nodeName = nodeName;
     }
 
+    public void setIdpSession(String idpSession) {
+        this.idpSession = idpSession;
+    }
 }

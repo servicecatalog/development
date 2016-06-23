@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright FUJITSU LIMITED 2016-->
+
+<dataset>
+  <Session tkey="1101" version="0" nodename="SingleNode" platformuserid="SUPP1" platformuserkey="1234" sessionid="xxx" />
+  <Session tkey="1102" version="0" nodename="SingleNode" platformuserid="SUPP2" platformuserkey="1235" sessionid="xxy" idpsession="2201"/>
+</dataset>
