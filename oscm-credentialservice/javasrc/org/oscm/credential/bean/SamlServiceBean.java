@@ -16,6 +16,7 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
+import org.oscm.internal.types.exception.UnsupportedOperationException;
 import org.w3c.dom.Element;
 
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
@@ -71,6 +72,11 @@ public class SamlServiceBean implements SamlService {
                 keyLoader.getPrivateKey(), keyLoader.getPublicCertificate());
         responseString = SamlEncoder.encodeBase64(responseString);
         return responseString;
+    }
+
+    @Override
+    public String generateLogoutRequest(String idpSessionIndex) {
+        throw new UnsupportedOperationException("Implementation of the logout is provided for SAML 2.0 version only");
     }
 
     static String signSamlResponse(String samlResponse, PrivateKey privateKey,

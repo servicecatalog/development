@@ -8,10 +8,11 @@
 
 package org.oscm.saml2.api;
 
-import org.oscm.internal.intf.SamlService;
-
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+
+import org.oscm.internal.intf.SamlService;
 
 /**
  * @author mgrubski
@@ -20,9 +21,10 @@ import javax.faces.bean.RequestScoped;
 @ManagedBean
 public class LogoutRequestGenerator {
 
-
+    @EJB(beanName = "saml2.0Bean")
+    private SamlService samlService;
 
     public String generateLogoutRequest(String samlSessionId) {
-        return "http://www.wp.pl";
+        return samlService.generateLogoutRequest(samlSessionId);
     }
 }

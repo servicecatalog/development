@@ -38,4 +38,6 @@ public interface SamlService {
 
     String createSamlResponse(String requestId);
 
+    String generateLogoutRequest(String idpSessionIndex);
+
 }

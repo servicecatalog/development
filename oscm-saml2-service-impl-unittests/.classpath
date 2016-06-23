@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="javasrc"/>
+	<classpathentry kind="src" path="javares"/>
+	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml2-service-impl"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
