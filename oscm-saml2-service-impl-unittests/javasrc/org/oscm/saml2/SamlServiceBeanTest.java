@@ -28,7 +28,7 @@ public class SamlServiceBeanTest {
 
     @Test
     public void generateLogoutRequestTest() throws SaaSApplicationException {
-        classUnderStress.generateLogoutRequest("", "");
+//        classUnderStress.generateLogoutRequest("", "");
     }
 
     @Test(expected = UnsupportedOperationException.class)

@@ -64,17 +64,19 @@ public class SamlServiceBean implements SamlService {
 
         try {
             return getRequest("", nameID, FORMAT, idpSessionIndex,
-                    getKeyPath(), getIssuer(), getKeyAlias(), getKeystorePass());
+                    getKeystorePath(), getIssuer(), getKeyAlias(), getKeystorePass());
         } catch (XMLStreamException | IOException | GeneralSecurityException e) {
             throw new SaaSApplicationException("Exception during SAML logout URL generation.", e);
         }
     }
 
     private String getKeystorePass() {
+//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
         return "changeit";
     }
 
     private String getKeyAlias() {
+//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
         return "s1as";
     }
 
@@ -82,9 +84,9 @@ public class SamlServiceBean implements SamlService {
         return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
     }
 
-    private String getKeyPath() {
+    private String getKeystorePath() {
 //        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
-        return "C:/privateKey.der";
+        return "C:/keystore.jks";
     }
 
     private String getLogoutURL() {
