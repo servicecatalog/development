@@ -159,6 +159,11 @@
         <exclude name=".project"/>
       </fileset>
     </copy>
+    <copy todir="${workspace.dir}/oscm-app-vmware/doc">
+      <fileset dir="../../document/Development/oscm-app-vmware/doc">
+        <exclude name=".project"/>
+      </fileset>
+    </copy>
     <copy todir="${workspace.dir}/oscm-app-sample/doc">
       <fileset dir="../../document/Development/oscm-app-sample/doc">
         <exclude name=".project"/>
