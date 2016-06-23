@@ -8,8 +8,25 @@
 
 package org.oscm.saml2;
 
+import junit.framework.Assert;
+
+import org.junit.Before;
+import org.junit.Test;
+
 /**
  * Created by PLGrubskiM on 2016-06-23.
  */
 public class SamlKeyLoaderTest {
+
+    SamlKeyLoader samlKeyLoader;
+    @Before
+    public void setup() {
+        samlKeyLoader = new SamlKeyLoader();
+    }
+
+    @Test
+    public void keyloaderTest() {
+        String URL = "ignore";
+        Assert.assertNotNull(URL);
+    }
 }

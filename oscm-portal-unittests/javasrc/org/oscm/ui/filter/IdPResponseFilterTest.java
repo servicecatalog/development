@@ -224,7 +224,6 @@ public class IdPResponseFilterTest {
         FilterChain mockChain = mock(FilterChain.class);
         RequestRedirector mockRedirector = mock(RequestRedirector.class);
         AuthenticationSettings mockSettings = mock(AuthenticationSettings.class);
-        SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         idpFilter.setExcludeUrlPattern("servletPathOther");
         doReturn(mockSettings).when(idpFilter).getAuthenticationSettings();
         SessionBean sessionBean = mock(SessionBean.class);
@@ -238,6 +237,7 @@ public class IdPResponseFilterTest {
         doReturn("someRelayState").when(mockRequest).getParameter("RelayState");
         doReturn("someServletPath").when(mockRequest).getServletPath();
         doReturn("someForwardURL").when(idpFilter).getForwardUrl(mockRequest, "someRelayState");
+        SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
         doReturn("someSAMLSessionId").when(mockExtractor).getSessionIndex("someSamlResponse");
         LogoutRequestGenerator logoutReqMock = mock(LogoutRequestGenerator.class);
@@ -275,6 +275,7 @@ public class IdPResponseFilterTest {
         doReturn("someSamlResponse").when(mockRequest).getParameter("SAMLResponse");
         doReturn("someServletPath").when(mockRequest).getServletPath();
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
+        doReturn(true).when(mockExtractor).isFromLogout("someSamlResponse");
         doThrow(new SessionIndexNotFoundException()).when(mockExtractor).getSessionIndex("someSamlResponse");
         LogoutRequestGenerator logoutReqMock = mock(LogoutRequestGenerator.class);
         doReturn(logoutReqMock).when(idpFilter).getLogoutRequestGenerator();

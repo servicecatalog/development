@@ -19,9 +19,9 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
-import org.oscm.internal.types.exception.UserIdNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.LogoutRequestGenerator;
@@ -30,8 +30,9 @@ import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.common.*;
-import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.ui.common.ADMStringUtils;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
 
 /**
@@ -58,6 +59,7 @@ public class IdPResponseFilter implements Filter {
 
         authSettings = getAuthenticationSettings();
         logoutRequestGenerator = getLogoutRequestGenerator();
+        samlResponseExtractor = getSamlResponseExtractor();
     }
 
     protected LogoutRequestGenerator getLogoutRequestGenerator() {
