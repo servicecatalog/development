@@ -54,7 +54,14 @@ public class IdPResponseFilter implements Filter {
                 .getInitParameter("exclude-url-pattern");
 
         authSettings = getAuthenticationSettings();
-        logoutRequestGenerator = new LogoutRequestGenerator();
+        logoutRequestGenerator = getLogoutRequestGenerator();
+    }
+
+    protected LogoutRequestGenerator getLogoutRequestGenerator() {
+        if (logoutRequestGenerator == null) {
+            logoutRequestGenerator = new UiDelegate().findBean("logoutRequestGenerator");
+        }
+        return logoutRequestGenerator;
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
