@@ -107,7 +107,7 @@ public class IdPResponseFilter implements Filter {
                     if (samlResponseExtractor.isFromLogout(samlResponse)) {
                         String logoutRequest = logoutRequestGenerator
                                 .generateLogoutRequest(samlSessionId);
-                        getSessionBean().setLogoutRequest(logoutRequest);
+                        getSessionBean().setSamlLogoutRequest(logoutRequest);
                     }
                     String relayState = httpRequest.getParameter("RelayState");
                     if (relayState != null) {

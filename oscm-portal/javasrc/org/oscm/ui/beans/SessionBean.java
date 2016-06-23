@@ -52,20 +52,11 @@ public class SessionBean implements Serializable {
     private Long subscribeToServiceKey;
     private transient MarketplaceService marketplaceService = null;
     private Boolean selfRegistrationEnabled = null;
-    private String idpLogoutString;
 
     /**
      * The key of the last edited user group.
      */
     private String selectedUserGroupId;
-
-    public String getIdpLogoutString() {
-        return "http://www.wp.pl";
-    }
-
-    public void setIdpLogoutString(String idpLogoutString) {
-        this.idpLogoutString = idpLogoutString;
-    }
 
     /**
      * The key of the last edited user.
@@ -148,7 +139,7 @@ public class SessionBean implements Serializable {
     private boolean myProcessesOnly = true;
 
     private PriceModel selectedExternalPriceModel;
-    private String logoutRequest;
+    private String samlLogoutRequest;
 
     public boolean isMyOperationsOnly() {
         return myOperationsOnly;
@@ -460,7 +451,7 @@ public class SessionBean implements Serializable {
 
     public void redirectToIdpLogout() throws IOException {
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
-        externalContext.redirect("http://stackoverflow.com");
+        externalContext.redirect(getSamlLogoutRequest());
     }
 
     public void setSelfRegistrationEnabled(Boolean selfRegistrationEnabled) {
@@ -549,11 +540,11 @@ public class SessionBean implements Serializable {
         this.selectedExternalPriceModel = selectedExternalPriceModel;
     }
 
-    public void setLogoutRequest(String logoutRequest) {
-        this.logoutRequest = logoutRequest;
+    public void setSamlLogoutRequest(String samlLogoutRequest) {
+        this.samlLogoutRequest = samlLogoutRequest;
     }
 
-    public String getLogoutRequest() {
-        return logoutRequest;
+    public String getSamlLogoutRequest() {
+        return samlLogoutRequest;
     }
 }

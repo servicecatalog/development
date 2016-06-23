@@ -391,7 +391,11 @@ public enum ConfigurationKey {
     	   "that use the native billing system and are not free of charge. ",
     	   "Once set, the value cannot be changed."})
     @Example("false")
-    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true);
+    HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
+
+    @Doc({ "The URL to the private key file in DER (.der) format, used by the Service Provider (OSCM) to sign SAML messages." })
+    @Example("<C:/security/keys/cakey.der>")
+    SP_PRIVATE_KEY_FILE_PATH(false);
 
     // //////////////////////////////////////////////////////////////////////////////////
 
