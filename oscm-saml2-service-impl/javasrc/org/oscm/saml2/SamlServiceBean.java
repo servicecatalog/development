@@ -36,7 +36,11 @@ import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_IDP_TRUSTSTORE;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEY_ALIAS;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_ISSUER_ID;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_LOGOUT_URL;
 import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
 /**
@@ -71,13 +75,11 @@ public class SamlServiceBean implements SamlService {
     }
 
     private String getKeystorePass() {
-//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
-        return "changeit";
+        return configurationService.getVOConfigurationSetting(SSO_IDP_TRUSTSTORE, GLOBAL_CONTEXT).getValue();
     }
 
     private String getKeyAlias() {
-//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
-        return "s1as";
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEY_ALIAS, GLOBAL_CONTEXT).getValue();
     }
 
     private String getIssuer() {
@@ -85,13 +87,11 @@ public class SamlServiceBean implements SamlService {
     }
 
     private String getKeystorePath() {
-//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
-        return "C:/keystore.jks";
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
     }
 
     private String getLogoutURL() {
-//        return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
-        return "";
+        return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
     }
 
     public String getRequest(String logoutUrl,

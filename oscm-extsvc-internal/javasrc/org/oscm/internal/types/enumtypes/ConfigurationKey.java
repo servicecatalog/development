@@ -377,6 +377,10 @@ public enum ConfigurationKey {
     @Example("https://<host>:<port>/<MEXAddress>")
     SSO_STS_METADATA_URL(false, null, "url", true),
 
+    @Doc({ "URL of the Identity Provider's single logout service" })
+    @Example("https://<host>:<port>/<LogoutServiceEndpoint>")
+    SSO_LOGOUT_URL(false, null, "url", false),
+
     @Doc({ "the max number of users that can be registered on the platform" })
     @Example("10")
     MAX_NUMBER_ALLOWED_USERS(true, "10", "long", Long.valueOf(1L), Long
@@ -395,7 +399,15 @@ public enum ConfigurationKey {
 
     @Doc({ "The URL to the private key file in DER (.der) format, used by the Service Provider (OSCM) to sign SAML messages." })
     @Example("<C:/security/keys/cakey.der>")
-    SP_PRIVATE_KEY_FILE_PATH(false);
+    SP_PRIVATE_KEY_FILE_PATH(false),
+
+    @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
+    @Example("s1as")
+    SSO_SIGNING_KEY_ALIAS(false),
+
+    @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
+    @Example("changeit")
+    SSO_SIGNING_KEYSTORE_PASS(false);
 
     // //////////////////////////////////////////////////////////////////////////////////
 
