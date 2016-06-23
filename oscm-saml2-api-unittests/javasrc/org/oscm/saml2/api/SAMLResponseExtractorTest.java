@@ -37,6 +37,7 @@ import org.oscm.internal.types.exception.UserIdNotFoundException;
 public class SAMLResponseExtractorTest {
 
     private final String FILE_UNSIGNED_RESPONSE = "javares/unsignedResponse.xml";
+    private final String FILE_UNSIGNED_LOGOUT_RESPONSE = "javares/openamUnsignedLogoutResponse.xml";
     private final String FILE_UNSIGNED_RESPONSE_MISSING_USERID = "javares/unsignedResponse_missingUserid.xml";
     private final String FILE_UNSIGNED_ASSERTION = "javares/unsignedAssertion.xml";
     private final String FILE_UNSIGNED_ASSERTION_MISSING_USERID = "javares/unsignedAssertion_noConfirmationData_noUserid.xml";
@@ -64,11 +65,10 @@ public class SAMLResponseExtractorTest {
     }
 
     private String getEncodedIdpResponse(String unsignedResponse)
-            throws Exception, TransformerException {
+            throws Exception {
         Document document = loadDocument(unsignedResponse);
         String idpResponse = XMLConverter.convertToString(document, true);
-        String encodedIdpResponse = encode(idpResponse);
-        return encodedIdpResponse;
+        return encode(idpResponse);
     }
 
     @Test
@@ -131,6 +131,17 @@ public class SAMLResponseExtractorTest {
         samlResponse.getUserId(encodedIdpResponse);
 
         // then a UserIdNotFoundException is expected
+    }
+
+    @Test
+    public void getStatusCodeFromLogoutResponse() throws Exception {
+        // given
+        String response = getEncodedIdpResponse(FILE_UNSIGNED_LOGOUT_RESPONSE);
+        // when
+        String statusCode = samlResponse.getSAMLLogoutResponseStatusCode(response);
+
+        // then
+        assertEquals("Success", statusCode);
     }
 
 }
