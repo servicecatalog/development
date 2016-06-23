@@ -20,7 +20,7 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
+import org.oscm.applicationservice.local.ApplicationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -85,6 +85,7 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
         container.addBean(new CategorizationServiceStub());
         container.addBean(mock(IdentityServiceLocal.class));
         container.addBean(mock(LandingpageServiceLocal.class));
+        container.addBean(mock(ApplicationServiceLocal.class));
         container.addBean(new MarketplaceAuditLogCollector());
         container.addBean(new ImageResourceServiceBean());
         container.addBean(new ServiceAuditLogCollector());
