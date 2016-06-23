@@ -20,6 +20,7 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
+import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
@@ -30,9 +31,13 @@ import javax.xml.stream.XMLStreamWriter;
 import org.apache.commons.codec.binary.Base64;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
+
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_ISSUER_ID;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
 /**
  * Authored by dawidch
@@ -45,6 +50,9 @@ public class SamlServiceBean implements SamlService {
     private static final String UTF_8 = "UTF-8";
     private static final String FORMAT = "http://schemas.xmlsoap.org/claims/UPN";
 
+    @EJB
+    private ConfigurationService configurationService;
+
     @Override
     public String createSamlResponse(String requestId) {
         throw new UnsupportedOperationException(
@@ -55,30 +63,40 @@ public class SamlServiceBean implements SamlService {
     public String generateLogoutRequest(String idpSessionIndex, String nameID) throws SaaSApplicationException {
 
         try {
-            return getRequest(getLogoutURL(), nameID, FORMAT, idpSessionIndex,
-                    getKeyPath(), getIssuer());
+            return getRequest("", nameID, FORMAT, idpSessionIndex,
+                    getKeyPath(), getIssuer(), getKeyAlias(), getKeystorePass());
         } catch (XMLStreamException | IOException | GeneralSecurityException e) {
             throw new SaaSApplicationException("Exception during SAML logout URL generation.", e);
         }
     }
 
+    private String getKeystorePass() {
+        return "changeit";
+    }
+
+    private String getKeyAlias() {
+        return "s1as";
+    }
+
     private String getIssuer() {
-        return null;
+        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
     }
 
     private String getKeyPath() {
-        return null;
+//        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
+        return "C:/privateKey.der";
     }
 
     private String getLogoutURL() {
-        return null;
+//        return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
+        return "";
     }
 
     public String getRequest(String logoutUrl,
                              String nameID,
                              String format,
                              String sessionIndex,
-                             String keyPath, String issuer) throws XMLStreamException, IOException, GeneralSecurityException {
+                             String keyPath, String issuer, String keyAlias, String keystorePass) throws XMLStreamException, IOException, GeneralSecurityException, SaaSApplicationException {
 
         String issueInstant = getIssueDate();
 
@@ -135,7 +153,7 @@ public class SamlServiceBean implements SamlService {
             String strSignature = "SAMLRequest=" + getRidOfCRLF(encodedRequest) + "&SigAlg=" + encodedSigAlg;
 
 
-            signature.initSign( SamlKeyLoader.loadPrivateKey( keyPath ) );
+            signature.initSign( SamlKeyLoader.loadPrivateKeyFromStore( keyPath, keystorePass, keyAlias ) );
             signature.update( strSignature.getBytes(UTF_8) );
 
             String encodedSignature = URLEncoder.encode( Base64.encodeBase64String( signature.sign() ) , UTF_8);

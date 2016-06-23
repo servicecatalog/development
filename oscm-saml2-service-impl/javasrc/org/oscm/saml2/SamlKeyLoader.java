@@ -62,18 +62,17 @@ public class SamlKeyLoader {
         }
     }
 
-    public static Key loadKeyStore(String filePath, String password,
-            String alias) throws SaaSApplicationException, IOException,
+    public static PrivateKey loadPrivateKeyFromStore(String keystorePath, String password,
+                                              String alias) throws SaaSApplicationException, IOException,
                     KeyStoreException, CertificateException,
                     NoSuchAlgorithmException, UnrecoverableKeyException {
-        FileInputStream is = new FileInputStream(filePath);
+        FileInputStream is = new FileInputStream(keystorePath);
         KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
         char[] passwd = password.toCharArray();
         keystore.load(is, passwd);
         Key key = keystore.getKey(alias, passwd);
         if (key instanceof PrivateKey) {
-            return key;
-
+            return (PrivateKey) key;
         }
         throw new SaaSApplicationException(
                 "Private key with alias " + alias + " cannot be found");
