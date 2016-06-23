@@ -10,13 +10,22 @@ package org.oscm.saml2;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
+import java.security.Key;
 import java.security.KeyFactory;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
+
+import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
  * Created by PLGrubskiM on 2016-06-23.
@@ -51,6 +60,23 @@ public class SamlKeyLoader {
         } finally {
             inputStream.close();
         }
+    }
+
+    public static Key loadKeyStore(String filePath, String password,
+            String alias) throws SaaSApplicationException, IOException,
+                    KeyStoreException, CertificateException,
+                    NoSuchAlgorithmException, UnrecoverableKeyException {
+        FileInputStream is = new FileInputStream(filePath);
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        char[] passwd = password.toCharArray();
+        keystore.load(is, passwd);
+        Key key = keystore.getKey(alias, passwd);
+        if (key instanceof PrivateKey) {
+            return key;
+
+        }
+        throw new SaaSApplicationException(
+                "Private key with alias " + alias + " cannot be found");
     }
 
 }
