@@ -18,20 +18,19 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
+import org.oscm.saml2.api.LogoutRequestGenerator;
 import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.EJBServiceAccess;
-import org.oscm.ui.common.ServiceAccess;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.common.*;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.ui.delegates.ServiceLocator;
 
 /**
  * @author farmaki
@@ -45,6 +44,8 @@ public class IdPResponseFilter implements Filter {
     private String excludeUrlPattern;
     private AuthenticationSettings authSettings;
     private SAMLResponseExtractor samlResponseExtractor;
+    private SessionBean sessionBean;
+    private LogoutRequestGenerator logoutRequestGenerator;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -52,10 +53,22 @@ public class IdPResponseFilter implements Filter {
         excludeUrlPattern = filterConfig
                 .getInitParameter("exclude-url-pattern");
 
-        ServiceAccess serviceAccess = new EJBServiceAccess();
-        ConfigurationService cfgService = serviceAccess
-                .getService(ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
+        authSettings = getAuthenticationSettings();
+        logoutRequestGenerator = new LogoutRequestGenerator();
+    }
+
+    protected AuthenticationSettings getAuthenticationSettings() {
+        if (authSettings == null) {
+            authSettings =new AuthenticationSettings(new ServiceLocator().findService(ConfigurationService.class));
+        }
+        return authSettings;
+    }
+
+    public SessionBean getSessionBean() {
+        if (sessionBean == null) {
+            sessionBean = new UiDelegate().findSessionBean();
+        }
+        return sessionBean;
     }
 
     /**
@@ -79,24 +92,24 @@ public class IdPResponseFilter implements Filter {
                 httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                         Boolean.TRUE);
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
-                HttpSession currentSession = httpRequest.getSession();
                 try {
                     String samlSessionId = getSamlResponseExtractor()
                             .getSessionIndex(samlResponse);
-                        currentSession.setAttribute("SAMLSessionId",
-                                samlSessionId);
+                    String logoutRequest = logoutRequestGenerator.generateLogoutRequest(samlSessionId);
+                    getSessionBean().setLogoutRequest(logoutRequest);
+                    String relayState = httpRequest.getParameter("RelayState");
+                    if (relayState != null) {
+                        String forwardUrl = getForwardUrl(httpRequest, relayState);
+                        redirector.forward(httpRequest, httpResponse, forwardUrl);
+                        return;
+                    }
                 } catch (SessionIndexNotFoundException e) {
                     LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
-                            LogMessageIdentifier.ERROR_SESSION_NOT_FOUND);
-                }
-                String relayState = httpRequest.getParameter("RelayState");
-                if (relayState != null) {
-                    String forwardUrl = getForwardUrl(httpRequest, relayState);
-                    redirector.forward(httpRequest, httpResponse, forwardUrl);
-                    return;
+                            LogMessageIdentifier.ERROR_SESSION_INDEX_NOT_FOUND);
+                    httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                            BaseBean.ERROR_INVALID_SAML_RESPONSE);
                 }
             }
-
             if (httpRequest.getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
                 redirector.forward(httpRequest, httpResponse,
                         BaseBean.ERROR_PAGE);
@@ -201,5 +214,17 @@ public class IdPResponseFilter implements Filter {
             samlResponseExtractor = new SAMLResponseExtractor();
         }
         return samlResponseExtractor;
+    }
+
+    public void setRedirector(RequestRedirector redirector) {
+        this.redirector = redirector;
+    }
+
+    public void setExcludeUrlPattern(String excludeUrlPattern) {
+        this.excludeUrlPattern = excludeUrlPattern;
+    }
+
+    public void setAuthSettings(AuthenticationSettings authSettings) {
+        this.authSettings = authSettings;
     }
 }

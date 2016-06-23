@@ -137,6 +137,7 @@ public class SessionBean implements Serializable {
     private boolean myProcessesOnly = true;
 
     private PriceModel selectedExternalPriceModel;
+    private String logoutRequest;
 
     public boolean isMyOperationsOnly() {
         return myOperationsOnly;
@@ -530,5 +531,13 @@ public class SessionBean implements Serializable {
     public void setSelectedExternalPriceModel(
             PriceModel selectedExternalPriceModel) {
         this.selectedExternalPriceModel = selectedExternalPriceModel;
+    }
+
+    public void setLogoutRequest(String logoutRequest) {
+        this.logoutRequest = logoutRequest;
+    }
+
+    public String getLogoutRequest() {
+        return logoutRequest;
     }
 }
