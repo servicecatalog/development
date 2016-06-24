@@ -374,6 +374,8 @@ public class BaseBean {
             + "/serviceProvider.jsf";
     public static final String MANAGE_PAYMENT_TYPES_PAGE = "/organization/managePaymentEnablement.jsf";
     public static final String MANAGE_PAYMENT_TYPES_PAGE_XHTML = "/organization/managePaymentEnablement.xhtml";
+    public static final String ACCOUNT_PAYMENT_PAGE = "/marketplace/account/payments.jsf";
+    public static final String ACCOUNT_PAYMENT_PAGE_XHTML = "/marketplace/account/payments.xhtml";
 
     public static final String ERROR_PAGE = "/public/error.jsf";
 
