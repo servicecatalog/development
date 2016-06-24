@@ -1,12 +1,13 @@
 /*******************************************************************************
- *
- *  Copyright FUJITSU LIMITED 2016
- *
- *  Creation Date: 23.06.16 13:57
- *
+ * Copyright FUJITSU LIMITED 2016
+ * <p>
+ * Creation Date: 23.06.16 13:57
  ******************************************************************************/
 
 package org.oscm.saml2;
+
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.*;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,24 +36,21 @@ import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
-
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE;
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEY_ALIAS;
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS;
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_ISSUER_ID;
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_LOGOUT_URL;
-import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 
 /**
  * Authored by dawidch
  */
 @Stateless(name = "saml2.0Bean")
 @Remote(SamlService.class)
-@Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
+@Interceptors({InvocationDateContainer.class, ExceptionMapper.class})
 public class SamlServiceBean implements SamlService {
 
     private static final String UTF_8 = "UTF-8";
     private static final String FORMAT = "http://schemas.xmlsoap.org/claims/UPN";
+    private static final Log4jLogger LOGGER = LoggerFactory
+            .getLogger(SamlServiceBean.class);
 
     @EJB
     private ConfigurationService configurationService;
@@ -67,8 +65,18 @@ public class SamlServiceBean implements SamlService {
     public String generateLogoutRequest(String idpSessionIndex, String nameID) throws SaaSApplicationException {
 
         try {
-            return getRequest("", nameID, FORMAT, idpSessionIndex,
-                    getKeystorePath(), getIssuer(), getKeyAlias(), getKeystorePass());
+            String logoutURL = getLogoutURL();
+            String keystorePath = getKeystorePath();
+            String issuer = getIssuer();
+            String keyAlias = getKeyAlias();
+            LOGGER.logDebug("Im trying to generate SAML logout request with the following properties: "
+                    + " logoutURL: " + logoutURL
+                    + " keystorePath: " + keystorePath
+                    + " keyAlias: " + keyAlias
+                    + " issuer: " + issuer
+            );
+            return getRequest(logoutURL, nameID, FORMAT, idpSessionIndex,
+                    keystorePath, issuer, keyAlias, getKeystorePass());
         } catch (XMLStreamException | IOException | GeneralSecurityException e) {
             throw new SaaSApplicationException("Exception during SAML logout URL generation.", e);
         }
@@ -107,19 +115,19 @@ public class SamlServiceBean implements SamlService {
         XMLStreamWriter writer = factory.createXMLStreamWriter(baos);
 
         writer.writeStartElement("saml2p", "LogoutRequest", "urn:oasis:names:tc:SAML:2.0:protocol");
-        writer.writeNamespace("saml2p","urn:oasis:names:tc:SAML:2.0:protocol");
-        writer.writeAttribute("ID", "_"+ UUID.randomUUID().toString());
+        writer.writeNamespace("saml2p", "urn:oasis:names:tc:SAML:2.0:protocol");
+        writer.writeAttribute("ID", "_" + UUID.randomUUID().toString());
         writer.writeAttribute("Version", "2.0");
         writer.writeAttribute("Destination", logoutUrl);
         writer.writeAttribute("IssueInstant", issueInstant + "Z");
 
-        writer.writeStartElement("saml2","Issuer","urn:oasis:names:tc:SAML:2.0:assertion");
-        writer.writeNamespace("saml2","urn:oasis:names:tc:SAML:2.0:assertion");
+        writer.writeStartElement("saml2", "Issuer", "urn:oasis:names:tc:SAML:2.0:assertion");
+        writer.writeNamespace("saml2", "urn:oasis:names:tc:SAML:2.0:assertion");
         writer.writeCharacters(issuer);
         writer.writeEndElement();
 
         writer.writeStartElement("saml", "NameID", "urn:oasis:names:tc:SAML:2.0:assertion");
-        writer.writeNamespace("saml","urn:oasis:names:tc:SAML:2.0:assertion");
+        writer.writeNamespace("saml", "urn:oasis:names:tc:SAML:2.0:assertion");
         writer.writeAttribute("Format", format);
         writer.writeCharacters(nameID);
         writer.writeEndElement();
@@ -130,6 +138,8 @@ public class SamlServiceBean implements SamlService {
 
         writer.writeEndElement();
         writer.flush();
+
+        LOGGER.logDebug("The unsigned SAML envelope is: " + new String( baos.toByteArray(), UTF_8 ));
 
         // Compress the bytes
         ByteArrayOutputStream deflatedBytes = new ByteArrayOutputStream();
@@ -146,7 +156,7 @@ public class SamlServiceBean implements SamlService {
         String finalSignatureValue = "";
 
         //If a keyPath was provided, sign it!
-        if(keyPath.length() > 0){
+        if (keyPath.length() > 0) {
             String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
 
             Signature signature = Signature.getInstance("SHA1withRSA");
@@ -155,20 +165,23 @@ public class SamlServiceBean implements SamlService {
             String strSignature = "SAMLRequest=" + getRidOfCRLF(encodedRequest) + "&SigAlg=" + encodedSigAlg;
 
 
-            signature.initSign( SamlKeyLoader.loadPrivateKeyFromStore( keyPath, keystorePass, keyAlias ) );
-            signature.update( strSignature.getBytes(UTF_8) );
+            signature.initSign(SamlKeyLoader.loadPrivateKeyFromStore(keyPath, keystorePass, keyAlias));
+            signature.update(strSignature.getBytes(UTF_8));
 
-            String encodedSignature = URLEncoder.encode( Base64.encodeBase64String( signature.sign() ) , UTF_8);
+            String encodedSignature = URLEncoder.encode(Base64.encodeBase64String(signature.sign()), UTF_8);
 
             finalSignatureValue = "&SigAlg=" + encodedSigAlg + "&Signature=" + encodedSignature;
         }
         String appender = "?";
 
-        if(logoutUrl.indexOf("?") >= 0){
+        if (logoutUrl.indexOf("?") >= 0) {
             appender = "&";
         }
 
-        return logoutUrl+appender+"SAMLRequest=" + getRidOfCRLF(encodedRequest) + finalSignatureValue;
+        String fullLogoutURL = logoutUrl + appender + "SAMLRequest=" + getRidOfCRLF(encodedRequest) + finalSignatureValue;
+
+        LOGGER.logDebug("The logoutURL generated is: " + fullLogoutURL);
+        return fullLogoutURL;
     }
 
     protected String getIssueDate() {
