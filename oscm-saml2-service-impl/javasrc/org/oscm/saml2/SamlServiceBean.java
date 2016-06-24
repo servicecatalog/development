@@ -32,6 +32,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.ConfigurationService;
@@ -65,7 +66,6 @@ public class SamlServiceBean implements SamlService {
 
     @Override
     public String generateLogoutRequest(String idpSessionIndex, String nameID) throws SaaSApplicationException {
-
         try {
             String logoutURL = getLogoutURL();
             String keystorePath = getKeystorePath();
@@ -84,27 +84,27 @@ public class SamlServiceBean implements SamlService {
         }
     }
 
-    private String getKeystorePass() {
+    public String getKeystorePass() {
         return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
     }
 
-    private String getKeyAlias() {
+    public String getKeyAlias() {
         return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEY_ALIAS, GLOBAL_CONTEXT).getValue();
     }
 
-    private String getIssuer() {
+    public String getIssuer() {
         return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
     }
 
-    private String getKeystorePath() {
+    public String getKeystorePath() {
         return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
     }
 
-    private String getLogoutURL() {
+    public String getLogoutURL() {
         return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
     }
 
-    public String getRequest(String logoutUrl,
+    private String getRequest(String logoutUrl,
                              String nameID,
                              String format,
                              String sessionIndex,
@@ -158,7 +158,7 @@ public class SamlServiceBean implements SamlService {
         String finalSignatureValue = "";
 
         //If a keyPath was provided, sign it!
-        if (keyPath.length() > 0) {
+        if (StringUtils.isNotEmpty(keyPath)) {
             String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
 
             Signature signature = Signature.getInstance("SHA1withRSA");
@@ -186,7 +186,7 @@ public class SamlServiceBean implements SamlService {
         return fullLogoutURL;
     }
 
-    protected String getIssueDate() {
+    private String getIssueDate() {
         SimpleDateFormat simpleDf = new SimpleDateFormat(
                 "yyyy-MM-dd'T'HH:mm:ss");
         return simpleDf.format(new Date());
