@@ -405,7 +405,7 @@ public enum ConfigurationKey {
     @Example("s1as")
     SSO_SIGNING_KEY_ALIAS(false),
 
-    @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
+    @Doc({ "Password to the keystore containing the private key used for signing SAML messages" })
     @Example("changeit")
     SSO_SIGNING_KEYSTORE_PASS(false),
 
