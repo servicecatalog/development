@@ -407,7 +407,11 @@ public enum ConfigurationKey {
 
     @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
     @Example("changeit")
-    SSO_SIGNING_KEYSTORE_PASS(false);
+    SSO_SIGNING_KEYSTORE_PASS(false),
+
+    @Doc({ "Path to the truststore holding the private key used for signing SAML messages." })
+    @Example("<path>/keystore.jks")
+    SSO_SIGNING_KEYSTORE(false, null, "string");
 
     // //////////////////////////////////////////////////////////////////////////////////
 

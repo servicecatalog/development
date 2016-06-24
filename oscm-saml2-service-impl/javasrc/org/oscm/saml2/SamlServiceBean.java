@@ -36,7 +36,7 @@ import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.UnsupportedOperationException;
 
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_IDP_TRUSTSTORE;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEY_ALIAS;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS;
 import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_ISSUER_ID;
@@ -75,7 +75,7 @@ public class SamlServiceBean implements SamlService {
     }
 
     private String getKeystorePass() {
-        return configurationService.getVOConfigurationSetting(SSO_IDP_TRUSTSTORE, GLOBAL_CONTEXT).getValue();
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
     }
 
     private String getKeyAlias() {
