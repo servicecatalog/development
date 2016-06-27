@@ -545,6 +545,6 @@ public class SessionBean implements Serializable {
     }
 
     public String getSamlLogoutRequest() {
-        return samlLogoutRequest;
+        return (String) new UiDelegate().getSession().getAttribute("LOGOUT_REQUEST");
     }
 }

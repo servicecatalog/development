@@ -22,7 +22,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 @ManagedBean
 public class LogoutRequestGenerator {
 
-    @EJB(beanName = "saml2.0Bean")
+    @EJB(mappedName = "saml20Bean")
     private SamlService samlService;
 
 

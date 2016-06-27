@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.saml2.api.LogoutRequestGenerator;
 import org.oscm.saml2.api.SAMLResponseExtractor;
@@ -240,8 +241,8 @@ public class IdPResponseFilterTest {
         SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
         doReturn("someSAMLSessionId").when(mockExtractor).getSessionIndex("someSamlResponse");
-        LogoutRequestGenerator logoutReqMock = mock(LogoutRequestGenerator.class);
-        doReturn(logoutReqMock).when(idpFilter).getLogoutRequestGenerator();
+        SamlService ss = mock(SamlService.class);
+        doReturn(ss).when(idpFilter).getSamlService();
         idpFilter.init(filterConfig);
         idpFilter.setRedirector(mockRedirector);
 
@@ -275,10 +276,10 @@ public class IdPResponseFilterTest {
         doReturn("someSamlResponse").when(mockRequest).getParameter("SAMLResponse");
         doReturn("someServletPath").when(mockRequest).getServletPath();
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
-        doReturn(true).when(mockExtractor).isFromLogout("someSamlResponse");
+        doReturn(true).when(mockExtractor).isFromLogin("someSamlResponse");
         doThrow(new SessionIndexNotFoundException()).when(mockExtractor).getSessionIndex("someSamlResponse");
-        LogoutRequestGenerator logoutReqMock = mock(LogoutRequestGenerator.class);
-        doReturn(logoutReqMock).when(idpFilter).getLogoutRequestGenerator();
+        SamlService ss = mock(SamlService.class);
+        doReturn(ss).when(idpFilter).getSamlService();
         idpFilter.init(filterConfig);
         idpFilter.setRedirector(mockRedirector);
 

@@ -52,6 +52,9 @@
     <ejb>oscm-configservice.jar</ejb>
   </module>
   <module>
+    <ejb>oscm-saml2-service-impl.jar</ejb>
+  </module>
+  <module>
     <web>
       <web-uri>oscm-startup.war</web-uri>
       <context-root>oscm-startup-webapp</context-root>

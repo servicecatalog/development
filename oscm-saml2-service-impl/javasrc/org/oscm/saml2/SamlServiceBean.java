@@ -45,7 +45,7 @@ import org.oscm.logging.LoggerFactory;
 /**
  * Authored by dawidch
  */
-@Stateless(name = "saml2.0Bean")
+@Stateless(mappedName = "saml2Bean", name="saml2Bean")
 @Remote(SamlService.class)
 @Interceptors({InvocationDateContainer.class, ExceptionMapper.class})
 public class SamlServiceBean implements SamlService {

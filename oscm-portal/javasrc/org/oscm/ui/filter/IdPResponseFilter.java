@@ -10,6 +10,10 @@ package org.oscm.ui.filter;
 
 import java.io.IOException;
 
+import javax.ejb.EJB;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -20,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.logging.Log4jLogger;
@@ -49,7 +54,10 @@ public class IdPResponseFilter implements Filter {
     private AuthenticationSettings authSettings;
     private SAMLResponseExtractor samlResponseExtractor;
     private SessionBean sessionBean;
-    private LogoutRequestGenerator logoutRequestGenerator;
+
+    @EJB(mappedName = "saml2Bean")
+    private SamlService samlService;
+
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -58,15 +66,7 @@ public class IdPResponseFilter implements Filter {
                 .getInitParameter("exclude-url-pattern");
 
         authSettings = getAuthenticationSettings();
-        logoutRequestGenerator = getLogoutRequestGenerator();
         samlResponseExtractor = getSamlResponseExtractor();
-    }
-
-    protected LogoutRequestGenerator getLogoutRequestGenerator() {
-        if (logoutRequestGenerator == null) {
-            logoutRequestGenerator = new UiDelegate().findBean("logoutRequestGenerator");
-        }
-        return logoutRequestGenerator;
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
@@ -106,14 +106,14 @@ public class IdPResponseFilter implements Filter {
                         Boolean.TRUE);
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
                 try {
-                    if (samlResponseExtractor.isFromLogout(samlResponse)) {
+                    if (samlResponseExtractor.isFromLogin(samlResponse)) {
                         String samlSessionId = getSamlResponseExtractor()
                                 .getSessionIndex(samlResponse);
                         String nameID = getSamlResponseExtractor()
                                 .getUserId(samlResponse);
-                        String logoutRequest = logoutRequestGenerator
+                        String logoutRequest = getSamlService()
                                 .generateLogoutRequest(samlSessionId, nameID);
-                        getSessionBean().setSamlLogoutRequest(logoutRequest);
+                        ((HttpServletRequest) request).getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
                     }
                     String relayState = httpRequest.getParameter("RelayState");
                     if (relayState != null) {
@@ -134,16 +134,16 @@ public class IdPResponseFilter implements Filter {
                             BaseBean.ERROR_INVALID_SAML_RESPONSE);
                 }
 
-            }
-            if (httpRequest
-                    .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
-                redirector.forward(httpRequest, httpResponse,
-                        BaseBean.ERROR_PAGE);
-                return;
+                if (httpRequest
+                        .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
+                    redirector.forward(httpRequest, httpResponse,
+                            BaseBean.ERROR_PAGE);
+                    return;
+                }
+                httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
+                        Boolean.FALSE);
             }
 
-            httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
-                    Boolean.FALSE);
         }
 
         chain.doFilter(request, response);
@@ -254,5 +254,9 @@ public class IdPResponseFilter implements Filter {
 
     public void setAuthSettings(AuthenticationSettings authSettings) {
         this.authSettings = authSettings;
+    }
+
+    public SamlService getSamlService() {
+        return samlService;
     }
 }
