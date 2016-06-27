@@ -411,6 +411,15 @@
           </sourcefiles>
         </group>
 
+        <group name="oscm-saml2-service-impl">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-saml2-service-impl/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-saml2-service-impl/javasrc" />
+          </sourcefiles>
+        </group>
+
         <group name="oscm-sessionmgmt">
           <classfiles>
             <fileset dir="${result.dir}/work/oscm-sessionmgmt/classes" />
