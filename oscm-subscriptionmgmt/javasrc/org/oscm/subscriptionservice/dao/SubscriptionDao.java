@@ -63,7 +63,17 @@ public class SubscriptionDao {
             "AND udaDef.tKey IN (:udaDefinitions) " +
             "AND udaDef.organizationKey=p.vendorkey " +
             "AND sub.organizationkey = :organization " +
-            "AND sub.status IN (:states)";
+            "AND sub.status IN (:states)" +
+            "UNION " +
+            "SELECT sub.tkey " +
+            "FROM subscription sub, " +
+            "product p " +
+            "WHERE NOT EXISTS (SELECT 1 FROM Uda cd, udaDefinition udaDef WHERE cd.udaDefinitionKey=udaDef.tKey and " +
+            "cd.targetObjectKey = sub.tkey and udaDef.organizationKey=p.vendorkey and udaDef.tKey IN (:udaDefinitions)) " +
+            "AND sub.product_tkey=p.tkey " +
+            "AND sub.organizationkey = :organization " +
+    "AND    sub.status IN (:states)"
+        ;
 
     private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "
             + "FROM Subscription s "

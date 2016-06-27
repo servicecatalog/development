@@ -236,8 +236,28 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
             }
         });
 
+        final UdaDefinition udaDefinitionWithValueAfterSubscr = runTX(new Callable<UdaDefinition>() {
+            @Override
+            public UdaDefinition call() throws Exception {
+                return Udas.createUdaDefinition(ds, supplier1, UdaTargetType.CUSTOMER_SUBSCRIPTION,
+                    "CUSTOMER_SUBSCRIPTION3", "value",
+                    UdaConfigurationType.USER_OPTION_OPTIONAL);
+            }
+        });
+
+        final Set<Long> setAfterSubscr = new HashSet<>();
+        set.addAll(Arrays.asList(Long.valueOf(udaDefinitionWithValueAfterSubscr.getKey())));
+
+        List<BigInteger> result1 = runTX(new Callable<List<BigInteger>>() {
+            @Override
+            public List<BigInteger> call() throws Exception {
+                return dao.getSubscriptionsWithDefaultUdaValuesAndVendor(customerAdmin1, SUB_STATES, set);
+            }
+        });
+
         // then
         assertEquals(1, result.size());
+        assertEquals(1, result1.size());
         assertEquals(sub1.getKey(), result.get(0).longValue());
 
     }
