@@ -58,12 +58,29 @@ public class SamlServiceBean implements SamlService {
     @EJB
     private ConfigurationService configurationService;
 
+    /**
+     * Currently unsupported - used for creating the login response
+     * when application acts as the identity provider.
+     *
+     * @param requestId
+     *
+     * @return
+     */
     @Override
     public String createSamlResponse(String requestId) {
         throw new UnsupportedOperationException(
                 "Not supported, as OSCM does not act as Idp anymore.");
     }
 
+    /**
+     * Creates SAML LogoutRequest as per SAML 2.0 protocol specification.
+     *
+     * @param idpSessionIndex - session index of the identity provider (receiver of the request)
+     * @param nameID - unique identifier of the user registered with the identity provider.
+     *
+     * @return
+     * @throws SaaSApplicationException
+     */
     @Override
     public String generateLogoutRequest(String idpSessionIndex, String nameID) throws SaaSApplicationException {
         try {

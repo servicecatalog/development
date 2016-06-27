@@ -28,9 +28,20 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 
 /**
  * Created by PLGrubskiM on 2016-06-23.
+ *
+ * Java util class for retrieving keys from the keystore used for signing SAML messages.
  */
 public class SamlKeyLoader {
-
+    /**
+     * Used for retrieving the private key stored in file outside of keystore.
+     * Requires key to be in DER pkcs8 RSA encoded format.
+     *
+     *
+     * @param path - path to the key file.
+     * @return
+     * @throws GeneralSecurityException
+     * @throws IOException
+     */
     public static PrivateKey loadPrivateKey(String path)
             throws GeneralSecurityException, IOException {
         byte[] clear = loadPrivateKeyFromFile(path);
@@ -61,6 +72,21 @@ public class SamlKeyLoader {
         }
     }
 
+    /**
+     * Used for retrieving the private key stored the keystore (.jks) file.
+     * Requires key to be in DER pkcs8 RSA encoded format.
+     *
+     * @param keystorePath - path to the keystore file.
+     * @param password - password to the keystore.
+     * @param alias - alias of the keypair stored in the keystore.
+     * @return
+     * @throws SaaSApplicationException
+     * @throws IOException
+     * @throws KeyStoreException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws UnrecoverableKeyException
+     */
     public static PrivateKey loadPrivateKeyFromStore(String keystorePath, String password,
                                               String alias) throws SaaSApplicationException, IOException,
                     KeyStoreException, CertificateException,
