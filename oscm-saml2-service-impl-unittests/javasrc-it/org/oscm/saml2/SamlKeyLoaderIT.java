@@ -7,7 +7,9 @@
  ******************************************************************************/
 package org.oscm.saml2;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
@@ -76,9 +78,27 @@ public class SamlKeyLoaderIT {
                 KEYSTORE_PASSWORD, "invalidAlias");
     }
 
+    @Test
+    public void loadPrivateKeyFromFile_OK() throws GeneralSecurityException, IOException {
+        //when
+        //load key in DER format from file, no errors expected.
+        SamlKeyLoader.loadPrivateKey(getKeyFilePath());
+    }
+
+    @Test(expected = FileNotFoundException.class)
+    public void loadPrivateKeyFromFile_invalidPath() throws GeneralSecurityException, IOException {
+        //when
+        SamlKeyLoader.loadPrivateKey("invalidPath");
+    }
+
     public String getKeystoreFilePath() {
         return getClass().getClassLoader().getResource("").getPath()
                 + "/../javares/keystore.jks";
+    }
+
+    public String getKeyFilePath() {
+        return getClass().getClassLoader().getResource("").getPath()
+                + "/../javares/privateKey";
     }
 
 }
