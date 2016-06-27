@@ -76,15 +76,6 @@ public class SamlKeyLoaderIT {
                 KEYSTORE_PASSWORD, "invalidAlias");
     }
 
-    @Test // TODO
-    public void loadPrivateKeyFromStore_expired() throws CertificateException,
-            SaaSApplicationException, UnrecoverableKeyException,
-            NoSuchAlgorithmException, IOException, KeyStoreException {
-        // when
-        samlKeyLoader.loadPrivateKeyFromStore(getKeystoreFilePath(),
-                KEYSTORE_PASSWORD, ALIAS);
-    }
-
     public String getKeystoreFilePath() {
         return getClass().getClassLoader().getResource("").getPath()
                 + "/../javares/keystore.jks";
