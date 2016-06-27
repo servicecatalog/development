@@ -29,4 +29,8 @@ public class LogoutRequestGenerator {
     public String generateLogoutRequest(String samlSessionId, String nameID) throws SaaSApplicationException {
         return samlService.generateLogoutRequest(samlSessionId, nameID);
     }
+
+    public void setSamlService(SamlService samlService) {
+        this.samlService = samlService;
+    }
 }
