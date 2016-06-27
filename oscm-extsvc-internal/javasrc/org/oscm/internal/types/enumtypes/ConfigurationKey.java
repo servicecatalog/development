@@ -397,10 +397,6 @@ public enum ConfigurationKey {
     @Example("false")
     HIDE_PAYMENT_INFORMATION(false, null, "boolean", true),
 
-    @Doc({ "The URL to the private key file in DER (.der) format, used by the Service Provider (OSCM) to sign SAML messages." })
-    @Example("<C:/security/keys/cakey.der>")
-    SP_PRIVATE_KEY_FILE_PATH(false),
-
     @Doc({ "Name of the keypair stored in the keystore used for signing SAML messages" })
     @Example("s1as")
     SSO_SIGNING_KEY_ALIAS(false),

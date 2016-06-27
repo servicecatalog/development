@@ -14,6 +14,7 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,8 @@ public class SamlKeyLoaderIT {
 
     private static final String KEYSTORE_PASSWORD = "changeit";
     private static final String ALIAS = "s1as";
+    private static final String KEYSTORE_FILE = "keystore.jks";
+    private static final String PRIVATE_KEY_FILE = "privateKey";
 
     @Before
     public void setUp() {
@@ -39,7 +42,7 @@ public class SamlKeyLoaderIT {
             SaaSApplicationException, UnrecoverableKeyException,
             NoSuchAlgorithmException, IOException, KeyStoreException {
         // when
-        samlKeyLoader.loadPrivateKeyFromStore(getKeystoreFilePath(),
+        samlKeyLoader.loadPrivateKeyFromStore(getPath(KEYSTORE_FILE),
                 KEYSTORE_PASSWORD, ALIAS);
         // then
     }
@@ -63,7 +66,7 @@ public class SamlKeyLoaderIT {
         // given
         String password = "invalidPassword";
         // when
-        samlKeyLoader.loadPrivateKeyFromStore(getKeystoreFilePath(), password,
+        samlKeyLoader.loadPrivateKeyFromStore(getPath(KEYSTORE_FILE), password,
                 ALIAS);
         // then
     }
@@ -74,31 +77,36 @@ public class SamlKeyLoaderIT {
             UnrecoverableKeyException, NoSuchAlgorithmException, IOException,
             KeyStoreException {
         // when
-        samlKeyLoader.loadPrivateKeyFromStore(getKeystoreFilePath(),
+        samlKeyLoader.loadPrivateKeyFromStore(getPath(KEYSTORE_FILE),
                 KEYSTORE_PASSWORD, "invalidAlias");
     }
 
     @Test
-    public void loadPrivateKeyFromFile_OK() throws GeneralSecurityException, IOException {
-        //when
-        //load key in DER format from file, no errors expected.
-        SamlKeyLoader.loadPrivateKey(getKeyFilePath());
+    public void loadPrivateKeyFromFile_OK()
+            throws GeneralSecurityException, IOException {
+        // when
+        // load key in DER format from file, no errors expected.
+        SamlKeyLoader.loadPrivateKey(getPath(PRIVATE_KEY_FILE));
     }
 
     @Test(expected = FileNotFoundException.class)
-    public void loadPrivateKeyFromFile_invalidPath() throws GeneralSecurityException, IOException {
-        //when
+    public void loadPrivateKeyFromFile_invalidPath()
+            throws GeneralSecurityException, IOException {
+        // when
         SamlKeyLoader.loadPrivateKey("invalidPath");
     }
 
-    public String getKeystoreFilePath() {
-        return getClass().getClassLoader().getResource("").getPath()
-                + "/../javares/keystore.jks";
+    @Test(expected = InvalidKeySpecException.class)
+    public void loadPrivateKeyFromFile_invalidFormat()
+            throws GeneralSecurityException, IOException {
+        // when
+        // load key in PEM format and expect the error.
+        SamlKeyLoader.loadPrivateKey(getPath("pkcs8PEM"));
     }
 
-    public String getKeyFilePath() {
+    public String getPath(String fileName) {
         return getClass().getClassLoader().getResource("").getPath()
-                + "/../javares/privateKey";
+                + "/../javares/" + fileName;
     }
 
 }
