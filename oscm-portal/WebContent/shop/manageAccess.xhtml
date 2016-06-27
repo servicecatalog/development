@@ -41,8 +41,10 @@
             <t:panelGroup colspan="3">
               <h:selectBooleanCheckbox id="isRestricted"
                 disabled="#{empty manageAccessCtrl.model.selectedMarketplaceId}"
-                value="#{manageAccessCtrl.model.selectedMarketplaceRestricted}" onchange="setDirty(true)">
-                <a4j:ajax event="change" render="accessOrganizationsPanel" listener="#{manageAccessCtrl.accessChanged}" />
+                value="#{manageAccessCtrl.model.selectedMarketplaceRestricted}"
+                onchange="setDirty(true);AdmUtils.showProgress(true);">
+                <a4j:ajax event="change" render="accessOrganizationsPanel" listener="#{manageAccessCtrl.accessChanged}"
+                  oncomplete="AdmUtils.showProgress(false);" />
               </h:selectBooleanCheckbox>
               <h:outputLabel value="#{msg['marketplace.manageAccess.isRestricted']}" />
             </t:panelGroup>
@@ -53,7 +55,7 @@
           <a4j:outputPanel rendered="#{manageAccessCtrl.model.selectedMarketplaceRestricted}" layout="block">
             <adm:outputStep value="#{msg['marketplace.manageAccess.step3']}" />
             <ui:include src="organizationsTable.xhtml">
-              <ui:param name="size" value="#{manageAccessCtrl.model.organizationsNumber}" />
+              <ui:param name="size" value="#{manageAccessCtrl.model.organizations.size()}" />
               <ui:param name="formName" value="manageAccessForm" />
             </ui:include>
           </a4j:outputPanel>
@@ -66,14 +68,14 @@
             <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}"
               onclick="
               if(#{manageAccessCtrl.model.selectedMarketplaceRestricted}){
-            	  if(#{manageAccessCtrl.model.organizationsToBeRemoved.size()}>0){
+            	  if(#{manageAccessCtrl.model.showSubscriptionSuspendingWarning}){
                 	  #{rich:component('removalWarning')}.show()} 
             	  else{
               		  setDirty(false);
               		  AdmUtils.showProgress(true);
               		  #{rich:element('confirmedButton')}.click();
                   }
-              } else if (#{manageAccessCtrl.model.selectedMarketplace.restricted}){
+              } else if (#{manageAccessCtrl.model.showOpeningRestrictedMplWarning}){
             	  #{rich:component('openingWarning')}.show();  
               } else{
             	  setDirty(false);

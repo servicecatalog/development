@@ -5,6 +5,7 @@
 package org.oscm.test.stubs;
 
 import java.util.List;
+import java.util.Set;
 
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -16,6 +17,8 @@ import org.oscm.internal.types.exception.OrganizationAlreadyBannedException;
 import org.oscm.internal.types.exception.OrganizationAlreadyExistsException;
 import org.oscm.internal.types.exception.OrganizationAuthorityException;
 import org.oscm.internal.types.exception.PublishingToMarketplaceNotPermittedException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOCatalogEntry;
 import org.oscm.internal.vo.VOMarketplace;
@@ -162,14 +165,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
         return null;
     }
 
-    @Override
-    public void closeMarketplace(String marketplaceId,
-            List<VOOrganization> authorizedOrganizations,
-            List<VOOrganization> unauthorizedOrganizations)
-            throws OperationNotPermittedException, ObjectNotFoundException,
-            NonUniqueBusinessKeyException {
-        throw new UnsupportedOperationException();
-    }
+
 
     @Override
     public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
@@ -193,6 +189,18 @@ public class MarketplaceServiceStub implements MarketplaceService {
     public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
         throws ObjectNotFoundException {
         return false;
+    }
+
+    @Override
+    public void closeMarketplace(String marketplaceId,
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations,
+            Set<Long> organizationsWithSubsToSuspend)
+                    throws OperationNotPermittedException,
+                    ObjectNotFoundException, NonUniqueBusinessKeyException,
+                    TechnicalServiceNotAliveException,
+                    TechnicalServiceOperationException {
+        throw new UnsupportedOperationException();  
     }
 
 }

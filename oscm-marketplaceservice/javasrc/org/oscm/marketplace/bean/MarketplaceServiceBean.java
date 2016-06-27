@@ -12,12 +12,12 @@
 package org.oscm.marketplace.bean;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -25,7 +25,6 @@ import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
@@ -37,7 +36,6 @@ import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Category;
 import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceAccess;
 import org.oscm.domobjects.MarketplaceToOrganization;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
@@ -1069,17 +1067,30 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
-    public List<VOOrganization> getAllOrganizations(String marketplaceId) {
+    public List<VOOrganization> getAllOrganizations(String marketplaceId)
+            throws ObjectNotFoundException {
         List<VOOrganization> voOrganizations = new ArrayList<>();
-        for (Organization organization : marketplaceServiceLocal
-                .getAllOrganizations()) {
-            VOOrganization voOrganization = OrganizationAssembler
-                    .toVOOrganization(organization);
-            boolean doesAccessExist = doesAccessToMarketplaceExist(
-                    organization.getMarketplaceAccesses(), marketplaceId);
-            voOrganization.setHasGrantedAccessToMarketplace(doesAccessExist);
+
+        List<Object[]> organizations = marketplaceServiceLocal
+                .getOrganizationsWithMarketplaceAccess(marketplaceId);
+
+        for (Object[] object : organizations) {
+            VOOrganization voOrganization = new VOOrganization();
+
+            BigInteger orgKey = (BigInteger) object[0];
+            voOrganization.setKey(orgKey.longValue());
+            voOrganization.setOrganizationId((String) object[1]);
+            voOrganization.setName((String) object[2]);
+            boolean hasAccess = (object[3] == null) ? false : true;
+            voOrganization.setHasGrantedAccessToMarketplace(hasAccess);
+
+            BigInteger noOfSubs = (BigInteger) object[4];
+            boolean hasSubscriptions = noOfSubs.intValue() > 0;
+            voOrganization.setHasSubscriptions(hasSubscriptions);
+
             voOrganizations.add(voOrganization);
         }
+
         return voOrganizations;
     }
 
@@ -1101,22 +1112,11 @@ public class MarketplaceServiceBean implements MarketplaceService {
         return result;
     }
 
-    private boolean doesAccessToMarketplaceExist(
-            List<MarketplaceAccess> marketplaceAccesses, String marketplaceId) {
-        for (MarketplaceAccess marketplaceAccess : marketplaceAccesses) {
-            if (marketplaceAccess.getMarketplace().getMarketplaceId()
-                    .equals(marketplaceId)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     @Override
     @RolesAllowed("MARKETPLACE_OWNER")
     public void closeMarketplace(String marketplaceId,
-            List<VOOrganization> authorizedOrganizations,
-            List<VOOrganization> unauthorizedOrganizations)
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations, Set<Long> owningOrganizations)
                     throws OperationNotPermittedException,
                     ObjectNotFoundException, NonUniqueBusinessKeyException,
                     TechnicalServiceNotAliveException,
@@ -1125,75 +1125,46 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Marketplace marketplace = marketplaceServiceLocal
                 .getMarketplaceForId(marketplaceId);
 
-        boolean wasRestricted = marketplace.isRestricted();
-
         if (!marketplace.isRestricted()) {
             marketplace = marketplaceServiceLocal
                     .updateMarketplaceAccessType(marketplaceId, true);
         }
 
-        List<String> grantedOrganizations = new ArrayList<>();
-        for (VOOrganization voOrganization : authorizedOrganizations) {
-            Organization organization = OrganizationAssembler
-                    .toOrganization(voOrganization);
+        for (Long orgKey : authorizedOrganizations) {
+            Organization organization = new Organization();
+            organization.setKey(orgKey);
             marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                     marketplace, organization);
-            grantedOrganizations.add(voOrganization.getOrganizationId());
         }
 
-        // checking if on marketplace exist subscriptions -> if yes
-        // automatically grant access to owning organizations
-        List<Subscription> subscriptions = getMplSubscriptionsOrganizations(
-                marketplace);
-
-        // map used when removing access for organizations
-        Map<String, List<Subscription>> organizationWithSubs = new HashMap<>();
-
-        for (Subscription subscription : subscriptions) {
-            Organization organization = subscription.getOrganization();
-
-            if (!organizationWithSubs
-                    .containsKey(organization.getOrganizationId())) {
-                organizationWithSubs.put(organization.getOrganizationId(),
-                        new ArrayList<Subscription>());
-            }
-            organizationWithSubs.get(organization.getOrganizationId())
-                    .add(subscription);
-
-            // subscription owning organization is added only when changing
-            // marketplace from open to restricted
-            if (!wasRestricted && !grantedOrganizations
-                    .contains(organization.getOrganizationId())) {
-                marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
-                        marketplace, organization);
-                grantedOrganizations.add(organization.getOrganizationId());
+        for (Long orgKey : unauthorizedOrganizations) {
+            marketplaceServiceLocal.removeMarketplaceAccess(marketplace.getKey(), orgKey);
+        }
+        
+        // suspending existing subscriptions in case owning organization's
+        // access is removed
+        
+        for (Long orgKey : owningOrganizations) {
+            Organization organization = new Organization();
+            organization.setKey(orgKey);
+            
+            List<Subscription> subsToBeSuspended = getMarketplaceSubscriptionsForOrganization(
+                    marketplace, organization);
+            
+            for (Subscription subscription : subsToBeSuspended) {
+                subscription.setStatus(SubscriptionStatus.SUSPENDED);
+                appServiceLocal.deactivateInstance(subscription);
             }
         }
-
-        for (VOOrganization voOrganization : unauthorizedOrganizations) {
-            marketplaceServiceLocal.removeMarketplaceAccess(
-                    marketplace.getKey(), voOrganization.getKey());
-
-            // suspending existing subscriptions in case owning organization's
-            // access is removed
-            if (organizationWithSubs
-                    .containsKey(voOrganization.getOrganizationId())) {
-                List<Subscription> subsToBeSuspended = organizationWithSubs
-                        .get(voOrganization.getOrganizationId());
-                for (Subscription subscription : subsToBeSuspended) {
-                    subscription.setStatus(SubscriptionStatus.SUSPENDED);
-                    appServiceLocal.deactivateInstance(subscription);
-                }
-            }
-        }
-
     }
 
-    private List<Subscription> getMplSubscriptionsOrganizations(
-            Marketplace mp) {
+    private List<Subscription> getMarketplaceSubscriptionsForOrganization(
+            Marketplace mpl, Organization org) {
 
-        Query query = dm.createNamedQuery("Subscription.getForMarketplace");
-        query.setParameter("marketplace", mp);
+        Query query = dm.createNamedQuery(
+                "Subscription.getUsableSubscriptionsForMplAndOrg");
+        query.setParameter("organization", org);
+        query.setParameter("marketplace", mpl);
         List<Subscription> subscriptions = ParameterizedTypes
                 .list(query.getResultList(), Subscription.class);
 

@@ -56,7 +56,8 @@ public interface MarketplaceServiceLocal {
     public List<Marketplace> getAllMarketplaces();
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    List<Marketplace> getAllAccessibleMarketplacesForOrganization(long organizationKey);
+    List<Marketplace> getAllAccessibleMarketplacesForOrganization(
+            long organizationKey);
 
     /**
      * Returns the list of the marketplaces where the supplier or the partner
@@ -445,16 +446,19 @@ public interface MarketplaceServiceLocal {
      *             the service nor an authorized broker or reseller
      */
     Product publishServiceWithPermissions(long serviceKey,
-                                          CatalogEntry catalogEntry, List<VOCategory> categories,
-                                          List<POResalePermissionDetails> permissionsToGrant,
-                                          List<POResalePermissionDetails> permissionsToRevoke)
-            throws ObjectNotFoundException, NonUniqueBusinessKeyException,
-            OperationNotPermittedException, ValidationException,
-            OrganizationAuthorityException, ConcurrentModificationException,
-            ServiceStateException, ServiceOperationException;
+            CatalogEntry catalogEntry, List<VOCategory> categories,
+            List<POResalePermissionDetails> permissionsToGrant,
+            List<POResalePermissionDetails> permissionsToRevoke)
+                    throws ObjectNotFoundException,
+                    NonUniqueBusinessKeyException,
+                    OperationNotPermittedException, ValidationException,
+                    OrganizationAuthorityException,
+                    ConcurrentModificationException, ServiceStateException,
+                    ServiceOperationException;
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    Marketplace getMarketplaceForId(String marketplaceId) throws ObjectNotFoundException;
+    Marketplace getMarketplaceForId(String marketplaceId)
+            throws ObjectNotFoundException;
 
     /**
      * Returns all existing organizations.
@@ -467,26 +471,30 @@ public interface MarketplaceServiceLocal {
     /**
      * This method is used to close or open marketplace.
      *
-     * @param marketplaceId - Id of marketplace of which access type has to be changed
-     * @param isRestricted - true - close marketplace, false - open marketplace
+     * @param marketplaceId
+     *            - Id of marketplace of which access type has to be changed
+     * @param isRestricted
+     *            - true - close marketplace, false - open marketplace
      * @return - changed marketplace object
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    Marketplace updateMarketplaceAccessType(String marketplaceId, boolean isRestricted)
-        throws ObjectNotFoundException, NonUniqueBusinessKeyException;
+    Marketplace updateMarketplaceAccessType(String marketplaceId,
+            boolean isRestricted) throws ObjectNotFoundException,
+                    NonUniqueBusinessKeyException;
 
     /**
-     * This method is used to grant access to given marketplace to given organization.
+     * This method is used to grant access to given marketplace to given
+     * organization.
      *
      * @param marketplace
      * @param organization
      * @throws NonUniqueBusinessKeyException
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    void grantAccessToMarketPlaceToOrganization(Marketplace marketplace, Organization organization)
-        throws NonUniqueBusinessKeyException;
+    void grantAccessToMarketPlaceToOrganization(Marketplace marketplace,
+            Organization organization) throws NonUniqueBusinessKeyException;
 
     /**
      * Removes all existing accesses to given marketplace.
@@ -504,8 +512,8 @@ public interface MarketplaceServiceLocal {
      * @throws ObjectNotFoundException
      */
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    void removeMarketplaceAccess(long marketplaceKey, long organizationKey) throws ObjectNotFoundException;
-
+    void removeMarketplaceAccess(long marketplaceKey, long organizationKey)
+            throws ObjectNotFoundException;
 
     /**
      * Retrieves all marketplaces with restricted access which are accessible
@@ -519,5 +527,20 @@ public interface MarketplaceServiceLocal {
             long orgKey);
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    boolean doesAccessToMarketplaceExistForOrganization(long marketplaceKey, long organizationKey);
+    boolean doesAccessToMarketplaceExistForOrganization(long marketplaceKey,
+            long organizationKey);
+
+    /**
+     * Retrieves organizations information in the context of managing access to
+     * restricted marketplaces
+     * 
+     * @param marketplaceId
+     *            id of the selected marketplace
+     * @return list of objects containing: organization's key, organization's id,
+     *         organization's name, restriction info (boolean), number of
+     *         owned subscriptions on given marketplace
+     * @throws ObjectNotFoundException
+     */
+    public List<Object[]> getOrganizationsWithMarketplaceAccess(
+            String marketplaceId) throws ObjectNotFoundException;
 }

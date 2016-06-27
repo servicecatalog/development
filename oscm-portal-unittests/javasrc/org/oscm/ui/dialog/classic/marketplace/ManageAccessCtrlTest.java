@@ -98,9 +98,10 @@ public class ManageAccessCtrlTest {
     }
 
     @Test
-    public void testAccessChange() {
+    public void testAccessChange() throws Exception{
         // given
         ctrl.getModel().setSelectedMarketplaceId(MARKETPLACE_ID);
+        ctrl.getModel().setSelectedMarketplaceRestricted(true);
 
         // when
         ctrl.accessChanged();
@@ -116,14 +117,13 @@ public class ManageAccessCtrlTest {
         // given
         setupValuesForSaveAction(true);
         doNothing().when(marketplaceService).closeMarketplace(anyString(),
-                Matchers.anyListOf(VOOrganization.class),
-                Matchers.anyListOf(VOOrganization.class));
+                Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class));
         // when
         String result = ctrl.save();
 
         // then
-        assertEquals(model.getAuthorizedOrganizations().size(), 1);
-        assertEquals(model.getUnauthorizedOrganizations().size(), 1);
+        assertEquals(0, model.getAuthorizedOrganizations().size());
+        assertEquals(0, model.getUnauthorizedOrganizations().size());
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
@@ -133,15 +133,15 @@ public class ManageAccessCtrlTest {
         // given
         setupValuesForSaveAction(true);
         doNothing().when(marketplaceService).closeMarketplace(anyString(),
-                Matchers.anyListOf(VOOrganization.class),
-                Matchers.anyListOf(VOOrganization.class));
+                Matchers.anySetOf(Long.class),
+                Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class));
         // when
         String result = ctrl.save();
 
         // then
         verify(marketplaceService, times(1)).closeMarketplace(MARKETPLACE_ID,
                 model.getAuthorizedOrganizations(),
-                model.getUnauthorizedOrganizations());
+                model.getUnauthorizedOrganizations(), model.getOrganizationsWithSubscriptionsToSuspend());
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
@@ -170,8 +170,6 @@ public class ManageAccessCtrlTest {
         
         VOMarketplace marketplace = createSampleMarketplace(MARKETPLACE_NAME, MARKETPLACE_ID);
         marketplace.setRestricted(restrictMarketplace);
-        
-        model.setSelectedMarketplace(marketplace);
         
         doNothing().when(ctrl).addMessage(any(String.class));
     }
@@ -203,8 +201,8 @@ public class ManageAccessCtrlTest {
         List<POOrganization> organizations = new ArrayList<>();
         organizations.add(preparePOOrganization(1L, "org1", true));
         organizations.add(preparePOOrganization(2L, "org2", false));
-        model.getOrganizationsAccesses().put(1L, new Boolean(false));
-        model.getOrganizationsAccesses().put(2L, new Boolean(true));
+        model.getAccessesStored().put(1L, new Boolean(false));
+        model.getAccessesStored().put(2L, new Boolean(true));
         return organizations;
     }
 

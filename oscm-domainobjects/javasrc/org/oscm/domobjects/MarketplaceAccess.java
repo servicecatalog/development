@@ -28,9 +28,11 @@ import javax.persistence.*;
         @NamedQuery(name = "MarketplaceAccess.findByBusinessKey", query = "SELECT obj FROM MarketplaceAccess obj WHERE obj.marketplace_tkey"
                 + " = :marketplace_tkey AND obj.organization_tkey = :organization_tkey"),
         @NamedQuery(name = "MarketplaceAccess.findByMarketplace", query = "SELECT obj FROM MarketplaceAccess obj WHERE "
-                + "obj.marketplace_tkey = :marketplace_tkey") })
+                + "obj.marketplace_tkey = :marketplace_tkey"),
+        @NamedQuery(name = "MarketplaceAccess.removeAllForMarketplace", query = "DELETE FROM MarketplaceAccess obj WHERE obj.marketplace_tkey = :marketplace_tkey") })
 @BusinessKey(attributes = { "marketplace_tkey", "organization_tkey" })
-public class MarketplaceAccess extends DomainObjectWithoutVersioning<EmptyDataContainer> {
+public class MarketplaceAccess
+        extends DomainObjectWithoutVersioning<EmptyDataContainer> {
 
     private static final long serialVersionUID = -3270780943325084256L;
 
@@ -85,7 +87,7 @@ public class MarketplaceAccess extends DomainObjectWithoutVersioning<EmptyDataCo
             setOrganization_tkey(organization.getKey());
         }
     }
-    
+
     @Override
     public boolean hasHistory() {
         return false;

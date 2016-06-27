@@ -9,6 +9,7 @@
 package org.oscm.internal.intf;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
@@ -524,9 +525,10 @@ public interface MarketplaceService {
      * access to the given marketplace.
      *
      * @return collection of all organizations.
+     * @throws ObjectNotFoundException 
      */
     @RolesAllowed("MARKETPLACE_OWNER")
-    List<VOOrganization> getAllOrganizations(String marketplaceId);
+    List<VOOrganization> getAllOrganizations(String marketplaceId) throws ObjectNotFoundException;
 
     /**
      * Method is used to restrict access to the given marketplace.
@@ -538,6 +540,8 @@ public interface MarketplaceService {
      * @param unauthorizedOrganizations
      *            - organizations which should not have access to marketplace
      *            any more
+     * @param organizationsWithSubsToSuspend
+     *            - organizations with subscriptions which must be suspended
      * @throws OperationNotPermittedException
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
@@ -546,8 +550,9 @@ public interface MarketplaceService {
      */
     @RolesAllowed("MARKETPLACE_OWNER")
     void closeMarketplace(String marketplaceId,
-            List<VOOrganization> authorizedOrganizations,
-            List<VOOrganization> unauthorizedOrganizations)
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations,
+            Set<Long> organizationsWithSubsToSuspend)
                     throws OperationNotPermittedException,
                     ObjectNotFoundException, NonUniqueBusinessKeyException,
                     TechnicalServiceNotAliveException,

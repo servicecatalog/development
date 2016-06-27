@@ -88,6 +88,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
                 + "AND sub.key in :keys"),
         @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
+        @NamedQuery(name = "Subscription.getUsableSubscriptionsForMplAndOrg", query = "SELECT sub FROM Subscription sub WHERE sub.organization=:organization AND sub.marketplace=:marketplace AND sub.dataContainer.status <> 'SUSPENDED'"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
         @NamedQuery(name = "Subscription.getForOrgFetchRoles", query = "SELECT DISTINCT sub, role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.dataContainer.status IN (:status) AND sub.organizationKey =:orgKey ORDER by sub.key ASC"),
         @NamedQuery(name = "Subscription.getSubRoles", query = "SELECT DISTINCT role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.organizationKey =:orgKey AND sub.dataContainer.subscriptionId=:subId ORDER by role.dataContainer.roleId ASC"),
@@ -179,7 +180,7 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     @OneToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "asyncTempProductKey")
     private Product asyncTempProduct;
-
+    
     /**
      * n:1 relation to the marketplace the product has been subscribed over. In
      * case the marketplace does no longer exist, the relation is canceled.<br>

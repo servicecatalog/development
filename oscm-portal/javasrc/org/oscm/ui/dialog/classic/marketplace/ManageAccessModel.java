@@ -10,7 +10,6 @@
 
 package org.oscm.ui.dialog.classic.marketplace;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -22,38 +21,41 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.oscm.internal.marketplace.POOrganization;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOOrganization;
 
 @ManagedBean
 @ViewScoped
 public class ManageAccessModel {
 
     private List<SelectItem> selectableMarketplaces;
-    
+
     private String selectedMarketplaceId;
-    
+
     private boolean selectedMarketplaceRestricted;
+    
+    private boolean allOrganizationsSelected;
 
     private List<POOrganization> organizations;
 
-    private Map<Long, Boolean> organizationsAccesses = new HashMap<>();
+    private Map<Long, Boolean> accessesStored = new HashMap<>();
 
-    private List<VOOrganization> authorizedOrganizations = new ArrayList<>();
+    private Map<Long, Boolean> accessesSelected = new HashMap<>();
 
-    private List<VOOrganization> unauthorizedOrganizations = new ArrayList<>();
+    private Set<Long> authorizedOrganizations = new HashSet<>();;
 
-    private boolean allOrganizationsSelected;
-    
-    private Set<String> organizationsToBeRemoved = new HashSet<>(); 
-    
-    private VOMarketplace selectedMarketplace;
-    
+    private Set<Long> unauthorizedOrganizations = new HashSet<>();
+
+    private Set<Long> organizationsWithSubscriptionsToSuspend = new HashSet<>();
+
+    private boolean showSubscriptionSuspendingWarning;
+
+    private boolean showOpeningRestrictedMplWarning;
+
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
     }
 
-    public void setSelectableMarketplaces(List<SelectItem> selectableMarketplaces) {
+    public void setSelectableMarketplaces(
+            List<SelectItem> selectableMarketplaces) {
         this.selectableMarketplaces = selectableMarketplaces;
     }
 
@@ -73,6 +75,14 @@ public class ManageAccessModel {
             boolean selectedMarketplaceRestricted) {
         this.selectedMarketplaceRestricted = selectedMarketplaceRestricted;
     }
+    
+    public boolean isAllOrganizationsSelected() {
+        return allOrganizationsSelected;
+    }
+
+    public void setAllOrganizationsSelected(boolean allOrganizationsSelected) {
+        this.allOrganizationsSelected = allOrganizationsSelected;
+    }
 
     public List<POOrganization> getOrganizations() {
         return organizations;
@@ -82,56 +92,64 @@ public class ManageAccessModel {
         this.organizations = organizations;
     }
 
-    public boolean isAllOrganizationsSelected() {
-        return allOrganizationsSelected;
+    public Map<Long, Boolean> getAccessesStored() {
+        return accessesStored;
     }
 
-    public void setAllOrganizationsSelected(boolean allOrganizationsSelected) {
-        this.allOrganizationsSelected = allOrganizationsSelected;
+    public void setAccessesStored(Map<Long, Boolean> accessesStored) {
+        this.accessesStored = accessesStored;
     }
 
-    public int getOrganizationsNumber() {
-        return organizations.size();
+    public Map<Long, Boolean> getAccessesSelected() {
+        return accessesSelected;
     }
 
-    public Map<Long, Boolean> getOrganizationsAccesses() {
-        return organizationsAccesses;
+    public void setAccessesSelected(Map<Long, Boolean> accessesSelected) {
+        this.accessesSelected = accessesSelected;
     }
 
-    public void setOrganizationsAccesses(Map<Long, Boolean> organizationsAccesses) {
-        this.organizationsAccesses = organizationsAccesses;
-    }
-
-    public List<VOOrganization> getAuthorizedOrganizations() {
+    public Set<Long> getAuthorizedOrganizations() {
         return authorizedOrganizations;
     }
 
-    public void setAuthorizedOrganizations(List<VOOrganization> authorizedOrganizations) {
+    public void setAuthorizedOrganizations(Set<Long> authorizedOrganizations) {
         this.authorizedOrganizations = authorizedOrganizations;
     }
 
-    public List<VOOrganization> getUnauthorizedOrganizations() {
+    public Set<Long> getUnauthorizedOrganizations() {
         return unauthorizedOrganizations;
     }
 
-    public void setUnauthorizedOrganizations(List<VOOrganization> unauthorizedOrganizations) {
+    public void setUnauthorizedOrganizations(
+            Set<Long> unauthorizedOrganizations) {
         this.unauthorizedOrganizations = unauthorizedOrganizations;
     }
 
-    public Set<String> getOrganizationsToBeRemoved() {
-        return organizationsToBeRemoved;
+    public Set<Long> getOrganizationsWithSubscriptionsToSuspend() {
+        return organizationsWithSubscriptionsToSuspend;
     }
 
-    public void setOrganizationsToBeRemoved(
-            Set<String> organizationsToBeRemoved) {
-        this.organizationsToBeRemoved = organizationsToBeRemoved;
+    public void setOrganizationsWithSubscriptionsToSuspend(
+            Set<Long> organizationsWithSubscriptionsToSuspend) {
+        this.organizationsWithSubscriptionsToSuspend = organizationsWithSubscriptionsToSuspend;
     }
 
-    public VOMarketplace getSelectedMarketplace() {
-        return selectedMarketplace;
+    public boolean isShowSubscriptionSuspendingWarning() {
+        return showSubscriptionSuspendingWarning;
     }
 
-    public void setSelectedMarketplace(VOMarketplace selectedMarketplace) {
-        this.selectedMarketplace = selectedMarketplace;
+    public void setShowSubscriptionSuspendingWarning(
+            boolean showSubscriptionSuspendingWarning) {
+        this.showSubscriptionSuspendingWarning = showSubscriptionSuspendingWarning;
     }
+
+    public boolean isShowOpeningRestrictedMplWarning() {
+        return showOpeningRestrictedMplWarning;
+    }
+
+    public void setShowOpeningRestrictedMplWarning(
+            boolean showOpeningRestrictedMplWarning) {
+        this.showOpeningRestrictedMplWarning = showOpeningRestrictedMplWarning;
+    }
+
 }

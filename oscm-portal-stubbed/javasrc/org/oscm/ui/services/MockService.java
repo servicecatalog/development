@@ -2374,13 +2374,6 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void closeMarketplace(String marketplaceId, List<VOOrganization> authorizedOrganizations,
-        List<VOOrganization> unauthorizedOrganizations)
-        throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
-
-    }
-
-    @Override
     public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
         throws ValidationException, NonUniqueBusinessKeyException {
 
@@ -2731,5 +2724,17 @@ public class MockService implements IdentityService, SubscriptionService,
             VOService service) throws ObjectNotFoundException,
                     OperationNotPermittedException {
         return null;
+    }
+
+    @Override
+    public void closeMarketplace(String marketplaceId,
+            Set<Long> authorizedOrganizations,
+            Set<Long> unauthorizedOrganizations,
+            Set<Long> organizationsWithSubsToSuspend)
+                    throws OperationNotPermittedException,
+                    ObjectNotFoundException, NonUniqueBusinessKeyException,
+                    TechnicalServiceNotAliveException,
+                    TechnicalServiceOperationException {
+
     }
 }
