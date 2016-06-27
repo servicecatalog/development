@@ -28,13 +28,13 @@ Please follow the guide from top to bottom, this is the easiest way to avoid err
 * [Apache Ivy 2.4.0](http://www.apache.org/dist/ant/ivy/2.4.0/) library.
 
 #### Setting up a workspace
-1. Download the latest sources for [this](https://github.com/servicecatalog/development) and [documentation](https://github.com/servicecatalog/documentation) repositories.
+1. Download the latest sources for [this](https://github.com/servicecatalog/development) and [documentation](https://github.com/servicecatalog/documentation) repositories. Set the directory name of documentation as "document".
 2. Import the project into your IDE. You should adjust some of the preferences:
   * Set the compiler level to the installed version of Java 1.7.
   * Set UTF-8 file encoding and Unix line endings.
 
 #### Setting up the database
-1. Install the database using a path without any whitespaces for installation directory. During installation a system-startup service and a database specific user should be created. 
+1. Install the database using a path without any whitespaces for installation directory. During installation a system-startup service and a database specific user should be created.
 2. Update `<postgres-root-dir>/data/postgresql.conf` properties:
 
 | Property  | Value |  Comment  |
@@ -46,8 +46,8 @@ Please follow the guide from top to bottom, this is the easiest way to avoid err
 3. Update `<postgres-root-dir>/data/pg_hba.conf` properties:
 
 ```
-host all all 127.0.0.1/32 trust 
-host all all 0.0.0.0/0 trust 
+host all all 127.0.0.1/32 trust
+host all all 0.0.0.0/0 trust
 host all all <host-ipv6>/128 trust
 ```
 
@@ -61,8 +61,8 @@ host all all <host-ipv6>/128 trust
 1. Install the GlassFish server following instructions.
 2. Check if the Java location is valid in the following configuration files:
 ```
-<glassfish-root-dir>/glassfish/config/asenv.bat 
-<glassfish-root-dir>/glassfish/config/asenv.con 
+<glassfish-root-dir>/glassfish/config/asenv.bat
+<glassfish-root-dir>/glassfish/config/asenv.con
 <glassfish-root-dir>/mq/etc/imqenv.conf
 ```
 
@@ -85,10 +85,10 @@ host all all <host-ipv6>/128 trust
 | ------------- | ------------- |
 | `/oscm-devruntime/javares/devscripts/build-dev-Database.xml` | Handles database operations, e.g. initialization, schema update etc.  |
 | `/oscm-devruntime/javares/devscripts/build-dev-GlassFish.xml`  | Handles server tasks like starting or stopping domains.  |
-| `/oscm-devruntime/javares/devscripts/build-dev-PackageDeploy.xml`  |  Used to build application source code and to deploy its artifacts.  |
+| `/oscm-devruntime/javares/devscripts/build-dev-PackageDeploy.xml`  |  Used to build application source code and to deploy its artifacts. Add "proxyuser" and "proxypassword" properties to setproxy tag if your proxy needs authentication. |
 | `/oscm-portal-webtests/run_in_eclipse.xml`  |  Executes UI tests. |
 | `/oscm-integrationtests-setup/resources/build.xml`  |  Used to create all neccessary resources for integration environment.  |
-5. Build the source code of the application using `All.BUILD` target from `/oscm-devruntime/javares/devscripts/build-dev-PackageDeploy.xml`. The result will be located in `/oscm-build/result`.
+5. Build the source code of the application using `All.BUILD` target from `/oscm-devruntime/javares/devscripts/build-dev-PackageDeploy.xml`. The result will be located in `/oscm-build/result`. If you encounter an out of memory error, increase the VM heap size by using the -Xmx argument in the configuration of your java runtime for executing ANT.
 6. Create the database and server resources using `STANDALONE.setup` target from `/oscm-integrationtests-setup/build.xml`. It will also deploy all artifacts to the appropriate domains.
 
 #### Deploying the application

@@ -1,0 +1,97 @@
+/* 
+ *  Copyright FUJITSU LIMITED 2016 
+ */ 
+body {
+	margin: 0px 0px;
+	padding: 0;
+	background-color: #FFFFFF;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+}
+
+.titleArea {
+	padding: 10px 25px;
+	background-color: #203080;
+	color: #FFFFFF;
+}
+
+.titleArea a,
+.titleArea a:link,
+.titleArea a:visited {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.titleArea a:hover {
+	text-decoration: underline;
+}
+
+h1 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	margin: 0px 0px 10px 0px;
+}
+
+h2 {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	font-weight: bold;
+	margin: 0px;
+	padding: 5px 5px 5px 25px;
+	background-color: #a0a0a0;
+	color: #FFFFFF;
+}
+
+a {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	color: #0000D0;
+}
+
+table.vmwreport td {
+	border: 1px solid #D2DBDC;
+	margin: 0px;
+}
+
+table.vmwreport th {
+	background-color: #F2F3F4;
+	margin: 0px;
+}
+
+td {
+	padding: 2px;
+	height: 18px;
+	line-height: 18px;
+}
+
+.description {
+	background-color: #F2F3F4;
+	border-bottom: 1px solid #D2DBDC;
+    color: #333333;	
+	padding: 12px 25px 12px 25px;
+	display: block;
+}
+
+.selectedPage {
+	font-weight: bold;
+}
+
+.box {
+	padding: 5px 5px 5px 25px;
+	display: block;
+}
+
+.statusPanelClass {
+    color: #F40239;	
+	padding: 12px 5px 4px 25px;
+	display: block;
+	font-weight: bold;
+}
+
+.rf-dt {
+	margin: 10px 25px;
+}
+

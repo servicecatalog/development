@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>oscm-app-vmware-ear</name>
+	<comment></comment>
+	<projects>
+		<project>oscm-app-common</project>
+		<project>oscm-app-extsvc-1-0</project>
+		<project>oscm-app-vmware</project>
+		<project>oscm-app-vmware-service</project>
+		<project>oscm-app-vmware-setup</project>
+		<project>oscm-app-vmware-ui</project>
+		<project>oscm-extsvc</project>
+	</projects>
+	<buildSpec>
+	</buildSpec>
+	<natures>
+	</natures>
+</projectDescription>
