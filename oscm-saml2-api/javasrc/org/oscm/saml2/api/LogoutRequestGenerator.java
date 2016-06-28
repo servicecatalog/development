@@ -10,10 +10,11 @@ package org.oscm.saml2.api;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.security.GeneralSecurityException;
-import java.security.Signature;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.UUID;
@@ -74,6 +75,56 @@ public class LogoutRequestGenerator {
 
         String issueInstant = getIssueDate();
 
+        ByteArrayOutputStream xmlLogoutRequest = producePureXMLLogoutRequest(logoutUrl, nameID, format, sessionIndex, issuer, issueInstant);
+        ByteArrayOutputStream deflatedXmlLogoutRequest = deflateBytes(xmlLogoutRequest);
+        String base64AndURLEncoded = encodeBase64AndURL(deflatedXmlLogoutRequest);
+        String finalSignatureValue = "";
+
+        //If a keyPath was provided, sign it!
+        finalSignatureValue = signRequestIfNeeded(keyPath, keyAlias, keystorePass, base64AndURLEncoded, finalSignatureValue);
+
+        String appender = getAppender(logoutUrl);
+
+        return concatenateFullLogoutURL(logoutUrl, base64AndURLEncoded, finalSignatureValue, appender);
+    }
+
+    private String concatenateFullLogoutURL(String logoutUrl, String base64AndURLEncoded, String finalSignatureValue, String appender) {
+        String fullLogoutURL = logoutUrl + appender + "SAMLRequest=" + getRidOfCRLF(base64AndURLEncoded) + finalSignatureValue;
+
+        LOGGER.logDebug("The logoutURL generated is: " + fullLogoutURL);
+        return fullLogoutURL;
+    }
+
+    private String getAppender(String logoutUrl) {
+        String appender = "?";
+
+        if (logoutUrl.indexOf("?") >= 0) {
+            appender = "&";
+        }
+        return appender;
+    }
+
+    private String signRequestIfNeeded(String keyPath, String keyAlias, String keystorePass, String base64AndURLEncoded, String finalSignatureValue) throws NoSuchAlgorithmException, InvalidKeyException, SaaSApplicationException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, SignatureException {
+        if (StringUtils.isNotEmpty(keyPath)) {
+            String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
+
+            Signature signature = Signature.getInstance("SHA1withRSA");
+
+
+            String strSignature = "SAMLRequest=" + getRidOfCRLF(base64AndURLEncoded) + "&SigAlg=" + encodedSigAlg;
+
+
+            signature.initSign(SamlKeyLoader.loadPrivateKeyFromStore(keyPath, keystorePass, keyAlias));
+            signature.update(strSignature.getBytes(UTF_8));
+
+            String encodedSignature = URLEncoder.encode(Base64.encodeBase64String(signature.sign()), UTF_8);
+
+            finalSignatureValue = "&SigAlg=" + encodedSigAlg + "&Signature=" + encodedSignature;
+        }
+        return finalSignatureValue;
+    }
+
+    private ByteArrayOutputStream producePureXMLLogoutRequest(String logoutUrl, String nameID, String format, String sessionIndex, String issuer, String issueInstant) throws XMLStreamException, UnsupportedEncodingException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         XMLOutputFactory factory = XMLOutputFactory.newInstance();
         XMLStreamWriter writer = factory.createXMLStreamWriter(baos);
@@ -104,48 +155,24 @@ public class LogoutRequestGenerator {
         writer.flush();
 
         LOGGER.logDebug("The unsigned SAML envelope is: " + new String( baos.toByteArray(), UTF_8 ));
+        return baos;
+    }
 
-        // Compress the bytes
+    private String encodeBase64AndURL(ByteArrayOutputStream deflatedBytes) throws UnsupportedEncodingException {
+        // Base64 Encode the bytes
+        byte[] encoded = Base64.encodeBase64Chunked(deflatedBytes.toByteArray());
+
+        // URL Encode the bytes
+        return URLEncoder.encode(new String(encoded, Charset.forName(UTF_8)), UTF_8);
+    }
+
+    private ByteArrayOutputStream deflateBytes(ByteArrayOutputStream baos) throws IOException {
         ByteArrayOutputStream deflatedBytes = new ByteArrayOutputStream();
         Deflater deflater = new Deflater(Deflater.DEFLATED, true);
         DeflaterOutputStream deflaterStream = new DeflaterOutputStream(deflatedBytes, deflater);
         deflaterStream.write(baos.toByteArray());
         deflaterStream.finish();
-
-        // Base64 Encode the bytes
-        byte[] encoded = Base64.encodeBase64Chunked(deflatedBytes.toByteArray());
-
-        // URL Encode the bytes
-        String encodedRequest = URLEncoder.encode(new String(encoded, Charset.forName(UTF_8)), UTF_8);
-        String finalSignatureValue = "";
-
-        //If a keyPath was provided, sign it!
-        if (StringUtils.isNotEmpty(keyPath)) {
-            String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
-
-            Signature signature = Signature.getInstance("SHA1withRSA");
-
-
-            String strSignature = "SAMLRequest=" + getRidOfCRLF(encodedRequest) + "&SigAlg=" + encodedSigAlg;
-
-
-            signature.initSign(SamlKeyLoader.loadPrivateKeyFromStore(keyPath, keystorePass, keyAlias));
-            signature.update(strSignature.getBytes(UTF_8));
-
-            String encodedSignature = URLEncoder.encode(Base64.encodeBase64String(signature.sign()), UTF_8);
-
-            finalSignatureValue = "&SigAlg=" + encodedSigAlg + "&Signature=" + encodedSignature;
-        }
-        String appender = "?";
-
-        if (logoutUrl.indexOf("?") >= 0) {
-            appender = "&";
-        }
-
-        String fullLogoutURL = logoutUrl + appender + "SAMLRequest=" + getRidOfCRLF(encodedRequest) + finalSignatureValue;
-
-        LOGGER.logDebug("The logoutURL generated is: " + fullLogoutURL);
-        return fullLogoutURL;
+        return deflatedBytes;
     }
 
     private String getIssueDate() {

@@ -11,8 +11,6 @@ package org.oscm.saml2.api;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
@@ -26,8 +24,6 @@ import org.apache.commons.codec.binary.Base64;
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -86,7 +82,7 @@ public class SAMLResponseExtractor {
         String userId;
 
         try {
-            userId = getUserId_decoded(decode(encodedSamlResponse));
+            userId = getUserIdDecoded(new String(decode(encodedSamlResponse)));
         } catch (UnsupportedEncodingException exception) {
             throw new UserIdNotFoundException(
                     String.format(
@@ -113,7 +109,7 @@ public class SAMLResponseExtractor {
         String sessionIndex;
 
         try {
-            sessionIndex = getSessionIndexDecoded(decode(encodedSamlResponse));
+            sessionIndex = getSessionIndexDecoded(new String(decode(encodedSamlResponse)));
         } catch (UnsupportedEncodingException exception) {
             throw new SessionIndexNotFoundException(
                     String.format(
@@ -157,7 +153,7 @@ public class SAMLResponseExtractor {
         return sessionIndex;
     }
 
-    private String getUserId_decoded(String samlResponse)
+    private String getUserIdDecoded(String samlResponse)
             throws UserIdNotFoundException {
         String userid;
 
@@ -234,14 +230,12 @@ public class SAMLResponseExtractor {
                     UserIdNotFoundException.ReasonEnum.EXCEPTION_OCCURRED,
                     exception);
         }
-        return getUserId_decoded(samlAssertionString);
+        return getUserIdDecoded(samlAssertionString);
     }
 
-    public String decode(String encodedString)
+    public byte[] decode(String encodedString)
             throws UnsupportedEncodingException {
-        byte[] decodedBytes = Base64.decodeBase64(encodedString);
-        String decodedString = new String(decodedBytes, "UTF-8");
-        return decodedString;
+        return new Base64().decode(encodedString.getBytes("UTF-8"));
     }
 
     public boolean isFromLogout(String encodedSamlResponse) {
@@ -253,11 +247,11 @@ public class SAMLResponseExtractor {
         }
     }
 
-    private String inflate(String decodedBytes) throws IOException {
+    private String inflate(byte[] decodedBytes) throws IOException {
         ByteArrayOutputStream inflatedBytes = new ByteArrayOutputStream();
         Inflater inflater = new Inflater(true);
         InflaterOutputStream inflaterStream = new InflaterOutputStream(inflatedBytes, inflater);
-        inflaterStream.write(decodedBytes.getBytes());
+        inflaterStream.write(decodedBytes);
         inflaterStream.finish();
         return new String(inflatedBytes.toByteArray());
     }
@@ -285,7 +279,7 @@ public class SAMLResponseExtractor {
 
     public boolean isFromLogin(String samlResponse) {
         try {
-            final String decodedSamlResp = decode(samlResponse);
+            final String decodedSamlResp = new String(decode(samlResponse));
             return decodedSamlResp.contains("samlp:Response") && decodedSamlResp.contains("SessionIndex");
         } catch (IOException e) {
             // TODO: Add specific exception
