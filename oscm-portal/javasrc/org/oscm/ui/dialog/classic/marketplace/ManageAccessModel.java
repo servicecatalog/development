@@ -50,6 +50,12 @@ public class ManageAccessModel {
 
     private boolean showOpeningRestrictedMplWarning;
 
+    private long changedKey;
+    
+    private boolean changedSelection;
+    
+    private boolean changedHasSubscriptions;
+    
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
     }
@@ -152,4 +158,27 @@ public class ManageAccessModel {
         this.showOpeningRestrictedMplWarning = showOpeningRestrictedMplWarning;
     }
 
+    public long getChangedKey() {
+        return changedKey;
+    }
+
+    public void setChangedKey(long changedKey) {
+        this.changedKey = changedKey;
+    }
+
+    public boolean isChangedSelection() {
+        return changedSelection;
+    }
+
+    public void setChangedSelection(boolean changedSelection) {
+        this.changedSelection = changedSelection;
+    }
+
+    public boolean isChangedHasSubscriptions() {
+        return changedHasSubscriptions;
+    }
+
+    public void setChangedHasSubscriptions(boolean changedHasSubscriptions) {
+        this.changedHasSubscriptions = changedHasSubscriptions;
+    }
 }

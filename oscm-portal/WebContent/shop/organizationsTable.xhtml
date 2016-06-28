@@ -10,34 +10,33 @@
         columnsWidth="2%,49%,49%" columnClasses="smallCell" headerClass="rowTitle sortable" rowClasses="rowOdd,rowEven"
         id="organizationsTable" rows="10" width="inherit"
         onrowclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.organizationId}');}"
-        onrowmouseover="AdmUtils.mouseOverRow(this);" onrowmouseout="AdmUtils.mouseOutRow(this);"
-        render="organizationsPager, organizationsPagerPanel, scriptPanel">
+        onrowmouseover="AdmUtils.mouseOverRow(this);" onrowmouseout="AdmUtils.mouseOutRow(this);">
 
         <f:facet name="header">
           <a4j:outputPanel>
-            <adm:pager pagerId="organizationsPager"
-              oncomplete=""/>
-              <!-- AdmUtils.setAllServiceCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', 'allOrganizationsCheckbox'); -->
+            <adm:pager pagerId="organizationsPager" />
           </a4j:outputPanel>
         </f:facet>
 
-        <rich:column id="colOrganizationCheckbox" sortOrder="descending" sortBy="#{rowItem.selected}"
+        <rich:column id="colOrganizationCheckbox" 
           sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
           <f:facet name="header">
             <a4j:outputPanel styleClass="organizationTableSelectAllCheckBox">
               <h:selectBooleanCheckbox id="allOrganizationsCheckbox" title="#{msg['group.select.services']}"
-                immediate="true" value="#{manageAccessCtrl.model.allOrganizationsSelected}"
-                onclick="setDirty(true);">
-                <!-- AdmUtils.dataTableSelectCheckboxes('#{formName}:organizationsTable', 'organizationCheckbox', this.checked, '#{size}');return true;
-                <a4j:ajax event="change" listener="#{manageAccessCtrl.allOrganizationSelected}" />-->
+                immediate="true" value="#{manageAccessCtrl.model.allOrganizationsSelected}" onclick="setDirty(true);">
               </h:selectBooleanCheckbox>
             </a4j:outputPanel>
           </f:facet>
-          <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}"
-            styleClass="checkbox-in-table">
-            <a4j:ajax event="change" listener="#{manageAccessCtrl.organizationAccessChanged}" />
-            <f:attribute name="organization" value="#{rowItem}" />
+          <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}" styleClass="checkbox-in-table"
+            onchange="changeOrganizationAccess(#{rowItem.key}, $(this)[0].checked, #{rowItem.hasSubscriptions});">
           </h:selectBooleanCheckbox>
+
+          <a4j:jsFunction name="changeOrganizationAccess" action="#{manageAccessCtrl.changeOrganizationAccess}">
+            <a4j:param name="param1" assignTo="#{manageAccessCtrl.model.changedKey}" />
+            <a4j:param name="param2" assignTo="#{manageAccessCtrl.model.changedSelection}" />
+            <a4j:param name="param3" assignTo="#{manageAccessCtrl.model.changedHasSubscriptions}" />
+          </a4j:jsFunction>
+
         </rich:column>
 
         <rich:column id="colOrganizationName" sortBy="#{rowItem.name}" sortIcon="#{sortIcon}"
@@ -52,7 +51,7 @@
               render="organizationsTable@body, pagerPanel" />
           </f:facet>
           <a4j:outputPanel id="organizationNamePanel" layout="block" styleClass="stringInMultiLine preserveWhitespaces">
-            <h:outputText id="organizationName" value="#{rowItem.name}" />
+            <h:outputText id="organizationName" value="#{rowItem.name} - #{rowItem.key}" />
           </a4j:outputPanel>
         </rich:column>
 
@@ -72,23 +71,6 @@
         </rich:column>
 
       </adm:dataTable>
-      <a4j:jsFunction name="executeOperation" oncomplete="AdmUtils.showProgress(false);initializeAllCheckbox();"
-        render="organizationTablePanel">
-      </a4j:jsFunction>
     </a4j:region>
-  </a4j:outputPanel>
-  <a4j:outputPanel id="scriptPanel">
-    <script type="text/javascript">
-    	<!--
-      	initializeAllCheckbox();
-        function initializeAllCheckbox() {
-    	  AdmUtils.setAllServiceCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', 'allOrganizationsCheckbox');
-    	}
-
-        $("[id='#{formName}']").on("DOMSubtreeModified propertychange", function() {
-          AdmUtils.updateSelectAllCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', "#{formName}:organizationsTable:allOrganizationsCheckbox");
-        });
-		-->
-    </script>
   </a4j:outputPanel>
 </ui:composition>

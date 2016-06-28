@@ -13,7 +13,8 @@ public class POOrganization extends BasePO {
     private String name;
     private String organizationId;
     private boolean selected;
-
+    private boolean hasSubscriptions;
+    
     public POOrganization() {}
 
     public POOrganization(String name, String organizationId) {
@@ -44,7 +45,15 @@ public class POOrganization extends BasePO {
     public void setSelected(boolean selected) {
         this.selected = selected;
     }
+    
+    public boolean isHasSubscriptions() {
+        return hasSubscriptions;
+    }
 
+    public void setHasSubscriptions(boolean hasSubscriptions) {
+        this.hasSubscriptions = hasSubscriptions;
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

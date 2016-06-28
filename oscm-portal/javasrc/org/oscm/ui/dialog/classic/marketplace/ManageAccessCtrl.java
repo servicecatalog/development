@@ -11,6 +11,8 @@
 package org.oscm.ui.dialog.classic.marketplace;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,6 +127,14 @@ public class ManageAccessCtrl {
                 accessesStored.put(Long.valueOf(key), Boolean.valueOf(voOrganization.isHasGrantedAccessToMarketplace()));
                 accessesSelected.put(Long.valueOf(key), Boolean.valueOf(poOrganization.isSelected()));
             }
+            
+            Collections.sort(organizations, new Comparator<POOrganization>(){
+                @Override
+                public int compare(POOrganization org1, POOrganization org2) {
+                    return Boolean.valueOf(org2.isSelected()).compareTo(Boolean.valueOf(org1.isSelected())); 
+                }                
+            });
+            
             model.setOrganizations(organizations);
             model.setAccessesStored(accessesStored);
             model.setAccessesSelected(accessesSelected);
@@ -159,6 +169,7 @@ public class ManageAccessCtrl {
         model.getAuthorizedOrganizations().clear();
         model.getUnauthorizedOrganizations().clear();
         model.getOrganizationsWithSubscriptionsToSuspend().clear();
+        model.setShowSubscriptionSuspendingWarning(false);
     }
     
     private void prepareOrganizationsListsForUpdate() {
@@ -168,29 +179,28 @@ public class ManageAccessCtrl {
             long orgKey = poOrganization.getKey();
             boolean orgIsSelected = poOrganization.isSelected();
             
-            if (model.getAccessesStored().get(orgKey)&& !orgIsSelected) {
+            if (model.getAccessesStored().get(orgKey) && !orgIsSelected) {
                 model.getUnauthorizedOrganizations().add(orgKey);
                 model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
                 continue;
             }
-            if (!model.getAccessesStored().get(orgKey)&& orgIsSelected) {
+            if (!model.getAccessesStored().get(orgKey) && orgIsSelected) {
                 model.getAuthorizedOrganizations().add(orgKey);
             }    
         }
     }
-
-    public void organizationAccessChanged(AjaxBehaviorEvent event) {
-
-        POOrganization organization = (POOrganization) event.getComponent()
-                .getAttributes().get("organization");
-
-        if (model.getAccessesSelected().get(organization.getKey())) {
-            if (!organization.isSelected()) {
-                model.getOrganizationsWithSubscriptionsToSuspend()
-                        .add(organization.getKey());
+    
+    public void changeOrganizationAccess() {
+        long orgKey = model.getChangedKey();
+        boolean orgIsSelected = model.isChangedSelection();
+        boolean changedHasSubscriptions = model.isChangedHasSubscriptions();
+        
+        if (model.getAccessesSelected().get(orgKey) && changedHasSubscriptions) {
+            if (!orgIsSelected) {
+                model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
             } else {
                 model.getOrganizationsWithSubscriptionsToSuspend()
-                        .remove(organization.getKey());
+                        .remove(orgKey);
             }
             model.setShowSubscriptionSuspendingWarning(model
                     .getOrganizationsWithSubscriptionsToSuspend().size() > 0);
@@ -226,6 +236,7 @@ public class ManageAccessCtrl {
         poOrganization
                 .setSelected(voOrganization.isHasGrantedAccessToMarketplace()
                         || voOrganization.isHasSubscriptions());
+        poOrganization.setHasSubscriptions(voOrganization.isHasSubscriptions());
         return poOrganization;
     }
 
