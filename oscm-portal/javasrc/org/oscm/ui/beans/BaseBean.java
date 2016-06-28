@@ -966,7 +966,7 @@ public class BaseBean {
 
     /**
      * Check whether current userRoles in the session and in EJB session context
-     * are the same or not。
+     * are the same or not?
      * 
      * @return true if the current user role is changed
      */
@@ -1123,6 +1123,15 @@ public class BaseBean {
     protected void writeContentToResponse(byte[] content, String filename,
             String contentType) throws IOException {
         JSFUtils.writeContentToResponse(content, filename, contentType);
+    }
+
+    /**
+     * Delegates to
+     * {@link JSFUtils#writeContentToResponse(byte[], String, String, FacesContext)}
+     */
+    protected void writeContentToResponse(byte[] content, String filename,
+            String contentType, FacesContext fc) throws IOException {
+        JSFUtils.writeContentToResponse(content, filename, contentType, fc);
     }
 
     FacesContext getFacesContext() {
