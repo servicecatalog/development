@@ -225,7 +225,6 @@ public class IdPResponseFilter implements Filter {
                     BaseBean.ERROR_INVALID_IDP_URL);
             return false;
         }
-
         String samlResponse = httpRequest.getParameter("SAMLResponse");
         if (samlResponse != null) {
             return true;
@@ -265,7 +264,7 @@ public class IdPResponseFilter implements Filter {
 
 
     public String getKeystorePass() {
-        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
     }
 
     public String getKeyAlias() {
@@ -277,7 +276,7 @@ public class IdPResponseFilter implements Filter {
     }
 
     public String getKeystorePath() {
-        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
     }
 
     public String getLogoutURL() {

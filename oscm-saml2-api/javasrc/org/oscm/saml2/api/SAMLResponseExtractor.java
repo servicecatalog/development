@@ -8,8 +8,13 @@
 
 package org.oscm.saml2.api;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterOutputStream;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
@@ -241,17 +246,26 @@ public class SAMLResponseExtractor {
 
     public boolean isFromLogout(String encodedSamlResponse) {
         try {
-            return decode(encodedSamlResponse).contains("LogoutResponse");
+            return decode(inflate(encodedSamlResponse)).contains("LogoutResponse");
         } catch (IOException e) {
             // TODO: Add specific exception
             throw new RuntimeException(e);
         }
     }
 
+    private String inflate(String encodedSamlResponse) throws IOException {
+        ByteArrayOutputStream deflatedBytes = new ByteArrayOutputStream();
+        Inflater inflater = new Inflater(true);
+        InflaterOutputStream inflaterStream = new InflaterOutputStream(deflatedBytes, inflater);
+        inflaterStream.write(encodedSamlResponse.getBytes());
+        inflaterStream.finish();
+        return inflaterStream.toString();
+    }
+
     public String getSAMLLogoutResponseStatusCode(String encodedSamlResponse) {
         Document document;
         try {
-            document = XMLConverter.convertToDocument(decode(encodedSamlResponse),
+            document = XMLConverter.convertToDocument(decode(inflate(encodedSamlResponse)),
                     true);
             String resultWithNameSpace = XMLConverter.getNodeTextContentByXPath(document,
                     STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR);
