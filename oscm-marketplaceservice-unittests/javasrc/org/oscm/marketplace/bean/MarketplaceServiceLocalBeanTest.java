@@ -708,7 +708,7 @@ public class MarketplaceServiceLocalBeanTest {
         service.removeMarketplaceAccesses(1L);
 
         //then
-        verify(service.ds, times(2)).remove(any(MarketplaceAccess.class));
+        verify(service.marketplaceAccessDao, times(1)).removeAccessForMarketplace(anyLong());
     }
 
     @Test
