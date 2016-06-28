@@ -241,8 +241,6 @@ public class IdPResponseFilterTest {
         SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
         doReturn("someSAMLSessionId").when(mockExtractor).getSessionIndex("someSamlResponse");
-        SamlService ss = mock(SamlService.class);
-        doReturn(ss).when(idpFilter).getSamlService();
         idpFilter.init(filterConfig);
         idpFilter.setRedirector(mockRedirector);
 
@@ -278,8 +276,6 @@ public class IdPResponseFilterTest {
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
         doReturn(true).when(mockExtractor).isFromLogin("someSamlResponse");
         doThrow(new SessionIndexNotFoundException()).when(mockExtractor).getSessionIndex("someSamlResponse");
-        SamlService ss = mock(SamlService.class);
-        doReturn(ss).when(idpFilter).getSamlService();
         idpFilter.init(filterConfig);
         idpFilter.setRedirector(mockRedirector);
 
