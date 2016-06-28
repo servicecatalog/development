@@ -235,7 +235,6 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         roleAssign.setRole(new UserRole(roleType));
         user.getAssignedRoles().add(roleAssign);
         user.setLocale("en");
-
         return user;
     }
 }

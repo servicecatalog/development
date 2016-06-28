@@ -2311,7 +2311,6 @@ public class ServiceProvisioningServiceBean
         } else {
 
             if (voPriceModel.isExternal()) {
-                setPriceModelToExternal(voPriceModel, priceModel);
                 priceModel.setExternal(true);
                 priceModel.setUuid(voPriceModel.getUuid());
             } else {
