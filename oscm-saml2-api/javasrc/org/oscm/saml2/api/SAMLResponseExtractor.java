@@ -239,12 +239,21 @@ public class SAMLResponseExtractor {
     }
 
     public boolean isFromLogout(String encodedSamlResponse) {
+        byte[] decodedSamlResponse;
+        String pureSamlResponse;
         try {
-            return inflate(decode(encodedSamlResponse)).contains("LogoutResponse");
-        } catch (IOException e) {
-            // TODO: Add specific exception
+            decodedSamlResponse = decode(encodedSamlResponse);
+            pureSamlResponse = new String(decodedSamlResponse);
+        } catch (UnsupportedEncodingException e) {
+            //TODO: log exception and create specific one
             throw new RuntimeException(e);
         }
+        try {
+            pureSamlResponse = inflate(decodedSamlResponse);
+        } catch (IOException e) {
+            //TODO: log exception as info
+        }
+        return pureSamlResponse.contains("LogoutResponse");
     }
 
     private String inflate(byte[] decodedBytes) throws IOException {
