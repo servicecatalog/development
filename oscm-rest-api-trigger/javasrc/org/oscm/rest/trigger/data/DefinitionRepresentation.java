@@ -83,6 +83,7 @@ public class DefinitionRepresentation extends Representation implements
 
     private String description;
     private Boolean suspend;
+    private String target_type;
     private String target_url;
     private Owner owner;
     private String action;
@@ -92,12 +93,13 @@ public class DefinitionRepresentation extends Representation implements
     }
 
     public DefinitionRepresentation(Long id, String description,
-            Boolean suspend, String targetURL, String action, Owner owner,
-            Links links) {
+            Boolean suspend, String target_type, String target_url,
+            String action, Owner owner, Links links) {
         super(id);
         this.description = description;
         this.suspend = suspend;
-        this.target_url = targetURL;
+        this.target_type = target_type;
+        this.target_url = target_url;
         this.owner = owner;
         this.action = action;
         this.links = links;
@@ -164,6 +166,15 @@ public class DefinitionRepresentation extends Representation implements
     }
 
     @Override
+    public String getServiceType() {
+        return target_type;
+    }
+
+    public void setServiceType(String target_type) {
+        this.target_type = target_type;
+    }
+
+    @Override
     public String getTargetURL() {
         return target_url;
     }
@@ -189,6 +200,16 @@ public class DefinitionRepresentation extends Representation implements
             throw WebException.badRequest()
                     .property(TriggerCommonParams.PROPERTY_DESCRIPTION)
                     .message(CommonParams.ERROR_BAD_PROPERTY).build();
+        }
+
+        if (target_type != null) {
+            try {
+                TargetType.valueOf(target_type);
+            } catch (IllegalArgumentException e) {
+                throw WebException.badRequest()
+                        .property(TriggerCommonParams.PROPERTY_TARGET_TYPE)
+                        .message(CommonParams.ERROR_BAD_PROPERTY).build();
+            }
         }
 
         if (target_url != null && !ADMValidator.isUrl(target_url)) {

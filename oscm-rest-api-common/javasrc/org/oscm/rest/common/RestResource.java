@@ -105,7 +105,9 @@ public abstract class RestResource {
 
         prepareTag(params, content, true);
 
-        content.setId(params.getId());
+        if (content != null) {
+            content.setId(params.getId());
+        }
 
         backend.put(content, params);
 

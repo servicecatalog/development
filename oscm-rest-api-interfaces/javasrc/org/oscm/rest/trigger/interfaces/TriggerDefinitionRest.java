@@ -15,6 +15,10 @@ package org.oscm.rest.trigger.interfaces;
  */
 public interface TriggerDefinitionRest {
 
+    public enum TargetType {
+        WEB_SERVICE, REST_SERVICE
+    }
+
     public enum Action {
         SUBSCRIBE_TO_SERVICE, UNSUBSCRIBE_FROM_SERVICE, MODIFY_SUBSCRIPTION
     };
@@ -39,6 +43,13 @@ public interface TriggerDefinitionRest {
      * @return the description string
      */
     public String getDescription();
+
+    /**
+     * Gets the target service type of the trigger
+     * 
+     * @return the target service type
+     */
+    public String getServiceType();
 
     /**
      * Gets the target url of the trigger

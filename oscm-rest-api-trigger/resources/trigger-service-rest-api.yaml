@@ -1,5 +1,3 @@
-# this is an example of the Uber API
-# as a demonstration of an API spec in YAML
 swagger: '2.0'
 info:
   title: Trigger Service REST API
@@ -165,12 +163,6 @@ paths:
           required: true
           type: number
           format: long
-        - name: process
-          in: body
-          description: Representation with the comment
-          required: true
-          schema:
-            $ref: '#/definitions/Process'
       tags:
         - Process
       responses:
@@ -237,6 +229,12 @@ definitions:
       suspend:
         type: boolean
         description: if true, process will be suspended
+      target_type:
+        type: string
+        enum:
+          - WEB_SERVICE
+          - REST_SERVICE
+        description: the type of webservices the notification is sent to
       target_url:
         type: string
         format: url
@@ -254,17 +252,17 @@ definitions:
           id:
             type: integer
             format: int64
-            description: ID of the owners organization
+            description: ID of the owners organization (read only)
           description:
             type: string
-            description: Description of the organization
+            description: Description of the organization (read only)
       links:
         type: object
         properties:
           owner_id:
             type: integer
             format: int64
-            description: ID of the owners organization
+            description: ID of the owners organization (read only)
             
   Process:
     type: object

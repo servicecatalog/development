@@ -32,6 +32,7 @@ public class TriggerCommonParams {
     public static final String PROPERTY_DESCRIPTION = "description";
     public static final String PROPERTY_TARGET_URL = "target_url";
     public static final String PROPERTY_ACTION = "action";
+    public static final String PROPERTY_TARGET_TYPE = "target_type";
 
     private TriggerCommonParams() {
     }

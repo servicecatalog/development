@@ -232,11 +232,9 @@ public class RestTriggerResource extends RestResource {
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
         @Consumes(MediaType.APPLICATION_JSON)
         public Response putApprove(@Context Request request,
-                ProcessRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
-            content.setTag("0");
-            return put(request, processBackend.putApprove(), content, params);
+            return put(request, processBackend.putApprove(), null, params);
         }
 
         /**
@@ -259,34 +257,9 @@ public class RestTriggerResource extends RestResource {
                 ProcessRepresentation content,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
-            content.setTag("0");
             return put(request, processBackend.putReject(), content, params);
         }
 
-        // /**
-        // * Cancels the process with the given id and forwards the given
-        // comment.
-        // *
-        // * @param request
-        // * the request context
-        // * @param content
-        // * the representation with the comment
-        // * @param params
-        // * the request parameters
-        // * @return the response without content
-        // * @throws WebApplicationException
-        // */
-        // @Since(CommonParams.VERSION_1)
-        // @PUT
-        // @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_CANCEL)
-        // @Consumes(MediaType.APPLICATION_JSON)
-        // public Response putCancel(@Context Request request,
-        // ProcessRepresentation content,
-        // @InjectParam TriggerParameters params)
-        // throws WebApplicationException {
-        // content.setTag("0");
-        // return put(request, processBackend.putCancel(), content, params);
-        // }
     }
 
     /**

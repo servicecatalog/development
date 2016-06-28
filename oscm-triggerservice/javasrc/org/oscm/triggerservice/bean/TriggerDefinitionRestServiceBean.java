@@ -305,6 +305,11 @@ public class TriggerDefinitionRestServiceBean implements
             vo.setName(definition.getDescription());
         }
 
+        if (definition.getServiceType() != null) {
+            vo.setTargetType(TriggerTargetType.valueOf(definition
+                    .getServiceType()));
+        }
+
         if (definition.getTargetURL() != null) {
             vo.setTarget(definition.getTargetURL());
         }
@@ -316,8 +321,6 @@ public class TriggerDefinitionRestServiceBean implements
         if (definition.getAction() != null) {
             vo.setType(TriggerType.valueOf(definition.getAction()));
         }
-
-        vo.setTargetType(TriggerTargetType.REST_SERVICE);
 
         return vo;
     }
