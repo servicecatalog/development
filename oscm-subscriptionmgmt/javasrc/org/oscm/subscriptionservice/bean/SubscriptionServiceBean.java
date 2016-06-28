@@ -7,17 +7,7 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
@@ -53,7 +43,6 @@ import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingContact;
 import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.OnBehalfUserReference;
 import org.oscm.domobjects.OperationParameter;
@@ -95,7 +84,6 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationStatus;
@@ -109,16 +97,6 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DomainObjectException;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.InvalidPhraseException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.MandatoryUdaMissingException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
 import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
 import org.oscm.internal.vo.VOBillingContact;
@@ -5436,12 +5414,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
      */
     private Collection<Long> getFilteredOutSubscriptionKeys(String filterValue) throws InvalidPhraseException, ObjectNotFoundException {
         return subscriptionSearchService.searchSubscriptions(filterValue);
-    }
-
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    private List<Subscription> getSubscriptionsForUserInt(PlatformUser user,
-                                                          org.oscm.paginator.Pagination pagination, String filterValue) {
-        return getSubscriptionDao().getSubscriptionsForUserWithSubscriptionKeys(user, pagination, Collections.<Long>emptySet());
     }
 
     @Override
