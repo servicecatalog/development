@@ -128,18 +128,17 @@ public class IdPLogoutFilter implements Filter {
                         ((HttpServletResponse) response).sendRedirect(forwardUrl);
                         return;
                     }
+                    if (httpRequest
+                            .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
+                        redirector.forward(httpRequest, httpResponse,
+                                BaseBean.ERROR_PAGE);
+                        return;
+                    }
+
+                    httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
+                            Boolean.FALSE);
                 }
             }
-
-            if (httpRequest
-                    .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
-                redirector.forward(httpRequest, httpResponse,
-                        BaseBean.ERROR_PAGE);
-                return;
-            }
-
-            httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
-                    Boolean.FALSE);
         }
 
         chain.doFilter(request, response);

@@ -40,21 +40,4 @@ public interface SamlService {
 
     String createSamlResponse(String requestId);
 
-    /**
-     * Creates a SAML logout request based on the requesting user ID and
-     * session ID of the identity provider. Used in Single Sign On/Single Log Out scenario.
-     * <p>
-     * Logout request is sent to the identity provider, which then checks its validity and
-     * kills the corresponding session. The assertion is digitally signed to protect it
-     * against modifications.
-     * <p>
-     * Required role: none
-     *
-     * @param idpSessionIndex - session index of the identity provider (receiver of the request)
-     * @param nameID - unique identifier of the user registered with the identity provider.
-     *
-     * @return signed SAML LogoutRequest
-     */
-    String generateLogoutRequest(String idpSessionIndex, String nameID) throws SaaSApplicationException;
-
 }

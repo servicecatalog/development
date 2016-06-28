@@ -11,9 +11,6 @@ package org.oscm.ui.filter;
 import java.io.IOException;
 
 import javax.ejb.EJB;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -24,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.logging.Log4jLogger;
@@ -39,6 +35,10 @@ import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
+
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.*;
+import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_LOGOUT_URL;
+import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
 
 /**
  * @author farmaki
@@ -55,8 +55,10 @@ public class IdPResponseFilter implements Filter {
     private SAMLResponseExtractor samlResponseExtractor;
     private SessionBean sessionBean;
 
-    @EJB(mappedName = "saml2Bean")
-    private SamlService samlService;
+    private LogoutRequestGenerator logoutRequestGenerator;
+
+    @EJB
+    private ConfigurationService configurationService;
 
 
     @Override
@@ -67,6 +69,7 @@ public class IdPResponseFilter implements Filter {
 
         authSettings = getAuthenticationSettings();
         samlResponseExtractor = getSamlResponseExtractor();
+        logoutRequestGenerator = new LogoutRequestGenerator();
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
@@ -107,13 +110,7 @@ public class IdPResponseFilter implements Filter {
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
                 try {
                     if (samlResponseExtractor.isFromLogin(samlResponse)) {
-                        String samlSessionId = getSamlResponseExtractor()
-                                .getSessionIndex(samlResponse);
-                        String nameID = getSamlResponseExtractor()
-                                .getUserId(samlResponse);
-                        String logoutRequest = getSamlService()
-                                .generateLogoutRequest(samlSessionId, nameID);
-                        ((HttpServletRequest) request).getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
+                        buildSAMLLogoutRequestAndStoreInSession((HttpServletRequest) request, samlResponse);
                     }
                     String relayState = httpRequest.getParameter("RelayState");
                     if (relayState != null) {
@@ -147,6 +144,16 @@ public class IdPResponseFilter implements Filter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    protected void buildSAMLLogoutRequestAndStoreInSession(HttpServletRequest request, String samlResponse) throws SaaSApplicationException {
+        String samlSessionId = getSamlResponseExtractor()
+                .getSessionIndex(samlResponse);
+        String nameID = getSamlResponseExtractor()
+                .getUserId(samlResponse);
+        String logoutRequest = logoutRequestGenerator
+                .generateLogoutRequest(samlSessionId, nameID, getLogoutURL(), getKeystorePath(), getIssuer(), getKeyAlias(), getKeystorePass());
+        request.getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
     }
 
     String getForwardUrl(HttpServletRequest httpRequest, String relayState) {
@@ -256,7 +263,24 @@ public class IdPResponseFilter implements Filter {
         this.authSettings = authSettings;
     }
 
-    public SamlService getSamlService() {
-        return samlService;
+
+    public String getKeystorePass() {
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
+    }
+
+    public String getKeyAlias() {
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEY_ALIAS, GLOBAL_CONTEXT).getValue();
+    }
+
+    public String getIssuer() {
+        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
+    }
+
+    public String getKeystorePath() {
+        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
+    }
+
+    public String getLogoutURL() {
+        return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
     }
 }

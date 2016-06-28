@@ -42,9 +42,6 @@
     <ejb>oscm-subscriptionmgmt.jar</ejb>
   </module>
   <module>
-    <ejb>oscm-saml2-service-impl.jar</ejb>
-  </module>
-  <module>
     <ejb>oscm-accountmgmt.jar</ejb>
   </module>
   <module>

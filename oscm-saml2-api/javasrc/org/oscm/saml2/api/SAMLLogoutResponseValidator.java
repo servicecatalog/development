@@ -20,7 +20,8 @@ import org.oscm.internal.types.exception.SAML2StatusCodeInvalidException;
  */
 public class SAMLLogoutResponseValidator {
 
-    SAMLResponseExtractor samlResponseExtractor;
+    SAMLResponseExtractor
+            samlResponseExtractor = new SAMLResponseExtractor();
 
     private final List<String> saml2ErrorStatusCodes = Arrays
             .asList(new String[] { "Requester", "Responder", "VersionMismatch",
@@ -35,25 +36,15 @@ public class SAMLLogoutResponseValidator {
 
     public boolean responseStatusCodeSuccessful(String encodedSamlResponse)
             throws SAML2StatusCodeInvalidException {
-        samlResponseExtractor = new SAMLResponseExtractor();
         final String statusCode = samlResponseExtractor.getSAMLLogoutResponseStatusCode(
                 encodedSamlResponse);
         if (isSuccessful(statusCode)) {
             return true;
-        } else if (errorInLogoutResponse(statusCode)) {
+        } else if (saml2ErrorStatusCodes.contains(statusCode)) {
             return false;
         } else {
             throw new SAML2StatusCodeInvalidException();
         }
-    }
-
-    private boolean errorInLogoutResponse(String samlLogoutResponseStatus) {
-        for (String status : saml2ErrorStatusCodes) {
-            if (status.equalsIgnoreCase(samlLogoutResponseStatus)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private boolean isSuccessful(String statusCode) {

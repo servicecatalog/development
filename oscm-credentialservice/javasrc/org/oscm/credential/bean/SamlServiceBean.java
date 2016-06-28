@@ -16,32 +16,20 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 
-import org.oscm.internal.types.exception.UnsupportedOperationException;
-import org.w3c.dom.Element;
-
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.saml.api.Assertion;
-import org.oscm.saml.api.AuthenticationStatement;
-import org.oscm.saml.api.AuthenticationStatement.AuthenticationMethod;
-import org.oscm.saml.api.Conditions;
-import org.oscm.saml.api.NameIdentifier;
-import org.oscm.saml.api.Response;
-import org.oscm.saml.api.ResponseParser;
-import org.oscm.saml.api.SamlEncoder;
-import org.oscm.saml.api.SamlSigner;
-import org.oscm.saml.api.Status;
-import org.oscm.saml.api.Status.FirstLevelStatusCode;
-import org.oscm.saml.api.Subject;
-import org.oscm.saml.api.SubjectConfirmation;
-import org.oscm.saml.api.SubjectConfirmation.ConfirmationMethod;
-import org.oscm.types.constants.Configuration;
-import org.oscm.validation.Invariants;
 import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.saml.api.*;
+import org.oscm.saml.api.AuthenticationStatement.AuthenticationMethod;
+import org.oscm.saml.api.Status.FirstLevelStatusCode;
+import org.oscm.saml.api.SubjectConfirmation.ConfirmationMethod;
+import org.oscm.types.constants.Configuration;
+import org.oscm.validation.Invariants;
+import org.w3c.dom.Element;
 
 @Stateless
 @Remote(SamlService.class)
@@ -72,11 +60,6 @@ public class SamlServiceBean implements SamlService {
                 keyLoader.getPrivateKey(), keyLoader.getPublicCertificate());
         responseString = SamlEncoder.encodeBase64(responseString);
         return responseString;
-    }
-
-    @Override
-    public String generateLogoutRequest(String idpSessionIndex, String nameID) {
-        throw new UnsupportedOperationException("Implementation of the logout is provided for SAML 2.0 version only");
     }
 
     static String signSamlResponse(String samlResponse, PrivateKey privateKey,

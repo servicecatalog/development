@@ -2,7 +2,7 @@
  *
  *  Copyright FUJITSU LIMITED 2016
  *
- *  Creation Date: 24.06.16 11:17
+ *  Creation Date: 28.06.16 08:31
  *
  ******************************************************************************/
 package org.oscm.saml2;
@@ -18,8 +18,8 @@ import java.security.spec.InvalidKeySpecException;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.saml2.api.SamlKeyLoader;
 
 /**
  * Created by PLGrubskiM on 2016-06-24.

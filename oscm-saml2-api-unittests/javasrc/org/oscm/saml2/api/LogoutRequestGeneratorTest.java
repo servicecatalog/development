@@ -8,39 +8,35 @@
 
 package org.oscm.saml2.api;
 
-import junit.framework.Assert;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
-
-import static org.mockito.Mockito.*;
 
 /**
  * Added by @chojnackid
  */
-@RunWith(MockitoJUnitRunner.class)
 public class LogoutRequestGeneratorTest {
 
     LogoutRequestGenerator classUnderStress;
 
-    @Mock
-    private SamlService mock;
-
     @Before
     public void setup() throws SaaSApplicationException {
-        doReturn("").when(mock).generateLogoutRequest("", "");
         classUnderStress = new LogoutRequestGenerator();
-        classUnderStress.setSamlService(mock);
     }
 
     @Test
     public void generateLogoutRequestTest() throws SaaSApplicationException {
-        String URL = classUnderStress.generateLogoutRequest("", "");
-        Assert.assertNotNull(URL);
-        verify(mock, times(1)).generateLogoutRequest("", "");
+
+
+        String result = classUnderStress.generateLogoutRequest("", "", "", "", "", "", "");
+
+        assertTrue(result.length() != 0);
+    }
+
+    @Test(expected = SaaSApplicationException.class)
+    public void generateLogoutRequestWithoutKeystoreTest() throws SaaSApplicationException {
+        classUnderStress.generateLogoutRequest("", "", "", "aaa", "", "", "");
     }
 }

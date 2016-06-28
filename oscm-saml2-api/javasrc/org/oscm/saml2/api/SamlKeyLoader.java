@@ -2,24 +2,17 @@
  *
  *  Copyright FUJITSU LIMITED 2016
  *
- *  Creation Date: 23.06.16 13:57
+ *  Creation Date: 28.06.16 08:10
  *
  ******************************************************************************/
 
-package org.oscm.saml2;
+package org.oscm.saml2.api;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.security.Key;
-import java.security.KeyFactory;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.UnrecoverableKeyException;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
