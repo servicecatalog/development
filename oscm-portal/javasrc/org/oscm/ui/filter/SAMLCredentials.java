@@ -58,7 +58,7 @@ public class SAMLCredentials {
                 getLogger()
                         .logError(
                                 LogMessageIdentifier.ERROR_GET_USER_FROM_SAML_RESPONSE_FAILED,
-                                getSAMLResponse().decode(response));
+                                new String(getSAMLResponse().decode(response)));
             } catch (UnsupportedEncodingException e1) {
                 getLogger().logError(
                         LogMessageIdentifier.ERROR_DECODE_SAML_RESPONSE_FAILED,
@@ -87,7 +87,7 @@ public class SAMLCredentials {
 
         String password = "";
         try {
-            String decodedSamlResponse = getSAMLResponse().decode(response);
+            String decodedSamlResponse = new String(getSAMLResponse().decode(response));
             password = "UI" + requestId + decodedSamlResponse;
         } catch (UnsupportedEncodingException e) {
             getLogger().logError(
