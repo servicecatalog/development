@@ -246,26 +246,26 @@ public class SAMLResponseExtractor {
 
     public boolean isFromLogout(String encodedSamlResponse) {
         try {
-            return decode(inflate(encodedSamlResponse)).contains("LogoutResponse");
+            return inflate(decode(encodedSamlResponse)).contains("LogoutResponse");
         } catch (IOException e) {
             // TODO: Add specific exception
             throw new RuntimeException(e);
         }
     }
 
-    private String inflate(String encodedSamlResponse) throws IOException {
-        ByteArrayOutputStream deflatedBytes = new ByteArrayOutputStream();
+    private String inflate(String decodedBytes) throws IOException {
+        ByteArrayOutputStream inflatedBytes = new ByteArrayOutputStream();
         Inflater inflater = new Inflater(true);
-        InflaterOutputStream inflaterStream = new InflaterOutputStream(deflatedBytes, inflater);
-        inflaterStream.write(encodedSamlResponse.getBytes());
+        InflaterOutputStream inflaterStream = new InflaterOutputStream(inflatedBytes, inflater);
+        inflaterStream.write(decodedBytes.getBytes());
         inflaterStream.finish();
-        return inflaterStream.toString();
+        return new String(inflatedBytes.toByteArray());
     }
 
     public String getSAMLLogoutResponseStatusCode(String encodedSamlResponse) {
         Document document;
         try {
-            document = XMLConverter.convertToDocument(decode(inflate(encodedSamlResponse)),
+            document = XMLConverter.convertToDocument(inflate(decode(encodedSamlResponse)),
                     true);
             String resultWithNameSpace = XMLConverter.getNodeTextContentByXPath(document,
                     STATUS_LOGOUT_RESPONSE_SAML2_XPATH_EXPR);
