@@ -20,14 +20,13 @@ import java.util.UUID;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
-import javax.ejb.EJB;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
-import org.oscm.internal.intf.SamlService;
+
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
