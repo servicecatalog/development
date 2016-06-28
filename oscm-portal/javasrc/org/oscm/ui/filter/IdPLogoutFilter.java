@@ -95,7 +95,6 @@ public class IdPLogoutFilter implements Filter {
                 httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                         Boolean.TRUE);
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
-                HttpSession currentSession = httpRequest.getSession();
 
                 if (samlResponseExtractor.isFromLogout(samlResponse)) {
                     try {
@@ -107,6 +106,7 @@ public class IdPLogoutFilter implements Filter {
                                     BaseBean.ERROR_PAGE);
                             return;
                         }
+                        HttpSession currentSession = httpRequest.getSession();
                         getSsl().deletePlatformSession(currentSession.getId());
                         currentSession.invalidate();
                         httpRequest.removeAttribute("SAMLResponse");

@@ -26,11 +26,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang3.StringUtils;
 
 import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 
 /**
  * @author mgrubski
@@ -39,8 +36,6 @@ public class LogoutRequestGenerator {
 
     private static final String UTF_8 = "UTF-8";
     private static final String FORMAT = "http://schemas.xmlsoap.org/claims/UPN";
-    private static final Log4jLogger LOGGER = LoggerFactory
-            .getLogger(LogoutRequestGenerator.class);
 
     /**
      * Creates SAML LogoutRequest as per SAML 2.0 protocol specification.
@@ -54,12 +49,6 @@ public class LogoutRequestGenerator {
      */
     public String generateLogoutRequest(String idpSessionIndex, String nameID, String logoutURL, String keystorePath, String issuer, String keyAlias, String keystorePass) throws SaaSApplicationException {
         try {
-            LOGGER.logDebug("Im trying to generate SAML logout request with the following properties: "
-                    + " logoutURL: " + logoutURL
-                    + " keystorePath: " + keystorePath
-                    + " keyAlias: " + keyAlias
-                    + " issuer: " + issuer
-            );
             return getRequest(logoutURL, nameID, FORMAT, idpSessionIndex,
                     keystorePath, issuer, keyAlias, keystorePass);
         } catch (XMLStreamException | IOException | GeneralSecurityException e) {
@@ -91,7 +80,6 @@ public class LogoutRequestGenerator {
     private String concatenateFullLogoutURL(String logoutUrl, String base64AndURLEncoded, String finalSignatureValue, String appender) {
         String fullLogoutURL = logoutUrl + appender + "SAMLRequest=" + getRidOfCRLF(base64AndURLEncoded) + finalSignatureValue;
 
-        LOGGER.logDebug("The logoutURL generated is: " + fullLogoutURL);
         return fullLogoutURL;
     }
 
@@ -105,7 +93,7 @@ public class LogoutRequestGenerator {
     }
 
     private String signRequestIfNeeded(String keyPath, String keyAlias, String keystorePass, String base64AndURLEncoded, String finalSignatureValue) throws NoSuchAlgorithmException, InvalidKeyException, SaaSApplicationException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, SignatureException {
-        if (StringUtils.isNotEmpty(keyPath)) {
+        if (keyPath != null && !"".equals(keyPath)) {
             String encodedSigAlg = URLEncoder.encode("http://www.w3.org/2000/09/xmldsig#rsa-sha1", UTF_8);
 
             Signature signature = Signature.getInstance("SHA1withRSA");
@@ -154,7 +142,6 @@ public class LogoutRequestGenerator {
         writer.writeEndElement();
         writer.flush();
 
-        LOGGER.logDebug("The unsigned SAML envelope is: " + new String( baos.toByteArray(), UTF_8 ));
         return baos;
     }
 
