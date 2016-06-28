@@ -19,6 +19,9 @@
     <ui:include src="priceModelDetails.xhtml">
               <ui:param name="formName2" value="configurationForm2" />
     </ui:include>
+    <h:outputText styleClass="recommendedPrice right"
+      value="#{msg['service.recommendedRetailPrice']}"
+      rendered="#{model.service.reseller and model.service.priceModel.chargeable}" />
     </h:form>
   </rich:popupPanel>
 </ui:composition>
