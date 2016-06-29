@@ -227,10 +227,8 @@
 			<clickLink htmlId="buyme" />
 			<clickElement htmlId="getItForLoggedUser" />
 			<setInputField htmlId="configurationForm:subscriptionIdText" value="Trial Subscription" />
-			<!-- Check if Tab with external price model details is shown -->
-			<verifyXPath xpath="//td[@data-tabname='tabExternalPriceModel']" />
-			<!-- Check if [Display] button is shown -->
-			<verifyXPath xpath="//a[contains(@name, 'displayExternalPriceModelButton')]" />
+			<!-- Check if [Show price model] link is shown -->
+			<verifyXPath xpath="//a[contains(@id, 'externalPriceModelLink')]" />
 			<!-- Verify ther is no payment step -> Next step moves to Confirmation page directly -->
 			<clickButton name="configurationForm:next" />
 			<mpl_verify.subscriptionProgress currentStep="Confirmation" />

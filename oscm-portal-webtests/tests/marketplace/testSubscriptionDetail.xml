@@ -71,7 +71,7 @@
       <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
       <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
       
-      <clickElement htmlId="configurationForm2:nextLink" />
+      <clickElement htmlId="configurationForm:nextLink" />
       <mpl_user.selectBillingContact />
       <setSelectField htmlId="payment:selectPaymentInfo" optionIndex="1" />
       <clickLink htmlId="payment:nextLink" />
@@ -98,17 +98,14 @@
       <!-- Verify role specific prices displays in service details -->
       <mpl_login.user mid="${mId}" userId="${supplierUserId}" />
       <clickLink htmlId="showDetails2" />
-
-      <mpl_goto.tab label="${service.priceModel}" /> 
-      <verifyElementText htmlId="roleTable:0:roleDescription" text="Administrator"/>
-      
       <clickLink htmlId="getItForLoggedUser" />
-      
       <!-- Verify role specific prices displays for subscribe -->
-      <mpl_goto.tab label="${service.priceModel}" /> 
+      <clickLink xpath="//a[@id='priceModelModalLink']"/>
+      <verifyXPath xpath="//form[@id='configurationForm2']"/>
       <verifyElementText htmlId="configurationForm2:roleTable:0:roleDescription" text="Administrator"/>
+      <clickElement xpath="//input[@id='closePriceModelButton']" />
       
-      <clickElement htmlId="configurationForm2:nextLink" />
+      <clickElement htmlId="configurationForm:nextLink" />
       <clickLink htmlId="payment:newBillingContact" />
       <setInputField htmlId="billingContactPanelForm:companyName" value="companyName" />
       <setInputField htmlId="billingContactPanelForm:displayName" value="displayName" />
@@ -154,7 +151,7 @@
       <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//th[normalize-space(text())='${priceModel.steppedPrice.limit}']" />
       <verifyXPath xpath="//*[@id='configurationForm2:parameterTable']//*[contains(@id,'parameterSteppedPriceNoLimit') and normalize-space(text())='${priceModel.steppedPrice.noLimit}']" />
  		
-	  <clickLink htmlId="configurationForm2:nextLink" />
+	  <clickLink htmlId="configurationForm:nextLink" />
       <clickLink htmlId="payment:newBillingContact" />
       <setInputField htmlId="billingContactPanelForm:companyName" value="companyName" />
       <setInputField htmlId="billingContactPanelForm:displayName" value="displayName" />
