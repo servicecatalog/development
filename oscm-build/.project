@@ -3,7 +3,6 @@
 	<name>oscm-build</name>
 	<comment></comment>
 	<projects>
-		<project>oscm-rest-api-interfaces</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
