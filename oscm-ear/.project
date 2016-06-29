@@ -66,7 +66,6 @@
 		<project>oscm-taskhandling-intsvc</project>
 		<project>oscm-tenantprovisioning</project>
 		<project>oscm-timermgmt</project>
-		<project>oscm-trigger-interfaces</project>
 		<project>oscm-triggerservice</project>
 		<project>oscm-triggerservice-intsvc</project>
 		<project>oscm-usergroupmgmt</project>
