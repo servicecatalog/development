@@ -36,8 +36,4 @@ delete from hibernate_sequences where sequence_name = 'RoleAssignmentHistory';
 delete from hibernate_sequences where sequence_name = 'OnBehalfUserReferenceHistory';
 delete from hibernate_sequences where sequence_name = 'TriggerDefinitionHistory';
 delete from hibernate_sequences where sequence_name = 'TriggerProcessHistory';
-<<<<<<< 9bf05347ee81e9c640f30a35976be67d6daa811e
 delete from hibernate_sequences where sequence_name = 'PaymentResultHistory';
-=======
-delete from hibernate_sequences where sequence_name = 'PaymentResultHistory';
->>>>>>> Merge branch 'master' into fb_omit_payment

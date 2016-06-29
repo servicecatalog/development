@@ -27,8 +27,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -36,10 +34,6 @@ import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.triggerservice.assembler.TriggerDefinitionAssembler;
-import org.oscm.triggerservice.local.TriggerDefinitionServiceLocal;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validation.ArgumentValidator;
 import org.oscm.internal.intf.TriggerDefinitionService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.TriggerType;
@@ -54,6 +48,12 @@ import org.oscm.internal.types.exception.TriggerDefinitionDataException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOTriggerDefinition;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.triggerservice.assembler.TriggerDefinitionAssembler;
+import org.oscm.triggerservice.local.TriggerDefinitionServiceLocal;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validation.ArgumentValidator;
 
 /**
  * Session Bean implementation class of TriggerDefinitionService
@@ -127,8 +127,9 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
                 .getOrganization().getKey()) {
             OperationNotPermittedException ex = new OperationNotPermittedException(
                     "The client has no authority for the operation.");
-            logger.logInfo(Log4jLogger.SYSTEM_LOG, 
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE_REJECT, ex.getMessage());
+            logger.logInfo(Log4jLogger.SYSTEM_LOG,
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE,
+                    ex.getMessage());
             throw ex;
         }
     }

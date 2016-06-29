@@ -62,7 +62,8 @@ public class GsonMessageProvider implements MessageBodyWriter<Representation>,
 
         } catch (JsonSyntaxException e) {
             throw WebException.badRequest()
-                    .message(CommonParams.ERROR_JSON_FORMAT).build();
+                    .message(CommonParams.ERROR_JSON_FORMAT)
+                    .moreInfo(e.getMessage()).build();
 
         } finally {
             reader.close();

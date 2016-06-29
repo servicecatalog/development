@@ -244,7 +244,7 @@ public class TriggerDefinitionRestServiceBean implements
                     "The client has no authority for the operation."
                             + triggerDefinition.getKey());
             logger.logInfo(Log4jLogger.SYSTEM_LOG,
-                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE_REJECT,
+                    LogMessageIdentifier.ERROR_NO_AUTHORITY_TO_APPROVE,
                     ex.getMessage());
             throw ex;
         }

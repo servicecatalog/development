@@ -1,3 +1,4 @@
+# Copyright FUJITSU LIMITED 2016
 swagger: '2.0'
 info:
   title: Notification Service REST API
@@ -8,6 +9,7 @@ info:
 host: oscm.org
 # array of all schemes that your API supports
 schemes:
+  - http
   - https
 # will be prefixed to all paths
 basePath: /target_path

@@ -213,7 +213,6 @@ public class SubscriptionDao {
         return query.getResultList();
     }
 
-    @Deprecated
     @SuppressWarnings("unchecked")
     List<BigInteger> getSubscriptionIdsForVendorsForUdaDefs(PlatformUser user,
                                                           Set<SubscriptionStatus> states, String queryString,

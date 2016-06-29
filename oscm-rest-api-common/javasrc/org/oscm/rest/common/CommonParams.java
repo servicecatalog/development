@@ -64,6 +64,7 @@ public class CommonParams {
     public static final String ERROR_LOGIN_FAILED = "Authentication failed";
     public static final String ERROR_TAG_MISSING = "'etag' property in body or 'If-Match' header parameter is missing";
     public static final String ERROR_NOT_AUTHORIZED = "User is not authorized for the operation";
+    public static final String ERROR_MISSING_CONTENT = "No Content in request while expected";
 
     private CommonParams() {
     }

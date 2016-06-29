@@ -110,6 +110,7 @@ public class DefinitionRepresentation extends Representation implements
         setTag(definition.getTag());
         this.description = definition.getDescription();
         this.suspend = definition.isSuspending();
+        this.target_type = definition.getServiceType();
         this.target_url = definition.getTargetURL();
         this.action = definition.getAction();
         if (definition.getOwner() != null) {

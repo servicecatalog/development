@@ -1,3 +1,4 @@
+# Copyright FUJITSU LIMITED 2016
 swagger: '2.0'
 info:
   title: Trigger Service REST API
@@ -43,7 +44,7 @@ paths:
             $ref: '#/definitions/Error'
     post:
       summary: Trigger Definition
-      description: Creates a new trigger defintion
+      description: Creates a new trigger definition within the users organization
       parameters:
         - name: trigger
           in: body
@@ -58,7 +59,7 @@ paths:
           description: Created
           headers:
             location:
-              description: ID of the the new trigger defintion
+              description: ID of the the new trigger definition
               type: integer
         403:
           description: Insufficient permissions
@@ -67,7 +68,7 @@ paths:
   /triggers/{id}:
     get:
       summary: Trigger Definition
-      description: Gets the trigger defintion with the given ID.
+      description: Gets the trigger definition with the given ID.
       parameters:
         - name: id
           in: path
@@ -92,7 +93,7 @@ paths:
             $ref: '#/definitions/Error'
     put:
       summary: Trigger Definition
-      description: Updates the trigger defintion with the given ID
+      description: Updates the trigger definition with the given ID
       parameters:
         - name: id
           in: path
@@ -130,7 +131,7 @@ paths:
             $ref: '#/definitions/Error'
     delete:
       summary: Trigger Definition
-      description: Updates the trigger defintion with the given ID
+      description: Updates the trigger definition with the given ID
       parameters:
         - name: id
           in: path
@@ -214,6 +215,12 @@ paths:
 definitions:
   Trigger:
     type: object
+    required:
+      - description
+      - suspend
+      - target_type
+      - target_url
+      - action
     properties:
       id:
         type: integer
@@ -266,6 +273,8 @@ definitions:
             
   Process:
     type: object
+    required:
+      - comment
     properties:
       id:
         type: integer

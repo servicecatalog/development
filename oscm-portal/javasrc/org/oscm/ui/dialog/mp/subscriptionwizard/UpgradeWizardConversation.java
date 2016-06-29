@@ -453,6 +453,9 @@ public class UpgradeWizardConversation implements Serializable {
             }
         }
         model.setReadOnlyParams(true);
+        if (isPaymentConfigurationHidden()) {
+            return OUTCOME_SUCCESS;
+        }
         if (svc != null && svc.getPriceModel().isChargeable()) {
             return OUTCOME_ENTER_PAYMENT;
         }

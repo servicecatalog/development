@@ -220,8 +220,6 @@ public class RestTriggerResource extends RestResource {
          * 
          * @param request
          *            the request context
-         * @param content
-         *            the representation with the comment
          * @param params
          *            the request parameters
          * @return the response without content
@@ -230,11 +228,11 @@ public class RestTriggerResource extends RestResource {
         @Since(CommonParams.VERSION_1)
         @PUT
         @Path(CommonParams.PATH_ID + TriggerCommonParams.PATH_TRIGGER_APPROVE)
-        @Consumes(MediaType.APPLICATION_JSON)
         public Response putApprove(@Context Request request,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
-            return put(request, processBackend.putApprove(), null, params);
+            return put(request, processBackend.putApprove(),
+                    new ProcessRepresentation(), params);
         }
 
         /**

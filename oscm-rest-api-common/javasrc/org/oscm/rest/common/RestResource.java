@@ -43,7 +43,7 @@ public abstract class RestResource {
 
         int version = getVersion(request);
 
-        prepareData(version, params, id, null);
+        prepareData(version, params, id, null, false);
 
         Representation item = backend.get(params);
 
@@ -71,7 +71,7 @@ public abstract class RestResource {
 
         int version = getVersion(request);
 
-        prepareData(version, params, false, content);
+        prepareData(version, params, false, content, true);
 
         Object newId = backend.post(content, params);
 
@@ -84,7 +84,8 @@ public abstract class RestResource {
 
     /**
      * Wrapper for backend PUT commands. Prepares, validates and revises data
-     * for commands and assembles responses.
+     * for commands and assembles responses. Also overrides the id of the
+     * representation with the id of the parameters.
      * 
      * @param request
      *            the request context
@@ -101,7 +102,7 @@ public abstract class RestResource {
 
         int version = getVersion(request);
 
-        prepareData(version, params, true, content);
+        prepareData(version, params, true, content, true);
 
         prepareTag(params, content, true);
 
@@ -131,7 +132,7 @@ public abstract class RestResource {
 
         int version = getVersion(request);
 
-        prepareData(version, params, true, null);
+        prepareData(version, params, true, null, false);
 
         backend.delete(params);
 
@@ -174,7 +175,8 @@ public abstract class RestResource {
      * @throws WebApplicationException
      */
     protected void prepareData(int version, RequestParameters params,
-            boolean withId, Representation rep) throws WebApplicationException {
+            boolean withId, Representation rep, boolean withRep)
+            throws WebApplicationException {
 
         if (withId) {
             params.validateId();
@@ -186,7 +188,13 @@ public abstract class RestResource {
         params.setVersion(version);
         params.update();
 
-        if (rep != null) {
+        if (withRep) {
+
+            if (rep == null) {
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_MISSING_CONTENT).build();
+            }
+
             rep.validateContent();
 
             rep.setVersion(new Integer(version));
