@@ -11,6 +11,8 @@
 package org.oscm.ui.dialog.classic.marketplace;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
@@ -159,6 +161,42 @@ public class ManageAccessCtrlTest {
         // then
         verify(marketplaceService, times(1)).openMarketplace(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
+    }
+    
+    @Test
+    public void testChangeOrganizationAccessOrgNotSelected(){
+        
+        //given
+        model.setChangedKey(10005L);
+        model.setChangedSelection(false);
+        model.setChangedHasSubscriptions(true);
+        model.getAccessesSelected().put(10005L, true);
+        model.getOrganizationsWithSubscriptionsToSuspend().clear();
+        
+        //when
+        ctrl.changeOrganizationAccess();
+        
+        //then
+        assertFalse(model.getOrganizationsWithSubscriptionsToSuspend().isEmpty());
+        assertTrue(model.isShowSubscriptionSuspendingWarning());
+    }
+    
+    @Test
+    public void testChangeOrganizationAccessOrgSelected(){
+        
+        //given
+        model.setChangedKey(10005L);
+        model.setChangedSelection(true);
+        model.setChangedHasSubscriptions(true);
+        model.getAccessesSelected().put(10005L, true);
+        model.getOrganizationsWithSubscriptionsToSuspend().clear();
+        
+        //when
+        ctrl.changeOrganizationAccess();
+        
+        //then
+        assertTrue(model.getOrganizationsWithSubscriptionsToSuspend().isEmpty());
+        assertFalse(model.isShowSubscriptionSuspendingWarning());
     }
 
     private void setupValuesForSaveAction(boolean restrictMarketplace)
