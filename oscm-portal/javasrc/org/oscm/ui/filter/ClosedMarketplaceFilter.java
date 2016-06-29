@@ -10,6 +10,7 @@ package org.oscm.ui.filter;
 
 import java.io.IOException;
 
+import javax.security.auth.login.LoginException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -100,6 +101,8 @@ public class ClosedMarketplaceFilter implements Filter {
                 }
 
             } catch (ObjectNotFoundException e) {
+                e.printStackTrace();
+            } catch (LoginException e) {
                 e.printStackTrace();
             }
         }

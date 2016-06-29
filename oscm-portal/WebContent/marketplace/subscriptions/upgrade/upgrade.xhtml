@@ -116,7 +116,6 @@
             </h:form>
           </rich:tab>
 
-
           <!-- TAB: PRICE MODEL -->
           <rich:tab header="#{msg['service.priceModel']}" id="priceModelTab"
                     rendered="#{upgradeWizardConversation.model.service.priceModel.chargeable}"
@@ -137,11 +136,9 @@
                 style="float: right;" keepDirty="true" />
             </h:form>
           </rich:tab>
+
         </rich:tabPanel>
       </mp:subscriptionProcess>
-
-      <h:outputText styleClass="recommendedPrice right" value="#{msg['service.recommendedRetailPrice']}"
-                    rendered="#{upgradeWizardConversation.model.service.reseller and upgradeWizardConversation.model.service.priceModel.chargeable}" />
     </a4j:outputPanel>
   </ui:define>
 </ui:composition>

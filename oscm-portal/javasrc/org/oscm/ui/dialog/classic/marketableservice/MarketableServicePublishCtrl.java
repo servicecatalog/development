@@ -16,6 +16,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.intf.CategorizationService;
@@ -514,9 +515,14 @@ public class MarketableServicePublishCtrl extends BaseBean
             String orgName = customerService.getOrganizationName();
             String orgId = customerService.getOrganizationId();
 
-            boolean isAccessible = mplService
-                    .doesOrganizationHaveAccessMarketplace(
-                            mpl.getMarketplaceId(), orgId);
+            boolean isAccessible = false;
+            try {
+                isAccessible = mplService
+                        .doesOrganizationHaveAccessMarketplace(
+                                mpl.getMarketplaceId(), orgId);
+            } catch (LoginException e) {
+                e.printStackTrace();
+            }
 
             if (!isAccessible) {
                 displayWarnMsg = true;

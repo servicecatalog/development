@@ -330,7 +330,18 @@ public class IndexRequestMasterListener extends
         indexSubscriptions(fullTextSession);
         indexParameters(fullTextSession);
         indexUdas(fullTextSession);
+        indexUdaDefs(fullTextSession);
         tx.commit(); // index is written at commit time
+    }
+
+    protected void indexUdaDefs(FullTextSession fullTextSession) {
+        org.hibernate.Query objectQuery = fullTextSession
+                .createQuery("SELECT udaD FROM UdaDefinition udaD, Uda uda where " +
+                        "udaD.dataContainer.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.dataContainer.configurationType!='SUPPLIER' and " +
+                        "uda.dataContainer.udaValue!='' and udaD.dataContainer.defaultValue!=''");
+        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
+        indexObject(fullTextSession, results);
+        results.close();
     }
 
     protected void indexSubscriptions(FullTextSession fullTextSession) {

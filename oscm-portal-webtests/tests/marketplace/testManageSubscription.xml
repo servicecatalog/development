@@ -473,9 +473,11 @@
       <!-- Bug 10050 correct edit configuration link during upgrade -->
       <clickLink xpath="//form[@id='confirmForm']//a[@id='confirmForm:editConfigurationLink']" />
       <verifyAndUpdateParameterOption form="configurationForm" name="Maximum storage (4GB)" isEditable="true" />
-      <clickElement xpath=".//*/span [contains(./text(), 'Price model')]" />
+      <clickLink xpath="//a[@id='priceModelModalLink']"/>
+      <verifyXPath xpath="//form[@id='configurationForm2']"/>
       <verifyAndUpdateParameterOption form="configurationForm2" name="Maximum storage (4GB)" isEditable="false" />
-      <clickLink htmlId="configurationForm2:nextLink" />
+      <clickElement xpath="//input[@id='closePriceModelButton']" />
+      <clickLink htmlId="configurationForm:nextLink" />
       <verifyXPath xpath="//a[@id='payment:nextLink']" />
       <clickLink htmlId="payment:nextLink" />
 
