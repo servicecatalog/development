@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.oscm.internal.intf.SamlService;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
@@ -215,6 +216,7 @@ public class IdPResponseFilterTest {
         assertFalse(idpFilter.containsSamlResponse(requestMock));
     }
 
+    @Ignore
     @Test
     public void testFilter() throws Exception {
 
