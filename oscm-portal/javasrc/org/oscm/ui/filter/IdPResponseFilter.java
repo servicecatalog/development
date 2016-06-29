@@ -111,14 +111,14 @@ public class IdPResponseFilter implements Filter {
                 try {
                     if (samlResponseExtractor.isFromLogin(samlResponse)) {
                         buildSAMLLogoutRequestAndStoreInSession((HttpServletRequest) request, samlResponse);
-                    }
-                    String relayState = httpRequest.getParameter("RelayState");
-                    if (relayState != null) {
-                        String forwardUrl = getForwardUrl(httpRequest,
-                                relayState);
-                        redirector.forward(httpRequest, httpResponse,
-                                forwardUrl);
-                        return;
+                        String relayState = httpRequest.getParameter("RelayState");
+                        if (relayState != null) {
+                            String forwardUrl = getForwardUrl(httpRequest,
+                                    relayState);
+                            redirector.forward(httpRequest, httpResponse,
+                                    forwardUrl);
+                            return;
+                        }
                     }
                 } catch (SessionIndexNotFoundException e) {
                     LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
