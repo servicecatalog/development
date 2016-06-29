@@ -458,8 +458,8 @@ public abstract class BaseBesFilter implements Filter {
             for (String paramsKey : paramsKeys) {
                 if (paramsKey.equalsIgnoreCase("SAMLResponse")) {
                     continue;
-                }
-                paramString = paramsKey + "=" + paramMap.get(paramsKey) + "&";
+                }//TODO
+                paramString += paramsKey + "=" + paramMap.get(paramsKey)[0] + "&";
             }
             if (paramString.startsWith("?")) {
                 return forwardUrl;

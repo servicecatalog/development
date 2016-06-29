@@ -287,12 +287,21 @@ public class SAMLResponseExtractor {
 
 
     public boolean isFromLogin(String samlResponse) {
+        byte[] decodedSamlResponse;
+        String pureSamlResponse;
         try {
-            final String decodedSamlResp = new String(decode(samlResponse));
-            return decodedSamlResp.contains("samlp:Response") && decodedSamlResp.contains("SessionIndex");
-        } catch (IOException e) {
-            // TODO: Add specific exception
+            decodedSamlResponse = decode(samlResponse);
+            pureSamlResponse = new String(decodedSamlResponse);
+        } catch (UnsupportedEncodingException e) {
+            //TODO: log exception and create specific one
             throw new RuntimeException(e);
         }
+        try {
+            pureSamlResponse = inflate(decodedSamlResponse);
+        } catch (IOException e) {
+            //TODO: log exception as info
+        }
+        return pureSamlResponse.contains("samlp:Response") && pureSamlResponse.contains("SessionIndex");
+
     }
 }
