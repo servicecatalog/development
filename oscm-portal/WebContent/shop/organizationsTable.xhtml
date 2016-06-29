@@ -28,7 +28,7 @@
             </a4j:outputPanel>
           </f:facet>
           <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}" styleClass="checkbox-in-table"
-            onchange="changeOrganizationAccess(#{rowItem.key}, $(this)[0].checked, #{rowItem.hasSubscriptions});">
+            onchange="setDirty(true);changeOrganizationAccess(#{rowItem.key}, $(this)[0].checked, #{rowItem.hasSubscriptions});">
           </h:selectBooleanCheckbox>
 
           <a4j:jsFunction name="changeOrganizationAccess" action="#{manageAccessCtrl.changeOrganizationAccess}">
