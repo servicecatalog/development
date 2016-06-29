@@ -158,10 +158,8 @@ public class SAMLResponseExtractorTest {
 
     @Test
     public void getStatusCodeFromLogoutResponse() throws Exception {
-        // given
-        String response = getEncodedIdpResponse(FILE_UNSIGNED_LOGOUT_RESPONSE);
         // when
-        String statusCode = samlResponse.getSAMLLogoutResponseStatusCode(response);
+        String statusCode = samlResponse.getSAMLLogoutResponseStatusCode(encodedSamlLogoutResponseFromADFS);
 
         // then
         assertEquals("Success", statusCode);
