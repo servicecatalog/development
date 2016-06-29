@@ -24,6 +24,7 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
@@ -557,8 +558,12 @@ public class ServicePagingBean extends BaseBean implements Serializable {
         if (voUserDetails == null) {
             return false;
         }
-        if (marketplaceService.doesOrganizationHaveAccessMarketplace(marketplaceId, voUserDetails.getOrganizationId())) {
-            return true;
+        try {
+            if (marketplaceService.doesOrganizationHaveAccessMarketplace(marketplaceId, voUserDetails.getOrganizationId())) {
+                return true;
+            }
+        } catch (LoginException e) {
+            throw new ObjectNotFoundException();
         }
         return false;
     }

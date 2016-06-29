@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
+import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -603,5 +604,5 @@ public interface MarketplaceService {
      * @throws ObjectNotFoundException
      */
     boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
-            String organizationId) throws ObjectNotFoundException;
+            String organizationId) throws LoginException;
 }

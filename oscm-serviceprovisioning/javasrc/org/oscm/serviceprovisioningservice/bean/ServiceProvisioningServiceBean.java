@@ -2363,16 +2363,6 @@ public class ServiceProvisioningServiceBean
                 voPriceModel.getKey(), oldPriceModelType);
     }
 
-    void setPriceModelToExternal(VOPriceModel voPriceModel,
-            PriceModel priceModel) {
-        PriceModelType oldPriceModelType = priceModel.getType();
-        PriceModelHandler priceModelHandler = new PriceModelHandler(dm,
-                priceModel, DateFactory.getInstance().getTransactionTime());
-        priceModelHandler.resetToNonChargeable(PriceModelType.UNKNOWN);
-        priceModelAudit.editPriceModelTypeToFree(dm, priceModel,
-                voPriceModel.getKey(), oldPriceModelType);
-    }
-
     private Product copyCustomerProduct(Organization targetCustomer,
             PlatformUser currentUser, Product product) {
         product = product.copyForCustomer(targetCustomer);

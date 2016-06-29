@@ -232,7 +232,7 @@ public class BaseBean {
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
     public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
-    
+
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
     public static final String WARNING_SUPPORTEDLANGUAGE_LOCALE_INVALID = "warning.supportedlanguage.locale.invalid";
@@ -242,6 +242,7 @@ public class BaseBean {
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
     public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
+
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -969,7 +970,7 @@ public class BaseBean {
 
     /**
      * Check whether current userRoles in the session and in EJB session context
-     * are the same or not。
+     * are the same or not?
      * 
      * @return true if the current user role is changed
      */
@@ -1126,6 +1127,15 @@ public class BaseBean {
     protected void writeContentToResponse(byte[] content, String filename,
             String contentType) throws IOException {
         JSFUtils.writeContentToResponse(content, filename, contentType);
+    }
+
+    /**
+     * Delegates to
+     * {@link JSFUtils#writeContentToResponse(byte[], String, String, FacesContext)}
+     */
+    protected void writeContentToResponse(byte[] content, String filename,
+            String contentType, FacesContext fc) throws IOException {
+        JSFUtils.writeContentToResponse(content, filename, contentType, fc);
     }
 
     FacesContext getFacesContext() {
