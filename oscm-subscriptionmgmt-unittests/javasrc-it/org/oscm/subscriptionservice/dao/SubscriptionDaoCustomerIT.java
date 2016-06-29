@@ -258,6 +258,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         // then
         assertEquals(1, result.size());
         assertEquals(1, result1.size());
+
         assertEquals(sub1.getKey(), result.get(0).longValue());
 
     }
@@ -387,6 +388,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
         user.setUserId(id);
         user.setOrganization(org);
         user.setLocale("en");
+
         RoleAssignment roleAssign = new RoleAssignment();
         roleAssign.setUser(user);
         roleAssign.setRole(new UserRole(roleType));

@@ -347,6 +347,8 @@ public class PageAuthorizationBuilder {
         // === MARKETPLACE =====================================================
         this.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_CATEGORIES,
                 MenuBean.LINK_SHOP_MANAGE_CATEGORIES, MARKETPLACE_OWNER);
+        this.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_ACCESS,
+                MenuBean.LINK_SHOP_MANAGE_ACCESS, MARKETPLACE_OWNER);
         this.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
                 MenuBean.LINK_SHOP_MANAGE_SUPPLIERS, MARKETPLACE_OWNER);
         this.addItem(HiddenUIConstants.MENU_ITEM_MARKETPLACE_CREATE,

@@ -209,8 +209,8 @@ import org.oscm.vo.BaseAssembler;
 @Local(ServiceProvisioningServiceLocal.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class,
         AuditLogDataInterceptor.class })
-public class ServiceProvisioningServiceBean implements
-        ServiceProvisioningService, ServiceProvisioningServiceLocal {
+public class ServiceProvisioningServiceBean
+        implements ServiceProvisioningService, ServiceProvisioningServiceLocal {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(ServiceProvisioningServiceBean.class);
@@ -294,16 +294,16 @@ public class ServiceProvisioningServiceBean implements
 
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
 
-        Query query = dm
-                .createNamedQuery("Product.getProductsForCustomerOnMarketplace");
+        Query query = dm.createNamedQuery(
+                "Product.getProductsForCustomerOnMarketplace");
         query.setParameter("customer", dm.getCurrentUser().getOrganization());
         query.setParameter("marketplaceId", marketplaceId);
         List<Product> productList = filterProducts(
                 ParameterizedTypes.list(query.getResultList(), Product.class),
                 marketplaceId);
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         ProductAssembler.prefetchData(productList, facade, performanceHint);
         List<VOService> voServices = new ArrayList<VOService>();
         for (Product product : productList) {
@@ -316,8 +316,8 @@ public class ServiceProvisioningServiceBean implements
 
     @Override
     public VOServiceEntry getServiceForMarketplace(Long serviceKey,
-            String marketplaceId, String locale)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+            String marketplaceId, String locale) throws ObjectNotFoundException,
+                    OperationNotPermittedException {
 
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
         ArgumentValidator.notNull("serviceKey", serviceKey);
@@ -325,8 +325,8 @@ public class ServiceProvisioningServiceBean implements
         String localizerLocale;
         boolean subscriptionLimitReached = false;
 
-        Product product = dm
-                .getReference(Product.class, serviceKey.longValue());
+        Product product = dm.getReference(Product.class,
+                serviceKey.longValue());
 
         // Check if the product is a subscription copy
         verifyNoSubscriptionCopy(product);
@@ -359,7 +359,8 @@ public class ServiceProvisioningServiceBean implements
                     // The current product is a customer specific product (CSP)
                     // for this customer
                     if (product.getStatus() == ServiceStatus.ACTIVE
-                            || (product.getStatus() == ServiceStatus.SUSPENDED && returnSuspended)) {
+                            || (product.getStatus() == ServiceStatus.SUSPENDED
+                                    && returnSuspended)) {
                         Product template = product.getTemplate();
                         if (!existsCatalogEntryForMarketplace(template,
                                 marketplaceId)) {
@@ -375,8 +376,7 @@ public class ServiceProvisioningServiceBean implements
                     OperationNotPermittedException onp = new OperationNotPermittedException(
                             "User is not allowed to access customer specific product.");
                     logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                            onp,
+                            Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                             LogMessageIdentifier.WARN_ACCESS_PRODUCT_FAILED_NOT_TARGET_CUSTOMER,
                             currentUser.getUserId(),
                             Long.toString(product.getKey()));
@@ -396,7 +396,8 @@ public class ServiceProvisioningServiceBean implements
                     // There is a CSP for the current product, check if we can
                     // use it
                     if (customerCopy.getStatus() == ServiceStatus.ACTIVE
-                            || (product.getStatus() == ServiceStatus.SUSPENDED && returnSuspended)) {
+                            || (product.getStatus() == ServiceStatus.SUSPENDED
+                                    && returnSuspended)) {
                         // The product is active => use it
                         product = customerCopy;
                     } else {
@@ -407,7 +408,8 @@ public class ServiceProvisioningServiceBean implements
                 } else {
                     // No CSP available
                     if (product.getStatus() != ServiceStatus.ACTIVE
-                            && !(product.getStatus() == ServiceStatus.SUSPENDED && returnSuspended)) {
+                            && !(product.getStatus() == ServiceStatus.SUSPENDED
+                                    && returnSuspended)) {
                         return null;
                     }
                 }
@@ -450,15 +452,15 @@ public class ServiceProvisioningServiceBean implements
                 // Not in the public catalog
                 return null;
             }
-            if (catalogEntry.getMarketplace() == null
-                    || !marketplaceId.equals(catalogEntry.getMarketplace()
-                            .getMarketplaceId())) {
+            if (catalogEntry.getMarketplace() == null || !marketplaceId
+                    .equals(catalogEntry.getMarketplace().getMarketplaceId())) {
                 // Not published to any/the correct marketplace
                 return null;
             }
         }
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, localizerLocale);
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                localizerLocale);
         VOServiceEntry result = ProductAssembler.toVOServiceEntry(product,
                 facade, subscriptionLimitReached);
 
@@ -469,8 +471,8 @@ public class ServiceProvisioningServiceBean implements
         Query query = dm.createNamedQuery("Product.getCopyForCustomer");
         query.setParameter("template", template);
         query.setParameter("customer", customer);
-        List<Product> resultList = ParameterizedTypes.list(
-                query.getResultList(), Product.class);
+        List<Product> resultList = ParameterizedTypes
+                .list(query.getResultList(), Product.class);
         if (resultList.size() <= 0) {
             return null;
         }
@@ -520,8 +522,8 @@ public class ServiceProvisioningServiceBean implements
     boolean existsCatalogEntryForMarketplace(Product product,
             String marketplaceId) {
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
-        return getCatalogEntryForMarketplace(product, marketplaceId) != null ? true
-                : false;
+        return getCatalogEntryForMarketplace(product, marketplaceId) != null
+                ? true : false;
     }
 
     /**
@@ -546,7 +548,8 @@ public class ServiceProvisioningServiceBean implements
             Product template = product.getTemplate();
             boolean replaceTemplate = false;
             if (product.getStatus() != ServiceStatus.ACTIVE
-                    && !(currentOrgIsMpOwner && product.getStatus() == ServiceStatus.SUSPENDED)) {
+                    && !(currentOrgIsMpOwner && product
+                            .getStatus() == ServiceStatus.SUSPENDED)) {
                 // remove the customer specific product if not visible to the
                 // customer
                 prodKeysToBeRemoved.add(Long.valueOf(product.getKey()));
@@ -566,10 +569,10 @@ public class ServiceProvisioningServiceBean implements
                 prodKeysToBeRemoved.add(Long.valueOf(product.getKey()));
                 replaceTemplate = true;
             }
-            if (template != null
-                    && !replaceTemplate
+            if (template != null && !replaceTemplate
                     && template.getStatus() != ServiceStatus.ACTIVE
-                    && !(currentOrgIsMpOwner && template.getStatus() == ServiceStatus.SUSPENDED)) {
+                    && !(currentOrgIsMpOwner && template
+                            .getStatus() == ServiceStatus.SUSPENDED)) {
                 // if the template isn't visible to the customer and won't be
                 // replaced, remove it
                 prodKeysToBeRemoved.add(Long.valueOf(template.getKey()));
@@ -619,7 +622,8 @@ public class ServiceProvisioningServiceBean implements
 
     @Override
     public List<VOService> getRelatedServicesForMarketplace(VOService service,
-            String marketplaceId, String locale) throws ObjectNotFoundException {
+            String marketplaceId, String locale)
+                    throws ObjectNotFoundException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notEmptyString("marketplaceId", marketplaceId);
@@ -640,8 +644,8 @@ public class ServiceProvisioningServiceBean implements
                 localizerLocale = locale;
             }
 
-            query = dm
-                    .createNamedQuery("Product.getRelatedProductsForMarketplace");
+            query = dm.createNamedQuery(
+                    "Product.getRelatedProductsForMarketplace");
             query.setParameter("customer", currentUsersOrg);
             query.setParameter("marketplaceId", marketplaceId);
             query.setParameter("technicalProduct", prod.getTechnicalProduct());
@@ -650,8 +654,8 @@ public class ServiceProvisioningServiceBean implements
             ArgumentValidator.notNull("locale", locale);
             localizerLocale = locale;
 
-            query = dm
-                    .createNamedQuery("Product.getRelatedPublicProductsForMarketplace");
+            query = dm.createNamedQuery(
+                    "Product.getRelatedPublicProductsForMarketplace");
             query.setParameter("marketplaceId", marketplaceId);
             query.setParameter("technicalProduct", prod.getTechnicalProduct());
             query.setParameter("vendor", prod.getVendor());
@@ -665,7 +669,8 @@ public class ServiceProvisioningServiceBean implements
         resultList.remove(prod);
 
         // Build the VO list
-        LocalizerFacade facade = new LocalizerFacade(localizer, localizerLocale);
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                localizerLocale);
         for (Product product : resultList) {
             voList.add(ProductAssembler.toVOProduct(product, facade));
         }
@@ -687,8 +692,8 @@ public class ServiceProvisioningServiceBean implements
     @Override
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public boolean isSubscriptionLimitReached(Product product) {
-        if (dm.getCurrentUserIfPresent() != null
-                && product.getTechnicalProduct().isOnlyOneSubscriptionAllowed()) {
+        if (dm.getCurrentUserIfPresent() != null && product
+                .getTechnicalProduct().isOnlyOneSubscriptionAllowed()) {
             return hasOneSubscription(product);
         }
         return false;
@@ -701,14 +706,16 @@ public class ServiceProvisioningServiceBean implements
     }
 
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
-    public List<VOService> getSuppliedServices(PerformanceHint performanceHint) {
+    public List<VOService> getSuppliedServices(
+            PerformanceHint performanceHint) {
 
         Organization currentUsersOrg = dm.getCurrentUser().getOrganization();
-        EnumSet<ServiceType> serviceTypes = getServiceTypesForOrg(currentUsersOrg);
+        EnumSet<ServiceType> serviceTypes = getServiceTypesForOrg(
+                currentUsersOrg);
         List<Product> productList = getProductsOfSupplier(currentUsersOrg,
                 serviceTypes);
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         ProductAssembler.prefetchData(productList, facade, performanceHint);
         List<VOService> voList = new ArrayList<VOService>();
         for (Product product : productList) {
@@ -832,8 +839,8 @@ public class ServiceProvisioningServiceBean implements
                 user);
 
         // Update visibility (if catalog entries are given)
-        TriggerProcessParameter tpCatEntries = tp
-                .getParamValueForName(TriggerProcessParameterName.CATALOG_ENTRIES);
+        TriggerProcessParameter tpCatEntries = tp.getParamValueForName(
+                TriggerProcessParameterName.CATALOG_ENTRIES);
         if (tpCatEntries != null) {
             List<VOCatalogEntry> entries = ParameterizedTypes.list(
                     tpCatEntries.getValue(List.class), VOCatalogEntry.class);
@@ -878,9 +885,7 @@ public class ServiceProvisioningServiceBean implements
         if (priceModel == null) {
             ServiceOperationException sof = new ServiceOperationException(
                     ServiceOperationException.Reason.MISSING_PRICE_MODEL);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    sof,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, sof,
                     LogMessageIdentifier.WARN_PRODUCT_AVTIVATION_FAILED_MISSING_PRICE_MODEL,
                     Long.toString(prod.getKey()));
             throw sof;
@@ -893,8 +898,7 @@ public class ServiceProvisioningServiceBean implements
                     ServiceNotPublishedException snp = new ServiceNotPublishedException(
                             params);
                     logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                            snp,
+                            Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, snp,
                             LogMessageIdentifier.WARN_PRODUCT_AVTIVATION_FAILED_NOT_PUBLISHED_MARKETPLACE,
                             Long.toString(prod.getKey()));
                     throw snp;
@@ -907,10 +911,11 @@ public class ServiceProvisioningServiceBean implements
             TechnicalServiceNotAliveException ex = new TechnicalServiceNotAliveException(
                     TechnicalServiceNotAliveException.Reason.SUPPLIER,
                     new Object[] { prod.getTechnicalProduct()
-                            .getTechnicalProductId() }, e);
+                            .getTechnicalProductId() },
+                    e);
             logger.logWarn(Log4jLogger.SYSTEM_LOG, ex,
-                    LogMessageIdentifier.WARN_TECH_SERVICE_NOT_AVAILABLE, prod
-                            .getTechnicalProduct().getTechnicalProductId());
+                    LogMessageIdentifier.WARN_TECH_SERVICE_NOT_AVAILABLE,
+                    prod.getTechnicalProduct().getTechnicalProductId());
             throw ex;
         }
 
@@ -967,15 +972,16 @@ public class ServiceProvisioningServiceBean implements
             OrganizationAuthoritiesException, OperationNotPermittedException,
             ServiceOperationException, ConcurrentModificationException {
 
-        VOService product = tp.getParamValueForName(
-                TriggerProcessParameterName.PRODUCT).getValue(VOService.class);
+        VOService product = tp
+                .getParamValueForName(TriggerProcessParameterName.PRODUCT)
+                .getValue(VOService.class);
         Product prod = dm.getReference(Product.class, product.getKey());
         setStatus(prod, product, ServiceStatus.INACTIVE, ServiceStatus.ACTIVE,
                 tp.getUser());
 
         // Update visibility (if catalog entries are given)
-        TriggerProcessParameter tpCatEntries = tp
-                .getParamValueForName(TriggerProcessParameterName.CATALOG_ENTRIES);
+        TriggerProcessParameter tpCatEntries = tp.getParamValueForName(
+                TriggerProcessParameterName.CATALOG_ENTRIES);
         if (tpCatEntries != null) {
             List<VOCatalogEntry> entries = ParameterizedTypes.list(
                     tpCatEntries.getValue(List.class), VOCatalogEntry.class);
@@ -985,10 +991,10 @@ public class ServiceProvisioningServiceBean implements
             }
         }
 
-        triggerQS.sendAllNonSuspendingMessages(TriggerMessage.create(
-                TriggerType.DEACTIVATE_SERVICE, tp
-                        .getTriggerProcessParameters(), dm.getCurrentUser()
-                        .getOrganization()));
+        triggerQS.sendAllNonSuspendingMessages(
+                TriggerMessage.create(TriggerType.DEACTIVATE_SERVICE,
+                        tp.getTriggerProcessParameters(),
+                        dm.getCurrentUser().getOrganization()));
 
     }
 
@@ -1016,7 +1022,7 @@ public class ServiceProvisioningServiceBean implements
     private void setStatus(Product prod, VOService product,
             ServiceStatus newStatus, ServiceStatus requiredState,
             PlatformUser user) throws ServiceStateException,
-            OperationNotPermittedException, ServiceOperationException {
+                    OperationNotPermittedException, ServiceOperationException {
         validateForProductStatusChange(prod, product, newStatus, requiredState,
                 user);
         if (prod.getStatus() != newStatus) {
@@ -1045,11 +1051,10 @@ public class ServiceProvisioningServiceBean implements
      *             Thrown in case the product state change fails as the current
      *             product state does not allow the intended modification.
      */
-    private void validateForProductStatusChange(Product prod,
-            VOService product, ServiceStatus newStatus,
-            ServiceStatus requiredState, PlatformUser user)
-            throws OperationNotPermittedException, ServiceOperationException,
-            ServiceStateException {
+    private void validateForProductStatusChange(Product prod, VOService product,
+            ServiceStatus newStatus, ServiceStatus requiredState,
+            PlatformUser user) throws OperationNotPermittedException,
+                    ServiceOperationException, ServiceStateException {
         Organization organization = user.getOrganization();
 
         // ensure the product belongs to the supplier
@@ -1057,9 +1062,7 @@ public class ServiceProvisioningServiceBean implements
         if (prod.getOwningSubscription() != null) {
             ServiceOperationException pof = new ServiceOperationException(
                     Reason.STATE_CHANGE_FAILED_USED_BY_SUB);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    pof,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, pof,
                     LogMessageIdentifier.WARN_SUPPLIER_CHANGE_SUBSCRIPTION_STATE_FAILED,
                     Long.toString(organization.getKey()),
                     Long.toString(product.getKey()));
@@ -1067,13 +1070,15 @@ public class ServiceProvisioningServiceBean implements
         }
         if (prod.getStatus() != newStatus) {
             if (requiredState != null && prod.getStatus() != requiredState) {
-                throw new ServiceStateException(requiredState, prod.getStatus());
+                throw new ServiceStateException(requiredState,
+                        prod.getStatus());
             }
         }
     }
 
     private List<TechnicalProduct> getTechnicalProductsInt(
-            Organization organization, OrganizationRoleType organizationRoleType) {
+            Organization organization,
+            OrganizationRoleType organizationRoleType) {
         List<TechnicalProduct> tProds = new ArrayList<TechnicalProduct>();
         if (organizationRoleType == OrganizationRoleType.SUPPLIER) {
             // retrieve the technical products of all referenced technology
@@ -1083,7 +1088,8 @@ public class ServiceProvisioningServiceBean implements
             for (Organization provider : providers) {
                 tProds.addAll(provider.getTechnicalProducts());
             }
-        } else if (organizationRoleType == OrganizationRoleType.TECHNOLOGY_PROVIDER) {
+        } else
+            if (organizationRoleType == OrganizationRoleType.TECHNOLOGY_PROVIDER) {
             // retrieve the technical products of the current user's
             // organization
             tProds.addAll(organization.getTechnicalProducts());
@@ -1128,18 +1134,19 @@ public class ServiceProvisioningServiceBean implements
         // convert the objects to value objects
         if (performanceHint == PerformanceHint.ONLY_IDENTIFYING_FIELDS) {
             for (TechnicalProduct tProd : tProds) {
-                result.add(TechnicalProductAssembler.toVOTechnicalProduct(
-                        tProd, null, null, null, false,
+                result.add(TechnicalProductAssembler.toVOTechnicalProduct(tProd,
+                        null, null, null, false,
                         PerformanceHint.ONLY_IDENTIFYING_FIELDS));
             }
         } else {
             LocalizerFacade facade = new LocalizerFacade(localizer,
                     currentUser.getLocale());
             for (TechnicalProduct tProd : tProds) {
-                List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(tProd);
+                List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(
+                        tProd);
                 List<Event> platformEvents = getPlatformEvents(tProd);
-                result.add(TechnicalProductAssembler.toVOTechnicalProduct(
-                        tProd, paramDefs, platformEvents, facade,
+                result.add(TechnicalProductAssembler.toVOTechnicalProduct(tProd,
+                        paramDefs, platformEvents, facade,
                         excludeNonConfigurableParamDefs));
             }
         }
@@ -1149,9 +1156,9 @@ public class ServiceProvisioningServiceBean implements
 
     @Override
     public void validateTechnicalServiceCommunication(
-            VOTechnicalService technicalService)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            TechnicalServiceNotAliveException {
+            VOTechnicalService technicalService) throws ObjectNotFoundException,
+                    OperationNotPermittedException,
+                    TechnicalServiceNotAliveException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -1167,8 +1174,8 @@ public class ServiceProvisioningServiceBean implements
         boolean accessable = false;
         if (currentUserOrg.hasRole(OrganizationRoleType.TECHNOLOGY_PROVIDER)) {
             accessable = getTechnicalProductsInt(currentUserOrg,
-                    OrganizationRoleType.TECHNOLOGY_PROVIDER).contains(
-                    techProduct);
+                    OrganizationRoleType.TECHNOLOGY_PROVIDER)
+                            .contains(techProduct);
         }
         if (!accessable
                 && currentUserOrg.hasRole(OrganizationRoleType.SUPPLIER)) {
@@ -1179,9 +1186,7 @@ public class ServiceProvisioningServiceBean implements
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "User is not permitted to access the technical product '"
                             + technicalService.getKey() + "'.");
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    onp,
+            logger.logError(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                     LogMessageIdentifier.ERROR_USER_ACCESS_TECHNICAL_PRODUCT_NOT_PERMITTED,
                     Long.toString(technicalService.getKey()));
             throw onp;
@@ -1243,7 +1248,7 @@ public class ServiceProvisioningServiceBean implements
     void verifyTechnicalServiceIsUpToDate(VOTechnicalService technicalService,
             final TechnicalProduct technicalProduct,
             boolean ignoreNonConfigurableParameters)
-            throws ConcurrentModificationException {
+                    throws ConcurrentModificationException {
         BaseAssembler.verifyVersionAndKey(technicalProduct, technicalService);
 
         List<Event> events = technicalProduct.getEvents();
@@ -1296,7 +1301,7 @@ public class ServiceProvisioningServiceBean implements
      */
     private void verifyListConsistency(List<? extends BaseVO> voList,
             List<? extends DomainObject<?>> doList)
-            throws ConcurrentModificationException {
+                    throws ConcurrentModificationException {
         Map<Long, DomainObject<?>> keyToDomainObject = new HashMap<Long, DomainObject<?>>();
         for (DomainObject<?> domainObject : doList) {
             keyToDomainObject.put(Long.valueOf(domainObject.getKey()),
@@ -1328,9 +1333,10 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails createService(VOTechnicalService technicalService,
             VOService service, VOImageResource voImageResource)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            NonUniqueBusinessKeyException, ConcurrentModificationException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, OperationNotPermittedException,
+                    ValidationException, NonUniqueBusinessKeyException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
         ArgumentValidator.notNull("service", service);
@@ -1354,14 +1360,15 @@ public class ServiceProvisioningServiceBean implements
 
         processImage(product.getKey(), voImageResource);
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
 
         VOServiceDetails createdProduct = getServiceDetails(product, facade);
 
-        serviceAudit.defineService(dm, product, technicalService
-                .getTechnicalServiceId(), service.getShortDescription(),
-                service.getDescription(), dm.getCurrentUser().getLocale());
+        serviceAudit.defineService(dm, product,
+                technicalService.getTechnicalServiceId(),
+                service.getShortDescription(), service.getDescription(),
+                dm.getCurrentUser().getLocale());
 
         return createdProduct;
     }
@@ -1370,33 +1377,36 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails updateService(VOServiceDetails service,
             VOImageResource imageResource) throws ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ValidationException, NonUniqueBusinessKeyException,
-            ServiceStateException, ConcurrentModificationException {
+                    OrganizationAuthoritiesException,
+                    OperationNotPermittedException, ValidationException,
+                    NonUniqueBusinessKeyException, ServiceStateException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
 
-        Product storedService = dm
-                .getReference(Product.class, service.getKey());
-        List<Product> customerProducts = getCustomerSpecificCopyProducts(storedService);
+        Product storedService = dm.getReference(Product.class,
+                service.getKey());
+        List<Product> customerProducts = getCustomerSpecificCopyProducts(
+                storedService);
         validateProductStatus(customerProducts);
 
-        Product product = prepareMarketingProduct(storedService
-                .getTechnicalProduct().getKey(), service, false);
+        Product product = prepareMarketingProduct(
+                storedService.getTechnicalProduct().getKey(), service, false);
         processImage(product.getKey(), imageResource);
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails createdProduct = getServiceDetails(product, facade);
 
         if (service.getVersion() < createdProduct.getVersion()
                 || isLocalizedTextChanged) {
             serviceAudit.updateService(dm, storedService,
-                    isShortDescriptionChanged, isDescriptionChanged, dm
-                            .getCurrentUser().getLocale());
+                    isShortDescriptionChanged, isDescriptionChanged,
+                    dm.getCurrentUser().getLocale());
         }
 
-        updateCustomerSpecificService(product, customerProducts, createdProduct);
+        updateCustomerSpecificService(product, customerProducts,
+                createdProduct);
 
         return createdProduct;
     }
@@ -1411,10 +1421,10 @@ public class ServiceProvisioningServiceBean implements
 
     void updateCustomerSpecificService(Product templateProduct,
             List<Product> customerProducts, VOServiceDetails createdProduct)
-            throws ValidationException {
+                    throws ValidationException {
         for (Product prod : customerProducts) {
-            Product product = ProductAssembler.updateCustomerTemplateProduct(
-                    prod, createdProduct);
+            Product product = ProductAssembler
+                    .updateCustomerTemplateProduct(prod, createdProduct);
             updateParametersForCustomerTemplate(templateProduct, product);
             dm.flush();
         }
@@ -1445,12 +1455,12 @@ public class ServiceProvisioningServiceBean implements
         List<Parameter> customerTemplateParameters = customerTemplateParameterSet
                 .getParameters();
         for (Parameter param : templateParameterSet.getParameters()) {
-            final Parameter oldParam = obsoleteParameters.remove(Long
-                    .valueOf(param.getParameterDefinition().getKey()));
+            final Parameter oldParam = obsoleteParameters.remove(
+                    Long.valueOf(param.getParameterDefinition().getKey()));
             if (oldParam == null) {
                 // add new param
-                customerTemplateParameters.add(param
-                        .copy(customerTemplateParameterSet));
+                customerTemplateParameters
+                        .add(param.copy(customerTemplateParameterSet));
             } else {
                 // update param
                 if (isDifferentFromExistingValue(param, oldParam)) {
@@ -1476,7 +1486,8 @@ public class ServiceProvisioningServiceBean implements
     public VOServiceDetails getServiceDetails(Product product,
             LocalizerFacade facade) {
         TechnicalProduct tp = product.getTechnicalProduct();
-        List<ParameterDefinition> platformParameters = getPlatformParameterDefinitions(tp);
+        List<ParameterDefinition> platformParameters = getPlatformParameterDefinitions(
+                tp);
         List<Event> platformEvents = getPlatformEvents(tp);
         VOServiceDetails createdProduct = ProductAssembler.toVOProductDetails(
                 product, platformParameters, platformEvents,
@@ -1519,9 +1530,10 @@ public class ServiceProvisioningServiceBean implements
      */
     private Product prepareMarketingProduct(long technicalProductKey,
             VOService productToModify, boolean isCreation)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            ValidationException, NonUniqueBusinessKeyException,
-            ServiceStateException, ConcurrentModificationException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException, ValidationException,
+                    NonUniqueBusinessKeyException, ServiceStateException,
+                    ConcurrentModificationException {
 
         // 1. ensure that caller has required authority
         PlatformUser currentUser = dm.getCurrentUser();
@@ -1543,10 +1555,9 @@ public class ServiceProvisioningServiceBean implements
                     tProd, currentUserOrg);
         } else {
             product = dm.getReference(Product.class, productToModify.getKey());
-            ProductValidator
-                    .validateInactiveOrSuspended(
-                            ProductAssembler.getProductId(product),
-                            product.getStatus());
+            ProductValidator.validateInactiveOrSuspended(
+                    ProductAssembler.getProductId(product),
+                    product.getStatus());
             oldProductId = product.getProductId();
             if (!oldProductId.equals(productToModify.getServiceId())) {
                 validateChangedId(productToModify.getServiceId(),
@@ -1645,8 +1656,8 @@ public class ServiceProvisioningServiceBean implements
         return product;
     }
 
-    private void validateChangedId(String serviceId, Organization currentUserOrg)
-            throws NonUniqueBusinessKeyException {
+    private void validateChangedId(String serviceId,
+            Organization currentUserOrg) throws NonUniqueBusinessKeyException {
         Product productTmpl = new Product();
         productTmpl.setVendor(currentUserOrg);
         productTmpl.setProductId(serviceId);
@@ -1727,9 +1738,10 @@ public class ServiceProvisioningServiceBean implements
     private List<Parameter> modifyParameters(VOService productToModify,
             PlatformUser currentUser, TechnicalProduct tProd, Product product,
             boolean isCreation) throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            ConcurrentModificationException {
-        boolean isDirectAccess = tProd.getAccessType() == ServiceAccessType.DIRECT;
+                    OperationNotPermittedException, ValidationException,
+                    ConcurrentModificationException {
+        boolean isDirectAccess = tProd
+                .getAccessType() == ServiceAccessType.DIRECT;
         List<VOParameter> parameters = productToModify.getParameters();
         ParameterSet currentParameterSet = product.getParameterSet();
         // create a temporary set of all currently existing parameters.
@@ -1759,9 +1771,7 @@ public class ServiceProvisioningServiceBean implements
                             parameter.getParameterDefinition().getKey());
                 } catch (ObjectNotFoundException e) {
                     sessionCtx.setRollbackOnly();
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.WARN_MARKETING_PRODUCT_CREATION_FAILED);
                     throw e;
                 }
@@ -1771,9 +1781,7 @@ public class ServiceProvisioningServiceBean implements
                                     "Cannot create parameter for parameter definition '%s' as the definition is non-configurable! User was: '%s'.",
                                     Long.valueOf(paramDef.getKey()),
                                     Long.valueOf(currentUser.getKey())));
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            onp,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                             LogMessageIdentifier.WARN_NON_CONFIGURABLE_PARAMETER_DEFINITION,
                             String.valueOf(paramDef.getKey()),
                             String.valueOf(currentUser.getKey()));
@@ -1784,15 +1792,14 @@ public class ServiceProvisioningServiceBean implements
                 ParameterAssembler.validateParameter(parameter, paramDef);
                 // now ensure that all product related parameters are really
                 // belonging to the specified technical product
-                if (paramDef.getParameterType() == ParameterType.SERVICE_PARAMETER
+                if (paramDef
+                        .getParameterType() == ParameterType.SERVICE_PARAMETER
                         && paramDef.getTechnicalProduct().getKey() != tProd
                                 .getKey()) {
                     sessionCtx.setRollbackOnly();
                     OperationNotPermittedException onp = new OperationNotPermittedException(
                             "Creation of marketing product failed");
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            onp,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                             LogMessageIdentifier.WARN_MARKETING_PRODUCT_CREATION_FAILED_NOT_ACCESSIBLE_PRODUCT,
                             Long.toString(currentUser.getKey()));
                     throw onp;
@@ -1855,11 +1862,11 @@ public class ServiceProvisioningServiceBean implements
      */
     boolean isDifferentFromDefaultValue(Parameter parameter) {
         String defaultValue = parameter.getParameterDefinition()
-                .getDefaultValue() == null ? "" : parameter
-                .getParameterDefinition().getDefaultValue();
+                .getDefaultValue() == null ? ""
+                        : parameter.getParameterDefinition().getDefaultValue();
         boolean defaultUserOption = false;
-        String inputValue = parameter.getValue() == null ? "" : parameter
-                .getValue();
+        String inputValue = parameter.getValue() == null ? ""
+                : parameter.getValue();
         boolean inputUserOption = parameter.isConfigurable();
         if (defaultValue.equals(inputValue)
                 && defaultUserOption == inputUserOption) {
@@ -1902,16 +1909,16 @@ public class ServiceProvisioningServiceBean implements
                 .equals(ParameterValueType.ENUMERATION)
                 && parameter.getValue() != null
                 && !parameter.getValue().isEmpty()) {
-            parameterValue = localizer.getLocalizedTextFromDatabase(dm
-                    .getCurrentUser().getLocale(), parameter
-                    .getParameterOption(parameter.getValue()).getKey(),
+            parameterValue = localizer.getLocalizedTextFromDatabase(
+                    dm.getCurrentUser().getLocale(),
+                    parameter.getParameterOption(parameter.getValue()).getKey(),
                     LocalizedObjectTypes.OPTION_PARAMETER_DEF_DESC);
         } else {
             parameterValue = parameter.getValue();
         }
-        serviceAudit.updateServiceParameters(dataService, product, parameter
-                .getParameterDefinition().getParameterId(), parameterValue,
-                parameter.isConfigurable());
+        serviceAudit.updateServiceParameters(dataService, product,
+                parameter.getParameterDefinition().getParameterId(),
+                parameterValue, parameter.isConfigurable());
     }
 
     /**
@@ -1928,8 +1935,8 @@ public class ServiceProvisioningServiceBean implements
                 .createNamedQuery("PricedParameter.getForParameter");
         query.setParameter("parameter", parameter);
 
-        List<PricedParameter> list = ParameterizedTypes.list(
-                query.getResultList(), PricedParameter.class);
+        List<PricedParameter> list = ParameterizedTypes
+                .list(query.getResultList(), PricedParameter.class);
         for (PricedParameter pricedParameter : list) {
             dm.remove(pricedParameter);
         }
@@ -1953,18 +1960,20 @@ public class ServiceProvisioningServiceBean implements
      */
     private boolean isParameterToBeSaved(boolean isDirectAccess,
             VOParameter parameter, ParameterDefinition paramDef) {
-        return (!GenericValidator.isBlankOrNull(parameter.getValue()) || parameter
-                .isConfigurable())
-                && !(isDirectAccess && (PlatformParameterIdentifiers.CONCURRENT_USER
-                        .equals(paramDef.getParameterId()) || PlatformParameterIdentifiers.NAMED_USER
-                        .equals(paramDef.getParameterId())));
+        return (!GenericValidator.isBlankOrNull(parameter.getValue())
+                || parameter.isConfigurable())
+                && !(isDirectAccess
+                        && (PlatformParameterIdentifiers.CONCURRENT_USER
+                                .equals(paramDef.getParameterId())
+                                || PlatformParameterIdentifiers.NAMED_USER
+                                        .equals(paramDef.getParameterId())));
     }
 
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails getServiceForCustomer(VOOrganization customer,
             VOService service) throws OperationNotPermittedException,
-            ObjectNotFoundException {
+                    ObjectNotFoundException {
 
         ArgumentValidator.notNull("customer", customer);
         ArgumentValidator.notNull("service", service);
@@ -1978,9 +1987,7 @@ public class ServiceProvisioningServiceBean implements
             cust = dm.getReference(Organization.class, customer.getKey());
             prod = dm.getReference(Product.class, service.getKey());
         } catch (ObjectNotFoundException e) {
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_PRODUCT_RETRIEVAL_FOR_CUSTOMER_FAILED,
                     Long.toString(customer.getKey()),
                     Long.toString(org.getKey()));
@@ -2001,8 +2008,8 @@ public class ServiceProvisioningServiceBean implements
 
         VOServiceDetails voCustomerProduct = null;
         if (customerProduct != null) {
-            LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                    .getCurrentUser().getLocale());
+            LocalizerFacade facade = new LocalizerFacade(localizer,
+                    dm.getCurrentUser().getLocale());
             voCustomerProduct = getServiceDetails(customerProduct, facade);
         }
 
@@ -2013,7 +2020,7 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails getServiceForSubscription(VOOrganization customer,
             String subscriptionId) throws OrganizationAuthoritiesException,
-            ObjectNotFoundException {
+                    ObjectNotFoundException {
 
         ArgumentValidator.notNull("customer", customer);
         ArgumentValidator.notNull("subscriptionId", subscriptionId);
@@ -2025,9 +2032,7 @@ public class ServiceProvisioningServiceBean implements
         try {
             cust = dm.getReference(Organization.class, customer.getKey());
         } catch (ObjectNotFoundException e) {
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_PRODUCT_RETRIEVAL_FOR_CUSTOMER_AND_SUBSCRIPTION_FAILED,
                     Long.toString(customer.getKey()), subscriptionId,
                     Long.toString(org.getKey()));
@@ -2043,8 +2048,8 @@ public class ServiceProvisioningServiceBean implements
 
         VOServiceDetails result = null;
         if (subscriptionSpecificProduct != null) {
-            LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                    .getCurrentUser().getLocale());
+            LocalizerFacade facade = new LocalizerFacade(localizer,
+                    dm.getCurrentUser().getLocale());
             result = getServiceDetails(subscriptionSpecificProduct, facade);
         }
 
@@ -2060,14 +2065,14 @@ public class ServiceProvisioningServiceBean implements
 
         Organization org = dm.getCurrentUser().getOrganization();
 
-        Product storedProduct = dm
-                .getReference(Product.class, service.getKey());
+        Product storedProduct = dm.getReference(Product.class,
+                service.getKey());
 
         if (storedProduct.getType() == ServiceType.PARTNER_SUBSCRIPTION
-                && org.getGrantedRoleTypes().contains(
-                        OrganizationRoleType.SUPPLIER)) {
-            PermissionCheck.owns(storedProduct.getTemplate().getTemplate(),
-                    org, logger, sessionCtx);
+                && org.getGrantedRoleTypes()
+                        .contains(OrganizationRoleType.SUPPLIER)) {
+            PermissionCheck.owns(storedProduct.getTemplate().getTemplate(), org,
+                    logger, sessionCtx);
         } else {
             PermissionCheck.owns(storedProduct, org, logger, sessionCtx);
         }
@@ -2076,8 +2081,8 @@ public class ServiceProvisioningServiceBean implements
             return null;
         }
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails result = getServiceDetails(storedProduct, facade);
 
         return result;
@@ -2087,9 +2092,9 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModel(VOServiceDetails service,
             VOPriceModel priceModel) throws ObjectNotFoundException,
-            OperationNotPermittedException, CurrencyException,
-            ValidationException, ServiceStateException, PriceModelException,
-            ConcurrentModificationException {
+                    OperationNotPermittedException, CurrencyException,
+                    ValidationException, ServiceStateException,
+                    PriceModelException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -2103,8 +2108,8 @@ public class ServiceProvisioningServiceBean implements
         dm.flush();
         dm.refresh(product);
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails result = getServiceDetails(product, facade);
 
         return result;
@@ -2125,15 +2130,13 @@ public class ServiceProvisioningServiceBean implements
                 if (!isCompatibleCurrency(referenceModel, priceModel)) {
                     PriceModelException pme = new PriceModelException(
                             PriceModelException.Reason.UNMODIFIABLE_CURRENCY);
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            pme,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                             LogMessageIdentifier.WARN_SAVE_PRICE_MODEL_FAILED_NOT_SAME_CURRENCY_COMPATIBLE_PRODUCT,
                             referenceModel.getCurrency().getCurrencyISOCode(),
-                            priceModel.getCurrencyISOCode(), Long
-                                    .toString(prodRef.getSourceProduct()
-                                            .getKey()), Long.toString(prodRef
-                                    .getKey()), dm.getCurrentUser().getUserId());
+                            priceModel.getCurrencyISOCode(),
+                            Long.toString(prodRef.getSourceProduct().getKey()),
+                            Long.toString(prodRef.getKey()),
+                            dm.getCurrentUser().getUserId());
                     throw pme;
                 }
             }
@@ -2145,15 +2148,13 @@ public class ServiceProvisioningServiceBean implements
                 if (!isCompatibleCurrency(referenceModel, priceModel)) {
                     PriceModelException pme = new PriceModelException(
                             PriceModelException.Reason.UNMODIFIABLE_CURRENCY);
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            pme,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                             LogMessageIdentifier.WARN_SAVE_PRICE_MODEL_FAILED_NOT_SAME_CURRENCY_COMPATIBLE_PRODUCT,
                             referenceModel.getCurrency().getCurrencyISOCode(),
-                            priceModel.getCurrencyISOCode(), Long
-                                    .toString(prodRef.getTargetProduct()
-                                            .getKey()), Long.toString(prodRef
-                                    .getKey()), dm.getCurrentUser().getUserId());
+                            priceModel.getCurrencyISOCode(),
+                            Long.toString(prodRef.getTargetProduct().getKey()),
+                            Long.toString(prodRef.getKey()),
+                            dm.getCurrentUser().getUserId());
                     throw pme;
                 }
             }
@@ -2176,19 +2177,18 @@ public class ServiceProvisioningServiceBean implements
             SteppedPrice prevStep = list.get(i - 1);
             if (prevStep.getLimit() == null) {
                 list.get(i).setFreeEntityCount(0);
-                list.get(i)
-                        .setAdditionalPrice(
-                                BigDecimal.ZERO
-                                        .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
+                list.get(i).setAdditionalPrice(BigDecimal.ZERO
+                        .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
             } else {
                 list.get(i).setFreeEntityCount(prevStep.getLimit().longValue());
                 list.get(i)
-                        .setAdditionalPrice(
-                                (BigDecimal.valueOf(prevStep.getLimit()
-                                        .longValue()).subtract(BigDecimal
-                                        .valueOf(prevStep.getFreeEntityCount())))
-                                        .multiply(prevStep.getPrice())
-                                        .add(prevStep.getAdditionalPrice())
+                        .setAdditionalPrice((BigDecimal
+                                .valueOf(prevStep.getLimit().longValue())
+                                .subtract(BigDecimal.valueOf(
+                                        prevStep.getFreeEntityCount())))
+                                                .multiply(prevStep.getPrice())
+                                                .add(prevStep
+                                                        .getAdditionalPrice())
                                         .setScale(
                                                 PriceConverter.NORMALIZED_PRICE_SCALING,
                                                 RoundingMode.HALF_UP));
@@ -2196,9 +2196,8 @@ public class ServiceProvisioningServiceBean implements
         }
         if (size > 0) {
             list.get(0).setFreeEntityCount(0);
-            list.get(0).setAdditionalPrice(
-                    BigDecimal.ZERO
-                            .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
+            list.get(0).setAdditionalPrice(BigDecimal.ZERO
+                    .setScale(PriceConverter.NORMALIZED_PRICE_SCALING));
             list.get(size - 1).setLimit(null);
         }
 
@@ -2238,9 +2237,10 @@ public class ServiceProvisioningServiceBean implements
     Product prepareProductWithPriceModel(VOServiceDetails voProductDetails,
             VOPriceModel voPriceModel, Organization targetCustomer,
             ServiceType productType, Subscription subscription)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            CurrencyException, ValidationException, ServiceStateException,
-            ConcurrentModificationException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException, CurrencyException,
+                    ValidationException, ServiceStateException,
+                    ConcurrentModificationException {
 
         // ensure the current user is a supplier
         PlatformUser currentUser = dm.getCurrentUser();
@@ -2271,10 +2271,9 @@ public class ServiceProvisioningServiceBean implements
         PermissionCheck.ownsPriceModel(product, org, logger, sessionCtx);
 
         if (product.getOwningSubscription() == null) {
-            ProductValidator
-                    .validateInactiveOrSuspended(
-                            ProductAssembler.getProductId(product),
-                            product.getStatus());
+            ProductValidator.validateInactiveOrSuspended(
+                    ProductAssembler.getProductId(product),
+                    product.getStatus());
         }
 
         boolean newPriceModelCreated = false;
@@ -2292,7 +2291,8 @@ public class ServiceProvisioningServiceBean implements
             newPriceModelCreated = true;
         }
 
-        if (product.getTechnicalProduct().getAccessType() == ServiceAccessType.DIRECT) {
+        if (product.getTechnicalProduct()
+                .getAccessType() == ServiceAccessType.DIRECT) {
             PriceModelAssembler.validateForDirectAccess(voPriceModel);
         }
 
@@ -2313,7 +2313,7 @@ public class ServiceProvisioningServiceBean implements
             if (voPriceModel.isExternal()) {
                 priceModel.setExternal(true);
                 priceModel.setUuid(voPriceModel.getUuid());
-            } else{
+            } else {
                 setPriceModelToFree(voPriceModel, priceModel);
             }
         }
@@ -2376,13 +2376,10 @@ public class ServiceProvisioningServiceBean implements
             }
         } catch (NonUniqueBusinessKeyException e) {
             SaaSSystemException sse = new SaaSSystemException(
-                    "The product copy for product '"
-                            + product.getKey()
+                    "The product copy for product '" + product.getKey()
                             + "' cannot be stored, as the business key already exists.",
                     e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_CREATE_CUSTOMER_FOR_SPECIFIC_PRICEMODEL_FAILED,
                     Long.toString(currentUser.getKey()));
             throw sse;
@@ -2394,9 +2391,9 @@ public class ServiceProvisioningServiceBean implements
             PriceModel priceModel, boolean priceModelCreatedInTransaction,
             boolean isCreatePriceModel, ServiceType productType,
             Organization targetCustomer, Subscription subscription,
-            boolean isTemplateExistsForCustomer) throws ValidationException,
-            OperationNotPermittedException, ConcurrentModificationException,
-            CurrencyException {
+            boolean isTemplateExistsForCustomer)
+                    throws ValidationException, OperationNotPermittedException,
+                    ConcurrentModificationException, CurrencyException {
 
         // remember old values, needed for auditlog
         SupportedCurrency oldCurrency = priceModel.getCurrency();
@@ -2414,8 +2411,8 @@ public class ServiceProvisioningServiceBean implements
         priceModel.setType(voPriceModel.getType());
         priceModel.setPeriod(voPriceModel.getPeriod());
         priceModel.setPricePerPeriod(voPriceModel.getPricePerPeriod());
-        priceModel.setPricePerUserAssignment(voPriceModel
-                .getPricePerUserAssignment());
+        priceModel.setPricePerUserAssignment(
+                voPriceModel.getPricePerUserAssignment());
         priceModel.setOneTimeFee(voPriceModel.getOneTimeFee());
         priceModel.setFreePeriod(voPriceModel.getFreePeriod());
 
@@ -2449,15 +2446,12 @@ public class ServiceProvisioningServiceBean implements
         List<SteppedPrice> steppedPrices = convertAndValidateSteppedPrices(
                 voPriceModel.getKey(), voPriceModel.getSteppedPrices(),
                 priceModel, null, null, priceModelCreatedInTransaction);
-        if (!steppedPrices.isEmpty()
-                && BigDecimal.ZERO.compareTo(priceModel
-                        .getPricePerUserAssignment()) != 0) {
+        if (!steppedPrices.isEmpty() && BigDecimal.ZERO
+                .compareTo(priceModel.getPricePerUserAssignment()) != 0) {
             ValidationException ve = new ValidationException(
                     ValidationException.ReasonEnum.STEPPED_USER_PRICING,
                     "pricePerUserAssignment", new Object[] {});
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ve,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, ve,
                     LogMessageIdentifier.WARN_STEPPED_PRICING_MIXED_WITH_BASEPRICE,
                     product.getProductId(), "price model",
                     String.valueOf(voPriceModel.getKey()));
@@ -2484,8 +2478,8 @@ public class ServiceProvisioningServiceBean implements
 
     void setEvents(VOPriceModel voPriceModel, PriceModel priceModel,
             Product product, boolean priceModelCreatedInTransaction)
-            throws ValidationException, OperationNotPermittedException,
-            ConcurrentModificationException {
+                    throws ValidationException, OperationNotPermittedException,
+                    ConcurrentModificationException {
         TechnicalProduct tp = product.getTechnicalProduct();
         List<Event> events = new ArrayList<Event>(tp.getEvents());
         events.addAll(getPlatformEvents(tp));
@@ -2500,8 +2494,8 @@ public class ServiceProvisioningServiceBean implements
         SupportedCurrency currency = null;
         if (priceModel.getCurrencyISOCode() != null) {
             currency = new SupportedCurrency();
-            currency.setCurrency(Currency.getInstance(priceModel
-                    .getCurrencyISOCode()));
+            currency.setCurrency(
+                    Currency.getInstance(priceModel.getCurrencyISOCode()));
             currency = (SupportedCurrency) dm.find(currency);
         }
 
@@ -2512,9 +2506,7 @@ public class ServiceProvisioningServiceBean implements
                 CurrencyException uc = new CurrencyException(
                         "Creation of price model failed.",
                         new Object[] { priceModel.getCurrencyISOCode() });
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        uc,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, uc,
                         LogMessageIdentifier.WARN_PRODUCT_CREATION_FAILED_CURRENCY_NOT_SUPPORTED,
                         Long.toString(product.getKey()),
                         priceModel.getCurrencyISOCode(),
@@ -2536,13 +2528,10 @@ public class ServiceProvisioningServiceBean implements
             // If the persisting-step fails, it is due to internal problems,
             // the user cannot do anything, so throw a system exception
             SaaSSystemException sse = new SaaSSystemException(
-                    "The product copy for product '"
-                            + product.getKey()
+                    "The product copy for product '" + product.getKey()
                             + "' cannot be stored, as the business key already exists.",
                     e);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_CREATE_CUSTOMER_FOR_SPECIFIC_PRICEMODEL_FAILED,
                     Long.toString(currentUser.getKey()));
             throw sse;
@@ -2552,8 +2541,8 @@ public class ServiceProvisioningServiceBean implements
     boolean localizePriceModel(VOPriceModel priceModel,
             PlatformUser currentUser, PriceModel priceModelToStore) {
         boolean localizeChanged = false;
-        final String currentDescription = normalize(localizer
-                .getLocalizedTextFromDatabase(currentUser.getLocale(),
+        final String currentDescription = normalize(
+                localizer.getLocalizedTextFromDatabase(currentUser.getLocale(),
                         priceModel.getKey(),
                         LocalizedObjectTypes.PRICEMODEL_DESCRIPTION));
 
@@ -2591,12 +2580,13 @@ public class ServiceProvisioningServiceBean implements
     }
 
     boolean saveLicenseInformationForPriceModel(long productKey,
-                                                long priceModelKey, VOPriceModel priceModel,
-                                                PlatformUser currentUser, boolean isCreateNewPriceModel) {
+            long priceModelKey, VOPriceModel priceModel,
+            PlatformUser currentUser, boolean isCreateNewPriceModel) {
         final String userLocale = currentUser.getLocale();
 
         List<VOLocalizedText> oldLicenses;
-        oldLicenses = getOldLicenses(productKey, priceModel.getKey(), isCreateNewPriceModel);
+        oldLicenses = getOldLicenses(productKey, priceModel.getKey(),
+                isCreateNewPriceModel);
         String newLicense = priceModel.getLicense();
         if (newLicense == null) {
             newLicense = "";
@@ -2607,17 +2597,16 @@ public class ServiceProvisioningServiceBean implements
             if (locale.equals(userLocale)) {
                 continue;
             }
-            localizer
-                    .storeLocalizedResource(locale, priceModelKey,
-                            LocalizedObjectTypes.PRICEMODEL_LICENSE,
-                            oldLicense);
+            localizer.storeLocalizedResource(locale, priceModelKey,
+                    LocalizedObjectTypes.PRICEMODEL_LICENSE, oldLicense);
         }
         localizer.storeLocalizedResource(userLocale, priceModelKey,
                 LocalizedObjectTypes.PRICEMODEL_LICENSE, newLicense);
         return !newLicense.isEmpty();
     }
 
-    private List<VOLocalizedText> getOldLicenses(long productKey, long priceModelKey, boolean isCreateNewPriceModel) {
+    private List<VOLocalizedText> getOldLicenses(long productKey,
+            long priceModelKey, boolean isCreateNewPriceModel) {
         if (isCreateNewPriceModel) {
             return localizer.getLocalizedValues(productKey,
                     LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
@@ -2650,8 +2639,8 @@ public class ServiceProvisioningServiceBean implements
             if (!roleDefinitionKeys.add(Long.valueOf(roleDefinitionKey))) {
                 continue;
             }
-            RoleDefinition rdToSet = keyRoleMap.get(Long
-                    .valueOf(roleDefinitionKey));
+            RoleDefinition rdToSet = keyRoleMap
+                    .get(Long.valueOf(roleDefinitionKey));
             if (rdToSet == null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         String.format(
@@ -2659,9 +2648,7 @@ public class ServiceProvisioningServiceBean implements
                                 Long.valueOf(dm.getCurrentUser().getKey()),
                                 Long.valueOf(voPpr.getRole().getKey()),
                                 Long.valueOf(product.getKey())));
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        onp,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                         LogMessageIdentifier.WARN_USER_DEFINE_PRICE_FOR_ROLE_FAILED_NOT_SUPPORTED,
                         Long.toString(dm.getCurrentUser().getKey()),
                         Long.toString(voPpr.getRole().getKey()),
@@ -2707,11 +2694,11 @@ public class ServiceProvisioningServiceBean implements
     void setRoleSpecificPrices(long voPriceModelKey, PriceModel priceModel,
             PricedParameter pricedParameter, PricedOption pricedOption,
             List<VOPricedRole> roleSpecificUserPrices,
-            boolean priceModelCreatedInTransaction,
-            Organization targetCustomer, Subscription subscription,
+            boolean priceModelCreatedInTransaction, Organization targetCustomer,
+            Subscription subscription,
             List<PricedProductRole> oldPricedProductRoles)
-            throws ValidationException, ConcurrentModificationException,
-            OperationNotPermittedException {
+                    throws ValidationException, ConcurrentModificationException,
+                    OperationNotPermittedException {
 
         List<RoleDefinition> roleDefinitions = new ArrayList<RoleDefinition>();
         List<PricedProductRole> existingProductRolePrices = new ArrayList<PricedProductRole>();
@@ -2791,7 +2778,8 @@ public class ServiceProvisioningServiceBean implements
             PriceModel priceModel, RoleDefinition roleDefinition,
             PricedParameter pricedParameter, Organization targetCustomer,
             Subscription subscription, boolean ifNeedLog)
-            throws ValidationException, ConcurrentModificationException {
+                    throws ValidationException,
+                    ConcurrentModificationException {
 
         BigDecimal oldPricePerUser = pprToUpdate.getPricePerUser();
         PricedProductRoleAssembler.updatePricedProductRole(pricedProductRole,
@@ -2817,7 +2805,7 @@ public class ServiceProvisioningServiceBean implements
             PricedOption pricedOption, Organization targetCustomer,
             Subscription subscription,
             List<PricedProductRole> oldPricedProductRoles)
-            throws ValidationException {
+                    throws ValidationException {
 
         PricedProductRole pprToCreate = PricedProductRoleAssembler
                 .toPricedProductRole(pricedProductRole);
@@ -2848,7 +2836,8 @@ public class ServiceProvisioningServiceBean implements
         BigDecimal oldPrice = DEFAULT_PRICE_VALUE;
         if (oldPricedProductRoles != null) {
             for (PricedProductRole ppr : oldPricedProductRoles) {
-                if (ppr.getRoleDefinition().getKey() == roleDefinition.getKey()) {
+                if (ppr.getRoleDefinition().getKey() == roleDefinition
+                        .getKey()) {
                     oldPrice = ppr.getPricePerUser();
                 }
             }
@@ -2896,8 +2885,8 @@ public class ServiceProvisioningServiceBean implements
     List<PricedEvent> convertAndValidateEvents(long voPriceModelKey,
             List<VOPricedEvent> voPricedEvents, List<Event> eventDefinitions,
             PriceModel priceModel, boolean priceModelCreatedInTransaction)
-            throws ValidationException, OperationNotPermittedException,
-            ConcurrentModificationException {
+                    throws ValidationException, OperationNotPermittedException,
+                    ConcurrentModificationException {
         // helper map to get existing priced events
         Map<Long, PricedEvent> keyToPricedEvent = new HashMap<Long, PricedEvent>();
         Map<Event, PricedEvent> eventToPricedEvent = new HashMap<Event, PricedEvent>();
@@ -2920,8 +2909,7 @@ public class ServiceProvisioningServiceBean implements
             if (event == null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "Event conversion failed");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
                         onp,
                         LogMessageIdentifier.WARN_EVENTS_NOT_BELONG_CORRECT_TECHNICAL_PRODUCT,
                         userId);
@@ -2929,11 +2917,12 @@ public class ServiceProvisioningServiceBean implements
             }
 
             PricedEvent pricedEvent = null;
-            if (keyToPricedEvent.containsKey(Long.valueOf(voPricedEvent
-                    .getKey()))) {
-                pricedEvent = keyToPricedEvent.remove(Long
-                        .valueOf(voPricedEvent.getKey()));
-                updatePricedEvent(voPricedEvent, pricedEvent, event, priceModel);
+            if (keyToPricedEvent
+                    .containsKey(Long.valueOf(voPricedEvent.getKey()))) {
+                pricedEvent = keyToPricedEvent
+                        .remove(Long.valueOf(voPricedEvent.getKey()));
+                updatePricedEvent(voPricedEvent, pricedEvent, event,
+                        priceModel);
             } else {
                 PricedEvent existingPricedEvent = eventToPricedEvent
                         .remove(event);
@@ -2960,9 +2949,9 @@ public class ServiceProvisioningServiceBean implements
         return result;
     }
 
-    void updatePricedEvent(VOPricedEvent voPricedEvent,
-            PricedEvent pricedEvent, Event event, PriceModel priceModel)
-            throws ValidationException, ConcurrentModificationException {
+    void updatePricedEvent(VOPricedEvent voPricedEvent, PricedEvent pricedEvent,
+            Event event, PriceModel priceModel) throws ValidationException,
+                    ConcurrentModificationException {
 
         BigDecimal oldPrice = pricedEvent.getEventPrice();
         pricedEvent = EventAssembler.updatePricedEvent(voPricedEvent,
@@ -3001,9 +2990,7 @@ public class ServiceProvisioningServiceBean implements
             ValidationException ve = new ValidationException(
                     ValidationException.ReasonEnum.STEPPED_EVENT_PRICING,
                     "eventPrice", new Object[] { event.getEventIdentifier() });
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ve,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, ve,
                     LogMessageIdentifier.WARN_STEPPED_PRICING_MIXED_WITH_BASEPRICE,
                     pe.getPriceModel().getProduct().getProductId(),
                     "priced event", String.valueOf(pe.getKey()));
@@ -3027,16 +3014,15 @@ public class ServiceProvisioningServiceBean implements
      *             Thrown if the key values do not match.
      */
     private void validateDomainObjectKey(BaseVO vo,
-            DomainObject<?> domainObject, boolean priceModelCreatedInTransaction)
-            throws OperationNotPermittedException {
+            DomainObject<?> domainObject,
+            boolean priceModelCreatedInTransaction)
+                    throws OperationNotPermittedException {
         if (domainObject != null && !priceModelCreatedInTransaction
                 && domainObject.getKey() != vo.getKey()) {
             PlatformUser user = dm.getCurrentUser();
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "Saving the price model failed.");
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    onp,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                     LogMessageIdentifier.WARN_STORE_DOMAIN_OBJECT_FAILED_WRONG_TECHNICAL_KEY,
                     user.getUserId(), String.valueOf(domainObject));
             throw onp;
@@ -3079,8 +3065,9 @@ public class ServiceProvisioningServiceBean implements
     List<SteppedPrice> convertAndValidateSteppedPrices(long voPriceModelKey,
             List<VOSteppedPrice> voSteppedPrices, PriceModel priceModel,
             PricedEvent pricedEvent, PricedParameter pricedParameter,
-            boolean priceModelCreatedInTransaction) throws ValidationException,
-            ConcurrentModificationException, OperationNotPermittedException {
+            boolean priceModelCreatedInTransaction)
+                    throws ValidationException, ConcurrentModificationException,
+                    OperationNotPermittedException {
 
         List<SteppedPrice> existing = new ArrayList<SteppedPrice>();
 
@@ -3109,22 +3096,20 @@ public class ServiceProvisioningServiceBean implements
                 }
 
                 SteppedPrice steppedPrice;
-                if (keyToSteppedPrice.containsKey(Long.valueOf(voSteppedPrice
-                        .getKey()))) {
+                if (keyToSteppedPrice
+                        .containsKey(Long.valueOf(voSteppedPrice.getKey()))) {
 
-                    steppedPrice = keyToSteppedPrice.remove(Long
-                            .valueOf(voSteppedPrice.getKey()));
-                    updateSteppedPrice(voSteppedPrice, steppedPrice,
-                            priceModel, pricedEvent, pricedParameter);
+                    steppedPrice = keyToSteppedPrice
+                            .remove(Long.valueOf(voSteppedPrice.getKey()));
+                    updateSteppedPrice(voSteppedPrice, steppedPrice, priceModel,
+                            pricedEvent, pricedParameter);
 
                 } else {
                     if (!priceModelCreatedInTransaction
                             && voSteppedPrice.getKey() != 0) {
                         OperationNotPermittedException onp = new OperationNotPermittedException(
                                 "Priced parameter with invalid key.");
-                        logger.logWarn(
-                                Log4jLogger.SYSTEM_LOG,
-                                onp,
+                        logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                                 LogMessageIdentifier.WARN_PRICED_PARAMETER_WITH_INVALID_KEY);
                         throw onp;
                     }
@@ -3186,7 +3171,8 @@ public class ServiceProvisioningServiceBean implements
     void updateSteppedPrice(VOSteppedPrice voSteppedPrice,
             SteppedPrice steppedPrice, PriceModel priceModel,
             PricedEvent pricedEvent, PricedParameter pricedParameter)
-            throws ValidationException, ConcurrentModificationException {
+                    throws ValidationException,
+                    ConcurrentModificationException {
 
         Long oldLimit = steppedPrice.getLimit();
         BigDecimal oldPrice = steppedPrice.getPrice();
@@ -3283,11 +3269,11 @@ public class ServiceProvisioningServiceBean implements
         if (type == ParameterValueType.INTEGER) {
             BLValidator.isInteger(SteppedPriceAssembler.FIELD_NAME_LIMIT,
                     String.valueOf(limit));
-            BLValidator.isInRange(SteppedPriceAssembler.FIELD_NAME_LIMIT,
-                    limit, minValue, maxValue);
+            BLValidator.isInRange(SteppedPriceAssembler.FIELD_NAME_LIMIT, limit,
+                    minValue, maxValue);
         } else if (type == ParameterValueType.LONG) {
-            BLValidator.isInRange(SteppedPriceAssembler.FIELD_NAME_LIMIT,
-                    limit, minValue, maxValue);
+            BLValidator.isInRange(SteppedPriceAssembler.FIELD_NAME_LIMIT, limit,
+                    minValue, maxValue);
         }
 
     }
@@ -3296,10 +3282,11 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModelForCustomer(VOServiceDetails service,
             VOPriceModel priceModel, VOOrganization customer)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, CurrencyException,
-            ValidationException, ServiceStateException, PriceModelException,
-            ServiceOperationException, ConcurrentModificationException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, OperationNotPermittedException,
+                    CurrencyException, ValidationException,
+                    ServiceStateException, PriceModelException,
+                    ServiceOperationException, ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -3322,8 +3309,8 @@ public class ServiceProvisioningServiceBean implements
         dm.flush();
         dm.refresh(product);
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails result = getServiceDetails(product, facade);
 
         return result;
@@ -3336,9 +3323,7 @@ public class ServiceProvisioningServiceBean implements
         if (!targetCustomer.hasRole(OrganizationRoleType.CUSTOMER)) {
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "Creation of customer specific price model failed");
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    onp,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                     LogMessageIdentifier.WARN_CREATE_PRICE_MODEL_FOR_ORGANIZATION_FAILED_NOT_AUTHORIZED,
                     currentUser.getUserId(),
                     Long.toString(currentUser.getOrganization().getKey()));
@@ -3348,7 +3333,7 @@ public class ServiceProvisioningServiceBean implements
 
     private void validateIfCustomerServiceExists(VOServiceDetails service,
             Organization targetCustomer) throws ObjectNotFoundException,
-            ServiceOperationException, ServiceStateException {
+                    ServiceOperationException, ServiceStateException {
         // ensure that in case the given product is a not a copy itself, no
         // other copy of it does exist for the current customer. If there
         // already is one, throw an exception. The caller should use the
@@ -3360,34 +3345,31 @@ public class ServiceProvisioningServiceBean implements
             Query query = dm.createNamedQuery("Product.getCopyForCustomer");
             query.setParameter("template", referencedProduct);
             query.setParameter("customer", targetCustomer);
-            List<Product> resultList = ParameterizedTypes.list(
-                    query.getResultList(), Product.class);
+            List<Product> resultList = ParameterizedTypes
+                    .list(query.getResultList(), Product.class);
             if (resultList.size() > 0) {
                 ServiceOperationException sof = new ServiceOperationException(
                         Reason.CUSTOMER_COPY_ALREADY_EXISTS);
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        sof,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, sof,
                         LogMessageIdentifier.WARN_EX_SERVICE_OPERATION_EXCEPTION_CUSTOMER_COPY_ALREADY_EXISTS);
                 throw sof;
             }
         }
 
-        ProductValidator
-                .validateActiveOrInactiveOrSuspended(
-                        referencedProduct.getProductId(),
-                        referencedProduct.getStatus());
+        ProductValidator.validateActiveOrInactiveOrSuspended(
+                referencedProduct.getProductId(),
+                referencedProduct.getStatus());
     }
 
     @Override
     @RolesAllowed("SERVICE_MANAGER")
     public VOServiceDetails savePriceModelForSubscription(
             VOServiceDetails service, VOPriceModel priceModel)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, CurrencyException,
-            ValidationException, ConcurrentModificationException,
-            SubscriptionStateException, PaymentInformationException,
-            PriceModelException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, OperationNotPermittedException,
+                    CurrencyException, ValidationException,
+                    ConcurrentModificationException, SubscriptionStateException,
+                    PaymentInformationException, PriceModelException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("priceModel", priceModel);
@@ -3444,9 +3426,7 @@ public class ServiceProvisioningServiceBean implements
             if (oneTimeFeeNew.compareTo(oneTimeFeeOld) != 0) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "One-time fee can not be changed for a subscription-specific price model.");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        onp,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                         LogMessageIdentifier.WARN_UNCHANGEABLE_SUBSCRIPTION_ONE_TIME_FEE);
                 throw onp;
             }
@@ -3463,9 +3443,7 @@ public class ServiceProvisioningServiceBean implements
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "Free trial period can not be changed for a subscription-specific price model.");
 
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    onp,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                     LogMessageIdentifier.WARN_SAVE_PRICE_MODEL_FOR_SUBSCRIPTION_FAILED_FREEPERIOD_UNMODIFIABLE);
 
             throw onp;
@@ -3473,22 +3451,21 @@ public class ServiceProvisioningServiceBean implements
     }
 
     private void validatePriceModel(VOPriceModel priceModel, Product product,
-            Subscription sub) throws PaymentInformationException,
-            PriceModelException {
+            Subscription sub)
+                    throws PaymentInformationException, PriceModelException {
         validatePriceModelType(product.getPriceModel(), priceModel);
         validateCurrency(product.getPriceModel(), priceModel);
         validateTimeUnit(product.getPriceModel(), priceModel);
 
         if (priceModel.isChargeable()) {
 
-            if (sub.getPaymentInfo() == null || sub.getBillingContact() == null) {
+            if (sub.getPaymentInfo() == null
+                    || sub.getBillingContact() == null) {
                 PaymentInformationException pie = new PaymentInformationException(
                         String.format(
                                 "Defining the price model for the subscription %s is not possible, as no payment information has been specified.",
                                 sub));
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        pie,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, pie,
                         LogMessageIdentifier.WARN_SAVE_PRICE_MODEL_FAILED_NO_PAYMENT_INFO,
                         sub.toString());
                 sessionCtx.setRollbackOnly();
@@ -3504,9 +3481,7 @@ public class ServiceProvisioningServiceBean implements
         if (chargeableValueNew != chargeableValueOld) {
             PriceModelException pme = new PriceModelException(
                     PriceModelException.Reason.UNMODIFIABLE_CHARGEABLE);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    pme,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                     LogMessageIdentifier.WARN_UNCHANGEABLE_SUBSCRIPTION_CHARGING_CONDITIONS);
             sessionCtx.setRollbackOnly();
             throw pme;
@@ -3518,9 +3493,7 @@ public class ServiceProvisioningServiceBean implements
         if (!existingPriceModel.getType().equals(newPriceModel.getType())) {
             PriceModelException pme = new PriceModelException(
                     PriceModelException.Reason.UNMODIFIABLE_TYPE);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    pme,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                     LogMessageIdentifier.WARN_PRICE_MODEL_TYPE_UNMODIFIABLE_FOR_SUBSCRIPTION);
             throw pme;
         }
@@ -3530,14 +3503,12 @@ public class ServiceProvisioningServiceBean implements
             VOPriceModel newPriceModel) throws PriceModelException {
         if (existingPriceModel.isChargeable()) {
             boolean isCurrencyChanged = !(existingPriceModel.getCurrency()
-                    .getCurrencyISOCode().equals(newPriceModel
-                    .getCurrencyISOCode()));
+                    .getCurrencyISOCode()
+                    .equals(newPriceModel.getCurrencyISOCode()));
             if (isCurrencyChanged) {
                 PriceModelException pme = new PriceModelException(
                         PriceModelException.Reason.UNMODIFIABLE_CURRENCY);
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        pme,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                         LogMessageIdentifier.WARN_CURRENCY_UNMODIFIABLE_FOR_SUBSCRIPTION);
                 throw pme;
             }
@@ -3552,9 +3523,7 @@ public class ServiceProvisioningServiceBean implements
             if (isTimeUnitChanged) {
                 PriceModelException pme = new PriceModelException(
                         PriceModelException.Reason.UNMODIFIABLE_TIMEUNIT);
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        pme,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, pme,
                         LogMessageIdentifier.WARN_TIME_UNIT_UNMODIFIABLE_FOR_SUBSCRIPTION);
                 throw pme;
             }
@@ -3587,14 +3556,13 @@ public class ServiceProvisioningServiceBean implements
 
     private Subscription validateSubscription(VOService service,
             PlatformUser currentUser, Product product)
-            throws OperationNotPermittedException, SubscriptionStateException {
+                    throws OperationNotPermittedException,
+                    SubscriptionStateException {
         Subscription sub = product.getOwningSubscription();
         if (sub == null) {
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "Creation of subscription specific price model failed");
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    onp,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                     LogMessageIdentifier.WARN_CREATE_PRICE_MODEL_FAILED_NOT_SUBSCRIPTION_DEFINED,
                     currentUser.getUserId(), Long.toString(product.getKey()),
                     Long.toString(service.getKey()));
@@ -3609,9 +3577,7 @@ public class ServiceProvisioningServiceBean implements
             SubscriptionStateException sse = new SubscriptionStateException(
                     SubscriptionStateException.Reason.SUBSCRIPTION_STATE_CHANGED,
                     null, params);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.WARN_SAVE_PRICE_MODEL_FAILED_SUBSCRIPTION_STATE_INVALID);
             throw sse;
         }
@@ -3640,12 +3606,13 @@ public class ServiceProvisioningServiceBean implements
         // determine the compatible products
         List<Product> compatibleProducts = prod.getCompatibleProductsList();
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         for (Product compatibleProduct : compatibleProducts) {
             // only consider not deleted and not obsolete target products
             if (compatibleProduct.getStatus() != ServiceStatus.DELETED
-                    && compatibleProduct.getStatus() != ServiceStatus.OBSOLETE) {
+                    && compatibleProduct
+                            .getStatus() != ServiceStatus.OBSOLETE) {
                 // check currency compatibility
                 if (isCompatibleCurrency(prod.getPriceModel(),
                         compatibleProduct.getPriceModel())) {
@@ -3662,9 +3629,10 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public void setCompatibleServices(VOService service,
             List<VOService> compatibleServices)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException, ServiceCompatibilityException,
-            ServiceStateException, ConcurrentModificationException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, OperationNotPermittedException,
+                    ServiceCompatibilityException, ServiceStateException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("compatibleServices", compatibleServices);
@@ -3713,9 +3681,7 @@ public class ServiceProvisioningServiceBean implements
             SaaSSystemException sse = new SaaSSystemException(
                     "Defining product compatibility failed, as product '"
                             + productKey + "' is not a template");
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_INVALID_ARGUMENT_AS_PRODUCT_NOT_TEMPLATE);
             throw sse;
         }
@@ -3727,18 +3693,18 @@ public class ServiceProvisioningServiceBean implements
         Set<Long> obsoleteCompatibleProductKeys = new HashSet<Long>();
         for (Product currentlyCompatibleProduct : referenceProduct
                 .getCompatibleProductsList()) {
-            currentCompatibleProductKeys.add(Long
-                    .valueOf(currentlyCompatibleProduct.getKey()));
-            obsoleteCompatibleProductKeys.add(Long
-                    .valueOf(currentlyCompatibleProduct.getKey()));
+            currentCompatibleProductKeys
+                    .add(Long.valueOf(currentlyCompatibleProduct.getKey()));
+            obsoleteCompatibleProductKeys
+                    .add(Long.valueOf(currentlyCompatibleProduct.getKey()));
         }
 
         // now register references, determine and omit duplicates, add only new
         // entries
         List<ProductReference> newReferences = new ArrayList<ProductReference>();
         for (Product prod : compProducts) {
-            if (!currentCompatibleProductKeys.contains(Long.valueOf(prod
-                    .getKey()))) {
+            if (!currentCompatibleProductKeys
+                    .contains(Long.valueOf(prod.getKey()))) {
                 ProductReference ref = new ProductReference(referenceProduct,
                         prod);
                 newReferences.add(ref);
@@ -3752,9 +3718,9 @@ public class ServiceProvisioningServiceBean implements
         List<ProductReference> objToBeRemoved = new ArrayList<ProductReference>();
         for (ProductReference currentlyCompatibleProductRef : referenceProduct
                 .getAllCompatibleProducts()) {
-            if (obsoleteCompatibleProductKeys.contains(Long
-                    .valueOf(currentlyCompatibleProductRef.getTargetProduct()
-                            .getKey()))) {
+            if (obsoleteCompatibleProductKeys
+                    .contains(Long.valueOf(currentlyCompatibleProductRef
+                            .getTargetProduct().getKey()))) {
                 dm.remove(currentlyCompatibleProductRef);
                 objToBeRemoved.add(currentlyCompatibleProductRef);
             }
@@ -3770,9 +3736,7 @@ public class ServiceProvisioningServiceBean implements
                 // completely wrong, so abort by throwing a system exception
                 SaaSSystemException sse = new SaaSSystemException(
                         "Persisting the product reference failed", e);
-                logger.logError(
-                        Log4jLogger.SYSTEM_LOG,
-                        sse,
+                logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                         LogMessageIdentifier.ERROR_DEFINE_COMPATIBLE_PRODUCT_FAILED);
                 throw sse;
             }
@@ -3822,9 +3786,7 @@ public class ServiceProvisioningServiceBean implements
         ServiceCompatibilityException ipc = new ServiceCompatibilityException(
                 "Definition of product compatibility failed, they are not published on the same marketplace",
                 ServiceCompatibilityException.Reason.MARKETPLACE);
-        logger.logWarn(
-                Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                ipc,
+        logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ipc,
                 LogMessageIdentifier.WARN_DEFINE_COMPATIBILITY_FOR_PRODUCTS_FAILED_NOT_SAME_MARKETPLACE,
                 dm.getCurrentUser().getUserId(), Long.toString(s.getKey()),
                 Long.toString(t.getKey()));
@@ -3870,9 +3832,7 @@ public class ServiceProvisioningServiceBean implements
         if (product.getOwningSubscription() != null) {
             ServiceOperationException sof = new ServiceOperationException(
                     Reason.DELETION_FAILED_USED_BY_SUB);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    sof,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, sof,
                     LogMessageIdentifier.WARN_PRODUCT_DELETION_FAILED_STILL_USED_BY_SUBSCRIPTION,
                     Long.toString(product.getKey()),
                     Long.toString(product.getOwningSubscription().getKey()));
@@ -3882,20 +3842,18 @@ public class ServiceProvisioningServiceBean implements
         // 3. if it's a customer specific copy, delete it
         else if (product.getTemplate() != null
                 && product.getTargetCustomer() != null) {
-            ProductValidator
-                    .validateInactiveOrSuspended(
-                            ProductAssembler.getProductId(product),
-                            product.getStatus());
+            ProductValidator.validateInactiveOrSuspended(
+                    ProductAssembler.getProductId(product),
+                    product.getStatus());
             deletePriceModelForCustomer(product);
         }
 
         // 4. if the product is not a copy, set its status to deleted and delete
         // all customer specific copies that are not used by any subscription
         else {
-            ProductValidator
-                    .validateInactiveOrSuspended(
-                            ProductAssembler.getProductId(product),
-                            product.getStatus());
+            ProductValidator.validateInactiveOrSuspended(
+                    ProductAssembler.getProductId(product),
+                    product.getStatus());
             // check if there are active customer specific services
             long count = countNonSubscriptionCopiesInState(product,
                     EnumSet.of(ServiceStatus.ACTIVE));
@@ -3915,7 +3873,8 @@ public class ServiceProvisioningServiceBean implements
                     + String.valueOf(System.currentTimeMillis()));
 
             // now delete all it's customer specific copies
-            List<Product> customerSpecificProductCopies = getCustomerSpecificProductCopies(product);
+            List<Product> customerSpecificProductCopies = getCustomerSpecificProductCopies(
+                    product);
             for (Product copy : customerSpecificProductCopies) {
                 dm.remove(copy);
             }
@@ -3958,8 +3917,8 @@ public class ServiceProvisioningServiceBean implements
 
     private long countNonSubscriptionCopiesInState(Product template,
             Set<ServiceStatus> states) {
-        Query query = dm
-                .createNamedQuery("Product.countCustomerCopiesForTemplateInState");
+        Query query = dm.createNamedQuery(
+                "Product.countCustomerCopiesForTemplateInState");
         query.setParameter("template", template);
         query.setParameter("status", states);
         Long count = (Long) query.getSingleResult();
@@ -3975,8 +3934,8 @@ public class ServiceProvisioningServiceBean implements
     void validateNotExistingResalePermissions(Product template)
             throws ServiceOperationException {
 
-        Query query = dm
-                .createNamedQuery("Product.getPartnerCopiesForTemplateNotInState");
+        Query query = dm.createNamedQuery(
+                "Product.getPartnerCopiesForTemplateNotInState");
         query.setParameter("template", template);
         query.setParameter("statusToIgnore", ServiceStatus.DELETED);
         @SuppressWarnings("unchecked")
@@ -3985,9 +3944,7 @@ public class ServiceProvisioningServiceBean implements
         if (result.size() > 0) {
             ServiceOperationException sof = new ServiceOperationException(
                     Reason.DELETION_FAILED_EXISTING_RESALE_PERMISSION);
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sof,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sof,
                     LogMessageIdentifier.ERROR_SERVICE_DELETION_FAILED_EXISTING_RESALE_PERMISSION,
                     Long.toString(template.getKey()));
             throw sof;
@@ -4058,20 +4015,21 @@ public class ServiceProvisioningServiceBean implements
     private List<ParameterDefinition> getPlatformParameterDefinitions(
             TechnicalProduct tp) {
 
-        Query query = dm
-                .createNamedQuery("ParameterDefinition.getAllPlatformParameterDefinitions");
+        Query query = dm.createNamedQuery(
+                "ParameterDefinition.getAllPlatformParameterDefinitions");
         query.setParameter("parameterType", ParameterType.PLATFORM_PARAMETER);
-        List<ParameterDefinition> result = ParameterizedTypes.list(
-                query.getResultList(), ParameterDefinition.class);
+        List<ParameterDefinition> result = ParameterizedTypes
+                .list(query.getResultList(), ParameterDefinition.class);
         if (tp.getAccessType() == ServiceAccessType.DIRECT
                 || tp.getAccessType() == ServiceAccessType.USER) {
             List<ParameterDefinition> copy = new ArrayList<ParameterDefinition>(
                     result);
             for (ParameterDefinition pd : copy) {
-                if (PlatformParameterIdentifiers.CONCURRENT_USER.equals(pd
-                        .getParameterId())
-                        || (tp.getAccessType() == ServiceAccessType.DIRECT && PlatformParameterIdentifiers.NAMED_USER
-                                .equals(pd.getParameterId()))) {
+                if (PlatformParameterIdentifiers.CONCURRENT_USER
+                        .equals(pd.getParameterId())
+                        || (tp.getAccessType() == ServiceAccessType.DIRECT
+                                && PlatformParameterIdentifiers.NAMED_USER
+                                        .equals(pd.getParameterId()))) {
                     result.remove(pd);
                 }
             }
@@ -4101,9 +4059,7 @@ public class ServiceProvisioningServiceBean implements
         } catch (NonUniqueResultException e) {
             SaaSSystemException sse = new SaaSSystemException(
                     "Product retrieval failed due to invalid result, found duplicate entry.");
-            logger.logError(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.ERROR_RETRIEVAL_CUSTOMER_OR_SUBSCRIPTION_FAILED_RESULT_NOT_UNIQUE,
                     Long.toString(cust.getKey()));
             throw sse;
@@ -4116,16 +4072,16 @@ public class ServiceProvisioningServiceBean implements
             throws ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
-        return spsLocalizer.getServiceLocalization(dm.getReference(
-                Product.class, service.getKey()));
+        return spsLocalizer.getServiceLocalization(
+                dm.getReference(Product.class, service.getKey()));
     }
 
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER" })
     public void saveServiceLocalization(VOService service,
             VOServiceLocalization localization) throws ObjectNotFoundException,
-            OperationNotPermittedException, ValidationException,
-            ConcurrentModificationException {
+                    OperationNotPermittedException, ValidationException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         ArgumentValidator.notNull("localization", localization);
@@ -4136,7 +4092,7 @@ public class ServiceProvisioningServiceBean implements
     @Override
     public VOPriceModelLocalization getPriceModelLocalization(
             VOPriceModel priceModel) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+                    OperationNotPermittedException {
 
         ArgumentValidator.notNull("priceModel", priceModel);
 
@@ -4156,17 +4112,18 @@ public class ServiceProvisioningServiceBean implements
     @Override
     public List<VOLocalizedText> getPriceModelLicenseTemplateLocalization(
             VOServiceDetails service) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+                    OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
 
-        if (!spsLocalizer.checkIsAllowedForLocalizingService(service.getKey())) {
+        if (!spsLocalizer
+                .checkIsAllowedForLocalizingService(service.getKey())) {
             throw new OperationNotPermittedException(
                     "No rights for getting price model localizations for license.");
         }
 
-        List<VOLocalizedText> templates = localizer.getLocalizedValues(service
-                .getTechnicalService().getKey(),
+        List<VOLocalizedText> templates = localizer.getLocalizedValues(
+                service.getTechnicalService().getKey(),
                 LocalizedObjectTypes.PRODUCT_LICENSE_DESC);
 
         return templates;
@@ -4176,8 +4133,9 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed({ "SERVICE_MANAGER" })
     public void savePriceModelLocalization(VOPriceModel priceModel,
             VOPriceModelLocalization localization)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            ConcurrentModificationException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("priceModel", priceModel);
         ArgumentValidator.notNull("localization", localization);
@@ -4230,8 +4188,8 @@ public class ServiceProvisioningServiceBean implements
 
         Query query = dm.createNamedQuery("SupportedCurrency.getAll");
         List<String> curlist = new ArrayList<String>();
-        for (SupportedCurrency curr : ParameterizedTypes.iterable(
-                query.getResultList(), SupportedCurrency.class)) {
+        for (SupportedCurrency curr : ParameterizedTypes
+                .iterable(query.getResultList(), SupportedCurrency.class)) {
             curlist.add(curr.getCurrencyISOCode());
         }
 
@@ -4315,8 +4273,8 @@ public class ServiceProvisioningServiceBean implements
             return;
         }
 
-        if (voImageResource.getImageType() == null
-                || voImageResource.getImageType().getOwnerType() != ImageOwnerType.SERVICE) {
+        if (voImageResource.getImageType() == null || voImageResource
+                .getImageType().getOwnerType() != ImageOwnerType.SERVICE) {
             SaaSSystemException se = new SaaSSystemException(
                     "Only images belonging to a product can be saved.");
             logger.logError(Log4jLogger.SYSTEM_LOG, se,
@@ -4351,7 +4309,8 @@ public class ServiceProvisioningServiceBean implements
      * Returns true if an image is defined for the given product.
      */
     public boolean isImageDefined(Product product) {
-        boolean flag = irm.read(product.getKey(), ImageType.SERVICE_IMAGE) != null;
+        boolean flag = irm.read(product.getKey(),
+                ImageType.SERVICE_IMAGE) != null;
         return flag;
     }
 
@@ -4359,8 +4318,8 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public byte[] exportTechnicalServices(
             List<VOTechnicalService> technicalServices)
-            throws OrganizationAuthoritiesException, ObjectNotFoundException,
-            OperationNotPermittedException {
+                    throws OrganizationAuthoritiesException,
+                    ObjectNotFoundException, OperationNotPermittedException {
 
         ArgumentValidator.notNull("technicalServices", technicalServices);
         Organization provider = dm.getCurrentUser().getOrganization();
@@ -4379,8 +4338,8 @@ public class ServiceProvisioningServiceBean implements
             PriceModel priceModel, List<PricedParameter> parametersToSet,
             List<VOPricedParameter> selectedParameters,
             boolean priceModelCreatedInTransaction, Organization targetCustomer)
-            throws ValidationException, ConcurrentModificationException,
-            OperationNotPermittedException {
+                    throws ValidationException, ConcurrentModificationException,
+                    OperationNotPermittedException {
 
         if (parametersToSet.isEmpty()) {
             // no parameter is specified, so remove all existing one
@@ -4393,15 +4352,16 @@ public class ServiceProvisioningServiceBean implements
             List<PricedParameter> parametersToBeStored = new ArrayList<PricedParameter>();
             Map<String, PricedParameter> curParameters = new HashMap<String, PricedParameter>();
             for (PricedParameter pp : priceModel.getSelectedParameters()) {
-                if (pp.getParameter().getParameterDefinition().getValueType() == ParameterValueType.ENUMERATION
+                if (pp.getParameter().getParameterDefinition()
+                        .getValueType() == ParameterValueType.ENUMERATION
                         && pp.getPricedOptionList().isEmpty()) {
                     // remove the enumeration parameters that have no options -
                     // should never happen
                     dm.remove(pp);
                 } else {
                     // fill the map
-                    curParameters.put(pp.getParameter()
-                            .getParameterDefinition().getParameterId(), pp);
+                    curParameters.put(pp.getParameter().getParameterDefinition()
+                            .getParameterId(), pp);
                 }
             }
             for (PricedParameter parameterToSet : parametersToSet) {
@@ -4411,13 +4371,13 @@ public class ServiceProvisioningServiceBean implements
                 PricedParameter pricedParameter = curParameters
                         .get(parameterId);
                 if (pricedParameter != null) {
-                    pricedParameter.setPricePerSubscription(parameterToSet
-                            .getPricePerSubscription());
-                    pricedParameter.setPricePerUser(parameterToSet
-                            .getPricePerUser());
+                    pricedParameter.setPricePerSubscription(
+                            parameterToSet.getPricePerSubscription());
+                    pricedParameter
+                            .setPricePerUser(parameterToSet.getPricePerUser());
 
-                    ParameterOptionAssembler.updatePriceOptions(
-                            pricedParameter, parameterToSet);
+                    ParameterOptionAssembler.updatePriceOptions(pricedParameter,
+                            parameterToSet);
 
                     curParameters.remove(pricedParameter.getParameter()
                             .getParameterDefinition().getParameterId());
@@ -4468,9 +4428,7 @@ public class ServiceProvisioningServiceBean implements
         SaaSSystemException sse = new SaaSSystemException(
                 "Priced parameter input list does not contain a parameter for identifier '"
                         + parameterId + "'");
-        logger.logError(
-                Log4jLogger.SYSTEM_LOG,
-                sse,
+        logger.logError(Log4jLogger.SYSTEM_LOG, sse,
                 LogMessageIdentifier.ERROR_PRICED_PARAMETER_LIST_NOT_CONTAIN_PARAMETER_FOR_ID,
                 parameterId);
         throw sse;
@@ -4510,11 +4468,10 @@ public class ServiceProvisioningServiceBean implements
     private List<PricedParameter> convertAndValidateParameters(
             long voPriceModelKey, List<VOPricedParameter> voPricedParameters,
             List<Parameter> productParams, PriceModel priceModel,
-            boolean priceModelCreatedInTransaction,
-            Organization targetCustomer, Subscription subscription,
-            boolean isTemplateExistsForCustomer)
-            throws OperationNotPermittedException, ValidationException,
-            ConcurrentModificationException {
+            boolean priceModelCreatedInTransaction, Organization targetCustomer,
+            Subscription subscription, boolean isTemplateExistsForCustomer)
+                    throws OperationNotPermittedException, ValidationException,
+                    ConcurrentModificationException {
 
         Map<Long, PricedParameter> pricedParameterMap = new HashMap<Long, PricedParameter>();
         Map<Parameter, PricedParameter> paramToPricedParam = new HashMap<Parameter, PricedParameter>();
@@ -4543,9 +4500,7 @@ public class ServiceProvisioningServiceBean implements
                                 + "' for parameter definition'" + paramDefKey
                                 + "' is not defined for the current product '"
                                 + product.getKey() + "'.");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        onp,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                         LogMessageIdentifier.WARN_PARAMETER_FOR_PRICE_MODEL_INVALID);
                 throw onp;
             }
@@ -4553,9 +4508,7 @@ public class ServiceProvisioningServiceBean implements
             if (!parameter.isConfigurable()) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "Priced Parameter lined up to be saved, is not marked as configurable");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        onp,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                         LogMessageIdentifier.WARN_NOT_CONFIGURABLE_PARAMETER_PASSED_TO_PRICE_MODEL,
                         Long.toString(parameter.getKey()),
                         Long.toString(product.getKey()));
@@ -4564,18 +4517,18 @@ public class ServiceProvisioningServiceBean implements
 
             // priced parameters can only be based on non-string parameters. So
             // validate the remaining params
-            PricedParameterChecks
-                    .isValidBaseParam(parameter, voPricedParameter);
+            PricedParameterChecks.isValidBaseParam(parameter,
+                    voPricedParameter);
 
             PricedParameter pricedParameter = null;
-            if (pricedParameterMap.containsKey(Long.valueOf(voPricedParameter
-                    .getKey()))) {
-                pricedParameter = pricedParameterMap.remove(Long
-                        .valueOf(voPricedParameter.getKey()));
+            if (pricedParameterMap
+                    .containsKey(Long.valueOf(voPricedParameter.getKey()))) {
+                pricedParameter = pricedParameterMap
+                        .remove(Long.valueOf(voPricedParameter.getKey()));
                 pricedParameter = handleParameterUpdate(voPricedParameter,
                         pricedParameter, priceModelCreatedInTransaction);
-                pricedParameterMap.remove(Long.valueOf(voPricedParameter
-                        .getKey()));
+                pricedParameterMap
+                        .remove(Long.valueOf(voPricedParameter.getKey()));
             } else {
                 PricedParameter existingPricedParam = paramToPricedParam
                         .remove(parameter);
@@ -4593,17 +4546,14 @@ public class ServiceProvisioningServiceBean implements
                     voPriceModelKey, voPricedParameter.getSteppedPrices(),
                     priceModel, null, pricedParameter,
                     priceModelCreatedInTransaction);
-            if (!steppedPrices.isEmpty()
-                    && BigDecimal.ZERO.compareTo(pricedParameter
-                            .getPricePerSubscription()) != 0) {
+            if (!steppedPrices.isEmpty() && BigDecimal.ZERO.compareTo(
+                    pricedParameter.getPricePerSubscription()) != 0) {
                 ValidationException ve = new ValidationException(
                         ValidationException.ReasonEnum.STEPPED_PARAMETER_PRICING,
-                        "pricePerSubscription", new Object[] { pricedParameter
-                                .getParameter().getParameterDefinition()
-                                .getParameterId() });
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        ve,
+                        "pricePerSubscription",
+                        new Object[] { pricedParameter.getParameter()
+                                .getParameterDefinition().getParameterId() });
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, ve,
                         LogMessageIdentifier.WARN_STEPPED_PRICING_MIXED_WITH_BASEPRICE,
                         priceModel.getProduct().getProductId(),
                         "priced parameter",
@@ -4620,7 +4570,7 @@ public class ServiceProvisioningServiceBean implements
 
     PricedParameter createPricedParameter(VOPricedParameter voPricedParameter,
             Parameter parameter, PriceModel priceModel)
-            throws ValidationException {
+                    throws ValidationException {
 
         PricedParameter pricedParameter = ParameterAssembler
                 .toPricedParameter(voPricedParameter);
@@ -4632,7 +4582,8 @@ public class ServiceProvisioningServiceBean implements
         priceModelAudit.editParameterUserPrice(dm, pricedParameter,
                 DEFAULT_PRICE_VALUE);
 
-        for (PricedOption pricedOption : pricedParameter.getPricedOptionList()) {
+        for (PricedOption pricedOption : pricedParameter
+                .getPricedOptionList()) {
             priceModelAudit.editParameterOptionSubscriptionPrice(dm,
                     pricedOption, DEFAULT_PRICE_VALUE);
             priceModelAudit.editParameterOptionUserPrice(dm, pricedOption,
@@ -4643,7 +4594,8 @@ public class ServiceProvisioningServiceBean implements
     }
 
     void removePricedParameters(long voPriceModelKey,
-            Collection<PricedParameter> pricedParameters, PriceModel priceModel) {
+            Collection<PricedParameter> pricedParameters,
+            PriceModel priceModel) {
         for (PricedParameter pricedParameter : pricedParameters) {
             priceModel.getSelectedParameters().remove(pricedParameter);
 
@@ -4671,14 +4623,16 @@ public class ServiceProvisioningServiceBean implements
      */
     PricedParameter handleParameterUpdate(VOPricedParameter voPricedParameter,
             PricedParameter pricedParameter,
-            boolean priceModelCreatedInTransaction) throws ValidationException,
-            ConcurrentModificationException, OperationNotPermittedException {
+            boolean priceModelCreatedInTransaction)
+                    throws ValidationException, ConcurrentModificationException,
+                    OperationNotPermittedException {
 
         updatePricedParameter(voPricedParameter, pricedParameter);
 
         // helper map for checking if the priced options belong to the priced
         // parameter
-        Map<Long, ParameterOption> keyToParamOption = createParameterOptionMap(pricedParameter);
+        Map<Long, ParameterOption> keyToParamOption = createParameterOptionMap(
+                pricedParameter);
 
         List<VOPricedOption> voPricedOptions = voPricedParameter
                 .getPricedOptions();
@@ -4692,36 +4646,32 @@ public class ServiceProvisioningServiceBean implements
         }
 
         for (VOPricedOption voPricedOption : voPricedOptions) {
-            ParameterOption paramOption = keyToParamOption.remove(Long
-                    .valueOf(voPricedOption.getParameterOptionKey()));
+            ParameterOption paramOption = keyToParamOption.remove(
+                    Long.valueOf(voPricedOption.getParameterOptionKey()));
             if (paramOption == null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "No ParameterOption found for PricedOption value object.");
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
-                        onp,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                         LogMessageIdentifier.WARN_PRICEDOPTION_NO_OPTION_DEFINED);
                 throw onp;
             }
             // new option
             PricedOption pricedOption = null;
-            if (!storedOptionsMap.containsKey(Long.valueOf(voPricedOption
-                    .getKey()))) {
+            if (!storedOptionsMap
+                    .containsKey(Long.valueOf(voPricedOption.getKey()))) {
                 if (!priceModelCreatedInTransaction
                         && voPricedOption.getKey() != 0) {
                     OperationNotPermittedException onp = new OperationNotPermittedException(
                             "Priced option value object with invalid key.");
-                    logger.logWarn(
-                            Log4jLogger.SYSTEM_LOG,
-                            onp,
+                    logger.logWarn(Log4jLogger.SYSTEM_LOG, onp,
                             LogMessageIdentifier.WARN_PRICED_OPTION_WITH_INVALID_KEY);
                     throw onp;
                 }
                 pricedOption = createPricedOption(voPricedOption,
                         pricedParameter);
             } else {
-                pricedOption = storedOptionsMap.remove(Long
-                        .valueOf(voPricedOption.getKey()));
+                pricedOption = storedOptionsMap
+                        .remove(Long.valueOf(voPricedOption.getKey()));
                 updatePricedOption(voPricedOption, pricedOption);
 
             }
@@ -4737,12 +4687,12 @@ public class ServiceProvisioningServiceBean implements
 
     void updatePricedParameter(VOPricedParameter voPricedParameter,
             PricedParameter pricedParameter) throws ValidationException,
-            ConcurrentModificationException {
+                    ConcurrentModificationException {
 
         BigDecimal oldSubPrice = pricedParameter.getPricePerSubscription();
         BigDecimal oldUserPrice = pricedParameter.getPricePerUser();
-        pricedParameter = ParameterAssembler.updatePricedParameter(
-                voPricedParameter, pricedParameter);
+        pricedParameter = ParameterAssembler
+                .updatePricedParameter(voPricedParameter, pricedParameter);
 
         priceModelAudit.editParameterSubscriptionPrice(dm, pricedParameter,
                 oldSubPrice);
@@ -4752,8 +4702,8 @@ public class ServiceProvisioningServiceBean implements
 
     PricedOption createPricedOption(VOPricedOption voPricedOption,
             PricedParameter pricedParameter) {
-        PricedOption pricedOption = PricedOptionAssembler.toPricedOption(
-                voPricedOption, pricedParameter);
+        PricedOption pricedOption = PricedOptionAssembler
+                .toPricedOption(voPricedOption, pricedParameter);
 
         priceModelAudit.editParameterOptionSubscriptionPrice(dm, pricedOption,
                 DEFAULT_PRICE_VALUE);
@@ -4764,7 +4714,7 @@ public class ServiceProvisioningServiceBean implements
 
     void updatePricedOption(VOPricedOption voPricedOption,
             PricedOption pricedOption) throws ConcurrentModificationException,
-            ValidationException {
+                    ValidationException {
 
         BigDecimal oldPOSubPrice = pricedOption.getPricePerSubscription();
         BigDecimal oldPOUserPrice = pricedOption.getPricePerUser();
@@ -4821,10 +4771,10 @@ public class ServiceProvisioningServiceBean implements
      */
     void validateAndSetRolePricesForParam(long voPriceModelKey,
             PriceModel priceModel, VOPricedParameter voPP, PricedParameter pp,
-            boolean priceModelCreatedInTransaction,
-            Organization targetCustomer, Subscription subscription,
-            boolean isTemplateExistsForCustomer) throws ValidationException,
-            OperationNotPermittedException, ConcurrentModificationException {
+            boolean priceModelCreatedInTransaction, Organization targetCustomer,
+            Subscription subscription, boolean isTemplateExistsForCustomer)
+                    throws ValidationException, OperationNotPermittedException,
+                    ConcurrentModificationException {
 
         Map<Long, List<PricedProductRole>> oldPricedOptionMap = new HashMap<Long, List<PricedProductRole>>();
         if (isTemplateExistsForCustomer) {
@@ -4832,8 +4782,7 @@ public class ServiceProvisioningServiceBean implements
         }
         List<VOPricedOption> pricedOptions = voPP.getPricedOptions();
         for (VOPricedOption pricedOption : pricedOptions) {
-            validatePricedProductRoles(
-                    pricedOption.getRoleSpecificUserPrices(),
+            validatePricedProductRoles(pricedOption.getRoleSpecificUserPrices(),
                     priceModel.getProduct());
 
             // find corresponding domain object representation for the
@@ -4878,9 +4827,10 @@ public class ServiceProvisioningServiceBean implements
                         .getPricedOptionList();
                 if (pricedOptions != null) {
                     for (PricedOption pricedOption : pricedOptions) {
-                        oldPricedOptionMap.put(Long.valueOf(pricedOption
-                                .getParameterOptionKey()), pricedOption
-                                .getRoleSpecificUserPrices());
+                        oldPricedOptionMap.put(
+                                Long.valueOf(
+                                        pricedOption.getParameterOptionKey()),
+                                pricedOption.getRoleSpecificUserPrices());
                     }
                 }
             }
@@ -4892,8 +4842,8 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public VOTechnicalService createTechnicalService(
             VOTechnicalService technicalService)
-            throws OrganizationAuthoritiesException, ValidationException,
-            NonUniqueBusinessKeyException {
+                    throws OrganizationAuthoritiesException,
+                    ValidationException, NonUniqueBusinessKeyException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -4954,28 +4904,27 @@ public class ServiceProvisioningServiceBean implements
                         Collections.singletonList(org.getOrganizationId()));
             } catch (ObjectNotFoundException e) {
                 // should not happen here
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG,
                         LogMessageIdentifier.WARN_MARKETING_PERMISSION_NOT_ADDED,
                         String.valueOf(domObj.getKey()),
                         org.getOrganizationId());
             } catch (AddMarketingPermissionException e) {
                 // should not happen here
-                logger.logWarn(
-                        Log4jLogger.SYSTEM_LOG,
+                logger.logWarn(Log4jLogger.SYSTEM_LOG,
                         LogMessageIdentifier.WARN_MARKETING_PERMISSION_NOT_ADDED,
                         String.valueOf(domObj.getKey()),
                         org.getOrganizationId());
             }
         }
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
-        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(domObj);
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+        List<ParameterDefinition> paramDefs = getPlatformParameterDefinitions(
+                domObj);
         List<Event> platformEvents = getPlatformEvents(domObj);
         VOTechnicalService result = TechnicalProductAssembler
-                .toVOTechnicalProduct(domObj, paramDefs, platformEvents,
-                        facade, false);
+                .toVOTechnicalProduct(domObj, paramDefs, platformEvents, facade,
+                        false);
 
         return result;
     }
@@ -4983,9 +4932,9 @@ public class ServiceProvisioningServiceBean implements
     @Override
     @RolesAllowed("TECHNOLOGY_MANAGER")
     public void saveTechnicalServiceLocalization(
-            VOTechnicalService technicalService)
-            throws ObjectNotFoundException, OperationNotPermittedException,
-            UpdateConstraintException, ValidationException {
+            VOTechnicalService technicalService) throws ObjectNotFoundException,
+                    OperationNotPermittedException, UpdateConstraintException,
+                    ValidationException {
 
         ArgumentValidator.notNull("technicalService", technicalService);
 
@@ -5046,12 +4995,9 @@ public class ServiceProvisioningServiceBean implements
             }
             String desc = op.getOperationDescription();
             if (desc != null) {
-                localizer
-                        .storeLocalizedResource(
-                                locale,
-                                tpo.getKey(),
-                                LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION,
-                                desc);
+                localizer.storeLocalizedResource(locale, tpo.getKey(),
+                        LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_DESCRIPTION,
+                        desc);
             }
             List<VOServiceOperationParameter> params = op
                     .getOperationParameters();
@@ -5066,12 +5012,9 @@ public class ServiceProvisioningServiceBean implements
                     BLValidator.isName(
                             "technical service operation parameter name",
                             parameterName, false);
-                    localizer
-                            .storeLocalizedResource(
-                                    locale,
-                                    param.getKey(),
-                                    LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_PARAMETER_NAME,
-                                    parameterName);
+                    localizer.storeLocalizedResource(locale, param.getKey(),
+                            LocalizedObjectTypes.TECHNICAL_PRODUCT_OPERATION_PARAMETER_NAME,
+                            parameterName);
                 }
             }
         }
@@ -5095,7 +5038,8 @@ public class ServiceProvisioningServiceBean implements
                 .getParameterDefinitions();
         for (VOParameterDefinition parameter : parameters) {
             String parameterDescription = parameter.getDescription();
-            if (parameter.getParameterType() != ParameterType.PLATFORM_PARAMETER) {
+            if (parameter
+                    .getParameterType() != ParameterType.PLATFORM_PARAMETER) {
                 ParameterDefinition parameterDef = new ParameterDefinition();
                 parameterDef.setParameterId(parameter.getParameterId());
                 parameterDef.setParameterType(parameter.getParameterType());
@@ -5127,8 +5071,8 @@ public class ServiceProvisioningServiceBean implements
                 }
             }
         }
-        List<Tag> tags = TagAssembler
-                .toTags(technicalService.getTags(), locale);
+        List<Tag> tags = TagAssembler.toTags(technicalService.getTags(),
+                locale);
         tagService.updateTags(techProd, locale, tags);
 
     }
@@ -5138,7 +5082,8 @@ public class ServiceProvisioningServiceBean implements
             String accessInfo) {
         ServiceAccessType accessType = technicalService.getAccessType();
         if (!userLocale.equals(defaultLocale)
-                && (accessType == ServiceAccessType.DIRECT || accessType == ServiceAccessType.USER)) {
+                && (accessType == ServiceAccessType.DIRECT
+                        || accessType == ServiceAccessType.USER)) {
             String accessInfoDefaultLocale = localizer
                     .getLocalizedTextFromDatabase(defaultLocale,
                             technicalService.getKey(),
@@ -5207,7 +5152,8 @@ public class ServiceProvisioningServiceBean implements
      */
     private TechnicalProduct findTechnicalProductAndCheckOwner(
             Organization provider, VOTechnicalService voTechnicalProduct)
-            throws ObjectNotFoundException, OperationNotPermittedException {
+                    throws ObjectNotFoundException,
+                    OperationNotPermittedException {
         TechnicalProduct techProd = dm.getReference(TechnicalProduct.class,
                 voTechnicalProduct.getKey());
         PermissionCheck.owns(techProd, provider, logger, sessionCtx);
@@ -5225,14 +5171,14 @@ public class ServiceProvisioningServiceBean implements
         List<Product> products = ParameterizedTypes.list(query.getResultList(),
                 Product.class);
         List<VOCustomerService> result = new ArrayList<VOCustomerService>();
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         Set<ServiceStatus> states = EnumSet.of(ServiceStatus.ACTIVE,
                 ServiceStatus.INACTIVE, ServiceStatus.SUSPENDED);
         for (Product product : products) {
             if (states.contains(product.getStatus())) {
-                result.add(ProductAssembler
-                        .toVOCustomerProduct(product, facade));
+                result.add(
+                        ProductAssembler.toVOCustomerProduct(product, facade));
             }
         }
         return result;
@@ -5255,23 +5201,20 @@ public class ServiceProvisioningServiceBean implements
                 || product.getTargetCustomer() != null) {
             OperationNotPermittedException onp = new OperationNotPermittedException(
                     "Copying the service failed");
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    onp,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, onp,
                     LogMessageIdentifier.WARN_COPY_SERVICE_FAILED_NOT_GLOBAL_TEMPLATE,
                     Long.toString(org.getKey()),
                     Long.toString(product.getKey()));
             throw onp;
         }
         ServiceStatus status = product.getStatus();
-        if (status != ServiceStatus.ACTIVE && status != ServiceStatus.INACTIVE) {
+        if (status != ServiceStatus.ACTIVE
+                && status != ServiceStatus.INACTIVE) {
             ServiceStateException sse = new ServiceStateException(status,
                     ServiceStatus.ACTIVE.name() + ", "
                             + ServiceStatus.INACTIVE.name(),
                     ProductAssembler.getProductId(product));
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    sse,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, sse,
                     LogMessageIdentifier.WARN_COPY_SERVICE_FAILED_INVALID_STATE,
                     Long.toString(org.getKey()),
                     Long.toString(product.getKey()));
@@ -5301,21 +5244,21 @@ public class ServiceProvisioningServiceBean implements
 
         // create the catalog entry for the copy with the same marketplace and
         // categories
-        CatalogEntry catalogEntry = QueryBasedObjectFactory.createCatalogEntry(
-                copy, mp);
+        CatalogEntry catalogEntry = QueryBasedObjectFactory
+                .createCatalogEntry(copy, mp);
         for (Category cat : cats) {
             catalogEntry.addCategory(cat);
         }
         if (product.getCatalogEntries().size() > 0) {
-            catalogEntry.setVisibleInCatalog(product.getCatalogEntries().get(0)
-                    .isVisibleInCatalog());
-            catalogEntry.setAnonymousVisible(product.getCatalogEntries().get(0)
-                    .isAnonymousVisible());
+            catalogEntry.setVisibleInCatalog(
+                    product.getCatalogEntries().get(0).isVisibleInCatalog());
+            catalogEntry.setAnonymousVisible(
+                    product.getCatalogEntries().get(0).isAnonymousVisible());
         }
 
         if (!product.getCatalogEntries().isEmpty()) {
-            copyOperatorPriceModel(catalogEntry, product.getCatalogEntries()
-                    .get(0).getOperatorPriceModel());
+            copyOperatorPriceModel(catalogEntry,
+                    product.getCatalogEntries().get(0).getOperatorPriceModel());
         }
 
         dm.persist(catalogEntry);
@@ -5357,8 +5300,8 @@ public class ServiceProvisioningServiceBean implements
             irm.save(imageResource.copy(copy.getKey()));
         }
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         VOServiceDetails createdProduct = getServiceDetails(copy, facade);
 
         serviceAudit.copyService(dm, copy, product.getProductId(),
@@ -5396,11 +5339,12 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
     public List<VOService> setActivationStates(
             List<VOServiceActivation> activations)
-            throws ObjectNotFoundException, ServiceStateException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ServiceOperationException, TechnicalServiceNotAliveException,
-            ServiceNotPublishedException, OperationPendingException,
-            ConcurrentModificationException {
+                    throws ObjectNotFoundException, ServiceStateException,
+                    OrganizationAuthoritiesException,
+                    OperationNotPermittedException, ServiceOperationException,
+                    TechnicalServiceNotAliveException,
+                    ServiceNotPublishedException, OperationPendingException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("activations", activations);
         List<VOService> resultList = new ArrayList<VOService>();
@@ -5426,10 +5370,11 @@ public class ServiceProvisioningServiceBean implements
 
     private VOService setActivationState(VOServiceActivation serviceActivation,
             ServiceVisibilityCheck visChecker) throws ObjectNotFoundException,
-            ServiceStateException, OrganizationAuthoritiesException,
-            OperationNotPermittedException, ServiceOperationException,
-            TechnicalServiceNotAliveException, ServiceNotPublishedException,
-            OperationPendingException, ConcurrentModificationException {
+                    ServiceStateException, OrganizationAuthoritiesException,
+                    OperationNotPermittedException, ServiceOperationException,
+                    TechnicalServiceNotAliveException,
+                    ServiceNotPublishedException, OperationPendingException,
+                    ConcurrentModificationException {
         VOService service = serviceActivation.getService();
         boolean active = serviceActivation.isActive();
         List<VOCatalogEntry> catalogEntries = serviceActivation
@@ -5444,11 +5389,12 @@ public class ServiceProvisioningServiceBean implements
      */
     private VOService setActivationState(VOService service, boolean activate,
             List<VOCatalogEntry> entries, ServiceVisibilityCheck visChecker)
-            throws ServiceStateException, ObjectNotFoundException,
-            OrganizationAuthoritiesException, OperationNotPermittedException,
-            ServiceOperationException, TechnicalServiceNotAliveException,
-            ServiceNotPublishedException, OperationPendingException,
-            ConcurrentModificationException {
+                    throws ServiceStateException, ObjectNotFoundException,
+                    OrganizationAuthoritiesException,
+                    OperationNotPermittedException, ServiceOperationException,
+                    TechnicalServiceNotAliveException,
+                    ServiceNotPublishedException, OperationPendingException,
+                    ConcurrentModificationException {
 
         ArgumentValidator.notNull("service", service);
         PlatformUser currentUser = dm.getCurrentUser();
@@ -5471,14 +5417,14 @@ public class ServiceProvisioningServiceBean implements
                     String.format(
                             "Operation cannot be performed. There is already another pending request to activate or deactivate the service with ID '%s'",
                             String.valueOf(service.getServiceId())),
-                    (activate) ? OperationPendingException.ReasonEnum.ACTIVATE_SERVICE
+                    (activate)
+                            ? OperationPendingException.ReasonEnum.ACTIVATE_SERVICE
                             : OperationPendingException.ReasonEnum.DEACTIVATE_SERVICE,
                     new Object[] { String.valueOf(service.getServiceId()) });
 
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    ope,
-                    (activate) ? LogMessageIdentifier.WARN_ACTIVATE_SERVICE_FAILED_DUE_TO_TRIGGER_CONFLICT
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, ope,
+                    (activate)
+                            ? LogMessageIdentifier.WARN_ACTIVATE_SERVICE_FAILED_DUE_TO_TRIGGER_CONFLICT
                             : LogMessageIdentifier.WARN_DEACTIVATE_SERVICE_FAILED_DUE_TO_TRIGGER_CONFLICT,
                     String.valueOf(service.getKey()));
 
@@ -5518,18 +5464,17 @@ public class ServiceProvisioningServiceBean implements
                     if (catalogEntry.getMarketplace() != null) {
                         serviceAudit.activeOrDeactiveService(dm, prod,
                                 catalogEntry.getMarketplace()
-                                        .getMarketplaceId(), catalogEntry
-                                        .getMarketplace().getName(), activate,
-                                catalogEntry.isVisibleInCatalog());
+                                        .getMarketplaceId(),
+                                catalogEntry.getMarketplace().getName(),
+                                activate, catalogEntry.isVisibleInCatalog());
                     }
                 }
 
-                voProduct = ProductAssembler
-                        .toVOProduct(prod, new LocalizerFacade(localizer,
+                voProduct = ProductAssembler.toVOProduct(prod,
+                        new LocalizerFacade(localizer,
                                 currentUser.getLocale()));
             } catch (TechnicalServiceNotAliveException | ServiceStateException
-                    | ObjectNotFoundException
-                    | OrganizationAuthoritiesException
+                    | ObjectNotFoundException | OrganizationAuthoritiesException
                     | ServiceOperationException
                     | ConcurrentModificationException e) {
                 sessionCtx.setRollbackOnly();
@@ -5538,26 +5483,27 @@ public class ServiceProvisioningServiceBean implements
         } else if (triggerDefinition.isSuspendProcess()) {
             // Register this REQUEST for final visibility constraint validation
             if (entries == null) {
-                List<CatalogEntry> entry = dm.getReference(Product.class,
-                        service.getKey()).getCatalogEntries();
+                List<CatalogEntry> entry = dm
+                        .getReference(Product.class, service.getKey())
+                        .getCatalogEntries();
                 if (!entry.isEmpty()) {
                     final CatalogEntry ce = entry.get(0);
                     entries = new ArrayList<VOCatalogEntry>();
                     VOCatalogEntry vo = new VOCatalogEntry();
                     vo.setService(service);
                     vo.setVisibleInCatalog(ce.isVisibleInCatalog());
-                    vo.setMarketplace(MarketplaceAssembler.toVOMarketplace(ce
-                            .getMarketplace(), new LocalizerFacade(localizer,
-                            dm.getCurrentUser().getLocale())));
+                    vo.setMarketplace(MarketplaceAssembler.toVOMarketplace(
+                            ce.getMarketplace(), new LocalizerFacade(localizer,
+                                    dm.getCurrentUser().getLocale())));
                     entries.add(vo);
                 }
             }
 
             // If the operation defined by the trigger definition is suspended,
             // then set the trigger process identifiers.
-            tProc.setTriggerProcessIdentifiers(TriggerProcessIdentifiers
-                    .createDeactivateService(dm, triggerDefinition.getType(),
-                            service));
+            tProc.setTriggerProcessIdentifiers(
+                    TriggerProcessIdentifiers.createDeactivateService(dm,
+                            triggerDefinition.getType(), service));
             dm.merge(tProc);
         }
 
@@ -5576,15 +5522,15 @@ public class ServiceProvisioningServiceBean implements
      */
     private void updateCatalogEntryVisibility(Product product,
             List<VOCatalogEntry> entries)
-            throws ConcurrentModificationException {
+                    throws ConcurrentModificationException {
 
         HashMap<String, CatalogEntry> entryMap;
 
         // Get all existing catalog entries for this service
         Query query = dm.createNamedQuery("CatalogEntry.findByService");
         query.setParameter("service", product);
-        List<CatalogEntry> tempList = ParameterizedTypes.list(
-                query.getResultList(), CatalogEntry.class);
+        List<CatalogEntry> tempList = ParameterizedTypes
+                .list(query.getResultList(), CatalogEntry.class);
         entryMap = new HashMap<String, CatalogEntry>();
         for (CatalogEntry entry : tempList) {
             if (entry.getMarketplace() != null) {
@@ -5604,9 +5550,7 @@ public class ServiceProvisioningServiceBean implements
                     // No catalog entry for the specified marketplace found
                     ConcurrentModificationException cme = new ConcurrentModificationException(
                             voEntry);
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            cme,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, cme,
                             LogMessageIdentifier.WARN_MARKETPLACE_MISMATCH_ON_SETTING_VISIBILITY,
                             String.valueOf(product.getKey()));
                     throw cme;
@@ -5640,8 +5584,9 @@ public class ServiceProvisioningServiceBean implements
                 && !locale.equals("en")) {
             Product product = dm.getReference(Product.class, serviceKey);
             LocalizerFacade localizerEn = new LocalizerFacade(localizer, "en");
-            String description = localizerEn.getText(product.getVendor()
-                    .getKey(), LocalizedObjectTypes.ORGANIZATION_DESCRIPTION);
+            String description = localizerEn.getText(
+                    product.getVendor().getKey(),
+                    LocalizedObjectTypes.ORGANIZATION_DESCRIPTION);
             org.setDescription(description);
         }
         return org;
@@ -5673,8 +5618,8 @@ public class ServiceProvisioningServiceBean implements
             query.setParameter("supplierIds", organizationIds);
             query.setParameter("status", EnumSet.of(SubscriptionStatus.ACTIVE,
                     SubscriptionStatus.SUSPENDED));
-            List<String> instanceIds = ParameterizedTypes.list(
-                    query.getResultList(), String.class);
+            List<String> instanceIds = ParameterizedTypes
+                    .list(query.getResultList(), String.class);
             if (instanceIds != null) {
                 result.addAll(instanceIds);
             }
@@ -5727,21 +5672,21 @@ public class ServiceProvisioningServiceBean implements
             if (user.isOrganizationAdmin()
                     || user.hasRole(UserRoleType.SERVICE_MANAGER)) {
                 try {
-                    commService.sendMail(user, EmailType.SERVICE_SUSPENDED,
-                            new Object[] { tempOrSelf.getProductId(), reason,
-                                    currentUser.getEmail() }, mp);
+                    commService
+                            .sendMail(user, EmailType.SERVICE_SUSPENDED,
+                                    new Object[] { tempOrSelf.getProductId(),
+                                            reason, currentUser.getEmail() },
+                                    mp);
                 } catch (MailOperationException e) {
-                    logger.logError(
-                            Log4jLogger.SYSTEM_LOG,
-                            e,
+                    logger.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_SEND_SERVICE_SUSPENDED_MAIL_FAILED);
                 }
             }
         }
         dm.flush();
-        VOService voProduct = ProductAssembler
-                .toVOProduct(prod, new LocalizerFacade(localizer, dm
-                        .getCurrentUser().getLocale()));
+        VOService voProduct = ProductAssembler.toVOProduct(prod,
+                new LocalizerFacade(localizer,
+                        dm.getCurrentUser().getLocale()));
 
         return voProduct;
     }
@@ -5782,9 +5727,9 @@ public class ServiceProvisioningServiceBean implements
             }
         }
         dm.flush();
-        VOService voProduct = ProductAssembler
-                .toVOProduct(prod, new LocalizerFacade(localizer, dm
-                        .getCurrentUser().getLocale()));
+        VOService voProduct = ProductAssembler.toVOProduct(prod,
+                new LocalizerFacade(localizer,
+                        dm.getCurrentUser().getLocale()));
 
         return voProduct;
     }
@@ -5804,14 +5749,12 @@ public class ServiceProvisioningServiceBean implements
      */
     private Marketplace validatePermissionForSuspendAndResume(
             PlatformUser currentUser, Product prod)
-            throws OperationNotPermittedException {
+                    throws OperationNotPermittedException {
         if (prod.getOwningSubscription() != null) {
             String message = "Service '%s' is related to a subscription.";
             OperationNotPermittedException e = new OperationNotPermittedException(
                     String.format(message, Long.valueOf(prod.getKey())));
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_VALIDATE_PERMISSION_FOR_SUSPEND_AND_RESUME,
                     message);
             throw e;
@@ -5826,13 +5769,12 @@ public class ServiceProvisioningServiceBean implements
         List<CatalogEntry> ces = tempOrSelf.getCatalogEntries();
         // the catalog entry may have no marketplace set
         // this happens when the MP got deleted while the service was not active
-        if (ces == null || ces.isEmpty() || ces.get(0).getMarketplace() == null) {
+        if (ces == null || ces.isEmpty()
+                || ces.get(0).getMarketplace() == null) {
             String message = "Service '%s' is not published to a marketplace.";
             OperationNotPermittedException e = new OperationNotPermittedException(
                     String.format(message, Long.valueOf(prod.getKey())));
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG,
-                    e,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.WARN_VALIDATE_PERMISSION_FOR_SUSPEND_AND_RESUME,
                     message);
             throw e;
@@ -5847,17 +5789,14 @@ public class ServiceProvisioningServiceBean implements
     /**
      * compares the technical product key
      */
-    private void validateTechnicalProductCompatibility(
-            Product referenceProduct, Product compatibleProd)
-            throws ServiceCompatibilityException {
+    private void validateTechnicalProductCompatibility(Product referenceProduct,
+            Product compatibleProd) throws ServiceCompatibilityException {
         if (compatibleProd.getTechnicalProduct().getKey() != referenceProduct
                 .getTechnicalProduct().getKey()) {
             ServiceCompatibilityException ipc = new ServiceCompatibilityException(
                     "Definition of product compatibility failed, related technical products do not match",
                     ServiceCompatibilityException.Reason.TECH_SERVICE);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    ipc,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ipc,
                     LogMessageIdentifier.WARN_DEFINE_COMPATIBILITY_FOR_PRODUCTS_FAILED_NOT_SAME_BASE,
                     dm.getCurrentUser().getUserId(),
                     Long.toString(compatibleProd.getKey()),
@@ -5878,9 +5817,7 @@ public class ServiceProvisioningServiceBean implements
             ServiceCompatibilityException ipc = new ServiceCompatibilityException(
                     "Definition of product compatibility failed,the price models have different currencies",
                     ServiceCompatibilityException.Reason.CURRENCY);
-            logger.logWarn(
-                    Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG,
-                    ipc,
+            logger.logWarn(Log4jLogger.SYSTEM_LOG | Log4jLogger.AUDIT_LOG, ipc,
                     LogMessageIdentifier.WARN_DEFINE_COMPATIBILITY_FOR_PRODUCTS_FAILED_NOT_SAME_CURRENCY,
                     dm.getCurrentUser().getUserId(),
                     Long.toString(referencePriceModel.getKey()),
@@ -5898,8 +5835,8 @@ public class ServiceProvisioningServiceBean implements
         if (referencePriceModel != null && compatiblePriceModel != null
                 && referencePriceModel.isChargeable()
                 && compatiblePriceModel.isChargeable()) {
-            if (!referencePriceModel.getCurrency().equals(
-                    compatiblePriceModel.getCurrency())) {
+            if (!referencePriceModel.getCurrency()
+                    .equals(compatiblePriceModel.getCurrency())) {
                 return false;
             }
         }
@@ -5927,7 +5864,7 @@ public class ServiceProvisioningServiceBean implements
     @RolesAllowed("SERVICE_MANAGER")
     public List<VOCompatibleService> getPotentialCompatibleServices(
             VOService service) throws ObjectNotFoundException,
-            OperationNotPermittedException {
+                    OperationNotPermittedException {
 
         ArgumentValidator.notNull("service", service);
         Product p = dm.getReference(Product.class, service.getKey());
@@ -5969,15 +5906,15 @@ public class ServiceProvisioningServiceBean implements
         targetKeys
                 .addAll(ParameterizedTypes.list(q.getResultList(), Long.class));
 
-        LocalizerFacade facade = new LocalizerFacade(localizer, dm
-                .getCurrentUser().getLocale());
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
         ProductAssembler.prefetchData(products, facade,
                 PerformanceHint.ONLY_FIELDS_FOR_LISTINGS);
 
         for (Product prod : products) {
             if (isCompatibleCurrency(p.getPriceModel(), prod.getPriceModel())) {
-                VOCompatibleService s = ProductAssembler.toVOCompatibleService(
-                        prod, targetKeys, facade);
+                VOCompatibleService s = ProductAssembler
+                        .toVOCompatibleService(prod, targetKeys, facade);
                 result.add(s);
             }
         }
@@ -6023,13 +5960,41 @@ public class ServiceProvisioningServiceBean implements
 
         Set<ServiceType> types = EnumSet.of(ServiceType.CUSTOMER_TEMPLATE);
 
-        Query query = dm
-                .createNamedQuery("Product.getCustomerSpecificCopiesForTemplate");
+        Query query = dm.createNamedQuery(
+                "Product.getCustomerSpecificCopiesForTemplate");
         query.setParameter("template", template);
         query.setParameter("serviceType", types);
         List<Product> list = ParameterizedTypes.list(query.getResultList(),
                 Product.class);
 
         return list;
+    }
+
+    @Override
+    public List<VOCustomerService> getServiceCustomerTemplates(
+            VOService service) throws ObjectNotFoundException,
+                    OperationNotPermittedException {
+
+        ArgumentValidator.notNull("service", service);
+
+        Product storedService = dm.getReference(Product.class,
+                service.getKey());
+        List<Product> customerProducts = getCustomerSpecificCopyProducts(
+                storedService);
+
+        List<VOCustomerService> result = new ArrayList<VOCustomerService>();
+        LocalizerFacade facade = new LocalizerFacade(localizer,
+                dm.getCurrentUser().getLocale());
+        Set<ServiceStatus> states = EnumSet.of(ServiceStatus.ACTIVE,
+                ServiceStatus.INACTIVE, ServiceStatus.SUSPENDED);
+
+        for (Product product : customerProducts) {
+            if (states.contains(product.getStatus())) {
+                result.add(
+                        ProductAssembler.toVOCustomerProduct(product, facade));
+            }
+        }
+
+        return result;
     }
 }

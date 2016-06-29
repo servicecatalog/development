@@ -21,20 +21,21 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.ejb.EJBAccessException;
 import javax.ejb.EJBException;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PublicLandingpage;
+import org.oscm.accountservice.assembler.OrganizationAssembler;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.PublishingAccess;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.test.ReflectiveClone;
 import org.oscm.test.data.Marketplaces;
@@ -1295,4 +1296,219 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 this.hasUserRole(updatedUser));
     }
 
+    @Ignore
+    public void test_getAllOrganizations() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_MARKETPLACE_OWNER);
+        
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketRestricted = Marketplaces.createMarketplace(platformOperatorOrg, "TEST_MARKETPLACE",
+                    false, mgr);
+                return marketRestricted;
+            }
+        });
+        List<VOOrganization> results = marketplaceService.getAllOrganizations(marketplaceFromDB.getMarketplaceId());
+        assertFalse(results.isEmpty());
+    }
+
+
+    @Test
+    public void testCloseMarketplace() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR, ROLE_MARKETPLACE_OWNER);
+        final Organization marketplaceOwner = runTX(new Callable<Organization>() {
+            @Override
+            public Organization call() throws Exception {
+                Organization newOrg = Organizations.createOrganization(mgr,
+                    OrganizationRoleType.PLATFORM_OPERATOR,
+                    OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                    OrganizationRoleType.MARKETPLACE_OWNER);
+                return newOrg;
+            }
+        });
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketRestricted = Marketplaces.createMarketplace(marketplaceOwner,
+                    "RESTRICTED_MARKETPLACE",
+                    false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(marketplaceOwner);
+                Set<Long> authorizedOrganizations = new HashSet<>();
+                authorizedOrganizations.add(voOrganization.getKey());
+
+                marketplaceService.closeMarketplace(marketRestricted.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>(),new HashSet<Long>());
+
+                Marketplace mp = mgr.getReference(Marketplace.class,
+                    marketRestricted.getKey());
+
+                MarketplaceAccess ma = new MarketplaceAccess();
+                ma.setOrganization_tkey(marketplaceOwner.getKey());
+                ma.setMarketplace_tkey(marketRestricted.getKey());
+                ma = (MarketplaceAccess) mgr.getReferenceByBusinessKey(ma);
+
+                assertFalse(ma == null);
+                return mp;
+            }
+        });
+
+        assertTrue(marketplaceFromDB.isRestricted());
+    }
+
+    @Test
+    public void testOpenMarketplace() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+                ROLE_MARKETPLACE_OWNER);
+        final Organization marketplaceOwner = runTX(
+                new Callable<Organization>() {
+                    @Override
+                    public Organization call() throws Exception {
+                        Organization newOrg = Organizations.createOrganization(
+                                mgr, OrganizationRoleType.PLATFORM_OPERATOR,
+                                OrganizationRoleType.TECHNOLOGY_PROVIDER,
+                                OrganizationRoleType.MARKETPLACE_OWNER);
+                        return newOrg;
+                    }
+                });
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketRestricted = Marketplaces.createMarketplace(
+                        marketplaceOwner, "RESTRICTED_MARKETPLACE_TO_OPEN",
+                        false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler
+                        .toVOOrganization(marketplaceOwner);
+                Set<Long> authorizedOrganizations = new HashSet<>();
+                authorizedOrganizations.add(voOrganization.getKey());
+
+                marketplaceService.closeMarketplace(
+                        marketRestricted.getMarketplaceId(),
+                        authorizedOrganizations,
+                        new HashSet<Long>(),new HashSet<Long>());
+
+                Marketplace mp = mgr.getReference(Marketplace.class,
+                        marketRestricted.getKey());
+
+                assertTrue(mp.isRestricted());
+
+                marketplaceService
+                        .openMarketplace(marketRestricted.getMarketplaceId());
+
+                Marketplace mpOpened = mgr.getReference(Marketplace.class,
+                        marketRestricted.getKey());
+
+                assertFalse(mpOpened.isRestricted());
+
+                return mp;
+            }
+        });
+
+    }
+
+    @Test
+    public void testGetAllAccessibleMarketplacesForOrg() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+            ROLE_MARKETPLACE_OWNER);
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "CLOSED",
+                    false, mgr);
+
+                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "OPEN",
+                    false, mgr);
+                VOOrganization voOrganization = OrganizationAssembler.toVOOrganization(platformOperatorOrg);
+                Set<Long> authorizedOrganizations = new HashSet<>();
+                authorizedOrganizations.add(voOrganization.getKey());
+
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>(), new HashSet<Long>());
+
+                Marketplace mpClosed = mgr.getReference(Marketplace.class,
+                    marketClosed.getKey());
+
+                Marketplace mpOpen = mgr.getReference(Marketplace.class,
+                    marketOpen.getKey());
+
+                assertTrue(mpClosed.isRestricted());
+                assertFalse(mpOpen.isRestricted());
+
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+
+                boolean closedFound = false;
+                boolean openFound = false;
+                for (VOMarketplace voMarketplace : accessibleMarketplaces) {
+                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                        closedFound = true;
+                        continue;
+                    }
+                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                        openFound = true;
+                    }
+                }
+
+                assertTrue(closedFound);
+                assertTrue(openFound);
+
+                boolean resultClosed = marketplaceService.doesOrganizationHaveAccessMarketplace(marketClosed
+                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
+                boolean resultOpen = marketplaceService.doesOrganizationHaveAccessMarketplace(marketOpen
+                    .getMarketplaceId(), platformOperatorOrg.getOrganizationId());
+                assertTrue(resultClosed);
+                assertTrue(resultOpen);
+                return mpClosed;
+            }
+        });
+    }
+
+    @Test
+    public void testGetAllAccessibleMarketplacesForOrg_onlyOpen() throws Exception {
+        container.login(platformOperatorUserKey, ROLE_PLATFORM_OPERATOR,
+            ROLE_MARKETPLACE_OWNER);
+
+        Marketplace marketplaceFromDB = runTX(new Callable<Marketplace>() {
+            @Override
+            public Marketplace call() throws Exception {
+                Marketplace marketClosed = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "CLOSED1",
+                    false, mgr);
+
+                Marketplace marketOpen = Marketplaces.createMarketplace(platformOperatorOrg,
+                    "OPEN1",
+                    false, mgr);
+
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), new HashSet<Long>(),new HashSet<Long>(), new HashSet<Long>());
+
+                Marketplace mpClosed = mgr.getReference(Marketplace.class,
+                    marketClosed.getKey());
+
+                Marketplace mpOpen = mgr.getReference(Marketplace.class,
+                    marketOpen.getKey());
+
+                assertTrue(mpClosed.isRestricted());
+                assertFalse(mpOpen.isRestricted());
+
+                List<VOMarketplace> accessibleMarketplaces = marketplaceService.getAccessibleMarketplacesForOperator();
+
+                boolean closedFound = false;
+                boolean openFound = false;
+                for (VOMarketplace voMarketplace : accessibleMarketplaces) {
+                    if (voMarketplace.getMarketplaceId().equals(marketClosed.getMarketplaceId())) {
+                        closedFound = true;
+                        continue;
+                    }
+                    if (voMarketplace.getMarketplaceId().equals(marketOpen.getMarketplaceId())) {
+                        openFound = true;
+                    }
+                }
+
+                assertFalse(closedFound);
+                assertTrue(openFound);
+                return mpClosed;
+            }
+        });
+    }
 }

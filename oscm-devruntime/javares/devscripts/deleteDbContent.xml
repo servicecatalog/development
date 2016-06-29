@@ -20,6 +20,7 @@
   <LocalizedResource />
   <ImageResource />
   <ParameterSet />
+  <ParameterSetHistory />
   <PaymentInfo />
   <PriceModel />
   <Organization />
@@ -43,6 +44,7 @@
   <PriceModelHistory />
   <TechnicalProductHistory />
   <ProductHistory />
+  <ProductReferenceHistory />
   <OrganizationHistory />
   <PlatformUserHistory />
   <SubscriptionHistory />
@@ -63,6 +65,7 @@
   <Report />
   <OrganizationSetting />
   <PaymentResult />
+  <PaymentResultHistory />
   <PaymentType />
   <PaymentTypeHistory />
   <OrganizationToPaymentType />
@@ -72,7 +75,9 @@
   <Discount />
   <DiscountHistory />
   <TriggerDefinition />
+  <TriggerDefinitionHistory />
   <TriggerProcess />
+  <TriggerProcessHistory />
   <TriggerProcessParameter />
   <TriggerProcessIdentifier />
   <TriggerProcessParameterIdentifier /><!-- Deprecated: only here to delete the deprecated table from dev and integration envs -->
@@ -83,12 +88,15 @@
   <SteppedPrice />
   <SteppedPriceHistory />
   <TechnicalProductOperation />
+  <TechnicalProductOperationHistory />
   <OperationParameter />
+  <OperationParameterHistory />
   <UdaDefinition />
   <UdaDefinitionHistory />
   <Uda />
   <UdaHistory />
   <OrganizationToCountry />
+  <OrganizationToCountryHistory />
   <SupportedCountry />
   <VatRate />
   <VatRateHistory />
@@ -98,15 +106,21 @@
   <CatalogEntryHistory />
   <Marketplace />
   <MarketplaceHistory />
+  <MarketplaceAccess />
   <Tag />
   <TechnicalProductTag />
   <UserRole />
   <RoleAssignment />
+  <RoleAssignmentHistory />
   <ProductFeedback />
   <ProductReview />
+  <ProductReviewHistory />
   <ProductToPaymentType />
+  <ProductToPaymentTypeHistory />
   <OnBehalfUserReference />
+  <OnBehalfUserReferenceHistory />
   <MarketplaceToOrganization />
+  <MarketplaceToOrganizationHistory />
   <PSP />
   <PSPHistory />
   <PSPSetting />
@@ -114,8 +128,11 @@
   <PSPAccount />
   <PSPAccountHistory />
   <MarketingPermission />
+  <MarketingPermissionHistory />
   <Category />
+  <CategoryHistory />
   <CategorytoCatalogEntry />
+  <CategoryToCatalogEntryHistory />
   <LandingPageProduct />
   <LandingPage /><!-- Deprecated: only here to delete the deprecated table from dev and integration envs -->
   <PublicLandingPage />
@@ -127,8 +144,11 @@
   <PlatformSetting />
   <AuditLog />
   <SupportedLanguage />
+  <SupportedLanguageHistory />
   <ModifiedEntity />
+  <ModifiedEntityHistory />
   <ModifiedUda />
+  <ModifiedUdaHistory />
   <LocalizedBillingResource />
   <UnitUserRole />
   <UnitRoleAssignment />

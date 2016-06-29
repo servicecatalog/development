@@ -72,7 +72,7 @@ public class SubscriptionDao {
             "cd.targetObjectKey = sub.tkey and udaDef.organizationKey=p.vendorkey and udaDef.tKey IN (:udaDefinitions)) " +
             "AND sub.product_tkey=p.tkey " +
             "AND sub.organizationkey = :organization " +
-    "AND    sub.status IN (:states)"
+            "AND sub.status IN (:states)"
         ;
 
     private final static String SUBSCRIPTIONS_FOR_UNIT_ADMIN = "SELECT s.*, oCustomer.organizationid as customer_org, oCustomer.name as customer_name, p.productid, p.template_tkey, ug.name as unit_name "

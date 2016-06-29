@@ -72,7 +72,13 @@ public class MarketplaceData extends DomainDataContainer implements
      */
     @Column(nullable = false)
     private boolean categoriesEnabled;
-
+    
+    /**
+     * Flag indicating if the marketplace has restricted access.
+     */
+    @Column(nullable = false)
+    private boolean restricted;
+    
     /**
      * The URL to the CSS file for branding this marketplace.
      */
@@ -148,5 +154,13 @@ public class MarketplaceData extends DomainDataContainer implements
 
     public String getTrackingCode() {
         return trackingCode;
+    }
+
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
     }
 }

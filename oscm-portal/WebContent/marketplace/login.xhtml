@@ -128,7 +128,7 @@
               <ui:param name="selfRegistrationAllowed" value="#{userBean.selfRegistrationAllowed}" />
             </ui:include>
           </h:form>
-          <c:if test="#{not serviceLogin and userBean.selfRegistrationAllowed}">
+          <c:if test="#{(not serviceLogin and userBean.selfRegistrationAllowed and !isMplRestricted)}">
             <!--  Right hand side registration panel -->
             <a4j:outputPanel layout="block" styleClass="col1span lastcol">
               <h2>

@@ -45,8 +45,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.exception.*;
 import org.oscm.types.constants.Configuration;
-import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.common.UiDelegate;
@@ -63,12 +64,6 @@ import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.usergroupmgmt.UserGroupService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
@@ -104,6 +99,7 @@ public class UserBeanTest {
     private AuthenticationHandler authHandlerMock;
     private HttpSession sessionMock;
     private UserGroupService userGroupService = mock(UserGroupService.class);
+    private MarketplaceService marketplaceService = mock(MarketplaceService.class);
     private static final String ISSUER = "CT-MG";
     private static final String RECIPIENT = "http://www.bes-portal.de";
     private static final String IDP = "http://www.idp.de/openam/SSORedirect/request";
@@ -195,6 +191,12 @@ public class UserBeanTest {
                 eq(IdentityService.class));
 
         doReturn(userGroupService).when(userBean).getUserGroupService();
+
+        when(userBean.ui.findBean(eq(UserBean.APPLICATION_BEAN))).thenReturn(
+            appBean);
+
+        doReturn(marketplaceService).when(userBean).getMarketplaceService();
+        doReturn(true).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
     }
 
     void mockErrorAttribute(HttpServletRequest requestMock) {
@@ -790,6 +792,14 @@ public class UserBeanTest {
 
         // then
         assertEquals(SUBSCRIPTION_ADD_PAGE, userBean.getRequestedRedirect());
+    }
+
+    @Test (expected = SaaSSystemException.class)
+    public void testLoginForClosedMarketplace() throws LoginException, ValidationException {
+        //given
+        doReturn(false).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
+        //when
+        userBean.login();
     }
 
     private ConfigurationService setupConfigurationMockForRegistrationenablement(

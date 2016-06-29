@@ -61,6 +61,7 @@ import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.operatorservice.bean.OperatorServiceBean;
 import org.oscm.paymentservice.bean.PaymentServiceBean;
 import org.oscm.paymentservice.bean.PortLocatorBean;
@@ -174,6 +175,7 @@ public class SubscriptionUpgradeSetup {
         container.addBean(Mockito.mock(SubscriptionSearchService.class));
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new ServiceProvisioningServiceBean());
+        container.addBean(new MarketplaceAccessDao());
         container.addBean(new MarketplaceServiceLocalBean());
         container.addBean(new MarketplaceServiceBean());
         container.addBean(new ProductReviewDao());

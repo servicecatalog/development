@@ -3637,10 +3637,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
         return product;
     }
 
-    private Set<Product> prepareProductWithExternalPriceModel(final String providerId,
-            final String supplierId, final boolean chargeable,
-            final Set<String> paymentTypes, final boolean createPriceModel)
-            throws Exception {
+    private Set<Product> prepareProductWithExternalPriceModel(
+            final String providerId, final String supplierId,
+            final boolean chargeable, final Set<String> paymentTypes,
+            final boolean createPriceModel) throws Exception {
 
         Set<Product> product = runTX(new Callable<Set<Product>>() {
 
@@ -5884,8 +5884,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         // prepare services with external price model
         for (int i = 0; i < numNoPriceModel; i++) {
-            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0), false, paymentTypes,
-                    false);
+            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0),
+                    false, paymentTypes, false);
         }
 
         // login as supplier user

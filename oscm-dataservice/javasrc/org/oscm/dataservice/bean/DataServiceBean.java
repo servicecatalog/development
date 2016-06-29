@@ -39,61 +39,12 @@ import javax.xml.ws.WebServiceContext;
 
 import org.hibernate.Session;
 
+import org.oscm.domobjects.*;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
-import org.oscm.domobjects.BillingAdapter;
-import org.oscm.domobjects.BillingContact;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.DomainHistoryObject;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Event;
-import org.oscm.domobjects.LocalizedResource;
-import org.oscm.domobjects.MarketingPermission;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.MarketplaceToOrganization;
-import org.oscm.domobjects.OnBehalfUserReference;
-import org.oscm.domobjects.OperationParameter;
-import org.oscm.domobjects.OperationRecord;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationSetting;
-import org.oscm.domobjects.OrganizationToCountry;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterOption;
-import org.oscm.domobjects.PaymentInfo;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PersistenceReflection;
-import org.oscm.domobjects.PlatformSetting;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PricedParameter;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.ProductReview;
-import org.oscm.domobjects.ProductToPaymentType;
-import org.oscm.domobjects.Report;
-import org.oscm.domobjects.ReportResultCache;
-import org.oscm.domobjects.RoleDefinition;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.SupportedLanguage;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductOperation;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
-import org.oscm.domobjects.UnitRoleAssignment;
-import org.oscm.domobjects.UserGroup;
-import org.oscm.domobjects.UserGroupToInvisibleProduct;
-import org.oscm.domobjects.UserGroupToUser;
-import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.bridge.BridgeDataManager;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.exceptions.InvalidUserSession;
@@ -279,7 +230,9 @@ public class DataServiceBean implements DataService {
             classEnum = DomainObjectException.ClassEnum.BILLING_ADAPTER;
         } else if(objclass == UnitRoleAssignment.class) {
             classEnum = DomainObjectException.ClassEnum.UNIT_ROLE_ASSIGNMENT;
-        }      
+        } else if(objclass == MarketplaceAccess.class) {
+            classEnum = DomainObjectException.ClassEnum.MARKETPLACE_ACCESS;
+        }
         ;
 
         return classEnum;

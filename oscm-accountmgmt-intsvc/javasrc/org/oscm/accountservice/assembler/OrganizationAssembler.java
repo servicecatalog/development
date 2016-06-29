@@ -413,4 +413,11 @@ public class OrganizationAssembler extends BaseAssembler {
         }
     }
 
+    public static Organization toOrganization(VOOrganization voOrganization) {
+        Organization organization = new Organization();
+        organization.setKey(voOrganization.getKey());
+        organization.setOrganizationId(voOrganization.getOrganizationId());
+        organization.setName(voOrganization.getName());
+        return organization;
+    }
 }

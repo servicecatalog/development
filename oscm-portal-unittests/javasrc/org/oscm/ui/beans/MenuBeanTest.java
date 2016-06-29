@@ -648,31 +648,35 @@ public class MenuBeanTest {
         assertTrue(manageMpGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(manageMpGroup);
-        assertEquals(8, visibleMenuItems.size());
+        assertEquals(9, visibleMenuItems.size());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_CATEGORIES,
                 visibleMenuItems.get(0).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
-                visibleMenuItems.get(1).getId());
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_ACCESS,
+            visibleMenuItems.get(1).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_UPDATE,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_MANAGE_SUPPLIERS,
                 visibleMenuItems.get(2).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRACKINGCODE,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_UPDATE,
                 visibleMenuItems.get(3).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_LANDINGPAGE,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRACKINGCODE,
                 visibleMenuItems.get(4).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_STAGE,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_LANDINGPAGE,
                 visibleMenuItems.get(5).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRANSLATION,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_EDIT_STAGE,
                 visibleMenuItems.get(6).getId());
 
-        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_CUSTOMIZE_BRAND,
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_TRANSLATION,
                 visibleMenuItems.get(7).getId());
+
+        assertEquals(HiddenUIConstants.MENU_ITEM_MARKETPLACE_CUSTOMIZE_BRAND,
+                visibleMenuItems.get(8).getId());
+
     }
 
     @Test

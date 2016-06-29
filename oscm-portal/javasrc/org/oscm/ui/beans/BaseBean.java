@@ -139,6 +139,7 @@ public class BaseBean {
     public static final String ERROR_INVALID_MARKETPLACE_URL = "error.invalidMarketplaceUrl";
     public static final String ERROR_INVALID_SERVICE_URL = "error.invalidServiceUrl";
     public static final String ERROR_LOGIN = "error.login";
+    public static final String ERROR_LOGIN_TO_CLOSED_MARKETPLACE = "error.loginToClosedMarketplace";
     public static final String ERROR_LOGIN_SAML_SP = "error.login.samlsp";
     public static final String ERROR_LOGIN_IMPOSSIBLE = "error.login.impossible";
     public static final String ERROR_USER_ALREADY_CONFIRMED = "error.user.alreadyConfirmed";
@@ -240,6 +241,8 @@ public class BaseBean {
     public static final String WARNING_OWNER_IS_SUB_MAN = "warning.editSubscription.subscriptionOwner.subscriptionManager";
     public static final String WARNING_UNIT_NOT_SELECTED_UNIT_ADMIN = "warning.editSubscription.subscriptionUnitNotSelected";
     public static final String WARNING_PAYMENT_TYPES_NOT_USED = "warning.paymentTypesAreNotUsed";
+    public static final String WARNING_NO_CUSTOMER_ACCESS_TO_RESTRICTED_MPL = "warning.noCustomerAccessToRestrictedMpl";
+
 
     public static final String INFO_BILLING_CONTACT_DELETED = "info.billingContact.deleted";
     public static final String INFO_BILLING_CONTACT_DELETED_CONCURRENTLY = "info.billingContact.deletedConcurrently";
@@ -308,6 +311,7 @@ public class BaseBean {
     public static final String INFO_MARKETPLACE_STAGE_SAVED = "info.marketplace.stage.saved";
     public static final String INFO_MARKETPLACE_CREATED = "info.marketplace.created";
     public static final String INFO_MARKETPLACE_DELETED = "info.marketplace.deleted";
+    public static final String INFO_MARKETPLACE_ACCESS_SAVED = "marketplace.manageAccess.saved";
     public static final String INFO_SUPPLIER_ADDED = "info.supplier.added";
     public static final String INFO_SUPPLIER_REMOVED = "info.supplier.removed";
     public static final String INFO_SUPPLIER_BANNED = "info.supplier.banned";
