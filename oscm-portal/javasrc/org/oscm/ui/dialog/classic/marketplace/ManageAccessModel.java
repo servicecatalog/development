@@ -56,6 +56,8 @@ public class ManageAccessModel {
     
     private boolean changedHasSubscriptions;
     
+    private String allSelectedOrganizations;
+    
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
     }
@@ -180,5 +182,13 @@ public class ManageAccessModel {
 
     public void setChangedHasSubscriptions(boolean changedHasSubscriptions) {
         this.changedHasSubscriptions = changedHasSubscriptions;
+    }
+
+    public String getAllSelectedOrganizations() {
+        return allSelectedOrganizations;
+    }
+
+    public void setAllSelectedOrganizations(String allSelectedOrganizations) {
+        this.allSelectedOrganizations = allSelectedOrganizations;
     }
 }

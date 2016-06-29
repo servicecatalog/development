@@ -11,6 +11,7 @@
 package org.oscm.ui.dialog.classic.marketplace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -23,7 +24,6 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
-import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.model.SelectItem;
 
 import org.oscm.internal.intf.MarketplaceService;
@@ -202,28 +202,46 @@ public class ManageAccessCtrl {
                 model.getOrganizationsWithSubscriptionsToSuspend()
                         .remove(orgKey);
             }
-            model.setShowSubscriptionSuspendingWarning(model
-                    .getOrganizationsWithSubscriptionsToSuspend().size() > 0);
+            showSubscriptionSuspendingWarning();
         }
     }
+    
+    public void selectAllOrganizations() {
 
-    public void allOrganizationSelected(AjaxBehaviorEvent event) {
+        String orgKeys = model.getAllSelectedOrganizations();
+        boolean orgIsSelected = model.isChangedSelection();
 
-        /*boolean allOrganizationsSelected = model.isAllOrganizationsSelected();
-        if (allOrganizationsSelected) {
-            model.getOrganizationsToBeRemoved().clear();
-        } else {
-            List<POOrganization> allOrganizations = model.getOrganizations();
+        String[] orgIds = orgKeys.split(";");
+        List<String> selectedOrgIds = Arrays.asList(orgIds);
 
-            for (POOrganization organization : allOrganizations) {
-                if (organization.isSelected()) {
-                    model.getOrganizationsToBeRemoved()
-                            .add(organization.getOrganizationId());
+        for (POOrganization org : model.getOrganizations()) {
+            
+            //propagation is done only for selected organizations
+            if (selectedOrgIds.contains(org.getOrganizationId())) {
+
+                long orgKey = org.getKey();
+                boolean hasSubscriptions = org.isHasSubscriptions();
+
+                if (model.getAccessesSelected().get(orgKey)
+                        && hasSubscriptions) {
+                    if (!orgIsSelected) {
+                        model.getOrganizationsWithSubscriptionsToSuspend()
+                                .add(orgKey);
+                    } else {
+                        model.getOrganizationsWithSubscriptionsToSuspend()
+                                .remove(orgKey);
+                    }
+                    showSubscriptionSuspendingWarning();
                 }
             }
-        }*/
+        }
     }
-
+    
+    private void showSubscriptionSuspendingWarning() {
+        model.setShowSubscriptionSuspendingWarning(
+                model.getOrganizationsWithSubscriptionsToSuspend().size() > 0);
+    }
+    
     public void addMessage(final String messageText) {
         JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO, messageText,
                 null);
