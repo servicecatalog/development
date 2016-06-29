@@ -27,6 +27,7 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
+import javax.security.auth.login.LoginException;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.AccountServiceLocal;
@@ -1201,18 +1202,25 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @Override
     public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
-            String organizationId) throws ObjectNotFoundException {
+            String organizationId) throws LoginException {
 
-        VOMarketplace voMarketplace = getMarketplaceById(marketplaceId);
-        if (!voMarketplace.isRestricted()) {
-            return true;
+        VOMarketplace voMarketplace = null;
+        try {
+            voMarketplace = getMarketplaceById(marketplaceId);
+
+            if (!voMarketplace.isRestricted()) {
+                return true;
+            }
+            Organization orga = new Organization();
+            orga.setOrganizationId(organizationId);
+            Organization organization = (Organization) dm
+                    .getReferenceByBusinessKey(orga);
+            return marketplaceServiceLocal
+                    .doesAccessToMarketplaceExistForOrganization(
+                            voMarketplace.getKey(), organization.getKey());
+        } catch (ObjectNotFoundException e) {
+            throw new LoginException();
         }
-        Organization orga = new Organization();
-        orga.setOrganizationId(organizationId);
-        Organization organization = (Organization) dm
-                .getReferenceByBusinessKey(orga);
-        return marketplaceServiceLocal
-                .doesAccessToMarketplaceExistForOrganization(
-                        voMarketplace.getKey(), organization.getKey());
+
     }
 }
