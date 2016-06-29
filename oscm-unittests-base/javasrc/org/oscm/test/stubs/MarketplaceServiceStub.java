@@ -26,6 +26,8 @@ import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServiceDetails;
 
+import javax.security.auth.login.LoginException;
+
 public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
@@ -187,7 +189,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
-        throws ObjectNotFoundException {
+        throws LoginException {
         return false;
     }
 
