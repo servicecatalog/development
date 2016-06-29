@@ -795,7 +795,7 @@ public class UserBeanTest {
     }
 
     @Test (expected = SaaSSystemException.class)
-    public void testLoginForClosedMarketplace() throws ObjectNotFoundException, ValidationException {
+    public void testLoginForClosedMarketplace() throws LoginException, ValidationException {
         //given
         doReturn(false).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
         //when

@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.Set;
 
 import javax.faces.context.FacesContext;
+import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -2392,7 +2393,7 @@ public class MockService implements IdentityService, SubscriptionService,
 
     @Override
     public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
-        throws ObjectNotFoundException {
+        throws LoginException {
         return false;
     }
 
