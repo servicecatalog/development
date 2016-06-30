@@ -20,10 +20,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.TriggerDefinition;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.triggerservice.data.SupportedVersions;
 import org.oscm.ws.WSPortConnector;
 import org.oscm.ws.WSPortDescription;
-import org.oscm.internal.types.exception.SaaSSystemException;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
 
 /**
  * Retrieves the notification service adapter according to the concrete WSDL.
@@ -45,16 +48,39 @@ public class NotificationServiceAdapterFactory {
                             "Failed to retrieve service endpoint for trigger definition '%s', as the target is not defined.",
                             Long.valueOf(td.getKey())));
         }
-        WSPortConnector portConnector = new WSPortConnector(target, null, null);
 
-        SupportedVersions supportedVersion = getSupportedVersion(portConnector);
-        INotificationServiceAdapter adapter = getAdapterForVersion(
-                supportedVersion, ds);
+        INotificationServiceAdapter adapter = null;
 
-        final Object port = portConnector.getPort(
-                supportedVersion.getLocalWSDL(),
-                supportedVersion.getServiceClass(), wsTimeout);
-        initAdapter(cs, ds, adapter, port);
+        switch (td.getTargetType()) {
+        case WEB_SERVICE:
+            WSPortConnector portConnector = new WSPortConnector(target, null,
+                    null);
+
+            SupportedVersions supportedVersion = getSupportedVersion(portConnector);
+            adapter = getAdapterForVersion(supportedVersion, ds);
+
+            final Object port = portConnector.getPort(
+                    supportedVersion.getLocalWSDL(),
+                    supportedVersion.getServiceClass(), wsTimeout);
+            initAdapter(cs, ds, adapter, port);
+            break;
+        case REST_SERVICE:
+
+            Client c = Client.create();
+
+            WebResource r = c.resource(td.getTarget());
+
+            adapter = new RestNotificationServiceAdapter();
+            initAdapter(cs, ds, adapter, r);
+
+            break;
+
+        default:
+            throw new SaaSSystemException(
+                    String.format(
+                            "Failed to retrieve service endpoint for trigger definition '%s', as the target type is not defined.",
+                            Long.valueOf(td.getKey())));
+        }
 
         return adapter;
     }

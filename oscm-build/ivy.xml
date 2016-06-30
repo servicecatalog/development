@@ -521,6 +521,7 @@
         <dependency org="com.sun.xml.ws" name="jaxws-tools" rev="2.1.7" transitive="false"/>
         <dependency org="com.sun.xml.messaging.saaj" name="saaj-impl" rev="1.3.3" transitive="false"/>
         <dependency org="wsdl4j" name="wsdl4j" rev="1.6.1" transitive="false"/>
+        <dependency org="com.google.code.gson" name="gson" rev="2.6.2" transitive="false"/>
         <exclude org="org.netbeans.api"/>
         <exclude org="*" ext="*" type="source"/>
         <exclude org="*" ext="*" type="javadoc"/>

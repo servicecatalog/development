@@ -5,6 +5,7 @@
 	<projects>
 		<project>oscm-apiversioning-client-handler</project>
 		<project>oscm-billing</project>
+		<project>oscm-billing-external-interfaces</project>
 		<project>oscm-extsvc</project>
 		<project>oscm-extsvc-notification</project>
 		<project>oscm-extsvc-operation</project>
@@ -14,8 +15,8 @@
 		<project>oscm-integrationhelper</project>
 		<project>oscm-integrationtests-apiversioning-client</project>
 		<project>oscm-integrationtests-parameter-configurator</project>
-		<project>oscm-billing-external-interfaces</project>
 		<project>oscm-portal</project>
+		<project>oscm-rest-api-trigger</project>
 		<project>oscm-serviceprovisioning</project>
 		<project>oscm-webservices-proxy</project>
 	</projects>

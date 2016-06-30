@@ -58,6 +58,7 @@
         <include name="oscm-build/result/package/oscm-portal-webtests/*.jar" />
         <include name="oscm-build/result/package/oscm-extsvc/*.jar" />
         <include name="oscm-build/result/package/oscm-extsvc-internal/*.jar" />
+        <include name="oscm-build/result/package/oscm-rest-api-interfaces/*.jar" />
         <include name="oscm-build/result/package/oscm-common/*.jar" />
         <include name="oscm-build/result/package/oscm-devruntime/*.jar" />
         <include name="oscm-build/result/package/oscm-psp-extsvc/*.jar" />

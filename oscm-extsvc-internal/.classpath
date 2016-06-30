@@ -4,5 +4,6 @@
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

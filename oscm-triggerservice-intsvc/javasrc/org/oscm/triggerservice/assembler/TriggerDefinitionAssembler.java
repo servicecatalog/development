@@ -10,16 +10,17 @@
 
 package org.oscm.triggerservice.assembler;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.TriggerDefinition;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.validator.BLValidator;
-import org.oscm.vo.BaseAssembler;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOTriggerDefinition;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.validator.BLValidator;
+import org.oscm.vo.BaseAssembler;
 
 /**
  * Assembler to convert the trigger definition value objects to the trigger
@@ -34,7 +35,7 @@ public class TriggerDefinitionAssembler extends BaseAssembler {
 
     public static final String FIELD_NAME_TARGET_TYPE = "targetType";
 
-    public static final String FIELD_NAME_TARGET = "target";
+    public static final String FIELD_NAME_TARGET = "target_url";
 
     public static final String FIELD_NAME_NAME = "name";
 
@@ -60,6 +61,14 @@ public class TriggerDefinitionAssembler extends BaseAssembler {
         vo.setTarget(domObj.getTarget());
         vo.setSuspendProcess(domObj.isSuspendProcess());
         vo.setName(domObj.getName());
+
+        if (domObj.getOrganization() != null) {
+            VOOrganization org = new VOOrganization();
+            org.setKey(domObj.getOrganization().getKey());
+            org.setName(domObj.getOrganization().getName());
+
+            vo.setOrganization(org);
+        }
 
         updateValueObject(vo, domObj);
         return vo;

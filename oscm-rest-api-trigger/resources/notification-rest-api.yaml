@@ -1,0 +1,113 @@
+# Copyright FUJITSU LIMITED 2016
+swagger: '2.0'
+info:
+  title: Notification Service REST API
+  description: API call by the notification service
+  version: "1.0.0"
+
+# the domain of the service
+host: oscm.org
+# array of all schemes that your API supports
+schemes:
+  - http
+  - https
+# will be prefixed to all paths
+basePath: /target_path
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+paths:
+  /target_url:
+    post:
+      summary: Trigger Notification
+      description: Receives the notification for the controller
+      parameters:
+        - name: Process
+          in: body
+          description: Representation of the trigger process
+          required: true
+          schema:
+            $ref: '#/definitions/Process'
+      responses:
+        204:
+          description: No Content
+
+definitions:
+  Process:
+    type: object
+    description: Process representation
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: ID of the trigger process
+      activition_time:
+        type: string
+        format: date
+        description: Timestamp of the process activition
+      status:
+        type: string
+        description: The status of the process
+      comment:
+        type: string
+        description: Comment for the approve or reject of the process
+      author:
+        type: object
+        description: Author representation
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: ID of the responsible user
+          email:
+            type: string
+            format: email
+            description: E-Mail adress of the responsible user
+      subscription:
+        type: object
+        description: Subscription representaion
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: ID of the subscription
+          name:
+            type: string
+            description: Name of the subscription
+      product:
+        type: object
+        description: Product representation
+        properties:
+          name:
+            type: string
+            description: Name of the product
+          parameters:
+            type: array
+            items:
+                type: object
+                description: Parameter items
+                properties:
+                  name:
+                    type: string
+                    description: Name of the parameter
+                  value:
+                    type: string
+                    description: Value of the parameter
+      links:
+        type: object
+        description: Links representation
+        properties:
+          trigger_id:
+            type: integer
+            format: int64
+            description: ID of the trigger definition
+          author_id:
+            type: integer
+            format: int64
+            description: ID of the responsible user
+          subscription_id:
+            type: integer
+            format: int64
+            description: ID of the subscription
