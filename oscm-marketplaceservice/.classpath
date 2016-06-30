@@ -28,5 +28,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-util"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application-intsvc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-rest-api-interfaces"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
