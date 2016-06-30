@@ -1,0 +1,305 @@
+# Copyright FUJITSU LIMITED 2016
+swagger: '2.0'
+info:
+  title: Trigger Service REST API
+  description: OSCM Trigger and Notification Service
+  version: "1.0.0"
+
+# the domain of the service
+host: oscm.org
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /oscm-rest/trigger/v1
+consumes:
+  - application/json
+produces:
+  - application/json
+  
+securityDefinitions:
+  authentication:
+    type: basic
+    description: HTTP Basic Authentication.
+
+security:
+  - authentication: []
+  
+paths:
+  /triggers:
+    get:
+      summary: Trigger Definition
+      description: |
+        Gets all trigger definitions of the users organization.
+      tags:
+        - Trigger
+      responses:
+        200:
+          description: Collection of trigger definitions
+          schema:
+              $ref: '#/definitions/CollectionTrigger'
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      summary: Trigger Definition
+      description: Creates a new trigger definition within the users organization
+      parameters:
+        - name: trigger
+          in: body
+          description: Representation of the trigger definition to create
+          required: true
+          schema:
+            $ref: '#/definitions/Trigger'
+      tags:
+        - Trigger
+      responses:
+        201:
+          description: Created
+          headers:
+            location:
+              description: ID of the the new trigger definition
+              type: integer
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+  /triggers/{id}:
+    get:
+      summary: Trigger Definition
+      description: Gets the trigger definition with the given ID.
+      parameters:
+        - name: id
+          in: path
+          description: ID of the trigger definition
+          required: true
+          type: number
+          format: long
+      tags:
+        - Trigger
+      responses:
+        200:
+          description: Corresponding trigger definition
+          schema:
+            $ref: '#/definitions/Trigger'
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID not found
+          schema:
+            $ref: '#/definitions/Error'
+    put:
+      summary: Trigger Definition
+      description: Updates the trigger definition with the given ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the trigger definition
+          required: true
+          type: number
+          format: long
+        - name: trigger
+          in: body
+          description: Representation of the trigger definition to create
+          required: true
+          schema:
+            $ref: '#/definitions/Trigger'
+        - name: If-Match
+          in: header
+          description: ETag of the trigger definition for concurrency check. If not present or '*' concurrency will be ignored.
+          required: false
+          type: string
+      tags:
+        - Trigger
+      responses:
+        204:
+          description: No Content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID not found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: Concurrency conflict
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Trigger Definition
+      description: Updates the trigger definition with the given ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the trigger definition
+          required: true
+          type: number
+          format: long
+      tags:
+        - Trigger
+      responses:
+        204:
+          description: No Content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID not found
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /processes/{id}/approve:
+    put:
+      summary: Trigger Process
+      description: Approves the trigger process with the given ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the trigger process
+          required: true
+          type: number
+          format: long
+      tags:
+        - Process
+      responses:
+        204:
+          description: No Content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID not found
+          schema:
+            $ref: '#/definitions/Error'
+        409:
+          description: Approve was not successful 
+          schema:
+            $ref: '#/definitions/Error'
+  /processes/{id}/reject:
+    put:
+      summary: Trigger Process
+      description: Rejects the trigger process with the given ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the trigger process
+          required: true
+          type: number
+          format: long
+        - name: process
+          in: body
+          description: Representation with the comment
+          required: true
+          schema:
+            $ref: '#/definitions/Process'
+      tags:
+        - Process
+      responses:
+        204:
+          description: No Content
+        403:
+          description: Insufficient permissions
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: ID not found
+          schema:
+            $ref: '#/definitions/Error'
+
+definitions:
+  Trigger:
+    type: object
+    required:
+      - description
+      - suspend
+      - target_type
+      - target_url
+      - action
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: ID of the trigger definition
+      etag:
+        type: integer
+        format: int64
+        description: ETag of the trigger definition
+      description:
+        type: string
+        description: Description of the trigger definition
+      suspend:
+        type: boolean
+        description: if true, process will be suspended
+      target_type:
+        type: string
+        enum:
+          - WEB_SERVICE
+          - REST_SERVICE
+        description: the type of webservices the notification is sent to
+      target_url:
+        type: string
+        format: url
+        description: URL of the receiving endpoint for the notification service
+      action:
+        type: string
+        enum:
+          - SUBSCRIBE_TO_SERVICE
+          - UNSUBSCRIBE_FROM_SERVICE
+          - MODIFY_SUBSCRIPTION
+        description: Action that triggers the process.
+      owner:
+        type: object
+        properties:
+          id:
+            type: integer
+            format: int64
+            description: ID of the owners organization (read only)
+          description:
+            type: string
+            description: Description of the organization (read only)
+      links:
+        type: object
+        properties:
+          owner_id:
+            type: integer
+            format: int64
+            description: ID of the owners organization (read only)
+            
+  Process:
+    type: object
+    required:
+      - comment
+    properties:
+      id:
+        type: integer
+        format: int64
+        description: ID of the trigger process
+      comment:
+        type: string
+        description: Comment for the approve or reject of the process
+  CollectionTrigger:
+    type: object
+    properties:
+      items:
+        type: array
+        items: 
+          $ref: '#/definitions/Trigger'
+          
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      property:
+        type: string
+      moreInfo:
+        type: string

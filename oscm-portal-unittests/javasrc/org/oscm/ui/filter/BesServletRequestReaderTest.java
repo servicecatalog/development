@@ -148,4 +148,34 @@ public class BesServletRequestReaderTest {
         // than URL is recognized as a non-landing page
         assertFalse(BesServletRequestReader.isManagePaymentTypesPage(request));
     }
+
+    @Test
+    public void isAccountPaymentPage() {
+        // given
+        when(request.getServletPath())
+                .thenReturn("/marketplace/account/payments.jsf?mId=1111");
+
+        // then
+        assertTrue(BesServletRequestReader.isAccountPaymentPage(request));
+    }
+
+    @Test
+    public void isAccountPaymentPage_XHTML() {
+        // given
+        when(request.getServletPath())
+                .thenReturn("/marketplace/account/payments.xhtml?mId=1111");
+
+        // then
+        assertTrue(BesServletRequestReader.isAccountPaymentPage(request));
+    }
+
+    @Test
+    public void isAccountPaymentPage_negative() {
+        // given
+        when(request.getServletPath())
+                .thenReturn("/marketplace/SOME_OTHER_PAGE.jsf?mId=1111");
+
+        // than URL is recognized as a non-landing page
+        assertFalse(BesServletRequestReader.isAccountPaymentPage(request));
+    }
 }

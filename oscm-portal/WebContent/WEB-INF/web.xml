@@ -165,6 +165,16 @@
     </init-param>
   </filter>
   <filter>
+    <display-name>Closed Marketplace Filter</display-name>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <filter-class>org.oscm.ui.filter.ClosedMarketplaceFilter</filter-class>
+    <init-param>
+      <param-name>exclude-url-pattern</param-name>
+      <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/
+        .*|^/marketplace/terms/.*|.*/marketplace/img/.*|^/marketplace/recoverPassword.jsf|^/marketplace/confirmStartPwdRecovery.jsf)</param-value>
+    </init-param>
+  </filter>
+  <filter>
     <display-name>Authorization Filter</display-name>
     <filter-name>auth</filter-name>
     <filter-class>org.oscm.ui.filter.AuthorizationFilter</filter-class>
@@ -262,6 +272,10 @@
   <filter-mapping>
     <filter-name>IdPResponseFilter</filter-name>
     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>ClosedMarketplaceFilter</filter-name>
+    <url-pattern>/marketplace/*</url-pattern>
   </filter-mapping>
   <filter-mapping>
     <filter-name>IllegalRequestParameterFilter</filter-name>

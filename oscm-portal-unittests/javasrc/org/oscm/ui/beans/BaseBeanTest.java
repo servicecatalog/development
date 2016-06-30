@@ -6,29 +6,36 @@ package org.oscm.ui.beans;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
 import javax.faces.context.ExternalContext;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.stubs.ExternalContextStub;
-import org.oscm.ui.stubs.FacesContextStub;
-import org.oscm.ui.stubs.HttpServletRequestStub;
-import org.oscm.ui.stubs.HttpSessionStub;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.usermanagement.UserService;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
+import org.oscm.ui.stubs.ExternalContextStub;
+import org.oscm.ui.stubs.FacesContextStub;
+import org.oscm.ui.stubs.HttpServletRequestStub;
+import org.oscm.ui.stubs.HttpSessionStub;
 
 public class BaseBeanTest {
     BaseBean ctrl;
@@ -37,9 +44,10 @@ public class BaseBeanTest {
     VOUserDetails voUser;
     VOUserDetails voUserInSession;
     ExternalContextStub externalContextStub;
+    HttpServletResponse responseMock;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         voUser = prepareVOUserDetail();
         voUserInSession = prepareSessionVOUserDetail();
         final HttpSession session = new HttpSessionStub(Locale.ENGLISH);
@@ -52,17 +60,32 @@ public class BaseBeanTest {
             }
         };
 
+        responseMock = mock(HttpServletResponse.class);
+        OutputStream out = mock(ServletOutputStream.class);
+        doReturn(out).when(responseMock).getOutputStream();
+
         externalContextStub = new ExternalContextStub(Locale.ENGLISH) {
             @Override
             public Object getRequest() {
                 return request;
             }
+
+            @Override
+            public Object getResponse() {
+                return responseMock;
+            }
+
         };
 
         new FacesContextStub(Locale.ENGLISH) {
             @Override
             public ExternalContext getExternalContext() {
                 return externalContextStub;
+            }
+
+            @Override
+            public void responseComplete() {
+
             }
         };
 
@@ -148,4 +171,17 @@ public class BaseBeanTest {
         return voCurrentUser;
     }
 
+    @Test
+    public void writeContentToResponse() throws Exception {
+        byte[] content = "Some file content.\n".getBytes();
+        String fileName = "fileName.xml";
+
+        // when
+        JSFUtils.writeContentToResponse(content, fileName, "Text");
+
+        // then
+        verify(responseMock, times(1)).setHeader(eq("Content-disposition"),
+                eq("attachment; filename=\"" + fileName + "\""));
+        verify(responseMock, times(1)).setContentLength(eq(content.length));
+    }
 }

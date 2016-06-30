@@ -1,0 +1,27 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+                             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+  xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich"
+  xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:c="http://java.sun.com/jsp/jstl/core">
+
+  <rich:popupPanel id="priceModelPanel" trimOverlayedElements="false" resizeable="false" autosized="true"
+    onresize="return false;" zindex="10000" onshow="AdmUtils.adjustMplModalDialogPosition('priceModelPanel');"
+    onbeforeshow="AdmUtils.setPageOverflow('hidden');" onhide="AdmUtils.setPageOverflow('auto');">
+    <mp:closeModalDialogButton id="closePriceModelButton" onclick="#{rich:component('priceModelPanel')}.hide(); return false;" />
+
+    <h2>
+      <h:outputText id="priceModelPanelTitle" value="#{msg['service.priceModel']}" />
+    </h2>
+    <mp:pixelline />
+    <h:form id="configurationForm2" styleClass="priceModelForm">
+    <ui:include src="priceModelDetails.xhtml">
+              <ui:param name="formName2" value="configurationForm2" />
+    </ui:include>
+    <h:outputText styleClass="recommendedPrice right"
+      value="#{msg['service.recommendedRetailPrice']}"
+      rendered="#{model.service.reseller and model.service.priceModel.chargeable}" />
+    </h:form>
+  </rich:popupPanel>
+</ui:composition>

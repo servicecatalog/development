@@ -422,4 +422,11 @@ public class ServiceProvisioningServiceStub implements
             ObjectNotFoundException {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public List<VOCustomerService> getServiceCustomerTemplates(
+            VOService service) throws ObjectNotFoundException,
+                    OperationNotPermittedException {
+        throw new UnsupportedOperationException();
+    }
 }

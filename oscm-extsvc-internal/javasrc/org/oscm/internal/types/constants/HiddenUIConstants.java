@@ -62,6 +62,7 @@ public interface HiddenUIConstants {
     String MENU_ITEM_MARKETPLACE_TRACKINGCODE = "shop.trackingCode";
     String MENU_ITEM_MARKETPLACE_EDIT_STAGE = "shop.editStage";
     String MENU_ITEM_MARKETPLACE_TRANSLATION = "shop.translations";
+    String MENU_ITEM_MARKETPLACE_MANAGE_ACCESS = "marketplace.manageAccess";
     String MENU_GROUP_NAVIGATION_CUSTOMER = "navigation.customer";
     String MENU_ITEM_ORGANIZATION_ADD_CUSTOMER = "organization.addCustomer";
     String MENU_ITEM_EDIT_CUSTOMER = "organization.editCustomer";

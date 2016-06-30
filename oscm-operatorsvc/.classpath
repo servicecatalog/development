@@ -25,5 +25,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

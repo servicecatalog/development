@@ -39,9 +39,19 @@
                 <h:inputHidden value="UTF-8" name="ie" />
               </a4j:outputPanel>
               <a4j:outputPanel layout="block">
-                <h:commandButton name="btnG" id="submit"
-                  onclick="AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
-                  styleClass="searchButton" />
+
+                <c:if test="#{servicePagingBean.searchAvailable}">
+                  <h:commandButton name="btnG" id="submit"
+                    onclick="AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
+                    styleClass="searchButton" />
+                </c:if>
+
+                <c:if test="#{not servicePagingBean.searchAvailable}">
+                  <h:commandButton name="btnG" id="submit"
+                                   onclick="showLoginPanel('/marketplace/index.jsf');"
+                                   styleClass="searchButton" />
+                </c:if>
+
               </a4j:outputPanel>
             </a4j:outputPanel>
           </h:form>

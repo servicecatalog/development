@@ -198,6 +198,7 @@ import org.oscm.internal.vo.VOService;
 import org.oscm.internal.vo.VOServicePaymentConfiguration;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 @SuppressWarnings("boxing")
 public class AccountServiceBeanIT extends EJBTestBase {
@@ -267,6 +268,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     private UserGroupServiceLocalBean userGroupServiceLocal;
     private UserGroupDao userGroupDao;
+    
+    private MarketplaceServiceLocal mplServiceLocal;
+    private Marketplace mpl;
 
     @Captor
     ArgumentCaptor<Properties> storedProps;
@@ -340,6 +344,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         userGroupServiceLocal = mock(UserGroupServiceLocalBean.class);
         container.addBean(userGroupServiceLocal);
         container.addBean(new UserGroupUsersDao());
+        mplServiceLocal = mock(MarketplaceServiceLocal.class);
+        container.addBean(mplServiceLocal);
         container.addBean(new ImageResourceServiceStub() {
             ImageResource saved;
 
@@ -579,6 +585,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
         supplierIds.add(organization.getOrganizationId());
+        
+        when(mplServiceLocal.getMarketplaceForId(anyString())).thenReturn(mpl);
     }
 
     @Test
@@ -693,7 +701,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
         container.login(String.valueOf(tmp.getKey()), ROLE_ORGANIZATION_ADMIN);
 
-        runTX(new Callable<Marketplace>() {
+        mpl = runTX(new Callable<Marketplace>() {
             @Override
             public Marketplace call() throws Exception {
                 Marketplace mp = new Marketplace();
@@ -3637,10 +3645,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
         return product;
     }
 
-    private Set<Product> prepareProductWithExternalPriceModel(final String providerId,
-            final String supplierId, final boolean chargeable,
-            final Set<String> paymentTypes, final boolean createPriceModel)
-            throws Exception {
+    private Set<Product> prepareProductWithExternalPriceModel(
+            final String providerId, final String supplierId,
+            final boolean chargeable, final Set<String> paymentTypes,
+            final boolean createPriceModel) throws Exception {
 
         Set<Product> product = runTX(new Callable<Set<Product>>() {
 
@@ -5884,8 +5892,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         // prepare services with external price model
         for (int i = 0; i < numNoPriceModel; i++) {
-            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0), false, paymentTypes,
-                    false);
+            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0),
+                    false, paymentTypes, false);
         }
 
         // login as supplier user

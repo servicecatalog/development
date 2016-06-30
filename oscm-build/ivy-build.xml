@@ -424,5 +424,6 @@
     <copy file="${ivy.lib.dir}/jaxws-tools-2.1.7.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxws-tools.jar"></copy>
     <copy file="${ivy.lib.dir}/saaj-impl-1.3.3.jar" tofile="${root.dir}/libraries/sun-metro/javalib/saaj-impl.jar"></copy>
     <copy file="${ivy.lib.dir}/wsdl4j-1.6.2.jar" tofile="${root.dir}/libraries/wsdl4j/javalib/wsdl4j.jar"></copy>
+    <copy file="${ivy.lib.dir}/gson-2.6.2.jar" tofile="${root.dir}/libraries/gson/javalib/gson-2.6.2.jar"></copy>
   </target>
 </project>

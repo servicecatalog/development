@@ -17,6 +17,6 @@ public enum TriggerTargetType {
     /**
      * The trigger notifies an external system by a Web service call.
      */
-    WEB_SERVICE;
+    WEB_SERVICE, REST_SERVICE;
 
 }

@@ -38,6 +38,10 @@
 			<verifyXPath xpath="//*[@id='editForm:revenueShare']" />
 			<verifyXPath xpath="//*[@id='editForm:revenueShareReseller']" />
 			<verifyXPath xpath="//*[@id='editForm:revenueShareBroker']" />
+			<invoke url="${supplierUrl}/shop/manageSuppliers.jsf" />
+			<setSelectField htmlId="marketplaceSelectForm:selectMarketplaceId" text="New Marketplace (${mId})"/>
+			<setInputField htmlId="addSupplierForm:supplierId" value="${resellerId}" />
+			<clickButton htmlId="addSupplierForm:confirmedAddButton" />
 			<login.logout />
 
 			<storeProperty name="administrator" value="administrator" propertyType="ant" />
@@ -120,6 +124,7 @@
 				<login.loginAsSupplier url="${resellerUrl}" userId="${resellerUserId}" />
 				<invoke url="${supplierUrl}/service/publish.jsf" />
 				<setSelectField htmlId="editForm:selectedServiceId" text="Service1 (${supplierId})" />
+				<setSelectField htmlId="editForm:marketplace" text="New Marketplace(${supplierId})" />
 			</selectWebClient>
 
 			<selectWebClient name="browser2">
@@ -133,23 +138,24 @@
 				<login.logout />
 			</selectWebClient>
 		</webtest>
-
-    <webtest name="Bug 10245">
-      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service2" name="Service2" description="Service2 description" />
-      <setup:pricemodel.define serviceId="Service2" isFree="true" />
-      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
-      <invoke url="${supplierUrl}/service/publish.jsf" />
-      <setSelectField htmlId="editForm:selectedServiceId" text="Service2" />
-		<storeElementAttribute htmlid="editForm:saveButtonDisabled" property="isBtnDisabled" attributeName="class" />
-		<verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
-      <login.logout />
-    </webtest>
+		
+		<webtest name="Bug 10245">
+	      <setup:service.define svcKeyProperty="svcKey1" techServiceId="Example 1.00" serviceId="Service2" name="Service2" description="Service2 description" />
+	      <setup:pricemodel.define serviceId="Service2" isFree="true" />
+	      <login.loginAsSupplier url="${supplierUrl}" userId="${supplierUserId}" />
+	      <invoke url="${supplierUrl}/service/publish.jsf" />
+	      <setSelectField htmlId="editForm:selectedServiceId" text="Service2" />
+			<storeElementAttribute htmlid="editForm:saveButtonDisabled" property="isBtnDisabled" attributeName="class" />
+			<verifyProperty description="check if button is disabled" name="isBtnDisabled" text="buttonDisabled no-button-style-class" />
+	      <login.logout />
+	    </webtest>
 
 
 		<webtest name="cleanUp">
-			<setup:service.delete serviceIds="*" deactivate="true" />
-			<mail.cleanInbox />
+		  <setup:service.delete serviceIds="*" deactivate="true" />
+		  <mail.cleanInbox />
 		</webtest>
+
 	</target>
 
 	<macrodef name="this.verifyGrantResalePermission">

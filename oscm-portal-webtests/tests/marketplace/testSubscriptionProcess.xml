@@ -141,8 +141,10 @@
       <setCheckbox htmlId="configurationForm:parameterConfigTable:12:booleanValue" checked="false" />
       <setInputField htmlId="configurationForm:parameterConfigTable:13:integerValue" value="1" />
 
-      <mpl_goto.tab label="${service.priceModel}" />
+  	  <!-- Open modal -->
+  	  <clickLink xpath="//a[@id='priceModelModalLink']"/>
       <common.waitForJavaScript />
+  	  <verifyXPath xpath="//form[@id='configurationForm2']"/>
 
       <verifyXPath xpath="//*[@id='configurationForm2:discount']" regex="true" text=".*${priceModel.text.discountLabel}.*99.99.*01/1970.*12/9999.*" />
 
@@ -154,6 +156,8 @@
       <verifyInputField htmlId="configurationForm2:parameterTable:11:integerValue" value="500" />
       <verifyCheckbox htmlId="configurationForm2:parameterTable:12:booleanValue" checked="false" />
       <verifyInputField htmlId="configurationForm2:parameterTable:13:integerValue" value="1" />
+  	  <!-- Close modal -->
+  	  <clickElement xpath="//input[@id='closePriceModelButton']" />
 
       <!-- Click on the Next button, check that you are directed to 2nd page of subscription process -->
       <clickButton name="configurationForm:next" />

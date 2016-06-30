@@ -74,6 +74,10 @@ public class PriceModel {
         return vo.isExternal();
     }
 
+    public boolean isFree() {
+        return vo.isFree();
+    }
+
     public PricingPeriod getPeriod() {
         return vo.getPeriod();
     }
@@ -126,7 +130,8 @@ public class PriceModel {
         return vo.getSelectedParameters();
     }
 
-    public void setSelectedParameters(List<VOPricedParameter> selectedParameters) {
+    public void setSelectedParameters(
+            List<VOPricedParameter> selectedParameters) {
         vo.setSelectedParameters(selectedParameters);
     }
 

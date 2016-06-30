@@ -33,6 +33,7 @@ public class VOMarketplace extends BaseVO implements Serializable {
     private boolean reviewEnabled = true;
     private boolean socialBookmarkEnabled = true;
     private boolean categoriesEnabled = true;
+    private boolean restricted = false;
 
     /**
      * Default constructor.
@@ -269,6 +270,14 @@ public class VOMarketplace extends BaseVO implements Serializable {
         } else {
             return false;
         }
+    }
+
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
     }
 
 }

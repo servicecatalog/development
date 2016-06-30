@@ -67,6 +67,7 @@ import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.bean.LandingpageServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.operatorservice.bean.OperatorServiceBean;
 import org.oscm.paymentservice.bean.PaymentServiceBean;
 import org.oscm.paymentservice.bean.PortLocatorBean;
@@ -213,6 +214,7 @@ public class BillingIntegrationTestBase extends StaticEJBTestBase {
         container.addBean(new DataServiceBean());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new PaymentTypeDao());
+        container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(mock(SessionServiceLocal.class));
         container.addBean(mock(ApplicationServiceLocal.class));

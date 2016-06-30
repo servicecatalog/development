@@ -1377,5 +1377,18 @@ public interface ServiceProvisioningService {
     VOSubscriptionDetails validateSubscription(VOService service)
             throws OperationNotPermittedException, SubscriptionStateException,
             ObjectNotFoundException;
+    
+    /**
+     * Returns a list of all customer-specific services provided by the calling
+     * user's organization. Customer-specific services are copies of defined
+     * marketable services. Such a copy is created when a supplier defines a
+     * customer-specific price model for a marketable service.
+     * 
+     * @return the list of customer-specific services
+     * @throws ObjectNotFoundException
+     * @throws OperationNotPermittedException
+     */
+
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service) throws ObjectNotFoundException, OperationNotPermittedException;
 
 }

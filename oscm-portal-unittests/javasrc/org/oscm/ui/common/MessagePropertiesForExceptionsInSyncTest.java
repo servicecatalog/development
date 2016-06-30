@@ -132,7 +132,9 @@ public class MessagePropertiesForExceptionsInSyncTest {
                     + ClassEnum.USER_ROLE,
             DeletionConstraintException.class.getSimpleName() + "."
                     + ClassEnum.VAT_RATES,
-
+            DeletionConstraintException.class.getSimpleName() + "."
+                    + ClassEnum.MARKETPLACE_ACCESS,
+                    
             UpdateConstraintException.class.getSimpleName() + "."
                     + ClassEnum.BILLING_CONTACT,
             UpdateConstraintException.class.getSimpleName() + "."
@@ -211,11 +213,15 @@ public class MessagePropertiesForExceptionsInSyncTest {
                     + ClassEnum.USER_ROLE,
             UpdateConstraintException.class.getSimpleName() + "."
                     + ClassEnum.VAT_RATES,
-
+            UpdateConstraintException.class.getSimpleName() + "."
+                    + ClassEnum.MARKETPLACE_ACCESS,
+                    
             ObjectNotFoundException.class.getSimpleName() + "."
                     + ClassEnum.USER_GROUP_TO_USER,
             ObjectNotFoundException.class.getSimpleName() + "."
-                    + ClassEnum.USER_GROUP_TO_INVISIBLE_PRODUCT);
+                    + ClassEnum.USER_GROUP_TO_INVISIBLE_PRODUCT,
+            ObjectNotFoundException.class.getSimpleName() + "."
+                    + ClassEnum.MARKETPLACE_ACCESS);
 
     // exceptions from the rule: not covered by or contradict generic algorithm,
     // so they must be declared manually (to get aware of absent message keys)

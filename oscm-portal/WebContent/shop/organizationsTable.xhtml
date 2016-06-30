@@ -1,0 +1,110 @@
+<!-- Copyright FUJITSU LIMITED 2016-->
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+  xmlns:f="http://java.sun.com/jsf/core" xmlns:h="http://java.sun.com/jsf/html" xmlns:a4j="http://richfaces.org/a4j"
+  xmlns:rich="http://richfaces.org/rich" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  <a4j:outputPanel id="organizationTablePanel">
+    <a4j:region>
+      <adm:dataTable tableId="organizationsTable" value="#{manageAccessCtrl.model.organizations}"
+        columnsWidth="2%,49%,49%" columnClasses="smallCell" headerClass="rowTitle sortable" rowClasses="rowOdd,rowEven"
+        id="organizationsTable" rows="10" width="inherit"
+        onrowclick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.organizationId}');}"
+        onrowmouseover="AdmUtils.mouseOverRow(this);" onrowmouseout="AdmUtils.mouseOutRow(this);">
+
+        <f:facet name="header">
+          <a4j:outputPanel>
+            <adm:pager pagerId="organizationsPager" />
+          </a4j:outputPanel>
+        </f:facet>
+
+        <rich:column id="colOrganizationCheckbox" 
+          sortIcon="#{sortIcon}" sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}">
+          <f:facet name="header">
+            <a4j:outputPanel styleClass="organizationTableSelectAllCheckBox">
+              <h:selectBooleanCheckbox id="allOrganizationsCheckbox" title="#{msg['group.select.services']}"
+                immediate="true" value="#{manageAccessCtrl.model.allOrganizationsSelected}"
+                onclick="setDirty(true);AdmUtils.dataTableSelectCheckboxes('#{formName}:organizationsTable', 'organizationCheckbox', this.checked, '#{size}');prepareOrganizations($(this)[0].checked);">
+                <a4j:ajax event="change" listener="#{manageAccessCtrl.allOrganizationSelected}" />
+              </h:selectBooleanCheckbox>
+              
+           <a4j:jsFunction name="selectAllOrganizations" action="#{manageAccessCtrl.selectAllOrganizations}">
+            <a4j:param name="param1" assignTo="#{manageAccessCtrl.model.allSelectedOrganizations}" />
+            <a4j:param name="param2" assignTo="#{manageAccessCtrl.model.changedSelection}" />
+          </a4j:jsFunction>
+          
+            </a4j:outputPanel>
+          </f:facet>
+          <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}" styleClass="checkbox-in-table"
+            onchange="setDirty(true);changeOrganizationAccess(#{rowItem.key}, $(this)[0].checked, #{rowItem.hasSubscriptions});initializeAllCheckbox();">
+          </h:selectBooleanCheckbox>
+
+          <a4j:jsFunction name="changeOrganizationAccess" action="#{manageAccessCtrl.changeOrganizationAccess}">
+            <a4j:param name="param1" assignTo="#{manageAccessCtrl.model.changedKey}" />
+            <a4j:param name="param2" assignTo="#{manageAccessCtrl.model.changedSelection}" />
+            <a4j:param name="param3" assignTo="#{manageAccessCtrl.model.changedHasSubscriptions}" />
+          </a4j:jsFunction>
+
+        </rich:column>
+
+        <rich:column id="colOrganizationName" sortBy="#{rowItem.name}" sortIcon="#{sortIcon}"
+          sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}" filterType="custom"
+          filterValue="#{tableState.filterValues['colOrganizationName']}"
+          filterExpression="#{adm:matchBegin(rowItem.name, tableState.filterValues['colOrganizationName'], false)}">
+          <f:facet name="header">
+            <h:outputText value="#{msg['organization.name']}" />
+            <adm:filterInput inputId="filterOrganizationName"
+              inputValue="#{tableState.filterValues['colOrganizationName']}"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('organizationsPager')});"
+              render="organizationsTable@body, pagerPanel" />
+          </f:facet>
+          <a4j:outputPanel id="organizationNamePanel" layout="block" styleClass="stringInMultiLine preserveWhitespaces">
+            <h:outputText id="organizationName" value="#{rowItem.name}" />
+          </a4j:outputPanel>
+        </rich:column>
+
+        <rich:column id="colOrganizationId" sortBy="#{rowItem.organizationId}" sortIcon="#{sortIcon}"
+          sortIconAscending="#{sortIconAscending}" sortIconDescending="#{sortIconDescending}" filterType="custom"
+          filterValue="#{tableState.filterValues['colOrganizationId']}"
+          filterExpression="#{adm:matchBegin(rowItem.organizationId, tableState.filterValues['colOrganizationId'], false)}">
+          <f:facet name="header">
+            <h:outputText value="#{msg['organization.organizationId']}" />
+            <adm:filterInput inputId="filterOrganizationId" inputValue="#{tableState.filterValues['colOrganizationId']}"
+              onkeyup="AdmUtils.setFirstPage(#{rich:element('organizationsPager')});"
+              render="organizationsTable@body, pagerPanel" />
+          </f:facet>
+          <a4j:outputPanel id="organizationIdPanel" layout="block" styleClass="stringInMultiLine preserveWhitespaces">
+            <h:outputText id="organizationId" value="#{rowItem.organizationId}" styleClass="orgIdField" />
+          </a4j:outputPanel>
+        </rich:column>
+
+      </adm:dataTable>
+    </a4j:region>
+  </a4j:outputPanel>
+
+  <a4j:outputPanel id="scriptPanel">
+    <script type="text/javascript">
+      initializeAllCheckbox();
+      
+   	  function initializeAllCheckbox() {
+        AdmUtils.setAllServiceCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', 'allOrganizationsCheckbox');
+  	  }
+      $("[id='#{formName}']").on("DOMSubtreeModified propertychange", function() {
+        AdmUtils.updateSelectAllCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', "#{formName}:organizationsTable:allOrganizationsCheckbox");
+      });
+      
+      function prepareOrganizations(selected) {
+  	  	var allOrgs="";
+  	  
+  	  	$("span.orgIdField").each(	 
+  		  function(index,value){
+  			if(index>0){
+  				allOrgs+=";";
+  			}
+  			allOrgs+=$(this).text();		  
+  		  });
+  	  	selectAllOrganizations(allOrgs, selected);
+  	  }
+    </script>
+  </a4j:outputPanel>
+</ui:composition>

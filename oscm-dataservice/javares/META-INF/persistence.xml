@@ -134,6 +134,7 @@
     <class>org.oscm.domobjects.Session</class>
     <class>org.oscm.domobjects.SessionData</class>
     <class>org.oscm.domobjects.Marketplace</class>
+    <class>org.oscm.domobjects.MarketplaceAccess</class>
     <class>org.oscm.domobjects.MarketplaceData</class>
     <class>org.oscm.domobjects.MarketplaceHistory</class>
     <class>org.oscm.domobjects.SteppedPrice</class>

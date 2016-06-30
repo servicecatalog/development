@@ -73,6 +73,7 @@ public class SubscriptionsServiceBeanIT extends EJBTestBase {
         container.addBean(mock(SessionServiceLocal.class));
         container.addBean(new SubscriptionServiceBean());
         container.addBean(new SubscriptionsServiceBean());
+
         tpAndSupplier = createOrg("supplier", OrganizationRoleType.SUPPLIER,
                 OrganizationRoleType.TECHNOLOGY_PROVIDER);
 

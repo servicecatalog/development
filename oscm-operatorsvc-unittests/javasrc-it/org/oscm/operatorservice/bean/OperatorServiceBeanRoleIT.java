@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.anyString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -77,6 +78,7 @@ import org.oscm.internal.vo.VOOperatorOrganization;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOTimerInfo;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
@@ -363,11 +365,16 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         container.addBean(new ApplicationServiceStub());
         container.addBean(mock(MarketingPermissionServiceLocal.class));
         container.addBean(mock(LdapSettingsManagementServiceLocal.class));
-
+        
+        MarketplaceServiceLocal marketplaceServiceLocal = mock(MarketplaceServiceLocal.class);
+        when(marketplaceServiceLocal.getMarketplaceForId(anyString())).thenReturn(new Marketplace("testMpl"));
+        container.addBean(marketplaceServiceLocal);
+        
         container.addBean(new AccountServiceBean());
         accountMgmt = container.get(AccountService.class);
         accountMgmtLocal = container.get(AccountServiceLocal.class);
-
+        
+       
         AuditLogServiceBean auditLogMock = mock(AuditLogServiceBean.class);
         when(
                 auditLogMock.loadAuditLogs(Mockito.anyListOf(String.class),
@@ -680,12 +687,13 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         }
 
         dataManager_getReferenceByBusinessKey_return.add(pt);
+        
         // set marketplace to pass the validation of marketplaceID
         if (orgRoles.length == 0 && marketplaceID != null) {
             Marketplace marketplace = new Marketplace();
             dataManager_getReferenceByBusinessKey_return.add(marketplace);
         }
-
+        
         VOOrganization createdOrg = runTX(new Callable<VOOrganization>() {
             @Override
             public VOOrganization call() throws Exception {

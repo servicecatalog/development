@@ -131,7 +131,7 @@ public class JSFUtils {
         }
         return false;
     }
-    
+
     /**
      * Gets a string for the given key from this resource bundle or one of its
      * parents. If the params array is set, placeholders in this string will be
@@ -236,17 +236,20 @@ public class JSFUtils {
      */
     public static void verifyViewLocale() {
         FacesContext fc = FacesContext.getCurrentInstance();
-        if(fc != null) verifyViewLocale(fc);
+        if (fc != null)
+            verifyViewLocale(fc);
     }
 
     private static void verifyViewLocale(FacesContext fc) {
-        HttpServletRequest request = (HttpServletRequest) fc.getExternalContext().getRequest();
+        HttpServletRequest request = (HttpServletRequest) fc
+                .getExternalContext().getRequest();
         String localeString = localeStringFrom(request);
 
         // if the view locale differs from the users locale change the view
         // locale
         UIViewRoot viewRoot = fc.getViewRoot();
-        if (localeString != null && !viewRoot.getLocale().toString().equals(localeString)) {
+        if (localeString != null
+                && !viewRoot.getLocale().toString().equals(localeString)) {
             Iterator<Locale> it = fc.getApplication().getSupportedLocales();
             while (it.hasNext()) {
                 Locale locale = it.next();
@@ -257,18 +260,16 @@ public class JSFUtils {
             }
             // we use the default locale if the requested locale was not
             // found
-            if (!viewRoot.getLocale()
-                    .equals(fc.getApplication().getDefaultLocale())) {
-                viewRoot.setLocale(
-                        fc.getApplication().getDefaultLocale());
+            if (!viewRoot.getLocale().equals(
+                    fc.getApplication().getDefaultLocale())) {
+                viewRoot.setLocale(fc.getApplication().getDefaultLocale());
             }
         }
     }
 
-
-
     private static String localeStringFrom(HttpServletRequest request) {
-        if(request ==null) return null;
+        if (request == null)
+            return null;
         HttpSession session = request.getSession(false);
         String localeString = null;
         VOUserDetails voUserDetails = null;
@@ -562,12 +563,32 @@ public class JSFUtils {
     public static void writeContentToResponse(byte[] content, String filename,
             String contentType) throws IOException {
         FacesContext fc = FacesContext.getCurrentInstance();
+        writeContentToResponse(content, filename, contentType, fc);
+        fc.responseComplete();
+    }
+
+    /**
+     * Writes the given content to the response as attachment of the given type
+     * with the given filename.
+     * 
+     * @param content
+     *            the data
+     * @param filename
+     *            the wanted filename
+     * @param contentType
+     *            the wanted content type
+     * @param fc
+     *            the face context
+     * @throws IOException
+     */
+    public static void writeContentToResponse(byte[] content, String filename,
+            String contentType, FacesContext fc) throws IOException {
         HttpServletResponse response = (HttpServletResponse) fc
                 .getExternalContext().getResponse();
 
         response.setContentType(contentType);
         response.setCharacterEncoding(Constants.CHARACTER_ENCODING_UTF8);
-        response.setHeader("Content-disposition", "attachement; filename=\""
+        response.setHeader("Content-disposition", "attachment; filename=\""
                 + filename + "\"");
         response.setContentLength(content.length);
         OutputStream out;
@@ -575,7 +596,6 @@ public class JSFUtils {
         out.write(content);
         out.flush();
         out.close();
-        fc.responseComplete();
     }
 
 }

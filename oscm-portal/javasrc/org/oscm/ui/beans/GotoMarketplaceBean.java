@@ -22,7 +22,7 @@ import javax.faces.model.SelectItem;
 import org.oscm.internal.vo.VOMarketplace;
 
 @ViewScoped
-@ManagedBean(name="gotoMarketplaceBean")
+@ManagedBean(name = "gotoMarketplaceBean")
 public class GotoMarketplaceBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = 6745716919639233847L;
@@ -51,22 +51,45 @@ public class GotoMarketplaceBean extends BaseBean implements Serializable {
     }
 
     Set<VOMarketplace> loadMarketplaces() {
+
         Set<VOMarketplace> marketplaces = new HashSet<VOMarketplace>();
+        List<VOMarketplace> restrictedMarketplaces = getMarketplaceService()
+                .getRestrictedMarketplaces();
+
         if (isLoggedInAndMarketplaceOwner()) {
-            marketplaces.addAll(getMarketplaceService().getMarketplacesOwned());
+            List<VOMarketplace> marketplacesOwned = getMarketplaceService()
+                    .getMarketplacesOwned();
+
+            for (VOMarketplace marketplace : marketplacesOwned) {
+                if (!marketplace.isRestricted()) {
+                    marketplaces.add(marketplace);
+                } else if (restrictedMarketplaces.contains(marketplace)) {
+                    marketplaces.add(marketplace);
+                }
+            }
         }
+
         if (isLoggedInAndVendorManager()) {
-            marketplaces.addAll(getMarketplaceService()
-                    .getMarketplacesForOrganization());
+            List<VOMarketplace> marketplacesForOrganization = getMarketplaceService()
+                    .getMarketplacesForOrganization();
+
+            for (VOMarketplace marketplace : marketplacesForOrganization) {
+                if (!marketplace.isRestricted()) {
+                    marketplaces.add(marketplace);
+                } else if (restrictedMarketplaces.contains(marketplace)) {
+                    marketplaces.add(marketplace);
+                }
+            }
         }
+
         return marketplaces;
     }
 
     private List<SelectItem> convertToUIModel(Set<VOMarketplace> marketplaces) {
         List<SelectItem> uiMarketplaces = new ArrayList<SelectItem>();
         for (VOMarketplace mp : marketplaces) {
-            uiMarketplaces.add(new SelectItem(mp.getMarketplaceId(),
-                    getLabel(mp)));
+            uiMarketplaces
+                    .add(new SelectItem(mp.getMarketplaceId(), getLabel(mp)));
         }
         return uiMarketplaces;
     }

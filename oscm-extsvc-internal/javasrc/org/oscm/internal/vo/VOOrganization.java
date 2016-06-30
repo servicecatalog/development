@@ -10,10 +10,12 @@ package org.oscm.internal.vo;
 
 import java.math.BigDecimal;
 
+import org.oscm.rest.trigger.interfaces.OrganizationRest;
+
 /**
  * Represents an organization and provides data related to it.
  */
-public class VOOrganization extends BaseVO {
+public class VOOrganization extends BaseVO implements OrganizationRest {
 
     private static final long serialVersionUID = 4479757863394747330L;
 
@@ -89,6 +91,23 @@ public class VOOrganization extends BaseVO {
     private String supportEmail;
 
     private BigDecimal operatorRevenueShare;
+
+    @Override
+    public Long getId() {
+        return new Long(getKey());
+    }
+
+    public void setId(Long id) {
+        if (id != null) {
+            setKey(id.longValue());
+        } else {
+            setKey(0L);
+        }
+    }
+
+    private boolean hasGrantedAccessToMarketplace;
+    
+    private boolean hasSubscriptions;
 
     /**
      * Retrieves the identifier of the organization.
@@ -174,6 +193,7 @@ public class VOOrganization extends BaseVO {
      * @return the organization name
      */
 
+    @Override
     public String getName() {
         return name;
     }
@@ -378,10 +398,26 @@ public class VOOrganization extends BaseVO {
     }
 
     /**
-     * @param operatorRevenueShare the operatorRevenueShare to set
+     * @param operatorRevenueShare
+     *            the operatorRevenueShare to set
      */
     public void setOperatorRevenueShare(BigDecimal operatorRevenueShare) {
         this.operatorRevenueShare = operatorRevenueShare;
     }
 
+    public boolean isHasGrantedAccessToMarketplace() {
+        return hasGrantedAccessToMarketplace;
+    }
+
+    public void setHasGrantedAccessToMarketplace(boolean hasGrantedAccessToMarketplace) {
+        this.hasGrantedAccessToMarketplace = hasGrantedAccessToMarketplace;
+    }
+
+    public boolean isHasSubscriptions() {
+        return hasSubscriptions;
+    }
+
+    public void setHasSubscriptions(boolean hasSubscriptions) {
+        this.hasSubscriptions = hasSubscriptions;
+    }
 }

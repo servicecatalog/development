@@ -162,6 +162,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         newAdministrator = null;
         newRoles.clear();
         organizationProperties = null;
+        selectedMarketplace = null;
 
         return OUTCOME_SUCCESS;
     }
@@ -180,7 +181,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
             if (isLoggedInAndPlatformOperator())
                 marketplaces = getMarketplaceService()
-                        .getMarketplacesForOperator();
+                        .getAccessibleMarketplacesForOperator();
 
             List<SelectItem> result = new ArrayList<SelectItem>();
             // create the selection model based on the read data

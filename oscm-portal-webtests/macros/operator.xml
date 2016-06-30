@@ -32,6 +32,7 @@
           <pathelement location="${operator.classpath.common.path}" />
           <pathelement location="${operator.classpath.extsvc.path}" />
           <pathelement location="${operator.classpath.extsvc-internal.path}" />
+          <pathelement location="${operator.classpath.rest-api-interfaces.path}" />          
           <pathelement location="${operator.classpath.log4j.path}" />
           <pathelement path="${operator.classpath.operatorsvc-client.path}" />
         </classpath>

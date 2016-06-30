@@ -20,12 +20,21 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
+import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MarketplaceConfigurationBean;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.internal.types.enumtypes.Sorting;
 import org.oscm.internal.vo.ListCriteria;
@@ -62,6 +71,15 @@ public class ServicePagingBean extends BaseBean implements Serializable {
 
     private String filterCategoryForDisplay; // selected category to display in
                                              // title of result list
+
+    @EJB
+    IdentityService identityService;
+
+    @EJB
+    MarketplaceService marketplaceService;
+
+    @ManagedProperty(value = "#{appBean}")
+    private ApplicationBean applicationBean;
 
     /**
      * Defines the criteria which is used to determine the services which are
@@ -528,5 +546,33 @@ public class ServicePagingBean extends BaseBean implements Serializable {
         } else {
             return "marketplace.searchresults.headerSingleService";
         }
+    }
+
+    public boolean isSearchAvailable() throws ObjectNotFoundException {
+        VOUserDetails voUserDetails = identityService.getCurrentUserDetailsIfPresent();
+        String marketplaceId = applicationBean.getMarketplaceId();
+        VOMarketplace voMarketplace = marketplaceService.getMarketplaceById(marketplaceId);
+        if (!voMarketplace.isRestricted()) {
+            return true;
+        }
+        if (voUserDetails == null) {
+            return false;
+        }
+        try {
+            if (marketplaceService.doesOrganizationHaveAccessMarketplace(marketplaceId, voUserDetails.getOrganizationId())) {
+                return true;
+            }
+        } catch (LoginException e) {
+            throw new ObjectNotFoundException();
+        }
+        return false;
+    }
+
+    public ApplicationBean getApplicationBean() {
+        return applicationBean;
+    }
+
+    public void setApplicationBean(ApplicationBean applicationBean) {
+        this.applicationBean = applicationBean;
     }
 }
