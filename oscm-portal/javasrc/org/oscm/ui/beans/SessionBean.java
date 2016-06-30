@@ -450,7 +450,7 @@ public class SessionBean implements Serializable {
     }
 
     public void redirectToIdpLogout() throws IOException {
-        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        ExternalContext externalContext = getFacesContext().getExternalContext();
         externalContext.redirect(getSamlLogoutRequest());
     }
 
