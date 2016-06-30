@@ -1,16 +1,15 @@
 /*******************************************************************************
- *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
- *                                                                                                                                 
- *  Creation Date: Jun 4, 2013                                                      
- *                                                                              
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: Jun 4, 2013
+ *
  *******************************************************************************/
 
 package org.oscm.ui.filter;
 
 import java.io.IOException;
 
-import javax.ejb.EJB;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -19,47 +18,46 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SessionIndexNotFoundException;
+import org.oscm.internal.intf.SessionService;
+import org.oscm.internal.types.exception.SAML2StatusCodeInvalidException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.saml2.api.LogoutRequestGenerator;
+import org.oscm.saml2.api.SAMLLogoutResponseValidator;
 import org.oscm.saml2.api.SAMLResponseExtractor;
 import org.oscm.types.constants.marketplace.Marketplace;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.common.EJBServiceAccess;
+import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.delegates.ServiceLocator;
 
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.*;
-import static org.oscm.internal.types.enumtypes.ConfigurationKey.SSO_LOGOUT_URL;
-import static org.oscm.types.constants.Configuration.GLOBAL_CONTEXT;
+import static org.oscm.types.enumtypes.LogMessageIdentifier.ERROR_SAML2_INVALID_STATUS_CODE;
 
 /**
- * @author farmaki
- * 
+ * @author grubskim
+ *
  */
-public class IdPResponseFilter implements Filter {
-
-    private static final Log4jLogger LOGGER = LoggerFactory
-            .getLogger(IdPResponseFilter.class);
+public class IdPLogoutFilter implements Filter {
 
     private RequestRedirector redirector;
     private String excludeUrlPattern;
     private AuthenticationSettings authSettings;
     private SAMLResponseExtractor samlResponseExtractor;
-    private SessionBean sessionBean;
+    private SAMLLogoutResponseValidator samlLogoutResponseValidator;
 
-    private LogoutRequestGenerator logoutRequestGenerator;
+    private SessionService ssl;
+    private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdPLogoutFilter.class);
 
-    @EJB
-    private ConfigurationService configurationService;
-
+    public SessionService getSsl() {
+        if (ssl == null) {
+            ssl = new ServiceLocator().findService(SessionService.class);
+        }
+        return ssl;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -67,24 +65,13 @@ public class IdPResponseFilter implements Filter {
         excludeUrlPattern = filterConfig
                 .getInitParameter("exclude-url-pattern");
 
-        authSettings = getAuthenticationSettings();
-        samlResponseExtractor = getSamlResponseExtractor();
-        logoutRequestGenerator = new LogoutRequestGenerator();
-    }
+        ServiceAccess serviceAccess = new EJBServiceAccess();
+        ConfigurationService cfgService = serviceAccess
+                .getService(ConfigurationService.class);
+        authSettings = new AuthenticationSettings(cfgService);
 
-    protected AuthenticationSettings getAuthenticationSettings() {
-        if (authSettings == null) {
-            authSettings = new AuthenticationSettings(new ServiceLocator()
-                    .findService(ConfigurationService.class));
-        }
-        return authSettings;
-    }
-
-    public SessionBean getSessionBean() {
-        if (sessionBean == null) {
-            sessionBean = new UiDelegate().findSessionBean();
-        }
-        return sessionBean;
+        samlLogoutResponseValidator = new SAMLLogoutResponseValidator();
+        samlResponseExtractor = new SAMLResponseExtractor();
     }
 
     /**
@@ -93,11 +80,11 @@ public class IdPResponseFilter implements Filter {
      * forwarded to an auto-submit page, to do the login in UserBean. <br/>
      * If the response does not contain a SAML 2.0 response, the next filter is
      * called. See web.xml for excluded url pattern.
-     * 
+     *
      */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+                         FilterChain chain) throws IOException, ServletException {
 
         HttpServletRequest httpRequest = (HttpServletRequest) request;
         HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -108,52 +95,53 @@ public class IdPResponseFilter implements Filter {
                 httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
                         Boolean.TRUE);
                 String samlResponse = httpRequest.getParameter("SAMLResponse");
-                try {
-                    if (samlResponseExtractor.isFromLogin(samlResponse)) {
-                        buildSAMLLogoutRequestAndStoreInSession((HttpServletRequest) request, samlResponse);
-                        String relayState = httpRequest.getParameter("RelayState");
-                        if (relayState != null) {
-                            String forwardUrl = getForwardUrl(httpRequest,
-                                    relayState);
+
+                if (samlResponseExtractor.isFromLogout(samlResponse)) {
+                    try {
+                        if (!samlLogoutResponseValidator.responseStatusCodeSuccessful(samlResponse)) {
+                            httpRequest.setAttribute(
+                                    Constants.REQ_ATTR_ERROR_KEY,
+                                    BaseBean.ERROR_INVALID_SAML_RESPONSE_STATUS_CODE);
                             redirector.forward(httpRequest, httpResponse,
-                                    forwardUrl);
+                                    BaseBean.ERROR_PAGE);
                             return;
                         }
+                        HttpSession currentSession = httpRequest.getSession();
+                        getSsl().deletePlatformSession(currentSession.getId());
+                        currentSession.invalidate();
+                        httpRequest.removeAttribute("SAMLResponse");
+                        httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
+                                Boolean.FALSE);
+                    } catch (SAML2StatusCodeInvalidException e) {
+                        httpRequest.setAttribute(
+                                Constants.REQ_ATTR_ERROR_KEY,
+                                BaseBean.ERROR_INVALID_SAML_RESPONSE);
+                        redirector.forward(httpRequest, httpResponse,
+                                BaseBean.ERROR_PAGE);
+                        LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
+                                ERROR_SAML2_INVALID_STATUS_CODE);
+                        return;
                     }
-                } catch (SessionIndexNotFoundException e) {
-                    LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
-                            LogMessageIdentifier.ERROR_SESSION_INDEX_NOT_FOUND);
-                    httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                            BaseBean.ERROR_INVALID_SAML_RESPONSE);
-                } catch (SaaSApplicationException e) {
-                    LOGGER.logError(Log4jLogger.SYSTEM_LOG, e, LogMessageIdentifier.ERROR);
-                    httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
-                            BaseBean.ERROR_INVALID_SAML_RESPONSE);
-                }
+                    String relayState = httpRequest.getParameter("RelayState");
+                    if (relayState != null) {
+                        String forwardUrl = getForwardUrl(httpRequest, relayState);
+                        ((HttpServletResponse) response).sendRedirect(forwardUrl);
+                        return;
+                    }
+                    if (httpRequest
+                            .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
+                        redirector.forward(httpRequest, httpResponse,
+                                BaseBean.ERROR_PAGE);
+                        return;
+                    }
 
-                if (httpRequest
-                        .getAttribute(Constants.REQ_ATTR_ERROR_KEY) != null) {
-                    redirector.forward(httpRequest, httpResponse,
-                            BaseBean.ERROR_PAGE);
-                    return;
+                    httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
+                            Boolean.FALSE);
                 }
-                httpRequest.setAttribute(Constants.REQ_ATTR_IS_SAML_FORWARD,
-                        Boolean.FALSE);
             }
-
         }
 
         chain.doFilter(request, response);
-    }
-
-    protected void buildSAMLLogoutRequestAndStoreInSession(HttpServletRequest request, String samlResponse) throws SaaSApplicationException {
-        String samlSessionId = getSamlResponseExtractor()
-                .getSessionIndex(samlResponse);
-        String nameID = getSamlResponseExtractor()
-                .getUserId(samlResponse);
-        String logoutRequest = logoutRequestGenerator
-                .generateLogoutRequest(samlSessionId, nameID, getLogoutURL(), getKeystorePath(), getIssuer(), getKeyAlias(), getKeystorePass());
-        request.getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
     }
 
     String getForwardUrl(HttpServletRequest httpRequest, String relayState) {
@@ -179,13 +167,13 @@ public class IdPResponseFilter implements Filter {
     }
 
     void setLoginTypeAttribute(HttpServletRequest httpRequest,
-            String relayState) {
+                               String relayState) {
         BesServletRequestReader.copyURLParamToRequestAttribute(httpRequest,
                 Constants.REQ_ATTR_SERVICE_LOGIN_TYPE, relayState);
     }
 
     String setRequestAttributesForAutosubmit(HttpServletRequest httpRequest,
-            String relayState) {
+                                             String relayState) {
         String result = BaseBean.SAML_SP_LOGIN_AUTOSUBMIT_PAGE;
         SAMLCredentials samlCredentials = new SAMLCredentials(httpRequest);
         httpRequest.setAttribute(Constants.REQ_PARAM_USER_ID,
@@ -204,7 +192,7 @@ public class IdPResponseFilter implements Filter {
     }
 
     void setRequestAttributesForSelfRegistration(HttpServletRequest httpRequest,
-            String relayState) {
+                                                 String relayState) {
         SAMLCredentials samlCredentials = new SAMLCredentials(httpRequest);
         httpRequest.setAttribute(Constants.REQ_PARAM_USER_ID,
                 samlCredentials.getUserId());
@@ -225,6 +213,7 @@ public class IdPResponseFilter implements Filter {
                     BaseBean.ERROR_INVALID_IDP_URL);
             return false;
         }
+
         String samlResponse = httpRequest.getParameter("SAMLResponse");
         if (samlResponse != null) {
             return true;
@@ -236,50 +225,10 @@ public class IdPResponseFilter implements Filter {
     boolean isInvalidIdpUrl(AuthenticationSettings authSettings) {
         return ADMStringUtils.isBlank(authSettings.getIdentityProviderURL())
                 || ADMStringUtils.isBlank(
-                        authSettings.getIdentityProviderURLContextRoot());
+                authSettings.getIdentityProviderURLContextRoot());
     }
 
     @Override
     public void destroy() {
-    }
-
-    public SAMLResponseExtractor getSamlResponseExtractor() {
-        if (samlResponseExtractor == null) {
-            samlResponseExtractor = new SAMLResponseExtractor();
-        }
-        return samlResponseExtractor;
-    }
-
-    public void setRedirector(RequestRedirector redirector) {
-        this.redirector = redirector;
-    }
-
-    public void setExcludeUrlPattern(String excludeUrlPattern) {
-        this.excludeUrlPattern = excludeUrlPattern;
-    }
-
-    public void setAuthSettings(AuthenticationSettings authSettings) {
-        this.authSettings = authSettings;
-    }
-
-
-    public String getKeystorePass() {
-        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE_PASS, GLOBAL_CONTEXT).getValue();
-    }
-
-    public String getKeyAlias() {
-        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEY_ALIAS, GLOBAL_CONTEXT).getValue();
-    }
-
-    public String getIssuer() {
-        return configurationService.getVOConfigurationSetting(SSO_ISSUER_ID, GLOBAL_CONTEXT).getValue();
-    }
-
-    public String getKeystorePath() {
-        return configurationService.getVOConfigurationSetting(SSO_SIGNING_KEYSTORE, GLOBAL_CONTEXT).getValue();
-    }
-
-    public String getLogoutURL() {
-        return configurationService.getVOConfigurationSetting(SSO_LOGOUT_URL, GLOBAL_CONTEXT).getValue();
     }
 }

@@ -215,6 +215,11 @@ public class SessionBeanTest {
         assertTrue(SessionBean.isValidServiceKey(123L));
     }
 
+    @Test
+    public void redirectToIdpLogoutTest() {
+        //TODO
+    }
+
     private void setCurrentLocale(Locale locale) {
         fcContextMock = new FacesContextStub(locale);
         UIViewRoot root = mock(UIViewRoot.class);

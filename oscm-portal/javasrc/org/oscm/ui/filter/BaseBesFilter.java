@@ -10,6 +10,7 @@ package org.oscm.ui.filter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -428,9 +429,7 @@ public abstract class BaseBesFilter implements Filter {
 
     private void saveForwardUrl(String relativePath, HttpServletRequest request) {
         String forwardUrl = relativePath;
-        if (!ADMStringUtils.isBlank(request.getQueryString())) {
-            forwardUrl += "?" + request.getQueryString();
-        }
+        forwardUrl = copyParameters(request, forwardUrl);
 
         if (BesServletRequestReader.isMarketplaceLogin(request)) {
             // For marketplace login copy login type parameter
@@ -451,12 +450,32 @@ public abstract class BaseBesFilter implements Filter {
         session.setAttribute(Constants.SESS_ATTR_DEFAULT_TIMEOUT, session.getMaxInactiveInterval());
     }
 
+    private String copyParameters(HttpServletRequest request, String forwardUrl) {
+        if (!ADMStringUtils.isBlank(request.getQueryString())) {
+            Map<String, String[]> paramMap = request.getParameterMap();
+            Set<String> paramsKeys = paramMap.keySet();
+            String paramString = "?";
+            for (String paramsKey : paramsKeys) {
+                if (paramsKey.equalsIgnoreCase("SAMLResponse")) {
+                    continue;
+                }//TODO
+                paramString += paramsKey + "=" + paramMap.get(paramsKey)[0] + "&";
+            }
+            if (paramString.startsWith("?")) {
+                return forwardUrl;
+            }
+            if (paramString.endsWith("&")) {
+                paramString = paramString.substring(0, paramString.length()-1);
+            }
+            forwardUrl += paramString;
+        }
+        return forwardUrl;
+    }
+
     private void storeRelayStateInSession(String relativePath,
             HttpServletRequest request) {
         String forwardUrl = relativePath;
-        if (!ADMStringUtils.isBlank(request.getQueryString())) {
-            forwardUrl += "?" + request.getQueryString();
-        }
+        forwardUrl = copyParameters(request, forwardUrl);
 
         if (BesServletRequestReader.isMarketplaceLogin(request)) {
             forwardUrl = BesServletRequestReader
