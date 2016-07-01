@@ -98,6 +98,7 @@ This software includes the following software developed by The Apache Software F
    - J2ep 1.0
    - Omnifaces 1.10
    - Opencsv 3.7
+   - gson-2.6.2
 
   The license text of "Apache 2.0 license" is shown below.
 
