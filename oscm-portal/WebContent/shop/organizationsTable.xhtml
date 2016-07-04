@@ -14,7 +14,8 @@
 
         <f:facet name="header">
           <a4j:outputPanel>
-            <adm:pager pagerId="organizationsPager" />
+            <adm:pager pagerId="organizationsPager"
+              oncomplete="AdmUtils.setAllServiceCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', 'allOrganizationsCheckbox');" />
           </a4j:outputPanel>
         </f:facet>
 
