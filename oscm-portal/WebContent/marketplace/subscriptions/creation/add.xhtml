@@ -110,7 +110,7 @@
               <br />
               <mp:pixelline />
 
-              <mp:button id="previousSubscribe" value="#{msg['button.previous']}"
+              <mp:button id="previousSubscribe" value="#{msg['button.previous']}" immediate="true"
                 bean="#{subscriptionWizardConversation}" action="previous" style="float: left;" keepDirty="false" />
               <mp:button id="next" value="#{msg['button.next']}" bean="#{subscriptionWizardConversation}"
                 action="selectService" style="float: right;" keepDirty="true" />
