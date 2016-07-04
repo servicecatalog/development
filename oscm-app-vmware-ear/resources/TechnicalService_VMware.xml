@@ -260,11 +260,11 @@
       <LocalizedDescription locale="en">VMware template for cloning the VM</LocalizedDescription>
     </ParameterDefinition>
     
-    <ParameterDefinition id="TARGET_CLUSTER" configurable="false" default="esscluster"  mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition id="TARGET_CLUSTER" configurable="true" default="esscluster"  mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Target cluster</LocalizedDescription>
     </ParameterDefinition>
 
-    <ParameterDefinition id="TARGET_DATACENTER" configurable="false" default="bespoc"  mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition id="TARGET_DATACENTER" configurable="true" default="bespoc"  mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Target data center</LocalizedDescription>
     </ParameterDefinition>
 
@@ -284,7 +284,7 @@
       <LocalizedDescription locale="en">Target storage name</LocalizedDescription>
     </ParameterDefinition>
     
-    <ParameterDefinition id="TARGET_VCENTER_SERVER" configurable="false" default="estvcenterdev1" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
+    <ParameterDefinition id="TARGET_VCENTER_SERVER" configurable="true" default="vcenter" mandatory="true" modificationType="ONE_TIME" valueType="STRING">
       <LocalizedDescription locale="en">Target vCenter server</LocalizedDescription>
     </ParameterDefinition>
     
