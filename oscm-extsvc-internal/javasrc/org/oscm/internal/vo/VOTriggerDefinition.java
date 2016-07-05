@@ -10,15 +10,12 @@ package org.oscm.internal.vo;
 
 import org.oscm.internal.types.enumtypes.TriggerTargetType;
 import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.rest.trigger.interfaces.OrganizationRest;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 
 /**
  * Represents the definition of a trigger for external process control.
  * 
  */
-public class VOTriggerDefinition extends BaseVO implements
-        TriggerDefinitionRest {
+public class VOTriggerDefinition extends BaseVO {
 
     private static final long serialVersionUID = -8230251340174891037L;
 
@@ -47,11 +44,6 @@ public class VOTriggerDefinition extends BaseVO implements
      * If there are trigger processes exist for current trigger definition.
      */
     private boolean hasTriggerProcess;
-
-    @Override
-    public Long getId() {
-        return new Long(getKey());
-    }
 
     public void setId(Long id) {
         if (id != null) {
@@ -186,45 +178,5 @@ public class VOTriggerDefinition extends BaseVO implements
 
     public void setOrganization(VOOrganization organization) {
         this.organization = organization;
-    }
-
-    @Override
-    public String getTag() {
-        return Integer.toString(getVersion());
-    }
-
-    @Override
-    public String getDescription() {
-        return getName();
-    }
-
-    @Override
-    public String getTargetURL() {
-        return getTarget();
-    }
-
-    @Override
-    public Boolean isSuspending() {
-        return new Boolean(isSuspendProcess());
-    }
-
-    @Override
-    public Long getOwnerId() {
-        return new Long(organization.getKey());
-    }
-
-    @Override
-    public OrganizationRest getOwner() {
-        return organization;
-    }
-
-    @Override
-    public String getAction() {
-        return getType().toString();
-    }
-
-    @Override
-    public String getServiceType() {
-        return getTargetType().toString();
     }
 }

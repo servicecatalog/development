@@ -136,7 +136,7 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
 
     @Override
     @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
-    public void createTriggerDefinition(VOTriggerDefinition trigger)
+    public Long createTriggerDefinition(VOTriggerDefinition trigger)
             throws TriggerDefinitionDataException, ValidationException {
 
         ArgumentValidator.notNull("trigger", trigger);
@@ -173,6 +173,9 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
             triggerDefinition.setOrganization(organization);
 
             dm.persist(triggerDefinition);
+            dm.flush();
+
+            return new Long(triggerDefinition.getKey());
         } catch (NonUniqueBusinessKeyException e) {
             // should not happen as the saved object doesn't have a business
             // key
@@ -254,6 +257,23 @@ public class TriggerDefinitionServiceBean implements TriggerDefinitionService {
 
         return getTriggerDefinitionsForOrganizationInt(getOwnOrganization()
                 .getOrganizationId());
+    }
+
+    @Override
+    @RolesAllowed({ "ORGANIZATION_ADMIN", "PLATFORM_OPERATOR" })
+    public VOTriggerDefinition getTriggerDefinition(Long id)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+
+        if (id == null) {
+            throw new ObjectNotFoundException("no key with value null");
+        }
+
+        TriggerDefinition definition = dm.getReference(TriggerDefinition.class,
+                id.longValue());
+
+        checkOrgAuthority(definition);
+
+        return TriggerDefinitionAssembler.toVOTriggerDefinition(definition);
     }
 
     private Organization getOwnOrganization() {

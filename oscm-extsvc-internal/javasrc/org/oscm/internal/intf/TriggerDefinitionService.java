@@ -37,6 +37,7 @@ public interface TriggerDefinitionService {
      * @param trigger
      *            the value object containing the data of the new trigger
      *            definition
+     * @return the key of the new definition
      * @throws TriggerDefinitionDataException
      *             if a trigger definition already exists for the action
      *             specified in the value object
@@ -44,7 +45,7 @@ public interface TriggerDefinitionService {
      *             if the validation of the value object fails
      */
 
-    public void createTriggerDefinition(VOTriggerDefinition trigger)
+    public Long createTriggerDefinition(VOTriggerDefinition trigger)
             throws TriggerDefinitionDataException, ValidationException;
 
     /**
@@ -130,6 +131,24 @@ public interface TriggerDefinitionService {
      */
 
     public List<VOTriggerDefinition> getTriggerDefinitions();
+
+    /**
+     * Retrieves the trigger definitions with the given id
+     * <p>
+     * Required role: administrator of the organization, or operator of the
+     * platform operator organization
+     * 
+     * @throws ObjectNotFoundException
+     *             if the trigger definition is not found
+     * @throws OperationNotPermittedException
+     *             if the calling user's organization is not the owner of the
+     *             trigger definition
+     * 
+     * @return the trigger definitions
+     */
+
+    public VOTriggerDefinition getTriggerDefinition(Long id)
+            throws ObjectNotFoundException, OperationNotPermittedException;
 
     /**
      * Retrieves the actions for which triggers can be defined by the calling

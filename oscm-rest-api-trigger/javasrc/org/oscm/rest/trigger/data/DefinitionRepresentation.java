@@ -10,12 +10,12 @@ package org.oscm.rest.trigger.data;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.internal.types.enumtypes.TriggerTargetType;
+import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.WebException;
 import org.oscm.rest.trigger.config.TriggerCommonParams;
-import org.oscm.rest.trigger.interfaces.OrganizationRest;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 import org.oscm.validator.ADMValidator;
 
 /**
@@ -23,10 +23,9 @@ import org.oscm.validator.ADMValidator;
  * 
  * @author miethaner
  */
-public class DefinitionRepresentation extends Representation implements
-        TriggerDefinitionRest {
+public class DefinitionRepresentation extends Representation {
 
-    public static class Owner implements OrganizationRest {
+    public static class Owner {
         private Long id;
         private String description;
 
@@ -38,12 +37,6 @@ public class DefinitionRepresentation extends Representation implements
             this.description = description;
         }
 
-        public Owner(OrganizationRest owner) {
-            this.id = owner.getId();
-            this.description = owner.getName();
-        }
-
-        @Override
         public Long getId() {
             return id;
         }
@@ -52,7 +45,6 @@ public class DefinitionRepresentation extends Representation implements
             this.id = id;
         }
 
-        @Override
         public String getName() {
             return description;
         }
@@ -92,6 +84,30 @@ public class DefinitionRepresentation extends Representation implements
     public DefinitionRepresentation() {
     }
 
+    public DefinitionRepresentation(VOTriggerDefinition definition) {
+        super(new Long(definition.getKey()));
+        this.description = definition.getName();
+
+        if (definition.getTargetType() != null) {
+            this.target_type = definition.getTargetType().toString();
+        }
+
+        this.target_url = definition.getTarget();
+
+        if (definition.getType() != null) {
+            this.action = definition.getType().toString();
+        }
+
+        this.suspend = new Boolean(definition.isSuspendProcess());
+
+        if (definition.getOrganization() != null) {
+            this.owner = new Owner(new Long(definition.getOrganization()
+                    .getKey()), definition.getOrganization().getDescription());
+            this.links = new Links(new Long(definition.getOrganization()
+                    .getKey()));
+        }
+    }
+
     public DefinitionRepresentation(Long id, String description,
             Boolean suspend, String target_type, String target_url,
             String action, Owner owner, Links links) {
@@ -105,24 +121,6 @@ public class DefinitionRepresentation extends Representation implements
         this.links = links;
     }
 
-    public DefinitionRepresentation(TriggerDefinitionRest definition) {
-        super(definition.getId());
-        setTag(definition.getTag());
-        this.description = definition.getDescription();
-        this.suspend = definition.isSuspending();
-        this.target_type = definition.getServiceType();
-        this.target_url = definition.getTargetURL();
-        this.action = definition.getAction();
-        if (definition.getOwner() != null) {
-            this.owner = new Owner(definition.getOwner().getId(), definition
-                    .getOwner().getName());
-        } else {
-            this.owner = null;
-        }
-        this.links = new Links(definition.getOwnerId());
-    }
-
-    @Override
     public Long getOwnerId() {
         if (links != null) {
             return links.getOwner_id();
@@ -139,16 +137,14 @@ public class DefinitionRepresentation extends Representation implements
         links.setOwner_id(owner_id);
     }
 
-    @Override
-    public OrganizationRest getOwner() {
+    public Owner getOwner() {
         return owner;
     }
 
-    public void setOwner(OrganizationRest owner) {
-        this.owner = new Owner(owner);
+    public void setOwner(Owner owner) {
+        this.owner = owner;
     }
 
-    @Override
     public String getAction() {
         return action;
     }
@@ -157,7 +153,6 @@ public class DefinitionRepresentation extends Representation implements
         this.action = action;
     }
 
-    @Override
     public String getDescription() {
         return description;
     }
@@ -166,16 +161,14 @@ public class DefinitionRepresentation extends Representation implements
         this.description = description;
     }
 
-    @Override
-    public String getServiceType() {
+    public String getType() {
         return target_type;
     }
 
-    public void setServiceType(String target_type) {
+    public void setType(String target_type) {
         this.target_type = target_type;
     }
 
-    @Override
     public String getTargetURL() {
         return target_url;
     }
@@ -184,7 +177,6 @@ public class DefinitionRepresentation extends Representation implements
         this.target_url = target_url;
     }
 
-    @Override
     public Boolean isSuspending() {
         return suspend;
     }
@@ -205,7 +197,7 @@ public class DefinitionRepresentation extends Representation implements
 
         if (target_type != null) {
             try {
-                TargetType.valueOf(target_type);
+                TriggerTargetType.valueOf(target_type);
             } catch (IllegalArgumentException e) {
                 throw WebException.badRequest()
                         .property(TriggerCommonParams.PROPERTY_TARGET_TYPE)
@@ -221,7 +213,7 @@ public class DefinitionRepresentation extends Representation implements
 
         if (action != null) {
             try {
-                TriggerDefinitionRest.Action.valueOf(action);
+                ActionRepresentation.Action.valueOf(action);
             } catch (IllegalArgumentException e) {
                 throw WebException.badRequest()
                         .property(TriggerCommonParams.PROPERTY_ACTION)

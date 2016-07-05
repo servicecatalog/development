@@ -13,15 +13,13 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.WebException;
-import org.oscm.rest.trigger.interfaces.TriggerProcessRest;
 
 /**
  * Representation class of trigger processes.
  * 
  * @author miethaner
  */
-public class ProcessRepresentation extends Representation implements
-        TriggerProcessRest {
+public class ProcessRepresentation extends Representation {
 
     private String comment;
 
@@ -33,12 +31,6 @@ public class ProcessRepresentation extends Representation implements
         this.comment = comment;
     }
 
-    public ProcessRepresentation(TriggerProcessRest process) {
-        super(process.getId());
-        this.comment = process.getComment();
-    }
-
-    @Override
     public String getComment() {
         return comment;
     }
