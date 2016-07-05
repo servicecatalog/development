@@ -86,6 +86,7 @@ public class DefinitionRepresentation extends Representation {
 
     public DefinitionRepresentation(VOTriggerDefinition definition) {
         super(new Long(definition.getKey()));
+        setTag(Integer.toString(definition.getVersion()));
         this.description = definition.getName();
 
         if (definition.getTargetType() != null) {
@@ -102,7 +103,7 @@ public class DefinitionRepresentation extends Representation {
 
         if (definition.getOrganization() != null) {
             this.owner = new Owner(new Long(definition.getOrganization()
-                    .getKey()), definition.getOrganization().getDescription());
+                    .getKey()), definition.getOrganization().getName());
             this.links = new Links(new Long(definition.getOrganization()
                     .getKey()));
         }
