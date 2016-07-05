@@ -154,7 +154,15 @@ public class DefinitionBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    service.updateTriggerDefinition(tranferToVO(content));
+
+                    VOTriggerDefinition definition = tranferToVO(content);
+
+                    if (content.getTag() == null) {
+                        definition.setVersion(service.getTriggerDefinition(
+                                params.getId()).getVersion());
+                    }
+
+                    service.updateTriggerDefinition(definition);
                 } catch (ObjectNotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
@@ -223,6 +231,14 @@ public class DefinitionBackend {
 
         if (rep.getId() != null) {
             definition.setKey(rep.getId().longValue());
+        }
+
+        if (rep.getTag() != null) {
+            definition.setVersion(Integer.parseInt(rep.getTag()));
+        }
+
+        if (rep.getDescription() != null) {
+            definition.setName(rep.getDescription());
         }
 
         if (rep.getAction() != null) {
