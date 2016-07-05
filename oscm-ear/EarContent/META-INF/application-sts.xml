@@ -120,7 +120,7 @@
   <module>
     <web>
       <web-uri>oscm-rest-api-trigger.war</web-uri>
-      <context-root>oscm-rest</context-root>
+      <context-root>oscm-trigger</context-root>
     </web>
   </module>
 </application>

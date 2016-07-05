@@ -8,7 +8,6 @@
 		<project>oscm-extsvc-internal</project>
 		<project>oscm-internal</project>
 		<project>oscm-internal-interfaces</project>
-		<project>oscm-rest-api-interfaces</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
