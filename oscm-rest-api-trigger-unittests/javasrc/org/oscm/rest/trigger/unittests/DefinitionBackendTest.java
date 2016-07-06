@@ -125,6 +125,7 @@ public class DefinitionBackendTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
+        trigger.setTag("0");
         trigger.setOwner(new DefinitionRepresentation.Owner());
 
         VOTriggerDefinition definition = new VOTriggerDefinition();
