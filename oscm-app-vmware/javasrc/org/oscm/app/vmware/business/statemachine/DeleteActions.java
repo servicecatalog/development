@@ -59,8 +59,8 @@ public class DeleteActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool().returnObject(vcenter,
-                            vmClient);
+                    VMClientPool.getInstance().getPool()
+                            .returnObject(vcenter, vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -72,7 +72,6 @@ public class DeleteActions extends Actions {
         return eventId;
     }
 
-    @SuppressWarnings("resource")
     @StateMachineAction
     public String deleteVM(String instanceId, ProvisioningSettings settings,
             @SuppressWarnings("unused") InstanceStatus result) {
@@ -97,8 +96,8 @@ public class DeleteActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool().returnObject(vcenter,
-                            vmClient);
+                    VMClientPool.getInstance().getPool()
+                            .returnObject(vcenter, vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -116,7 +115,7 @@ public class DeleteActions extends Actions {
         VMPropertyHandler ph = new VMPropertyHandler(settings);
         String mailRecipient = ph
                 .getServiceSetting(VMPropertyHandler.TS_MAIL_FOR_COMPLETION);
-        if (mailRecipient == null) {
+        if (mailRecipient == null || mailRecipient.trim().isEmpty()) {
             logger.debug("mailRecipient is not defined.");
             return EVENT_SUCCESS;
         }
@@ -143,15 +142,18 @@ public class DeleteActions extends Actions {
         String subject = Messages.get(paramHandler.getSettings().getLocale(),
                 "mail_delete_vm.subject",
                 new Object[] { paramHandler.getInstanceName() });
-        String details = paramHandler.getConfigurationAsString(
-                paramHandler.getSettings().getLocale());
-        details += paramHandler.getResponsibleUserAsString(
-                paramHandler.getSettings().getLocale());
-        String text = Messages.get(paramHandler.getSettings().getLocale(),
-                "mail_delete_vm.text",
-                new Object[] { paramHandler.getInstanceName(), paramHandler
-                        .getServiceSetting(VMPropertyHandler.REQUESTING_USER),
-                        details });
+        String details = paramHandler.getConfigurationAsString(paramHandler
+                .getSettings().getLocale());
+        details += paramHandler.getResponsibleUserAsString(paramHandler
+                .getSettings().getLocale());
+        String text = Messages
+                .get(paramHandler.getSettings().getLocale(),
+                        "mail_delete_vm.text",
+                        new Object[] {
+                                paramHandler.getInstanceName(),
+                                paramHandler
+                                        .getServiceSetting(VMPropertyHandler.REQUESTING_USER),
+                                details });
 
         platformService.sendMail(Collections.singletonList(mailRecipient),
                 subject, text);
