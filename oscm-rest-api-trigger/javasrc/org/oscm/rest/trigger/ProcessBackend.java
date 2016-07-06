@@ -8,18 +8,25 @@
 
 package org.oscm.rest.trigger;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.internal.intf.TriggerService;
+import org.oscm.internal.types.exception.ExecutionTargetException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.TriggerProcessStatusException;
+import org.oscm.internal.vo.VOLocalizedText;
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.WebException;
-import org.oscm.rest.external.exceptions.AuthorizationException;
-import org.oscm.rest.external.exceptions.ConflictException;
-import org.oscm.rest.external.exceptions.NotFoundException;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
-import org.oscm.rest.trigger.interfaces.TriggerProcessRestService;
 
 /**
  * Backend class for the trigger process resource.
@@ -30,9 +37,9 @@ import org.oscm.rest.trigger.interfaces.TriggerProcessRestService;
 public class ProcessBackend {
 
     @EJB
-    private TriggerProcessRestService service;
+    private TriggerService service;
 
-    public void setService(TriggerProcessRestService service) {
+    public void setService(TriggerService service) {
         this.service = service;
     }
 
@@ -46,14 +53,17 @@ public class ProcessBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    service.approve(content);
-                } catch (NotFoundException e) {
+                    service.approveAction(params.getId().longValue());
+                } catch (ObjectNotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
+                } catch (OperationNotPermittedException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (ConflictException e) {
+                } catch (TriggerProcessStatusException e) {
+                    throw WebException.conflict().message(e.getMessage())
+                            .build();
+                } catch (ExecutionTargetException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
@@ -80,14 +90,18 @@ public class ProcessBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    service.reject(content);
-                } catch (NotFoundException e) {
+                    List<VOLocalizedText> reason = new ArrayList<VOLocalizedText>();
+                    reason.add(new VOLocalizedText(
+                            Locale.ENGLISH.getLanguage(), content.getComment()));
+
+                    service.rejectAction(params.getId().longValue(), reason);
+                } catch (ObjectNotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
+                } catch (OperationNotPermittedException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (ConflictException e) {
+                } catch (TriggerProcessStatusException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
@@ -114,14 +128,18 @@ public class ProcessBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    service.cancel(content);
-                } catch (NotFoundException e) {
+                    List<VOLocalizedText> reason = new ArrayList<VOLocalizedText>();
+                    reason.add(new VOLocalizedText(
+                            Locale.ENGLISH.getLanguage(), content.getComment()));
+
+                    service.cancelActions(Arrays.asList(params.getId()), reason);
+                } catch (ObjectNotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
+                } catch (OperationNotPermittedException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
-                } catch (ConflictException e) {
+                } catch (TriggerProcessStatusException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
                 } catch (Exception e) {

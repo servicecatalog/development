@@ -15,19 +15,22 @@ import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.internal.intf.TriggerDefinitionService;
+import org.oscm.internal.types.enumtypes.TriggerTargetType;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DeletionConstraintException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.TriggerDefinitionDataException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.common.RestBackend;
 import org.oscm.rest.common.RestBackend.Get;
 import org.oscm.rest.common.WebException;
-import org.oscm.rest.external.exceptions.AuthorizationException;
-import org.oscm.rest.external.exceptions.BadDataException;
-import org.oscm.rest.external.exceptions.ConflictException;
-import org.oscm.rest.external.exceptions.DataException;
-import org.oscm.rest.external.exceptions.NotFoundException;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
 
 /**
  * Backend class for the trigger definition resource.
@@ -38,9 +41,9 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
 public class DefinitionBackend {
 
     @EJB
-    private TriggerDefinitionRestService service;
+    private TriggerDefinitionService service;
 
-    public void setService(TriggerDefinitionRestService service) {
+    public void setService(TriggerDefinitionService service) {
         this.service = service;
     }
 
@@ -53,13 +56,13 @@ public class DefinitionBackend {
             public DefinitionRepresentation get(TriggerParameters params)
                     throws WebApplicationException {
 
-                TriggerDefinitionRest definition;
+                VOTriggerDefinition definition;
                 try {
-                    definition = service.getDefinition(params.getId());
-                } catch (NotFoundException e) {
+                    definition = service.getTriggerDefinition(params.getId());
+                } catch (ObjectNotFoundException e) {
                     throw WebException.notFound().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
+                } catch (OperationNotPermittedException e) {
                     throw WebException.forbidden().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
@@ -85,9 +88,9 @@ public class DefinitionBackend {
             public RepresentationCollection<DefinitionRepresentation> get(
                     TriggerParameters params) throws WebApplicationException {
 
-                Collection<TriggerDefinitionRest> definitions = new ArrayList<TriggerDefinitionRest>();
+                Collection<VOTriggerDefinition> definitions;
                 try {
-                    definitions = service.getDefinitions();
+                    definitions = service.getTriggerDefinitions();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
                         throw WebException.forbidden()
@@ -100,7 +103,7 @@ public class DefinitionBackend {
 
                 Collection<DefinitionRepresentation> representationList = new ArrayList<DefinitionRepresentation>();
 
-                for (TriggerDefinitionRest d : definitions) {
+                for (VOTriggerDefinition d : definitions) {
                     representationList.add(new DefinitionRepresentation(d));
                 }
 
@@ -120,12 +123,13 @@ public class DefinitionBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    return service.createDefinition(content);
-                } catch (BadDataException e) {
-                    throw WebException.badRequest().message(e.getMessage())
-                            .build();
-                } catch (ConflictException e) {
+                    return service
+                            .createTriggerDefinition(tranferToVO(content));
+                } catch (TriggerDefinitionDataException e) {
                     throw WebException.conflict().message(e.getMessage())
+                            .build();
+                } catch (ValidationException e) {
+                    throw WebException.badRequest().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
@@ -136,7 +140,6 @@ public class DefinitionBackend {
                         throw e;
                     }
                 }
-
             }
         };
     }
@@ -151,21 +154,29 @@ public class DefinitionBackend {
                     TriggerParameters params) throws WebApplicationException {
 
                 try {
-                    service.updateDefinition(content);
-                } catch (BadDataException e) {
+
+                    VOTriggerDefinition definition = tranferToVO(content);
+
+                    if (content.getTag() == null) {
+                        definition.setVersion(service.getTriggerDefinition(
+                                params.getId()).getVersion());
+                    }
+
+                    service.updateTriggerDefinition(definition);
+                } catch (ObjectNotFoundException e) {
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
+                } catch (ValidationException e) {
                     throw WebException.badRequest().message(e.getMessage())
                             .build();
-                } catch (DataException e) {
-                    throw WebException.internalServerError()
-                            .message(e.getMessage()).build();
-                } catch (ConflictException e) {
+                } catch (ConcurrentModificationException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
-                    throw WebException.forbidden().message(e.getMessage())
+                } catch (TriggerDefinitionDataException e) {
+                    throw WebException.conflict().message(e.getMessage())
                             .build();
-                } catch (NotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
+                } catch (OperationNotPermittedException e) {
+                    throw WebException.forbidden().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
@@ -191,15 +202,15 @@ public class DefinitionBackend {
                     throws WebApplicationException {
 
                 try {
-                    service.deleteDefinition(params.getId());
-                } catch (ConflictException e) {
+                    service.deleteTriggerDefinition(params.getId().longValue());
+                } catch (ObjectNotFoundException e) {
+                    throw WebException.notFound().message(e.getMessage())
+                            .build();
+                } catch (DeletionConstraintException e) {
                     throw WebException.conflict().message(e.getMessage())
                             .build();
-                } catch (AuthorizationException e) {
+                } catch (OperationNotPermittedException e) {
                     throw WebException.forbidden().message(e.getMessage())
-                            .build();
-                } catch (NotFoundException e) {
-                    throw WebException.notFound().message(e.getMessage())
                             .build();
                 } catch (Exception e) {
                     if (e instanceof javax.ejb.EJBAccessException) {
@@ -213,5 +224,39 @@ public class DefinitionBackend {
 
             }
         };
+    }
+
+    private VOTriggerDefinition tranferToVO(DefinitionRepresentation rep) {
+        VOTriggerDefinition definition = new VOTriggerDefinition();
+
+        if (rep.getId() != null) {
+            definition.setKey(rep.getId().longValue());
+        }
+
+        if (rep.getTag() != null) {
+            definition.setVersion(Integer.parseInt(rep.getTag()));
+        }
+
+        if (rep.getDescription() != null) {
+            definition.setName(rep.getDescription());
+        }
+
+        if (rep.getAction() != null) {
+            definition.setType(TriggerType.valueOf(rep.getAction()));
+        }
+
+        if (rep.getType() != null) {
+            definition.setTargetType(TriggerTargetType.valueOf(rep.getType()));
+        }
+
+        if (rep.isSuspending() != null) {
+            definition.setSuspendProcess(rep.isSuspending().booleanValue());
+        }
+
+        if (rep.getTargetURL() != null) {
+            definition.setTarget(rep.getTargetURL());
+        }
+
+        return definition;
     }
 }
