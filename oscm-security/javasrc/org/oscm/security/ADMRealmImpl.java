@@ -170,7 +170,8 @@ public class ADMRealmImpl {
         } else if ("WS".equals(callerType)) {
             handleWebServiceCaller(userKey, password);
         } else if ("RS".equals(callerType)) {
-            handleInternalLogin(userKey, password, userQuery);
+            handleInternalLogin(userKey,
+                    password.substring(SSO_CALLER_SPEC_LEN), userQuery);
         } else {
             handleOperatorClientCaller(userKey, password, userQuery);
         }
