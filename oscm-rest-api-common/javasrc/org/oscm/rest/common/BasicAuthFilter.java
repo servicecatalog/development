@@ -11,6 +11,7 @@ package org.oscm.rest.common;
 import java.io.IOException;
 import java.sql.SQLException;
 
+import javax.ejb.EJB;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -25,6 +26,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response.Status;
 
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.types.enumtypes.AuthenticationMode;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.types.constants.Configuration;
+
 import com.sun.enterprise.security.auth.login.common.LoginException;
 import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
@@ -36,11 +42,16 @@ import com.sun.web.security.WebProgrammaticLoginImpl;
  */
 public class BasicAuthFilter implements Filter {
 
+    private static final String SAML_PWD_PREFIX = "RS";
+
     private WebProgrammaticLoginImpl programmaticLogin;
 
     public void setProgrammaticLogin(WebProgrammaticLoginImpl programmaticLogin) {
         this.programmaticLogin = programmaticLogin;
     }
+
+    @EJB
+    private ConfigurationService configService;
 
     @Override
     public void init(FilterConfig config) throws ServletException {
@@ -64,10 +75,20 @@ public class BasicAuthFilter implements Filter {
             String[] split = userPwd
                     .split(CommonParams.BASIC_AUTH_SEPARATOR, 2);
 
+            String pwd = split[1];
+
+            String authMode = configService.getVOConfigurationSetting(
+                    ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT)
+                    .getValue();
+
+            if (AuthenticationMode.SAML_SP.name().equals(authMode)) {
+                pwd = SAML_PWD_PREFIX + pwd;
+            }
+
             try {
                 String userKey = getUserKeyFromId(split[0]);
 
-                programmaticLogin.login(userKey, split[1].toCharArray(),
+                programmaticLogin.login(userKey, pwd.toCharArray(),
                         CommonParams.REALM, rq, rs);
 
             } catch (NamingException | SQLException | LoginException e) {
