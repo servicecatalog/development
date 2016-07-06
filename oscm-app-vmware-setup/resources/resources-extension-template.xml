@@ -34,11 +34,11 @@
     validate-atmost-once-period-in-seconds="0"
     wrap-jdbc-objects="false">
 
-    <property name="ServerName" value="localhost" />
-    <property name="PortNumber" value="5432" />
-    <property name="DatabaseName" value="vmware" />
-    <property name="User" value="vmwareuser" />
-    <property name="Password" value="vmwareuser" />
+    <property name="ServerName" value="@SERVER.NAME@" />
+    <property name="PortNumber" value="@PORT.NUMBER@" />
+    <property name="DatabaseName" value="@DATABASE.NAME@" />
+    <property name="User" value="@DB.USER@" />
+    <property name="Password" value="@DB.PASSWORD@" />
     <property name="Ssl" value="false" />
     <property name="SocketTimeout" value="0" />
     <property name="ProtocolVersion" value="0" />
