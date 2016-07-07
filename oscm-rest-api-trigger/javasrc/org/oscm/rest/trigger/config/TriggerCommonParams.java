@@ -20,7 +20,7 @@ public class TriggerCommonParams {
     public static final String PARAM_AUTHOR_ID = "author_id";
 
     // trigger path names
-    public static final String PATH_TRIGGER = "/trigger";
+    public static final String PATH_TRIGGER = "/";
     public static final String PATH_DEFINITIONS = "/triggers";
     public static final String PATH_PROCESSES = "/processes";
     public static final String PATH_TRIGGER_APPROVE = "/approve";

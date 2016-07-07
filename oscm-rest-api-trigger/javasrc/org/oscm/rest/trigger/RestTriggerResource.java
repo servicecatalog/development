@@ -36,7 +36,6 @@ import org.oscm.rest.trigger.config.TriggerCommonParams;
 import org.oscm.rest.trigger.data.ActionRepresentation;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
 import org.oscm.rest.trigger.data.ProcessRepresentation;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
 
 import com.sun.jersey.api.core.InjectParam;
 
@@ -181,12 +180,12 @@ public class RestTriggerResource extends RestResource {
 
                     Collection<ActionRepresentation> col = new ArrayList<ActionRepresentation>();
                     col.add(new ActionRepresentation(null,
-                            TriggerDefinitionRest.Action.SUBSCRIBE_TO_SERVICE));
+                            ActionRepresentation.Action.SUBSCRIBE_TO_SERVICE));
                     col.add(new ActionRepresentation(
                             null,
-                            TriggerDefinitionRest.Action.UNSUBSCRIBE_FROM_SERVICE));
+                            ActionRepresentation.Action.UNSUBSCRIBE_FROM_SERVICE));
                     col.add(new ActionRepresentation(null,
-                            TriggerDefinitionRest.Action.MODIFY_SUBSCRIPTION));
+                            ActionRepresentation.Action.MODIFY_SUBSCRIPTION));
 
                     return new RepresentationCollection<ActionRepresentation>(
                             col);

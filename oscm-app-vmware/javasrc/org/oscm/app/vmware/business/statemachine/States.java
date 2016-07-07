@@ -68,7 +68,7 @@ public class States {
             Method m;
             try {
                 m = c.getMethod(methodName, paramTypes);
-            } catch (@SuppressWarnings("unused") NoSuchMethodException e) {
+            } catch (NoSuchMethodException e) {
                 m = c.getSuperclass().getMethod(methodName, paramTypes);
             }
             return (String) m.invoke(o, instanceId, settings, status);
@@ -79,9 +79,8 @@ public class States {
             logger.error("Failed to call action method '" + state.getAction()
                     + "' of state '" + state.getId() + "' for class '" + clazz
                     + "' and instance " + instanceId, e);
-            throw new StateMachineException(
-                    "Runtime error in action method: " + e.getMessage(), e,
-                    instanceId, clazz, state.getAction());
+            throw new StateMachineException("Runtime error in action method: "
+                    + e.getMessage(), e, instanceId, clazz, state.getAction());
         }
     }
 }
