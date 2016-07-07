@@ -5,7 +5,8 @@
   xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:c="http://java.sun.com/jsp/jstl/core"
   xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
 <h:head>
-<c:set var="mpBaseUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace" />
+  <c:set var="mpBaseUrl" value="#{facesContext.externalContext.requestContextPath}/marketplace" />
+  <c:set var="isMplRestricted" value="#{marketplaceBean.restricted}" />
 <ui:include src="templates/head.xhtml">
   <ui:param name="dirty" value="#{dirty}" />
 </ui:include>

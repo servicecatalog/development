@@ -95,9 +95,11 @@ public class ClosedMarketplaceFilter implements Filter {
                             return;
                         }
                     }
-                    redirector.forward(httpRequest, httpResponse,
+                    if (voMarketplace.isHasPublicLandingPage()) {
+                        redirector.forward(httpRequest, httpResponse,
                             BaseBean.MARKETPLACE_START_SITE);
-                    return;
+                        return;
+                    }
                 }
 
             } catch (ObjectNotFoundException e) {
