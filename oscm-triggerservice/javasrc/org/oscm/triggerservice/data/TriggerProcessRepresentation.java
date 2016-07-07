@@ -16,7 +16,7 @@ import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TriggerProcess;
-import org.oscm.triggerservice.data.TriggerProcessRepresentation.ProductRepresentation.ParameterRepresentation;
+import org.oscm.triggerservice.data.TriggerProcessRepresentation.ServiceRepresentation.ParameterRepresentation;
 
 /**
  * Representation class of trigger processes.
@@ -83,7 +83,7 @@ public class TriggerProcessRepresentation {
         }
     }
 
-    public static class ProductRepresentation {
+    public static class ServiceRepresentation {
 
         public static class ParameterRepresentation {
             private String name;
@@ -117,10 +117,10 @@ public class TriggerProcessRepresentation {
         private String name;
         private ParameterRepresentation[] parameters;
 
-        public ProductRepresentation() {
+        public ServiceRepresentation() {
         }
 
-        public ProductRepresentation(String name,
+        public ServiceRepresentation(String name,
                 ParameterRepresentation[] parameters) {
             super();
             this.name = name;
@@ -186,26 +186,24 @@ public class TriggerProcessRepresentation {
     private Long id;
     private Date activation_time;
     private String status;
-    private String comment;
     private Author author;
     private SubscriptionRepresentation subscription;
-    private ProductRepresentation product;
+    private ServiceRepresentation service;
     private Links links;
 
     public TriggerProcessRepresentation() {
     }
 
     public TriggerProcessRepresentation(Long id, Date activation_time,
-            String status, String comment, Author author,
+            String status, Author author,
             SubscriptionRepresentation subscription,
-            ProductRepresentation product, Links links) {
+            ServiceRepresentation service, Links links) {
         this.id = id;
         this.activation_time = activation_time;
         this.status = status;
-        this.comment = comment;
         this.author = author;
         this.subscription = subscription;
-        this.product = product;
+        this.service = service;
         this.links = links;
     }
 
@@ -213,7 +211,6 @@ public class TriggerProcessRepresentation {
             Subscription subscription, Product product) {
         this.id = new Long(process.getKey());
         this.activation_time = new Date(process.getActivationDate());
-        this.comment = null;
         this.status = process.getStatus().toString();
         this.author = new Author(new Long(process.getUser().getKey()), process
                 .getUser().getEmail());
@@ -237,7 +234,7 @@ public class TriggerProcessRepresentation {
                         .getValue()));
             }
 
-            this.product = new ProductRepresentation(
+            this.service = new ServiceRepresentation(
                     product.getCleanProductId(),
                     prodParams.toArray(new ParameterRepresentation[] {}));
         }
@@ -257,14 +254,6 @@ public class TriggerProcessRepresentation {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
     }
 
     public Date getActivationTime() {
@@ -339,11 +328,11 @@ public class TriggerProcessRepresentation {
         this.subscription = subscription;
     }
 
-    public ProductRepresentation getProduct() {
-        return product;
+    public ServiceRepresentation getService() {
+        return service;
     }
 
-    public void setProduct(ProductRepresentation product) {
-        this.product = product;
+    public void setService(ServiceRepresentation service) {
+        this.service = service;
     }
 }
