@@ -36,7 +36,7 @@ public class VLANImport extends GenericImport {
         super(driverClass, driverURL, userName, userPwd, csvFile);
     }
 
-    public void execute() {
+    public void execute() throws Exception {
         VLANCSV csv = null;
 
         try (Connection conn = getConnection();
@@ -82,6 +82,7 @@ public class VLANImport extends GenericImport {
             conn.commit();
         } catch (Exception e) {
             logger.error("Failed to import VLANs.", e);
+            throw e;
         } finally {
             try {
                 if (csv != null) {
@@ -89,6 +90,7 @@ public class VLANImport extends GenericImport {
                 }
             } catch (Exception e) {
                 logger.error("Failed to close resources", e);
+                throw e;
             }
         }
     }
