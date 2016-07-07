@@ -2,12 +2,12 @@
 swagger: '2.0'
 info:
   title: Notification Service REST API
-  description: API call by the notification service
+  description: API for receiving notifications from Catalog Manager, for example, for the integration with external process control systems.
   version: "1.0.0"
 
 # the domain of the service
-host: oscm.org
-# array of all schemes that your API supports
+host: host_port
+# array of schemes that the API supports
 schemes:
   - http
   - https
@@ -19,95 +19,93 @@ produces:
   - application/json
   
 paths:
-  /target_url:
+  /target_resouce:
     post:
       summary: Trigger Notification
-      description: Receives the notification for the controller
+      description: Receives a notification from Catalog Manager.
       parameters:
         - name: Process
           in: body
-          description: Representation of the trigger process
+          description: The process the notification is about
           required: true
           schema:
             $ref: '#/definitions/Process'
       responses:
         204:
-          description: No Content
+          description: No content
 
 definitions:
   Process:
     type: object
-    description: Process representation
+    description: Trigger process
     properties:
       id:
         type: integer
         format: int64
-        description: ID of the trigger process
+        description: The ID of the process
       activition_time:
         type: string
         format: date
-        description: Timestamp of the process activition
+        description: The date and time the process was activated
       status:
         type: string
         description: The status of the process
-      comment:
-        type: string
-        description: Comment for the approve or reject of the process
       author:
         type: object
-        description: Author representation
+        description: The user who initiated the process
         properties:
           id:
             type: integer
             format: int64
-            description: ID of the responsible user
+            description: The ID of the user
           email:
             type: string
             format: email
-            description: E-Mail adress of the responsible user
+            description: The email address of the user
       subscription:
         type: object
-        description: Subscription representaion
+        description: The subscription that is subject to the process
         properties:
           id:
             type: integer
             format: int64
-            description: ID of the subscription
+            description: The ID of the subscription
           name:
             type: string
-            description: Name of the subscription
-      product:
+            description: The name of the subscription
+      service:
         type: object
-        description: Product representation
+        description: The service that is underlying the subscription
         properties:
           name:
             type: string
-            description: Name of the product
+            description: The name of the service
           parameters:
             type: array
+            description: The parameters of the service
             items:
                 type: object
-                description: Parameter items
+                description: Service parameter
                 properties:
                   name:
                     type: string
-                    description: Name of the parameter
+                    description: The name of the parameter
                   value:
                     type: string
-                    description: Value of the parameter
+                    description: The value of the parameter
       links:
         type: object
-        description: Links representation
+        description: Links
         properties:
           trigger_id:
             type: integer
             format: int64
-            description: ID of the trigger definition
+            description: The ID of the trigger definition associated with the process
           author_id:
             type: integer
             format: int64
-            description: ID of the responsible user
+            description: The ID of the user who initiated the process
           subscription_id:
             type: integer
             format: int64
-            description: ID of the subscription
+            description: The ID of the subscription that is subject to the process
