@@ -107,6 +107,7 @@ public class MarketplaceAssemblerTest {
         assertEquals(facade.getText(domMpDefault.getKey(),
                 LocalizedObjectTypes.MARKETPLACE_NAME), voMp.getName());
         assertEquals(domMpDefault.isOpen(), voMp.isOpen());
+        assertEquals(domMpDefault.getPublicLandingpage() != null, voMp.isHasPublicLandingPage());
 
         // dom object initialize with FALSE in the setup
         assertFalse(domMpDefault.isTaggingEnabled());
