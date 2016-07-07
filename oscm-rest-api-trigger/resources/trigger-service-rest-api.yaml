@@ -11,7 +11,7 @@ host: oscm.org
 schemes:
   - https
 # will be prefixed to all paths
-basePath: /oscm-rest/trigger/v1
+basePath: /oscm-trigger/v1
 consumes:
   - application/json
 produces:

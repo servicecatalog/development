@@ -1794,6 +1794,18 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
+    public VOTriggerDefinition getTriggerDefinition(Long id)
+            throws ObjectNotFoundException, OperationNotPermittedException {
+        VOTriggerDefinition vo = new VOTriggerDefinition();
+        vo.setSuspendProcess(true);
+        vo.setTarget("http://");
+        vo.setTargetType(TriggerTargetType.WEB_SERVICE);
+        vo.setType(TriggerType.ACTIVATE_SERVICE);
+        vo.setName(vo.getType().name());
+        return vo;
+    }
+
+    @Override
     public void rejectAction(long key, List<VOLocalizedText> reason)
             throws ObjectNotFoundException, OperationNotPermittedException,
             TriggerProcessStatusException {
@@ -2200,9 +2212,10 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void createTriggerDefinition(VOTriggerDefinition vo)
+    public Long createTriggerDefinition(VOTriggerDefinition vo)
             throws TriggerDefinitionDataException, ValidationException {
         // nothing
+        return new Long(0);
     }
 
     @Override
@@ -2375,14 +2388,16 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace, VOOrganization voOrganization)
-        throws ValidationException, NonUniqueBusinessKeyException {
+    public void grantAccessToMarketPlaceToOrganization(
+            VOMarketplace voMarketplace, VOOrganization voOrganization)
+            throws ValidationException, NonUniqueBusinessKeyException {
 
     }
 
     @Override
     public void openMarketplace(String marketplaceId)
-        throws OperationNotPermittedException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException {
 
     }
 
@@ -2392,8 +2407,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId, String organizationId)
-        throws LoginException {
+    public boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
+            String organizationId) throws LoginException {
         return false;
     }
 
@@ -2696,7 +2711,7 @@ public class MockService implements IdentityService, SubscriptionService,
             long subscriptionKey) throws ObjectNotFoundException {
         return new VOSubscriptionDetails();
     }
- 
+
     @Override
     public List<VOTriggerProcess> getAllActionsForOrganizationRelatedSubscription() {
         List<VOTriggerDefinition> list = getAllDefinitions();
@@ -2721,9 +2736,8 @@ public class MockService implements IdentityService, SubscriptionService,
     }
 
     @Override
-    public List<VOCustomerService> getServiceCustomerTemplates(
-            VOService service) throws ObjectNotFoundException,
-                    OperationNotPermittedException {
+    public List<VOCustomerService> getServiceCustomerTemplates(VOService service)
+            throws ObjectNotFoundException, OperationNotPermittedException {
         return null;
     }
 
@@ -2732,10 +2746,9 @@ public class MockService implements IdentityService, SubscriptionService,
             Set<Long> authorizedOrganizations,
             Set<Long> unauthorizedOrganizations,
             Set<Long> organizationsWithSubsToSuspend)
-                    throws OperationNotPermittedException,
-                    ObjectNotFoundException, NonUniqueBusinessKeyException,
-                    TechnicalServiceNotAliveException,
-                    TechnicalServiceOperationException {
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException {
 
     }
 

@@ -12,15 +12,16 @@
   <HR>
 
   <P>Welcome to the integration package of Catalog Manager. This package helps you
-    integrate your applications or other external systems with Catalog Manager. It provides the public Web service interface of
-    Catalog Manager as well as additional resources, templates, samples, utilities, and documentation.</P>
+    integrate your applications or other external systems with Catalog Manager. It provides the public Web services 
+    and application programming interfaces (APIs) of Catalog Manager as well as additional resources, templates, 
+    samples, utilities, and documentation.</P>
   <H2>Package Content</H2>
   <P>This package contains the following items:</P>
   <ul>
-    <li><b>Public Web service interface</b>. Catalog Manager exposes its basic functionality at a public Web service
-      interface which consists of the so-called platform services. Applications and external systems that are integrated
-      with Catalog Manager invoke the functionality of the platform services. The services are accessed by SOAP messages over
-      HTTP/HTTPS.
+    <li><b>Platform services</b>. Catalog Manager exposes its basic functionality as public Web services, 
+      the so-called platform services. Applications and external systems that are integrated
+      with Catalog Manager invoke the functionality of the platform services. The services are accessed 
+      by SOAP messages over HTTP/HTTPS.
       <ul>
         <LI><A HREF="SOAPapis/platform/lib/oscm-extsvc-platform.jar">oscm-extsvc-platform.jar</A> - a
           library containing the API of the platform services</LI>
@@ -56,8 +57,7 @@
         <LI><A HREF="integrationhelper/Integrationhelper.war">Integrationhelper.war</A> - a Web archive including
           the integration helpers and additional resources required by them.</LI>
         <LI><A HREF="integrationhelper/readme.txt">readme.txt</A> - Readme file containing information on how to
-          use the integration helpers and its sample implementation.</LI>
-
+          use the integration helpers and the sample implementations.</LI>
         <LI><A HREF="integrationhelper/IntegrationhelperSRC.zip">Integration helper sources</A> - a ZIP file
           containing the source code of the integration helpers.
         <LI><A HREF="licenses">Licenses</A> - third-party licenses required for the libraries which are included in
@@ -119,8 +119,8 @@
   <li><b>Documentation</b>:
     <ul>
       <LI><A HREF="doc/en/Overview.pdf">Overview</A> - a PDF manual introducing Catalog Manager</li>
-      <LI><A HREF="doc/en/Developer.pdf">Developer's Guide</A> - a PDF manual for application developers describing
-        the public Web service interface of Catalog Manager and how to use it to integrate applications and external systems with
+      <LI><A HREF="doc/en/Developer.pdf">Developer's Guide</A> - describing the public Web services and
+        application programming interfaces of Catalog Manager and how to integrate applications and external systems with
         Catalog Manager</LI>
       <LI><A HREF="doc/en/TechProv.pdf">Technology Provider's Guide</A> - a PDF manual for technology providers
         describing how to prepare applications for usage in a SaaS model and how to integrate them with Catalog Manager</LI>
@@ -154,9 +154,9 @@
     </ul></li>
   <li><b><A HREF="version.txt">Catalog Manager version information</A></b></li>
   </ul>
-  <H2>Best Practices for Implementing Web Services</H2>
-  <P>Consider the following when implementing Web services for integrating applications or external systems with
-    Catalog Manager:</p>
+  <H2>Best Practices for Implementing SOAP-based Web Services</H2>
+  <P>Consider the following when implementing Web services based on SOAP and WSDL for integrating applications or 
+     external systems with Catalog Manager:</p>
   <ul>
     <li><b>Web services based on Java</b>:
       <p>It is recommended to use the JAX-WS framework for implementing a Web service. The interfaces for all Web

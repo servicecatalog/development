@@ -11,7 +11,6 @@ package org.oscm.rest.trigger.data;
 import javax.ws.rs.WebApplicationException;
 
 import org.oscm.rest.common.Representation;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest.Action;
 
 /**
  * Representation class for trigger actions
@@ -19,6 +18,10 @@ import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest.Action;
  * @author miethaner
  */
 public class ActionRepresentation extends Representation {
+
+    public enum Action {
+        SUBSCRIBE_TO_SERVICE, UNSUBSCRIBE_FROM_SERVICE, MODIFY_SUBSCRIPTION
+    }
 
     private Action description;
 

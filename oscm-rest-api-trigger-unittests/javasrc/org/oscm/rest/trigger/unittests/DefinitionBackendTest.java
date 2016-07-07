@@ -11,17 +11,18 @@ package org.oscm.rest.trigger.unittests;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.oscm.internal.intf.TriggerDefinitionService;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOTriggerDefinition;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.RepresentationCollection;
 import org.oscm.rest.trigger.DefinitionBackend;
 import org.oscm.rest.trigger.TriggerParameters;
 import org.oscm.rest.trigger.data.DefinitionRepresentation;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRest;
-import org.oscm.rest.trigger.interfaces.TriggerDefinitionRestService;
 
 /**
  * Unit test for TriggerBackend
@@ -38,21 +39,22 @@ public class DefinitionBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        DefinitionRepresentation trigger = new DefinitionRepresentation();
-        trigger.setId(id);
-        trigger.setOwner(new DefinitionRepresentation.Owner());
+        VOTriggerDefinition trigger = new VOTriggerDefinition();
+        trigger.setKey(id.longValue());
+        trigger.setOrganization(new VOOrganization());
 
-        TriggerDefinitionRestService service = Mockito
-                .mock(TriggerDefinitionRestService.class);
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
 
-        Mockito.when(service.getDefinition(params.getId())).thenReturn(trigger);
+        Mockito.when(service.getTriggerDefinition(params.getId())).thenReturn(
+                trigger);
 
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         Representation result = backend.getItem().get(params);
 
         assertEquals(id, result.getId());
-        Mockito.verify(service).getDefinition(params.getId());
+        Mockito.verify(service).getTriggerDefinition(params.getId());
     }
 
     @Test
@@ -63,17 +65,17 @@ public class DefinitionBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        DefinitionRepresentation trigger = new DefinitionRepresentation();
-        trigger.setId(id);
-        trigger.setOwner(new DefinitionRepresentation.Owner());
+        VOTriggerDefinition trigger = new VOTriggerDefinition();
+        trigger.setKey(id.longValue());
+        trigger.setOrganization(new VOOrganization());
 
-        Collection<TriggerDefinitionRest> col = new ArrayList<TriggerDefinitionRest>();
+        List<VOTriggerDefinition> col = new ArrayList<VOTriggerDefinition>();
         col.add(trigger);
 
-        TriggerDefinitionRestService service = Mockito
-                .mock(TriggerDefinitionRestService.class);
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
 
-        Mockito.when(service.getDefinitions()).thenReturn(col);
+        Mockito.when(service.getTriggerDefinitions()).thenReturn(col);
 
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
@@ -83,7 +85,7 @@ public class DefinitionBackendTest {
         assertEquals(id,
                 result.getItems().toArray(new DefinitionRepresentation[] {})[0]
                         .getId());
-        Mockito.verify(service).getDefinitions();
+        Mockito.verify(service).getTriggerDefinitions();
     }
 
     @Test
@@ -98,17 +100,19 @@ public class DefinitionBackendTest {
         trigger.setId(id);
         trigger.setOwner(new DefinitionRepresentation.Owner());
 
-        TriggerDefinitionRestService service = Mockito
-                .mock(TriggerDefinitionRestService.class);
+        VOTriggerDefinition definition = new VOTriggerDefinition();
+        definition.setKey(id.longValue());
+        definition.setOrganization(new VOOrganization());
 
-        Mockito.when(service.createDefinition(trigger)).thenReturn(id);
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
+
+        Mockito.when(service.createTriggerDefinition(definition))
+                .thenReturn(id);
 
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
-        Object result = backend.postCollection().post(trigger, params);
-
-        assertEquals(id.toString(), result.toString());
-        Mockito.verify(service).createDefinition(trigger);
+        backend.postCollection().post(trigger, params);
     }
 
     @Test
@@ -121,16 +125,20 @@ public class DefinitionBackendTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
+        trigger.setTag("0");
         trigger.setOwner(new DefinitionRepresentation.Owner());
 
-        TriggerDefinitionRestService service = Mockito
-                .mock(TriggerDefinitionRestService.class);
+        VOTriggerDefinition definition = new VOTriggerDefinition();
+        definition.setKey(id.longValue());
+        definition.setOrganization(new VOOrganization());
+
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
 
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         backend.putItem().put(trigger, params);
 
-        Mockito.verify(service).updateDefinition(trigger);
     }
 
     @Test
@@ -141,13 +149,13 @@ public class DefinitionBackendTest {
         TriggerParameters params = new TriggerParameters();
         params.setId(id);
 
-        TriggerDefinitionRestService service = Mockito
-                .mock(TriggerDefinitionRestService.class);
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
 
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         backend.deleteItem().delete(params);
 
-        Mockito.verify(service).deleteDefinition(id);
+        Mockito.verify(service).deleteTriggerDefinition(id.longValue());
     }
 }

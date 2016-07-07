@@ -69,7 +69,6 @@ public class APPDataAccessService {
         try (Connection con = getDatasource().getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);) {
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -93,7 +92,6 @@ public class APPDataAccessService {
                 PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, "USERID_%");
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -111,7 +109,6 @@ public class APPDataAccessService {
         return orgIds;
     }
 
-    @SuppressWarnings("resource")
     public ScheduleExpression getTimerSchedule(String defaultDay,
             String defaultHour, String defaultMinute) {
         logger.debug("");
@@ -188,7 +185,6 @@ public class APPDataAccessService {
                 PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, "USERID_" + orgId);
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -200,8 +196,8 @@ public class APPDataAccessService {
         }
 
         if (userId == null) {
-            throw new RuntimeException(
-                    "Failed to retrieve userId for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve userId for orgId "
+                    + orgId);
         }
 
         return userId;
@@ -214,7 +210,6 @@ public class APPDataAccessService {
         try (Connection con = getDatasource().getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, "USERKEY_" + orgId);
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 userKey = Long.parseLong(rs.getString("settingvalue"));
@@ -225,8 +220,8 @@ public class APPDataAccessService {
         }
 
         if (userKey == -1) {
-            throw new RuntimeException(
-                    "Failed to retrieve userKey for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve userKey for orgId "
+                    + orgId);
         }
 
         return userKey;
@@ -240,7 +235,6 @@ public class APPDataAccessService {
                 PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, "USERPWD_" + orgId);
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -252,8 +246,8 @@ public class APPDataAccessService {
         }
 
         if (userPwd == null) {
-            throw new RuntimeException(
-                    "Failed to retrieve password for orgId " + orgId);
+            throw new RuntimeException("Failed to retrieve password for orgId "
+                    + orgId);
         }
 
         userPwd = decryptPassword(userPwd, "USERPWD_" + orgId);
@@ -297,34 +291,30 @@ public class APPDataAccessService {
 
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT ");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
-                        + Controller.ID + "') as key,");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
-                        + Controller.ID + "') as id,");
-        sql.append(
-                "(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
-                        + Controller.ID + "') as password");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_KEY' AND controllerid='"
+                + Controller.ID + "') as key,");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_ID' AND controllerid='"
+                + Controller.ID + "') as id,");
+        sql.append("(SELECT settingvalue FROM bssappuser.configurationsetting WHERE settingkey='BSS_USER_PWD' AND controllerid='"
+                + Controller.ID + "') as password");
         sql.append(";");
 
         try (Connection connection = getDatasource().getConnection();
-                PreparedStatement stmt = connection
-                        .prepareStatement(sql.toString())) {
+                PreparedStatement stmt = connection.prepareStatement(sql
+                        .toString())) {
 
-            @SuppressWarnings("resource")
             ResultSet resultSet = stmt.executeQuery();
 
             while (resultSet.next()) {
-                credentials
-                        .setUserKey(Long.valueOf(resultSet.getString("key")));
+                credentials.setUserKey(Long.valueOf(resultSet.getString("key"))
+                        .longValue());
                 credentials.setUserId(resultSet.getString("id"));
                 credentials.setPassword(resultSet.getString("password"));
             }
         }
 
-        credentials.setPassword(
-                decryptPassword(credentials.getPassword(), "BSS_USER_PWD"));
+        credentials.setPassword(decryptPassword(credentials.getPassword(),
+                "BSS_USER_PWD"));
 
         logger.debug("loaded technology provider credentials for user "
                 + credentials.getUserId() + "(" + credentials.getUserKey()
@@ -339,7 +329,6 @@ public class APPDataAccessService {
         try (Connection con = getDatasource().getConnection();
                 PreparedStatement stmt = con.prepareStatement(query);) {
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {
@@ -349,8 +338,7 @@ public class APPDataAccessService {
         } catch (SQLException e) {
             logger.error(
                     "Failed to retrieve controller settings for controller "
-                            + Controller.ID,
-                    e);
+                            + Controller.ID, e);
             throw e;
         }
 
@@ -371,7 +359,6 @@ public class APPDataAccessService {
                 PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.setString(1, instanceId);
 
-            @SuppressWarnings("resource")
             ResultSet rs = stmt.executeQuery();
 
             while (rs.next()) {

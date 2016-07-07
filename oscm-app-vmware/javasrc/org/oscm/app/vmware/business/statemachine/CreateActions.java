@@ -39,8 +39,7 @@ public class CreateActions extends Actions {
     @StateMachineAction
     public String createInstanceName(String instanceId,
             ProvisioningSettings settings,
-            @SuppressWarnings("unused") InstanceStatus result)
-            throws Exception {
+            @SuppressWarnings("unused") InstanceStatus result) throws Exception {
 
         VMPropertyHandler ph = new VMPropertyHandler(settings);
         String regex = ph
@@ -53,9 +52,9 @@ public class CreateActions extends Actions {
                 logger.error("Validation error on instance name: ["
                         + instanceName + "/" + regex + "] for instanceId"
                         + instanceId);
-                throw new APPlatformException(
-                        Messages.getAll("error_invalid_name",
-                                new Object[] { instanceName, regex }));
+                throw new APPlatformException(Messages.getAll(
+                        "error_invalid_name", new Object[] { instanceName,
+                                regex }));
             }
         }
 
@@ -87,8 +86,8 @@ public class CreateActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool().returnObject(vcenter,
-                            vmClient);
+                    VMClientPool.getInstance().getPool()
+                            .returnObject(vcenter, vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -126,8 +125,8 @@ public class CreateActions extends Actions {
         } finally {
             if (vmClient != null) {
                 try {
-                    VMClientPool.getInstance().getPool().returnObject(vcenter,
-                            vmClient);
+                    VMClientPool.getInstance().getPool()
+                            .returnObject(vcenter, vmClient);
                 } catch (Exception e) {
                     logger.error("Failed to return VMware client into pool", e);
                 }
@@ -143,7 +142,7 @@ public class CreateActions extends Actions {
         String mailRecipient = ph
                 .getServiceSetting(VMPropertyHandler.TS_MAIL_FOR_COMPLETION);
 
-        if (mailRecipient == null) {
+        if (mailRecipient == null || mailRecipient.trim().isEmpty()) {
             logger.debug("mailRecipient is not defined.");
             return EVENT_SUCCESS;
         }
@@ -176,16 +175,18 @@ public class CreateActions extends Actions {
         String subject = Messages.get(paramHandler.getSettings().getLocale(),
                 "mail_pause_after_creation.subject",
                 new Object[] { paramHandler.getInstanceName() });
-        String details = paramHandler.getConfigurationAsString(
-                paramHandler.getSettings().getLocale());
-        details += paramHandler.getResponsibleUserAsString(
-                paramHandler.getSettings().getLocale());
-        String text = Messages.get(paramHandler.getSettings().getLocale(),
-                "mail_pause_after_creation.text",
-                new Object[] { paramHandler.getInstanceName(),
-                        paramHandler.getServiceSetting(
-                                VMPropertyHandler.REQUESTING_USER),
-                        details, eventLink.toString() });
+        String details = paramHandler.getConfigurationAsString(paramHandler
+                .getSettings().getLocale());
+        details += paramHandler.getResponsibleUserAsString(paramHandler
+                .getSettings().getLocale());
+        String text = Messages
+                .get(paramHandler.getSettings().getLocale(),
+                        "mail_pause_after_creation.text",
+                        new Object[] {
+                                paramHandler.getInstanceName(),
+                                paramHandler
+                                        .getServiceSetting(VMPropertyHandler.REQUESTING_USER),
+                                details, eventLink.toString() });
         platformService.sendMail(Collections.singletonList(mailRecipient),
                 subject, text);
     }

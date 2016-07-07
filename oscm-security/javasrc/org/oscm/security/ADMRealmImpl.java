@@ -34,14 +34,14 @@ import javax.security.auth.login.LoginException;
 import javax.sql.DataSource;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.xml.sax.SAXException;
-
 import org.oscm.authorization.PasswordHash;
-import org.oscm.saml2.api.AssertionConsumerService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.AssertionValidationException;
 import org.oscm.internal.types.exception.DigitalSignatureValidationException;
+import org.oscm.saml2.api.AssertionConsumerService;
+import org.xml.sax.SAXException;
+
 import com.sun.enterprise.security.auth.realm.NoSuchUserException;
 
 /**
@@ -147,24 +147,7 @@ public class ADMRealmImpl {
                     authModeQuery.getAuthenticationMode())) {
                 handleSSOLogin(userKey, password, authModeQuery, userQuery);
             } else {
-
-                if (!userQuery.isRemoteLdapActive()) {
-                    handleLoginAttempt(userKey, password, userQuery);
-                } else {
-                    // use the remote LDAP for the authentication
-                    OrganizationSettingQuery settingQuery = getOrganizationSettingQuery(userQuery);
-                    settingQuery.execute();
-
-                    if (userQuery.getRealmUserId() == null) {
-                        throw new LoginException(
-                                "No LDAP specific user id was found.");
-                    }
-                    findAndBind(settingQuery.getProperties(),
-                            settingQuery.getBaseDN(), settingQuery.getAttrUid()
-                                    + "=" + userQuery.getRealmUserId(),
-                            password);
-
-                }
+                handleInternalLogin(userKey, password, userQuery);
             }
             List<String> roles = loadRoleNames(userKey);
             groups = roles.toArray(new String[] {});
@@ -186,12 +169,38 @@ public class ADMRealmImpl {
             handleUICaller(userKey, password, authModeQuery);
         } else if ("WS".equals(callerType)) {
             handleWebServiceCaller(userKey, password);
+        } else if ("RS".equals(callerType)) {
+            handleInternalLogin(userKey,
+                    password.substring(SSO_CALLER_SPEC_LEN), userQuery);
         } else {
             handleOperatorClientCaller(userKey, password, userQuery);
         }
 
         logger.info(String.format(
                 "Single Sign On: User '%s' successfully logged in.", userKey));
+    }
+
+    void handleInternalLogin(String userKey, String password,
+            UserQuery userQuery) throws LoginException, SQLException,
+            NamingException {
+
+        if (!userQuery.isRemoteLdapActive()) {
+            handleLoginAttempt(userKey, password, userQuery);
+        } else {
+            // use the remote LDAP for the authentication
+            OrganizationSettingQuery settingQuery = getOrganizationSettingQuery(userQuery);
+            settingQuery.execute();
+
+            if (userQuery.getRealmUserId() == null) {
+                throw new LoginException("No LDAP specific user id was found.");
+            }
+            findAndBind(
+                    settingQuery.getProperties(),
+                    settingQuery.getBaseDN(),
+                    settingQuery.getAttrUid() + "="
+                            + userQuery.getRealmUserId(), password);
+
+        }
     }
 
     void handleOperatorClientCaller(final String userKey, String password,

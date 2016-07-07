@@ -10,12 +10,10 @@ package org.oscm.internal.vo;
 
 import java.math.BigDecimal;
 
-import org.oscm.rest.trigger.interfaces.OrganizationRest;
-
 /**
  * Represents an organization and provides data related to it.
  */
-public class VOOrganization extends BaseVO implements OrganizationRest {
+public class VOOrganization extends BaseVO {
 
     private static final long serialVersionUID = 4479757863394747330L;
 
@@ -92,21 +90,8 @@ public class VOOrganization extends BaseVO implements OrganizationRest {
 
     private BigDecimal operatorRevenueShare;
 
-    @Override
-    public Long getId() {
-        return new Long(getKey());
-    }
-
-    public void setId(Long id) {
-        if (id != null) {
-            setKey(id.longValue());
-        } else {
-            setKey(0L);
-        }
-    }
-
     private boolean hasGrantedAccessToMarketplace;
-    
+
     private boolean hasSubscriptions;
 
     /**
@@ -193,7 +178,6 @@ public class VOOrganization extends BaseVO implements OrganizationRest {
      * @return the organization name
      */
 
-    @Override
     public String getName() {
         return name;
     }
@@ -409,7 +393,8 @@ public class VOOrganization extends BaseVO implements OrganizationRest {
         return hasGrantedAccessToMarketplace;
     }
 
-    public void setHasGrantedAccessToMarketplace(boolean hasGrantedAccessToMarketplace) {
+    public void setHasGrantedAccessToMarketplace(
+            boolean hasGrantedAccessToMarketplace) {
         this.hasGrantedAccessToMarketplace = hasGrantedAccessToMarketplace;
     }
 
