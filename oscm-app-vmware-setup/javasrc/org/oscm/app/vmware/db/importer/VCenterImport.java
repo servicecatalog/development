@@ -21,7 +21,7 @@ public class VCenterImport extends GenericImport {
     private static final Logger logger = LoggerFactory
             .getLogger(VCenterImport.class);
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
         if (args.length < 5 || args.length > 6) {
             throw new RuntimeException(
                     "Usage: VCenterImport <driverClass> <driverURL> <userName> <userPwd> <csvFile>");
@@ -37,7 +37,7 @@ public class VCenterImport extends GenericImport {
         super(driverClass, driverURL, userName, userPwd, csvFile);
     }
 
-    public void execute() {
+    public void execute() throws Exception {
         VCenterCSV csv = null;
 
         try (Connection conn = getConnection();
@@ -83,6 +83,7 @@ public class VCenterImport extends GenericImport {
             conn.commit();
         } catch (Exception e) {
             logger.error("failed to import vcenter settings.", e);
+            throw e;
         } finally {
             try {
                 if (csv != null) {
@@ -90,6 +91,7 @@ public class VCenterImport extends GenericImport {
                 }
             } catch (Exception e) {
                 logger.error("Failed to close resources", e);
+                throw e;
             }
         }
     }

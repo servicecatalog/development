@@ -24,7 +24,7 @@ public class DatacenterImport extends GenericImport {
     private static final Logger logger = LoggerFactory
             .getLogger(DatacenterImport.class);
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws Exception {
 
         if (args.length < 5 || args.length > 6) {
             throw new RuntimeException(
@@ -43,7 +43,7 @@ public class DatacenterImport extends GenericImport {
         super(driverClass, driverURL, userName, userPwd, csvFile);
     }
 
-    public void execute() {
+    public void execute() throws Exception {
         DatacenterCSV csv = null;
         try (Connection conn = getConnection();
                 InputStream in = getFileInputStream();) {
@@ -76,6 +76,7 @@ public class DatacenterImport extends GenericImport {
             conn.commit();
         } catch (Exception e) {
             logger.error("Failed to import datacenter. " + e.getMessage());
+            throw e;
         } finally {
             try {
                 if (csv != null) {
@@ -83,6 +84,7 @@ public class DatacenterImport extends GenericImport {
                 }
             } catch (Exception e) {
                 logger.error("Failed to close resources", e);
+                throw e;
             }
         }
     }
