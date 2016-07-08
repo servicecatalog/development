@@ -573,6 +573,22 @@
             <fileset dir="${workspace.dir}/oscm-internal-interfaces/javasrc" />
           </sourcefiles>
         </group>
+        <group name="oscm-rest-api-common">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-rest-api-common/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-rest-api-common/javasrc" />
+          </sourcefiles>
+        </group>
+        <group name="oscm-rest-api-trigger">
+          <classfiles>
+            <fileset dir="${result.dir}/work/oscm-rest-api-trigger/classes" />
+          </classfiles>
+          <sourcefiles encoding="utf-8">
+            <fileset dir="${workspace.dir}/oscm-rest-api-trigger/javasrc" />
+          </sourcefiles>
+        </group>
 
       </structure>
 
