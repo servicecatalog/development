@@ -322,6 +322,7 @@ public class TriggerServiceBean implements TriggerService, TriggerServiceLocal {
                         TriggerProcessStatus.INITIAL,
                         TriggerProcessStatus.WAITING_FOR_APPROVAL);
                 triggerProcess.setState(TriggerProcessStatus.CANCELLED);
+                dm.flush();
                 localizer.storeLocalizedResources(key,
                         LocalizedObjectTypes.TRIGGER_PROCESS_REASON, reason);
 
