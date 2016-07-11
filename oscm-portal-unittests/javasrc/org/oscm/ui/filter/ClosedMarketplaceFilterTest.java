@@ -98,7 +98,7 @@ public class ClosedMarketplaceFilterTest {
         //given
         doReturn("/portal/*").when(requestMock).getServletPath();
         doReturn("mpid").when(sessionMock).getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-        doReturn(getMarketplace("mpid", false)).when(marketplaceService).getMarketplaceById(anyString());
+        doReturn(getMarketplace("mpid", false, true)).when(marketplaceService).getMarketplaceById(anyString());
         
         //when
         closedMplFilter.doFilter(requestMock, responseMock, chainMock);
@@ -113,7 +113,7 @@ public class ClosedMarketplaceFilterTest {
         //given
         doReturn("/portal/*").when(requestMock).getServletPath();
         doReturn("mpid").when(sessionMock).getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-        doReturn(getMarketplace("mpid", true)).when(marketplaceService).getMarketplaceById(anyString());
+        doReturn(getMarketplace("mpid", true, true)).when(marketplaceService).getMarketplaceById(anyString());
         doReturn(getUserDetails("testUser")).when(identityService).getCurrentUserDetailsIfPresent();
         doReturn(true).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
         
@@ -130,7 +130,7 @@ public class ClosedMarketplaceFilterTest {
         //given
         doReturn("/portal/*").when(requestMock).getServletPath();
         doReturn("mpid").when(sessionMock).getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-        doReturn(getMarketplace("mpid", true)).when(marketplaceService).getMarketplaceById(anyString());
+        doReturn(getMarketplace("mpid", true, true)).when(marketplaceService).getMarketplaceById(anyString());
         doReturn(getUserDetails("testUser")).when(identityService).getCurrentUserDetailsIfPresent();
         doReturn(false).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
         
@@ -147,7 +147,7 @@ public class ClosedMarketplaceFilterTest {
         //given
         doReturn("/portal/*").when(requestMock).getServletPath();
         doReturn("mpid").when(sessionMock).getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-        doReturn(getMarketplace("mpid", true)).when(marketplaceService).getMarketplaceById(anyString());
+        doReturn(getMarketplace("mpid", true, true)).when(marketplaceService).getMarketplaceById(anyString());
         doReturn(null).when(identityService).getCurrentUserDetailsIfPresent();
         
         //when
@@ -157,10 +157,11 @@ public class ClosedMarketplaceFilterTest {
         verify(redirectorMock, times(1)).forward(eq(requestMock), eq(responseMock), eq(MPL_START_URL));  
     }
     
-    private VOMarketplace getMarketplace(String mplId, boolean isRestricted){
+    private VOMarketplace getMarketplace(String mplId, boolean isRestricted, boolean hasPublicLandingPage){
         VOMarketplace marketplace = new VOMarketplace();
         marketplace.setMarketplaceId(mplId);
         marketplace.setRestricted(isRestricted);
+        marketplace.setHasPublicLandingPage(hasPublicLandingPage);
         return marketplace;
     }
     
