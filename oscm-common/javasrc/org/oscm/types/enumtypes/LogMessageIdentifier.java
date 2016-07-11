@@ -706,6 +706,7 @@ public enum LogMessageIdentifier {
     ERROR_RETRIEVAL_EXTERNAL_PRICE_MODEL_FAILED("70307"), //
     ERROR_SESSION_INDEX_NOT_FOUND("70308"), //
     ERROR_SAML2_INVALID_STATUS_CODE("70309"), //
+    ERROR_PARAM_ENCRYPTION("70400"), //
     ERROR("-00001"), DEBUG("00000"); /* Debug Log */
 
     String msgId;

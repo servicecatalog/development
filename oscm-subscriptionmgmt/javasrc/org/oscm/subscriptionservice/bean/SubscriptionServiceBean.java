@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
+import java.security.GeneralSecurityException;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -124,6 +125,7 @@ import org.oscm.paginator.Pagination;
 import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.provisioning.data.User;
+import org.oscm.security.PwdEncrypter;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
 import org.oscm.serviceprovisioningservice.assembler.TechServiceOperationParameterAssembler;
@@ -189,6 +191,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public static final String KEY_PAIR_NAME = "Key pair name";
     public static final String AMAZONAWS_COM = "amazonaws.com";
     private static final int PAYMENTTYPE_INVOICE = 3;
+    private static final String CRYPT_PREFIX = "_crypt:";
 
     private static final Log4jLogger LOG = LoggerFactory
             .getLogger(SubscriptionServiceBean.class);
@@ -695,8 +698,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
         copyLocalizedPricemodelValues(theProduct, productTemplate);
 
         // update the subscription's configurable parameter
-        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                theProduct, product.getParameters(), null);
+        List<Parameter> modifiedParametersForLog = new ArrayList<>();
+        try {
+            modifiedParametersForLog = updateConfiguredParameterValues(
+                    theProduct, product.getParameters(), null);
+        } catch (GeneralSecurityException gse) {
+            throw handleParamEncryptionException(gse);
+        }
 
         // now bind the product and the price model to the subscription:
         newSub.bindToProduct(theProduct);
@@ -1467,9 +1475,10 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *            the list of parameters
      * @param subscription
      *            - target subscription
+     * @throws GeneralSecurityException 
      */
     List<Parameter> updateConfiguredParameterValues(Product product,
-            List<VOParameter> parameters, Subscription subscription) {
+            List<VOParameter> parameters, Subscription subscription) throws GeneralSecurityException {
         Map<String, Parameter> paramMap = new HashMap<>();
         if (product.getParameterSet() != null) {
             for (Parameter parameter : product.getParameterSet()
@@ -1504,7 +1513,16 @@ public class SubscriptionServiceBean implements SubscriptionService,
             Parameter param = paramMap.get(parameterID);
             if (param != null) {
                 String oldValue = param.getValue();
-                param.setValue(voParameter.getValue());
+                
+                String value = voParameter.getValue();
+                if(value != null && value.startsWith(CRYPT_PREFIX)){
+                    value = value.substring(CRYPT_PREFIX.length());
+                    String encryptedValue = PwdEncrypter.encrypt(value);
+                    param.setValue(encryptedValue);
+                } else{
+                    param.setValue(voParameter.getValue());
+                }
+                
                 String defaultValue = param.getParameterDefinition()
                         .getDefaultValue();
                 if ((oldValue != null && !oldValue.equals(param.getValue()))
@@ -3021,8 +3039,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     subscription, true);
         }
 
-        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                targetProductCopy, voTargetParameters, subscription);
+        List<Parameter> modifiedParametersForLog = new ArrayList<>();
+        try {
+            modifiedParametersForLog = updateConfiguredParameterValues(
+                    targetProductCopy, voTargetParameters, subscription);
+        } catch (GeneralSecurityException gse) {
+            throw handleParamEncryptionException(gse);
+        }
 
         // verify the platform parameter and send the new parameter to the
         // technical product
@@ -3090,8 +3113,13 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 .getProvisioningType();
         Product targetProductCopy = copyProductForSubscription(targetProduct,
                 subscription, false);
-        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                targetProductCopy, voTargetParameters, subscription);
+        List<Parameter> modifiedParametersForLog = new ArrayList<>();
+        try {
+            modifiedParametersForLog = updateConfiguredParameterValues(
+                    targetProductCopy, voTargetParameters, subscription);
+        } catch (GeneralSecurityException gse) {
+            throw handleParamEncryptionException(gse);
+        }
 
         // verify the platform parameter
         checkPlatformParameterConstraints(subscription, targetProductCopy,
@@ -5447,5 +5475,15 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
+    }
+    
+    private SaaSSystemException handleParamEncryptionException(GeneralSecurityException ex){
+        SaaSSystemException sse = new SaaSSystemException(ex);
+        LOG.logError(
+                Log4jLogger.SYSTEM_LOG,
+                sse,
+                LogMessageIdentifier.ERROR_PARAM_ENCRYPTION,
+                Long.toString(dataManager.getCurrentUser().getKey()));
+        return sse;
     }
 }
