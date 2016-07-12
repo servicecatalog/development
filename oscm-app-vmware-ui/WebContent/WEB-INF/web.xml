@@ -7,7 +7,7 @@
   <display-name>APP VMware User Interface</display-name>
 
   <welcome-file-list>
-    <welcome-file>vcenter.xhtml</welcome-file>
+    <welcome-file>cluster.xhtml</welcome-file>
   </welcome-file-list>
 
   <context-param>
