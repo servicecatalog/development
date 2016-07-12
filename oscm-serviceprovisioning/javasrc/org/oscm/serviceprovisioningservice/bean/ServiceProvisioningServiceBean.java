@@ -6,6 +6,7 @@ package org.oscm.serviceprovisioningservice.bean;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1350,7 +1351,7 @@ public class ServiceProvisioningServiceBean
         try {
             product = prepareMarketingProduct(technicalService.getKey(),
                     service, true);
-        } catch (ServiceStateException | ConcurrentModificationException e) {
+        } catch (ServiceStateException | ConcurrentModificationException | GeneralSecurityException e) {
             // this must not happen
             SaaSSystemException sse = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, sse,
@@ -1390,8 +1391,16 @@ public class ServiceProvisioningServiceBean
                 storedService);
         validateProductStatus(customerProducts);
 
-        Product product = prepareMarketingProduct(
-                storedService.getTechnicalProduct().getKey(), service, false);
+        Product product = null;
+        try {
+            product = prepareMarketingProduct(
+                    storedService.getTechnicalProduct().getKey(), service, false);
+        } catch (GeneralSecurityException e) {
+            SaaSSystemException sse = new SaaSSystemException(e);
+            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
+                    LogMessageIdentifier.ERROR_PARAM_ENCRYPTION);
+            throw sse;
+        }
         processImage(product.getKey(), imageResource);
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
@@ -1526,6 +1535,7 @@ public class ServiceProvisioningServiceBean
      *             Thrown in case the product is not in the state
      *             {@link ServiceStatus#INACTIVE}
      * @throws ConcurrentModificationException
+     * @throws GeneralSecurityException 
      * @throws DeletionConstraintException
      */
     private Product prepareMarketingProduct(long technicalProductKey,
@@ -1533,7 +1543,7 @@ public class ServiceProvisioningServiceBean
                     throws ObjectNotFoundException,
                     OperationNotPermittedException, ValidationException,
                     NonUniqueBusinessKeyException, ServiceStateException,
-                    ConcurrentModificationException {
+                    ConcurrentModificationException, GeneralSecurityException {
 
         // 1. ensure that caller has required authority
         PlatformUser currentUser = dm.getCurrentUser();
@@ -1733,13 +1743,14 @@ public class ServiceProvisioningServiceBean
      *             Thrown in case the parameter values could not match the
      *             specified datatype.
      * @throws ConcurrentModificationException
+     * @throws GeneralSecurityException 
      * @throws DeletionConstraintException
      */
     private List<Parameter> modifyParameters(VOService productToModify,
             PlatformUser currentUser, TechnicalProduct tProd, Product product,
             boolean isCreation) throws ObjectNotFoundException,
                     OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException {
+                    ConcurrentModificationException, GeneralSecurityException {
         boolean isDirectAccess = tProd
                 .getAccessType() == ServiceAccessType.DIRECT;
         List<VOParameter> parameters = productToModify.getParameters();
