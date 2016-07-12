@@ -7,7 +7,7 @@
   <display-name>APP VMware User Interface</display-name>
 
   <welcome-file-list>
-    <welcome-file>balancer.xhtml</welcome-file>
+    <welcome-file>cluster.xhtml</welcome-file>
   </welcome-file-list>
 
   <context-param>
@@ -35,6 +35,11 @@
     <servlet-name>Faces Servlet</servlet-name>
     <url-pattern>*.jsf</url-pattern>
   </servlet-mapping>
+
+  <context-param>
+    <param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
+    <param-value>true</param-value>
+  </context-param>
   
   <context-param>
     <param-name>javax.faces.DEFAULT_SUFFIX</param-name>

@@ -19,7 +19,7 @@ public class LoadbalancerItem implements IMenuItem {
 
     @Override
     public String getLink() {
-        return "/balancer.xhtml";
+        return "/cluster.xhtml";
     }
 
     @Override
