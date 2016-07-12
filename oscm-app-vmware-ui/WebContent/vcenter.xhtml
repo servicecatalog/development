@@ -3,7 +3,7 @@
                       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
   xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
-  xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  xmlns:a4j="http://richfaces.org/a4j">
 
 <h:head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -12,60 +12,38 @@
   <ui:include src="head.xhtml">
     <ui:param name="dirty" value="#{dirty}" />
   </ui:include>
-
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <meta content="IE=8" http-equiv="X-UA-Compatible" />
-  <link rel="stylesheet" type="text/css" href="css/style.css" />
-  <link rel="icon" href="img/favicon.ico" type="image/x-icon" />
-
-  <script type="text/javascript" src="scripts/layout.js"></script>
-  <link rel="stylesheet" type="text/css" href="css/import_en.css" />
-  <script type="text/javascript" src="scripts/heading_data_4.js"></script>
 </h:head>
 
-<h:body class="middle_product_class">
-
-  <h:outputStylesheet name="override_richfaces.css" />
-  <adm:header userId="#{targetLocationBean.loggedInUserId}"/>
-
-  <a4j:outputPanel id="titleArea" layout="block" styleClass="heading_data_1_class">
-    <div class="heading_data_1_bg_class no-height">
-      <h2>
-        <h:outputText value="#{msg['ui.config.title']}" />
-      </h2>
-
-      <ui:repeat value="#{menu.items}" var="item">
-        <h:outputLink value="#{facesContext.externalContext.requestContextPath}#{item.link}">
-          <h:outputText value="#{item.label}" />
-        </h:outputLink>
-        <h:outputText value="&#160;&#160;|&#160;&#160;" />
-      </ui:repeat>
-    </div>
-
+<h:body>
+  <a4j:outputPanel id="titleArea" layout="block" styleClass="titleArea">
+    <h1>
+      <h:outputText value="#{msg['ui.config.title']}" />
+    </h1>
+	<ui:repeat value="#{menu.items}" var="item">
+		<h:outputLink value="#{facesContext.externalContext.requestContextPath}#{item.link}">
+				<h:outputText value="#{item.label}" />
+		</h:outputLink>
+	    <h:outputText value="&#160;&#160;|&#160;&#160;" />
+	</ui:repeat>
   </a4j:outputPanel>
 
   <h:outputText value="#{msg['ui.config.description.cluster']}" styleClass="description" />
   <h:form>
     <h:outputText id="status" value="#{targetLocationBean.status}" styleClass="statusPanelClass" />
-    <table id="vcenterTable">
+    <table style="width: 250px; border-spacing: 10px; padding: 15px; text-align: left;">
       <tr>
         <th>vCenter</th>
         <!--<th>Datacenter</th>
         <th>Cluster</th>-->
       </tr>
       <tr>
-        <td>
-          <a4j:outputPanel styleClass="jqSelect" layout="block">
-            <h:selectOneMenu value="#{targetLocationBean.currentVCenter}"
-              onclick="javascript:AdmUtils.storeValue(this);" styleClass="select"
-              valueChangeListener="#{targetLocationBean.valueChangeVCenter}" immediate="true">
-              <f:selectItems value="#{targetLocationBean.vcenterList}" />
-              <a4j:ajax event="valueChange" render="status second third balancer_form" execute="@this"
-                onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}" />
-            </h:selectOneMenu>
-          </a4j:outputPanel>
-        </td>
-
+        <td><h:selectOneMenu value="#{targetLocationBean.currentVCenter}"
+            onclick="javascript:AdmUtils.storeValue(this);"
+            valueChangeListener="#{targetLocationBean.valueChangeVCenter}" immediate="true">
+            <f:selectItems value="#{targetLocationBean.vcenterList}" />
+            <a4j:ajax event="valueChange" render="status second third balancer_form" execute="@this"
+              onbeforesubmit="if(AdmUtils.isNotDirtyOrConfirmed()){setDirty(false); } else {AdmUtils.restoreValue(this);return false;}" />
+          </h:selectOneMenu></td>
         <!--
         <td><a4j:outputPanel id="second" layout="block">
             <h:selectOneMenu value="#{targetLocationBean.currentDatacenter}" rendered="#{true}"
@@ -89,67 +67,31 @@
       </tr>
     </table>
   </h:form>
-
-  <div class="box_area_class">
-    <!--▼ Heading data 3 ▼-->
-    <div class="heading_data_3_class">
-      <div class="heading_data_3_bg_class">
-        <h4>
-          <h:outputText value="#{msg['ui.config.part.vsphereapi']}"/>
-        </h4>
-      </div>
-    </div>
-
-  <h:form id="balancer_form" styleClass="configurationSettings_area">
+  
+  <h2>
+    <h:outputText value="#{msg['ui.config.part.vsphereapi']}" />
+  </h2>
+  <h:form id="balancer_form">
     <h:inputHidden id="selectedRowNum" value="#{targetLocationBean.selectedRowNum}" />
     <h:commandButton id="deleteHost" action="#{targetLocationBean.deleteHost}" style="display: none;" />
-    <h:commandButton id="deleteStorage" action="#{targetLocationBean.deleteStorage}" style="display: none;"/>
-    <div class="nested_heading_data_class">
-      <div class="accordion_area1">
-        <table id="vsphereSettings" class="rf-dt table_row_linetitle_class">
-          <colgroup span="2"></colgroup>
-          <thead class="rf-dt-thd">
-          <tr class="rf-dt-shdr">
-            <th class="rf-dt-shdr-c rf-dt-keyColumn table_header_title_class">
-              <h:outputText value="#{msg['ui.config.column.key']}"/>
-            </th>
-            <th class="rf-dt-shdr-c">
-              <h:outputText value="#{msg['ui.config.column.value']}"/>
-            </th>
-          </tr>
-          </thead>
-          <tbody class="rf-dt-b">
-          <tr class="rf-dt-r rowOdd">
-            <td class="rf-dt-c">
-              <h:outputText value="#{msg['ui.config.part.vsphereapi.url']}"/>
-            </td>
-            <td class="rf-dt-c">
-              <h:inputText id="vsphere_api_url" size="70" onchange="setDirty(true);"
-                           value="#{targetLocationBean.selectedVCenter.url}"/>
-            </td>
-          </tr>
-          <tr class="rf-dt-r rowEven">
-            <td class="rf-dt-c">
-              <h:outputText value="#{msg['ui.config.part.vsphereapi.userid']}"/>
-            </td>
-            <td class="rf-dt-c">
-              <h:inputText id="vsphere_api_user" size="20" onchange="setDirty(true);"
-                           value="#{targetLocationBean.selectedVCenter.userid}"/>
-            </td>
-          </tr>
-          <tr class="rf-dt-r rowOdd">
-            <td class="rf-dt-c">
-              <h:outputText value="#{msg['ui.config.part.vsphereapi.password']}"/>
-            </td>
-            <td class="rf-dt-c">
-              <h:inputSecret id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
-                             value="#{targetLocationBean.selectedVCenter.password}" redisplay="true"/>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <h:commandButton id="deleteStorage" action="#{targetLocationBean.deleteStorage}" style="display: none;" />
+    <table class="box" cellspacing="3">
+      <tr>
+        <td><h:outputText value="#{msg['ui.config.part.vsphereapi.url']}" /></td>
+        <td><h:inputText id="vsphere_api_url" size="70" onchange="setDirty(true);"
+            value="#{targetLocationBean.selectedVCenter.url}" /></td>
+      </tr>
+      <tr>
+        <td><h:outputText value="#{msg['ui.config.part.vsphereapi.userid']}" /></td>
+        <td><h:inputText id="vsphere_api_user" size="20" onchange="setDirty(true);"
+            value="#{targetLocationBean.selectedVCenter.userid}" /></td>
+      </tr>
+      <tr>
+        <td><h:outputText value="#{msg['ui.config.part.vsphereapi.password']}" /></td>
+        <td><h:inputText id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
+            value="#{targetLocationBean.selectedVCenter.password}" /></td>
+      </tr>
+    </table>
     <!--
     <h2>
       <h:outputText value="#{msg['ui.config.part.hbsettings']}" />
@@ -252,21 +194,12 @@
       onclick="setDirty(false);" styleClass="box" />
       -->
     <br />
-
-    <a4j:outputPanel layout="block" styleClass="description buttonPanel">
-      <div class="button_main_area_class">
-        <!--<h:commandButton value="#{msg['ui.config.action.reset']}" onclick="setDirty(false);" type="submit"
-          action="#{targetLocationBean.reset}" /> -->
-
-        <span class="button_right_part_class">
-          <span class="button_content_class">
-            <h:commandButton class="button_normal_class" value="#{msg['ui.config.action.save']}" type="submit"
-              action="#{targetLocationBean.save}" oncomplete="setDirty(#{targetLocationBean.dirty});" />
-          </span>
-        </span>
-      </div>
+    <a4j:outputPanel layout="block" styleClass="description">
+      <h:commandButton value="#{msg['ui.config.action.save']}" type="submit" onclick="setDirty(false);"
+        action="#{targetLocationBean.save}" oncomplete="setDirty(#{targetLocationBean.dirty});" />
+      <!--<h:commandButton value="#{msg['ui.config.action.reset']}" onclick="setDirty(false);" type="submit"
+        action="#{targetLocationBean.reset}" /> -->
     </a4j:outputPanel>
   </h:form>
-  </div>
 </h:body>
 </html>
