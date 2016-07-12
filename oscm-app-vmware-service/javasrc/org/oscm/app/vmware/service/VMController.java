@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Controller implementation for integration of VMWare.
- *
+ * 
  * @author soehnges
  */
 @Stateless(mappedName = "bss/app/controller/" + Controller.ID)
@@ -90,12 +90,11 @@ public class VMController implements APPlatformController {
             id.setChangedParameters(settings.getParameters());
 
             if (platformService.exists(Controller.ID, id.getInstanceId())) {
-                logger.error(
-                        "Other instance with same name already registered in CTMG: ["
-                                + id.getInstanceId() + "]");
-                throw new APPlatformException(
-                        Messages.getAll("error_instance_exists",
-                                new Object[] { id.getInstanceId() }));
+                logger.error("Other instance with same name already registered in CTMG: ["
+                        + id.getInstanceId() + "]");
+                throw new APPlatformException(Messages.getAll(
+                        "error_instance_exists",
+                        new Object[] { id.getInstanceId() }));
             }
 
             validateParameters(null, ph, settings.getOrganizationId(),
@@ -141,8 +140,7 @@ public class VMController implements APPlatformController {
         try {
             VMPropertyHandler currentParameters = new VMPropertyHandler(
                     currentSettings);
-            VMPropertyHandler newParameters = new VMPropertyHandler(
-                    newSettings);
+            VMPropertyHandler newParameters = new VMPropertyHandler(newSettings);
 
             validateParameters(currentParameters, newParameters,
                     currentSettings.getOrganizationId(), instanceId);
@@ -181,12 +179,11 @@ public class VMController implements APPlatformController {
         } catch (SuspendException e) {
             throw e;
         } catch (Throwable t) {
-            logger.error(
-                    "Failed to get instance status for instance " + instanceId,
-                    t);
+            logger.error("Failed to get instance status for instance "
+                    + instanceId, t);
             throw new SuspendException(
                     "Failed to get instance status for instance " + instanceId,
-                    t);
+                    new APPlatformException(t.getMessage()));
         }
     }
 
@@ -197,8 +194,8 @@ public class VMController implements APPlatformController {
         String nextState = stateMachine.getStateId();
         switch (nextState) {
         case "REPEAT_FAILED_STATE":
-            String failedState = stateMachine
-                    .loadPreviousStateFromHistory(ph.getProvisioningSettings());
+            String failedState = stateMachine.loadPreviousStateFromHistory(ph
+                    .getProvisioningSettings());
             ph.setSetting(VMPropertyHandler.TASK_KEY, "");
             ph.setSetting(VMPropertyHandler.TASK_STARTTIME, "");
             ph.setSetting(VMPropertyHandler.SM_STATE, failedState);
@@ -225,7 +222,7 @@ public class VMController implements APPlatformController {
      * Validates the given parameters before contacting VMware API. When both
      * oldParams and newParams are set, also modification rules (e.g. no disk
      * reduce) are checked.
-     *
+     * 
      * @param currentParameters
      *            the existing parameters (optional)
      * @param newParameters
@@ -265,10 +262,9 @@ public class VMController implements APPlatformController {
             if (mountPoint == null || !mountPoint.matches(validationPattern)) {
                 logger.debug("Invalid data disk mount point: {}, {}, {}",
                         mointPointKey, mountPoint, validationPattern);
-                throw new APPlatformException(
-                        Messages.getAll("error_invalid_data_disk_mount_point",
-                                new Object[] { mointPointKey, mountPoint,
-                                        validationPattern }));
+                throw new APPlatformException(Messages.getAll(
+                        "error_invalid_data_disk_mount_point", new Object[] {
+                                mointPointKey, mountPoint, validationPattern }));
             }
         }
     }
@@ -279,40 +275,37 @@ public class VMController implements APPlatformController {
         long memory = newParameters.getConfigMemoryMB();
         if (memory % 4 != 0) {
             logger.debug("Validation error on memory size [" + memory + "MB]");
-            throw new APPlatformException(
-                    Messages.getAll("error_invalid_memory",
-                            new Object[] { Long.valueOf(memory) }));
+            throw new APPlatformException(Messages.getAll(
+                    "error_invalid_memory",
+                    new Object[] { Long.valueOf(memory) }));
         }
     }
 
     private void validateDataDiskSizeReduction(
-            VMPropertyHandler currentParameters,
-            VMPropertyHandler newParameters) throws APPlatformException {
+            VMPropertyHandler currentParameters, VMPropertyHandler newParameters)
+            throws APPlatformException {
 
         boolean diskSizeReduction = false;
         Double[] oldDataDisksMB = currentParameters.getDataDisksMB();
         Double[] newDataDisksMB = newParameters.getDataDisksMB();
         if (oldDataDisksMB.length > newDataDisksMB.length) {
-            logger.warn(
-                    "Reducing the number of data disks is not possible. instanceId: "
-                            + currentParameters.getInstanceName()
-                            + " old number: "
-                            + currentParameters.getDataDisksMB().length
-                            + " new number: "
-                            + newParameters.getDataDisksMB().length);
+            logger.warn("Reducing the number of data disks is not possible. instanceId: "
+                    + currentParameters.getInstanceName()
+                    + " old number: "
+                    + currentParameters.getDataDisksMB().length
+                    + " new number: " + newParameters.getDataDisksMB().length);
             diskSizeReduction = true;
         } else if (oldDataDisksMB.length >= newDataDisksMB.length) {
             for (int i = 0; i < oldDataDisksMB.length; i++) {
                 Double dataDiskMB = oldDataDisksMB[i];
                 if (dataDiskMB.longValue() > newDataDisksMB[i].longValue()) {
                     diskSizeReduction = true;
-                    logger.error(
-                            "Data disk size reduction is not possible. instanceId: "
-                                    + currentParameters.getInstanceName()
-                                    + " old size: "
-                                    + currentParameters.getConfigDiskSpaceMB()
-                                    + " new size: "
-                                    + newParameters.getConfigDiskSpaceMB());
+                    logger.error("Data disk size reduction is not possible. instanceId: "
+                            + currentParameters.getInstanceName()
+                            + " old size: "
+                            + currentParameters.getConfigDiskSpaceMB()
+                            + " new size: "
+                            + newParameters.getConfigDiskSpaceMB());
                     break;
                 }
             }
@@ -324,15 +317,14 @@ public class VMController implements APPlatformController {
     }
 
     private void validateSystemDiskSizeReduction(
-            VMPropertyHandler currentParameters,
-            VMPropertyHandler newParameters) throws APPlatformException {
+            VMPropertyHandler currentParameters, VMPropertyHandler newParameters)
+            throws APPlatformException {
         if (currentParameters.getConfigDiskSpaceMB() > newParameters
                 .getConfigDiskSpaceMB()) {
-            logger.error(
-                    "System disk size reduction is not possible. old size: "
-                            + currentParameters.getConfigDiskSpaceMB()
-                            + " new size: "
-                            + newParameters.getConfigDiskSpaceMB());
+            logger.error("System disk size reduction is not possible. old size: "
+                    + currentParameters.getConfigDiskSpaceMB()
+                    + " new size: "
+                    + newParameters.getConfigDiskSpaceMB());
             throw new APPlatformException(
                     Messages.getAll("error_invalid_diskspacereduction"));
         }
@@ -345,10 +337,10 @@ public class VMController implements APPlatformController {
                 .isServiceSettingTrue(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN);
         boolean domainName = params
                 .getServiceSetting(VMPropertyHandler.TS_DOMAIN_NAME) != null;
-        boolean admin = params.getServiceSetting(
-                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN) != null;
-        boolean adminPwd = params.getServiceSetting(
-                VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD) != null;
+        boolean admin = params
+                .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN) != null;
+        boolean adminPwd = params
+                .getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD) != null;
         logger.debug("isDomainJoin: " + isDomainJoin);
 
         if (isDomainJoin && !domainName) {
@@ -383,9 +375,8 @@ public class VMController implements APPlatformController {
                 status.setIsReady(false);
                 status.setRunWithTimer(true);
                 status.setChangedParameters(settings.getParameters());
-                logger.debug(
-                        "Received finish event. Instance provisioning will be continued for instance "
-                                + instanceId);
+                logger.debug("Received finish event. Instance provisioning will be continued for instance "
+                        + instanceId);
             }
             return status;
         } catch (Throwable t) {
