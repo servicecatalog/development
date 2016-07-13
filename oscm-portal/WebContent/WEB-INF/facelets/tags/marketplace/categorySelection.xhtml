@@ -17,13 +17,8 @@
 
           <a4j:outputPanel styleClass="newlist clearfix menuButtonPanel">
             <h:commandButton style="display:none;" id="browseAllBtn" action="#{serviceListingBean.showServiceList}" />
-            <mp:button id="buttonBrowseAllLink" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}"
-              action="showServiceList"
-              onclick="if(#{isMplRestricted and empty userBean.loggedInUser}){
-            	  showLoginPanel('/marketplace/services.jsf');
-            	} else{
-            		document.getElementById('categorySelectionForm:browseAllBtn').click();
-            	}">
+            <mp:button id="buttonBrowseAll" value="#{msg['button.browseAll']}" bean="#{serviceListingBean}"
+              action="showServiceList">
               <f:setPropertyActionListener target="#{servicePagingBean.filterTag}" value="" />
               <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}" value="" />
               <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}" value="" />
@@ -42,19 +37,19 @@
             <li
               class="#{cat.categoryId eq categorySelectionBean.selectedCategoryId ? 'selectedCategory' : 'categoryItem'}">
               <strong class="#{cat.categoryId eq categorySelectionBean.selectedCategoryId ? 'current' : ' '}">
-                <h:commandLink value="#{cat.displayName}" action="#{categorySelectionBean.selectByCategory}"
-                  actionListener="#{serviceListingBean.reloadData}"
-                  styleClass="#{cat.categoryId eq categorySelectionBean.selectedCategoryId ? 'selectedCategory' : 'categoryItem'}"
-                  onclick="if(#{isMplRestricted and empty userBean.loggedInUser}){showLoginPanel('/marketplace/index.jsf');return false;}">
+                <h:commandLink value="#{cat.displayName}"
+                  action="#{categorySelectionBean.selectByCategory}" actionListener="#{serviceListingBean.reloadData}"
+                  styleClass="#{cat.categoryId eq categorySelectionBean.selectedCategoryId ? 'selectedCategory' : 'categoryItem'}">
                   <f:setPropertyActionListener target="#{categorySelectionBean.selectedCategoryId}"
                     value="#{cat.categoryId}" />
                   <f:setPropertyActionListener target="#{servicePagingBean.filterCategoryForDisplay}"
                     value="#{cat.displayName}" />
-                </h:commandLink>
-            </strong>
+                </h:commandLink> 
+              </strong>
             </li>
           </a4j:repeat>
-        </ul>
+       </ul>
+        
       </a4j:outputPanel>
 
     </a4j:outputPanel>
