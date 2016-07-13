@@ -11,9 +11,16 @@
 package org.oscm.ui.dialog.classic.marketplace;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,14 +35,15 @@ import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOOrganization;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.stubs.FacesContextStub;
 
 public class ManageAccessCtrlTest {
 
     private ManageAccessCtrl ctrl;
     private ManageAccessModel model;
+    private MarketplaceConfigurationBean configuration;
     private MarketplaceService marketplaceService;
 
     private static final String MARKETPLACE_ID = "marketplace1";
@@ -50,8 +58,10 @@ public class ManageAccessCtrlTest {
 
         ctrl = spy(new ManageAccessCtrl());
         model = new ManageAccessModel();
+        configuration = new MarketplaceConfigurationBean();
 
         ctrl.setModel(model);
+        ctrl.setConfiguration(configuration);
         ctrl.setMarketplaceService(marketplaceService);
     }
 
@@ -100,7 +110,7 @@ public class ManageAccessCtrlTest {
     }
 
     @Test
-    public void testAccessChange() throws Exception{
+    public void testAccessChange() throws Exception {
         // given
         ctrl.getModel().setSelectedMarketplaceId(MARKETPLACE_ID);
         ctrl.getModel().setSelectedMarketplaceRestricted(true);
@@ -119,7 +129,8 @@ public class ManageAccessCtrlTest {
         // given
         setupValuesForSaveAction(true);
         doNothing().when(marketplaceService).closeMarketplace(anyString(),
-                Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class));
+                Matchers.anySetOf(Long.class), Matchers.anySetOf(Long.class),
+                Matchers.anySetOf(Long.class));
         // when
         String result = ctrl.save();
 
@@ -135,15 +146,16 @@ public class ManageAccessCtrlTest {
         // given
         setupValuesForSaveAction(true);
         doNothing().when(marketplaceService).closeMarketplace(anyString(),
-                Matchers.anySetOf(Long.class),
-                Matchers.anySetOf(Long.class),Matchers.anySetOf(Long.class));
+                Matchers.anySetOf(Long.class), Matchers.anySetOf(Long.class),
+                Matchers.anySetOf(Long.class));
         // when
         String result = ctrl.save();
 
         // then
         verify(marketplaceService, times(1)).closeMarketplace(MARKETPLACE_ID,
                 model.getAuthorizedOrganizations(),
-                model.getUnauthorizedOrganizations(), model.getOrganizationsWithSubscriptionsToSuspend());
+                model.getUnauthorizedOrganizations(),
+                model.getOrganizationsWithSubscriptionsToSuspend());
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
@@ -162,39 +174,40 @@ public class ManageAccessCtrlTest {
         verify(marketplaceService, times(1)).openMarketplace(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
-    
+
     @Test
-    public void testChangeOrganizationAccessOrgNotSelected(){
-        
-        //given
+    public void testChangeOrganizationAccessOrgNotSelected() {
+
+        // given
         model.setChangedKey(10005L);
         model.setChangedSelection(false);
         model.setChangedHasSubscriptions(true);
         model.getAccessesSelected().put(10005L, true);
         model.getOrganizationsWithSubscriptionsToSuspend().clear();
-        
-        //when
+
+        // when
         ctrl.changeOrganizationAccess();
-        
-        //then
-        assertFalse(model.getOrganizationsWithSubscriptionsToSuspend().isEmpty());
+
+        // then
+        assertFalse(model.getOrganizationsWithSubscriptionsToSuspend()
+                .isEmpty());
         assertTrue(model.isShowSubscriptionSuspendingWarning());
     }
-    
+
     @Test
-    public void testChangeOrganizationAccessOrgSelected(){
-        
-        //given
+    public void testChangeOrganizationAccessOrgSelected() {
+
+        // given
         model.setChangedKey(10005L);
         model.setChangedSelection(true);
         model.setChangedHasSubscriptions(true);
         model.getAccessesSelected().put(10005L, true);
         model.getOrganizationsWithSubscriptionsToSuspend().clear();
-        
-        //when
+
+        // when
         ctrl.changeOrganizationAccess();
-        
-        //then
+
+        // then
         assertTrue(model.getOrganizationsWithSubscriptionsToSuspend().isEmpty());
         assertFalse(model.isShowSubscriptionSuspendingWarning());
     }
@@ -205,19 +218,20 @@ public class ManageAccessCtrlTest {
         model.setSelectedMarketplaceId(MARKETPLACE_ID);
         model.setOrganizations(preparePOOrganizationsList());
         model.setSelectedMarketplaceRestricted(restrictMarketplace);
-        
-        VOMarketplace marketplace = createSampleMarketplace(MARKETPLACE_NAME, MARKETPLACE_ID);
+
+        VOMarketplace marketplace = createSampleMarketplace(MARKETPLACE_NAME,
+                MARKETPLACE_ID);
         marketplace.setRestricted(restrictMarketplace);
-        
+
         doNothing().when(ctrl).addMessage(any(String.class));
     }
 
     private List<VOMarketplace> getSampleMarketplaces() {
 
-        VOMarketplace marketplace1 = createSampleMarketplace("TestMarketplace1",
-                "c34567fg");
-        VOMarketplace marketplace2 = createSampleMarketplace("TestMarketplace2",
-                "45tf7s20");
+        VOMarketplace marketplace1 = createSampleMarketplace(
+                "TestMarketplace1", "c34567fg");
+        VOMarketplace marketplace2 = createSampleMarketplace(
+                "TestMarketplace2", "45tf7s20");
 
         List<VOMarketplace> marketplaces = new ArrayList<>();
         marketplaces.add(marketplace1);

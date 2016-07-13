@@ -17,15 +17,15 @@ import java.util.Map;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.model.MarketplaceConfiguration;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOMarketplace;
 
 /**
  * Session scope bean for caching marketplace configurations.
@@ -34,7 +34,7 @@ import org.oscm.internal.vo.VOMarketplace;
  * 
  */
 @SessionScoped
-@ManagedBean(name="marketplaceConfigurationBean")
+@ManagedBean(name = "marketplaceConfigurationBean")
 public class MarketplaceConfigurationBean implements Serializable {
 
     private static final long serialVersionUID = -3521386101907735868L;
@@ -102,6 +102,7 @@ public class MarketplaceConfigurationBean implements Serializable {
         conf.setSocialBookmarkEnabled(voMarketPlace.isSocialBookmarkEnabled());
         conf.setTaggingEnabled(voMarketPlace.isTaggingEnabled());
         conf.setCategoriesEnabled(voMarketPlace.isCategoriesEnabled());
+        conf.setRestricted(voMarketPlace.isRestricted());
     }
 
     /**
