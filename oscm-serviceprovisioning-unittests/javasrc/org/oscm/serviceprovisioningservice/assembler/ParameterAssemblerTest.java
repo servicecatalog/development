@@ -9,8 +9,6 @@
 package org.oscm.serviceprovisioningservice.assembler;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.oscm.test.Numbers.L1;
 import static org.oscm.test.Numbers.L150;
@@ -23,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 import org.oscm.converter.PriceConverter;
@@ -662,26 +659,6 @@ public class ParameterAssemblerTest {
 
         // when
         ParameterAssembler.validatePricedParameter(param);
-    }
-    
-    @Test
-    public void testEncryptedParameter() throws Exception{
-        
-        //given
-        VOParameterDefinition voParamDef = new VOParameterDefinition();
-        voParamDef.setModificationType(ParameterModificationType.STANDARD);
-        String paramValue = "_crypt:qwerty1234";
-        VOParameter voParam = new VOParameter();
-        voParam.setValue(paramValue);
-        voParam.setParameterDefinition(voParamDef);
-        
-        //when
-        Parameter parameter = ParameterAssembler.toParameter(voParam);
-        
-        //then
-        String encryptedParamValue = parameter.getValue();
-        assertFalse(paramValue.equals(encryptedParamValue));
-        assertTrue(Base64.isBase64(encryptedParamValue));  
     }
 
     private ParameterDefinition initDurationParam(String value) {

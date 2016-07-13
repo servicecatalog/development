@@ -29,7 +29,6 @@ import org.oscm.internal.vo.VOPricedParameter;
 import org.oscm.internal.vo.VOSteppedPrice;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.security.PwdEncrypter;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validator.BLValidator;
 import org.oscm.vo.BaseAssembler;
@@ -52,8 +51,6 @@ public class ParameterAssembler extends BaseAssembler {
     static final String FIELD_NAME_PRICE_PER_USER = "pricePerUser";
     
     static final String FIELD_NAME_PRICE_PER_SUBSCRIPTION = "pricePerSubscription";
-    
-    static final String CRYPT_PREFIX = "_crypt:";
 
     /**
      * Converts the parameters of a product to value objects.
@@ -96,13 +93,11 @@ public class ParameterAssembler extends BaseAssembler {
      * @throws GeneralSecurityException 
      */
     public static Parameter toParameter(VOParameter voParameter)
-            throws ValidationException, GeneralSecurityException {
+            throws ValidationException{
         Parameter parameter = new Parameter();
         parameter.setConfigurable(voParameter.isConfigurable());
         
         String paramValue = voParameter.getValue();
-        paramValue = encryptParamIfNeeded(paramValue);
-        
         parameter.setValue(paramValue);
 
         ParameterDefinition definition = toParameterDefinition(voParameter
@@ -121,14 +116,11 @@ public class ParameterAssembler extends BaseAssembler {
      * @throws GeneralSecurityException 
      */
     public static Parameter updateParameter(Parameter parameter,
-            VOParameter voParameter) throws ConcurrentModificationException,
-                    GeneralSecurityException {
+            VOParameter voParameter) throws ConcurrentModificationException {
         verifyVersionAndKey(parameter, voParameter);
         parameter.setConfigurable(voParameter.isConfigurable());
 
         String paramValue = voParameter.getValue();
-        paramValue = encryptParamIfNeeded(paramValue);
-
         parameter.setValue(paramValue);
         return parameter;
     }
@@ -306,16 +298,5 @@ public class ParameterAssembler extends BaseAssembler {
         logger.logWarn(Log4jLogger.SYSTEM_LOG, vf,
                 LogMessageIdentifier.WARN_VALIDATION_FAILED);
         throw vf;
-    }
-    
-    private static String encryptParamIfNeeded(String value) throws GeneralSecurityException{
-        
-        if(value!=null && value.startsWith(CRYPT_PREFIX)){
-            value = value.substring(CRYPT_PREFIX.length());
-            String encryptedValue = PwdEncrypter.encrypt(value);
-            return encryptedValue;
-        } 
-        
-        return value;
     }
 }

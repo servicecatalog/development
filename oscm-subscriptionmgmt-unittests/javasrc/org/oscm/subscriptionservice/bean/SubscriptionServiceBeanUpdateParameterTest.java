@@ -352,7 +352,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     }
 
     @Test
-    public void updateConfiguredParameterValues_ConfigurableParameter() throws Exception{
+    public void updateConfiguredParameterValues_ConfigurableParameter() {
         // given
         Product product = givenProductWithParamsHavingDefaultValues(
                 "Param_ID1", "Param_ID2");
@@ -369,7 +369,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     }
 
     @Test
-    public void updateConfiguredParameterValues_NonConfigurableParameter() throws Exception{
+    public void updateConfiguredParameterValues_NonConfigurableParameter() {
         // given product, target subscription and non configurable parameters
         Product product = givenProductWithParamsHavingDefaultValues(
                 "Param_ID1", "Param_ID2");
@@ -388,7 +388,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
     }
 
     @Test
-    public void updateConfiguredParameterValues_NonConfigurableOneTimeParameter() throws Exception{
+    public void updateConfiguredParameterValues_NonConfigurableOneTimeParameter() {
         // given product, target subscription and non configurable parameters
         Product product = givenProductWithParamsHavingDefaultValues("Param_ID1");
         Subscription subscription = givenSubscriptionWithParamsHavingOtherVaues("Param_ID1");
@@ -408,7 +408,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
      * Part 1 - non configurable target parameters
      */
     @Test
-    public void updateConfiguredParameterValues_AdditionalParam_B9422_1() throws Exception{
+    public void updateConfiguredParameterValues_AdditionalParam_B9422_1() {
         // given product, parameters and a subscription having a new parameter
         Product product = givenProductWithParamsHavingDefaultValues(
                 "Param_ID1", "Param_ID2");
@@ -432,7 +432,7 @@ public class SubscriptionServiceBeanUpdateParameterTest {
      * Part 2 - configurable target parameters
      */
     @Test
-    public void updateConfiguredParameterValues_AdditionalParam_B9422_2() throws Exception{
+    public void updateConfiguredParameterValues_AdditionalParam_B9422_2() {
         // given product, parameters and a subscription having a new parameter
         Product product = givenProductWithParamsHavingDefaultValues(
                 "Param_ID1", "Param_ID2");

@@ -1351,7 +1351,7 @@ public class ServiceProvisioningServiceBean
         try {
             product = prepareMarketingProduct(technicalService.getKey(),
                     service, true);
-        } catch (ServiceStateException | ConcurrentModificationException | GeneralSecurityException e) {
+        } catch (ServiceStateException | ConcurrentModificationException e) {
             // this must not happen
             SaaSSystemException sse = new SaaSSystemException(e);
             logger.logError(Log4jLogger.SYSTEM_LOG, sse,
@@ -1391,16 +1391,9 @@ public class ServiceProvisioningServiceBean
                 storedService);
         validateProductStatus(customerProducts);
 
-        Product product = null;
-        try {
-            product = prepareMarketingProduct(
+        Product product = prepareMarketingProduct(
                     storedService.getTechnicalProduct().getKey(), service, false);
-        } catch (GeneralSecurityException e) {
-            SaaSSystemException sse = new SaaSSystemException(e);
-            logger.logError(Log4jLogger.SYSTEM_LOG, sse,
-                    LogMessageIdentifier.ERROR_PARAM_ENCRYPTION);
-            throw sse;
-        }
+        
         processImage(product.getKey(), imageResource);
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
@@ -1535,7 +1528,6 @@ public class ServiceProvisioningServiceBean
      *             Thrown in case the product is not in the state
      *             {@link ServiceStatus#INACTIVE}
      * @throws ConcurrentModificationException
-     * @throws GeneralSecurityException 
      * @throws DeletionConstraintException
      */
     private Product prepareMarketingProduct(long technicalProductKey,
@@ -1543,7 +1535,7 @@ public class ServiceProvisioningServiceBean
                     throws ObjectNotFoundException,
                     OperationNotPermittedException, ValidationException,
                     NonUniqueBusinessKeyException, ServiceStateException,
-                    ConcurrentModificationException, GeneralSecurityException {
+                    ConcurrentModificationException {
 
         // 1. ensure that caller has required authority
         PlatformUser currentUser = dm.getCurrentUser();
@@ -1750,7 +1742,7 @@ public class ServiceProvisioningServiceBean
             PlatformUser currentUser, TechnicalProduct tProd, Product product,
             boolean isCreation) throws ObjectNotFoundException,
                     OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException, GeneralSecurityException {
+                    ConcurrentModificationException{
         boolean isDirectAccess = tProd
                 .getAccessType() == ServiceAccessType.DIRECT;
         List<VOParameter> parameters = productToModify.getParameters();
@@ -1824,7 +1816,7 @@ public class ServiceProvisioningServiceBean
                     final Parameter existingParameter = obsoleteParameters
                             .remove(Long.valueOf(parameter.getKey()));
                     if (existingParameter == null) {
-                        final Parameter param = ParameterAssembler
+                        final Parameter param = ParameterAssembler 
                                 .toParameter(parameter);
                         param.setParameterDefinition(paramDef);
                         param.setParameterSet(currentParameterSet);

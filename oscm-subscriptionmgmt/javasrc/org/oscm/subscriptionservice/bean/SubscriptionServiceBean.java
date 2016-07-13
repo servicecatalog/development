@@ -7,9 +7,19 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.security.GeneralSecurityException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -25,13 +35,6 @@ import javax.interceptor.Interceptors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
-import org.oscm.internal.intf.SubscriptionSearchService;
-import org.oscm.internal.types.exception.*;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.PaymentInfoAssembler;
 import org.oscm.accountservice.assembler.UdaAssembler;
@@ -85,6 +88,7 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationStatus;
@@ -98,8 +102,34 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DomainObjectException;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.InvalidPhraseException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryUdaMissingException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
+import org.oscm.internal.types.exception.OperationStateException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.PaymentDataException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.PriceModelException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.ServiceChangedException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
+import org.oscm.internal.types.exception.SubscriptionMigrationException;
 import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
+import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOLocalizedText;
@@ -118,6 +148,8 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.notification.vo.VOProperty;
 import org.oscm.operation.data.OperationResult;
@@ -125,7 +157,6 @@ import org.oscm.paginator.Pagination;
 import org.oscm.paginator.PaginationFullTextFilter;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.provisioning.data.User;
-import org.oscm.security.PwdEncrypter;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.assembler.RoleAssembler;
 import org.oscm.serviceprovisioningservice.assembler.TechServiceOperationParameterAssembler;
@@ -191,7 +222,6 @@ public class SubscriptionServiceBean implements SubscriptionService,
     public static final String KEY_PAIR_NAME = "Key pair name";
     public static final String AMAZONAWS_COM = "amazonaws.com";
     private static final int PAYMENTTYPE_INVOICE = 3;
-    private static final String CRYPT_PREFIX = "_crypt:";
 
     private static final Log4jLogger LOG = LoggerFactory
             .getLogger(SubscriptionServiceBean.class);
@@ -698,13 +728,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
         copyLocalizedPricemodelValues(theProduct, productTemplate);
 
         // update the subscription's configurable parameter
-        List<Parameter> modifiedParametersForLog = new ArrayList<>();
-        try {
-            modifiedParametersForLog = updateConfiguredParameterValues(
-                    theProduct, product.getParameters(), null);
-        } catch (GeneralSecurityException gse) {
-            throw handleParamEncryptionException(gse);
-        }
+        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
+                theProduct, product.getParameters(), null);
 
         // now bind the product and the price model to the subscription:
         newSub.bindToProduct(theProduct);
@@ -1475,10 +1500,9 @@ public class SubscriptionServiceBean implements SubscriptionService,
      *            the list of parameters
      * @param subscription
      *            - target subscription
-     * @throws GeneralSecurityException 
      */
     List<Parameter> updateConfiguredParameterValues(Product product,
-            List<VOParameter> parameters, Subscription subscription) throws GeneralSecurityException {
+            List<VOParameter> parameters, Subscription subscription) {
         Map<String, Parameter> paramMap = new HashMap<>();
         if (product.getParameterSet() != null) {
             for (Parameter parameter : product.getParameterSet()
@@ -1513,15 +1537,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             Parameter param = paramMap.get(parameterID);
             if (param != null) {
                 String oldValue = param.getValue();
-                
-                String value = voParameter.getValue();
-                if(value != null && value.startsWith(CRYPT_PREFIX)){
-                    value = value.substring(CRYPT_PREFIX.length());
-                    String encryptedValue = PwdEncrypter.encrypt(value);
-                    param.setValue(encryptedValue);
-                } else{
-                    param.setValue(voParameter.getValue());
-                }
+                param.setValue(voParameter.getValue());
                 
                 String defaultValue = param.getParameterDefinition()
                         .getDefaultValue();
@@ -3039,13 +3055,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                     subscription, true);
         }
 
-        List<Parameter> modifiedParametersForLog = new ArrayList<>();
-        try {
-            modifiedParametersForLog = updateConfiguredParameterValues(
+        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
                     targetProductCopy, voTargetParameters, subscription);
-        } catch (GeneralSecurityException gse) {
-            throw handleParamEncryptionException(gse);
-        }
 
         // verify the platform parameter and send the new parameter to the
         // technical product
@@ -3113,13 +3124,8 @@ public class SubscriptionServiceBean implements SubscriptionService,
                 .getProvisioningType();
         Product targetProductCopy = copyProductForSubscription(targetProduct,
                 subscription, false);
-        List<Parameter> modifiedParametersForLog = new ArrayList<>();
-        try {
-            modifiedParametersForLog = updateConfiguredParameterValues(
+        List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
                     targetProductCopy, voTargetParameters, subscription);
-        } catch (GeneralSecurityException gse) {
-            throw handleParamEncryptionException(gse);
-        }
 
         // verify the platform parameter
         checkPlatformParameterConstraints(subscription, targetProductCopy,
@@ -5475,15 +5481,5 @@ public class SubscriptionServiceBean implements SubscriptionService,
     @Override
     public Subscription getMySubscriptionDetails(long key) {
         return getSubscriptionDao().getMySubscriptionDetails(key);
-    }
-    
-    private SaaSSystemException handleParamEncryptionException(GeneralSecurityException ex){
-        SaaSSystemException sse = new SaaSSystemException(ex);
-        LOG.logError(
-                Log4jLogger.SYSTEM_LOG,
-                sse,
-                LogMessageIdentifier.ERROR_PARAM_ENCRYPTION,
-                Long.toString(dataManager.getCurrentUser().getKey()));
-        return sse;
     }
 }
