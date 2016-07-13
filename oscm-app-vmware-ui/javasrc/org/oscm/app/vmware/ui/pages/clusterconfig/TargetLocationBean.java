@@ -18,6 +18,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -462,4 +463,20 @@ public class TargetLocationBean extends UiBeanBase {
     public void setSelectedCluster(Cluster selectedCluster) {
         this.selectedCluster = selectedCluster;
     }*/
+
+    public String getLoggedInUserId() {
+        FacesContext facesContext = getFacesContext();
+        HttpSession session = (HttpSession) facesContext.getExternalContext()
+            .getSession(false);
+        if (session != null) {
+            String loggedInUserId = ""
+                + session.getAttribute("loggedInUserId");
+            return loggedInUserId;
+        }
+        return null;
+    }
+
+    protected FacesContext getFacesContext() {
+        return FacesContext.getCurrentInstance();
+    }
 }

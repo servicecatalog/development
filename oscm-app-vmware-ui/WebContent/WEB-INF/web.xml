@@ -20,6 +20,11 @@
     <param-value>DEFAULT</param-value>
   </context-param>
 
+  <context-param>
+    <param-name>facelets.LIBRARIES</param-name>
+    <param-value>/WEB-INF/facelets/tags/taglib.xml</param-value>
+  </context-param>
+
   <servlet>
     <servlet-name>Faces Servlet</servlet-name>
     <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
