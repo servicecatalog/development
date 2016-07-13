@@ -274,6 +274,14 @@ public class ManageAccessCtrl {
         this.model = model;
     }
 
+    public MarketplaceConfigurationBean getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(MarketplaceConfigurationBean configuration) {
+        this.configuration = configuration;
+    }
+
     public MarketplaceService getMarketplaceService() {
         return marketplaceService;
     }
