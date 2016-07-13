@@ -23,6 +23,8 @@ public class MarketplaceConfiguration {
 
     private boolean categoriesEnabled;
 
+    private boolean restricted;
+
     /**
      * Indicating if the tag cloud is shown.
      * 
@@ -93,5 +95,24 @@ public class MarketplaceConfiguration {
      */
     public boolean isCategoriesEnabled() {
         return categoriesEnabled;
+    }
+
+    /**
+     * Returns true if the marketplace is restricted
+     * 
+     * @return the restricted
+     */
+    public boolean isRestricted() {
+        return restricted;
+    }
+
+    /**
+     * Sets if the marketplace is restricted
+     * 
+     * @param restricted
+     *            the restricted to set
+     */
+    public void setRestricted(boolean restricted) {
+        this.restricted = restricted;
     }
 }
