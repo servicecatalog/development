@@ -81,6 +81,14 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     public void setMenuBean(final MenuBean menuBean) {
         this.menuBean = menuBean;
     }
+    
+    public MarketplaceConfigurationBean getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(MarketplaceConfigurationBean configuration) {
+        this.configuration = configuration;
+    }
 
     /**
      * Retrieve the list of marketplaces available for the supplier to publish
