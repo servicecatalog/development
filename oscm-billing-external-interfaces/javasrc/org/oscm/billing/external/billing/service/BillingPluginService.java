@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
- *  Creation Date: 26.01.2015                                                      
+ *  Creation Date: 2015-01-26                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -15,13 +15,15 @@ import javax.ejb.Remote;
 import org.oscm.billing.external.exception.BillingException;
 
 /**
- * Interface for general tasks of external billing system
+ * Interface for general tasks a billing adapter needs to
+ * perform, such as testing the connection to the external 
+ * billing system.
  */
 @Remote
 public interface BillingPluginService {
 
     /**
-     * Test the connection to the external billing system
+     * Tests the connection to the external billing system.
      * 
      * @throws BillingException
      *             if the connection cannot be established

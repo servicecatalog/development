@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                  
  *                                                                                                                                 
- *  Creation Date: 08.01.2015                                                      
+ *  Creation Date: 2015-01-08                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -16,11 +16,9 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
- * Price model described with metadata. The metadata is represented with
- * categories and their values.
+ * Represents a price model described by its metadata. Metadata are represented
+ * by categories and their values.
  * 
- * @TODO replace implementation with Interface & move implementation to
- *       oscm-file-billing-adapter and oscm-portal
  */
 public class PriceModelMetadata implements Serializable {
 
@@ -30,27 +28,64 @@ public class PriceModelMetadata implements Serializable {
 
     private Map<String, String> metadata = new HashMap<String, String>();
 
+    /**
+     * Constructs a metadata object for the price model with the given ID.
+     * 
+     * @param id
+     *            the unique identifier of the price model
+     */
     public PriceModelMetadata(UUID id) {
         this.id = id;
     }
 
+    /**
+     * Returns the ID of the price model described by the metadata object.
+     * 
+     * @return the identifier
+     */
     public UUID getId() {
         return id;
     }
 
+    /**
+     * Sets the ID of the price model described by the metadata object.
+     * 
+     * @param id
+     *            the unique identifier of the price model
+     */
     public void setId(UUID id) {
         this.id = id;
     }
 
+    /**
+     * Adds a category and its value to the metadata object.
+     * 
+     * @param metadataCategory
+     *            the category
+     * @param metadataValue
+     *            the value
+     */
     public void put(String metadataCategory, String metadataValue) {
         metadata.put(metadataCategory,
                 StringEscapeUtils.unescapeJava(metadataValue));
     }
 
+    /**
+     * Returns the value for the given category set in the metadata object.
+     * 
+     * @param metadataCategory
+     *            the category
+     * @return the value
+     */
     public String get(String metadataCategory) {
         return metadata.get(metadataCategory);
     }
 
+    /**
+     * Returns all categories and values set in the metadata object.
+     * 
+     * @return the metadata
+     */
     public Map<String, String> getMetadata() {
         return metadata;
     }

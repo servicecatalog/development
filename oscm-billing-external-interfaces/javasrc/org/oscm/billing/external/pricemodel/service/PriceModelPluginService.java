@@ -2,7 +2,7 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016
  *                                                                                                                                 
- *  Creation Date: Aug 26, 2014                                                      
+ *  Creation Date: 2014-08-26                                                      
  *                                                                              
  *******************************************************************************/
 
@@ -19,28 +19,33 @@ import org.oscm.billing.external.context.ContextValue;
 import org.oscm.billing.external.exception.BillingException;
 
 /**
- * Interface for price models of external billing system
+ * Interface for retrieving price models from external billing systems and
+ * returning them to Catalog Manager.
+ * <p>
+ * The <code>getPriceModel</code> method is invoked by Catalog Manager when a
+ * supplier imports a price model for a service, customer, or subscription. The
+ * billing adapter must provide the appropriate price model depending on the
+ * context.
+ * 
  */
 @Remote
 public interface PriceModelPluginService {
 
     /**
-     * Get the detailed description and the tag of the given price model from
-     * the external billing system for specified OSCM context and set of
-     * locales. If the set of specified locales is null or empty or if the
-     * locales are not supported, the price model description and tag for the
-     * default locale is returned. The price model tag is used for displaying on
-     * OSCM marketplace. A length of maximum 30 bytes for the tag is expected,
-     * otherwise it is not displayed.
+     * Retrieves a price model for the given context and locales from the
+     * external billing system.
      * 
      * @param context
-     *            the OSCM context for this operation
+     *            the context specifying the service or subscription for which
+     *            the price model is to be returned
      * @param locales
-     *            set of locales
-     * @return price model object containing localized description and tag or
-     *         <code>null</code> if the context is empty or if the price model
-     *         was not found; japanese characters have to be converted to
-     *         unicode escape sequences.
+     *            the locales for which the price model is to be returned. If
+     *            the set is <code>null</code> or empty, or if any of the given
+     *            locales are not supported, the price model is returned for the
+     *            default locale.
+     * @return a price model object with the localized content and an optional
+     *         tag, or <code>null</code> if the context is empty or if the price
+     *         model is not found.
      * @throws BillingException
      */
     public PriceModel getPriceModel(Map<ContextKey, ContextValue<?>> context,
