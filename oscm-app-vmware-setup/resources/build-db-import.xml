@@ -78,5 +78,15 @@
 	</target>
 
 	<target name="importAll" depends="importVCenter,importDatacenter,importCluster,importVLAN,importIPPool" />
+	
+	<target name="deleteAll">
+		<java classname="org.oscm.app.vmware.db.importer.TableCleaner" failonerror="true">
+			<arg value="${db.driver.class}" />
+			<arg value="${db.url}" />
+			<arg value="${db.user}" />
+			<arg value="${db.pwd}" />
+			<classpath refid="client.path" />
+		</java>
+	</target>
 
 </project>
