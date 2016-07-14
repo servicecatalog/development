@@ -94,7 +94,8 @@ public class MarketplaceConfigurationBean implements Serializable {
                 voMarketPlace = getMarketplaceService(request)
                         .getMarketplaceById(marketplaceId);
                 allowedOrgs = getMarketplaceService(request)
-                        .getAllOrganizations(marketplaceId);
+                        .getAllOrganizationsWithAccessToMarketplace(
+                                marketplaceId);
             } catch (ObjectNotFoundException e) {
                 // Should not happen, because already checked by
                 // MarketplaceContextFilter
