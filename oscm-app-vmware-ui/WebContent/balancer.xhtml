@@ -86,8 +86,8 @@
       </tr>
       <tr>
         <td><h:outputText value="#{msg['ui.config.part.vsphereapi.password']}" /></td>
-        <td><h:inputText id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
-            value="#{targetLocationBean.selectedVCenter.password}" /></td>
+        <td><h:inputSecret id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
+            value="#{targetLocationBean.selectedVCenter.password}" redisplay="true"/></td>
       </tr>
     </table>
     <h2>
