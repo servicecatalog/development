@@ -119,9 +119,9 @@ public interface MarketplaceService {
 
     public VOServiceDetails publishService(VOService service,
             List<VOCatalogEntry> entries) throws ObjectNotFoundException,
-                    ValidationException, NonUniqueBusinessKeyException,
-                    OperationNotPermittedException,
-                    PublishingToMarketplaceNotPermittedException;
+            ValidationException, NonUniqueBusinessKeyException,
+            OperationNotPermittedException,
+            PublishingToMarketplaceNotPermittedException;
 
     /**
      * Retrieves the marketplace for the specified subscription. If no
@@ -299,10 +299,9 @@ public interface MarketplaceService {
 
     public void addOrganizationsToMarketplace(List<String> organizationIds,
             String marketplaceId) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    OrganizationAuthorityException,
-                    OrganizationAlreadyExistsException,
-                    MarketplaceAccessTypeUneligibleForOperationException;
+            OperationNotPermittedException, OrganizationAuthorityException,
+            OrganizationAlreadyExistsException,
+            MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
      * Banishes one or more organizations from the given marketplace. This means
@@ -336,10 +335,9 @@ public interface MarketplaceService {
 
     public void banOrganizationsFromMarketplace(List<String> organizationIds,
             String marketplaceId) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    OrganizationAuthorityException,
-                    OrganizationAlreadyBannedException,
-                    MarketplaceAccessTypeUneligibleForOperationException;
+            OperationNotPermittedException, OrganizationAuthorityException,
+            OrganizationAlreadyBannedException,
+            MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
      * Removes one or more organizations from the list of organizations that are
@@ -367,11 +365,11 @@ public interface MarketplaceService {
      *             broker, or reseller role
      */
 
-    public void removeOrganizationsFromMarketplace(List<String> organizationIds,
-            String marketplaceId) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    MarketplaceAccessTypeUneligibleForOperationException,
-                    OrganizationAuthorityException;
+    public void removeOrganizationsFromMarketplace(
+            List<String> organizationIds, String marketplaceId)
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            MarketplaceAccessTypeUneligibleForOperationException,
+            OrganizationAuthorityException;
 
     /**
      * Removes one or more organizations from the black list for the given
@@ -402,10 +400,9 @@ public interface MarketplaceService {
 
     public void liftBanOrganizationsFromMarketplace(
             List<String> organizationIds, String marketplaceId)
-                    throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    MarketplaceAccessTypeUneligibleForOperationException,
-                    OrganizationAuthorityException;
+            throws ObjectNotFoundException, OperationNotPermittedException,
+            MarketplaceAccessTypeUneligibleForOperationException,
+            OrganizationAuthorityException;
 
     /**
      * Returns a list of all organizations which have been banned from the given
@@ -430,8 +427,8 @@ public interface MarketplaceService {
 
     public List<VOOrganization> getBannedOrganizationsForMarketplace(
             String marketplaceId) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    MarketplaceAccessTypeUneligibleForOperationException;
+            OperationNotPermittedException,
+            MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
      * Returns a list of all organizations that are allowed to publish their
@@ -456,8 +453,8 @@ public interface MarketplaceService {
 
     public List<VOOrganization> getOrganizationsForMarketplace(
             String marketplaceId) throws ObjectNotFoundException,
-                    OperationNotPermittedException,
-                    MarketplaceAccessTypeUneligibleForOperationException;
+            OperationNotPermittedException,
+            MarketplaceAccessTypeUneligibleForOperationException;
 
     /**
      * Returns the definition of the marketplace with the specified ID. The
@@ -526,10 +523,11 @@ public interface MarketplaceService {
      * access to the given marketplace.
      *
      * @return collection of all organizations.
-     * @throws ObjectNotFoundException 
+     * @throws ObjectNotFoundException
      */
     @RolesAllowed("MARKETPLACE_OWNER")
-    List<VOOrganization> getAllOrganizations(String marketplaceId) throws ObjectNotFoundException;
+    List<VOOrganization> getAllOrganizations(String marketplaceId)
+            throws ObjectNotFoundException;
 
     /**
      * Method is used to restrict access to the given marketplace.
@@ -554,10 +552,9 @@ public interface MarketplaceService {
             Set<Long> authorizedOrganizations,
             Set<Long> unauthorizedOrganizations,
             Set<Long> organizationsWithSubsToSuspend)
-                    throws OperationNotPermittedException,
-                    ObjectNotFoundException, NonUniqueBusinessKeyException,
-                    TechnicalServiceNotAliveException,
-                    TechnicalServiceOperationException;
+            throws OperationNotPermittedException, ObjectNotFoundException,
+            NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
+            TechnicalServiceOperationException;
 
     /**
      * This method is used to grant access to given marketplace to given
@@ -570,8 +567,8 @@ public interface MarketplaceService {
      */
     @RolesAllowed("MARKETPLACE_OWNER")
     void grantAccessToMarketPlaceToOrganization(VOMarketplace voMarketplace,
-            VOOrganization voOrganization)
-                    throws ValidationException, NonUniqueBusinessKeyException;
+            VOOrganization voOrganization) throws ValidationException,
+            NonUniqueBusinessKeyException;
 
     /**
      * Method is used to remove restrictions to the given marketplace.
@@ -605,4 +602,15 @@ public interface MarketplaceService {
      */
     boolean doesOrganizationHaveAccessMarketplace(String marketplaceId,
             String organizationId) throws LoginException;
+
+    /**
+     * Returns all organizations which have access to the marketplace with the
+     * given id if the marketplace is restricted.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     * @return the list of organizations or empty list if not restricted
+     */
+    public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
+            String marketplaceId);
 }

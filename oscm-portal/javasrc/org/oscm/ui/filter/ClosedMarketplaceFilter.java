@@ -10,7 +10,6 @@ package org.oscm.ui.filter;
 
 import java.io.IOException;
 
-import javax.security.auth.login.LoginException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -20,14 +19,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.*;
+import org.oscm.ui.beans.MarketplaceConfigurationBean;
+import org.oscm.ui.common.Constants;
+import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
  * @author Paulina Badziak
@@ -37,18 +34,12 @@ public class ClosedMarketplaceFilter implements Filter {
 
     RequestRedirector redirector;
     String excludeUrlPattern;
-    MarketplaceService marketplaceService;
-    IdentityService identityService;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         redirector = new RequestRedirector(filterConfig);
         excludeUrlPattern = filterConfig
                 .getInitParameter("exclude-url-pattern");
-
-        ServiceAccess serviceAccess = new EJBServiceAccess();
-        marketplaceService = serviceAccess.getService(MarketplaceService.class);
-        identityService = serviceAccess.getService(IdentityService.class);
     }
 
     /**
@@ -67,46 +58,51 @@ public class ClosedMarketplaceFilter implements Filter {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         if (!httpRequest.getServletPath().matches(excludeUrlPattern)) {
-            String mId = (String) httpRequest.getSession()
-                    .getAttribute(Constants.REQ_PARAM_MARKETPLACE_ID);
-
+            String mId = httpRequest
+                    .getParameter(Constants.REQ_PARAM_MARKETPLACE_ID);
             if (mId == null || mId.equals("")) {
+                mId = (String) httpRequest.getSession().getAttribute(
+                        Constants.REQ_PARAM_MARKETPLACE_ID);
+            }
+
+            MarketplaceConfigurationBean configBean = (MarketplaceConfigurationBean) httpRequest
+                    .getSession().getAttribute("marketplaceConfigurationBean");
+
+            VOUserDetails voUserDetails = (VOUserDetails) httpRequest
+                    .getSession().getAttribute(Constants.SESS_ATTR_USER);
+
+            if (mId == null || mId.equals("") || configBean == null
+                    || voUserDetails == null) {
                 chain.doFilter(request, response);
                 return;
             }
 
-            try {
-                VOMarketplace voMarketplace = marketplaceService
-                        .getMarketplaceById(mId);
-                if (voMarketplace.isRestricted()) {
-                    VOUserDetails voUserDetails = identityService
-                            .getCurrentUserDetailsIfPresent();
-                    if (voUserDetails != null
-                            && voUserDetails.getUserId() != null) {
-                        if (!marketplaceService
-                                .doesOrganizationHaveAccessMarketplace(mId,
-                                        voUserDetails.getOrganizationId())) {
-                            redirector.forward(httpRequest, httpResponse,
-                                    Marketplace.MARKETPLACE_ROOT
-                                            + Constants.INSUFFICIENT_AUTHORITIES_URI);
-                            return;
-                        } else {
-                            chain.doFilter(request, response);
-                            return;
-                        }
-                    }
-                    if (voMarketplace.isHasPublicLandingPage()) {
-                        redirector.forward(httpRequest, httpResponse,
-                            BaseBean.MARKETPLACE_START_SITE);
+            MarketplaceConfiguration config = configBean.getConfiguration(mId,
+                    httpRequest);
+
+            if (config.isRestricted()) {
+                if (voUserDetails.getOrganizationId() != null) {
+                    if (!config.getAllowedOrganizations().contains(
+                            voUserDetails.getOrganizationId())) {
+                        redirector
+                                .forward(
+                                        httpRequest,
+                                        httpResponse,
+                                        Marketplace.MARKETPLACE_ROOT
+                                                + Constants.INSUFFICIENT_AUTHORITIES_URI);
+                        return;
+                    } else {
+                        chain.doFilter(request, response);
                         return;
                     }
                 }
-
-            } catch (ObjectNotFoundException e) {
-                e.printStackTrace();
-            } catch (LoginException e) {
-                e.printStackTrace();
+                if (config.hasLandingPage()) {
+                    redirector.forward(httpRequest, httpResponse,
+                            BaseBean.MARKETPLACE_START_SITE);
+                    return;
+                }
             }
+
         }
         chain.doFilter(request, response);
     }

@@ -2752,4 +2752,10 @@ public class MockService implements IdentityService, SubscriptionService,
 
     }
 
+    @Override
+    public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
+            String marketplaceId) {
+        return new ArrayList<VOOrganization>();
+    }
+
 }
