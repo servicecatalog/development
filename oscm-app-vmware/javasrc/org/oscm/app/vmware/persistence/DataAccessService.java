@@ -127,7 +127,7 @@ public class DataAccessService {
                 stmt.executeUpdate();
             }
 
-            String query2 = "UPDATE cluster SET load_balancer = ? WHERE tkey = ?";
+            /*String query2 = "UPDATE cluster SET load_balancer = ? WHERE tkey = ?";
             try (PreparedStatement stmt = con.prepareStatement(query2);) {
                 for (Datacenter dc : vcenter.datacenter) {
                     for (Cluster cluster : dc.cluster) {
@@ -139,7 +139,7 @@ public class DataAccessService {
                         stmt.executeUpdate();
                     }
                 }
-            }
+            }*/
         } catch (SQLException e) {
             logger.error("Failed to save controller configuration", e);
             throw new Exception(Messages.get(locale, "error_db_save_conf"));
@@ -169,14 +169,14 @@ public class DataAccessService {
             logger.error("Failed to retrieve vCenter server list", e);
             throw e;
         }
-        for (VCenter vc : vcenter) {
+        /*for (VCenter vc : vcenter) {
             retrieveDatacenter(vc);
-        }
+        }*/
 
         return vcenter;
     }
 
-    private void retrieveDatacenter(VCenter vcenter) throws Exception {
+    /*private void retrieveDatacenter(VCenter vcenter) throws Exception {
         logger.debug("vcenter: " + vcenter.name + " vcenter_tkey: "
                 + vcenter.tkey);
         vcenter.datacenter = new ArrayList<Datacenter>();
@@ -239,7 +239,7 @@ public class DataAccessService {
             logger.error("No cluster defined for datacenter " + dc.name);
         }
 
-    }
+    }*/
 
     public VMwareCredentials getCredentials(String vcenter) throws Exception {
         logger.debug("vcenter=" + vcenter);

@@ -35,16 +35,6 @@ h1 {
 	margin: 0px 0px 10px 0px;
 }
 
-h2 {
-	font-family: Arial, Helvetica, sans-serif;
-	font-size: 13px;
-	font-weight: bold;
-	margin: 0px;
-	padding: 5px 5px 5px 25px;
-	background-color: #a0a0a0;
-	color: #FFFFFF;
-}
-
 a {
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
@@ -91,7 +81,74 @@ td {
 	font-weight: bold;
 }
 
+
 .rf-dt {
 	margin: 10px 25px;
 }
 
+#vsphereSettings.rf-dt {
+	margin: 0px;
+	margin-top: 10px;
+}
+
+#vsphereSettings input {
+  background-image: none;
+}
+
+*.rf-dt-c {
+    border-bottom-width: 0px;
+    border-bottom-style: solid;
+    border-right-width: 0px;
+    border-right-style: solid;
+    padding: 4px;
+}
+
+*.rf-dt-shdr-c {
+    font-weight: bold;
+    padding: 4px;
+}
+
+input.button_normal_class {
+  background-image: none !important;
+  color: #333333 !important;
+  font-size: 10pt !important;
+  background-color: transparent !important;
+}
+
+#balancer_form .rf-dt-c > input {
+  font-size: inherit !important;
+  font-family: inherit !important;
+  border-color: #C4C0B9;
+}
+
+div.heading_data_1_bg_class.no-height {
+  height: initial;
+  height: auto;
+}
+
+div.heading_data_1_bg_class.no-height > a {
+  color: #fff;
+  margin-left: 12px;
+}
+
+table.rf-dt.table_row_linetitle_class {
+  border-bottom: none;
+}
+
+#vcenterTable {
+  margin-left: 10px;
+}
+
+#vcenterTable td {
+  padding: 0px;
+}
+
+#vcenterTable th {
+  padding-bottom: 5px;
+}
+
+#vcenterTable select {
+  height: 18px;
+  background-image: none;
+  min-width: 200px;
+}

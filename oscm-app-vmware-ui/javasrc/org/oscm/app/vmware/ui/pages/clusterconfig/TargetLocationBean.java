@@ -18,13 +18,12 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.oscm.app.vmware.business.balancer.XMLHostConfiguration;
 import org.oscm.app.vmware.business.model.Cluster;
-import org.oscm.app.vmware.business.model.Datacenter;
 import org.oscm.app.vmware.business.model.VCenter;
 import org.oscm.app.vmware.i18n.Messages;
 import org.oscm.app.vmware.persistence.DataAccessService;
@@ -43,24 +42,24 @@ public class TargetLocationBean extends UiBeanBase {
     private static final String ELEMENT_STORAGE = "storage";
     private static final String ELEMENT_BALANCER = "balancer";
 
-    private List<HostConfig> hostList;
-    private List<StorageConfig> storageList;
-    private HostBalancerConfig hostBalancer;
+    //private List<HostConfig> hostList;
+    //private List<StorageConfig> storageList;
+    //private HostBalancerConfig hostBalancer;
     private XMLConfiguration xmlConfig;
     private int selectedRowNum;
 
     private int currentVCenter;
-    private String currentDatacenter;
+    //private String currentDatacenter;
     private int currentCluster = -1;
 
     private VCenter selectedVCenter;
-    private Cluster selectedCluster;
+    //private Cluster selectedCluster;
 
     private List<SelectItem> vcenterList = new ArrayList<SelectItem>();
-    private List<SelectItem> datacenterList = new ArrayList<SelectItem>();
-    private List<SelectItem> clusterList = new ArrayList<SelectItem>();
-    private List<SelectItem> hostBalancerList = new ArrayList<SelectItem>();
-    private List<SelectItem> storageBalancerList = new ArrayList<SelectItem>();
+    //private List<SelectItem> datacenterList = new ArrayList<SelectItem>();
+    //private List<SelectItem> clusterList = new ArrayList<SelectItem>();
+    //private List<SelectItem> hostBalancerList = new ArrayList<SelectItem>();
+    //private List<SelectItem> storageBalancerList = new ArrayList<SelectItem>();
     private boolean dirty = false;
 
     List<VCenter> vcenter;
@@ -82,7 +81,7 @@ public class TargetLocationBean extends UiBeanBase {
             if (vcenterList.size() == 1) {
                 selectedVCenter = vc;
                 currentVCenter = vc.tkey;
-                for (Datacenter dc : vc.datacenter) {
+                /*for (Datacenter dc : vc.datacenter) {
                     SelectItem item2 = new SelectItem(dc.name, dc.name);
                     datacenterList.add(item2);
                     if (datacenterList.size() == 1) {
@@ -97,11 +96,11 @@ public class TargetLocationBean extends UiBeanBase {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
 
-        hostBalancerList.add(new SelectItem(
+        /*hostBalancerList.add(new SelectItem(
                 "org.oscm.app.vmware.business.balancer.DynamicEquipartitionHostBalancer",
                 "Distribute VMs equally over all hosts (dynamically)"));
         hostBalancerList.add(new SelectItem(
@@ -117,7 +116,7 @@ public class TargetLocationBean extends UiBeanBase {
         storageBalancerList.add(new SelectItem(
                 "org.oscm.app.vmware.business.balancer.SequentialStorageBalancer",
                 "Distribute VMs in the order of the configured storages"));
-
+        */
         parseConfiguration();
     }
 
@@ -129,7 +128,7 @@ public class TargetLocationBean extends UiBeanBase {
             logger.debug("Cluster not yet set");
             return;
         }
-        hostList = new ArrayList<HostConfig>();
+        /*hostList = new ArrayList<HostConfig>();
         storageList = new ArrayList<StorageConfig>();
 
         xmlConfig = new XMLHostConfiguration();
@@ -172,18 +171,18 @@ public class TargetLocationBean extends UiBeanBase {
         for (HierarchicalConfiguration storage : storages) {
             StorageConfig vmStorage = new StorageConfig(storage);
             storageList.add(vmStorage);
-        }
+        }*/
     }
 
     /**
      * Save modified values to database
      */
     public void save() {
-        logger.debug("Save settings for cluster " + selectedCluster.name);
+        //logger.debug("Save settings for cluster " + selectedCluster.name);
         status = null;
         dirty = true;
 
-        for (HostConfig host : getHosts()) {
+        /*for (HostConfig host : getHosts()) {
             String[] storages = host.getBalancer().getStorages().split(",");
             boolean foundStorage = false;
             for (String hoststorage : storages) {
@@ -204,10 +203,10 @@ public class TargetLocationBean extends UiBeanBase {
                     return;
                 }
             }
-        }
+        }*/
 
         try {
-            selectedCluster.loadbalancer = getXml();
+            //selectedCluster.loadbalancer = getXml();
             settings.saveTargetVCenter(selectedVCenter);
             dirty = false;
         } catch (Exception e) {
@@ -220,11 +219,11 @@ public class TargetLocationBean extends UiBeanBase {
         }
     }
 
-    public void reset() {
+    /*public void reset() {
         status = null;
         parseConfiguration();
         readControllerSettings();
-    }
+    }*/
 
     public boolean isDirty() {
         return dirty;
@@ -241,7 +240,7 @@ public class TargetLocationBean extends UiBeanBase {
                 .getDefaultLocale().getLanguage();
     }
 
-    public List<StorageConfig> getStorages() {
+    /*public List<StorageConfig> getStorages() {
         return storageList;
     }
 
@@ -300,7 +299,7 @@ public class TargetLocationBean extends UiBeanBase {
         String elmRef = ELEMENT_STORAGE + "(" + selectedRowNum + ")";
         xmlConfig.clearTree(elmRef);
         storageList.remove(selectedRowNum);
-    }
+    }*/
 
     public int getSelectedRowNum() {
         return selectedRowNum;
@@ -310,18 +309,18 @@ public class TargetLocationBean extends UiBeanBase {
         this.selectedRowNum = selectedRowNum;
     }
 
-    public List<SelectItem> getHostBalancerList() {
+    /*public List<SelectItem> getHostBalancerList() {
         return hostBalancerList;
     }
 
     public List<SelectItem> getStorageBalancerList() {
         return storageBalancerList;
     }
-
+*/
     public List<SelectItem> getVcenterList() {
         return vcenterList;
     }
-
+/*
     public List<SelectItem> getDatacenterList() {
         return datacenterList;
     }
@@ -329,7 +328,7 @@ public class TargetLocationBean extends UiBeanBase {
     public List<SelectItem> getClusterList() {
         return clusterList;
     }
-
+*/
     public String getUnsavedChangesMsg() {
         return Messages.get(getDefaultLanguage(),
                 "confirm.unsavedChanges.lost");
@@ -341,7 +340,7 @@ public class TargetLocationBean extends UiBeanBase {
             currentVCenter = Integer.parseInt((String) event.getNewValue());
             selectedVCenter = getVCenter(currentVCenter);
             logger.debug(selectedVCenter.name);
-            datacenterList.clear();
+            /*datacenterList.clear();
             for (Datacenter dc : selectedVCenter.datacenter) {
                 SelectItem item = new SelectItem(dc.name, dc.name);
                 datacenterList.add(item);
@@ -358,12 +357,12 @@ public class TargetLocationBean extends UiBeanBase {
                         }
                     }
                 }
-            }
+            }*/
 
         }
     }
 
-    public void valueChangeDatacenter(ValueChangeEvent event) {
+    /*public void valueChangeDatacenter(ValueChangeEvent event) {
         status = null;
         if (event.getNewValue() != null) {
             currentDatacenter = (String) event.getNewValue();
@@ -392,7 +391,7 @@ public class TargetLocationBean extends UiBeanBase {
             hostBalancer = null;
             parseConfiguration();
         }
-    }
+    }*/
 
     private VCenter getVCenter(int tkey) {
         for (VCenter vc : vcenter) {
@@ -403,7 +402,7 @@ public class TargetLocationBean extends UiBeanBase {
         return null;
     }
 
-    private Datacenter getDatacenter(String name) {
+    /*private Datacenter getDatacenter(String name) {
         for (Datacenter dc : selectedVCenter.datacenter) {
             if (dc.name.equals(name)) {
                 return dc;
@@ -423,7 +422,7 @@ public class TargetLocationBean extends UiBeanBase {
             }
         }
         return null;
-    }
+    }*/
 
     public String getCurrentVCenter() {
         return Integer.toString(currentVCenter);
@@ -432,7 +431,7 @@ public class TargetLocationBean extends UiBeanBase {
     public void setCurrentVCenter(String currentVCenter) {
         this.currentVCenter = Integer.parseInt(currentVCenter);
     }
-
+/*
     public String getCurrentDatacenter() {
         return currentDatacenter;
     }
@@ -440,7 +439,7 @@ public class TargetLocationBean extends UiBeanBase {
     public void setCurrentDatacenter(String currentDatacenter) {
         this.currentDatacenter = currentDatacenter;
     }
-
+*/
     public String getCurrentCluster() {
         return Integer.toString(currentCluster);
     }
@@ -456,12 +455,28 @@ public class TargetLocationBean extends UiBeanBase {
     public void setSelectedVCenter(VCenter selectedVCenter) {
         this.selectedVCenter = selectedVCenter;
     }
-
+/*
     public Cluster getSelectedCluster() {
         return selectedCluster;
     }
 
     public void setSelectedCluster(Cluster selectedCluster) {
         this.selectedCluster = selectedCluster;
+    }*/
+
+    public String getLoggedInUserId() {
+        FacesContext facesContext = getFacesContext();
+        HttpSession session = (HttpSession) facesContext.getExternalContext()
+            .getSession(false);
+        if (session != null) {
+            String loggedInUserId = ""
+                + session.getAttribute("loggedInUserId");
+            return loggedInUserId;
+        }
+        return null;
+    }
+
+    protected FacesContext getFacesContext() {
+        return FacesContext.getCurrentInstance();
     }
 }

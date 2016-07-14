@@ -16,5 +16,6 @@
   <module>
     <ejb>oscm-app-common.jar</ejb>
   </module>
+
   <library-directory>lib</library-directory>
 </application>
