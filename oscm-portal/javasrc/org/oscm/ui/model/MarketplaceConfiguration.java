@@ -10,6 +10,8 @@
 
 package org.oscm.ui.model;
 
+import java.util.Set;
+
 /**
  * UI model for Marketplace configurations(tagging, review, social bookmark)
  */
@@ -24,6 +26,10 @@ public class MarketplaceConfiguration {
     private boolean categoriesEnabled;
 
     private boolean restricted;
+
+    private boolean landingPage;
+
+    private Set<String> allowedOrganizations = null;
 
     /**
      * Indicating if the tag cloud is shown.
@@ -100,7 +106,7 @@ public class MarketplaceConfiguration {
     /**
      * Returns true if the marketplace is restricted
      * 
-     * @return the restricted
+     * @return true if restricted
      */
     public boolean isRestricted() {
         return restricted;
@@ -110,9 +116,47 @@ public class MarketplaceConfiguration {
      * Sets if the marketplace is restricted
      * 
      * @param restricted
-     *            the restricted to set
+     *            true if restricted
      */
     public void setRestricted(boolean restricted) {
         this.restricted = restricted;
+    }
+
+    /**
+     * Returns true if the marketplace has a landingpage
+     * 
+     * @return true if it has a landingPage
+     */
+    public boolean hasLandingPage() {
+        return landingPage;
+    }
+
+    /**
+     * Sets if the marketplace has a landingpage
+     * 
+     * @param landingPage
+     *            true if it has a landingpage
+     */
+    public void setLandingPage(boolean landingPage) {
+        this.landingPage = landingPage;
+    }
+
+    /**
+     * Returns the ids of all allowed organizations for the marketplace
+     * 
+     * @return list of organization ids
+     */
+    public Set<String> getAllowedOrganizations() {
+        return allowedOrganizations;
+    }
+
+    /**
+     * Sets the ids of all allowed organizations for the marketplace
+     * 
+     * @param allowedOrganizations
+     *            the list of organization ids
+     */
+    public void setAllowedOrganizations(Set<String> allowedOrganizations) {
+        this.allowedOrganizations = allowedOrganizations;
     }
 }
