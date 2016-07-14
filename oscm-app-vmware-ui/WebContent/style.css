@@ -116,15 +116,14 @@ input.button_normal_class {
 }
 
 #balancer_form .rf-dt-c > input {
-  border-width: 2px !important;
-  border-color: initial !important;
   font-size: inherit !important;
   font-family: inherit !important;
-  border-style: ridge !important;
+  border-color: #C4C0B9;
 }
 
 div.heading_data_1_bg_class.no-height {
   height: initial;
+  height: auto;
 }
 
 div.heading_data_1_bg_class.no-height > a {
@@ -151,7 +150,5 @@ table.rf-dt.table_row_linetitle_class {
 #vcenterTable select {
   height: 18px;
   background-image: none;
-  border-color: initial;
-  border-style: groove;
   min-width: 200px;
 }
