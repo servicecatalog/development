@@ -17,7 +17,10 @@ import javax.jws.WebService;
  * Remote interface for single sign-on based on SAML (Security Assertion Markup
  * Language).
  * 
+ * @deprecated as of release 16.1.0
+ * 
  */
+@Deprecated
 @Remote
 @WebService(targetNamespace = "http://oscm.org/xsd")
 public interface SamlService {

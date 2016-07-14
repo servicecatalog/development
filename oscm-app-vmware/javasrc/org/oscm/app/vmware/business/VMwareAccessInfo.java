@@ -75,10 +75,12 @@ public class VMwareAccessInfo {
     private String getIpAddress(GuestInfo guestInfo) {
         StringBuilder sb = new StringBuilder();
         for (int i = 1; i <= paramHandler.getNumberOfNetworkAdapter(); i++) {
-            GuestNicInfo info = getNicInfo(guestInfo,
-                    paramHandler.getNetworkAdapter(i));
+            GuestNicInfo info = getNicInfo(guestInfo, i);
             if (info != null) {
-                sb.append(paramHandler.getNetworkAdapter(i) + ": ");
+                if (paramHandler.getNetworkAdapter(i) != null
+                        && !paramHandler.getNetworkAdapter(i).trim().isEmpty()) {
+                    sb.append(paramHandler.getNetworkAdapter(i) + ": ");
+                }
                 sb.append(info.getIpAddress());
                 if (i < paramHandler.getNumberOfNetworkAdapter()) {
                     sb.append(", ");
@@ -88,18 +90,23 @@ public class VMwareAccessInfo {
         return sb.toString();
     }
 
-    GuestNicInfo getNicInfo(GuestInfo guestInfo, String adapter) {
+    GuestNicInfo getNicInfo(GuestInfo guestInfo, int i) {
         for (GuestNicInfo info : guestInfo.getNet()) {
-            if (info != null && adapter.equals(info.getNetwork())) {
-                return info;
+            if (info != null) {
+                if (paramHandler.isAdapterConfiguredByDhcp(i)) {
+                    return info;
+                } else if (paramHandler.getNetworkAdapter(i).equals(
+                        info.getNetwork())) {
+                    return info;
+                }
             }
         }
         return null;
     }
 
     private String getResponsibleUser() {
-        String respuser = paramHandler
-                .getResponsibleUserAsString(paramHandler.getLocale());
+        String respuser = paramHandler.getResponsibleUserAsString(paramHandler
+                .getLocale());
         if (respuser == null) {
             respuser = "";
         }

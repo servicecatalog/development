@@ -6,6 +6,7 @@ package org.oscm.serviceprovisioningservice.bean;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1391,7 +1392,8 @@ public class ServiceProvisioningServiceBean
         validateProductStatus(customerProducts);
 
         Product product = prepareMarketingProduct(
-                storedService.getTechnicalProduct().getKey(), service, false);
+                    storedService.getTechnicalProduct().getKey(), service, false);
+        
         processImage(product.getKey(), imageResource);
 
         LocalizerFacade facade = new LocalizerFacade(localizer,
@@ -1733,13 +1735,14 @@ public class ServiceProvisioningServiceBean
      *             Thrown in case the parameter values could not match the
      *             specified datatype.
      * @throws ConcurrentModificationException
+     * @throws GeneralSecurityException 
      * @throws DeletionConstraintException
      */
     private List<Parameter> modifyParameters(VOService productToModify,
             PlatformUser currentUser, TechnicalProduct tProd, Product product,
             boolean isCreation) throws ObjectNotFoundException,
                     OperationNotPermittedException, ValidationException,
-                    ConcurrentModificationException {
+                    ConcurrentModificationException{
         boolean isDirectAccess = tProd
                 .getAccessType() == ServiceAccessType.DIRECT;
         List<VOParameter> parameters = productToModify.getParameters();
@@ -1813,7 +1816,7 @@ public class ServiceProvisioningServiceBean
                     final Parameter existingParameter = obsoleteParameters
                             .remove(Long.valueOf(parameter.getKey()));
                     if (existingParameter == null) {
-                        final Parameter param = ParameterAssembler
+                        final Parameter param = ParameterAssembler 
                                 .toParameter(parameter);
                         param.setParameterDefinition(paramDef);
                         param.setParameterSet(currentParameterSet);

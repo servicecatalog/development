@@ -2,21 +2,59 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016            
  *                                                                                                                                 
- *  Creation Date: 20.02.2015                                                      
+ *  Creation Date: 2015-02-20                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.billing.external.context;
 
 /**
- * Keys for OSCM operation context
+ * Specifies the keys that may occur in the context defining the element for
+ * which a price model is to be returned.
  * 
  */
 public enum ContextKey {
 
-    TENANT_ID, TENANT_NAME,
+    /**
+     * The identifier of the organization owning a subscription. Only required
+     * for pushing price models to subscriptions.
+     */
+    TENANT_ID,
 
-    CUSTOMER_ID, CUSTOMER_NAME,
+    /**
+     * The name of the organization owning a subscription.
+     */
+    TENANT_NAME,
 
-    SERVICE_ID, SERVICE_NAME, SERVICE_PARAMETERS, SUBSCRIPTION_ID
+    /**
+     * The identifier of the customer organization for a customer-specific price
+     * model.
+     */
+    CUSTOMER_ID,
+
+    /**
+     * The name of the customer organization for a customer-specific price
+     * model.
+     */
+    CUSTOMER_NAME,
+
+    /**
+     * The identifier of a service.
+     */
+    SERVICE_ID,
+
+    /**
+     * The name of a service.
+     */
+    SERVICE_NAME,
+
+    /**
+     * The parameters of a service.
+     */
+    SERVICE_PARAMETERS,
+
+    /**
+     * The identifier of the subscription for a subscription price model.
+     */
+    SUBSCRIPTION_ID
 }

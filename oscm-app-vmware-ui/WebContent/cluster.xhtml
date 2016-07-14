@@ -103,37 +103,53 @@
   <h:form id="balancer_form" styleClass="configurationSettings_area">
     <h:inputHidden id="selectedRowNum" value="#{targetLocationBean.selectedRowNum}" />
     <h:commandButton id="deleteHost" action="#{targetLocationBean.deleteHost}" style="display: none;" />
-    <h:commandButton id="deleteStorage" action="#{targetLocationBean.deleteStorage}" style="display: none;" />
-<div class="nested_heading_data_class" >
-<div class="accordion_area1" >
-    <table id="vsphereSettings" class="rf-dt table_row_linetitle_class">
-      <colgroup span="2"></colgroup>
-      <thead class="rf-dt-thd">
-        <tr class="rf-dt-shdr">
-          <th class="rf-dt-shdr-c rf-dt-keyColumn table_header_title_class"><h:outputText value="#{msg['ui.config.column.key']}" /></th>
-          <th class="rf-dt-shdr-c"><h:outputText value="#{msg['ui.config.column.value']}" /></th>
-        </tr>
-      </thead>
-      <tbody class="rf-dt-b">
-        <tr class="rf-dt-r rowOdd">
-          <td class="rf-dt-c"><h:outputText value="#{msg['ui.config.part.vsphereapi.url']}" /></td>
-          <td class="rf-dt-c"><h:inputText id="vsphere_api_url" size="70" onchange="setDirty(true);"
-              value="#{targetLocationBean.selectedVCenter.url}" /></td>
-        </tr>
-        <tr class="rf-dt-r rowEven">
-          <td class="rf-dt-c"><h:outputText value="#{msg['ui.config.part.vsphereapi.userid']}" /></td>
-          <td class="rf-dt-c"><h:inputText id="vsphere_api_user" size="20" onchange="setDirty(true);"
-              value="#{targetLocationBean.selectedVCenter.userid}" /></td>
-        </tr>
-        <tr class="rf-dt-r rowOdd">
-          <td class="rf-dt-c"><h:outputText value="#{msg['ui.config.part.vsphereapi.password']}" /></td>
-          <td class="rf-dt-c"><h:inputText id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
-              value="#{targetLocationBean.selectedVCenter.password}" /></td>
-        </tr>
-      </tbody>
-    </table>
-</div>
-</div>
+    <h:commandButton id="deleteStorage" action="#{targetLocationBean.deleteStorage}" style="display: none;"/>
+    <div class="nested_heading_data_class">
+      <div class="accordion_area1">
+        <table id="vsphereSettings" class="rf-dt table_row_linetitle_class">
+          <colgroup span="2"></colgroup>
+          <thead class="rf-dt-thd">
+          <tr class="rf-dt-shdr">
+            <th class="rf-dt-shdr-c rf-dt-keyColumn table_header_title_class">
+              <h:outputText value="#{msg['ui.config.column.key']}"/>
+            </th>
+            <th class="rf-dt-shdr-c">
+              <h:outputText value="#{msg['ui.config.column.value']}"/>
+            </th>
+          </tr>
+          </thead>
+          <tbody class="rf-dt-b">
+          <tr class="rf-dt-r rowOdd">
+            <td class="rf-dt-c">
+              <h:outputText value="#{msg['ui.config.part.vsphereapi.url']}"/>
+            </td>
+            <td class="rf-dt-c">
+              <h:inputText id="vsphere_api_url" size="70" onchange="setDirty(true);"
+                           value="#{targetLocationBean.selectedVCenter.url}"/>
+            </td>
+          </tr>
+          <tr class="rf-dt-r rowEven">
+            <td class="rf-dt-c">
+              <h:outputText value="#{msg['ui.config.part.vsphereapi.userid']}"/>
+            </td>
+            <td class="rf-dt-c">
+              <h:inputText id="vsphere_api_user" size="20" onchange="setDirty(true);"
+                           value="#{targetLocationBean.selectedVCenter.userid}"/>
+            </td>
+          </tr>
+          <tr class="rf-dt-r rowOdd">
+            <td class="rf-dt-c">
+              <h:outputText value="#{msg['ui.config.part.vsphereapi.password']}"/>
+            </td>
+            <td class="rf-dt-c">
+              <h:inputSecret id="vsphere_api_pwd" size="20" onchange="setDirty(true);"
+                             value="#{targetLocationBean.selectedVCenter.password}" redisplay="true"/>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
     <!--
     <h2>
       <h:outputText value="#{msg['ui.config.part.hbsettings']}" />

@@ -33,6 +33,7 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 
@@ -44,6 +45,9 @@ public class ManageAccessCtrl {
 
     @ManagedProperty(value = "#{manageAccessModel}")
     private ManageAccessModel model;
+
+    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
+    private MarketplaceConfigurationBean configuration;
 
     @EJB
     private MarketplaceService marketplaceService;
@@ -65,9 +69,9 @@ public class ManageAccessCtrl {
         List<SelectItem> selectableMarketplaces = new ArrayList<SelectItem>();
 
         for (VOMarketplace mp : marketplaces) {
-            selectableMarketplaces
-                    .add(new SelectItem(mp.getMarketplaceId(), String.format(
-                            "%s (%s)", mp.getName(), mp.getMarketplaceId())));
+            selectableMarketplaces.add(new SelectItem(mp.getMarketplaceId(),
+                    String.format("%s (%s)", mp.getName(),
+                            mp.getMarketplaceId())));
         }
 
         model.setSelectableMarketplaces(selectableMarketplaces);
@@ -82,13 +86,13 @@ public class ManageAccessCtrl {
         }
         try {
             VOMarketplace marketplace = marketplaceService
-                    .getMarketplaceById(marketplaceId);            
-            
-            model.setSelectedMarketplaceRestricted(marketplace.isRestricted());           
-            
-            if(marketplace.isRestricted()){
+                    .getMarketplaceById(marketplaceId);
+
+            model.setSelectedMarketplaceRestricted(marketplace.isRestricted());
+
+            if (marketplace.isRestricted()) {
                 model.setShowOpeningRestrictedMplWarning(true);
-            }    
+            }
             populateOrganizations(marketplaceId);
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
@@ -105,7 +109,8 @@ public class ManageAccessCtrl {
         }
     }
 
-    private void populateOrganizations(String marketplaceId) throws ObjectNotFoundException {
+    private void populateOrganizations(String marketplaceId)
+            throws ObjectNotFoundException {
 
         boolean restricted = model.isSelectedMarketplaceRestricted();
 
@@ -115,26 +120,29 @@ public class ManageAccessCtrl {
             List<POOrganization> organizations = new ArrayList<>();
             Map<Long, Boolean> accessesStored = new HashMap<>();
             Map<Long, Boolean> accessesSelected = new HashMap<>();
-            
+
             for (VOOrganization voOrganization : marketplaceService
                     .getAllOrganizations(marketplaceId)) {
-                POOrganization poOrganization = toPOOrganization(
-                        voOrganization);
-                
+                POOrganization poOrganization = toPOOrganization(voOrganization);
+
                 long key = poOrganization.getKey();
                 organizations.add(poOrganization);
-                
-                accessesStored.put(Long.valueOf(key), Boolean.valueOf(voOrganization.isHasGrantedAccessToMarketplace()));
-                accessesSelected.put(Long.valueOf(key), Boolean.valueOf(poOrganization.isSelected()));
+
+                accessesStored.put(Long.valueOf(key), Boolean
+                        .valueOf(voOrganization
+                                .isHasGrantedAccessToMarketplace()));
+                accessesSelected.put(Long.valueOf(key),
+                        Boolean.valueOf(poOrganization.isSelected()));
             }
-            
-            Collections.sort(organizations, new Comparator<POOrganization>(){
+
+            Collections.sort(organizations, new Comparator<POOrganization>() {
                 @Override
                 public int compare(POOrganization org1, POOrganization org2) {
-                    return Boolean.valueOf(org2.isSelected()).compareTo(Boolean.valueOf(org1.isSelected())); 
-                }                
+                    return Boolean.valueOf(org2.isSelected()).compareTo(
+                            Boolean.valueOf(org1.isSelected()));
+                }
             });
-            
+
             model.setOrganizations(organizations);
             model.setAccessesStored(accessesStored);
             model.setAccessesSelected(accessesSelected);
@@ -143,6 +151,8 @@ public class ManageAccessCtrl {
 
     public String save() {
         try {
+            configuration.resetConfiguration(model.getSelectedMarketplaceId());
+
             if (model.isSelectedMarketplaceRestricted()) {
                 prepareOrganizationsListsForUpdate();
                 getMarketplaceService().closeMarketplace(
@@ -151,8 +161,8 @@ public class ManageAccessCtrl {
                         model.getUnauthorizedOrganizations(),
                         model.getOrganizationsWithSubscriptionsToSuspend());
             } else {
-                getMarketplaceService()
-                        .openMarketplace(model.getSelectedMarketplaceId());
+                getMarketplaceService().openMarketplace(
+                        model.getSelectedMarketplaceId());
             }
             addMessage(BaseBean.INFO_MARKETPLACE_ACCESS_SAVED);
             populateOrganizations(model.getSelectedMarketplaceId());
@@ -164,21 +174,21 @@ public class ManageAccessCtrl {
 
         return BaseBean.OUTCOME_SUCCESS;
     }
-    
-    private void clearOrganizationsForUpdate(){
+
+    private void clearOrganizationsForUpdate() {
         model.getAuthorizedOrganizations().clear();
         model.getUnauthorizedOrganizations().clear();
         model.getOrganizationsWithSubscriptionsToSuspend().clear();
         model.setShowSubscriptionSuspendingWarning(false);
     }
-    
+
     private void prepareOrganizationsListsForUpdate() {
 
         for (POOrganization poOrganization : model.getOrganizations()) {
-            
+
             long orgKey = poOrganization.getKey();
             boolean orgIsSelected = poOrganization.isSelected();
-            
+
             if (model.getAccessesStored().get(orgKey) && !orgIsSelected) {
                 model.getUnauthorizedOrganizations().add(orgKey);
                 model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
@@ -186,26 +196,26 @@ public class ManageAccessCtrl {
             }
             if (!model.getAccessesStored().get(orgKey) && orgIsSelected) {
                 model.getAuthorizedOrganizations().add(orgKey);
-            }    
+            }
         }
     }
-    
+
     public void changeOrganizationAccess() {
         long orgKey = model.getChangedKey();
         boolean orgIsSelected = model.isChangedSelection();
         boolean changedHasSubscriptions = model.isChangedHasSubscriptions();
-        
+
         if (model.getAccessesSelected().get(orgKey) && changedHasSubscriptions) {
             if (!orgIsSelected) {
                 model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
             } else {
-                model.getOrganizationsWithSubscriptionsToSuspend()
-                        .remove(orgKey);
+                model.getOrganizationsWithSubscriptionsToSuspend().remove(
+                        orgKey);
             }
             showSubscriptionSuspendingWarning();
         }
     }
-    
+
     public void selectAllOrganizations() {
 
         String orgKeys = model.getAllSelectedOrganizations();
@@ -215,18 +225,17 @@ public class ManageAccessCtrl {
         List<String> selectedOrgIds = Arrays.asList(orgIds);
 
         for (POOrganization org : model.getOrganizations()) {
-            
-            //propagation is done only for selected organizations
+
+            // propagation is done only for selected organizations
             if (selectedOrgIds.contains(org.getOrganizationId())) {
 
                 long orgKey = org.getKey();
                 boolean hasSubscriptions = org.isHasSubscriptions();
 
-                if (model.getAccessesSelected().get(orgKey)
-                        && hasSubscriptions) {
+                if (model.getAccessesSelected().get(orgKey) && hasSubscriptions) {
                     if (!orgIsSelected) {
-                        model.getOrganizationsWithSubscriptionsToSuspend()
-                                .add(orgKey);
+                        model.getOrganizationsWithSubscriptionsToSuspend().add(
+                                orgKey);
                     } else {
                         model.getOrganizationsWithSubscriptionsToSuspend()
                                 .remove(orgKey);
@@ -236,24 +245,23 @@ public class ManageAccessCtrl {
             }
         }
     }
-    
+
     private void showSubscriptionSuspendingWarning() {
-        model.setShowSubscriptionSuspendingWarning(
-                model.getOrganizationsWithSubscriptionsToSuspend().size() > 0);
+        model.setShowSubscriptionSuspendingWarning(model
+                .getOrganizationsWithSubscriptionsToSuspend().size() > 0);
     }
-    
+
     public void addMessage(final String messageText) {
-        JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO, messageText,
-                null);
+        JSFUtils.addMessage(null, FacesMessage.SEVERITY_INFO, messageText, null);
     }
 
     private POOrganization toPOOrganization(VOOrganization voOrganization) {
         POOrganization poOrganization = new POOrganization(
                 voOrganization.getName(), voOrganization.getOrganizationId());
         poOrganization.setKey(voOrganization.getKey());
-        poOrganization
-                .setSelected(voOrganization.isHasGrantedAccessToMarketplace()
-                        || voOrganization.isHasSubscriptions());
+        poOrganization.setSelected(voOrganization
+                .isHasGrantedAccessToMarketplace()
+                || voOrganization.isHasSubscriptions());
         poOrganization.setHasSubscriptions(voOrganization.isHasSubscriptions());
         return poOrganization;
     }
@@ -264,6 +272,14 @@ public class ManageAccessCtrl {
 
     public void setModel(ManageAccessModel model) {
         this.model = model;
+    }
+
+    public MarketplaceConfigurationBean getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(MarketplaceConfigurationBean configuration) {
+        this.configuration = configuration;
     }
 
     public MarketplaceService getMarketplaceService() {

@@ -7,8 +7,19 @@
  *******************************************************************************/
 package org.oscm.subscriptionservice.bean;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
@@ -24,13 +35,6 @@ import javax.interceptor.Interceptors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.assembler.BillingContactAssembler;
-import org.oscm.internal.intf.SubscriptionSearchService;
-import org.oscm.internal.types.exception.*;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.PaymentInfoAssembler;
 import org.oscm.accountservice.assembler.UdaAssembler;
@@ -84,6 +88,7 @@ import org.oscm.interceptor.AuditLogDataInterceptor;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.intf.SubscriptionService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OperationStatus;
@@ -97,8 +102,34 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.TriggerType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DomainObjectException;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.InvalidPhraseException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.MandatoryUdaMissingException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
 import org.oscm.internal.types.exception.OperationPendingException.ReasonEnum;
+import org.oscm.internal.types.exception.OperationStateException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.PaymentDataException;
+import org.oscm.internal.types.exception.PaymentInformationException;
+import org.oscm.internal.types.exception.PriceModelException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.ServiceChangedException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.types.exception.SubscriptionAlreadyExistsException;
+import org.oscm.internal.types.exception.SubscriptionMigrationException;
 import org.oscm.internal.types.exception.SubscriptionMigrationException.Reason;
+import org.oscm.internal.types.exception.SubscriptionStateException;
+import org.oscm.internal.types.exception.SubscriptionStillActiveException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOInstanceInfo;
 import org.oscm.internal.vo.VOLocalizedText;
@@ -117,6 +148,8 @@ import org.oscm.internal.vo.VOUda;
 import org.oscm.internal.vo.VOUsageLicense;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserSubscription;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
 import org.oscm.notification.vo.VONotification;
 import org.oscm.notification.vo.VOProperty;
 import org.oscm.operation.data.OperationResult;
@@ -1505,6 +1538,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
             if (param != null) {
                 String oldValue = param.getValue();
                 param.setValue(voParameter.getValue());
+                
                 String defaultValue = param.getParameterDefinition()
                         .getDefaultValue();
                 if ((oldValue != null && !oldValue.equals(param.getValue()))
@@ -3022,7 +3056,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         }
 
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                targetProductCopy, voTargetParameters, subscription);
+                    targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter and send the new parameter to the
         // technical product
@@ -3091,7 +3125,7 @@ public class SubscriptionServiceBean implements SubscriptionService,
         Product targetProductCopy = copyProductForSubscription(targetProduct,
                 subscription, false);
         List<Parameter> modifiedParametersForLog = updateConfiguredParameterValues(
-                targetProductCopy, voTargetParameters, subscription);
+                    targetProductCopy, voTargetParameters, subscription);
 
         // verify the platform parameter
         checkPlatformParameterConstraints(subscription, targetProductCopy,
