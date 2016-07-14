@@ -47,6 +47,7 @@ public class Script {
 
     private static final String WINDOWS_GUEST_FILE_PATH = "C:\\Windows\\Temp\\runonce.bat";
     private static final String LINUX_GUEST_FILE_PATH = "/tmp/runonce.sh";
+    static final String HIDDEN_PWD = "*****";
 
     private OS os;
     private VMPropertyHandler ph;
@@ -118,7 +119,7 @@ public class Script {
      * Declare a host name verifier that will automatically enable the
      * connection. The host name verifier is invoked during the SSL handshake.
      */
-    private void disableSSL() throws Exception {
+    void disableSSL() throws Exception {
         javax.net.ssl.HostnameVerifier verifier = new HostnameVerifier() {
             @Override
             public boolean verify(String urlHostName, SSLSession session) {
@@ -141,7 +142,7 @@ public class Script {
         HttpsURLConnection.setDefaultHostnameVerifier(verifier);
     }
 
-    private String downloadFile(String url) throws Exception {
+    String downloadFile(String url) throws Exception {
         HttpURLConnection conn = null;
         int returnErrorCode = HttpURLConnection.HTTP_OK;
         StringWriter writer = new StringWriter();
@@ -245,12 +246,14 @@ public class Script {
                 script.length());
 
         StringBuffer sb = new StringBuffer();
+        List<String> passwords = new ArrayList<String>();
         if (os == OS.WINDOWS) {
-            addServiceParametersForWindowsVms(sb);
+            passwords = addServiceParametersForWindowsVms(sb);
         } else {
-            addServiceParametersForLinuxVms(sb);
+            passwords = addServiceParametersForLinuxVms(sb);
         }
-        addOsIndependetServiceParameters(sb);
+        List<String> scriptPasswords = addOsIndependetServiceParameters(sb);
+        passwords.addAll(scriptPasswords);
 
         String patchedScript;
         if (os == OS.WINDOWS) {
@@ -261,43 +264,73 @@ public class Script {
                     + os.getLineEnding() + rest;
         }
 
-        LOG.debug("Patched script:\n" + patchedScript);
+        String logPatchedScript = hidePasswords(patchedScript, passwords, os);
+
+        LOG.debug("Patched script:\n" + logPatchedScript);
         return patchedScript;
     }
 
-    private void addServiceParametersForWindowsVms(StringBuffer sb)
-            throws Exception, APPlatformException {
+    static String hidePasswords(String script, List<String> passwords, OS os) {
+        final String pwdPrefix = "_PWD=";
+        String logScript = script;
+        for (String password : passwords) {
+            if (OS.LINUX.equals(os)) {
+                logScript = logScript.replace(pwdPrefix + "'" + password + "'",
+                        pwdPrefix + "'" + HIDDEN_PWD + "'");
+            } else if (OS.WINDOWS.equals(os)) {
+                logScript = logScript.replace(
+                        pwdPrefix + password + os.getLineEnding(), pwdPrefix
+                                + HIDDEN_PWD + os.getLineEnding());
+            }
+        }
+        return logScript;
+    }
 
+    private List<String> addServiceParametersForWindowsVms(StringBuffer sb)
+            throws Exception, APPlatformException {
+        List<String> passwords = new ArrayList<String>();
+        passwords
+                .add(sp.getServiceSetting(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
+        passwords
+                .add(sp.getServiceSetting(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_WINDOWS_DOMAIN_ADMIN_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_WINDOWS_DOMAIN_JOIN));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_WINDOWS_LOCAL_ADMIN_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_WINDOWS_WORKGROUP));
+        return passwords;
     }
 
-    private void addServiceParametersForLinuxVms(StringBuffer sb)
+    private List<String> addServiceParametersForLinuxVms(StringBuffer sb)
             throws Exception, APPlatformException {
-
+        List<String> passwords = new ArrayList<String>();
+        passwords
+                .add(sp.getServiceSetting(VMPropertyHandler.TS_LINUX_ROOT_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_LINUX_ROOT_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_DOMAIN_NAME));
+        return passwords;
     }
 
-    private void addOsIndependetServiceParameters(StringBuffer sb)
+    List<String> addOsIndependetServiceParameters(StringBuffer sb)
             throws Exception {
-
+        List<String> passwords = new ArrayList<String>();
         sb.append(buildParameterCommand(VMPropertyHandler.TS_INSTANCENAME,
                 ph.getInstanceName()));
         sb.append(buildParameterCommand(VMPropertyHandler.REQUESTING_USER));
-        addScriptParameters(sb);
+        passwords = addScriptParameters(sb);
         addNetworkServiceParameters(sb);
         addDataDiskParameters(sb);
+        return passwords;
     }
 
-    private void addScriptParameters(StringBuffer sb) throws Exception {
+    List<String> addScriptParameters(StringBuffer sb) throws Exception {
+        List<String> passwords = new ArrayList<String>();
+        passwords.add(sp.getServiceSetting(VMPropertyHandler.TS_SCRIPT_PWD));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_URL));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_USERID));
         sb.append(buildParameterCommand(VMPropertyHandler.TS_SCRIPT_PWD));
+        return passwords;
     }
 
     private void addDataDiskParameters(StringBuffer sb) throws Exception {
