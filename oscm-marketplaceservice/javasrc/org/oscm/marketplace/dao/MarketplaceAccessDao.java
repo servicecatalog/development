@@ -64,7 +64,7 @@ public class MarketplaceAccessDao {
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey) {
 
-        String queryString = "SELECT o FROM organization o INNER JOIN marketplaceaccess ma ON o.tkey = ma.organization_tkey WHERE ma.marketplace_tkey = :marketplaceKey";
+        String queryString = "SELECT o.* FROM organization o INNER JOIN marketplaceaccess ma ON o.tkey = ma.organization_tkey WHERE ma.marketplace_tkey = :marketplaceKey";
 
         Query query = dataService.createNativeQuery(queryString,
                 Organization.class);

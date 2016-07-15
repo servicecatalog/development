@@ -71,8 +71,7 @@ public class ClosedMarketplaceFilter implements Filter {
             VOUserDetails voUserDetails = (VOUserDetails) httpRequest
                     .getSession().getAttribute(Constants.SESS_ATTR_USER);
 
-            if (mId == null || mId.equals("") || configBean == null
-                    || voUserDetails == null) {
+            if (mId == null || mId.equals("") || configBean == null) {
                 chain.doFilter(request, response);
                 return;
             }
@@ -81,7 +80,8 @@ public class ClosedMarketplaceFilter implements Filter {
                     httpRequest);
 
             if (config.isRestricted()) {
-                if (voUserDetails.getOrganizationId() != null) {
+                if (voUserDetails != null
+                        && voUserDetails.getOrganizationId() != null) {
                     if (!config.getAllowedOrganizations().contains(
                             voUserDetails.getOrganizationId())) {
                         redirector
