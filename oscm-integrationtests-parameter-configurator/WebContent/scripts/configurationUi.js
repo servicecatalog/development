@@ -49,7 +49,10 @@ BssParameterConfigurator.prototype = {
 	                if (this._parameters[i].getValue()== "true")	{
                 		valueInputField.checked= "checked";
                 	}
-	            } else  if ((this._parameters[i].getValueType() === Parameter.Type.INTEGER) 
+	            } else  if(this._parameters[i].getId().indexOf("_PWD") > -1){
+	            	valueInputField.type ="password";
+	            }
+	            else if ((this._parameters[i].getValueType() === Parameter.Type.INTEGER) 
 	                    || (this._parameters[i].getValueType() === Parameter.Type.STRING) 
 	                    || (this._parameters[i].getValueType() === Parameter.Type.LONG)) {      
 	                valueInputField.type ="text";	
