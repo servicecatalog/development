@@ -116,5 +116,17 @@ public class ParameterRowTest {
         assertEquals("desc2", option.getOptionDescription());
         assertEquals("def2", option.getParamDefId());
     }
+    
+    @Test
+    public void isPasswordTypeParameter() {
+        // given
+        when(parameterDefinition.getParameterId()).thenReturn("WINDOWS_PWD");
+
+        // when
+        boolean passwordType = parameterRow.isPasswordType();
+
+        // then
+        assertTrue(passwordType);
+    }
 
 }
