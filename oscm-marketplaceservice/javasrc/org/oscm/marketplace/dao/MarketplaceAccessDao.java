@@ -7,15 +7,17 @@
  *******************************************************************************/
 package org.oscm.marketplace.dao;
 
-import org.oscm.converter.ParameterizedTypes;
-import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.MarketplaceAccess;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.Query;
-import java.util.List;
+
+import org.oscm.converter.ParameterizedTypes;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.MarketplaceAccess;
+import org.oscm.domobjects.Organization;
 
 /**
  * Created by BadziakP on 2016-05-23.
@@ -42,7 +44,8 @@ public class MarketplaceAccessDao {
         query.executeUpdate();
     }
 
-    public List<Object[]> getOrganizationsWithMplAndSubscriptions(long marketplaceKey) {
+    public List<Object[]> getOrganizationsWithMplAndSubscriptions(
+            long marketplaceKey) {
 
         String querySelect = "SELECT o.tkey as orgKey, "
                 + "o.organizationid as orgId, "
@@ -56,6 +59,18 @@ public class MarketplaceAccessDao {
         query.setParameter("marketplaceKey", Long.valueOf(marketplaceKey));
 
         return ParameterizedTypes.list(query.getResultList(), Object[].class);
+    }
+
+    public List<Organization> getAllOrganizationsWithAccessToMarketplace(
+            long marketplaceKey) {
+
+        String queryString = "SELECT o.* FROM organization o INNER JOIN marketplaceaccess ma ON o.tkey = ma.organization_tkey WHERE ma.marketplace_tkey = :marketplaceKey";
+
+        Query query = dataService.createNativeQuery(queryString,
+                Organization.class);
+        query.setParameter("marketplaceKey", new Long(marketplaceKey));
+
+        return query.getResultList();
     }
 
 }

@@ -16,19 +16,18 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import org.junit.Assert;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.model.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
  * Test cases for MarketplaceConfigurationBean.
@@ -44,7 +43,7 @@ public class MarketplaceConfigurationBeanTest {
         msMock = Mockito.mock(MarketplaceService.class);
 
         beanSpy = spy(new MarketplaceConfigurationBean());
-        doReturn(msMock).when(beanSpy).getMarketplaceService();
+        doReturn(msMock).when(beanSpy).getMarketplaceService(null);
 
         marketplace = new VOMarketplace();
         marketplace.setMarketplaceId("dummy");
@@ -52,6 +51,8 @@ public class MarketplaceConfigurationBeanTest {
         marketplace.setSocialBookmarkEnabled(true);
         marketplace.setTaggingEnabled(true);
         marketplace.setCategoriesEnabled(true);
+        marketplace.setRestricted(true);
+        marketplace.setHasPublicLandingPage(true);
         when(msMock.getMarketplaceById(Matchers.anyString())).thenReturn(
                 marketplace);
         doReturn("dummy").when(beanSpy).getMarketplaceId();
@@ -64,6 +65,8 @@ public class MarketplaceConfigurationBeanTest {
         Assert.assertTrue(mpc.isSocialBookmarkEnabled());
         Assert.assertTrue(mpc.isTaggingEnabled());
         Assert.assertTrue(mpc.isCategoriesEnabled());
+        Assert.assertTrue(mpc.isRestricted());
+        Assert.assertTrue(mpc.hasLandingPage());
     }
 
     @Test
@@ -73,6 +76,8 @@ public class MarketplaceConfigurationBeanTest {
         Assert.assertTrue(mpc.isSocialBookmarkEnabled());
         Assert.assertTrue(mpc.isTaggingEnabled());
         Assert.assertTrue(mpc.isCategoriesEnabled());
+        Assert.assertTrue(mpc.isRestricted());
+        Assert.assertTrue(mpc.hasLandingPage());
     }
 
     @Test
@@ -82,11 +87,15 @@ public class MarketplaceConfigurationBeanTest {
         marketplace.setSocialBookmarkEnabled(false);
         marketplace.setTaggingEnabled(false);
         marketplace.setCategoriesEnabled(false);
+        marketplace.setRestricted(false);
+        marketplace.setHasPublicLandingPage(false);
         MarketplaceConfiguration mpc = beanSpy.getConfiguration("dummy");
         Assert.assertFalse(mpc.isReviewEnabled());
         Assert.assertFalse(mpc.isSocialBookmarkEnabled());
         Assert.assertFalse(mpc.isTaggingEnabled());
         Assert.assertFalse(mpc.isCategoriesEnabled());
+        Assert.assertFalse(mpc.isRestricted());
+        Assert.assertFalse(mpc.hasLandingPage());
     }
 
     @Test
@@ -131,12 +140,16 @@ public class MarketplaceConfigurationBeanTest {
         marketplace.setSocialBookmarkEnabled(false);
         marketplace.setTaggingEnabled(false);
         marketplace.setCategoriesEnabled(false);
+        marketplace.setRestricted(false);
+        marketplace.setHasPublicLandingPage(false);
         // Fetch the newly created one and verify the filed respectively
         mpc = beanSpy.getConfiguration("dummy");
         Assert.assertFalse(mpc.isReviewEnabled());
         Assert.assertFalse(mpc.isSocialBookmarkEnabled());
         Assert.assertFalse(mpc.isTaggingEnabled());
         Assert.assertFalse(mpc.isCategoriesEnabled());
+        Assert.assertFalse(mpc.isRestricted());
+        Assert.assertFalse(mpc.hasLandingPage());
     }
 
 }

@@ -205,4 +205,8 @@ public class ParameterRow {
         return !parameterDefinition.isConfigurable()
                 || !parameterDefinition.isMandatory();
     }
+    
+    public boolean isPasswordType(){
+        return parameterDefinition.getParameterId().contains("_PWD");
+    }
 }
