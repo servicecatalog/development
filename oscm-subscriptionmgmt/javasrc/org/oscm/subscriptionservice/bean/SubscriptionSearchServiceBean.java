@@ -166,8 +166,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         for (String singleString : split) {
             internal = new BooleanQuery();
             while (counter < fieldNames.length) {
-                wq = new TermQuery(new Term(fieldNames[counter++],
-                        QueryParser.escape(singleString)));
+                wq = new TermQuery(new Term(fieldNames[counter++], singleString));
                 internal.add(wq, Occur.SHOULD);
             }
             bq.add(internal, Occur.SHOULD);
@@ -183,8 +182,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         for (String singleString : split) {
             phraseQuery = new PhraseQuery();
             while (counter < fieldNames.length) {
-                phraseQuery.add(new Term(fieldNames[counter++], QueryParser
-                        .escape(singleString)));
+                phraseQuery.add(new Term(fieldNames[counter++], singleString));
             }
             bq.add(phraseQuery, Occur.MUST);
             counter = 0;
