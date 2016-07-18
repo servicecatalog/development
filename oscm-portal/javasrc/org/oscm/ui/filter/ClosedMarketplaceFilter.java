@@ -66,7 +66,8 @@ public class ClosedMarketplaceFilter implements Filter {
             }
 
             MarketplaceConfigurationBean configBean = (MarketplaceConfigurationBean) httpRequest
-                    .getSession().getAttribute("marketplaceConfigurationBean");
+                    .getServletContext().getAttribute(
+                            "marketplaceConfigurationBean");
 
             VOUserDetails voUserDetails = (VOUserDetails) httpRequest
                     .getSession().getAttribute(Constants.SESS_ATTR_USER);
