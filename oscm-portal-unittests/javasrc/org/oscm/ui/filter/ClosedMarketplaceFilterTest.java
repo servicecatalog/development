@@ -62,6 +62,7 @@ public class ClosedMarketplaceFilterTest {
         closedMplFilter = spy(new ClosedMarketplaceFilter());
         closedMplFilter.excludeUrlPattern = EXCLUDE_URL_PATTERN;
         closedMplFilter.redirector = redirectorMock;
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
     }
 
     @Test
