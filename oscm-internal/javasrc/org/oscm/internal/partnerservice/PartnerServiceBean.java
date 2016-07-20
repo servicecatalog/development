@@ -412,7 +412,7 @@ public class PartnerServiceBean implements PartnerService {
                 subscriptionsExist = slService
                         .isUsableSubscriptionExistForTemplate(user,
                                 USABLE_SUBSCRIPTION_STATUS,
-                                product.getTemplateOrSelf());
+                                product.getTemplateOrSelfForReview());
             }
             POServiceFeedback selectedServiceFeedback = POServiceFeedbackAssembler
                     .toPOServiceFeedback(product, user, subscriptionsExist);
