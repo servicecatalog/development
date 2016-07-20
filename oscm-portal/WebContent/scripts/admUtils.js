@@ -1797,7 +1797,7 @@ AdmUtils.dataTableSelectCheckboxes = function(prefix, id, value, size) {
 	var field;
 	for ( var i = 0 ; i <= size ; i++) {
 		if((field = document.getElementById(prefix + ":" + i + ":" + id)) != null){
-			if(field.checked != value){
+			if(field.checked != value && !field.disabled){
 				field.checked = value;
 			}
 		}

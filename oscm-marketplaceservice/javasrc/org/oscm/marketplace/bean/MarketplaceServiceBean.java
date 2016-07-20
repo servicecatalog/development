@@ -56,7 +56,6 @@ import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -1118,7 +1117,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
     @RolesAllowed("MARKETPLACE_OWNER")
     public void closeMarketplace(String marketplaceId,
             Set<Long> authorizedOrganizations,
-            Set<Long> unauthorizedOrganizations, Set<Long> owningOrganizations)
+            Set<Long> unauthorizedOrganizations)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
@@ -1142,35 +1141,6 @@ public class MarketplaceServiceBean implements MarketplaceService {
             marketplaceServiceLocal.removeMarketplaceAccess(
                     marketplace.getKey(), orgKey);
         }
-
-        // suspending existing subscriptions in case owning organization's
-        // access is removed
-
-        for (Long orgKey : owningOrganizations) {
-            Organization organization = new Organization();
-            organization.setKey(orgKey);
-
-            List<Subscription> subsToBeSuspended = getMarketplaceSubscriptionsForOrganization(
-                    marketplace, organization);
-
-            for (Subscription subscription : subsToBeSuspended) {
-                subscription.setStatus(SubscriptionStatus.SUSPENDED);
-                appServiceLocal.deactivateInstance(subscription);
-            }
-        }
-    }
-
-    private List<Subscription> getMarketplaceSubscriptionsForOrganization(
-            Marketplace mpl, Organization org) {
-
-        Query query = dm
-                .createNamedQuery("Subscription.getUsableSubscriptionsForMplAndOrg");
-        query.setParameter("organization", org);
-        query.setParameter("marketplace", mpl);
-        List<Subscription> subscriptions = ParameterizedTypes.list(
-                query.getResultList(), Subscription.class);
-
-        return subscriptions;
     }
 
     @Override

@@ -44,10 +44,6 @@ public class ManageAccessModel {
 
     private Set<Long> unauthorizedOrganizations = new HashSet<>();
 
-    private Set<Long> organizationsWithSubscriptionsToSuspend = new HashSet<>();
-
-    private boolean showSubscriptionSuspendingWarning;
-
     private boolean showOpeningRestrictedMplWarning;
 
     private long changedKey;
@@ -131,24 +127,6 @@ public class ManageAccessModel {
     public void setUnauthorizedOrganizations(
             Set<Long> unauthorizedOrganizations) {
         this.unauthorizedOrganizations = unauthorizedOrganizations;
-    }
-
-    public Set<Long> getOrganizationsWithSubscriptionsToSuspend() {
-        return organizationsWithSubscriptionsToSuspend;
-    }
-
-    public void setOrganizationsWithSubscriptionsToSuspend(
-            Set<Long> organizationsWithSubscriptionsToSuspend) {
-        this.organizationsWithSubscriptionsToSuspend = organizationsWithSubscriptionsToSuspend;
-    }
-
-    public boolean isShowSubscriptionSuspendingWarning() {
-        return showSubscriptionSuspendingWarning;
-    }
-
-    public void setShowSubscriptionSuspendingWarning(
-            boolean showSubscriptionSuspendingWarning) {
-        this.showSubscriptionSuspendingWarning = showSubscriptionSuspendingWarning;
     }
 
     public boolean isShowOpeningRestrictedMplWarning() {

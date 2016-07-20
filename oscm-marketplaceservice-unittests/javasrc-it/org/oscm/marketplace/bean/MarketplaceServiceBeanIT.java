@@ -1337,7 +1337,7 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 Set<Long> authorizedOrganizations = new HashSet<>();
                 authorizedOrganizations.add(voOrganization.getKey());
 
-                marketplaceService.closeMarketplace(marketRestricted.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>(),new HashSet<Long>());
+                marketplaceService.closeMarketplace(marketRestricted.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>());
 
                 Marketplace mp = mgr.getReference(Marketplace.class,
                     marketRestricted.getKey());
@@ -1385,7 +1385,7 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 marketplaceService.closeMarketplace(
                         marketRestricted.getMarketplaceId(),
                         authorizedOrganizations,
-                        new HashSet<Long>(),new HashSet<Long>());
+                        new HashSet<Long>());
 
                 Marketplace mp = mgr.getReference(Marketplace.class,
                         marketRestricted.getKey());
@@ -1425,7 +1425,7 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                 Set<Long> authorizedOrganizations = new HashSet<>();
                 authorizedOrganizations.add(voOrganization.getKey());
 
-                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>(), new HashSet<Long>());
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), authorizedOrganizations, new HashSet<Long>());
 
                 Marketplace mpClosed = mgr.getReference(Marketplace.class,
                     marketClosed.getKey());
@@ -1480,7 +1480,7 @@ public class MarketplaceServiceBeanIT extends MarketplaceServiceTestBase {
                     "OPEN1",
                     false, mgr);
 
-                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), new HashSet<Long>(),new HashSet<Long>(), new HashSet<Long>());
+                marketplaceService.closeMarketplace(marketClosed.getMarketplaceId(), new HashSet<Long>(),new HashSet<Long>());
 
                 Marketplace mpClosed = mgr.getReference(Marketplace.class,
                     marketClosed.getKey());

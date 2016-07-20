@@ -51,7 +51,7 @@ public class MarketplaceAccessDao {
                 + "o.organizationid as orgId, "
                 + "o.name as name, "
                 + "(SELECT true FROM marketplaceaccess ma where ma.organization_tkey=o.tkey and ma.marketplace_tkey=:marketplaceKey) as hasAccess, "
-                + "(SELECT count(s.tkey) FROM subscription s WHERE s.organizationkey=o.tkey AND s.marketplace_tkey=:marketplaceKey AND s.status<>'SUSPENDED') as subscriptions "
+                + "(SELECT count(s.tkey) FROM subscription s WHERE s.organizationkey=o.tkey AND s.marketplace_tkey=:marketplaceKey AND s.status<>'DEACTIVATED') as subscriptions "
                 + "FROM organization o";
 
         Query query = dataService.createNativeQuery(querySelect);
