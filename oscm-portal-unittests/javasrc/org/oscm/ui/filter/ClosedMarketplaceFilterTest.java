@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -39,7 +38,6 @@ public class ClosedMarketplaceFilterTest {
     private HttpServletResponse responseMock;
     private FilterChain chainMock;
     private HttpSession sessionMock;
-    private ServletContext contextMock;
     private RequestRedirector redirectorMock;
     private ClosedMarketplaceFilter closedMplFilter;
     private MarketplaceConfigurationBean configBean;
@@ -55,12 +53,10 @@ public class ClosedMarketplaceFilterTest {
         responseMock = mock(HttpServletResponse.class);
         chainMock = mock(FilterChain.class);
         sessionMock = mock(HttpSession.class);
-        contextMock = mock(ServletContext.class);
         redirectorMock = mock(RequestRedirector.class);
         configBean = mock(MarketplaceConfigurationBean.class);
         doReturn(sessionMock).when(requestMock).getSession();
-        doReturn(contextMock).when(requestMock).getServletContext();
-        doReturn(configBean).when(contextMock).getAttribute(
+        doReturn(configBean).when(sessionMock).getAttribute(
                 "marketplaceConfigurationBean");
 
         closedMplFilter = spy(new ClosedMarketplaceFilter());

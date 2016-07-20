@@ -2,62 +2,60 @@
  *                                                                              
  *  Copyright FUJITSU LIMITED 2016                                           
  *                                                                                                                                 
- *  Creation Date: 2015-07-20                                                      
+ *  Creation Date: 20.07.2015                                                      
  *                                                                              
  *******************************************************************************/
 
 package org.oscm.vo;
 
 /**
- * Represents an organizational unit and provides data related to it.
+ * Represents organizational unit and provides data related to it.
  */
 public class VOOrganizationalUnit extends BaseVO {
 
     private static final long serialVersionUID = 3901367900656380907L;
 
     /**
-     * A string for referencing the organizational unit, for example, in
-     * customer billing data.
+     * referenceId.
      */
     private String referenceId;
 
     /**
-     * A description of the organizational unit.
+     * The organizational unit description.
      */
     private String description;
 
     /**
-     * The name of the organizational unit.
+     * The organizational unit name.
      */
     private String name;
 
     /**
-     * Specifies whether the organizational unit is the default unit of its
-     * organization.
+     * Used to mark if organizational unit is default unit.
      */
     private boolean defaultGroup;
 
     /**
-     * The identifier (business key) of the organization the unit belongs to.
+     * The organizational unit id. Uniquely identifies unit in the platform.
+     * (business key).
      */
     private String organizationId;
 
     /**
-     * Sets the reference ID of the organizational unit, which allows to 
-     * identify the unit, for example, in customer billing data.
+     * Sets the referenceId.
      * 
      * @param referenceId
-     *            the identifier
+     *            - the referenceId
      */
     public void setReferenceId(String referenceId) {
         this.referenceId = referenceId;
     }
 
     /**
-     * Sets the description of the organizational unit.
+     * Sets the description of the unit.
      * 
      * @param description
-     *            the description
+     *            - the description of the unit
      */
     public void setDescription(String description) {
         this.description = description;
@@ -67,18 +65,17 @@ public class VOOrganizationalUnit extends BaseVO {
      * Sets the name of the organizational unit.
      * 
      * @param name
-     *            the name
+     *            - the name of unit
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * Specifies whether the organizational unit is the default unit of its
-     * organization.
+     * Marks unit as default.
      * 
      * @param defaultGroup
-     *            <code>true</code> if the unit is to be the default unit,
+     *            - <code>true</code> if unit should be the default unit,
      *            <code>false</code> otherwise
      */
     public void setDefaultGroup(boolean defaultGroup) {
@@ -86,58 +83,57 @@ public class VOOrganizationalUnit extends BaseVO {
     }
 
     /**
-     * Specifies the organization the organizational unit is part of.
+     * Sets the unique organization id.
      * 
      * @param organizationId
-     *            the unique identifier (business key) of the organization
+     *            - The unique organizationId
      */
     public void setOrganizationId(String organizationId) {
         this.organizationId = organizationId;
     }
 
     /**
-     * Sets the reference ID of the organizational unit, which allows to
-     * identify the unit, for example, in customer billing data.
+     * Returns the referenceId.
      * 
-     * @return the identifier
+     * @return - the referenceId
      */
     public String getReferenceId() {
         return referenceId;
     }
 
     /**
-     * Returns the description of the organizational unit.
+     * Returns description of the organizational unit.
      * 
-     * @return the description
+     * @return - the description of the unit
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Returns the name of the organizational unit.
+     * Returns the name of organizational unit.
      * 
-     * @return the name
+     * @return - the name of the unit
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns whether the organizational unit is the default unit of its
-     * organization.
+     * Returns information if given unit is a default unit.
      * 
-     * @return <code>true</code> if the unit is the default unit,
-     *         <code>false</code> otherwise
+     * @return - <code>true</code> if unit is a default unit, <code>false</code>
+     *         otherwise
      */
     public boolean isDefaultGroup() {
         return defaultGroup;
     }
 
     /**
-     * Returns the organization the organizational unit is part of.
+     * Returns unique organizationId. It is unique identified or unit in the
+     * platform.
      * 
-     * @return the unique identifier of the organization
+     * @return - the unique organizationId
      */
     public String getOrganizationId() {
         return organizationId;

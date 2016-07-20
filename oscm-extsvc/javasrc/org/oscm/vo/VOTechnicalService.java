@@ -97,12 +97,12 @@ public class VOTechnicalService extends BaseVO {
     private List<VOTechnicalServiceOperation> technicalServiceOperations = new ArrayList<VOTechnicalServiceOperation>();
 
     /**
-     * The identifier of the billing system to be used.
+     * Identifier to distinguish between billing systems
      */
     private String billingId;
 
     /**
-     * A flag indicating whether the service is using an external billing system.
+     * Flag indicating weather service is using external billing system
      */
     private boolean externalBilling;
 
@@ -432,44 +432,37 @@ public class VOTechnicalService extends BaseVO {
     }
 
     /**
-     * Sets the identifier of the billing system to be used for managing price
-     * models and calculating charges for the service.
+     * Sets the
      * 
      * @param billingId
-     *            the billing system identifier
+     *            the billing identifier
      */
     public void setBillingId(String billingId) {
         this.billingId = billingId;
     }
 
-    /**
-     * Retrieves the identifier of the billing system used for managing price
-     * models and calculating charges for the service.
-     * 
-     * @return the billing system identifier
-     */
     public String getBillingId() {
         return billingId;
     }
 
     /**
-     * Returns whether the service is using an external billing system or the
-     * platform's native billing system.
+     * Retrieves the information weather service is using external billing
+     * system
      * 
-     * @return <code>true</code> if the service is using an external billing
-     *         system, <code>false</code> otherwise
+     * @return <code>true</code> if service is using external billing system,
+     *         <code>false</code> otherwise
      */
     public boolean isExternalBilling() {
         return externalBilling;
     }
 
     /**
-     * Specifies whether the service is using an external billing system or the
-     * platform's native billing system.
+     * Specifies the information weather service is using external billing
+     * system
      * 
      * @param externalBilling
-     *            <code>true</code> if the service is using an external billing
-     *            system, <code>false</code> otherwise
+     *            <code>true</code> if service is using external billing system,
+     *            <code>false</code> otherwise
      */
     public void setExternalBilling(boolean externalBilling) {
         this.externalBilling = externalBilling;

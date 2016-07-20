@@ -18,9 +18,6 @@ public abstract class ContextValue<T> implements Serializable {
 
     private static final long serialVersionUID = 4738410026389162268L;
 
-    /**
-     * The value for a context key.
-     */
     protected T value;
 
     /**
