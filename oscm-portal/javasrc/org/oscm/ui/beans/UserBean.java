@@ -30,13 +30,26 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.myfaces.custom.fileupload.UploadedFile;
+
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OrganizationRemovedException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.SecurityCheckException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -476,7 +489,7 @@ public class UserBean extends BaseBean implements Serializable {
             // check service key in session bean; if not set, try to read
             // them from cookie (fallback for re-login after session timeout)
             if (!getMarketplaceService().doesOrganizationHaveAccessMarketplace(
-                    getMarketplaceId(), voUser.getOrganizationId())) {
+                    getMarketplaceId(), voUser.getOrganizationId()) && !isServiceProvider()) {
                 throw new LoginToClosedMarketplaceException();
             }
             Object sb = session.getAttribute(Constants.SESS_ATTR_SESSION_BEAN);
@@ -517,6 +530,14 @@ public class UserBean extends BaseBean implements Serializable {
                 // changed (important for WS usage)
                 service = serviceAccess.getService(IdentityService.class);
                 service.refreshLdapUser();
+                // check service key in session bean; if not set, try to read
+                // them from cookie (fallback for re-login after session timeout)
+                if (!getMarketplaceService().doesOrganizationHaveAccessMarketplace(
+                        getMarketplaceId(), voUser.getOrganizationId()) && isServiceProvider()) {
+                    session.setAttribute(Constants.SESS_ATTR_USER,
+                            service.getCurrentUserDetails());
+                    throw new LoginToClosedMarketplaceException();
+                }
             } catch (LoginException e) {
                 if (voUser.getKey() > 0) {
                     voUser = service.getUser(voUser);
