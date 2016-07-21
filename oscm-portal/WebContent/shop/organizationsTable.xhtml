@@ -29,7 +29,7 @@
             </a4j:outputPanel>
           </f:facet>
           <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}"
-            disabled="#{rowItem.hasSubscriptions}" styleClass="checkbox-in-table"
+            disabled="#{rowItem.disabled}" styleClass="checkbox-in-table"
             onchange="setDirty(true);initializeAllCheckbox();" />
         </rich:column>
 

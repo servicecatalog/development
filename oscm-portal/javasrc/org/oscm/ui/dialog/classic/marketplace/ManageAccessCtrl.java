@@ -97,12 +97,13 @@ public class ManageAccessCtrl {
 
     public void accessChanged() {
         try {
-            boolean marketplaceRestricted = model.isSelectedMarketplaceRestricted();
-            
-            if(!marketplaceRestricted){
+            boolean marketplaceRestricted = model
+                    .isSelectedMarketplaceRestricted();
+
+            if (!marketplaceRestricted) {
                 model.setShowOpeningRestrictedMplWarning(true);
             }
-            
+
             populateOrganizations(model.getSelectedMarketplaceId());
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
@@ -207,8 +208,13 @@ public class ManageAccessCtrl {
         poOrganization.setKey(voOrganization.getKey());
         poOrganization.setSelected(voOrganization
                 .isHasGrantedAccessToMarketplace()
-                || voOrganization.isHasSubscriptions());
+                || voOrganization.isHasSubscriptions()
+                || voOrganization.isHasPublishedServices());
+        poOrganization.setDisabled(voOrganization.isHasSubscriptions()
+                || voOrganization.isHasPublishedServices());
         poOrganization.setHasSubscriptions(voOrganization.isHasSubscriptions());
+        poOrganization.setHasPublishedServices(voOrganization
+                .isHasPublishedServices());
         return poOrganization;
     }
 

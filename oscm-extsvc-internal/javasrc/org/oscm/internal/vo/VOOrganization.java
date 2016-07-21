@@ -94,6 +94,8 @@ public class VOOrganization extends BaseVO {
 
     private boolean hasSubscriptions;
 
+    private boolean hasPublishedServices;
+
     /**
      * Retrieves the identifier of the organization.
      * 
@@ -404,5 +406,13 @@ public class VOOrganization extends BaseVO {
 
     public void setHasSubscriptions(boolean hasSubscriptions) {
         this.hasSubscriptions = hasSubscriptions;
+    }
+
+    public boolean isHasPublishedServices() {
+        return hasPublishedServices;
+    }
+
+    public void setHasPublishedServices(boolean hasPublishedServices) {
+        this.hasPublishedServices = hasPublishedServices;
     }
 }
