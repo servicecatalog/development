@@ -187,12 +187,15 @@ public class ManageAccessCtrl {
 
             long orgKey = poOrganization.getKey();
             boolean orgIsSelected = poOrganization.isSelected();
+            boolean orgIsDisabled = poOrganization.isDisabled();
 
-            if (model.getAccessesStored().get(orgKey) && !orgIsSelected) {
+            if (model.getAccessesStored().get(orgKey) && !orgIsSelected
+                    && !orgIsDisabled) {
                 model.getUnauthorizedOrganizations().add(orgKey);
                 continue;
             }
-            if (!model.getAccessesStored().get(orgKey) && orgIsSelected) {
+            if (!model.getAccessesStored().get(orgKey)
+                    && (orgIsSelected || orgIsDisabled)) {
                 model.getAuthorizedOrganizations().add(orgKey);
             }
         }
