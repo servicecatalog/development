@@ -11,7 +11,6 @@
 package org.oscm.ui.dialog.classic.marketplace;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -89,10 +88,6 @@ public class ManageAccessCtrl {
                     .getMarketplaceById(marketplaceId);
 
             model.setSelectedMarketplaceRestricted(marketplace.isRestricted());
-
-            if (marketplace.isRestricted()) {
-                model.setShowOpeningRestrictedMplWarning(true);
-            }
             populateOrganizations(marketplaceId);
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
@@ -102,6 +97,12 @@ public class ManageAccessCtrl {
 
     public void accessChanged() {
         try {
+            boolean marketplaceRestricted = model.isSelectedMarketplaceRestricted();
+            
+            if(!marketplaceRestricted){
+                model.setShowOpeningRestrictedMplWarning(true);
+            }
+            
             populateOrganizations(model.getSelectedMarketplaceId());
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
@@ -158,8 +159,7 @@ public class ManageAccessCtrl {
                 getMarketplaceService().closeMarketplace(
                         model.getSelectedMarketplaceId(),
                         model.getAuthorizedOrganizations(),
-                        model.getUnauthorizedOrganizations(),
-                        model.getOrganizationsWithSubscriptionsToSuspend());
+                        model.getUnauthorizedOrganizations());
             } else {
                 getMarketplaceService().openMarketplace(
                         model.getSelectedMarketplaceId());
@@ -178,8 +178,6 @@ public class ManageAccessCtrl {
     private void clearOrganizationsForUpdate() {
         model.getAuthorizedOrganizations().clear();
         model.getUnauthorizedOrganizations().clear();
-        model.getOrganizationsWithSubscriptionsToSuspend().clear();
-        model.setShowSubscriptionSuspendingWarning(false);
     }
 
     private void prepareOrganizationsListsForUpdate() {
@@ -191,64 +189,12 @@ public class ManageAccessCtrl {
 
             if (model.getAccessesStored().get(orgKey) && !orgIsSelected) {
                 model.getUnauthorizedOrganizations().add(orgKey);
-                model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
                 continue;
             }
             if (!model.getAccessesStored().get(orgKey) && orgIsSelected) {
                 model.getAuthorizedOrganizations().add(orgKey);
             }
         }
-    }
-
-    public void changeOrganizationAccess() {
-        long orgKey = model.getChangedKey();
-        boolean orgIsSelected = model.isChangedSelection();
-        boolean changedHasSubscriptions = model.isChangedHasSubscriptions();
-
-        if (model.getAccessesSelected().get(orgKey) && changedHasSubscriptions) {
-            if (!orgIsSelected) {
-                model.getOrganizationsWithSubscriptionsToSuspend().add(orgKey);
-            } else {
-                model.getOrganizationsWithSubscriptionsToSuspend().remove(
-                        orgKey);
-            }
-            showSubscriptionSuspendingWarning();
-        }
-    }
-
-    public void selectAllOrganizations() {
-
-        String orgKeys = model.getAllSelectedOrganizations();
-        boolean orgIsSelected = model.isChangedSelection();
-
-        String[] orgIds = orgKeys.split(";");
-        List<String> selectedOrgIds = Arrays.asList(orgIds);
-
-        for (POOrganization org : model.getOrganizations()) {
-
-            // propagation is done only for selected organizations
-            if (selectedOrgIds.contains(org.getOrganizationId())) {
-
-                long orgKey = org.getKey();
-                boolean hasSubscriptions = org.isHasSubscriptions();
-
-                if (model.getAccessesSelected().get(orgKey) && hasSubscriptions) {
-                    if (!orgIsSelected) {
-                        model.getOrganizationsWithSubscriptionsToSuspend().add(
-                                orgKey);
-                    } else {
-                        model.getOrganizationsWithSubscriptionsToSuspend()
-                                .remove(orgKey);
-                    }
-                    showSubscriptionSuspendingWarning();
-                }
-            }
-        }
-    }
-
-    private void showSubscriptionSuspendingWarning() {
-        model.setShowSubscriptionSuspendingWarning(model
-                .getOrganizationsWithSubscriptionsToSuspend().size() > 0);
     }
 
     public void addMessage(final String messageText) {

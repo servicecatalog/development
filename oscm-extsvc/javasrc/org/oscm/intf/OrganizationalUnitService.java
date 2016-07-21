@@ -2,6 +2,8 @@
  *
  *  Copyright FUJITSU LIMITED 2016
  *
+ *  Creation Date: 2015-07-20                                                      
+ *                                                                              
  *******************************************************************************/
 
 package org.oscm.intf;
@@ -22,6 +24,7 @@ import org.oscm.types.exceptions.MailOperationException;
 import org.oscm.types.exceptions.NonUniqueBusinessKeyException;
 import org.oscm.types.exceptions.ObjectNotFoundException;
 import org.oscm.types.exceptions.OperationNotPermittedException;
+import org.oscm.types.exceptions.UserRoleAssignmentException;
 import org.oscm.vo.VOOrganizationalUnit;
 import org.oscm.vo.VOService;
 import org.oscm.vo.VOUser;
@@ -34,20 +37,28 @@ import org.oscm.vo.VOUser;
 public interface OrganizationalUnitService {
 
     /**
-     * Grants user roles in unit. If user already has roles in unit, nothing
-     * will happen.
-     * 
-     * Required role: administrator of an organization
+     * Assigns the given roles to the specified user within the given
+     * organizational unit. If the user already has roles in the unit, the
+     * method has no effect. The roles which are already assigned to the user
+     * remain unchanged.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or OU administrator of the unit
      * 
      * @param user
-     *            - User that roles should be assigned to
+     *            the value object specifying the user to whom the roles are to
+     *            be assigned
      * @param roles
-     *            - List of roles to assign to user
+     *            the roles to be set
      * @param organizationalUnit
-     *            - Unit in which roles should be granted for given user.
+     *            the organizational unit for which the roles are to be granted
+     *            to the user.
      * @throws ObjectNotFoundException
-     *             - if user is not found, or user is not assigned to given unit
+     *             if the specified user is not found or is not a member of the
+     *             given organizational unit
      * @throws OperationNotPermittedException
+     *             if the calling user does not have the required permissions
+     * 
      */
     @WebMethod(operationName = "grantUserRolesInUnit")
     @RequestWrapper(className = "grantUserRolesRequest")
@@ -59,20 +70,27 @@ public interface OrganizationalUnitService {
                     OperationNotPermittedException;
 
     /**
-     * Revokes roles from user in unit. If user does not have roles, nothing
-     * will happen.
-     * 
-     * Required role: administrator of an organization
+     * Removes the given roles from the specified user within the given
+     * organizational unit. If the user does not have any roles in the unit, the
+     * method has no effect.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or OU administrator of the unit
      * 
      * @param user
-     *            - user that roles should be revoked from
+     *            the value object specifying the user from whom the roles are
+     *            to be removed
      * @param roles
-     *            - List of roles to revoke from user
+     *            the roles to be removed
      * @param organizationalUnit
-     *            - Unit from which roles should be revoked for given user.
+     *            the organizational unit for which the roles are to be removed
+     *            from the user.
      * @throws ObjectNotFoundException
-     *             - if user is not found, or user is not assigned to given unit
+     *             if the specified user is not found or is not a member of the
+     *             given organizational unit
      * @throws OperationNotPermittedException
+     *             if the calling user does not have the required permissions
+     * 
      */
     @WebMethod(operationName = "revokeUserRolesInUnit")
     @RequestWrapper(className = "revokeUserRolesRequest")
@@ -84,34 +102,36 @@ public interface OrganizationalUnitService {
                     OperationNotPermittedException;
 
     /**
-     * Returns organizational units existing in the organization of the calling
-     * user.
-     * 
+     * Returns the organizational units existing in the organization of the
+     * calling user.
+     * <p>
      * Required role: administrator of an organization
      * 
      * @param pagination
-     *            - Used to retrieve only given amount of units.
-     * @return - All units if pagination is null, otherwise amount of units
-     *         restricted by pagination parameter.
+     *            a pagination object specifying the offset and number of
+     *            organizational units to be retrieved, or <code>null</code> to
+     *            retrieve all units
+     * @return the list of organizational units
      */
     @WebMethod
     List<VOOrganizationalUnit> getOrganizationalUnits(
             @WebParam(name = "pagination") Pagination pagination);
 
     /**
-     * Creates new organizational unit in organization of the calling user.
-     * 
+     * Creates an organizational unit in the organization of the calling user.
+     * <p>
      * Required role: administrator of an organization
      * 
      * @param unitName
-     *            - New unit name
+     *            the name of the new unit
      * @param description
-     *            - New unit description
+     *            the description of the new unit
      * @param referenceId
-     *            - New unit referenceId
-     * @return - Created organizational unit object
+     *            an identifier for referencing the new unit, for example, in
+     *            customer billing data
+     * @return the new organizational unit
      * @throws NonUniqueBusinessKeyException
-     *             - thrown if unit with given unit name already exists
+     *             if a unit with the given name already exists
      */
     @WebMethod
     VOOrganizationalUnit createUnit(
@@ -121,18 +141,21 @@ public interface OrganizationalUnitService {
                     throws NonUniqueBusinessKeyException;
 
     /**
-     * Deletes organizational unit in organization of the calling user.
-     * 
-     * Required role: administrator of an organization
+     * Deletes the given organizational unit in the organization of the calling
+     * user.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs
      * 
      * @param organizationalUnitName
-     *            - Name of the unit that should be deleted
+     *            the name of the unit to be deleted
      * @throws ObjectNotFoundException
-     *             - specified unit not found for the calling user's
-     *             organization
+     *             if the unit is not found in the calling user's organization
      * @throws OperationNotPermittedException
-     *             - the specified unit does not belong to the calling user's
-     *             organization or there are subscriptions assigned to this unit
+     *             if the unit does not belong to the calling user's
+     *             organization or if subscriptions are assigned to it
+     * @throws DeletionConstraintException
+     * @throws MailOperationException
      */
     @WebMethod
     void deleteUnit(
@@ -142,23 +165,29 @@ public interface OrganizationalUnitService {
                     MailOperationException;
 
     /**
-     * Returns list of visible services for the specified organizational unit.
-     *
-     * Visible services are these which are visible for organization admin
-     * and unit admin, however they are hidden from regular marketplace users.
-     *
-     * Returned services have status ACTIVE or SUSPENDED.
+     * Retrieves the services which are visible to the OU administrators of the
+     * specified organizational unit. The services are also visible to the
+     * administrators of the organization to which the unit belongs, but not to
+     * the normal users within the unit.
+     * <p>
+     * The services returned are in the <code>ACTIVE</code> or
+     * <code>SUSPENDED</code>.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or OU administrator of the unit
      *
      * @param unitId
-     *            - Id of the unit for which we get the services
+     *            the name of the organizational unit for which to return the
+     *            services
      * @param pagination
-     *            - Sorting, filtering, paging details
+     *            a pagination object specifying the offset and number of
+     *            services to be retrieved, or <code>null</code> to retrieve all
+     *            available services
      * @param marketplaceId
-     *            - Id of the marketplace to which the services are registered
-     *            - If left empty, takes default value of 0,0 (offset, limit)
-     * @return - List of visible services
-     *         - Empty list if the values of unitId or marketplaceId do not exists
-     *           in the underlying database
+     *            the identifier of the marketplace on which the services to be
+     *            returned are published
+     * @return the list of services. The list is empty if the given
+     *         organizational unit or marketplace does not exist.
      */
     @WebMethod
     List<VOService> getVisibleServices(@WebParam(name = "unitId") String unitId,
@@ -166,24 +195,29 @@ public interface OrganizationalUnitService {
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     /**
-     * Returns list of accessible services for the specified organizational unit.
-     *
-     * Accessible services are these which are visible for organization admin
-     * and unit admin, and also for the regular marketplace users.
-     * They are not hidden by either organization admin or unit admin.
-     *
-     * Returned services have status ACTIVE or SUSPENDED.
+     * Retrieves the services which are visible to the members of the specified
+     * organizational unit, independent of their role within the unit. The
+     * services are also visible to the administrators of the organization to
+     * which the unit belongs.
+     * <p>
+     * The services returned are in the <code>ACTIVE</code> or
+     * <code>SUSPENDED</code>.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or member of the unit
      *
      * @param unitId
-     *            - Id of the unit for which we get the services
+     *            the name of the organizational unit for which to return the
+     *            services
      * @param pagination
-     *            - Sorting, filtering, paging details
-     *            - If left empty, takes default value of 0,0 (offset, limit)
+     *            a pagination object specifying the offset and number of
+     *            services to be retrieved, or <code>null</code> to retrieve all
+     *            available services
      * @param marketplaceId
-     *            - Id of the marketplace to which the services are registered
-     * @return - List of accessible services
-     *         - Empty list if the values of unitId or marketplaceId do not exists
-     *           in the underlying database
+     *            the identifier of the marketplace on which the services to be
+     *            returned are published
+     * @return the list of services. The list is empty if the given
+     *         organizational unit or marketplace does not exist.
      */
     @WebMethod
     List<VOService> getAccessibleServices(
@@ -192,20 +226,22 @@ public interface OrganizationalUnitService {
             @WebParam(name = "marketplaceId") String marketplaceId);
 
     /**
-     * Sets the services as visible for the administrators of the
-     * specified organizational unit.
-     *
-     * Visible services are these which are visible for organization admin
-     * and unit admin, however they are hidden from regular marketplace users.
-     *
-     * If any of the provided service IDs does not exist as invisible in the underlying
-     * database, it is ignored.
+     * Sets the services which are to be visible to the OU administrators of the
+     * specified organizational unit. The services are also visible to the
+     * administrators of the organization to which the unit belongs, but not to
+     * the normal users within the unit.
+     * <p>
+     * If any of the given services is already visible to the OU administrators,
+     * it is ignored.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs
      *
      * @param unitId
-      *           - Id of the unit for which the services will be set
-     *              as visible
+     *            the name of the organizational unit for which to set the
+     *            services
      * @param visibleServices
-     *            - Keys of the services which will be set as visible
+     *            the keys of the services to be made visible
      */
     @WebMethod
     void addVisibleServices(
@@ -213,20 +249,23 @@ public interface OrganizationalUnitService {
             @WebParam(name = "services") List<String> visibleServices);
 
     /**
-     * Sets the services as not visible for the administrators of the
-     * specified organizational unit.
-     *
-     * Visible services are these which are visible for organization admin
-     * and unit admin, however they are hidden from regular marketplace users.
-     *
-     * If any of the provided service IDs does not exist as visible in the underlying
-     * database, it is ignored.
+     * Specifies the services which are to be made invisible for the OU
+     * administrators of the specified organizational unit. The services remain
+     * visible to the administrators of the organization to which the unit
+     * belongs, and invisible to the normal users within the unit.
+     * <p>
+     * If any of the given services is already invisible for the OU
+     * administrators, it is ignored.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs
      *
      * @param unitId
-     *           - Id of the unit for which the services will be set
-     *             as not visible
+     *            the name of the organizational unit for which to set the
+     *            services
      * @param visibleServices
-     *           - Keys of the services which will be set as not visible
+     *            the keys of the services to be made invisible to the OU
+     *            administrators
      */
     @WebMethod
     void revokeVisibleServices(
@@ -234,20 +273,22 @@ public interface OrganizationalUnitService {
             @WebParam(name = "services") List<String> visibleServices);
 
     /**
-     * Sets the services as accessible for the specified organizational unit users.
-     *
-     * Accessible services are these which are visible for organization admin
-     * and unit admin, and also for the regular marketplace users.
-     * They are not hidden by either organization admin or unit admin.
-     *
-     * If any of the provided service IDs does not exist as inaccessible in the underlying
-     * database, it is ignored.
+     * Sets the services which are to be visible to the members of the specified
+     * organizational unit, independent of their role within the unit. The
+     * services are also visible to the administrators of the organization to
+     * which the unit belongs.
+     * <p>
+     * If any of the given services is already visible to the unit members, it
+     * is ignored.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or OU administrator of the unit
      *
      * @param unitId
-     *           - Id of the unit for which the services will be set
-     *             as not accessible
+     *            the name of the organizational unit for which to set the
+     *            services
      * @param accessibleServices
-     *           - Keys of the services which will be set as accessible
+     *            the keys of the services to be made visible
      */
     @WebMethod
     void addAccessibleServices(
@@ -255,20 +296,23 @@ public interface OrganizationalUnitService {
             @WebParam(name = "services") List<String> accessibleServices);
 
     /**
-     * Sets the services as not accessible for the specified organizational unit users.
-     *
-     * Accessible services are these which are visible for organization admin
-     * and unit admin, and also for the regular marketplace users.
-     * They are not hidden by either organization admin or unit admin.
-     *
-     * If any of the provided service IDs does not exist as accessible in the underlying
-     * database, it is ignored.
+     * Specifies the services which are to be made invisible for the normal
+     * users of the specified organizational unit. The services remain visible
+     * to the administrators of the organization to which the unit belongs and
+     * to the OU administrators of the unit.
+     * <p>
+     * If any of the given services is already invisible for the normal unit
+     * users, it is ignored.
+     * <p>
+     * Required role: administrator of the organization to which the
+     * organizational unit belongs, or OU administrator of the unit
      *
      * @param unitId
-     *           - Id of the unit for which the services will be set
-     *              as not visible
+     *            the name of the organizational unit for which to set the
+     *            services
      * @param accessibleServices
-     *           - Keys of the services which will be set as not accessible
+     *            the keys of the services to be made invisible to the normal
+     *            unit users
      */
     @WebMethod
     void revokeAccessibleServices(

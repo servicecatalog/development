@@ -67,15 +67,7 @@
           <adm:buttonPanel>
             <adm:buttonCustomizedOnClick id="saveButton" value="#{msg['button.save']}"
               onclick="
-              if(#{manageAccessCtrl.model.selectedMarketplaceRestricted}){
-            	  if(#{manageAccessCtrl.model.showSubscriptionSuspendingWarning}){
-                	  #{rich:component('removalWarning')}.show()} 
-            	  else{
-              		  setDirty(false);
-              		  AdmUtils.showProgress(true);
-              		  #{rich:element('confirmedButton')}.click();
-                  }
-              } else if (#{manageAccessCtrl.model.showOpeningRestrictedMplWarning}){
+              if (#{manageAccessCtrl.model.showOpeningRestrictedMplWarning}){
             	  #{rich:component('openingWarning')}.show();  
               } else{
             	  setDirty(false);
@@ -89,8 +81,6 @@
       </a4j:outputPanel>
     </h:form>
 
-    <adm:confirmPanel panelId="removalWarning" formId="confirmRemovalForm"
-      text="#{msg['marketplace.manageAccess.removalWarning']}" />
     <adm:confirmPanel panelId="openingWarning" formId="confirmOpeningForm"
       text="#{msg['marketplace.manageAccess.openingWarning']}" />
 

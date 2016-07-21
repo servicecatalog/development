@@ -2744,8 +2744,7 @@ public class MockService implements IdentityService, SubscriptionService,
     @Override
     public void closeMarketplace(String marketplaceId,
             Set<Long> authorizedOrganizations,
-            Set<Long> unauthorizedOrganizations,
-            Set<Long> organizationsWithSubsToSuspend)
+            Set<Long> unauthorizedOrganizations)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {

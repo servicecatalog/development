@@ -25,27 +25,12 @@
             <a4j:outputPanel styleClass="organizationTableSelectAllCheckBox">
               <h:selectBooleanCheckbox id="allOrganizationsCheckbox" title="#{msg['group.select.services']}"
                 immediate="true" value="#{manageAccessCtrl.model.allOrganizationsSelected}"
-                onclick="setDirty(true);AdmUtils.dataTableSelectCheckboxes('#{formName}:organizationsTable', 'organizationCheckbox', this.checked, '#{size}');prepareOrganizations($(this)[0].checked);">
-                <a4j:ajax event="change" listener="#{manageAccessCtrl.allOrganizationSelected}" />
-              </h:selectBooleanCheckbox>
-              
-           <a4j:jsFunction name="selectAllOrganizations" action="#{manageAccessCtrl.selectAllOrganizations}">
-            <a4j:param name="param1" assignTo="#{manageAccessCtrl.model.allSelectedOrganizations}" />
-            <a4j:param name="param2" assignTo="#{manageAccessCtrl.model.changedSelection}" />
-          </a4j:jsFunction>
-          
+                onclick="setDirty(true);AdmUtils.dataTableSelectCheckboxes('#{formName}:organizationsTable', 'organizationCheckbox', this.checked, '#{size}');" />
             </a4j:outputPanel>
           </f:facet>
-          <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}" styleClass="checkbox-in-table"
-            onchange="setDirty(true);changeOrganizationAccess(#{rowItem.key}, $(this)[0].checked, #{rowItem.hasSubscriptions});initializeAllCheckbox();">
-          </h:selectBooleanCheckbox>
-
-          <a4j:jsFunction name="changeOrganizationAccess" action="#{manageAccessCtrl.changeOrganizationAccess}">
-            <a4j:param name="param1" assignTo="#{manageAccessCtrl.model.changedKey}" />
-            <a4j:param name="param2" assignTo="#{manageAccessCtrl.model.changedSelection}" />
-            <a4j:param name="param3" assignTo="#{manageAccessCtrl.model.changedHasSubscriptions}" />
-          </a4j:jsFunction>
-
+          <h:selectBooleanCheckbox id="organizationCheckbox" value="#{rowItem.selected}"
+            disabled="#{rowItem.hasSubscriptions}" styleClass="checkbox-in-table"
+            onchange="setDirty(true);initializeAllCheckbox();" />
         </rich:column>
 
         <rich:column id="colOrganizationName" sortBy="#{rowItem.name}" sortIcon="#{sortIcon}"
@@ -93,19 +78,6 @@
       $("[id='#{formName}']").on("DOMSubtreeModified propertychange", function() {
         AdmUtils.updateSelectAllCheckbox('#{formName}:organizationsTable', 'organizationCheckbox', '#{size}', "#{formName}:organizationsTable:allOrganizationsCheckbox");
       });
-      
-      function prepareOrganizations(selected) {
-  	  	var allOrgs="";
-  	  
-  	  	$("span.orgIdField").each(	 
-  		  function(index,value){
-  			if(index>0){
-  				allOrgs+=";";
-  			}
-  			allOrgs+=$(this).text();		  
-  		  });
-  	  	selectAllOrganizations(allOrgs, selected);
-  	  }
     </script>
   </a4j:outputPanel>
 </ui:composition>

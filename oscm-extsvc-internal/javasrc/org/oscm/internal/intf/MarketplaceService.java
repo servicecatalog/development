@@ -539,8 +539,6 @@ public interface MarketplaceService {
      * @param unauthorizedOrganizations
      *            - organizations which should not have access to marketplace
      *            any more
-     * @param organizationsWithSubsToSuspend
-     *            - organizations with subscriptions which must be suspended
      * @throws OperationNotPermittedException
      * @throws ObjectNotFoundException
      * @throws NonUniqueBusinessKeyException
@@ -550,8 +548,7 @@ public interface MarketplaceService {
     @RolesAllowed("MARKETPLACE_OWNER")
     void closeMarketplace(String marketplaceId,
             Set<Long> authorizedOrganizations,
-            Set<Long> unauthorizedOrganizations,
-            Set<Long> organizationsWithSubsToSuspend)
+            Set<Long> unauthorizedOrganizations)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException;

@@ -195,8 +195,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
     @Override
     public void closeMarketplace(String marketplaceId,
             Set<Long> authorizedOrganizations,
-            Set<Long> unauthorizedOrganizations,
-            Set<Long> organizationsWithSubsToSuspend)
+            Set<Long> unauthorizedOrganizations)
             throws OperationNotPermittedException, ObjectNotFoundException,
             NonUniqueBusinessKeyException, TechnicalServiceNotAliveException,
             TechnicalServiceOperationException {
