@@ -46,7 +46,7 @@
                     styleClass="searchButton" />
                 </c:if>
 
-                <c:if test="#{not servicePagingBean.searchAvailable}">
+                <c:if test="#{not servicePagingBean.searchAvailable and userBean.internalAuthMode}">
                   <h:commandButton name="btnG" id="submit"
                                    onclick="showLoginPanel('/marketplace/index.jsf');"
                                    styleClass="searchButton" />
