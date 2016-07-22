@@ -19,21 +19,26 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.EJBServiceAccess;
+import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
  * @author Paulina Badziak
  *
  */
-public class ClosedMarketplaceFilter implements Filter {
+public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
+    private final String samlSpRedirectPage = "/saml2/redirectToIdp.jsf";
     RequestRedirector redirector;
     String excludeUrlPattern;
+    ServiceAccess serviceAccess;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -72,6 +77,7 @@ public class ClosedMarketplaceFilter implements Filter {
             VOUserDetails voUserDetails = (VOUserDetails) httpRequest
                     .getSession().getAttribute(Constants.SESS_ATTR_USER);
 
+
             if (mId == null || mId.equals("") || configBean == null) {
                 chain.doFilter(request, response);
                 return;
@@ -97,7 +103,8 @@ public class ClosedMarketplaceFilter implements Filter {
                         return;
                     }
                 }
-                if (config.hasLandingPage()) {
+
+                if (config.hasLandingPage() && !isSAMLAuthentication()) {
                     redirector.forward(httpRequest, httpResponse,
                             BaseBean.MARKETPLACE_START_SITE);
                     return;
@@ -106,6 +113,20 @@ public class ClosedMarketplaceFilter implements Filter {
 
         }
         chain.doFilter(request, response);
+    }
+
+    boolean isSAMLAuthentication() {
+        ConfigurationService cfgService = getServiceAccess()
+                .getService(ConfigurationService.class);
+        authSettings = new AuthenticationSettings(cfgService);
+        return authSettings.isServiceProvider();
+    }
+
+    private ServiceAccess getServiceAccess() {
+        if (serviceAccess != null) {
+            return serviceAccess;
+        }
+        return new EJBServiceAccess();
     }
 
     @Override
