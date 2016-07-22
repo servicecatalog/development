@@ -26,38 +26,32 @@ public class MockHttpsURLConnection extends HttpsURLConnection {
 
 	@Override
 	public String getCipherSuite() {
-		// TODO 自動生成されたメソッド・スタブ
 		return null;
 	}
 
 	@Override
 	public Certificate[] getLocalCertificates() {
-		// TODO 自動生成されたメソッド・スタブ
 		return null;
 	}
 
 	@Override
 	public Certificate[] getServerCertificates()
 			throws SSLPeerUnverifiedException {
-		// TODO 自動生成されたメソッド・スタブ
 		return null;
 	}
 
 	@Override
 	public void disconnect() {
-		// TODO 自動生成されたメソッド・スタブ
 
 	}
 
 	@Override
 	public boolean usingProxy() {
-		// TODO 自動生成されたメソッド・スタブ
 		return false;
 	}
 
 	@Override
 	public void connect() throws IOException {
-		// TODO 自動生成されたメソッド・スタブ
 
 	}
    @Override
