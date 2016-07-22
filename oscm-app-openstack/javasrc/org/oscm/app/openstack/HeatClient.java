@@ -14,13 +14,12 @@ import java.net.URLEncoder;
 import org.apache.sling.commons.json.JSONArray;
 import org.apache.sling.commons.json.JSONException;
 import org.apache.sling.commons.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.oscm.app.openstack.data.CreateStackRequest;
 import org.oscm.app.openstack.data.Stack;
 import org.oscm.app.openstack.data.UpdateStackRequest;
 import org.oscm.app.openstack.exceptions.HeatException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Client for communication with OpenStack Heat API.
@@ -127,7 +126,7 @@ public class HeatClient {
         logger.debug("HeatClient.checkServerExists() Responsecode: "
                 + response.getResponseCode());
 
-        if (body.contains(stackName)) {
+        if (body.contains(serverId)) {
             return true;
         }
         return false;
@@ -152,8 +151,9 @@ public class HeatClient {
             JSONArray resources = responseJson.getJSONArray("resources");
             for (int i = 0; i < resources.length(); i++) {
                 JSONObject resource = resources.getJSONObject(i);
-                if ("Server".equalsIgnoreCase(resource
-                        .optString("resource_name"))) {
+                if ("OS::Nova::Server".equalsIgnoreCase(resource.optString("resource_type"))
+                	    || "AWS::EC2::Instance".equalsIgnoreCase(resource.optString("resource_type"))
+                	    || "OS::Trove::Instance".equalsIgnoreCase(resource.optString("resource_type"))) {
                     return resource.optString("physical_resource_id");
                 }
             }

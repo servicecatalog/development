@@ -35,6 +35,7 @@ public class OpenStackControllerAccess implements ControllerAccess {
         result.add(PropertyHandler.API_USER_PWD);
         result.add(PropertyHandler.KEYSTONE_API_URL);
         result.add(PropertyHandler.TENANT_NAME);
+        result.add(PropertyHandler.DOMAIN_NAME);
         result.add(PropertyHandler.TEMPLATE_BASE_URL);
         return result;
     }

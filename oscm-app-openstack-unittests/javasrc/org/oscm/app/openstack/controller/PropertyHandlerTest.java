@@ -9,17 +9,13 @@
  *******************************************************************************/
 package org.oscm.app.openstack.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.openstack.data.FlowState;
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.openstack.i18n.Messages;
@@ -187,5 +183,39 @@ public class PropertyHandlerTest {
                 .put(PropertyHandler.MAIL_FOR_COMPLETION, mailAddress);
         String mail = propertyHandler.getMailForCompletion();
         assertEquals(mailAddress, mail);
+    }
+
+    @Test
+    public void getKeystoneAPI_v3(){
+    	// given
+    	String keystoneEndpoint = "https://keystone/v3/auth";
+        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                keystoneEndpoint);
+
+    	// when
+    	String  version = propertyHandler.getKeystoneAPIVersion();
+
+    	// then
+    	assertTrue((version).equals("v3"));
+    }
+
+    @Test
+    public void getKeystoneAPI_v2(){
+    	// given
+    	String keystoneEndpoint = "http://keystone";
+        configSettings.put(PropertyHandler.KEYSTONE_API_URL,
+                keystoneEndpoint);
+
+    	// when
+    	String  version = propertyHandler.getKeystoneAPIVersion();
+
+    	// then
+    	assertTrue((version).equals("v2"));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void getKeystoneAPI_empty(){
+    	// when
+    	propertyHandler.getKeystoneAPIVersion();
     }
 }

@@ -28,15 +28,13 @@ public class KeystoneClient {
             .getLogger(KeystoneClient.class);
 
     final static String TYPE_HEAT = "orchestration";
-    final static String NAME_HEAT = "heat";
 
     final static String TYPE_NOVA = "compute";
-    final static String NAME_NOVA = "nova";
 
     private final OpenStackConnection connection;
 
     /**
-     * 
+     *
      * @param connection
      *            The connection that needs to be authenticated
      */
@@ -45,15 +43,15 @@ public class KeystoneClient {
     }
 
     /**
-     * Authenticate the connection that was given in the constructor.
-     * 
+     * Authenticate the connection that was given in the constructor for V2 api.
+     *
      * @param user
      * @param password
      * @param tenantName
-     * 
+     *
      * @throws HeatException
      */
-    public void authenticate(String user, String password, String tenantName)
+    public void authenticateV2(String user, String password, String tenantName)
             throws HeatException, APPlatformException {
         LOGGER.debug("KeystoneClient.authenticate() user: " + user
                 + "  tenant:" + tenantName + "  endpoint: "
@@ -95,7 +93,6 @@ public class KeystoneClient {
                 JSONObject entry = catalog.getJSONObject(i);
                 if (entry != null) {
                     String type = entry.getString("type");
-                    String name = entry.getString("name");
                     if (TYPE_HEAT.equals(type)) {
                         JSONArray endpoints = entry.getJSONArray("endpoints");
                         int endpointSize = endpoints.length();
@@ -121,6 +118,129 @@ public class KeystoneClient {
                                 if (publicURL != null
                                         && publicURL.trim().length() > 0) {
                                     novaEndpoint = publicURL;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (heatEndpoint == null) {
+                LOGGER.error("KeystoneClient.authenticate() heat endpoint not defined");
+                throw new APPlatformException(
+                        Messages.getAll("error_missing_heat_endpoint"));
+            } else {
+                LOGGER.debug("KeystoneClient.authenticate() heat endpoint: "
+                        + heatEndpoint);
+            }
+            if (novaEndpoint == null) {
+                LOGGER.error("KeystoneClient.authenticate() nova endpoint not defined");
+                throw new APPlatformException(
+                        Messages.getAll("error_missing_nova_endpoint"));
+            } else {
+                LOGGER.debug("KeystoneClient.authenticate() nova endpoint: "
+                        + novaEndpoint);
+            }
+            connection.useAuthentication(authToken);
+            connection.setHeatEndpoint(heatEndpoint);
+            connection.setNovaEndpoint(novaEndpoint);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Authenticate the connection that was given in the constructor for V3 api.
+     *
+     * @param user
+     * @param password
+     * @param domainName
+     * @param tenantId
+     *
+     * @throws HeatException
+     */
+    public void authenticateV3(String user, String password, String domainName, String tenantId)
+            throws HeatException, APPlatformException {
+        LOGGER.debug("KeystoneClient.authenticate() user: " + user
+                + "  domain:" + domainName + " tenant ID:" + tenantId + "  endpoint: "
+                + connection.getKeystoneEndpoint());
+        String uri = connection.getKeystoneEndpoint() + "/tokens";
+
+        JSONObject request = new JSONObject();
+        JSONObject auth = new JSONObject();
+        JSONObject identity = new JSONObject();
+        JSONObject domain = new JSONObject();
+        JSONObject userName = new JSONObject();
+        JSONObject passwordInfo = new JSONObject();
+        JSONObject projectId = new JSONObject();
+        JSONObject project = new JSONObject();
+        JSONArray methodArray = new JSONArray();
+        try {
+            domain.put("name", domainName);
+            userName.put("domain", domain);
+            userName.put("name", user);
+            userName.put("password", password);
+            methodArray.put("password");
+            passwordInfo.put("user", userName);
+            identity.put("password", passwordInfo);
+            identity.put("methods", methodArray);
+            auth.put("identity", identity);
+            projectId.put("id", tenantId);
+            project.put("project", projectId);
+            auth.put("scope", project);
+            request.put("auth", auth);
+        } catch (JSONException e) {
+            // this can basically not happen with string parameters
+            throw new RuntimeException(e);
+        }
+        LOGGER.debug("URL is " + uri + " request is " + request.toString());
+        RESTResponse response = connection.processRequest(uri, "POST",
+                request.toString());
+
+        if (response.getResponseCode() != 201) {
+            throw new RuntimeException(
+                    "Failed to retrieve token for authentication, response code "
+                            + response.getResponseCode());
+        }
+
+        String body = response.getResponseBody();
+        String authToken = response.getToken();
+        LOGGER.debug("body: " + body +" authToken: "+ authToken);
+        try {
+            String heatEndpoint = null;
+            String novaEndpoint = null;
+            JSONObject jsonObj = new JSONObject(body);
+            JSONObject token = jsonObj.getJSONObject("token");
+            JSONArray catalog = token.getJSONArray("catalog");
+            int catalogSize = catalog.length();
+            for (int i = 0; i < catalogSize; i++) {
+                JSONObject entry = catalog.getJSONObject(i);
+                if (entry != null) {
+                    String type = entry.getString("type");
+                    if (TYPE_HEAT.equals(type)) {
+                        JSONArray endpoints = entry.getJSONArray("endpoints");
+                        int endpointSize = endpoints.length();
+                        for (int j = 0; j < endpointSize; j++) {
+                            JSONObject endpoint = endpoints.getJSONObject(j);
+                            if (endpoint != null) {
+                                String endpointUrl = endpoint
+                                        .getString("url");
+                                if (endpointUrl != null
+                                        && endpointUrl.trim().length() > 0) {
+                                    heatEndpoint = endpointUrl;
+                                }
+                            }
+                        }
+                    } else if (TYPE_NOVA.equals(type)) {
+                        JSONArray endpoints = entry.getJSONArray("endpoints");
+                        int endpointSize = endpoints.length();
+                        for (int j = 0; j < endpointSize; j++) {
+                            JSONObject endpoint = endpoints.getJSONObject(j);
+                            if (endpoint != null) {
+                                String endpointUrl = endpoint
+                                        .getString("url");
+                                if (endpointUrl != null
+                                        && endpointUrl.trim().length() > 0) {
+                                    novaEndpoint = endpointUrl;
                                 }
                             }
                         }
