@@ -8,11 +8,10 @@
 
 package org.oscm.app.openstack;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.app.openstack.exceptions.HeatException;
 import org.oscm.app.v1_0.exceptions.APPlatformException;
 
@@ -31,7 +30,7 @@ public class KeystoneClientTest {
         // given
 
         // when
-        new KeystoneClient(new OpenStackConnection("xyz")).authenticate("user",
+        new KeystoneClient(new OpenStackConnection("xyz")).authenticateV2("user",
                 "password", "tenantName");
     }
 
@@ -41,7 +40,7 @@ public class KeystoneClientTest {
 
         // when
         new KeystoneClient(new OpenStackConnection("http://xyz.de"))
-                .authenticate("user", "password", "tenantName");
+                .authenticateV2("user", "password", "tenantName");
     }
 
     @Test
@@ -54,7 +53,7 @@ public class KeystoneClientTest {
         try {
             // when
             new KeystoneClient(new OpenStackConnection("http://xyz.de"))
-                    .authenticate("user", "password", "tenantName");
+                    .authenticateV2("user", "password", "tenantName");
             assertTrue("Test must fail at this point", false);
         } catch (RuntimeException ex) {
             // then
@@ -71,7 +70,7 @@ public class KeystoneClientTest {
 
         // when
         new KeystoneClient(new OpenStackConnection("http://xyz.de"))
-                .authenticate("user", "password", "tenantName");
+                .authenticateV2("user", "password", "tenantName");
     }
 
     @Test(expected = APPlatformException.class)
@@ -83,7 +82,7 @@ public class KeystoneClientTest {
 
         // when
         new KeystoneClient(new OpenStackConnection("http://xyz.de"))
-                .authenticate("user", "password", "tenantName");
+                .authenticateV2("user", "password", "tenantName");
     }
 
     @Test(expected = APPlatformException.class)
@@ -95,6 +94,81 @@ public class KeystoneClientTest {
 
         // when
         new KeystoneClient(new OpenStackConnection("http://xyz.de"))
-                .authenticate("user", "password", "tenantName");
+                .authenticateV2("user", "password", "tenantName");
     }
+
+    @Test
+    public void authenticate_v3() throws HeatException, APPlatformException {
+        // given
+
+        // when
+        new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                .authenticateV3("user", "password", "domainName", "tenantId");
+    }
+
+    @Test
+    public void authenticate_v3_http_666() throws HeatException,
+            APPlatformException {
+        // given
+        int status = 666;
+        streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(status, ""));
+
+        try {
+            // when
+            new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                    .authenticateV3("user", "password", "domainName", "tenantId");
+            assertTrue("Test must fail at this point", false);
+        } catch (RuntimeException ex) {
+            // then
+            assertTrue("Wrong exception message!",
+                    ex.getMessage().indexOf("" + status) > -1);
+        }
+    }
+
+    @Test(expected = HeatException.class)
+    public void authenticate_v3_malFormedURL() throws HeatException,
+            APPlatformException {
+        // given
+
+        // when
+        new KeystoneClient(new OpenStackConnection("xyz"))
+                .authenticateV3("user", "password", "domainName", "tenantId");
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void authenticate_v3_noJSONResponse() throws HeatException,
+            APPlatformException {
+        // given
+        streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201, ""));
+
+        // when
+        new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                .authenticateV3("user", "password", "domainName", "tenantId");
+
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void authenticate_v3_noHeatEndpoint() throws HeatException,
+            APPlatformException {
+        // given
+        streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
+                MockURLStreamHandler.respTokens_v3(false, true)));
+
+        // when
+        new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                .authenticateV3("user", "password", "domainName", "tenantId");
+    }
+
+    @Test(expected = APPlatformException.class)
+    public void authenticate_v3_noNovaEndpoint() throws HeatException,
+            APPlatformException {
+        // given
+        streamHandler.put("/v3/auth/tokens", new MockHttpsURLConnection(201,
+                MockURLStreamHandler.respTokens_v3(true, false)));
+
+        // when
+        new KeystoneClient(new OpenStackConnection("https://xyz.de/v3/auth"))
+                .authenticateV3("user", "password", "domainName", "tenantId");
+    }
+
 }
