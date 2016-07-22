@@ -1089,6 +1089,10 @@ public class MarketplaceServiceBean implements MarketplaceService {
             boolean hasSubscriptions = noOfSubs.intValue() > 0;
             voOrganization.setHasSubscriptions(hasSubscriptions);
 
+            BigInteger noOfServices = (BigInteger) object[5];
+            boolean hasPublishedServices = noOfServices.intValue() > 0;
+            voOrganization.setHasPublishedServices(hasPublishedServices);
+
             voOrganizations.add(voOrganization);
         }
 
