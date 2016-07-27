@@ -488,6 +488,18 @@ public class ProductTest {
         assertNotNull(copy.getPriceModel());
     }
 
+    @Test
+    public void testGetTemplateOrSelfForReview() {
+        //given
+        Product prod = createProduct(1, 1, ServiceType.PARTNER_TEMPLATE);
+
+        //when
+        Product result = prod.getTemplateOrSelfForReview();
+
+        //then
+        assertEquals(result, prod);
+    }
+
     private Product createProduct(long provisioningDate,
             long deprovisioningDate, ServiceType type) {
         Product template = new Product();
