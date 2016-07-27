@@ -10,6 +10,8 @@ package org.oscm.app.vmware.db.importer;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +47,7 @@ public class TableCleaner extends GenericImport {
                 deleteTableContent(conn, "vlan");
                 deleteTableContent(conn, "cluster");
                 deleteTableContent(conn, "datacenter");
+                deleteVcenterSequences(conn);
                 deleteTableContent(conn, "vcenter");
             } catch (Exception e) {
                 logger.error("failed to delete content");
@@ -62,6 +65,29 @@ public class TableCleaner extends GenericImport {
     private void deleteTableContent(Connection con, String tableName)
             throws Exception {
         String query = "delete from " + tableName;
+        try (PreparedStatement stmt = con.prepareStatement(query);) {
+            stmt.execute();
+        }
+    }
+    
+    private void deleteVcenterSequences(Connection con) {
+        String query = "SELECT identifier FROM vcenter";
+        try (PreparedStatement stmt = con.prepareStatement(query);) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String id = rs.getString(1);
+                String sequenceName = "vcenter_" + id + "_seq";
+                deleteSequence(con, sequenceName);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to remove vcentre sequences");
+        }
+    }
+
+    private void deleteSequence(Connection con, String name)
+            throws SQLException {
+        String query = "drop sequence if exists " + name;
         try (PreparedStatement stmt = con.prepareStatement(query);) {
             stmt.execute();
         }
