@@ -53,7 +53,7 @@ public class TableCleaner extends GenericImport {
                 logger.error("failed to delete content");
                 logger.error(e.getMessage());
                 conn.rollback();
-                return;
+                throw e;
             }
             conn.commit();
         } catch (Exception e) {

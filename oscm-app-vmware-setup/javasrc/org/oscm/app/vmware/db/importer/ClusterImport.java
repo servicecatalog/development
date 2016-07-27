@@ -61,7 +61,7 @@ public class ClusterImport extends GenericImport {
                             + datacenter + " " + clusterName);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     line = csv.readNext();
@@ -70,7 +70,7 @@ public class ClusterImport extends GenericImport {
                             + vcenter + " " + datacenter + " " + clusterName);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
             }
             conn.commit();

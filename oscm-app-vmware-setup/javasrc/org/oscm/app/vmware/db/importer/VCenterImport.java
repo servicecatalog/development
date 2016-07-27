@@ -69,7 +69,7 @@ public class VCenterImport extends GenericImport {
                             + " " + vcenterName);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     if (rowExists) {
@@ -84,7 +84,7 @@ public class VCenterImport extends GenericImport {
                             + vcenterId + " " + vcenterName);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     line = csv.readNext();
@@ -93,7 +93,7 @@ public class VCenterImport extends GenericImport {
                     logger.error("Failed to read line from CSV file after row: "
                             + tkey + " " + vcenterId + " " + vcenterName);
                     logger.error(e.getMessage());
-                    return;
+                    throw e;
                 }
             }
             conn.commit();
