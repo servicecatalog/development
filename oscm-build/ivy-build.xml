@@ -11,7 +11,7 @@
   
   <target name="copyLibraries" depends="resolve">
 	<copy file="${ivy.lib.dir}/hamcrest-core-1.3.jar" todir="${root.dir}/libraries/org.hamcrest/javalib"></copy>
-    <copy file="${ivy.lib.dir}/javaee-api-6.0.jar" todir="${root.dir}/libraries/javaee-api/javalib"></copy>
+    <copy file="${ivy.lib.dir}/javaee-api-7.0.jar" todir="${root.dir}/libraries/javaee-api/javalib"></copy>
     <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib"></copy>
     <copy file="${ivy.lib.dir}/opencsv-3.7.jar" todir="${root.dir}/libraries/opencsv/javalib"></copy>
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib"></copy>
@@ -176,191 +176,323 @@
     <copy file="${ivy.lib.dir}/javax.annotation-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/javax.annotation.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxb-api-osgi-2.2.6.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/jaxb-api-osgi.jar"></copy>
     <copy file="${ivy.lib.dir}/webservices-api-osgi-2.2.0-1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/webservices-api-osgi.jar"></copy>
-    <copy file="${ivy.lib.dir}/acc-config-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/acc-config.jar"></copy>
-    <copy file="${ivy.lib.dir}/admin-cli-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-cli.jar"></copy>
-    <copy file="${ivy.lib.dir}/admin-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/admin-util-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-util.jar"></copy>
-    <copy file="${ivy.lib.dir}/amx-all-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/amx-all.jar"></copy>
-    <copy file="${ivy.lib.dir}/annotation-framework-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/annotation-framework.jar"></copy>
-    <copy file="${ivy.lib.dir}/ant-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ant.jar"></copy>
-    <copy file="${ivy.lib.dir}/antlr-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/antlr-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/api-exporter-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/api-exporter.jar"></copy>
-    <copy file="${ivy.lib.dir}/appclient-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/appclient-server-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient-server-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/appclient.security-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient.security.jar"></copy>
-    <copy file="${ivy.lib.dir}/asm-all-repackaged-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/asm-all-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/acc-config-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/acc-config.jar"></copy>
+    <copy file="${ivy.lib.dir}/admin-cli-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-cli.jar"></copy>
+    <copy file="${ivy.lib.dir}/admin-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/admin-util-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/admin-util.jar"></copy>
+    <copy file="${ivy.lib.dir}/amx-javaee-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/amx-javaee.jar"></copy>
+    <copy file="${ivy.lib.dir}/annotation-framework-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/annotation-framework.jar"></copy>
+    <copy file="${ivy.lib.dir}/ant-4.1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ant.jar"></copy>
+    <copy file="${ivy.lib.dir}/antlr-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/antlr-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/api-exporter-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/api-exporter.jar"></copy>
+    <copy file="${ivy.lib.dir}/appclient-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/appclient-server-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient-server-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/appclient.security-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/appclient.security.jar"></copy>
+    <copy file="${ivy.lib.dir}/asm-all-repackaged-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/asm-all-repackaged.jar"></copy>
     <copy file="${ivy.lib.dir}/auto-depends-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/auto-depends.jar"></copy>
-    <copy file="${ivy.lib.dir}/backup-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/backup.jar"></copy>
-    <copy file="${ivy.lib.dir}/bean-validator-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/bean-validator.jar"></copy>
-    <copy file="${ivy.lib.dir}/branding-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/branding.jar"></copy>
-    <copy file="${ivy.lib.dir}/cli-optional-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cli-optional.jar"></copy>
-    <copy file="${ivy.lib.dir}/cluster-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/cluster-cli-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-cli.jar"></copy>
-    <copy file="${ivy.lib.dir}/cluster-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-common.jar"></copy>
-    <copy file="${ivy.lib.dir}/cluster-ssh-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-ssh.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-ejb-mapping-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-ejb-mapping.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-enhancer-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-enhancer.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-generator-database-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-generator-database.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-internal-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-model-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-model.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-support-ejb-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-support-ejb.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-support-sqlstore-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-support-sqlstore.jar"></copy>
-    <copy file="${ivy.lib.dir}/cmp-utility-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-utility.jar"></copy>
-    <copy file="${ivy.lib.dir}/common-util-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/common-util.jar"></copy>
-    <copy file="${ivy.lib.dir}/config-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/config-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/config-types-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/config-types.jar"></copy>
-    <copy file="${ivy.lib.dir}/config-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/config.jar"></copy>
-    <copy file="${ivy.lib.dir}/connectors-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/connectors-inbound-runtime-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-inbound-runtime.jar"></copy>
-    <copy file="${ivy.lib.dir}/connectors-internal-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/connectors-runtime-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-runtime.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-cluster-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-cluster-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-cluster-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-cluster-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-common-full-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common-full-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-common-full-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common-full-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-common-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-community-branding-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-community-branding-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-corba-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-corba-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-corba-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-corba-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-ejb-lite-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-lite-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-ejb-lite-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-lite-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-ejb-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-ejb-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jca-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jca-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jca-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jca-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jdbc-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jdbc-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jdbc-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jdbc-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jms-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jms-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jms-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jms-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jts-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jts-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-jts-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jts-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-plugin-service-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-plugin-service.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-updatecenter-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-updatecenter-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-web-plugin-help-4.0-b11.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-web-plugin-help.jar"></copy>
-    <copy file="${ivy.lib.dir}/console-web-plugin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-web-plugin.jar"></copy>
-    <copy file="${ivy.lib.dir}/container-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/container-common.jar"></copy>
-    <copy file="${ivy.lib.dir}/dataprovider-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dataprovider.jar"></copy>
-    <copy file="${ivy.lib.dir}/dbschema-repackaged-3.1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dbschema-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-autodeploy-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-autodeploy.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-client-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-client.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-common.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-javaee-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-javaee-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/deployment-javaee-full-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-javaee-full.jar"></copy>
-    <copy file="${ivy.lib.dir}/dol-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dol.jar"></copy>
-    <copy file="${ivy.lib.dir}/ejb-container-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb-container.jar"></copy>
-    <copy file="${ivy.lib.dir}/ejb-internal-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb-internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/ejb.security-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb.security.jar"></copy>
-    <copy file="${ivy.lib.dir}/flashlight-extra-jdk-packages-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/flashlight-extra-jdk-packages.jar"></copy>
-    <copy file="${ivy.lib.dir}/flashlight-framework-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/flashlight-framework.jar"></copy>
-    <copy file="${ivy.lib.dir}/gf-client-module-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-client-module.jar"></copy>
-    <copy file="${ivy.lib.dir}/gf-connectors-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-connectors-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/gf-ejb-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-ejb-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/gf-web-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-web-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-asm-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-asm.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-codegen-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-codegen.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-csiv2-idl-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-csiv2-idl.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-internal-api-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-newtimer-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-newtimer.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-omgapi-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-omgapi.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-orb-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-orb.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-corba-orbgeneric-3.1.0-b032.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-orbgeneric.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-ee-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-ee-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-extra-jre-packages-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-extra-jre-packages.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-mbeanserver-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-mbeanserver.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-naming-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-naming.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-oracle-jdbc-driver-packages-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-oracle-jdbc-driver-packages.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-registration-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-registration.jar"></copy>
-    <copy file="${ivy.lib.dir}/glassfish-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish.jar"></copy>
-    <copy file="${ivy.lib.dir}/gmbal-3.1.0-b001.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gmbal.jar"></copy>
-    <copy file="${ivy.lib.dir}/gms-adapter-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gms-adapter.jar"></copy>
-    <copy file="${ivy.lib.dir}/gms-bootstrap-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gms-bootstrap.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-comet-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-comet.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-config-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-config.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-container-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-container.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-framework-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-framework.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-http-ajp-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-http-ajp.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-http-servlet-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-http-servlet.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-http-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-http.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-lzma-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-lzma.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-portunif-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-portunif.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-rcm-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-rcm.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-utils-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-utils.jar"></copy>
-    <copy file="${ivy.lib.dir}/grizzly-websockets-1.9.50.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/grizzly-websockets.jar"></copy>
+    <copy file="${ivy.lib.dir}/backup-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/backup.jar"></copy>
+    <copy file="${ivy.lib.dir}/bean-validator-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/bean-validator.jar"></copy>
+    <copy file="${ivy.lib.dir}/cluster-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/cluster-common-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-common.jar"></copy>
+    <copy file="${ivy.lib.dir}/cluster-ssh-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cluster-ssh.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-ejb-mapping-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-ejb-mapping.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-enhancer-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-enhancer.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-generator-database-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-generator-database.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-internal-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-model-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-model.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-support-ejb-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-support-ejb.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-support-sqlstore-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-support-sqlstore.jar"></copy>
+    <copy file="${ivy.lib.dir}/cmp-utility-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cmp-utility.jar"></copy>
+    <copy file="${ivy.lib.dir}/common-util-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/common-util.jar"></copy>
+    <copy file="${ivy.lib.dir}/config-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/config-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/config-types-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/config-types.jar"></copy>
+    <copy file="${ivy.lib.dir}/connectors-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/connectors-inbound-runtime-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-inbound-runtime.jar"></copy>
+    <copy file="${ivy.lib.dir}/connectors-internal-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/connectors-runtime-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/connectors-runtime.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-cluster-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-cluster-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-common-full-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common-full-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-common-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-common.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-community-branding-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-community-branding-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-corba-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-corba-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-ejb-lite-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-lite-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-ejb-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-ejb-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-jca-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jca-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-jdbc-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jdbc-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-jms-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jms-plugin.jar"></copy>
+   <copy file="${ivy.lib.dir}/console-jts-plugin-4.1.1.jar"
+         tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-jts-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-plugin-service-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-plugin-service.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-updatecenter-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-updatecenter-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/console-web-plugin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/console-web-plugin.jar"></copy>
+    <copy file="${ivy.lib.dir}/container-common-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/container-common.jar"></copy>
+    <copy file="${ivy.lib.dir}/dataprovider-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dataprovider.jar"></copy>
+    <copy file="${ivy.lib.dir}/dbschema-repackaged-3.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dbschema-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-autodeploy-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-autodeploy.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-client-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-client.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-common-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-common.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-javaee-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-javaee-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/deployment-javaee-full-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/deployment-javaee-full.jar"></copy>
+    <copy file="${ivy.lib.dir}/dol-4.1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/dol.jar"></copy>
+    <copy file="${ivy.lib.dir}/ejb-container-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb-container.jar"></copy>
+    <copy file="${ivy.lib.dir}/ejb-internal-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb-internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/ejb.security-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ejb.security.jar"></copy>
+    <copy file="${ivy.lib.dir}/flashlight-extra-jdk-packages-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/flashlight-extra-jdk-packages.jar"></copy>
+    <copy file="${ivy.lib.dir}/flashlight-framework-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/flashlight-framework.jar"></copy>
+    <copy file="${ivy.lib.dir}/gf-client-module-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-client-module.jar"></copy>
+    <copy file="${ivy.lib.dir}/gf-connectors-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-connectors-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/gf-ejb-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-ejb-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/gf-web-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gf-web-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-api.jar"></copy>
+   <copy file="${ivy.lib.dir}/glassfish-corba-csiv2-idl-4.0.1.jar"
+         tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-csiv2-idl.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-corba-internal-api-4.0.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-corba-omgapi-4.0.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-omgapi.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-corba-orb-4.0.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-corba-orb.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-ee-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-ee-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-extra-jre-packages-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-extra-jre-packages.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-mbeanserver-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-mbeanserver.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-naming-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-naming.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-oracle-jdbc-driver-packages-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-oracle-jdbc-driver-packages.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-registration-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish-registration.jar"></copy>
+    <copy file="${ivy.lib.dir}/glassfish-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/glassfish.jar"></copy>
+    <copy file="${ivy.lib.dir}/gmbal-4.0.0-b001.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gmbal.jar"></copy>
+    <copy file="${ivy.lib.dir}/gms-adapter-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gms-adapter.jar"></copy>
+    <copy file="${ivy.lib.dir}/gms-bootstrap-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/gms-bootstrap.jar"></copy>
     <copy file="${ivy.lib.dir}/ha-api-3.1.8.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/ha-file-store-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-file-store.jar"></copy>
-    <copy file="${ivy.lib.dir}/ha-shoal-cache-bootstrap-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-shoal-cache-bootstrap.jar"></copy>
-    <copy file="${ivy.lib.dir}/ha-shoal-cache-store-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-shoal-cache-store.jar"></copy>
-    <copy file="${ivy.lib.dir}/hk2-core-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/hk2-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/hk2-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/hk2.jar"></copy>
-    <copy file="${ivy.lib.dir}/inmemory.jacc.provider-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/inmemory.jacc.provider.jar"></copy>
-    <copy file="${ivy.lib.dir}/internal-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/j-interop-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/j-interop-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/jackson-core-asl-1.9.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-core-asl.jar"></copy>
-    <copy file="${ivy.lib.dir}/jackson-jaxrs-1.9.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-jaxrs.jar"></copy>
-    <copy file="${ivy.lib.dir}/jackson-mapper-asl-1.9.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-mapper-asl.jar"></copy>
-    <copy file="${ivy.lib.dir}/jackson-xc-1.9.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-xc.jar"></copy>
-    <copy file="${ivy.lib.dir}/jaspic.provider.framework-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaspic.provider.framework.jar"></copy>
-    <copy file="${ivy.lib.dir}/javaee-kernel-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javaee-kernel.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.ejb-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.ejb.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.el-api-2.2.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.el-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.el-2.2.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.el.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.enterprise.deploy-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.enterprise.deploy.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.faces-2.1.29.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.faces.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.jms-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.jms.jar"></copy>
+    <copy file="${ivy.lib.dir}/ha-file-store-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-file-store.jar"></copy>
+    <copy file="${ivy.lib.dir}/ha-shoal-cache-bootstrap-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-shoal-cache-bootstrap.jar"></copy>
+    <copy file="${ivy.lib.dir}/ha-shoal-cache-store-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ha-shoal-cache-store.jar"></copy>
+    <copy file="${ivy.lib.dir}/hk2-core-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/hk2-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/hk2-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/hk2.jar"></copy>
+    <copy file="${ivy.lib.dir}/inmemory.jacc.provider-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/inmemory.jacc.provider.jar"></copy>
+    <copy file="${ivy.lib.dir}/internal-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/j-interop-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/j-interop-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/jackson-jaxrs-base-2.5.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-jaxrs-base.jar"></copy>
+    <copy file="${ivy.lib.dir}/jackson-jaxrs-json-provider-2.5.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-jaxrs-json-provider.jar"></copy>
+    <copy file="${ivy.lib.dir}/jackson-annotations-2.5.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-annotations.jar"></copy>
+    <copy file="${ivy.lib.dir}/jackson-core-2.5.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/jackson-databind-2.5.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jackson-databind.jar"></copy>
+    <copy file="${ivy.lib.dir}/jaspic.provider.framework-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaspic.provider.framework.jar"></copy>
+    <copy file="${ivy.lib.dir}/javaee-kernel-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javaee-kernel.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.ejb-api-3.2.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.ejb-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.el-3.0.1-b03.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.el.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.enterprise.deploy-api-1.6.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.enterprise.deploy-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.faces.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.jms-api-2.0.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.jms-api.jar"></copy>
     <copy file="${ivy.lib.dir}/mail-1.4.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.mail.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.management.j2ee-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.management.j2ee.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.persistence-2.0.5.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.persistence.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.resource-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.resource.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.security.auth.message-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.security.auth.message.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.security.jacc-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.security.jacc.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.management.j2ee-api-1.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.management.j2ee-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.persistence-2.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.persistence.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.resource-api-1.7.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.resource-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.security.auth.message-api-1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.security.auth.message-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.security.jacc-api-1.5.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.security.jacc-api.jar"></copy>
     <copy file="${ivy.lib.dir}/javax.servlet-api-3.0.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.servlet.jsp-api-2.2.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.servlet.jsp-2.2.5.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.servlet.jsp-api-2.3.2-b01.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.servlet.jsp-2.3.3-b02.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp.jar"></copy>
     <copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-api-1.2.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp.jstl-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp.jstl.jar"></copy>
-    <copy file="${ivy.lib.dir}/javax.transaction-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.transaction.jar"></copy>
-    <copy file="${ivy.lib.dir}/jaxb-osgi-2.2.5.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaxb-osgi.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.4.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.servlet.jsp.jstl.jar"></copy>
+    <copy file="${ivy.lib.dir}/javax.transaction-api-1.2.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.transactio-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/jaxb-osgi-2.2.11.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaxb-osgi.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxr-api-osgi-1.0-b01.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaxr-api-osgi.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxrpc-api-osgi-1.1-b01.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jaxrpc-api-osgi.jar"></copy>
     <copy file="${ivy.lib.dir}/jboss-logging-3.1.0.GA.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jboss-logging.jar"></copy>
-    <copy file="${ivy.lib.dir}/jdbc-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jdbc-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-client-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-client.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-core-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-gf-server-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-gf-servlet-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-gf-servlet.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-gf-statsproviders-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-gf-statsproviders.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-grizzly-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-grizzly.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-json-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-json.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-moxy-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-moxy.jar"></copy>
-    <copy file="${ivy.lib.dir}/jersey-multipart-1.11.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-multipart.jar"></copy>
-    <copy file="${ivy.lib.dir}/jettison-1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jettison.jar"></copy>
-    <copy file="${ivy.lib.dir}/jms-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jms-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/jms-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jms-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/jmxremote_optional-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jmxremote_optional-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/jpa-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jpa-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/jsf-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jsf-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/jdbc-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jdbc-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-client-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-client.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-common-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-cpommon.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-bean-validation-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-bean-validation.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-cdi1x-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-cdi1x.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-cdi1x-servlet-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-cdi1x-servlet.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-cdi1x-transaction-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-cdi1x-transaction.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-container-grizzly2-http-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-container-grizzly2-http.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-container-servlet-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-container-servlet.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-container-servlet-core-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-container-servlet-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-entity-filtering-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-entity-filtering.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-gf-ejb-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-gf-ejb.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-guava-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-guava.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-jaxb-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-jaxb.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-json-jackson-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-json-jackson.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-json-jettison-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-json-jettison.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-json-processing-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-json-processing.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-moxy-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-moxy.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-multipart-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-multipart.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-media-sse-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-media-sse.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-mvc-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-mvc.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-mvc-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-mvc-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-mvc-jsp-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-mvc-jsp.jar"></copy>
+    <copy file="${ivy.lib.dir}/jersey-server-2.21.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jersey-server.jar"></copy>
+    <copy file="${ivy.lib.dir}/jettison-1.3.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jettison.jar"></copy>
+    <copy file="${ivy.lib.dir}/jms-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jms-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/jms-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jms-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/jmxremote_optional-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jmxremote_optional-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/jpa-container-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jpa-container.jar"></copy>
+    <copy file="${ivy.lib.dir}/jsf-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jsf-connector.jar"></copy>
     <copy file="${ivy.lib.dir}/jsftemplating-2.1.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jsftemplating.jar"></copy>
-    <copy file="${ivy.lib.dir}/jspcaching-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jspcaching-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/jsr109-impl-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jsr109-impl.jar"></copy>
-    <copy file="${ivy.lib.dir}/jstl-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jstl-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/jta-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jta.jar"></copy>
-    <copy file="${ivy.lib.dir}/jts-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jts.jar"></copy>
-    <copy file="${ivy.lib.dir}/kernel-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/kernel.jar"></copy>
-    <copy file="${ivy.lib.dir}/launcher-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/launcher.jar"></copy>
-    <copy file="${ivy.lib.dir}/ldapbp-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ldapbp-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/libpam4j-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/libpam4j-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/load-balancer-admin-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/load-balancer-admin.jar"></copy>
-    <copy file="${ivy.lib.dir}/logging-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/logging.jar"></copy>
-    <copy file="${ivy.lib.dir}/management-api-3.1.0-b001.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/management-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/metro-glue-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/metro-glue.jar"></copy>
-    <copy file="${ivy.lib.dir}/mimepull-1.8.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/mimepull.jar"></copy>
-    <copy file="${ivy.lib.dir}/monitoring-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/monitoring-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/orb-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/orb-enabler-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-enabler.jar"></copy>
-    <copy file="${ivy.lib.dir}/orb-iiop-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-iiop.jar"></copy>
+    <copy file="${ivy.lib.dir}/jspcaching-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jspcaching-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/jsr109-impl-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jsr109-impl.jar"></copy>
+    <copy file="${ivy.lib.dir}/jstl-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jstl-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/jta-4.1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jta.jar"></copy>
+    <copy file="${ivy.lib.dir}/jts-4.1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/jts.jar"></copy>
+    <copy file="${ivy.lib.dir}/kernel-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/kernel.jar"></copy>
+    <copy file="${ivy.lib.dir}/launcher-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/launcher.jar"></copy>
+    <copy file="${ivy.lib.dir}/ldapbp-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ldapbp-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/libpam4j-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/libpam4j-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/load-balancer-admin-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/load-balancer-admin.jar"></copy>
+    <copy file="${ivy.lib.dir}/logging-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/logging.jar"></copy>
+    <copy file="${ivy.lib.dir}/management-api-3.2.1-b002.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/management-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/metro-glue-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/metro-glue.jar"></copy>
+    <copy file="${ivy.lib.dir}/mimepull-1.9.4.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/mimepull.jar"></copy>
+    <copy file="${ivy.lib.dir}/monitoring-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/monitoring-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/orb-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/orb-enabler-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-enabler.jar"></copy>
+    <copy file="${ivy.lib.dir}/orb-iiop-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-iiop.jar"></copy>
     <copy file="${ivy.lib.dir}/org.apache.felix.configadmin-1.2.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.configadmin.jar"></copy>
     <copy file="${ivy.lib.dir}/org.apache.felix.fileinstall-3.1.10.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.fileinstall.jar"></copy>
     <copy file="${ivy.lib.dir}/org.apache.felix.gogo.command-0.8.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.gogo.command.jar"></copy>
@@ -369,55 +501,95 @@
     <copy file="${ivy.lib.dir}/org.apache.felix.shell-1.4.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.jar"></copy>
     <copy file="${ivy.lib.dir}/org.apache.felix.shell.remote-1.1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.remote.jar"></copy>
     <copy file="${ivy.lib.dir}/org.apache.felix.shell.tui-1.4.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.tui.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.antlr-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.antlr.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.asm-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.asm.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.core-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.core.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.jpa.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.modelgen-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.jpa.modelgen.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.moxy-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.moxy.jar"></copy>
-    <copy file="${ivy.lib.dir}/org.eclipse.persistence.oracle-2.4.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.oracle.jar"></copy>
-    <copy file="${ivy.lib.dir}/osgi-adapter-1.1.15.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-adapter.jar"></copy>
-    <copy file="${ivy.lib.dir}/osgi-container-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-container.jar"></copy>
-    <copy file="${ivy.lib.dir}/osgi-jpa-extension-1.0.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-jpa-extension.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.antlr-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.antlr.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.asm-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.asm.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.core-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.core.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.jpa.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.jpa.modelgen.processor-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.jpa.modelgen.processor.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.moxy-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.moxy.jar"></copy>
+    <copy file="${ivy.lib.dir}/org.eclipse.persistence.oracle-2.6.3.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.oracle.jar"></copy>
+    <copy file="${ivy.lib.dir}/osgi-adapter-2.4.0-b31.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-adapter.jar"></copy>
+    <copy file="${ivy.lib.dir}/osgi-container-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-container.jar"></copy>
+    <copy file="${ivy.lib.dir}/osgi-jpa-extension-1.0.2.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-jpa-extension.jar"></copy>
     <copy file="${ivy.lib.dir}/osgi-resource-locator-1.0.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/osgi-resource-locator.jar"></copy>
-    <copy file="${ivy.lib.dir}/persistence-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/persistence-common.jar"></copy>
+    <copy file="${ivy.lib.dir}/persistence-common-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/persistence-common.jar"></copy>
     <copy file="${ivy.lib.dir}/pkg-client-1.122-56.2852.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/pkg-client.jar"></copy>
-    <copy file="${ivy.lib.dir}/registration-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/registration-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/registration-impl-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/registration-impl.jar"></copy>
-    <copy file="${ivy.lib.dir}/rest-service-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/rest-service.jar"></copy>
-    <copy file="${ivy.lib.dir}/scattered-archive-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/scattered-archive-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/schema2beans-repackaged-3.1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/schema2beans-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/security-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/security.jar"></copy>
-    <copy file="${ivy.lib.dir}/server-mgmt-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/server-mgmt.jar"></copy>
-    <copy file="${ivy.lib.dir}/shoal-cache-1.6.21.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-cache.jar"></copy>
-    <copy file="${ivy.lib.dir}/shoal-gms-api-1.6.21.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-gms-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/shoal-gms-impl-1.6.21.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-gms-impl.jar"></copy>
-    <copy file="${ivy.lib.dir}/simple-glassfish-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/simple-glassfish-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/soap-tcp-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/soap-tcp.jar"></copy>
-    <copy file="${ivy.lib.dir}/ssl-impl-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ssl-impl.jar"></copy>
-    <copy file="${ivy.lib.dir}/stats77-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/stats77.jar"></copy>
+    <copy file="${ivy.lib.dir}/registration-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/registration-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/registration-impl-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/registration-impl.jar"></copy>
+    <copy file="${ivy.lib.dir}/rest-service-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/rest-service.jar"></copy>
+    <copy file="${ivy.lib.dir}/scattered-archive-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/scattered-archive-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/schema2beans-repackaged-3.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/schema2beans-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/security-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/security.jar"></copy>
+    <copy file="${ivy.lib.dir}/shoal-cache-1.6.18.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-cache.jar"></copy>
+    <copy file="${ivy.lib.dir}/shoal-gms-api-1.6.18.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-gms-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/shoal-gms-impl-1.6.18.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/shoal-gms-impl.jar"></copy>
+    <copy file="${ivy.lib.dir}/simple-glassfish-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/simple-glassfish-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/soap-tcp-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/soap-tcp.jar"></copy>
+    <copy file="${ivy.lib.dir}/ssl-impl-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/ssl-impl.jar"></copy>
+    <copy file="${ivy.lib.dir}/stats77-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/stats77.jar"></copy>
     <copy file="${ivy.lib.dir}/stax2-api-3.1.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/stax2-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/transaction-internal-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/transaction-internal-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/trilead-ssh2-repackaged-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/trilead-ssh2-repackaged.jar"></copy>
-    <copy file="${ivy.lib.dir}/war-util-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/war-util.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-cli-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-cli.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-core-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-core.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-embed-api-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-embed-api.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-embed-impl-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-embed-impl.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-glue-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-glue.jar"></copy>
+    <copy file="${ivy.lib.dir}/transaction-internal-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/transaction-internal-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/trilead-ssh2-repackaged-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/trilead-ssh2-repackaged.jar"></copy>
+    <copy file="${ivy.lib.dir}/war-util-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/war-util.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-cli-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-cli.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-core-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-core.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-embed-api-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-embed-api.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-glue-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-glue.jar"></copy>
     <copy file="${ivy.lib.dir}/web-gui-plugin-common-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-gui-plugin-common.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-ha-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-ha.jar"></copy>
-    <copy file="${ivy.lib.dir}/web-naming-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-naming.jar"></copy>
-    <copy file="${ivy.lib.dir}/websecurity-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/websecurity.jar"></copy>
-    <copy file="${ivy.lib.dir}/webservices-connector-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-connector.jar"></copy>
-    <copy file="${ivy.lib.dir}/webservices-extra-jdk-packages-2.2.0-1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-extra-jdk-packages.jar"></copy>
-    <copy file="${ivy.lib.dir}/webservices-osgi-2.2.0-1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-osgi.jar"></copy>
-    <copy file="${ivy.lib.dir}/webservices.security-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices.security.jar"></copy>
-    <copy file="${ivy.lib.dir}/weld-integration-fragment-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-integration-fragment.jar"></copy>
-    <copy file="${ivy.lib.dir}/weld-integration-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-integration.jar"></copy>
-    <copy file="${ivy.lib.dir}/weld-osgi-bundle-1.1.8.Final.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-osgi-bundle.jar"></copy>
-    <copy file="${ivy.lib.dir}/woodstox-core-asl-4.1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/woodstox-core-asl.jar"></copy>
-    <copy file="${ivy.lib.dir}/work-management-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/work-management.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-ha-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-ha.jar"></copy>
+    <copy file="${ivy.lib.dir}/web-naming-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/web-naming.jar"></copy>
+    <copy file="${ivy.lib.dir}/websecurity-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/websecurity.jar"></copy>
+    <copy file="${ivy.lib.dir}/webservices-connector-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-connector.jar"></copy>
+    <copy file="${ivy.lib.dir}/webservices-extra-jdk-packages-2.3.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-extra-jdk-packages.jar"></copy>
+    <copy file="${ivy.lib.dir}/webservices-osgi-2.3.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices-osgi.jar"></copy>
+    <copy file="${ivy.lib.dir}/webservices.security-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/webservices.security.jar"></copy>
+    <copy file="${ivy.lib.dir}/weld-integration-fragment-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-integration-fragment.jar"></copy>
+    <copy file="${ivy.lib.dir}/weld-integration-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-integration.jar"></copy>
+    <copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/weld-osgi-bundle.jar"></copy>
+    <copy file="${ivy.lib.dir}/woodstox-core-asl-4.2.0.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/woodstox-core-asl.jar"></copy>
+    <copy file="${ivy.lib.dir}/work-management-4.1.1.jar"
+          tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/work-management.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxb-impl-2.1.11.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxb-impl.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxb-xjc-2.1.11.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxb-xjc.jar"></copy>
     <copy file="${ivy.lib.dir}/jaxws-rt-2.1.7.jar" tofile="${root.dir}/libraries/sun-metro/javalib/jaxws-rt.jar"></copy>
