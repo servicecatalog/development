@@ -27,5 +27,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

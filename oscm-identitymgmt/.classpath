@@ -31,4 +31,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-util"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 </classpath>

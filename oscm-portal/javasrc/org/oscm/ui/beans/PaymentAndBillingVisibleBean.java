@@ -10,7 +10,6 @@ package org.oscm.ui.beans;
 
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.List;
 
 import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;

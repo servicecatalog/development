@@ -8,5 +8,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

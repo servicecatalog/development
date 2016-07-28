@@ -16,7 +16,8 @@
   <classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar" />
   <classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-simple-1.7.7.jar" />
   <classpathentry kind="lib" path="/libraries/slf4j-log4j/javalib/slf4j-log4j12-1.7.7.jar" />
-  <classpathentry kind="lib" path="/libraries/jersey/javalib/javax.ws.rs-api-2.0.jar" />
+  <classpathentry kind="lib" path="/libraries/jersey/javalib/javax.ws.rs-api-2.0.1.jar" />
   <classpathentry kind="lib" path="/libraries/jersey/javalib/jersey-client.jar" />
+  <classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
   <classpathentry kind="output" path="bin" />
 </classpath>

@@ -29,5 +29,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-util"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

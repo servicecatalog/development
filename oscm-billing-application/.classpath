@@ -6,9 +6,9 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-annotations-2.2.3.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-databind-2.2.3.jar"/>
-	<classpathentry kind="lib" path="/libraries/jackson/javalib/jackson-core-2.2.3.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-annotations.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-databind.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-core.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
@@ -20,5 +20,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

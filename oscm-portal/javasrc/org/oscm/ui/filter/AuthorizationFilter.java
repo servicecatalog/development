@@ -27,11 +27,7 @@ import javax.ejb.EJBException;
 import javax.faces.application.ViewExpiredException;
 import javax.naming.CommunicationException;
 import javax.security.auth.login.LoginException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -954,6 +950,16 @@ public class AuthorizationFilter extends BaseBesFilter {
                 @Override
                 public ServletOutputStream getOutputStream() throws IOException {
                     return new ServletOutputStream() {
+                        @Override
+                        public boolean isReady() {
+                            return false;
+                        }
+
+                        @Override
+                        public void setWriteListener(WriteListener writeListener) {
+
+                        }
+
                         @Override
                         public void write(int b) throws IOException {
 

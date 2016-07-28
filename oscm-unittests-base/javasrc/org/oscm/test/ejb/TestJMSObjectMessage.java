@@ -40,6 +40,16 @@ public class TestJMSObjectMessage implements ObjectMessage {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public <T> T getBody(Class<T> aClass) throws JMSException {
+        return null;
+    }
+
+    @Override
+    public boolean isBodyAssignableTo(Class aClass) throws JMSException {
+        return false;
+    }
+
     public void clearProperties() throws JMSException {
         throw new UnsupportedOperationException();
     }
@@ -172,6 +182,16 @@ public class TestJMSObjectMessage implements ObjectMessage {
 
     public void setJMSExpiration(long arg0) throws JMSException {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public long getJMSDeliveryTime() throws JMSException {
+        return 0;
+    }
+
+    @Override
+    public void setJMSDeliveryTime(long l) throws JMSException {
+
     }
 
     public void setJMSMessageID(String arg0) throws JMSException {

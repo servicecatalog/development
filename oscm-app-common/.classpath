@@ -14,5 +14,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
+	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/weld-osgi-bundle.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
