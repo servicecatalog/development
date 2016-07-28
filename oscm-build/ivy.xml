@@ -255,9 +255,6 @@
     <dependency org="org.apache.axis" name="axis-saaj" rev="1.4" transitive="false"/>
     <dependency org="org.eclipse.birt.runtime" name="viewservlets" rev="4.3.1" transitive="false"/>
     <dependency org="org.eclipse.jdt.core.compiler" name="ecj" rev="4.2.1" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.2.3" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-core" rev="2.2.3" transitive="false"/>
-    <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.2.3" transitive="false"/>
     <dependency org="org.jacoco" name="org.jacoco.agent" rev="0.6.1.201212231917" transitive="false"/>
     <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.6.1.201212231917" transitive="false"/>
     <dependency org="org.jacoco" name="org.jacoco.core" rev="0.6.1.201212231917"/>
@@ -272,8 +269,6 @@
     <dependency org="org.richfaces" name="richfaces" rev="4.5.0.Final" transitive="false"/>
     <dependency org="org.richfaces" name="richfaces-core" rev="4.5.0.Final" transitive="false"/>
     <dependency org="org.w3c.css" name="sac" rev="1.3" transitive="false"/>
-    <dependency org="javax.ws.rs" name="javax.ws.rs-api" rev="2.0" transitive="false"/>
-    <dependency org="org.glassfish.jersey.core" name="jersey-client" rev="2.5.1" transitive="false"/>
     <dependency org="org.jolokia" name="jolokia-core" rev="1.1.1" transitive="false"/>
     <dependency org="org.jolokia" name="jolokia-jsr160" rev="1.1.1" transitive="false"/>
     <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" transitive="false"/>
@@ -301,8 +296,6 @@
                 transitive="false"/>
     <dependency org="org.jboss.spec.javax.transaction" name="jboss-transaction-api_1.1_spec" rev="1.0.0.Final"
                 transitive="false"/>
-    <dependency org="org.javassist" name="javassist" rev="3.15.0-GA" transitive="false"/>
-    <dependency org="org.jboss.logging" name="jboss-logging" rev="3.1.0.GA" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-core" rev="4.1.8.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.1.8.Final" transitive="false"/>
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.5" transitive="false"/>
@@ -327,7 +320,7 @@
     <dependency org="org.codehaus.sonar" name="sonar-plugin-api" rev="3.3" transitive="false"/>
     <dependency org="org.glassfish.main.extras" name="appserv-rt" rev="3.1.2.2" transitive="false"/>
     <dependency org="org.glassfish.main.appclient.client" name="gf-client" rev="3.1.2.2" transitive="false"/>
-    <dependency org="org.glassfish.main.extras" name="javaee" rev="3.1.2.2"/>
+    <dependency org="org.glassfish.main.extras" name="javaee" rev="4.1.1"/>
     <dependency org="org.glassfish.main.appclient" name="acc-config" rev="4.1.1" transitive="false">
       <artifact name="acc-config" ext="jar"/>
     </dependency>

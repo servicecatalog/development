@@ -14,7 +14,10 @@ import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.Query;
-import javax.ws.rs.core.MediaType;
+import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.local.DataService;
@@ -43,10 +46,6 @@ import org.oscm.vo.VOUserDetails;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.sun.jersey.api.client.ClientHandlerException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * Notification service adapter for REST web services
@@ -59,7 +58,7 @@ public class RestNotificationServiceAdapter implements
     private static final String dateFormat = "yyyy-MM-dd'T'HH:mm:ssXXX";
 
     private DataService ds;
-    private WebResource r;
+    private WebTarget r;
 
     @Override
     public void billingPerformed(String xmlBillingData) {
@@ -143,8 +142,7 @@ public class RestNotificationServiceAdapter implements
 
             handleRequest(process, sub, prod);
 
-        } catch (ObjectNotFoundException | UniformInterfaceException
-                | ClientHandlerException e) {
+        } catch (ObjectNotFoundException | ClientErrorException e) {
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
         }
@@ -170,8 +168,7 @@ public class RestNotificationServiceAdapter implements
 
             handleRequest(process, sub, prod);
 
-        } catch (ObjectNotFoundException | UniformInterfaceException
-                | ClientHandlerException e) {
+        } catch (ObjectNotFoundException | ClientErrorException e) {
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
         }
@@ -209,8 +206,7 @@ public class RestNotificationServiceAdapter implements
 
             handleRequest(process, sub, prod);
 
-        } catch (ObjectNotFoundException | UniformInterfaceException
-                | ClientHandlerException e) {
+        } catch (ObjectNotFoundException | ClientErrorException e) {
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
         }
@@ -276,7 +272,7 @@ public class RestNotificationServiceAdapter implements
 
     @Override
     public void setNotificationService(Object notificationService) {
-        this.r = (WebResource) notificationService;
+        this.r = (WebTarget) notificationService;
     }
 
     @Override
@@ -297,11 +293,11 @@ public class RestNotificationServiceAdapter implements
         Gson gson = new GsonBuilder().setDateFormat(dateFormat).create();
         String json = gson.toJson(rep);
 
-        ClientResponse response = r.type(MediaType.APPLICATION_JSON_TYPE).post(
-                ClientResponse.class, json);
+
+        Response response = r.request().post(Entity.json(json));
 
         if (response == null
-                || response.getStatus() != ClientResponse.Status.NO_CONTENT
+                || response.getStatus() != Response.Status.NO_CONTENT
                         .getStatusCode()) {
             throw new SaaSSystemException(
                     "Failed to send notification to rest endpoint");
