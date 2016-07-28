@@ -10,7 +10,7 @@
   </target>
   
   <target name="copyLibraries" depends="resolve">
-
+	
     <copy file="${ivy.lib.dir}/hamcrest-core-1.3.jar" todir="${root.dir}/libraries/org.hamcrest/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javaee-api-7.0.jar" todir="${root.dir}/libraries/javaee-api/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib" overwrite="true"></copy>
@@ -174,7 +174,6 @@
     <delete file="${root.dir}/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar.zip" />
     <copy file="${ivy.lib.dir}/javaee-4.1.1.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/javalib/javaee.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/javax.annotation-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/javax.annotation.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jaxb-api-osgi-2.2.6.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/jaxb-api-osgi.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/webservices-api-osgi-2.2.0-1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/webservices-api-osgi.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/acc-config-4.1.1.jar"
@@ -367,7 +366,10 @@
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javaee-kernel.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.ejb-api-3.2.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.ejb-api.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/javax.el-3.0.1-b03.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.el.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.inject-2.4.0-b31.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.inject.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.interceptor-api.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/endorsed/javax.annotation-api.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.el-3.0.1-b03.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.el.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.enterprise.deploy-api-1.6.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.enterprise.deploy-api.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar"
@@ -604,5 +606,13 @@
     <copy file="${ivy.lib.dir}/gson-2.6.2.jar" tofile="${root.dir}/libraries/gson/javalib/gson-2.6.2.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/cdi-api-1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/cdi-api.jar"
           overwrite="true"></copy>
+  	
+  	<!-- Glassfish 4.1.1 necesarry libraries -->
+  	<copy file="${ivy.lib.dir}/javaee-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/javaee.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/gf-client-4.1.1.jar" tofile="${root.dir}/libraries/glassfish4/javalib/gf-client.jar" overwrite="true"/>
+  	
+  	<copy file="${ivy.lib.dir}/javax.inject-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.inject.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.faces.jar" overwrite="true"/>
   </target>
 </project>

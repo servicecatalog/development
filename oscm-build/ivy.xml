@@ -319,7 +319,9 @@
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.7" transitive="false"/>
     <dependency org="org.codehaus.sonar" name="sonar-plugin-api" rev="3.3" transitive="false"/>
     <dependency org="org.glassfish.main.extras" name="appserv-rt" rev="3.1.2.2" transitive="false"/>
-    <dependency org="org.glassfish.main.appclient.client" name="gf-client" rev="3.1.2.2" transitive="false"/>
+    <dependency org="org.glassfish.main.appclient" name="gf-client" rev="4.1.1" transitive="false">
+      <artifact name="gf-client" ext="jar"/>
+    </dependency>
     <dependency org="org.glassfish.main.extras" name="javaee" rev="4.1.1"/>
     <dependency org="org.glassfish.main.appclient" name="acc-config" rev="4.1.1" transitive="false">
       <artifact name="acc-config" ext="jar"/>
@@ -662,6 +664,7 @@
     <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
     <dependency org="org.glassfish.hk2.external" name="javax.inject" rev="2.4.0-b31" transitive="false"/>
     <dependency org="javax.interceptor" name="javax.interceptor-api" rev="1.2" transitive="false"/>
+    <dependency org="javax.annotation" name="javax.annotation-api" rev="1.2" transitive="false"/>
     <dependency org="javax.jms" name="javax.jms-api" rev="2.0.1" transitive="false"/>
     <dependency org="org.glassfish" name="javax.json" rev="1.0.2" transitive="false"/>
     <dependency org="com.sun.mail" name="javax.mail" rev="1.5.4" transitive="false"/>
