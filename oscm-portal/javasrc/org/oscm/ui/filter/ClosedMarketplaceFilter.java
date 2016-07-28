@@ -8,11 +8,14 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.ui.beans.BaseBean.ERROR_PAGE;
+
 import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -20,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
@@ -35,7 +39,6 @@ import org.oscm.ui.model.MarketplaceConfiguration;
  */
 public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
-    private final String samlSpRedirectPage = "/saml2/redirectToIdp.jsf";
     RequestRedirector redirector;
     String excludeUrlPattern;
     ServiceAccess serviceAccess;
@@ -91,12 +94,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                         && voUserDetails.getOrganizationId() != null) {
                     if (!config.getAllowedOrganizations().contains(
                             voUserDetails.getOrganizationId())) {
-                        redirector
-                                .forward(
-                                        httpRequest,
-                                        httpResponse,
-                                        Marketplace.MARKETPLACE_ROOT
-                                                + Constants.INSUFFICIENT_AUTHORITIES_URI);
+                        forwardToErrorPage(httpRequest, httpResponse);
                         return;
                     } else {
                         chain.doFilter(request, response);
@@ -127,6 +125,21 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
             return serviceAccess;
         }
         return new EJBServiceAccess();
+    }
+
+    private void forwardToErrorPage(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, IOException {
+        if (isSAMLAuthentication()) {
+            RequestDispatcher requestDispatcher = httpRequest.getServletContext().getRequestDispatcher(ERROR_PAGE);
+            BesServletRequestReader.setErrorAttributes(httpRequest, new LoginToClosedMarketplaceException());
+            requestDispatcher.forward(httpRequest, httpResponse);
+        } else {
+            redirector
+                    .forward(
+                            httpRequest,
+                            httpResponse,
+                            Marketplace.MARKETPLACE_ROOT
+                                    + Constants.INSUFFICIENT_AUTHORITIES_URI);
+        }
     }
 
     @Override
