@@ -614,5 +614,8 @@
   	<copy file="${ivy.lib.dir}/javax.inject-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.inject.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.faces.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.ejb-api-3.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.ejb-api.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.persistence-2.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.persistence.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.interceptor-api.jar" overwrite="true"></copy>
   </target>
 </project>
