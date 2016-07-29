@@ -673,14 +673,6 @@ public class AuthorizationFilter extends BaseBesFilter {
         return false;
     }
 
-    private MarketplaceService lookupMarketplaceService(
-        HttpServletRequest httpRequest) {
-        ServiceAccess serviceAccess = ServiceAccess
-            .getServiceAcccessFor(httpRequest.getSession());
-        return serviceAccess
-            .getService(MarketplaceService.class);
-    }
-
     boolean handleLoggedInUser(FilterChain chain,
             HttpServletRequest httpRequest, HttpServletResponse httpResponse,
             ServiceAccess serviceAccess, AuthorizationRequestData rdo)
@@ -832,7 +824,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                         .contains(OrganizationRoleType.CUSTOMER)) {
             if (ADMStringUtils.isBlank(rdo.getMarketplaceId())) {
                 if (redirectToMpUrl(serviceAccess, httpRequest, httpResponse)) {
-                    setupUserDetial(httpRequest, rdo, identityService, session);
+                    setupUserDetail(httpRequest, rdo, identityService, session);
                     return false;
                 } else {
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
@@ -841,7 +833,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                             httpResponse);
                 }
             } else {
-                setupUserDetial(httpRequest, rdo, identityService, session);
+                setupUserDetail(httpRequest, rdo, identityService, session);
                 forward(BaseBean.MARKETPLACE_START_SITE, httpRequest,
                         httpResponse);
             }
@@ -869,9 +861,9 @@ public class AuthorizationFilter extends BaseBesFilter {
      * @param identityService
      * @param session
      */
-    private void setupUserDetial(HttpServletRequest httpRequest,
-            AuthorizationRequestData rdo, IdentityService identityService,
-            HttpSession session) {
+    private void setupUserDetail(HttpServletRequest httpRequest,
+                                 AuthorizationRequestData rdo, IdentityService identityService,
+                                 HttpSession session) {
         rdo.setUserDetails(identityService.getCurrentUserDetails());
         HttpSession httpSession = httpRequest.getSession(false);
         if (httpSession != null) {

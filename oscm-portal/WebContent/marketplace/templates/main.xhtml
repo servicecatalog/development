@@ -197,6 +197,11 @@
     	  showLoginPanel('/marketplace/index.jsf');
     	}
     }
+    $(document).ready(function() {
+       if(#{isMplRestricted and empty userBean.loggedInUser and not userBean.internalAuthMode}){
+      document.getElementById('formLogin:loginLink').click();
+    }
+    });
   </script>
   <h:outputText escape="false" value="#{trackingCodeCtrl.trackingCodeForCurrentMarketplace}" />
 
