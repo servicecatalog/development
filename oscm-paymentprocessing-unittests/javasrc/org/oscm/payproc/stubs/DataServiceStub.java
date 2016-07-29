@@ -10,11 +10,11 @@ package org.oscm.payproc.stubs;
 
 import java.util.List;
 
+import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.hibernate.Session;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.dataservice.local.DataSet;
 import org.oscm.dataservice.local.SqlQuery;
@@ -277,5 +277,10 @@ public abstract class DataServiceStub implements DataService {
 
     @Override
     public void setCurrentUserKey(Long key) {
+    }
+
+    @Override
+    public EntityManager getEntityManager() {
+        return null;
     }
 }
