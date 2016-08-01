@@ -89,7 +89,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
             MarketplaceConfiguration config = configBean.getConfiguration(mId,
                     httpRequest);
 
-            if (config.isRestricted()) {
+            if (config != null && config.isRestricted()) {
                 if (voUserDetails != null
                         && voUserDetails.getOrganizationId() != null) {
                     if (!config.getAllowedOrganizations().contains(
