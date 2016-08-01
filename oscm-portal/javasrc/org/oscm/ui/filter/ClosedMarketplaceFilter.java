@@ -68,7 +68,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
         if (!httpRequest.getServletPath().matches(excludeUrlPattern)) {
             String mId = httpRequest
                     .getParameter(Constants.REQ_PARAM_MARKETPLACE_ID);
-            if (mId == null || mId.equals("")) {
+            if (mId == null || "".equals(mId)) {
                 mId = (String) httpRequest.getSession().getAttribute(
                         Constants.REQ_PARAM_MARKETPLACE_ID);
             }
@@ -81,7 +81,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                     .getSession().getAttribute(Constants.SESS_ATTR_USER);
 
 
-            if (mId == null || mId.equals("") || configBean == null) {
+            if (configBean == null) {
                 chain.doFilter(request, response);
                 return;
             }

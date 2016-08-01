@@ -330,6 +330,9 @@
   <filter-mapping>
     <filter-name>ClosedMarketplaceFilter</filter-name>
     <url-pattern>/marketplace/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
   </filter-mapping>
   <filter-mapping>
     <filter-name>Rewriter</filter-name>

@@ -37,6 +37,7 @@ import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.AccessToClosedMarketplaceException;
 import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
 import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -576,7 +577,7 @@ public class UserBean extends BaseBean implements Serializable {
         } catch (CommunicationException e) {
             return outcomeCommunicationException(httpRequest);
         } catch (LoginToClosedMarketplaceException e) {
-            return outcomeLoginToClosedMarketplaceException(httpRequest, e);
+            return outcomeLoginToClosedMarketplaceException(httpRequest);
         }
     }
 
@@ -597,9 +598,9 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     private String outcomeLoginToClosedMarketplaceException(
-        HttpServletRequest httpRequest, SaaSApplicationException e) {
+        HttpServletRequest httpRequest) {
         if (isServiceProvider()) {
-            setErrorAttributes(httpRequest, e);
+            setErrorAttributes(httpRequest, new AccessToClosedMarketplaceException());
             return OUTCOME_PUBLIC_ERROR_PAGE;
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
