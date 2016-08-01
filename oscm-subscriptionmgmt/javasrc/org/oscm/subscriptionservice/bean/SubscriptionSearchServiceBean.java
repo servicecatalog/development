@@ -11,9 +11,9 @@ package org.oscm.subscriptionservice.bean;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
@@ -62,12 +62,12 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
             throws InvalidPhraseException, ObjectNotFoundException {
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
 
-        Set<Long> result;
+        Set<Long> result = new TreeSet<Long>();
 
         List<Subscription> subList = searchSubscriptionsForFields(
                 Subscription.class, searchPhrase, SUBSCRIPTION_ID,
                 SUBSCRIPTION_PURCHASE_ORDER_NUMBER);
-        result = extractKeysForSubscriptions(subList);
+        result.addAll(extractKeysForSubscriptions(subList));
         logger.logDebug("I have found " + result.size()
                 + " subscriptions by referenceId and subscriptionId");
 
@@ -95,10 +95,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     private <D extends DomainObject<?>> List<D> searchSubscriptionsForFields(
             Class<D> clazz, String phrase, String... fields) {
 
-        EntityManager em = dm.getEntityManager();
-
-        FullTextEntityManager ftem = org.hibernate.search.jpa.Search
-                .getFullTextEntityManager(em);
+        FullTextEntityManager ftem = getFtem();
 
         QueryBuilder qb = ftem.getSearchFactory().buildQueryBuilder()
                 .forEntity(clazz).get();
@@ -116,7 +113,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private Set<Long> extractKeysForSubscriptions(List<Subscription> list) {
-        Set<Long> set = new HashSet<Long>();
+        Set<Long> set = new TreeSet<Long>();
         for (Subscription sub : list) {
             set.add(new Long(sub.getKey()));
         }
@@ -125,7 +122,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private Set<Long> extractKeysForParameters(List<Parameter> list) {
-        Set<Long> set = new HashSet<Long>();
+        Set<Long> set = new TreeSet<Long>();
         for (Parameter param : list) {
             set.add(new Long(param.getParameterSet().getProduct()
                     .getOwningSubscription().getKey()));
@@ -135,7 +132,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private Set<Long> extractKeysForUdaDefinition(List<UdaDefinition> list) {
-        Set<Long> set = new HashSet<>();
+        Set<Long> set = new TreeSet<>();
 
         SubscriptionDao subscriptionDao = getSubscriptionDao();
         Set<Long> udaDefsFound = new HashSet<>();
@@ -163,7 +160,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private Set<Long> extractKeysForUda(List<Uda> list) {
-        Set<Long> set = new LinkedHashSet<>();
+        Set<Long> set = new TreeSet<>();
         for (Uda uda : list) {
             if (UdaConfigurationType.SUPPLIER.equals(uda.getUdaDefinition()
                     .getConfigurationType())) {
@@ -181,8 +178,14 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return dm;
     }
 
+    public FullTextEntityManager getFtem() {
+        EntityManager em = getDm().getEntityManager();
+
+        return org.hibernate.search.jpa.Search.getFullTextEntityManager(em);
+    }
+
     private Set<SubscriptionStatus> getStates() {
-        Set<SubscriptionStatus> retVal = new HashSet<>(20);
+        Set<SubscriptionStatus> retVal = new TreeSet<>();
         retVal.addAll(Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);
         retVal.addAll(Subscription.VISIBLE_SUBSCRIPTION_STATUS);
         return retVal;
