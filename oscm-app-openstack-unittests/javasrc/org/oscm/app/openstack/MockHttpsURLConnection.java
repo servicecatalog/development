@@ -1,3 +1,10 @@
+/*******************************************************************************
+ *
+ *  Copyright FUJITSU LIMITED 2016
+ *
+ *  Creation Date: 26.07.2016
+ *
+ *******************************************************************************/
 package org.oscm.app.openstack;
 
 import java.io.ByteArrayInputStream;
