@@ -288,7 +288,6 @@
     <dependency org="org.apache.velocity" name="velocity" rev="1.7" transitive="false"/>
     <dependency org="org.apache.santuario" name="xmlsec" rev="1.5.4" transitive="false"/>
     <dependency org="org.opensaml" name="xmltooling" rev="1.4.0" transitive="false"/>
-    <dependency org="javax.mail" name="mail" rev="1.4.4" transitive="false"/>
     <dependency org="antlr" name="antlr" rev="2.7.7" transitive="false"/>
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="org.hibernate.common" name="hibernate-commons-annotations" rev="4.0.1.Final" transitive="false"/>
@@ -804,14 +803,6 @@
     <dependency org="org.glassfish.main.orb" name="orb-iiop" rev="4.1.1" transitive="false">
       <artifact name="orb-iiop" ext="jar"/>
     </dependency>
-    <dependency org="org.apache.felix" name="org.apache.felix.configadmin" rev="1.2.4" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.fileinstall" rev="3.1.10" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.gogo.command" rev="0.8.0" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.gogo.runtime" rev="0.8.0" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.gogo.shell" rev="0.8.0" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.shell" rev="1.4.1" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.shell.remote" rev="1.1.2" transitive="false"/>
-    <dependency org="org.apache.felix" name="org.apache.felix.shell.tui" rev="1.4.1" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.antlr" rev="2.6.3" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.asm" rev="2.6.3" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.core" rev="2.6.3" transitive="false"/>

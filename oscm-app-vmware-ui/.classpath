@@ -6,11 +6,11 @@
 	<classpathentry kind="lib" path="/libraries/slf4j/javalib/slf4j-api-1.7.7.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-vmware"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-app-extsvc-1-0"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-configuration/javalib/commons-configuration-1.8.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lang/javalib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="src" path="/oscm-extsvc"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -167,7 +167,6 @@
     <copy file="${ivy.lib.dir}/slf4j-log4j12-1.7.7.jar" todir="${root.dir}/libraries/slf4j-log4j/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/sonar-ant-task-1.1.jar" todir="${root.dir}/libraries/sonar/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/appserv-rt-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/javalib/appserv-rt.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/gf-client-3.1.2.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/javalib/gf-client.jar" overwrite="true"></copy>
     <!-- The jndi-properties is not found in the Maven repository -->
     <get src="http://www.java2s.com/Code/JarDownload/jndi/jndi-properties.jar.zip" dest="${root.dir}/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar.zip"/>
     <unzip src="${root.dir}/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar.zip" dest="${root.dir}/libraries/sun-glassfish-rt31/javalib" />
@@ -376,7 +375,6 @@
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.faces.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.jms-api-2.0.1.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.jms-api.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/mail-1.4.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.mail.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.management.j2ee-api-1.1.1.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/javax.management.j2ee-api.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javax.persistence-2.1.1.jar"
@@ -497,14 +495,6 @@
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-enabler.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/orb-iiop-4.1.1.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/orb-iiop.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.configadmin-1.2.4.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.configadmin.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.fileinstall-3.1.10.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.fileinstall.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.gogo.command-0.8.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.gogo.command.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.gogo.runtime-0.8.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.gogo.runtime.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.gogo.shell-0.8.0.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.gogo.shell.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.shell-1.4.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.shell.remote-1.1.2.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.remote.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/org.apache.felix.shell.tui-1.4.1.jar" tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.apache.felix.shell.tui.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.eclipse.persistence.antlr-2.6.3.jar"
           tofile="${root.dir}/libraries/sun-glassfish-rt31/modules/org.eclipse.persistence.antlr.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.eclipse.persistence.asm-2.6.3.jar"
@@ -614,8 +604,17 @@
   	<copy file="${ivy.lib.dir}/javax.inject-2.4.0-b31.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.inject.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.annotation-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/endorsed/javax.annotation-api.jar" overwrite="true"/>
   	<copy file="${ivy.lib.dir}/javax.faces-2.2.12.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.faces.jar" overwrite="true"/>
-  	<copy file="${ivy.lib.dir}/javax.ejb-api-3.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.ejb-api.jar" overwrite="true"></copy>
-  	<copy file="${ivy.lib.dir}/javax.persistence-2.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.persistence.jar" overwrite="true"></copy>
-  	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.interceptor-api.jar" overwrite="true"></copy>
+  	<copy file="${ivy.lib.dir}/javax.ejb-api-3.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.ejb-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.persistence-2.1.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.persistence.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.interceptor-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.interceptor-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.servlet-api-3.1.0.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.servlet.jsp-api-2.3.2-b01.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-api-1.2.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl-api.jar" overwrite="true"/>
+    <copy file="${ivy.lib.dir}/javax.servlet.jsp.jstl-1.2.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.servlet.jsp.jstl.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/cdi-api-1.2.jar" tofile="${root.dir}/libraries/glassfish4/modules/cdi-api.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/webservices-osgi-2.3.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/webservices-osgi.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.mail-1.5.4.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.mail.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/weld-osgi-bundle-2.2.13.Final.jar" tofile="${root.dir}/libraries/glassfish4/modules/weld-osgi-bundle.jar" overwrite="true"/>
+  	<copy file="${ivy.lib.dir}/javax.ws.rs-api-2.0.1.jar" tofile="${root.dir}/libraries/glassfish4/modules/javax.ws.rs-api.jar" overwrite="true"/>
   </target>
 </project>
