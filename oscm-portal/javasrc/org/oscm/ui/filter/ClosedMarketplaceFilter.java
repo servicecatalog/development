@@ -103,8 +103,7 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                 }
 
                 if (config.hasLandingPage() && !isSAMLAuthentication()) {
-                    redirector.forward(httpRequest, httpResponse,
-                            BaseBean.MARKETPLACE_START_SITE);
+                    chain.doFilter(request, response);
                     return;
                 }
             }
@@ -130,7 +129,8 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     private void forwardToErrorPage(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, IOException {
         if (isSAMLAuthentication()) {
             RequestDispatcher requestDispatcher = httpRequest.getServletContext().getRequestDispatcher(ERROR_PAGE);
-            BesServletRequestReader.setErrorAttributes(httpRequest, new AccessToClosedMarketplaceException());
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                    BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
             requestDispatcher.forward(httpRequest, httpResponse);
         } else {
             redirector

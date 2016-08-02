@@ -171,7 +171,7 @@
     <init-param>
       <param-name>exclude-url-pattern</param-name>
       <param-value>(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/
-        .*|^/marketplace/terms/.*|.*/marketplace/img/.*|^/marketplace/recoverPassword.jsf|^/marketplace/confirmStartPwdRecovery.jsf)</param-value>
+        .*|^/marketplace/terms/.*|.*/marketplace/img/.*|^/marketplace/recoverPassword.jsf|^/marketplace/confirmStartPwdRecovery.jsf|^/marketplace/insufficientAuthorities.jsf)</param-value>
     </init-param>
   </filter>
   <filter>

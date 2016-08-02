@@ -600,7 +600,8 @@ public class UserBean extends BaseBean implements Serializable {
     private String outcomeLoginToClosedMarketplaceException(
         HttpServletRequest httpRequest) {
         if (isServiceProvider()) {
-            setErrorAttributes(httpRequest, new AccessToClosedMarketplaceException());
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                    BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
             return OUTCOME_PUBLIC_ERROR_PAGE;
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
