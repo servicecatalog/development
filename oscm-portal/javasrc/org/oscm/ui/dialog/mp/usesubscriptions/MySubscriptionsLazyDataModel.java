@@ -204,19 +204,6 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
         return selectedSubscription;
     }
 
-    protected boolean clearSelectedSubscription() {
-        if (resultList == null) {
-            return true;
-        }
-        for (POSubscription subscription : resultList) {
-            if(Long.toString(subscription.getKey()).equals(selectedSubscriptionId)) {
-                selectedSubscription = subscription;
-                return false;
-            }
-        }
-        return true;
-    }
-
     public void setSelectedSubscription(POSubscription selectedSubscription) {
         this.selectedSubscription = selectedSubscription;
     }
