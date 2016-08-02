@@ -161,7 +161,14 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }
-        return super.getTotalCount();
+        int totalCount = super.getTotalCount();
+        if (totalCount == 0) {
+            selectedSubscription = null;
+            selectedSubscriptionId = null;
+        } else {
+            refreshSelectedSubscription();
+        }
+        return totalCount;
     }
 
     public void setSubscriptionsService(SubscriptionsService subscriptionsService) {
