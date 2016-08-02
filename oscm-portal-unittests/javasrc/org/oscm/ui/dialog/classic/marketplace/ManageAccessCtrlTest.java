@@ -211,8 +211,6 @@ public class ManageAccessCtrlTest {
         List<POOrganization> organizations = new ArrayList<>();
         organizations.add(preparePOOrganization(1L, "org1", true));
         organizations.add(preparePOOrganization(2L, "org2", false));
-        model.getAccessesStored().put(1L, new Boolean(false));
-        model.getAccessesStored().put(2L, new Boolean(true));
         return organizations;
     }
 
