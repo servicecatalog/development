@@ -165,8 +165,6 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
         if (totalCount == 0) {
             selectedSubscription = null;
             selectedSubscriptionId = null;
-        } else {
-            refreshSelectedSubscription();
         }
         return totalCount;
     }
