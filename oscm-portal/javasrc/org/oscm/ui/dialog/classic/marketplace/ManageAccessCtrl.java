@@ -13,9 +13,7 @@ package org.oscm.ui.dialog.classic.marketplace;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -120,8 +118,6 @@ public class ManageAccessCtrl {
         // not restricted
         if (restricted) {
             List<POOrganization> organizations = new ArrayList<>();
-            Map<Long, Boolean> accessesStored = new HashMap<>();
-            Map<Long, Boolean> accessesSelected = new HashMap<>();
 
             for (VOOrganization voOrganization : marketplaceService
                     .getAllOrganizations(marketplaceId)) {
@@ -129,12 +125,6 @@ public class ManageAccessCtrl {
 
                 long key = poOrganization.getKey();
                 organizations.add(poOrganization);
-
-                accessesStored.put(Long.valueOf(key), Boolean
-                        .valueOf(voOrganization
-                                .isHasGrantedAccessToMarketplace()));
-                accessesSelected.put(Long.valueOf(key),
-                        Boolean.valueOf(poOrganization.isSelected()));
             }
 
             Collections.sort(organizations, new Comparator<POOrganization>() {
@@ -146,8 +136,6 @@ public class ManageAccessCtrl {
             });
 
             model.setOrganizations(organizations);
-            model.setAccessesStored(accessesStored);
-            model.setAccessesSelected(accessesSelected);
         }
     }
 
@@ -189,13 +177,11 @@ public class ManageAccessCtrl {
             boolean orgIsSelected = poOrganization.isSelected();
             boolean orgIsDisabled = poOrganization.isDisabled();
 
-            if (model.getAccessesStored().get(orgKey) && !orgIsSelected
-                    && !orgIsDisabled) {
+            if (!orgIsSelected && !orgIsDisabled) {
                 model.getUnauthorizedOrganizations().add(orgKey);
                 continue;
             }
-            if (!model.getAccessesStored().get(orgKey)
-                    && (orgIsSelected || orgIsDisabled)) {
+            if (orgIsSelected || orgIsDisabled) {
                 model.getAuthorizedOrganizations().add(orgKey);
             }
         }
