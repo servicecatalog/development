@@ -30,6 +30,7 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,6 +43,8 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
         DataService ds = new DataServiceBean();
 
         enableHibernateSearchListeners(true);
+        FifoJMSQueue indexerQueue = createIndexerQueue();
+        indexerQueue.clear();
         container.addBean(ds);
         container.addBean(sssb);
 
@@ -130,4 +133,5 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
         });
 
     }
+
 }
