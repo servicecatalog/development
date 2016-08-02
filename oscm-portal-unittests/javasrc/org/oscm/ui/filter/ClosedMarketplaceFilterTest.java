@@ -170,8 +170,7 @@ public class ClosedMarketplaceFilterTest {
         closedMplFilter.doFilter(requestMock, responseMock, chainMock);
 
         // then
-        verify(redirectorMock, times(1)).forward(eq(requestMock),
-                eq(responseMock), eq(MPL_START_URL));
+        verify(chainMock, times(1)).doFilter(requestMock, responseMock);
     }
 
     private MarketplaceConfiguration getConfiguration(boolean isRestricted,
