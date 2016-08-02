@@ -60,7 +60,7 @@ public class IPPoolImport extends GenericImport {
                             + ipaddress);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     line = csv.readNext();
@@ -70,7 +70,7 @@ public class IPPoolImport extends GenericImport {
                             + vlan + " " + ipaddress);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
             }
             conn.commit();

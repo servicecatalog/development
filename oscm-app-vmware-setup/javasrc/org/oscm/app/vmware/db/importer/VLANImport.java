@@ -66,7 +66,7 @@ public class VLANImport extends GenericImport {
                             + dnsServer + " " + dnsSuffix);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     line = csv.readNext();
@@ -76,7 +76,7 @@ public class VLANImport extends GenericImport {
                             + vlan + " " + dnsServer + " " + dnsSuffix);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
             }
             conn.commit();
