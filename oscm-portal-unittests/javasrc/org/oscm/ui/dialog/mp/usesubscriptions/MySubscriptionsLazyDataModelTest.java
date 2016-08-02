@@ -304,6 +304,72 @@ public class MySubscriptionsLazyDataModelTest {
     }
 
     @Test
+    public void testGetRowTotalCount() throws Exception {
+        //given
+        int totalCount = 1;
+        List<POSubscription> expectedList = prepareList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        model.setSelectedSubscription(new POSubscription(new VOSubscription()));
+
+        //when
+        int result = model.getTotalCount();
+        //then
+        assertEquals(result, totalCount);
+    }
+
+    @Test
+    public void testGetRowTotalCountEmptyResult() throws Exception {
+        //given
+        int totalCount = 0;
+        List<POSubscription> expectedList = Collections.emptyList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        model.setSelectedSubscription(new POSubscription(new VOSubscription()));
+
+        //when
+        int result = model.getTotalCount();
+        //then
+        assertEquals(result, totalCount);
+    }
+
+    @Test
     public void testGetDataListNullSelected() throws Exception {
         //given
         int firstRow = 0;
