@@ -1107,11 +1107,18 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
             // if no entry exists just continue
         }
 
-        String updateQuery = "UPDATE catalogentry SET marketplace_tkey = NULL WHERE product_tkey IN (SELECT tkey FROM product WHERE vendorkey = :orgKey AND type = 'TEMPLATE') AND marketplace_tkey = :mpKey";
-        Query query = ds.createNativeQuery(updateQuery);
-        query.setParameter("orgKey", organizationKey);
-        query.setParameter("mpKey", marketplaceKey);
-        query.executeUpdate();
+        Organization org = ds.getReference(Organization.class, organizationKey);
+        Marketplace mp = ds.getReference(Marketplace.class, marketplaceKey);
+
+        CatalogEntry ce;
+        for (Product prod : org.getProducts()) {
+            ce = prod.getCatalogEntryForMarketplace(mp);
+            if (ce != null) {
+                ce.setMarketplace(null);
+            }
+        }
+
+        ds.flush();
     }
 
     @Override

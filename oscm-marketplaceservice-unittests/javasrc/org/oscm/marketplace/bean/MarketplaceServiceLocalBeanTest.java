@@ -29,11 +29,11 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.SessionContext;
-import javax.persistence.Query;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -738,11 +738,29 @@ public class MarketplaceServiceLocalBeanTest {
         access.setMarketplace_tkey(1L);
         access.setOrganization_tkey(1L);
 
+        Marketplace mp = new Marketplace();
+        mp.setKey(1L);
+        mp.setMarketplaceId("id");
+
+        Product prod = new Product();
+        prod.setKey(1L);
+
+        Organization org = new Organization();
+        org.setKey(1L);
+        org.setProducts(Arrays.asList(prod));
+
+        prod.setVendor(org);
+
+        CatalogEntry ce = new CatalogEntry();
+        ce.setKey(1L);
+        ce.setMarketplace(mp);
+
+        prod.setCatalogEntries(Arrays.asList(ce));
+
         doReturn(access).when(service.ds).getReferenceByBusinessKey(
                 any(MarketplaceAccess.class));
-
-        Query query = mock(Query.class);
-        doReturn(query).when(service.ds).createNativeQuery(anyString());
+        doReturn(mp).when(service.ds).getReference(Marketplace.class, 1L);
+        doReturn(org).when(service.ds).getReference(Organization.class, 1L);
 
         // when
         service.removeMarketplaceAccess(1L, 1L);
