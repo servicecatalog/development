@@ -4,7 +4,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
@@ -13,6 +12,9 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-3.6.2.jar"/><classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar"/><classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar"/><classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

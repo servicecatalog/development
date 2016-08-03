@@ -3,7 +3,7 @@
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-portal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
@@ -27,16 +27,14 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
 	<classpathentry kind="lib" path="/libraries/apache-poi/javalib/poi-3.9.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-annotations.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-core.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
 	<classpathentry kind="lib" path="/libraries/apache-tomahawk/javalib/tomahawk20-1.1.14.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-saml2-api"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-databind.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

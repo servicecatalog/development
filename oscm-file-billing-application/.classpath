@@ -10,6 +10,6 @@
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="lib" path="/libraries/apache-io/javalib/commons-io-1.4.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.ws.rs-api.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

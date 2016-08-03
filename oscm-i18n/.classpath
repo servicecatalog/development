@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="javares"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
@@ -16,5 +15,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

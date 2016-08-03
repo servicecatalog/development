@@ -8,8 +8,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-core.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
 	<classpathentry kind="lib" path="/libraries/gson/javalib/gson-2.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

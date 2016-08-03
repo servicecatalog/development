@@ -12,7 +12,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-application-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-4.0.1.Final.jar"/>
@@ -47,7 +47,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry kind="src" path="/oscm-apiversioning-client-handler"/>
-	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
-	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="lib" path="/libraries/opensaml/javalib/slf4j-api-1.7.7.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -8,10 +8,10 @@
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
 	<classpathentry kind="lib" path="/libraries/dbunit/javalib/dbunit-2.4.7.jar"/>
-	<classpathentry kind="lib" path="/libraries/oracle-mail/javalib/mail.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/modules/javax.mail.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

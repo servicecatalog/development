@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="/libraries/apache-validator/javalib/commons-validator-1.4.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/jakarta-oro/javalib/jakarta-oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
 	<classpathentry kind="lib" path="/libraries/wsdl4j/javalib/wsdl4j.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>

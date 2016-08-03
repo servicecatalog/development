@@ -19,7 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-sessionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-paymentprocessing-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-credentialservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
@@ -50,13 +49,12 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-eventmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-metro/javalib/jaxb-xjc.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-marketplaceservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-vat"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-timermgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-adapter-service"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

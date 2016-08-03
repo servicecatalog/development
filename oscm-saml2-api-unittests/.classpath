@@ -11,6 +11,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="lib" path="/libraries/mockito/javalib/mockito-all-1.8.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-server-common"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

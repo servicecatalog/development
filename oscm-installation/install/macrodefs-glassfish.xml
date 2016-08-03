@@ -93,9 +93,6 @@
       <!-- app slf4j-log4j jar -->
       <property name="slf4j.log4j.jar.name" value="slf4j-log4j12-1.7.7.jar" />
       <property name="slf4j.log4j.jar" value="${jdbc.driver.jar.path}/${slf4j.log4j.jar.name}" />
-      <!-- app slf4j-log4j jar -->
-      <property name="javax.faces.jar.name" value="javax.faces.jar" />
-      <property name="javax.faces.jar" value="../../install/${jdbc.driver.jar.path}/${javax.faces.jar.name}" />
     </sequential>
   </macrodef>
 

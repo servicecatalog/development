@@ -30,8 +30,7 @@
       <artifact name="asm-all" ext="jar"
                 url="https://maven.java.net/content/repositories/staging/org/glassfish/external/asm-all/3.3/asm-all-3.3.jar"/>
     </dependency>
-    <dependency org="org.hamcrest" name="hamcrest-core" rev="1.3" transitive="false"/>
-    <dependency org="javax" name="javaee-api" rev="7.0" transitive="false"/>
+
     <dependency org="org.apache.commons" name="commons-pool2" rev="2.4.2" transitive="false"/>
     <dependency org="com.opencsv" name="opencsv" rev="3.7" transitive="false"/>
     <dependency org="org.antlr" name="antlr4-runtime" rev="4.1" transitive="false"/>
@@ -260,7 +259,6 @@
     <dependency org="org.jacoco" name="org.jacoco.core" rev="0.6.1.201212231917"/>
     <dependency org="org.jacoco" name="org.jacoco.report" rev="0.6.1.201212231917" transitive="false"/>
     <dependency org="oro" name="oro" rev="2.0.8" transitive="false"/>
-    <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-search-engine" rev="4.3.0.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-search-orm" rev="4.3.0.Final" transitive="false"/>
     <dependency org="net.sourceforge.cssparser" name="cssparser" rev="0.9.14" transitive="false"/>
@@ -300,7 +298,7 @@
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.5" transitive="false"/>
     <dependency org="org.codehaus.sonar-plugins" name="sonar-ant-task" rev="1.1" transitive="false"/>
     <dependency org="org.codehaus.sonar" name="sonar-ws-client" rev="4.5" transitive="false"/>
-    <dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.1.1" transitive="false"/>
+    
     <dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.7" transitive="false"/>
     <dependency org="org.jsoup" name="jsoup" rev="1.8.1" transitive="false"/>
     <dependency org="org.slf4j" name="jul-to-slf4j" rev="1.7.7" transitive="false"/>
@@ -317,314 +315,29 @@
     <dependency org="org.slf4j" name="slf4j-nop" rev="1.7.7" transitive="false"/>
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.7" transitive="false"/>
     <dependency org="org.codehaus.sonar" name="sonar-plugin-api" rev="3.3" transitive="false"/>
-    <dependency org="org.glassfish.main.extras" name="appserv-rt" rev="3.1.2.2" transitive="false"/>
+
     <dependency org="org.glassfish.main.appclient" name="gf-client" rev="4.1.1" transitive="false">
       <artifact name="gf-client" ext="jar"/>
     </dependency>
     <dependency org="org.glassfish.main.extras" name="javaee" rev="4.1.1"/>
-    <dependency org="org.glassfish.main.appclient" name="acc-config" rev="4.1.1" transitive="false">
-      <artifact name="acc-config" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.javaee-api" name="javax.annotation" rev="3.1.2.2" transitive="false"/>
-    <dependency org="javax.xml.bind" name="jaxb-api-osgi" rev="2.2.6" transitive="false"/>
-    <dependency org="org.glassfish.metro" name="webservices-api-osgi" rev="2.2.0-1" transitive="false"/>
-    <dependency org="org.glassfish.main.admin" name="admin-cli" rev="4.1.1" transitive="false">
-      <artifact name="admin-cli" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="admin-core" rev="4.1.1" transitive="false">
-      <artifact name="admin-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="admin-util" rev="4.1.1" transitive="false">
-      <artifact name="admin-util" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="amx-core" rev="4.1.1">
-      <artifact name="amx-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="amx-javaee" rev="4.1.1">
-      <artifact name="amx-javaee" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="annotation-framework" rev="4.1.1" transitive="false">
-      <artifact name="annotation-framework" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.hk2.external" name="aopalliance-repackaged" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.external" name="ant" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.external" name="antlr-repackaged" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.core" name="api-exporter" rev="4.1.1" transitive="false">
-      <artifact name="api-exporter" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.appclient.server" name="appclient-connector" rev="4.1.1"
-                transitive="false">
-      <artifact name="appclient-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.appclient.server" name="appclient-server-core" rev="4.1.1"
-                transitive="false">
-      <artifact name="appclient-server-core" ext="jar"/>
-    </dependency>
+    <dependency org="javax.annotation" name="javax.annotation-api" rev="1.2" transitive="false"/>
+    <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
+    <dependency org="javax.ejb" name="javax.ejb-api" rev="3.2"/>
+    <dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.1.1" transitive="false"/>
+    <dependency org="javax.servlet" name="javax.servlet-api" rev="3.1.0" transitive="false"/>
+    <dependency org="javax.servlet.jsp" name="javax.servlet.jsp-api" rev="2.3.2-b01"/>
+    <dependency org="javax.servlet.jsp.jstl" name="javax.servlet.jsp.jstl-api" rev="1.2.1" transitive="false"/>
     <dependency org="javax.enterprise" name="cdi-api" rev="1.2" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="class-model" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.web" name="cdi-api-fragment" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.security" name="appclient.security" rev="4.1.1" transitive="false">
-      <artifact name="appclient.security" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.hk2.external" name="asm-all-repackaged" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.admin" name="backup" rev="4.1.1" transitive="false">
-      <artifact name="backup" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.hk2.external" name="bean-validator" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2.external" name="bean-validator-cdi" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.cluster" name="cluster-admin" rev="4.1.1" transitive="false">
-      <artifact name="cluster-admin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.cluster" name="cluster-common" rev="4.1.1" transitive="false">
-      <artifact name="cluster-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.cluster" name="cluster-ssh" rev="4.1.1" transitive="false">
-      <artifact name="cluster-ssh" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence" name="entitybean-container" rev="4.1.1" transitive="false">
-      <artifact name="entitybean-container" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-ejb-mapping" rev="4.1.1" transitive="false">
-      <artifact name="cmp-ejb-mapping" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-enhancer" rev="4.1.1" transitive="false">
-      <artifact name="cmp-enhancer" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-generator-database" rev="4.1.1"
-                transitive="false">
-      <artifact name="cmp-generator-database" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-internal-api" rev="4.1.1" transitive="false">
-      <artifact name="cmp-internal-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-model" rev="4.1.1" transitive="false">
-      <artifact name="cmp-model" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-support-ejb" rev="4.1.1" transitive="false">
-      <artifact name="cmp-support-ejb" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-support-sqlstore" rev="4.1.1"
-                transitive="false">
-      <artifact name="cmp-support-sqlstore" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence.cmp" name="cmp-utility" rev="4.1.1" transitive="false">
-      <artifact name="cmp-utility" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="common-util" rev="4.1.1" transitive="false">
-      <artifact name="common-util" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="config-api" rev="4.1.1" transitive="false">
-      <artifact name="config-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.hk2" name="config-types" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.connectors" name="connectors-admin" rev="4.1.1" transitive="false">
-      <artifact name="connectors-admin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.connectors" name="connectors-inbound-runtime" rev="4.1.1"
-                transitive="false">
-      <artifact name="connectors-inbound-runtime" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.connectors" name="connectors-internal-api" rev="4.1.1" transitive="false">
-      <artifact name="connectors-internal-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.connectors" name="connectors-runtime" rev="4.1.1" transitive="false">
-      <artifact name="connectors-runtime" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-cluster-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-cluster-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-common-full-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-common-full-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-common" rev="4.1.1" transitive="false">
-      <artifact name="console-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-community-branding-plugin" rev="4.1.1"
-                transitive="false">
-      <artifact name="console-community-branding-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-concurrent-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-concurrent-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-corba-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-corba-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-ejb-lite-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-ejb-lite-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-ejb-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-ejb-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-jca-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-jca-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-jdbc-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-jdbc-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-jms-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-jms-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-jts-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-jts-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-plugin-service" rev="4.1.1" transitive="false">
-      <artifact name="console-plugin-service" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-updatecenter-plugin" rev="4.1.1"
-                transitive="false">
-      <artifact name="console-updatecenter-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="console-web-plugin" rev="4.1.1" transitive="false">
-      <artifact name="console-web-plugin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="container-common" rev="4.1.1" transitive="false">
-      <artifact name="container-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui" name="dataprovider" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.external" name="dbschema-repackaged" rev="3.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.deployment" name="deployment-admin" rev="4.1.1" transitive="false">
-      <artifact name="deployment-admin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="deployment-autodeploy" rev="4.1.1" transitive="false">
-      <artifact name="deployment-autodeploy" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="deployment-client" rev="4.1.1" transitive="false">
-      <artifact name="deployment-client" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="deployment-common" rev="4.1.1" transitive="false">
-      <artifact name="deployment-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="deployment-javaee-core" rev="4.1.1" transitive="false">
-      <artifact name="deployment-javaee-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="deployment-javaee-full" rev="4.1.1" transitive="false">
-      <artifact name="deployment-javaee-full" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.deployment" name="dol" rev="4.1.1" transitive="false">
-      <artifact name="dol" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ejb" name="ejb-container" rev="4.1.1" transitive="false">
-      <artifact name="ejb-container" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ejb" name="ejb-full-container" rev="4.1.1" transitive="false">
-      <artifact name="ejb-full-container" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ejb" name="ejb-client" rev="4.1.1" transitive="false">
-      <artifact name="ejb-client" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ejb" name="ejb-internal-api" rev="4.1.1" transitive="false">
-      <artifact name="ejb-internal-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.security" name="ejb.security" rev="4.1.1" transitive="false">
-      <artifact name="ejb.security" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.flashlight" name="flashlight-extra-jdk-packages" rev="4.1.1"
-                transitive="false"/>
-    <dependency org="org.glassfish.main.flashlight" name="flashlight-framework" rev="4.1.1" transitive="false">
-      <artifact name="flashlight-framework" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.appclient" name="gf-client-module" rev="4.1.1" transitive="false">
-      <artifact name="gf-client-module" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.connectors" name="gf-connectors-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-connectors-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admingui.connector" name="gf-admingui-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-admingui-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ejb" name="gf-ejb-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-ejb-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.jms" name="gf-jms-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-jms-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.jms" name="gf-jms-injection" rev="4.1.1" transitive="false">
-      <artifact name="gf-jms-injection" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence" name="gf-jpa-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-jpa-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.loadbalancer" name="gf-load-balancer-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-load-balancer-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="gf-restadmin-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-restadmin-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="gf-web-connector" rev="4.1.1" transitive="false">
-      <artifact name="gf-web-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="gf-weld-connector" rev="4.1.1">
-      <artifact name="gf-weld-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="glassfish-api" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.batch" name="glassfish-batch-commands" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-batch-commands" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.batch" name="glassfish-batch-connector" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-batch-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.corba" name="glassfish-corba-csiv2-idl" rev="4.0.1" transitive="false"/>
-    <dependency org="org.glassfish.corba" name="glassfish-corba-internal-api" rev="4.0.1" transitive="false"/>
-    <dependency org="org.glassfish.corba" name="glassfish-corba-omgapi" rev="4.0.1" transitive="false"/>
-    <dependency org="org.glassfish.corba" name="glassfish-corba-orb" rev="4.0.1" transitive="false"/>
-    <dependency org="org.glassfish.main.common" name="glassfish-ee-api" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-ee-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.core" name="glassfish-extra-jre-packages" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.grizzly" name="grizzly-config" rev="4.1.1" transitive="false">
-      <artifact name="grizzly-config" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.grizzly" name="glassfish-grizzly-extra-all" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.common" name="glassfish-mbeanserver" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-mbeanserver" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="glassfish-naming" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-naming" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence" name="glassfish-oracle-jdbc-driver-packages" rev="4.1.1"
-                transitive="false"/>
-    <dependency org="org.glassfish.main.registration" name="glassfish-registration" rev="4.1.1" transitive="false">
-      <artifact name="glassfish-registration" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.core" name="glassfish" rev="4.1.1" transitive="false">
-      <artifact name="glassfish" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.gmbal" name="gmbal" rev="4.0.0-b001" transitive="false">
-      <artifact name="gmbal" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.cluster" name="gms-adapter" rev="4.1.1" transitive="false">
-      <artifact name="gms-adapter" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.cluster" name="gms-bootstrap" rev="4.1.1" transitive="false">
-      <artifact name="gms-bootstrap" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish" name="jsonp-jaxrs" rev="1.0" transitive="false"/>
-    <dependency org="org.glassfish.ha" name="ha-api" rev="3.1.8" transitive="false"/>
-    <dependency org="org.glassfish.main.ha" name="ha-file-store" rev="4.1.1" transitive="false">
-      <artifact name="ha-file-store" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ha" name="ha-shoal-cache-bootstrap" rev="4.1.1" transitive="false">
-      <artifact name="ha-shoal-cache-bootstrap" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.ha" name="ha-shoal-cache-store" rev="4.1.1" transitive="false">
-      <artifact name="ha-shoal-cache-store" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.hk2" name="hk2-core" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2-api" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2-config" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2-locator" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2-runlevel" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="hk2-utils" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.security" name="inmemory.jacc.provider" rev="4.1.1" transitive="false">
-      <artifact name="inmemory.jacc.provider" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="internal-api" rev="4.1.1" transitive="false">
-      <artifact name="internal-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.external" name="j-interop-repackaged" rev="4.1.1" transitive="false"/>
+    <dependency org="org.glassfish.metro" name="webservices-osgi" rev="2.3.1" transitive="false"/>
+    <dependency org="com.sun.mail" name="javax.mail" rev="1.5.4" transitive="false"/>
+    <dependency org="javax.jms" name="javax.jms-api" rev="2.0.1" transitive="false"/>
+    <dependency org="org.glassfish" name="javax.el" rev="3.0.1-b03" transitive="false"/>
+    <dependency org="javax.transaction" name="javax.transaction-api" rev="1.2" transitive="false"/>
+    <dependency org="javax.ws.rs" name="javax.ws.rs-api" rev="2.0.1" transitive="false"/>
+    
+    <dependency org="org.glassfish.hk2.external" name="javax.inject" rev="2.4.0-b31" transitive="false"/>
+    <dependency org="javax.interceptor" name="javax.interceptor-api" rev="1.2" transitive="false"/>
+    <dependency org="org.jboss.weld" name="weld-osgi-bundle" rev="2.2.13.Final" transitive="false"/>
     <dependency org="com.fasterxml.jackson.core" name="jackson-annotations" rev="2.5.1" transitive="false">
       <artifact name="jackson-annotations" ext="jar"/>
     </dependency>
@@ -634,53 +347,57 @@
     <dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="2.5.1" transitive="false">
       <artifact name="jackson-databind" ext="jar"/>
     </dependency>
-    <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-base" rev="2.5.1" transitive="false">
-      <artifact name="jackson-jaxrs-base" ext="jar"/>
+    <dependency org="org.glassfish.main.security" name="security" rev="4.1.1" transitive="false">
+      <artifact name="security" ext="jar"/>
     </dependency>
-    <dependency org="com.fasterxml.jackson.jaxrs" name="jackson-jaxrs-json-provider" rev="2.5.1" transitive="false"/>
-    <dependency org="org.glassfish.main.security" name="jaspic.provider.framework" rev="4.1.1" transitive="false">
-      <artifact name="jaspic.provider.framework" ext="jar"/>
+    <dependency org="org.glassfish.main.security" name="security-ee" rev="4.1.1" transitive="false">
+      <artifact name="security-ee" ext="jar"/>
     </dependency>
-    <dependency org="org.glassfish.main.core" name="javaee-kernel" rev="4.1.1" transitive="false">
-      <artifact name="javaee-kernel" ext="jar"/>
+    <dependency org="org.glassfish.main.security" name="websecurity" rev="4.1.1" transitive="false">
+      <artifact name="websecurity" ext="jar"/>
     </dependency>
-    <dependency org="org.glassfish.main.resources" name="javamail-connector" rev="4.1.1" transitive="false">
-      <artifact name="javamail-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.resources" name="javamail-runtime" rev="4.1.1" transitive="false">
-      <artifact name="javamail-runtime" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-sse" rev="4.1.1" transitive="false">
-      <artifact name="web-sse" ext="jar"/>
-    </dependency>
-    <dependency org="org.javassist" name="javassist" rev="3.18.1-GA" transitive="false"/>
-    <dependency org="javax.batch" name="javax.batch-api" rev="1.0" transitive="false"/>
-    <dependency org="javax.ejb" name="javax.ejb-api" rev="3.2"/>
-    <dependency org="org.glassfish" name="javax.el" rev="3.0.1-b03" transitive="false"/>
-    <dependency org="org.glassfish" name="javax.enterprise.concurrent" rev="1.0" transitive="false"/>
-    <dependency org="javax.enterprise.concurrent" name="javax.enterprise.concurrent-api" rev="1.0" transitive="false"/>
-    <dependency org="javax.enterprise.deploy" name="javax.enterprise.deploy-api" rev="1.6" transitive="false"/>
-    <dependency org="org.glassfish" name="javax.faces" rev="2.2.12" transitive="false"/>
-    <dependency org="org.glassfish.hk2.external" name="javax.inject" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="javax.interceptor" name="javax.interceptor-api" rev="1.2" transitive="false"/>
     <dependency org="javax.annotation" name="javax.annotation-api" rev="1.2" transitive="false"/>
-    <dependency org="javax.jms" name="javax.jms-api" rev="2.0.1" transitive="false"/>
-    <dependency org="org.glassfish" name="javax.json" rev="1.0.2" transitive="false"/>
-    <dependency org="com.sun.mail" name="javax.mail" rev="1.5.4" transitive="false"/>
-    <dependency org="javax.management.j2ee" name="javax.management.j2ee-api" rev="1.1.1" transitive="false"/>
-    <dependency org="javax.resource" name="javax.resource-api" rev="1.7" transitive="false"/>
-    <dependency org="javax.security.auth.message" name="javax.security.auth.message-api" rev="1.1" transitive="false"/>
-    <dependency org="javax.security.jacc" name="javax.security.jacc-api" rev="1.5" transitive="false"/>
-    <dependency org="org.glassfish.web" name="javax.servlet.jsp" rev="2.3.3-b02" transitive="false"/>
+        <dependency org="org.glassfish.main.common" name="glassfish-api" rev="4.1.1" transitive="false">
+      <artifact name="glassfish-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.common" name="glassfish-ee-api" rev="4.1.1" transitive="false">
+      <artifact name="glassfish-ee-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.ejb" name="ejb-container" rev="4.1.1" transitive="false">
+      <artifact name="ejb-container" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.ejb" name="ejb-internal-api" rev="4.1.1" transitive="false">
+      <artifact name="ejb-internal-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.common" name="common-util" rev="4.1.1" transitive="false">
+      <artifact name="common-util" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.transaction" name="transaction-internal-api" rev="4.1.1" transitive="false">
+      <artifact name="transaction-internal-api" ext="jar"/>
+    </dependency>
     <dependency org="org.glassfish.web" name="javax.servlet.jsp.jstl" rev="1.2.4" transitive="false"/>
-    <dependency org="javax.servlet.jsp.jstl" name="javax.servlet.jsp.jstl-api" rev="1.2.1" transitive="false"/>
-    <dependency org="javax.servlet.jsp" name="javax.servlet.jsp-api" rev="2.3.2-b01"/>
-    <dependency org="javax.servlet" name="javax.servlet-api" rev="3.1.0" transitive="false"/>
-    <dependency org="javax.transaction" name="javax.transaction-api" rev="1.2" transitive="false"/>
-    <dependency org="javax.websocket" name="javax.websocket-api" rev="1.1" transitive="false"/>
-    <dependency org="javax.ws.rs" name="javax.ws.rs-api" rev="2.0.1" transitive="false"/>
-    <dependency org="javax.xml.registry" name="javax.xml.registry-api" rev="1.0.7" transitive="false"/>
-    <dependency org="javax.xml.rpc" name="javax.xml.rpc-api" rev="1.1.1" transitive="false"/>
+    <dependency org="javax.xml" name="webservices-api-osgi" rev="2.0.1"/>
+    <dependency org="org.glassfish.main.common" name="glassfish-naming" rev="4.1.1">
+      <artifact name="glassfish-naming" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.common" name="internal-api" rev="4.1.1" transitive="false">
+      <artifact name="internal-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.common" name="scattered-archive-api" rev="4.1.1" transitive="false">
+      <artifact name="scattered-archive-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.grizzly" name="grizzly-config" rev="4.1.1" transitive="false">
+      <artifact name="grizzly-config" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.admin" name="config-api" rev="4.1.1" transitive="false">
+      <artifact name="config-api" ext="jar"/>
+    </dependency>
+    <dependency org="org.glassfish.main.common" name="simple-glassfish-api" rev="4.1.1" transitive="false">
+      <artifact name="simple-glassfish-api" ext="jar"/>
+    </dependency>
+
+    <dependency org="org.javassist" name="javassist" rev="3.18.1-GA" transitive="false"/>
+
     <dependency org="com.sun.xml.bind" name="jaxb-extra-osgi" rev="2.2.11" transitive="false"/>
     <dependency org="com.sun.xml.bind.jaxb" name="isorelax" rev="20090621" transitive="false"/>
     <dependency org="net.java.dev.msv" name="xsdlib" rev="2013.6.1" transitive="false"/>
@@ -689,21 +406,8 @@
     <dependency org="javax.xml" name="jaxr-api-osgi" rev="1.0-b01" transitive="false"/>
     <dependency org="javax.xml" name="jaxrpc-api-osgi" rev="1.1-b01" transitive="false"/>
     <dependency org="org.jboss.logging" name="jboss-logging" rev="3.1.3.GA" transitive="false"/>
-    <dependency org="org.glassfish.main.jdbc" name="jdbc-admin" rev="4.1.1" transitive="false">
-      <artifact name="jdbc-admin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.jdbc" name="jdbc-config" rev="4.1.1" transitive="false">
-      <artifact name="jdbc-config" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.jdbc" name="jdbc-runtime" rev="4.1.1" transitive="false">
-      <artifact name="jdbc-runtime" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.resources" name="resources-connector" rev="4.1.1" transitive="false">
-      <artifact name="resources-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.resources" name="resources-runtime" rev="4.1.1" transitive="false">
-      <artifact name="resources-runtime" ext="jar"/>
-    </dependency>
+
+
     <dependency org="org.glassfish.jersey.ext" name="jersey-bean-validation" rev="2.21" transitive="false"/>
     <dependency org="org.glassfish.jersey.ext.cdi" name="jersey-cdi1x" rev="2.21" transitive="false"/>
     <dependency org="org.glassfish.jersey.ext.cdi" name="jersey-cdi1x-servlet" rev="2.21" transitive="false"/>
@@ -735,74 +439,6 @@
     <dependency org="org.glassfish.main.jms" name="jms-admin" rev="4.1.1" transitive="false">
       <artifact name="jms-admin" ext="jar"/>
     </dependency>
-    <dependency org="org.glassfish.main.jms" name="jms-core" rev="4.1.1" transitive="false">
-      <artifact name="jms-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.external" name="jmxremote_optional-repackaged" rev="4.1.1"
-                transitive="false">
-      <artifact name="jmxremote_optional-repackaged" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.persistence" name="jpa-container" rev="4.1.1" transitive="false">
-      <artifact name="jpa-container" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="jsf-connector" rev="4.1.1" transitive="false">
-      <artifact name="jsf-connector" ext="jar"/>
-    </dependency>
-    <dependency org="com.sun.jsftemplating" name="jsftemplating" rev="2.1.0" transitive="false"/>
-    <dependency org="org.glassfish.main.web" name="jspcaching-connector" rev="4.1.1" transitive="false">
-      <artifact name="jspcaching-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.webservices" name="jsr109-impl" rev="4.1.1" transitive="false">
-      <artifact name="jsr109-impl" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="jstl-connector" rev="4.1.1" transitive="false">
-      <artifact name="jstl-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.transaction" name="jta" rev="4.1.1" transitive="false">
-      <artifact name="jta" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.transaction" name="jts" rev="4.1.1" transitive="false">
-      <artifact name="jts" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.core" name="kernel" rev="4.1.1" transitive="false">
-      <artifact name="kernel" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="launcher" rev="4.1.1" transitive="false">
-      <artifact name="launcher" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.external" name="ldapbp-repackaged" rev="4.1.1" transitive="false">
-      <artifact name="ldapbp-repackaged" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.external" name="libpam4j-repackaged" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.loadbalancer" name="load-balancer-admin" rev="4.1.1" transitive="false">
-      <artifact name="load-balancer-admin" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.core" name="logging" rev="4.1.1" transitive="false">
-      <artifact name="logging" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.grizzly" name="nucleus-grizzly-all" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.resourcebase.resources" name="nucleus-resources" rev="4.1.1"
-                transitive="false">
-      <artifact name="nucleus-resources" ext="jar"/>
-    </dependency>
-    <dependency org="org.apache.felix" name="org.apache.felix.bundlerepository" rev="1.6.6" transitive="false"/>
-    <dependency org="org.glassfish.external" name="management-api" rev="3.2.1-b002" transitive="false"/>
-    <dependency org="org.glassfish.main.webservices" name="metro-glue" rev="4.1.1" transitive="false">
-      <artifact name="metro-glue" ext="jar"/>
-    </dependency>
-    <dependency org="org.jvnet.mimepull" name="mimepull" rev="1.9.4" transitive="false"/>
-    <dependency org="org.glassfish.main.admin" name="monitoring-core" rev="4.1.1" transitive="false">
-      <artifact name="monitoring-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.orb" name="orb-connector" rev="4.1.1" transitive="false">
-      <artifact name="orb-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.orb" name="orb-enabler" rev="4.1.1" transitive="false">
-      <artifact name="orb-enabler" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.orb" name="orb-iiop" rev="4.1.1" transitive="false">
-      <artifact name="orb-iiop" ext="jar"/>
-    </dependency>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.antlr" rev="2.6.3" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.asm" rev="2.6.3" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.core" rev="2.6.3" transitive="false"/>
@@ -814,131 +450,9 @@
                 transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.moxy" rev="2.6.3" transitive="false"/>
     <dependency org="org.eclipse.persistence" name="org.eclipse.persistence.oracle" rev="2.6.3" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="osgi-adapter" rev="2.4.0-b31" transitive="false"/>
-    <dependency org="org.glassfish.main.osgi-platforms" name="osgi-container" rev="4.1.1" transitive="false">
-      <artifact name="osgi-container" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.osgi-platforms" name="osgi-cli-remote" rev="4.1.1" transitive="false">
-      <artifact name="osgi-cli-remote" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.fighterfish" name="osgi-jpa-extension" rev="1.0.2" transitive="false"/>
-    <dependency org="org.glassfish.hk2" name="osgi-resource-locator" rev="1.0.1" transitive="false"/>
-    <dependency org="org.glassfish.main.persistence" name="persistence-common" rev="4.1.1" transitive="false">
-      <artifact name="persistence-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-asm" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-asm" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-basic" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-basic" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-basic-tools" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-basic-tools" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-dynamic" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-dynamic" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-tf" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-tf" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.pfl" name="pfl-tf-tools" rev="4.0.0-b004" transitive="false">
-      <artifact name="pfl-tf-tools" ext="jar"/>
-    </dependency>
-    <dependency org="com.sun.pkg" name="pkg-client" rev="1.122-56.2852" transitive="false"/>
-    <dependency org="org.glassfish.main.registration" name="registration-api" rev="4.1.1" transitive="false">
-      <artifact name="registration-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.registration" name="registration-impl" rev="4.1.1" transitive="false">
-      <artifact name="registration-impl" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="rest-client" rev="4.1.1" transitive="false">
-      <artifact name="rest-client" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.admin" name="rest-service" rev="4.1.1" transitive="false">
-      <artifact name="rest-service" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="scattered-archive-api" rev="4.1.1" transitive="false">
-      <artifact name="scattered-archive-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.external" name="schema2beans-repackaged" rev="3.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.security" name="security" rev="4.1.1" transitive="false">
-      <artifact name="security" ext="jar"/>
-    </dependency>
-    <dependency org="org.shoal" name="shoal-cache" rev="1.6.18" transitive="false"/>
-    <dependency org="org.shoal" name="shoal-gms-api" rev="1.6.18" transitive="false"/>
-    <dependency org="org.shoal" name="shoal-gms-impl" rev="1.6.18" transitive="false"/>
-    <dependency org="org.glassfish.main.common" name="simple-glassfish-api" rev="4.1.1" transitive="false">
-      <artifact name="simple-glassfish-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.webservices" name="soap-tcp" rev="4.1.1" transitive="false">
-      <artifact name="soap-tcp" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.security" name="ssl-impl" rev="4.1.1" transitive="false">
-      <artifact name="ssl-impl" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.security" name="security-ee" rev="4.1.1" transitive="false">
-      <artifact name="security-ee" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.security" name="security-services" rev="4.1.1" transitive="false">
-      <artifact name="security-services" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.common" name="stats77" rev="4.1.1" transitive="false">
-      <artifact name="stats77" ext="jar"/>
-    </dependency>
+
     <dependency org="org.codehaus.woodstox" name="stax2-api" rev="3.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.transaction" name="transaction-internal-api" rev="4.1.1"
-                transitive="false">
-      <artifact name="transaction-internal-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.tyrus" name="tyrus-client" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-container-glassfish-cdi" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-container-glassfish-ejb" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-container-grizzly-client" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-container-servlet" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-core" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-server" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.tyrus" name="tyrus-spi" rev="1.11" transitive="false"/>
-    <dependency org="org.glassfish.main.external" name="trilead-ssh2-repackaged" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.web" name="war-util" rev="4.1.1" transitive="false">
-      <artifact name="war-util" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-cli" rev="4.1.1" transitive="false">
-      <artifact name="web-cli" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-core" rev="4.1.1" transitive="false">
-      <artifact name="web-core" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-embed-api" rev="4.1.1" transitive="false">
-      <artifact name="web-embed-api" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-glue" rev="4.1.1" transitive="false">
-      <artifact name="web-glue" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-gui-plugin-common" rev="4.1.1" transitive="false">
-      <artifact name="web-gui-plugin-common" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-ha" rev="4.1.1" transitive="false">
-      <artifact name="web-ha" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="web-naming" rev="4.1.1" transitive="false">
-      <artifact name="web-naming" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.security" name="websecurity" rev="4.1.1" transitive="false">
-      <artifact name="websecurity" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.webservices" name="webservices-connector" rev="4.1.1" transitive="false">
-      <artifact name="webservices-connector" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.metro" name="webservices-extra-jdk-packages" rev="2.3.1" transitive="false"/>
-    <dependency org="org.glassfish.metro" name="webservices-osgi" rev="2.3.1" transitive="false"/>
-    <dependency org="org.glassfish.main.security" name="webservices.security" rev="4.1.1" transitive="false">
-      <artifact name="webservices.security" ext="jar"/>
-    </dependency>
-    <dependency org="org.glassfish.main.web" name="weld-integration-fragment" rev="4.1.1" transitive="false"/>
-    <dependency org="org.glassfish.main.web" name="weld-integration" rev="4.1.1" transitive="false">
-      <artifact name="weld-integration" ext="jar"/>
-    </dependency>
-    <dependency org="org.jboss.weld" name="weld-osgi-bundle" rev="2.2.13.Final" transitive="false"/>
+
     <dependency org="org.codehaus.woodstox" name="woodstox-core-asl" rev="4.2.0" transitive="false"/>
     <dependency org="org.glassfish.main.connectors" name="work-management" rev="4.1.1" transitive="false">
       <artifact name="work-management" ext="jar"/>

@@ -23,23 +23,14 @@
 	<classpathentry kind="lib" path="/libraries/apache-el/javalib/commons-el.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-poi/javalib/poi-3.9.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-annotations.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-databind.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jackson-core.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-serviceprovisioning-intsvc"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/appserv-rt.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-log4j/javalib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-httpclient/javalib/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/javax.faces.jar"/>
 	<classpathentry kind="lib" path="/libraries/omnifaces/javalib/omnifaces-1.10.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/websecurity.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-collections/javalib/commons-collections-3.2.2.jar"/>
-	<classpathentry kind="lib" path="/libraries/javaee-api/javalib/javaee-api-7.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="owner.project.facets" value="java"/>
@@ -50,5 +41,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-i18n"/>
 	<classpathentry kind="src" path="/oscm-app-aws"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing-external-interfaces"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

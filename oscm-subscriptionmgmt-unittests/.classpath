@@ -9,7 +9,7 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-identitymgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices-intsvc"/>
@@ -52,11 +52,12 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-operation"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-internal-interfaces"/>
-    <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-3.6.2.jar" />
-    <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar" />
-    <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar" />
-    <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar" />
-    <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-4.3.0.Final.jar" />
-    <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-4.3.0.Final.jar" />
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-4.3.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-4.3.0.Final.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

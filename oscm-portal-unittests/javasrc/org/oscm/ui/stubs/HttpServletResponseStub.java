@@ -296,4 +296,10 @@ public class HttpServletResponseStub implements HttpServletResponse {
     public int getStatus() {
         return 0;
     }
+
+    @Override
+    public void setContentLengthLong(long arg0) {
+        // TODO Auto-generated method stub
+        
+    }
 }
