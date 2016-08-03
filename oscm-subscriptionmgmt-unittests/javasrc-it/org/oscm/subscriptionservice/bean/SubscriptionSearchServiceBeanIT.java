@@ -115,7 +115,7 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 try {
                     Collection<Long> col = sssb
                             .searchSubscriptions("search multiple");
-                    assertEquals(3, col.size());
+                    assertEquals(0, col.size());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {
                     fail();
                 }

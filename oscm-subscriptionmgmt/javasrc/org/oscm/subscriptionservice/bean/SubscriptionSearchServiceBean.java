@@ -53,6 +53,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     public static final String UDA_VALUE = "dataContainer.udaValue";
     public static final String PARAMETER_VALUE = "dataContainer.value";
     public static final String UDA_DEFINITION_VALUE = "dataContainer.defaultValue";
+    public static final int ALLOWED_SLOP = 5;
 
     @EJB
     private DataService dm;
@@ -65,11 +66,16 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         Set<Long> result = new TreeSet<Long>();
 
         List<Subscription> subList = searchSubscriptionsForFields(
-                Subscription.class, searchPhrase, SUBSCRIPTION_ID,
-                SUBSCRIPTION_PURCHASE_ORDER_NUMBER);
+                Subscription.class, searchPhrase, SUBSCRIPTION_ID);
         result.addAll(extractKeysForSubscriptions(subList));
         logger.logDebug("I have found " + result.size()
-                + " subscriptions by referenceId and subscriptionId");
+                + " subscriptions by subscriptionId");
+
+        subList = searchSubscriptionsForFields(Subscription.class,
+                searchPhrase, SUBSCRIPTION_PURCHASE_ORDER_NUMBER);
+        result.addAll(extractKeysForSubscriptions(subList));
+        logger.logDebug("I have found " + result.size()
+                + " subscriptions by referenceId");
 
         List<Parameter> paramList = searchSubscriptionsForFields(
                 Parameter.class, searchPhrase, PARAMETER_VALUE);
@@ -93,15 +99,16 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private <D extends DomainObject<?>> List<D> searchSubscriptionsForFields(
-            Class<D> clazz, String phrase, String... fields) {
+            Class<D> clazz, String phrase, String field) {
 
         FullTextEntityManager ftem = getFtem();
 
         QueryBuilder qb = ftem.getSearchFactory().buildQueryBuilder()
                 .forEntity(clazz).get();
 
-        org.apache.lucene.search.Query luceneQuery = qb.keyword()
-                .onFields(fields).matching(phrase).createQuery();
+        org.apache.lucene.search.Query luceneQuery = qb.phrase()
+                .withSlop(ALLOWED_SLOP).onField(field).sentence(phrase)
+                .createQuery();
 
         javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
                 luceneQuery, clazz);
