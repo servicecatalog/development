@@ -34,10 +34,18 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.solr.analysis.*;
-import org.hibernate.search.annotations.*;
+import org.apache.solr.analysis.LowerCaseFilterFactory;
+import org.apache.solr.analysis.SnowballPorterFilterFactory;
+import org.apache.solr.analysis.WhitespaceTokenizerFactory;
+import org.apache.solr.analysis.WordDelimiterFilterFactory;
+import org.hibernate.search.annotations.AnalyzerDef;
+import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.annotations.Similarity;
+import org.hibernate.search.annotations.TokenFilterDef;
+import org.hibernate.search.annotations.TokenizerDef;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.domobjects.similarity.CustomSimilarity;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.types.exceptions.UserAlreadyAssignedException;
@@ -54,15 +62,14 @@ import org.oscm.types.exceptions.UserNotAssignedException;
  * @author schmid
  */
 @Entity
-@AnalyzerDef(name = "customanalyzer",
-        tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
-        filters = {
-                @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
-                        @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
-                        @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
-                @TokenFilterDef(factory = LowerCaseFilterFactory.class),
-                @TokenFilterDef(factory = StandardFilterFactory.class) })
+@AnalyzerDef(name = "customanalyzer", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = {
+        @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
+                @org.hibernate.search.annotations.Parameter(name = "preserveOriginal", value = "1"),
+                @org.hibernate.search.annotations.Parameter(name = "catenateAll", value = "1") }),
+        @TokenFilterDef(factory = LowerCaseFilterFactory.class),
+        @TokenFilterDef(factory = SnowballPorterFilterFactory.class, params = { @org.hibernate.search.annotations.Parameter(name = "language", value = "English") }) })
 @Indexed
+@Similarity(impl = CustomSimilarity.class)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))
 @NamedQueries({
@@ -180,7 +187,7 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
     @OneToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "asyncTempProductKey")
     private Product asyncTempProduct;
-    
+
     /**
      * n:1 relation to the marketplace the product has been subscribed over. In
      * case the marketplace does no longer exist, the relation is canceled.<br>
