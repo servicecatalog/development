@@ -9,9 +9,7 @@ package org.oscm.ui.dialog.mp.usesubscriptions;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -301,6 +299,151 @@ public class MySubscriptionsLazyDataModelTest {
         //then
         assertArrayEquals(expectedList.toArray(), result.toArray());
         assertEquals(model.getTotalCount(), totalCount);
+    }
+
+
+
+    @Test
+    public void testGetDataListFilteredOut() throws Exception {
+        //given
+        int firstRow = 0;
+        int numRows = 10;
+        int totalCount = 1;
+        List<POSubscription> expectedList = prepareList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        VOSubscription voSubscription = new VOSubscription();
+        voSubscription.setKey(1001L);
+        model.setSelectedSubscription(new POSubscription(voSubscription));
+
+        //when
+        List<POSubscription> result = model.getDataList(firstRow, numRows,
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), new Object());
+        //then
+        assertArrayEquals(expectedList.toArray(), result.toArray());
+        assertEquals(model.getTotalCount(), totalCount);
+    }
+
+    @Test
+    public void testGetDataListReturnsDetails() throws Exception {
+        //given
+        int firstRow = 0;
+        int numRows = 10;
+        int totalCount = 1;
+        List<POSubscription> expectedList = prepareList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        doReturn(expectedList.get(0)).when(subscriptionsService).getMySubscriptionDetails(expectedList.get(0).getKey());
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        model.setSelectedSubscription(new POSubscription(new VOSubscription()));
+
+        //when
+        List<POSubscription> result = model.getDataList(firstRow, numRows,
+                Collections.<FilterField>emptyList(), Collections.<SortField>emptyList(), new Object());
+        //then
+        assertArrayEquals(expectedList.toArray(), result.toArray());
+        assertEquals(model.getTotalCount(), totalCount);
+    }
+
+    @Test
+    public void testGetRowTotalCount() throws Exception {
+        //given
+        int totalCount = 1;
+        List<POSubscription> expectedList = prepareList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        model.setSelectedSubscription(new POSubscription(new VOSubscription()));
+
+        //when
+        int result = model.getTotalCount();
+        //then
+        assertEquals(result, totalCount);
+    }
+
+    @Test
+    public void testGetRowTotalCountEmptyResult() throws Exception {
+        //given
+        int totalCount = 0;
+        List<POSubscription> expectedList = Collections.emptyList();
+        Response resp = new Response(expectedList);
+        when(subscriptionsService.getMySubscriptionsWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(resp);
+        when(subscriptionsService.getMySubscriptionsSizeWithFiltering(any(PaginationFullTextFilter.class))).thenReturn(totalCount);
+        ArrangeableState arrangeable = new ArrangeableState() {
+            @Override
+            public List<FilterField> getFilterFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public List<SortField> getSortFields() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public Locale getLocale() {
+                return Locale.JAPAN;
+            }
+        };
+        when(model.getArrangeable()).thenReturn(arrangeable);
+        model.setSelectedSubscription(new POSubscription(new VOSubscription()));
+
+        //when
+        int result = model.getTotalCount();
+        //then
+        assertEquals(result, totalCount);
     }
 
     @Test
