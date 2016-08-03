@@ -249,14 +249,6 @@
   <target name="updateSchema">
     <echo message="Updating database ${db.name} " level="debug" />
     <echo message="Applying SQL scripts from ${sqlscripts.dir} " level="debug" />
-    <java classname="org.oscm.dbtask.CheckAndResetOwnerForImageResource" failonerror="false">
-      <arg value="${db.driver.class}" />
-      <arg value="${db.url}" />
-      <arg value="${db.admin.user}" />
-      <arg value="${db.admin.pwd}" />
-      <arg value="${db.user}"/>
-      <classpath refid="client.path" />
-    </java>
     <java classname="org.oscm.setup.DatabaseUpgradeHandler" failonerror="true">
       <arg value="${dbproperties.file}" />
       <arg value="${sqlscripts.dir}" />
