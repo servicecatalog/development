@@ -1117,8 +1117,6 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
                 ce.setMarketplace(null);
             }
         }
-
-        ds.flush();
     }
 
     @Override
