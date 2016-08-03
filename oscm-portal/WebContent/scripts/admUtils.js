@@ -2213,7 +2213,7 @@ AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
 	$("#" + dialogId + "_content").height(dialogHeight + 100);
 }
 
-AdmUtils.IE9PlaceHolderFix = function (){
+AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty){
      function hasPlaceholderSupport() {
       var input = document.createElement('input');
       return ('placeholder' in input);
@@ -2224,20 +2224,55 @@ AdmUtils.IE9PlaceHolderFix = function (){
         for(var i=0,  count = inputs.length;i<count;i++){
             if(inputs[i].getAttribute('placeholder')){
                 inputs[i].style.cssText = "color:#939393;font-style:italic;"
-                inputs[i].value = inputs[i].getAttribute("placeholder");
-                inputs[i].onclick = function(){
-                    if(this.value == this.getAttribute("placeholder")){
-                        this.value = '';
-                        this.style.cssText = "color:#000;font-style:normal;"
-                    }
+                if (searchPhraseProperty != ''){
+                    this.value = searchPhraseProperty;
+                } else {
+                    inputs[i].value = inputs[i].getAttribute('placeholder');
                 }
+
                 inputs[i].onblur = function(){
-                    if(this.value == ''){
+                console.log('onblur');
+                console.log('this val onblur = ' + this.value);
+                    if (this.value == ''){
                         this.value = this.getAttribute("placeholder");
-                        this.style.cssText = "color:#939393;font-style:italic;"
                     }
                 }
             }
         }
+     }
+}
+
+AdmUtils.IE9OnClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+          console.log('in onclick');
+
+        var input = document.getElementById(id);
+            if (input.value == input.getAttribute("placeholder")){
+            console.log('in onclick input id = ' + input.getAttribute("id"));
+            console.log('in onclick input = ' + input.value);
+                input.value = '';
+            }
+     }
+}
+
+AdmUtils.IE9AfterClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+                 console.log('in after click');
+
+        var input = document.getElementById(id);
+        console.log('in after click input val = ' + input.value);
+        console.log('in after click input id = ' + input.getAttribute("id"));
+            if (input.value == ''){
+            console.log('in after click input empty');
+                input.value = input.getAttribute("placeholder");
+            }
      }
 }
