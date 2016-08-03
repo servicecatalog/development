@@ -82,9 +82,8 @@ public interface AccountService {
      * Required role: administrator of the organization
      * 
      * @throws DeletionConstraintException
-     *             if the organization has active subscriptions, or has other
-     *             roles beside the <code>OrganizationRoleType.CUSTOMER</code>
-     *             role
+     *             if the organization has active subscriptions or roles other
+     *             than <code>OrganizationRoleType.CUSTOMER</code>
      */
     @WebMethod
     public void deregisterOrganization() throws DeletionConstraintException;
