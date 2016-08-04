@@ -2213,24 +2213,23 @@ AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
 	$("#" + dialogId + "_content").height(dialogHeight + 100);
 }
 
-AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty){
+AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
      function hasPlaceholderSupport() {
       var input = document.createElement('input');
       return ('placeholder' in input);
      }
 
+    console.log(inputId);
      if(!hasPlaceholderSupport()){
-        var inputs = document.getElementsByTagName('input');
-        for(var i=0,  count = inputs.length;i<count;i++){
-            if(inputs[i].getAttribute('placeholder')){
-                inputs[i].style.cssText = "color:#939393;font-style:italic;"
+        var input = document.getElementById(inputId);
+            if(input.getAttribute('placeholder')){
+                input.style.cssText = "color:#939393;font-style:italic;"
                 if (searchPhraseProperty != ''){
                     this.value = searchPhraseProperty;
                 } else {
-                    inputs[i].value = inputs[i].getAttribute('placeholder');
+                    input.value = input.getAttribute('placeholder');
                 }
-
-                inputs[i].onblur = function(){
+                input.onblur = function(){
                 console.log('onblur');
                 console.log('this val onblur = ' + this.value);
                     if (this.value == ''){
@@ -2238,7 +2237,6 @@ AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty){
                     }
                 }
             }
-        }
      }
 }
 
