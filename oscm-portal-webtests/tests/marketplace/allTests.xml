@@ -16,7 +16,7 @@
     <ant antfile="./marketplace/testTags.xml" />
     <ant antfile="./marketplace/testPaging.xml" />
     <ant antfile="./marketplace/testConfigurableMarketplaces.xml" />
-    <!-- <ant antfile="./marketplace/testServiceVisibility.xml" /> -->
+    <ant antfile="./marketplace/testServiceVisibility.xml" />
     <ant antfile="./marketplace/testFeedbackRating.xml" />
     <ant antfile="./marketplace/testSingleSubscription.xml" />
     <ant antfile="./marketplace/testSubscriptionDetail.xml" />

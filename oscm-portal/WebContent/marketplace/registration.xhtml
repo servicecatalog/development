@@ -171,15 +171,15 @@
               <h:selectBooleanCheckbox id="acceptTerms" value="#{registrationBean.acceptTerms}"
                 validator="#{registrationBean.validateAcceptTerm}" />
                 <h:outputText value="#{msg['public.registration.acceptStart']}" />
-                <h:link id="terms"
-                  outcome="terms" target="_blank">#{msg['public.registration.acceptTermsLinkName']}
-                </h:link>
-                <h:outputText value="#{msg['public.registration.acceptMiddle']}" />
-                <h:link id="policy"
-                  outcome="ppolicy" target="_blank"
-                  rendered="#{not empty msg['public.registration.acceptPrivacyPolicyLinkName']}">
-                    #{msg['public.registration.acceptPrivacyPolicyLinkName']}
-                </h:link>
+                <a4j:region>
+                  <a4j:commandLink id="terms" value="#{msg['public.registration.acceptTermsLinkName']}"
+                    onclick="window.open('#{facesContext.externalContext.requestContextPath}/marketplace/terms/terms.jsf','_blank','')" 
+                    rendered="#{not empty msg['public.registration.acceptTermsLinkName']}" />
+                  <h:outputText value="#{msg['public.registration.acceptMiddle']}" />
+                  <a4j:commandLink id="policy" value="#{msg['public.registration.acceptPrivacyPolicyLinkName']}"
+                    onclick="window.open('#{facesContext.externalContext.requestContextPath}/marketplace/terms/privacypolicy.jsf','_blank','')" 
+                    rendered="#{not empty msg['public.registration.acceptPrivacyPolicyLinkName']}" />
+                </a4j:region>
                 <h:outputText value="#{msg['public.registration.acceptEnd']}" />
             </t:panelGroup>
             <h:outputText value=""></h:outputText>
