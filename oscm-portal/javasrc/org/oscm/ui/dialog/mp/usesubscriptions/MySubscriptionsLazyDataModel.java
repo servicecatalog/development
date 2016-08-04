@@ -63,6 +63,7 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
     private SubscriptionsService subscriptionsService;
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(MySubscriptionsLazyDataModel.class);
+    private List<POSubscription> resultList;
 
     public MySubscriptionsLazyDataModel() {
         super(false);
@@ -91,7 +92,8 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
         applyFilters(getArrangeable().getFilterFields(), pagination);
         applySorting(getArrangeable().getSortFields(), pagination);
         decorateWithLocalizedStatuses(pagination);
-        List<POSubscription> resultList = Collections.emptyList();
+        resultList = Collections.emptyList();
+
         fullTextSearchFilterValue = fullTextSearchFilterValue == null ? null : fullTextSearchFilterValue.trim();
         pagination.setFullTextFilterValue(fullTextSearchFilterValue);
         try {
@@ -110,14 +112,19 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
 
     private void refreshSelectedSubscription() {
         if (selectedSubscription != null) {
-            OperationModel selectedOperation = selectedSubscription.getSelectedOperation();
-            selectedSubscription = subscriptionsService.getMySubscriptionDetails(selectedSubscription.getKey());
-            if (selectedSubscription == null) {
-                selectedSubscriptionId = null;
+            if (resultList.contains(selectedSubscription)) {
+                OperationModel selectedOperation = selectedSubscription.getSelectedOperation();
+                selectedSubscription = subscriptionsService.getMySubscriptionDetails(selectedSubscription.getKey());
+                if (selectedSubscription == null) {
+                    selectedSubscriptionId = null;
+                } else {
+                    selectedSubscription.setAccessUrl(getAccessUrl(selectedSubscription));
+                    selectedSubscription.setTarget(isOpenNewTab(selectedSubscription) ? "_blank" : "");
+                    operationChanged(selectedOperation);
+                }
             } else {
-                selectedSubscription.setAccessUrl(getAccessUrl(selectedSubscription));
-                selectedSubscription.setTarget(isOpenNewTab(selectedSubscription) ? "_blank" : "");
-                operationChanged(selectedOperation);
+                selectedSubscription = null;
+                selectedSubscriptionId = null;
             }
         }
     }
@@ -154,7 +161,12 @@ public class MySubscriptionsLazyDataModel extends RichLazyDataModel<POSubscripti
             logger.logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR);
         }
-        return super.getTotalCount();
+        int totalCount = super.getTotalCount();
+        if (totalCount == 0) {
+            selectedSubscription = null;
+            selectedSubscriptionId = null;
+        }
+        return totalCount;
     }
 
     public void setSubscriptionsService(SubscriptionsService subscriptionsService) {
