@@ -15,7 +15,6 @@ package org.oscm.search;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -42,7 +41,19 @@ import org.hibernate.search.SearchFactory;
 import org.hibernate.search.backend.impl.jms.AbstractJMSHibernateSearchController;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.Category;
+import org.oscm.domobjects.DomainObject;
+import org.oscm.domobjects.Marketplace;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.PlatformUser;
+import org.oscm.domobjects.PriceModel;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexReinitRequestMessage;
 import org.oscm.domobjects.index.IndexRequestMessage;
@@ -50,10 +61,12 @@ import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * Message driven bean to handle the index request objects sent by the business
@@ -151,7 +164,7 @@ public class IndexRequestMasterListener extends
             // is modified we must also write the copies to the index
             if (modType == ModificationType.MODIFY) {
                 List<Product> productsToUpdate = getProductAndCopiesForIndexUpdate(product);
-                handleProductIndexing(ParameterizedTypes.list(productsToUpdate,
+                handleListIndexing(ParameterizedTypes.list(productsToUpdate,
                         Product.class));
                 return;
             }
@@ -169,11 +182,11 @@ public class IndexRequestMasterListener extends
         if (object instanceof TechnicalProductTag) {
             TechnicalProduct tp = ((TechnicalProductTag) object)
                     .getTechnicalProduct();
-            handleProductIndexing(tp.getProducts());
+            handleListIndexing(tp.getProducts());
             return;
         }
         if (object instanceof TechnicalProduct) {
-            handleProductIndexing(((TechnicalProduct) object).getProducts());
+            handleListIndexing(((TechnicalProduct) object).getProducts());
             return;
         }
         if (object instanceof Category) {
@@ -183,13 +196,13 @@ public class IndexRequestMasterListener extends
                     .createNamedQuery("Category.findServices");
             servicesQuery.setParameter("categoryKey",
                     Long.valueOf(((Category) object).getKey()));
-            handleProductIndexing(ParameterizedTypes.list(
+            handleListIndexing(ParameterizedTypes.list(
                     servicesQuery.getResultList(), Product.class));
             return;
         }
         if (object instanceof Subscription) {
             Subscription subscription = (Subscription) object;
-            if (isSubscriptionDeactivatedOrInvalid(subscription)) {
+            if (isSubscriptionNotDeactivatedOrInvalid(subscription)) {
                 handleObjectIndexing(object);
             }
             return;
@@ -201,49 +214,80 @@ public class IndexRequestMasterListener extends
                 if (product != null) {
                     Subscription subscription = product.getOwningSubscription();
                     if (subscription != null
-                            && isSubscriptionDeactivatedOrInvalid(subscription)) {
-                        handleObjectIndexing(parameter);
+                            && isSubscriptionNotDeactivatedOrInvalid(subscription)) {
+                        handleObjectIndexing(subscription);
                     }
                 }
                 return;
             }
         }
         if (object instanceof Uda) {
-            handleObjectIndexing(object);
+            Uda uda = (Uda) object;
+            UdaDefinition udaDef = uda.getUdaDefinition();
+
+            if (udaDef.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
+                    && udaDef.getConfigurationType() != UdaConfigurationType.SUPPLIER) {
+                try {
+                    Subscription sub = dm.getReference(Subscription.class,
+                            uda.getTargetObjectKey());
+                    handleObjectIndexing(sub);
+                } catch (ObjectNotFoundException e) {
+                    logger.logDebug("uda target didn't match any subscription",
+                            Log4jLogger.SYSTEM_LOG);
+                }
+            }
             return;
         }
         if (object instanceof UdaDefinition) {
-            handleObjectIndexing(object);
+            UdaDefinition udaDef = (UdaDefinition) object;
+
+            List<Product> prodList = udaDef.getOrganization().getProducts();
+            List<Subscription> subList = new ArrayList<Subscription>();
+            for (Product prod : prodList) {
+                subList.add(prod.getOwningSubscription());
+            }
+            handleListIndexing(subList);
             return;
         }
     }
 
-    private boolean isSubscriptionDeactivatedOrInvalid(Subscription subscription) {
+    private boolean isSubscriptionNotDeactivatedOrInvalid(
+            Subscription subscription) {
         return subscription.getStatus() != SubscriptionStatus.DEACTIVATED
                 && subscription.getStatus() != SubscriptionStatus.INVALID;
     }
 
-    private void handleProductIndexing(Collection<Product> products) {
+    private void handleListIndexing(Collection<? extends DomainObject<?>> list) {
         Session session = getSession();
-        if (session != null) {
-            FullTextSession fts = Search.getFullTextSession(session);
-            for (Product p : products) {
-                if (p != null) {
-                    fts.index(p);
-                }
+        if (list == null || session == null) {
+            return;
+        }
+
+        FullTextSession fts = Search.getFullTextSession(session);
+        Transaction tx = fts.beginTransaction();
+
+        for (DomainObject<?> obj : list) {
+            if (obj != null) {
+                fts.index(obj);
             }
         }
+
+        tx.commit();
     }
 
     private void handleObjectIndexing(Object parameter) {
-        if (parameter == null) {
+
+        Session session = getSession();
+        if (parameter == null || session == null) {
             return;
         }
-        Session session = getSession();
-        if (session != null) {
-            FullTextSession fts = Search.getFullTextSession(session);
-            fts.index(parameter);
-        }
+
+        FullTextSession fts = Search.getFullTextSession(session);
+        Transaction tx = fts.beginTransaction();
+
+        fts.index(parameter);
+
+        tx.commit();
     }
 
     @Override
@@ -265,7 +309,7 @@ public class IndexRequestMasterListener extends
         boolean isIndexEmpty = true;
         SearchFactory searchFactory = fullTextSession.getSearchFactory();
         IndexReader reader = searchFactory.getIndexReaderAccessor().open(
-                Product.class);
+                Product.class, Subscription.class);
 
         Transaction tx = fullTextSession.beginTransaction();
 
@@ -327,57 +371,15 @@ public class IndexRequestMasterListener extends
             results.close();
 
         }
-        indexSubscriptions(fullTextSession);
-        indexParameters(fullTextSession);
-        indexUdas(fullTextSession);
-        indexUdaDefs(fullTextSession);
-        tx.commit(); // index is written at commit time
-    }
 
-    protected void indexUdaDefs(FullTextSession fullTextSession) {
-        org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT udaD FROM UdaDefinition udaD, Uda uda where " +
-                        "udaD.dataContainer.targetType='CUSTOMER_SUBSCRIPTION' AND udaD.dataContainer.configurationType!='SUPPLIER' and " +
-                        "uda.dataContainer.udaValue!='' and udaD.dataContainer.defaultValue!=''");
-        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
-        indexObject(fullTextSession, results);
-        results.close();
-    }
-
-    protected void indexSubscriptions(FullTextSession fullTextSession) {
+        // index all active subscriptions
         org.hibernate.Query objectQuery = fullTextSession
                 .createQuery("SELECT s FROM Subscription s WHERE s.dataContainer.status NOT IN ('"
                         + SubscriptionStatus.DEACTIVATED.name()
                         + "','"
                         + SubscriptionStatus.INVALID.name() + "')");
         ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
-        indexObject(fullTextSession, results);
-        results.close();
-    }
 
-    protected void indexParameters(FullTextSession fullTextSession) {
-        org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT parameter FROM Parameter parameter, ParameterSet ps, Product product, Subscription s WHERE parameter.parameterDefinition.dataContainer.valueType = '"
-                        + ParameterValueType.STRING.name()
-                        + "' AND parameter.parameterSet.key = ps.key AND product.key = ps.product.key AND s.product.key = product.key AND s.dataContainer.status NOT IN ('"
-                        + SubscriptionStatus.DEACTIVATED.name()
-                        + "','"
-                        + SubscriptionStatus.INVALID.name() + "')");
-        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
-        indexObject(fullTextSession, results);
-        results.close();
-    }
-
-    protected void indexUdas(FullTextSession fullTextSession) {
-        org.hibernate.Query objectQuery = fullTextSession
-                .createQuery("SELECT uda FROM Uda uda");
-        ScrollableResults results = objectQuery.scroll(ScrollMode.FORWARD_ONLY);
-        indexObject(fullTextSession, results);
-        results.close();
-    }
-
-    private void indexObject(FullTextSession fullTextSession,
-            ScrollableResults results) {
         int index = 0;
         while (results.next()) {
             index++;
@@ -387,6 +389,10 @@ public class IndexRequestMasterListener extends
                 fullTextSession.clear();
             }
         }
+
+        results.close();
+
+        tx.commit(); // index is written at commit time
     }
 
 }

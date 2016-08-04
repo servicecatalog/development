@@ -17,10 +17,8 @@ import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
@@ -37,7 +35,6 @@ public class UdaDefinitionData extends DomainDataContainer {
     @Column(nullable = false)
     private String udaId;
 
-    @Field(analyzer = @Analyzer(definition = "customanalyzer"))
     private String defaultValue;
 
     /**

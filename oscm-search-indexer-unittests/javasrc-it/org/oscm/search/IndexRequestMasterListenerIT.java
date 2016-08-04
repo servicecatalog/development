@@ -309,15 +309,17 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        emptyCurrentIndex();
-        assertDocsInIndex("Index must contain 0 document at test start", 0);
+        emptyProductIndex();
+        assertProductDocsInIndex("Index must contain 0 document at test start",
+                0);
         svcCounter = 0;
     }
 
     @Test
     public void testInitIndexForFulltextSearch_NoIndexPresentEmptyDB()
             throws Throwable {
-        assertDocsInIndex("Index must have no documents before indexing", 0);
+        assertProductDocsInIndex(
+                "Index must have no documents before indexing", 0);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -325,7 +327,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex("Index must have no documents after indexing", 0);
+        assertProductDocsInIndex("Index must have no documents after indexing",
+                0);
     }
 
     @Test
@@ -333,8 +336,10 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             throws Throwable {
         addItemsToDatabase(3);
         // manually delete the index
-        emptyCurrentIndex();
-        assertDocsInIndex("Index must have no documents before indexing", 0);
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        assertProductDocsInIndex(
+                "Index must have no documents before indexing", 0);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -342,7 +347,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex("Index must contain 3 documents after indexing", 3);
+        assertProductDocsInIndex(
+                "Index must contain 3 documents after indexing", 3);
     }
 
     @Ignore
@@ -351,17 +357,17 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             throws Throwable {
 
         // first have a dummy call to setup the scenario etc.
-        emptyCurrentIndex();
+        emptyProductIndex();
         addItemsToDatabase(1);
-        emptyCurrentIndex();
+        emptyProductIndex();
         // now create 3 elements on the empty index
         addItemsToDatabase(3);
-        assertDocsInIndex(
+        assertProductDocsInIndex(
                 "Index must contain 3 documents due to automatic indexing", 3);
         // manually delete the index
-        emptyCurrentIndex();
+        emptyProductIndex();
         addItemsToDatabase(1);
-        assertDocsInIndex(
+        assertProductDocsInIndex(
                 "Index must contain 1 document due to automatic indexing", 1);
         runTX(new Callable<Void>() {
             @Override
@@ -370,7 +376,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex(
+        assertProductDocsInIndex(
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
                 1);
     }
@@ -380,7 +386,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testInitIndexForFulltextSearch_IndexPresentForceSet()
             throws Throwable {
         // first have a dummy call to setup the scenario etc.
-        emptyCurrentIndex();
+        emptyProductIndex();
         addItemsToDatabase(1); // db contains 1 product
         runTX(new Callable<Void>() {
             @Override
@@ -390,15 +396,15 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        emptyCurrentIndex();
+        emptyProductIndex();
         // now create 3 elements on the empty index, db contains 4 products
         addItemsToDatabase(3);
-        assertDocsInIndex(
+        assertProductDocsInIndex(
                 "Index must contain 3 documents due to automatic indexing", 3);
         // manually delete the index
-        emptyCurrentIndex();
+        emptyProductIndex();
         addItemsToDatabase(1); // db contains 5 products
-        assertDocsInIndex(
+        assertProductDocsInIndex(
                 "Index must contain 1 document due to automatic indexing", 1);
         runTX(new Callable<Void>() {
             @Override
@@ -408,7 +414,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        assertDocsInIndex("Index must contain " + 5
+        assertProductDocsInIndex("Index must contain " + 5
                 + " documents after indexing (and so does the db)", 5);
     }
 
@@ -476,13 +482,13 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.CUSTOMER_TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then two products in index
-        assertDocsInIndex("Index must contain 2 entries", 2);
+        assertProductDocsInIndex("Index must contain 2 entries", 2);
     }
 
     @Test
@@ -595,13 +601,13 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.PARTNER_TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then two products in index
-        assertDocsInIndex("Index must contain 2 entries", 2);
+        assertProductDocsInIndex("Index must contain 2 entries", 2);
     }
 
     @Test
@@ -622,13 +628,13 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then one product in index
-        assertDocsInIndex("Index must contain 1 entries", 1);
+        assertProductDocsInIndex("Index must contain 1 entries", 1);
     }
 
     @Test
@@ -751,7 +757,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 .getObjectClass().getName());
     }
 
-    private void assertDocsInIndex(final String comment,
+    private void assertProductDocsInIndex(final String comment,
             final int expectedNumDocs) throws Exception {
         Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
 
@@ -810,7 +816,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         }
     }
 
-    private void emptyCurrentIndex() throws Exception {
+    private void emptyProductIndex() throws Exception {
         runTX(new Callable<Void>() {
 
             @Override
@@ -960,93 +966,87 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         });
     }
 
-    @Test
-    public void testIndexSubscriptions_validStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
-        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
-    }
-
-    @Test
-    public void testIndexSubscriptions_invalidStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
-        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
-    }
-
-    @Test
-    public void testIndexSubscriptions_variousStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
-        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
-        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
-        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
-    }
+    // @Test
+    // public void testIndexSubscriptions_validStatus() throws Throwable {
+    //
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexSubscriptions(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One subscription is created during the common setup, and so the
+    // // actual number of subscriptions is one greater than that of
+    // // subscriptions that are created and eligible for indexing.
+    // assertSubscriptionDocsInIndex(
+    // "Index must contain 7 document due to automatic indexing", 7,
+    // expectedIndexedAttributesForSubscription.size(),
+    // expectedIndexedAttributesForSubscription);
+    // }
+    //
+    // @Test
+    // public void testIndexSubscriptions_invalidStatus() throws Throwable {
+    // addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
+    // addSubscriptionToDatabase(SubscriptionStatus.INVALID);
+    // emptySubscriptionIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexSubscriptions(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One subscription is created during the common setup, and so the
+    // // actual number of subscriptions is one greater than that of
+    // // subscriptions that are created and eligible for indexing.
+    // assertSubscriptionDocsInIndex(
+    // "Index must contain 1 document due to automatic indexing", 1,
+    // expectedIndexedAttributesForSubscription.size(),
+    // expectedIndexedAttributesForSubscription);
+    // }
+    //
+    // @Test
+    // public void testIndexSubscriptions_variousStatus() throws Throwable {
+    // addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+    // addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
+    // addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
+    // addSubscriptionToDatabase(SubscriptionStatus.INVALID);
+    // addSubscriptionToDatabase(SubscriptionStatus.PENDING);
+    // addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
+    // addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
+    // addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
+    // emptySubscriptionIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexSubscriptions(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One subscription is created during the common setup, and so the
+    // // actual number of subscriptions is one greater than that of
+    // // subscriptions that are created and eligible for indexing.
+    // assertSubscriptionDocsInIndex(
+    // "Index must contain 7 document due to automatic indexing", 7,
+    // expectedIndexedAttributesForSubscription.size(),
+    // expectedIndexedAttributesForSubscription);
+    // }
 
     private void addSubscriptionToDatabase(final SubscriptionStatus status)
             throws Exception {
@@ -1156,140 +1156,122 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         }
     }
 
-    @Test
-    public void testIndexParameters_ParameterDefinitionValueType()
-            throws Throwable {
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.BOOLEAN, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.DURATION, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.ENUMERATION, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.INTEGER, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.LONG, true,
-                SubscriptionStatus.ACTIVE);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 2 document due to automatic indexing", 2,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    @Test
-    public void testIndexParameters_SubscriptionStatus() throws Throwable {
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.DEACTIVATED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.EXPIRED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.INVALID);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.PENDING);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.PENDING_UPD);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.SUSPENDED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.SUSPENDED_UPD);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    @Test
-    public void testIndexParameters_withoutSubscription() throws Throwable {
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.DEACTIVATED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.EXPIRED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.INVALID);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.PENDING);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.PENDING_UPD);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.SUSPENDED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.SUSPENDED_UPD);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    private void emptyParameterIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(Parameter.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
+    // @Test
+    // public void testIndexParameters_ParameterDefinitionValueType()
+    // throws Throwable {
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.BOOLEAN, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.DURATION, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.ENUMERATION, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.INTEGER, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.LONG, true,
+    // SubscriptionStatus.ACTIVE);
+    // emptySubscriptionIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexParameters(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One parameter is created during the common setup, and so the actual
+    // // number of parameters is one greater than that of parameters that are
+    // // created and eligible for indexing.
+    // assertParameterDocsInIndex(
+    // "Index must contain 2 document due to automatic indexing", 2,
+    // expectedIndexedAttributesForParameter.size(),
+    // expectedIndexedAttributesForParameter);
+    // }
+    //
+    // @Test
+    // public void testIndexParameters_SubscriptionStatus() throws Throwable {
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.DEACTIVATED);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.EXPIRED);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.INVALID);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.PENDING);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.PENDING_UPD);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.SUSPENDED);
+    // createParameter(ParameterValueType.STRING, true,
+    // SubscriptionStatus.SUSPENDED_UPD);
+    // emptyParameterIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexParameters(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One parameter is created during the common setup, and so the actual
+    // // number of parameters is one greater than that of parameters that are
+    // // created and eligible for indexing.
+    // assertParameterDocsInIndex(
+    // "Index must contain 7 document due to automatic indexing", 7,
+    // expectedIndexedAttributesForParameter.size(),
+    // expectedIndexedAttributesForParameter);
+    // }
+    //
+    // @Test
+    // public void testIndexParameters_withoutSubscription() throws Throwable {
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.ACTIVE);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.DEACTIVATED);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.EXPIRED);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.INVALID);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.PENDING);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.PENDING_UPD);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.SUSPENDED);
+    // createParameter(ParameterValueType.STRING, false,
+    // SubscriptionStatus.SUSPENDED_UPD);
+    // emptyParameterIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexParameters(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // One parameter is created during the common setup, and so the actual
+    // // number of parameters is one greater than that of parameters that are
+    // // created and eligible for indexing.
+    // assertParameterDocsInIndex(
+    // "Index must contain 1 document due to automatic indexing", 1,
+    // expectedIndexedAttributesForParameter.size(),
+    // expectedIndexedAttributesForParameter);
+    // }
 
     private Parameter createParameter(
             final ParameterValueType parameterValueType,
@@ -1345,164 +1327,104 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         return parameter;
     }
 
-    private void assertParameterDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Parameter.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
-                        }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
-                    }
-                }
-
-                return Boolean.valueOf(evaluatedIndex);
-            }
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
-    @Test
-    public void testindexUdas_Customer() throws Throwable {
-        createUdaOnCustomer("UDA1", "UDA2", "UDA3");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdas_Subscription() throws Throwable {
-        createUdaOnSubscription("UDA1", "UDA2", "UDA3", "UDA4");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 8 document due to automatic indexing", 8,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdas_CustomerAndSubscription() throws Throwable {
-        createUdaOnCustomer("UDA_C-1", "UDA_C-2", "UDA_C-3", "UDA_C-4");
-        createUdaOnSubscription("UDA_S-1", "UDA_S-2", "UDA_S-3", "UDA_S-4",
-                "UDA_S-5");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 13 document due to automatic indexing", 13,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdaDefs() throws Throwable {
-        createUdaDefOnCustomer("UDADef1", "UDADef2", "UDADef3");
-        emptyUdaDefIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdaDefs(fullTextSession);
-                }
-                return null;
-            }
-        });
-        assertUdaDefsDocsInIndex(
-                "Index must contain 3 document due to automatic indexing", 3,
-                expectedIndexedAttributesForUdaDefs.size(),
-                expectedIndexedAttributesForUdaDefs);
-    }
+    // @Test
+    // public void testindexUdas_Customer() throws Throwable {
+    // createUdaOnCustomer("UDA1", "UDA2", "UDA3");
+    // emptyUdaIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexUdas(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // Four Udas are created during the common setup, and so the actual
+    // // number of Udas is one greater than that of Udas that are created and
+    // // eligible for indexing.
+    // assertUdaDocsInIndex(
+    // "Index must contain 7 document due to automatic indexing", 7,
+    // expectedIndexedAttributesForUda.size(),
+    // expectedIndexedAttributesForUda);
+    // }
+    //
+    // @Test
+    // public void testindexUdas_Subscription() throws Throwable {
+    // createUdaOnSubscription("UDA1", "UDA2", "UDA3", "UDA4");
+    // emptyUdaIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexUdas(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // Four Udas are created during the common setup, and so the actual
+    // // number of Udas is one greater than that of Udas that are created and
+    // // eligible for indexing.
+    // assertUdaDocsInIndex(
+    // "Index must contain 8 document due to automatic indexing", 8,
+    // expectedIndexedAttributesForUda.size(),
+    // expectedIndexedAttributesForUda);
+    // }
+    //
+    // @Test
+    // public void testindexUdas_CustomerAndSubscription() throws Throwable {
+    // createUdaOnCustomer("UDA_C-1", "UDA_C-2", "UDA_C-3", "UDA_C-4");
+    // createUdaOnSubscription("UDA_S-1", "UDA_S-2", "UDA_S-3", "UDA_S-4",
+    // "UDA_S-5");
+    // emptyUdaIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexUdas(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // // Four Udas are created during the common setup, and so the actual
+    // // number of Udas is one greater than that of Udas that are created and
+    // // eligible for indexing.
+    // assertUdaDocsInIndex(
+    // "Index must contain 13 document due to automatic indexing", 13,
+    // expectedIndexedAttributesForUda.size(),
+    // expectedIndexedAttributesForUda);
+    // }
+    //
+    // @Test
+    // public void testindexUdaDefs() throws Throwable {
+    // createUdaDefOnCustomer("UDADef1", "UDADef2", "UDADef3");
+    // emptyUdaDefIndex();
+    // runTX(new Callable<Void>() {
+    // @Override
+    // public Void call() throws Exception {
+    // Session session = dm.getSession();
+    // if (session != null) {
+    // FullTextSession fullTextSession = Search
+    // .getFullTextSession(session);
+    // irl.indexUdaDefs(fullTextSession);
+    // }
+    // return null;
+    // }
+    // });
+    // assertUdaDefsDocsInIndex(
+    // "Index must contain 3 document due to automatic indexing", 3,
+    // expectedIndexedAttributesForUdaDefs.size(),
+    // expectedIndexedAttributesForUdaDefs);
+    // }
 
     private List<Uda> createUdaOnCustomer(final String... udaId)
             throws Exception {
@@ -1543,7 +1465,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 List<Uda> result = new ArrayList<>();
                 for (String id : udaId) {
                     UdaDefinition def = Udas.createUdaDefinition(dm, supplier,
-                            UdaTargetType.CUSTOMER_SUBSCRIPTION, id, "default definition value",
+                            UdaTargetType.CUSTOMER_SUBSCRIPTION, id,
+                            "default definition value",
                             UdaConfigurationType.USER_OPTION_MANDATORY);
                     Uda uda = Udas.createUda(dm, customer, def, null);
                     result.add(uda);
@@ -1586,162 +1509,6 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
         return result;
-    }
-
-    private void emptyUdaIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(Uda.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
-
-    private void emptyUdaDefIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(UdaDefinition.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
-
-    private void assertUdaDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Uda.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
-                        }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
-                    }
-                }
-
-                return Boolean.valueOf(evaluatedIndex);
-            }
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
-    private void assertUdaDefsDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
-
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(UdaDefinition.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
-                        }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
-                    }
-                }
-
-                return Boolean.valueOf(evaluatedIndex);
-            }
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
     }
 
 }
