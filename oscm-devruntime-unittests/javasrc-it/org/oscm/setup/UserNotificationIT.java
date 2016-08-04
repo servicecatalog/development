@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,8 +43,8 @@ public class UserNotificationIT {
 	private UserNotificationHandler userNotification;
 	private static TestDatabase testDatabase;
 
-	private final static String unPropertiesFilePath = "un.properties";
 	private final static String testmailPropertiesFilePath = "testmail.properties";
+	private final static String unPropertiesFilePath = "un.properties";
 	private String testMailAddress;
 	private String testMailServer;
 	private String testMailPasswd;
@@ -81,7 +82,7 @@ public class UserNotificationIT {
 	 */
 	private void initMail() throws Exception, IOException {
 
-		Properties mailProperties = getProperties(testmailPropertiesFilePath);
+		Properties mailProperties = getProperties(getTestmailPropPath());
 
 		InetAddress localMachine = InetAddress.getLocalHost();
 		String localHostName = localMachine.getHostName();
@@ -98,6 +99,16 @@ public class UserNotificationIT {
 		testMailPasswd = mailProperties.getProperty("mail.password");
 		testMailDelay = Integer.parseInt(mailProperties
 				.getProperty("mail.delay"));
+	}
+	
+	public String getTestmailPropPath() {
+		String path = testmailPropertiesFilePath;
+		if (retrieveComputerName().equals("ctmg2")) {
+			path = "ctmg2/" + testmailPropertiesFilePath;
+			return path;
+		}
+		return "";	
+		
 	}
 
 	/**
@@ -145,11 +156,34 @@ public class UserNotificationIT {
 		ud2.userid = "newid2";
 		ud2.olduserid = "oldid2";
 		userData.add(ud2);
+		
 
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		userNotification.sendMail(userData, unProperties);
 		assertNewMailCount(2);
 	}
+	
+	public String getUnPropPath() {
+		String path = unPropertiesFilePath;
+		if (retrieveComputerName().equals("ctmg2")) {
+			path = "ctmg2/" + unPropertiesFilePath;
+			return path;
+		}else{
+		return "";	
+		}
+	}
+	
+	private String retrieveComputerName() {
+        try {
+            String hostName = InetAddress.getLocalHost().getHostName();
+            if (hostName.indexOf('.') > 0) {
+                hostName = hostName.substring(0, hostName.indexOf('.'));
+            }
+            return hostName;
+        } catch (UnknownHostException e) {
+            return "";
+        }
+    }
 
 	/**
 	 * Execute send mail with valid data.
@@ -169,7 +203,7 @@ public class UserNotificationIT {
 		ud2.olduserid = "oldid2";
 		userData.add(ud2);
 
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 
 		unProperties.setProperty(HandlerUtils.MAIL_PORT, "25");
 		unProperties.setProperty(HandlerUtils.MAIL_USER_PWD, testMailPasswd);
@@ -191,7 +225,7 @@ public class UserNotificationIT {
 		ud.olduserid = "oldid";
 		userData.add(ud);
 
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 
 		unProperties.setProperty(HandlerUtils.MAIL_SERVER, "invalidServer");
 		userNotification.sendMail(userData, unProperties);
@@ -209,7 +243,7 @@ public class UserNotificationIT {
 		ud.olduserid = "oldid";
 		userData.add(ud);
 
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 
 		userNotification.sendMail(userData, unProperties);
 	}
@@ -226,7 +260,7 @@ public class UserNotificationIT {
 		ud.olduserid = "oldid";
 		userData.add(ud);
 
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 
 		unProperties
 				.setProperty(HandlerUtils.MAIL_RESPONSE_ADDRESS, "@invalid");
@@ -244,7 +278,7 @@ public class UserNotificationIT {
 		ud.userid = "newid";
 		ud.olduserid = "oldid";
 		userData.add(ud);
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		userNotification.sendMail(userData, unProperties);
 	}
 
@@ -255,7 +289,7 @@ public class UserNotificationIT {
 	public void testSendMail_nullRespAdress() throws Exception {
 		List<UserData> userData = new ArrayList<UserData>();
 		userData.add(new UserData());
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_RESPONSE_ADDRESS);
 		userNotification.sendMail(userData, unProperties);
 	}
@@ -267,7 +301,7 @@ public class UserNotificationIT {
 	public void testSendMail_nullServer() throws Exception {
 		List<UserData> userData = new ArrayList<UserData>();
 		userData.add(new UserData());
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_SERVER);
 		userNotification.sendMail(userData, unProperties);
 	}
@@ -277,7 +311,7 @@ public class UserNotificationIT {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void testPrepareMessageText_nullBodyDef() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY + setLocale(Locale.ENGLISH));
 		userNotification.prepareMessageText(unProperties);
 	}
@@ -287,7 +321,7 @@ public class UserNotificationIT {
 	 */
 	@Test
 	public void testPrepareMessageText_nullBody() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY + setLocale(Locale.GERMAN));
 		userNotification.prepareMessageText(unProperties);
 	}
@@ -300,7 +334,7 @@ public class UserNotificationIT {
 	public void testSendMail_nullSubject() throws Exception {
 		List<UserData> userData = new ArrayList<UserData>();
 		userData.add(new UserData());
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_SUBJECT
 				+ setLocale(Locale.ENGLISH));
 		userNotification.sendMail(userData, unProperties);
@@ -314,7 +348,7 @@ public class UserNotificationIT {
 	public void testSendMail_nullSubjectAdd() throws Exception {
 		List<UserData> userData = new ArrayList<UserData>();
 		userData.add(new UserData());
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_SUBJECT
 				+ setLocale(Locale.GERMAN));
 		userNotification.sendMail(userData, unProperties);
@@ -326,7 +360,7 @@ public class UserNotificationIT {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void testPrepareMessageText_nullFooter() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_FOOTER
 				+ setLocale(Locale.ENGLISH));
 		userNotification.prepareMessageText(unProperties);
@@ -338,7 +372,7 @@ public class UserNotificationIT {
 	 */
 	@Test
 	public void testPrepareMessageText_nullFooterAdd() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties
 				.remove(HandlerUtils.MAIL_FOOTER + setLocale(Locale.GERMAN));
 		userNotification.prepareMessageText(unProperties);
@@ -350,7 +384,7 @@ public class UserNotificationIT {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void testPrepareMessageText_nullNewIdDess() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY_NEWID
 				+ setLocale(Locale.ENGLISH));
 		userNotification.prepareMessageText(unProperties);
@@ -362,7 +396,7 @@ public class UserNotificationIT {
 	 */
 	@Test
 	public void testPrepareMessageText_nullNewIdDessAdd() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY_NEWID
 				+ setLocale(Locale.GERMAN));
 		userNotification.prepareMessageText(unProperties);
@@ -374,7 +408,7 @@ public class UserNotificationIT {
 	 */
 	@Test(expected = RuntimeException.class)
 	public void testPrepareMessageText_nullOldIdDess() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY_OLDID
 				+ setLocale(Locale.ENGLISH));
 		userNotification.prepareMessageText(unProperties);
@@ -386,7 +420,7 @@ public class UserNotificationIT {
 	 */
 	@Test
 	public void testPrepareMessageText_nullOldIdDessAdd() throws Exception {
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		unProperties.remove(HandlerUtils.MAIL_BODY_OLDID
 				+ setLocale(Locale.GERMAN));
 		userNotification.prepareMessageText(unProperties);
@@ -398,7 +432,7 @@ public class UserNotificationIT {
 	@Test
 	public void testSendMail_noAdresses() throws Exception {
 		List<UserData> userData = new ArrayList<UserData>();
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		userNotification.sendMail(userData, unProperties);
 	}
 
@@ -423,7 +457,7 @@ public class UserNotificationIT {
 	public void testNotifyUsers() throws Exception {
 		assertColumn("platformuser", "useridcnt", true);
 		assertColumn("platformuser", "olduserid", true);
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		userNotification.notifyUsers(testDatabase.getDBconnection(),
 				unProperties);
 		assertColumn("platformuser", "useridcnt", false);
@@ -443,7 +477,7 @@ public class UserNotificationIT {
 	public void testTestSettings() throws Exception {
 		assertColumn("platformuser", "useridcnt", true);
 		assertColumn("platformuser", "olduserid", true);
-		Properties unProperties = getProperties(unPropertiesFilePath);
+		Properties unProperties = getProperties(getUnPropPath());
 		userNotification.testSettings(testDatabase.getDBconnection(),
 				unProperties, testMailAddress);
 		assertColumn("platformuser", "useridcnt", true);
