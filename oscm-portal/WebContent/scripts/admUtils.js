@@ -2219,7 +2219,6 @@ AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
       return ('placeholder' in input);
      }
 
-    console.log(inputId);
      if(!hasPlaceholderSupport()){
         var input = document.getElementById(inputId);
             if(input.getAttribute('placeholder')){
@@ -2230,8 +2229,6 @@ AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
                     input.value = input.getAttribute('placeholder');
                 }
                 input.onblur = function(){
-                console.log('onblur');
-                console.log('this val onblur = ' + this.value);
                     if (this.value == ''){
                         this.value = this.getAttribute("placeholder");
                     }
@@ -2246,12 +2243,9 @@ AdmUtils.IE9OnClick = function (id){
        return ('placeholder' in input);
      }
      if(!hasPlaceholderSupport()){
-          console.log('in onclick');
 
         var input = document.getElementById(id);
             if (input.value == input.getAttribute("placeholder")){
-            console.log('in onclick input id = ' + input.getAttribute("id"));
-            console.log('in onclick input = ' + input.value);
                 input.value = '';
             }
      }
@@ -2263,13 +2257,9 @@ AdmUtils.IE9AfterClick = function (id){
        return ('placeholder' in input);
      }
      if(!hasPlaceholderSupport()){
-                 console.log('in after click');
 
         var input = document.getElementById(id);
-        console.log('in after click input val = ' + input.value);
-        console.log('in after click input id = ' + input.getAttribute("id"));
             if (input.value == ''){
-            console.log('in after click input empty');
                 input.value = input.getAttribute("placeholder");
             }
      }
