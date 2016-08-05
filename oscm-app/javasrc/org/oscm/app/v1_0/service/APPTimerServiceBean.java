@@ -90,7 +90,7 @@ public class APPTimerServiceBean {
     private static final long DEFAULT_TIMER_INTERVAL = 15000;
 
     @EJB
-    private APPTimerServiceBean appTimerServiceBean;
+    protected APPTimerServiceBean appTimerServiceBean;
 
     public Object TIMER_LOCK = new Object();
 
