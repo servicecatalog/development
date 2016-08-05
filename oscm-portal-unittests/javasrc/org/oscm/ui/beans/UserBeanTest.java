@@ -794,12 +794,36 @@ public class UserBeanTest {
         assertEquals(SUBSCRIPTION_ADD_PAGE, userBean.getRequestedRedirect());
     }
 
-    @Test (expected = SaaSSystemException.class)
-    public void testLoginForClosedMarketplace() throws LoginException, ValidationException {
+    @Test
+    public void testLoginForClosedMarketplace() throws LoginException, ValidationException, OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
         //given
+        doReturn(false).when(userBean).isServiceProvider();
+        VOUser mockUser = mock(VOUser.class);
+        doReturn(mockUser).when(idServiceMock).getUser(any(VOUser.class));
         doReturn(false).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
+        userBean.setUserId("ID");
         //when
         userBean.login();
+        //then
+        verify(requestMock, times(1)).setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                BaseBean.ERROR_LOGIN_TO_CLOSED_MARKETPLACE);
+    }
+
+    @Test
+    public void testLoginForClosedMarketplace_SAML() throws LoginException, ValidationException, OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
+        //given
+        doReturn(true).when(userBean).isServiceProvider();
+        userBean.setUserId("ID");
+        doReturn(false).when(marketplaceService).doesOrganizationHaveAccessMarketplace(anyString(), anyString());
+        when(requestMock.getParameter("samlSPForm:" + Constants.REQ_PARAM_USER_ID)).thenReturn("UserId");
+        when(requestMock.getParameter("samlSPForm:" + Constants.REQ_ATTR_PASSWORD)).thenReturn("Password");
+        VOUser mockUser = mock(VOUser.class);
+        doReturn(mockUser).when(idServiceMock).getUser(any(VOUser.class));
+        //when
+        userBean.login();
+        //then
+        verify(requestMock, times(1)).setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
     }
 
     private ConfigurationService setupConfigurationMockForRegistrationenablement(
