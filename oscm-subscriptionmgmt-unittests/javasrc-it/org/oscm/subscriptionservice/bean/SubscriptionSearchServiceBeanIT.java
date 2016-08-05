@@ -83,11 +83,14 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 OrganizationRoleType.SUPPLIER);
         org.addPlatformUser(Organizations.createUserForOrg(ds, org, true,
                 "admin"));
-        UdaDefinition udaDef = Udas.createUdaDefinition(ds, org,
+        UdaDefinition udaDef1 = Udas.createUdaDefinition(ds, org,
                 UdaTargetType.CUSTOMER_SUBSCRIPTION, "test", "default",
                 UdaConfigurationType.USER_OPTION_OPTIONAL);
+        UdaDefinition udaDef2 = Udas.createUdaDefinition(ds, org,
+                UdaTargetType.CUSTOMER_SUBSCRIPTION, "test2", "normal",
+                UdaConfigurationType.USER_OPTION_OPTIONAL);
 
-        org.setUdaDefinitions(Arrays.asList(udaDef));
+        org.setUdaDefinitions(Arrays.asList(udaDef1, udaDef2));
 
         TechnicalProduct techProd = TechnicalProducts.createTechnicalProduct(
                 ds, org, "techProd", false, ServiceAccessType.DIRECT);
@@ -126,9 +129,9 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
 
         SUB3KEY = sub3.getKey();
 
-        Uda uda = Udas.createUda(ds, sub1, udaDef, "value");
+        Uda uda = Udas.createUda(ds, sub1, udaDef1, "value");
 
-        udaDef.setUdas(Arrays.asList(uda));
+        udaDef1.setUdas(Arrays.asList(uda));
 
         ds.flush();
 
@@ -141,7 +144,7 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
             public Void call() {
                 try {
                     Collection<Long> col = sssb
-                            .searchSubscriptions("one reference param value");
+                            .searchSubscriptions("one reference param value normal");
                     assertEquals(1, col.size());
                     assertEquals(new Long(SUB1KEY), col.iterator().next());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {
@@ -177,7 +180,7 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
             public Void call() {
                 try {
                     Collection<Long> col = sssb
-                            .searchSubscriptions("two default");
+                            .searchSubscriptions("two default normal");
                     assertEquals(1, col.size());
                     assertEquals(new Long(SUB2KEY), col.iterator().next());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {
