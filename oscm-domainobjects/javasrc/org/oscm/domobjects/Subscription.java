@@ -42,7 +42,6 @@ import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.ClassBridge;
 import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
 import org.hibernate.search.annotations.TokenFilterDef;
 import org.hibernate.search.annotations.TokenizerDef;
 import org.oscm.domobjects.annotations.BusinessKey;
@@ -179,7 +178,6 @@ public class Subscription extends DomainObjectWithHistory<SubscriptionData> {
      * CascadeType: NONE
      */
     @OneToOne(optional = false, fetch = FetchType.LAZY)
-    @IndexedEmbedded
     private Product product;
 
     /**
