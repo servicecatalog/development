@@ -10,10 +10,8 @@
 
 package org.oscm.ui.dialog.classic.marketplace;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
@@ -31,14 +29,10 @@ public class ManageAccessModel {
     private String selectedMarketplaceId;
 
     private boolean selectedMarketplaceRestricted;
-    
+
     private boolean allOrganizationsSelected;
 
     private List<POOrganization> organizations;
-
-    private Map<Long, Boolean> accessesStored = new HashMap<>();
-
-    private Map<Long, Boolean> accessesSelected = new HashMap<>();
 
     private Set<Long> authorizedOrganizations = new HashSet<>();;
 
@@ -47,13 +41,13 @@ public class ManageAccessModel {
     private boolean showOpeningRestrictedMplWarning;
 
     private long changedKey;
-    
+
     private boolean changedSelection;
-    
+
     private boolean changedHasSubscriptions;
-    
+
     private String allSelectedOrganizations;
-    
+
     public List<SelectItem> getSelectableMarketplaces() {
         return selectableMarketplaces;
     }
@@ -79,7 +73,7 @@ public class ManageAccessModel {
             boolean selectedMarketplaceRestricted) {
         this.selectedMarketplaceRestricted = selectedMarketplaceRestricted;
     }
-    
+
     public boolean isAllOrganizationsSelected() {
         return allOrganizationsSelected;
     }
@@ -96,22 +90,6 @@ public class ManageAccessModel {
         this.organizations = organizations;
     }
 
-    public Map<Long, Boolean> getAccessesStored() {
-        return accessesStored;
-    }
-
-    public void setAccessesStored(Map<Long, Boolean> accessesStored) {
-        this.accessesStored = accessesStored;
-    }
-
-    public Map<Long, Boolean> getAccessesSelected() {
-        return accessesSelected;
-    }
-
-    public void setAccessesSelected(Map<Long, Boolean> accessesSelected) {
-        this.accessesSelected = accessesSelected;
-    }
-
     public Set<Long> getAuthorizedOrganizations() {
         return authorizedOrganizations;
     }
@@ -124,8 +102,7 @@ public class ManageAccessModel {
         return unauthorizedOrganizations;
     }
 
-    public void setUnauthorizedOrganizations(
-            Set<Long> unauthorizedOrganizations) {
+    public void setUnauthorizedOrganizations(Set<Long> unauthorizedOrganizations) {
         this.unauthorizedOrganizations = unauthorizedOrganizations;
     }
 
