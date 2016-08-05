@@ -8,6 +8,7 @@
 
 package org.oscm.domobjects.bridge;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.lucene.document.Document;
@@ -41,22 +42,36 @@ public class SubscriptionClassBridge implements FieldBridge {
 
         Subscription sub = (Subscription) value;
 
-        String subId = sub.getSubscriptionId() != null ? sub
-                .getSubscriptionId() : "";
+        String subId = "";
+
+        if (sub.getSubscriptionId() != null) {
+            subId = sub.getSubscriptionId();
+        }
+
         Field field = new Field(NAME_SUBSCRIPTION_ID, subId,
                 options.getStore(), options.getIndex(), options.getTermVector());
         field.setBoost(options.getBoost());
         doc.add(field);
 
-        String subRef = sub.getPurchaseOrderNumber() != null ? sub
-                .getPurchaseOrderNumber() : "";
+        String subRef = "";
+
+        if (sub.getPurchaseOrderNumber() != null) {
+            subRef = sub.getPurchaseOrderNumber();
+        }
+
         field = new Field(NAME_REFERENCE, subRef, options.getStore(),
                 options.getIndex(), options.getTermVector());
         field.setBoost(options.getBoost());
         doc.add(field);
 
-        List<Parameter> params = sub.getProduct().getParameterSet()
-                .getParameters();
+        List<Parameter> params = new ArrayList<Parameter>();
+
+        if (sub.getProduct() != null
+                && sub.getProduct().getParameterSet() != null
+                && sub.getProduct().getParameterSet().getParameters() != null) {
+
+            params = sub.getProduct().getParameterSet().getParameters();
+        }
 
         StringBuilder sb = new StringBuilder();
 
@@ -74,8 +89,13 @@ public class SubscriptionClassBridge implements FieldBridge {
 
         sb = new StringBuilder();
 
-        List<UdaDefinition> udaDefList = sub.getProduct().getVendor()
-                .getUdaDefinitions();
+        List<UdaDefinition> udaDefList = new ArrayList<UdaDefinition>();
+
+        if (sub.getProduct() != null && sub.getProduct().getVendor() != null
+                && sub.getProduct().getVendor().getUdaDefinitions() != null) {
+
+            udaDefList = sub.getProduct().getVendor().getUdaDefinitions();
+        }
 
         List<Uda> udaList;
         boolean exists;
