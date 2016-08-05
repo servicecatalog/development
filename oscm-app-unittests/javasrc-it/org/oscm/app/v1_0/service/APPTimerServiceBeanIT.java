@@ -43,11 +43,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.slf4j.LoggerFactory;
-
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
@@ -79,6 +78,7 @@ import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
 
+@Ignore
 public class APPTimerServiceBeanIT extends EJBTestBase {
 
     private static final String CTRL_ID = "ess.vmware";
@@ -107,6 +107,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
+
         container.addBean(LoggerFactory.getLogger(APPTimerServiceBean.class));
         container.addBean(instanceDAO = new ServiceInstanceDAO());
         container.addBean(configService = Mockito
@@ -132,6 +133,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         container.addBean(mock(APPAuthenticationServiceBean.class));
         container.addBean(timerService = spy(new APPTimerServiceBean()));
         container.addBean(new APPlatformServiceBean());
+        // container.addBean(new APPTimerServiceBean());
         controller = mock(APPlatformController.class);
         InitialContext context = new InitialContext();
         context.bind("bss/app/controller/ess.vmware", controller);
@@ -144,6 +146,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         em = instanceDAO.em;
         timerService.em = em;
+        timerService.appTimerServiceBean = new APPTimerServiceBean();
     }
 
     private InstanceResult getInstanceResult(int returnCode) {
