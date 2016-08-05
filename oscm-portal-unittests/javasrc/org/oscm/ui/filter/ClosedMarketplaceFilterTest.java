@@ -8,6 +8,7 @@
 
 package org.oscm.ui.filter;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -19,6 +20,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javax.servlet.FilterChain;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,11 +28,14 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.ServiceAccess;
 import org.oscm.ui.model.MarketplaceConfiguration;
 
 public class ClosedMarketplaceFilterTest {
@@ -46,7 +51,6 @@ public class ClosedMarketplaceFilterTest {
     private final static String EXCLUDE_URL_PATTERN = "(.*/a4j/.*|.*/img/.*|.*/css/.*|.*/fonts/.*|.*/scripts/.*|.*/faq/.*|^/slogout.jsf|^/public/.*|^/marketplace/terms/.*|.*/marketplace/img/.*)";
     private static final String INSUFFICIENT_AUTH_URL = Marketplace.MARKETPLACE_ROOT
             + Constants.INSUFFICIENT_AUTHORITIES_URI;
-    private static final String MPL_START_URL = BaseBean.MARKETPLACE_START_SITE;
 
     @Before
     public void setup() throws Exception {
@@ -66,11 +70,11 @@ public class ClosedMarketplaceFilterTest {
         closedMplFilter = spy(new ClosedMarketplaceFilter());
         closedMplFilter.excludeUrlPattern = EXCLUDE_URL_PATTERN;
         closedMplFilter.redirector = redirectorMock;
-        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
     }
 
     @Test
     public void testDoFilter_requestMatchesExcludePattern() throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/css/style.css").when(requestMock).getServletPath();
@@ -84,6 +88,7 @@ public class ClosedMarketplaceFilterTest {
 
     @Test
     public void testDoFilter_emptyMplId() throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/portal/*").when(requestMock).getServletPath();
@@ -99,6 +104,7 @@ public class ClosedMarketplaceFilterTest {
 
     @Test
     public void testDoFilter_notRestrictedMarketplace() throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/portal/*").when(requestMock).getServletPath();
@@ -116,6 +122,7 @@ public class ClosedMarketplaceFilterTest {
 
     @Test
     public void testDoFilter_restrictedMarketplaceWithAccess() throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/portal/*").when(requestMock).getServletPath();
@@ -136,6 +143,7 @@ public class ClosedMarketplaceFilterTest {
     @Test
     public void testDoFilter_restrictedMarketplaceWithNoAccess()
             throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/portal/*").when(requestMock).getServletPath();
@@ -157,6 +165,7 @@ public class ClosedMarketplaceFilterTest {
     @Test
     public void testDoFilter_restrictedMarketplaceWithNullUser()
             throws Exception {
+        doReturn(false).when(closedMplFilter).isSAMLAuthentication();
 
         // given
         doReturn("/portal/*").when(requestMock).getServletPath();
@@ -171,6 +180,47 @@ public class ClosedMarketplaceFilterTest {
 
         // then
         verify(chainMock, times(1)).doFilter(requestMock, responseMock);
+    }
+
+    @Test
+    public void testDoFilter_saml()
+            throws Exception {
+        doReturn(true).when(closedMplFilter).isSAMLAuthentication();
+
+        // given
+        RequestDispatcher dispatcherMock = mock(RequestDispatcher.class);
+        ServletContext mockServletContext = mock(ServletContext.class);
+        doReturn(mockServletContext).when(requestMock).getServletContext();
+        doReturn(dispatcherMock).when(mockServletContext).getRequestDispatcher(any(String.class));
+        doReturn(configBean).when(mockServletContext).getAttribute(
+                "marketplaceConfigurationBean");
+        doReturn(true).when(closedMplFilter).isSAMLAuthentication();
+        doReturn("/portal/*").when(requestMock).getServletPath();
+        doReturn("mpid").when(sessionMock).getAttribute(
+                Constants.REQ_PARAM_MARKETPLACE_ID);
+        doReturn(getConfiguration(true, true, "testOrg")).when(configBean)
+                .getConfiguration("mpid", requestMock);
+        doReturn(getUserDetails("anotherOrg")).when(sessionMock).getAttribute(
+                Constants.SESS_ATTR_USER);
+
+        // when
+        closedMplFilter.doFilter(requestMock, responseMock, chainMock);
+
+        // then
+        verify(dispatcherMock, times(1)).forward(requestMock, responseMock);
+
+    }
+
+    @Test
+    public void testIsSAMLAuthentication() {
+        // given
+        ServiceAccess mockServiceAccess = mock(ServiceAccess.class);
+        ConfigurationService mockConfServ = mock(ConfigurationService.class);
+        closedMplFilter.serviceAccess = mockServiceAccess;
+        doReturn(mockConfServ).when(mockServiceAccess).getService(any(Class.class));
+        // when
+        closedMplFilter.isSAMLAuthentication();
+        // then
     }
 
     private MarketplaceConfiguration getConfiguration(boolean isRestricted,
@@ -191,4 +241,5 @@ public class ClosedMarketplaceFilterTest {
         userDetails.setOrganizationId(orgId);
         return userDetails;
     }
+
 }
