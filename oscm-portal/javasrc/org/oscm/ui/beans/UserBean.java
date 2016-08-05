@@ -576,7 +576,7 @@ public class UserBean extends BaseBean implements Serializable {
         } catch (CommunicationException e) {
             return outcomeCommunicationException(httpRequest);
         } catch (LoginToClosedMarketplaceException e) {
-            return outcomeLoginToClosedMarketplaceException(httpRequest, e);
+            return outcomeLoginToClosedMarketplaceException(httpRequest);
         }
     }
 
@@ -597,9 +597,10 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     private String outcomeLoginToClosedMarketplaceException(
-        HttpServletRequest httpRequest, SaaSApplicationException e) {
+        HttpServletRequest httpRequest) {
         if (isServiceProvider()) {
-            setErrorAttributes(httpRequest, e);
+            httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
+                    BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
             return OUTCOME_PUBLIC_ERROR_PAGE;
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
