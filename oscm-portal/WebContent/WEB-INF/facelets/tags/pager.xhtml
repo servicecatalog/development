@@ -48,7 +48,8 @@
       <c:set var="pageValue" value="#{pagerId}pageValue"/>
       <h:outputText value="|" styleClass="divider"/>
       <h:outputText value=" #{msg['common.pager']} "/>
-      <h:inputText id="#{pagerId}pageValue" styleClass="pageInput" maxlength="9" />
+      <h:inputText id="#{pagerId}pageValue" styleClass="pageInput" maxlength="9"
+                   onkeypress="if((event.which &lt; 48 || event.which &gt; 57) &amp;&amp; event.which != 8) return false;" />
 
       <adm:buttonCustomizedOnClick id="#{pagerId}pagerButton" value="#{msg['common.go']}" buttonType="smallExecute"
         onclick="AdmUtils.pageTo(#{rich:element(pagerId)},#{rich:element(pageValue)});return false;"/>
