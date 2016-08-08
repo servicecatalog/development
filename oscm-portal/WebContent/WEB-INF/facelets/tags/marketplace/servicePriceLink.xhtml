@@ -6,33 +6,31 @@
   xmlns:mp="http://www.fujitsu.com/global/services/software/interstage/marketplace">
   <a4j:outputPanel layout="block" styleClass="#{styleClass}" style="#{style}">
     <c:choose>
-      <c:when test="#{empty service.priceText}">
-        <h2 class="servicePrice">'&#160;'</h2>
-      </c:when>
-      <c:when test="#{service.priceModel.free}">
-        <h2 class="servicePrice">#{service.priceText}</h2>
-      </c:when>
-      <c:otherwise>
-      <h2 class="servicePrice">
-        <c:choose>
-          <c:when test="#{service.priceModel.external}">
+      <c:when test="#{service.priceModel.external}">
+        <h2 class="servicePrice">
             <h:form>
             <h:commandLink id="externalPriceModelLink" action="#{bean.display}" target="_blank"
               style="text-decoration: none;" value="#{msg['subscription.priceModel.information.link']}">
             </h:commandLink>
             </h:form>
-          </c:when>
-          <c:otherwise>
-            <h:outputLink id="priceModelModalLink" value="#" onclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');#{rich:component('priceModelPanel')}.show(); setDirty(false); return false;"
-              style="text-decoration: none;">
-              <h:outputText value="#{msg['subscription.priceModel.information.link']}"/>
-            </h:outputLink>
-            <ui:include src="../../../../marketplace/subscriptions/priceModelModal.xhtml">
-              <ui:param name="priceModel" value="#{bean.model.service.priceModel}" />
-              <ui:param name="model" value="#{bean.model}" />
-            </ui:include>
-          </c:otherwise>
-        </c:choose>
+         </h2>
+      </c:when>
+      <c:when test="#{service.priceModel.free}">
+        <h2 class="servicePrice">#{service.priceText}</h2>
+      </c:when>
+      <c:when test="#{empty service.priceText}">
+        <h2 class="servicePrice">'&#160;'</h2>
+      </c:when>   
+      <c:otherwise>
+      <h2 class="servicePrice">
+        <h:outputLink id="priceModelModalLink" value="#" onclick="AdmUtils.copyFormContent('configurationForm:parameterConfigTable','configurationForm2:parameterTable');#{rich:component('priceModelPanel')}.show(); setDirty(false); return false;"
+          style="text-decoration: none;">
+          <h:outputText value="#{msg['subscription.priceModel.information.link']}"/>
+        </h:outputLink>
+        <ui:include src="../../../../marketplace/subscriptions/priceModelModal.xhtml">
+          <ui:param name="priceModel" value="#{bean.model.service.priceModel}" />
+          <ui:param name="model" value="#{bean.model}" />
+        </ui:include>
       </h2>
       </c:otherwise>
     </c:choose>
