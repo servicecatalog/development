@@ -15,9 +15,6 @@ package org.oscm.domobjects;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
-import org.hibernate.search.annotations.Analyzer;
-import org.hibernate.search.annotations.Field;
-
 /**
  * The data container for a uda instance - holds the information about the value
  * and the key of the object the instance is attached on.
@@ -33,7 +30,6 @@ public class UdaData extends DomainDataContainer {
     @Column(nullable = false)
     private long targetObjectKey;
 
-    @Field(analyzer = @Analyzer(definition = "customanalyzer"))
     private String udaValue;
 
     public long getTargetObjectKey() {

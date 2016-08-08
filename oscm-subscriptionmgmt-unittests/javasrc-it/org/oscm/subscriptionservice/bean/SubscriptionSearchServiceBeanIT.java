@@ -7,6 +7,7 @@ package org.oscm.subscriptionservice.bean;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 
@@ -18,11 +19,19 @@ import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.ParameterDefinition;
+import org.oscm.domobjects.Product;
 import org.oscm.domobjects.Subscription;
 import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ParameterType;
+import org.oscm.internal.types.enumtypes.ParameterValueType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.test.EJBTestBase;
@@ -31,8 +40,10 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
@@ -45,7 +56,11 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
     }
 
     private SubscriptionSearchService sssb = new SubscriptionSearchServiceBean();
+    private static long SUB1KEY;
+    private static long SUB2KEY;
+    private static long SUB3KEY;
 
+    @SuppressWarnings("boxing")
     @Override
     public void setup(TestContainer container) throws Exception {
         DataService ds = new DataServiceBean();
@@ -68,60 +83,114 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 OrganizationRoleType.SUPPLIER);
         org.addPlatformUser(Organizations.createUserForOrg(ds, org, true,
                 "admin"));
+        UdaDefinition udaDef1 = Udas.createUdaDefinition(ds, org,
+                UdaTargetType.CUSTOMER_SUBSCRIPTION, "test", "default",
+                UdaConfigurationType.USER_OPTION_OPTIONAL);
+        UdaDefinition udaDef2 = Udas.createUdaDefinition(ds, org,
+                UdaTargetType.CUSTOMER_SUBSCRIPTION, "test2", "normal",
+                UdaConfigurationType.USER_OPTION_OPTIONAL);
+
+        org.setUdaDefinitions(Arrays.asList(udaDef1, udaDef2));
+
         TechnicalProduct techProd = TechnicalProducts.createTechnicalProduct(
                 ds, org, "techProd", false, ServiceAccessType.DIRECT);
-        Products.createProduct(org, techProd, false, "prodId", null, ds);
+        Product prod = Products.createProduct(org, techProd, false, "prodId",
+                null, ds);
+
+        ParameterDefinition paramDef = TechnicalProducts
+                .addParameterDefinition(ParameterValueType.STRING, "test",
+                        ParameterType.SERVICE_PARAMETER, techProd, ds, 0L, 1L,
+                        true);
+
+        Parameter param = Products.createParameter(paramDef, prod, ds);
+        param.setValue("param");
 
         Organization customer = Organizations.createCustomer(ds, org);
         customer.addPlatformUser(Organizations.createUserForOrg(ds, customer,
                 true, "admin"));
-        Subscription sub = Subscriptions.createSubscription(ds,
-                customer.getOrganizationId(), "prodId", "search", org);
-        sub.setMarketplace(mp);
+        Subscription sub1 = Subscriptions.createSubscription(ds,
+                customer.getOrganizationId(), "prodId", "one", org);
+        sub1.setPurchaseOrderNumber("reference");
+        sub1.setMarketplace(mp);
+
+        SUB1KEY = sub1.getKey();
 
         Subscription sub2 = Subscriptions.createSubscription(ds,
-                customer.getOrganizationId(), "prodId", "multiple", org);
-        sub.setMarketplace(mp);
+                customer.getOrganizationId(), "prodId", "two", org);
+        sub2.setPurchaseOrderNumber(null);
+        sub2.setMarketplace(mp);
+
+        SUB2KEY = sub2.getKey();
 
         Subscription sub3 = Subscriptions.createSubscription(ds,
                 customer.getOrganizationId(), "prodId",
                 "search+-&&||!(){}[]^\"~*?:\\", org);
-        sub.setMarketplace(mp);
-    }
+        sub3.setMarketplace(mp);
 
-    @Test
-    public void searchSub4SingleWord() throws Exception {
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() {
-                try {
-                    Collection<Long> col = sssb.searchSubscriptions("search");
-                    assertEquals(2, col.size());
-                } catch (InvalidPhraseException | ObjectNotFoundException e) {
-                    fail();
-                }
+        SUB3KEY = sub3.getKey();
 
-                return null;
-            }
-        });
+        Uda uda = Udas.createUda(ds, sub1, udaDef1, "value");
+
+        udaDef1.setUdas(Arrays.asList(uda));
+
+        ds.flush();
 
     }
 
     @Test
-    public void searchSub4MultipleWords() throws Exception {
+    public void searchSubRefParamUda() throws Exception {
         runTX(new Callable<Void>() {
             @Override
             public Void call() {
                 try {
                     Collection<Long> col = sssb
-                            .searchSubscriptions("search multiple");
-                    assertEquals(3, col.size());
+                            .searchSubscriptions("one reference param value normal");
+                    assertEquals(1, col.size());
+                    assertEquals(new Long(SUB1KEY), col.iterator().next());
+                } catch (InvalidPhraseException | ObjectNotFoundException e) {
+                    fail();
+                }
+
+                return null;
+            }
+        });
+
+    }
+
+    @Test
+    public void searchTwoSubs() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    Collection<Long> col = sssb.searchSubscriptions("one two");
+                    assertEquals(0, col.size());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {
                     fail();
                 }
                 return null;
             }
         });
+    }
+
+    @Test
+    public void searchSubWithDefaultUda() throws Exception {
+        runTX(new Callable<Void>() {
+            @Override
+            public Void call() {
+                try {
+                    Collection<Long> col = sssb
+                            .searchSubscriptions("two default normal");
+                    assertEquals(1, col.size());
+                    assertEquals(new Long(SUB2KEY), col.iterator().next());
+                } catch (InvalidPhraseException | ObjectNotFoundException e) {
+                    fail();
+                }
+
+                return null;
+            }
+        });
+
     }
 
     @Test
@@ -132,7 +201,8 @@ public class SubscriptionSearchServiceBeanIT extends EJBTestBase {
                 try {
                     Collection<Long> col = sssb
                             .searchSubscriptions("search+-&&||!(){}[]^\"~*?:\\");
-                    assertEquals(2, col.size());
+                    assertEquals(1, col.size());
+                    assertEquals(new Long(SUB3KEY), col.iterator().next());
                 } catch (InvalidPhraseException | ObjectNotFoundException e) {
                     fail();
                 }
