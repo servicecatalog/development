@@ -2212,3 +2212,55 @@ AdmUtils.adjustDialogHeightOnResize = function(dialogId) {
 			tablePanelHeight);
 	$("#" + dialogId + "_content").height(dialogHeight + 100);
 }
+
+AdmUtils.IE9PlaceHolderFix = function (searchPhraseProperty, inputId){
+     function hasPlaceholderSupport() {
+      var input = document.createElement('input');
+      return ('placeholder' in input);
+     }
+
+     if(!hasPlaceholderSupport()){
+        var input = document.getElementById(inputId);
+            if(input.getAttribute('placeholder')){
+                input.style.cssText = "color:#939393;font-style:italic;"
+                if (searchPhraseProperty != ''){
+                    this.value = searchPhraseProperty;
+                } else {
+                    input.value = input.getAttribute('placeholder');
+                }
+                input.onblur = function(){
+                    if (this.value == ''){
+                        this.value = this.getAttribute("placeholder");
+                    }
+                }
+            }
+     }
+}
+
+AdmUtils.IE9OnClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+
+        var input = document.getElementById(id);
+            if (input.value == input.getAttribute("placeholder")){
+                input.value = '';
+            }
+     }
+}
+
+AdmUtils.IE9AfterClick = function (id){
+     function hasPlaceholderSupport() {
+       var input = document.createElement('input');
+       return ('placeholder' in input);
+     }
+     if(!hasPlaceholderSupport()){
+
+        var input = document.getElementById(id);
+            if (input.value == ''){
+                input.value = input.getAttribute("placeholder");
+            }
+     }
+}
