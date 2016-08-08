@@ -127,7 +127,7 @@ public class APPTimerServiceBean {
     protected OperationDAO operationDAO;
 
     @EJB
-    private ProductProvisioningServiceFactoryBean provServFact;
+    protected ProductProvisioningServiceFactoryBean provServFact;
 
     public void initTimers() {
         synchronized (TIMER_LOCK) {

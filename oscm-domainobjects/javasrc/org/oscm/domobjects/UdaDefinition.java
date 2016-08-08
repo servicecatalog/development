@@ -28,16 +28,14 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.search.annotations.Indexed;
 import org.oscm.domobjects.annotations.BusinessKey;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
  * @author weiser
  * 
  */
-@Indexed
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "organizationKey",
         "udaId", "targetType" }))

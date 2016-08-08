@@ -43,12 +43,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.LoggerFactory;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.app.business.ProductProvisioningServiceFactoryBean;
 import org.oscm.app.business.exceptions.BESNotificationException;
 import org.oscm.app.dao.BesDAO;
@@ -74,11 +70,13 @@ import org.oscm.provisioning.data.InstanceResult;
 import org.oscm.provisioning.data.ServiceParameter;
 import org.oscm.provisioning.data.User;
 import org.oscm.provisioning.intf.ProvisioningService;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 import org.oscm.types.enumtypes.OperationStatus;
 import org.oscm.vo.VOUser;
 import org.oscm.vo.VOUserDetails;
+import org.slf4j.LoggerFactory;
 
-@Ignore
 public class APPTimerServiceBeanIT extends EJBTestBase {
 
     private static final String CTRL_ID = "ess.vmware";
@@ -86,6 +84,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
     private final String ERROR_MESSAGE = "err_message";
     private final int RESPONSE_CODE = -1;
     private APPTimerServiceBean timerService;
+    private APPTimerServiceBean timerService1;
     private Timer timer;
 
     private EntityManager em;
@@ -131,9 +130,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         container.addBean(operationDAOMock);
         container.addBean(opBean = mock(OperationServiceBean.class));
         container.addBean(mock(APPAuthenticationServiceBean.class));
-        container.addBean(timerService = spy(new APPTimerServiceBean()));
         container.addBean(new APPlatformServiceBean());
-        // container.addBean(new APPTimerServiceBean());
         controller = mock(APPlatformController.class);
         InitialContext context = new InitialContext();
         context.bind("bss/app/controller/ess.vmware", controller);
@@ -145,8 +142,25 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         defaultUser.setUserId("user");
 
         em = instanceDAO.em;
+        container.addBean(timerService = spy(new APPTimerServiceBean()));
+        container.addBean(timerService1 = spy(new APPTimerServiceBean()));
         timerService.em = em;
-        timerService.appTimerServiceBean = new APPTimerServiceBean();
+        timerService1.em = em;
+        timerService.instanceDAO = instanceDAO;
+        timerService1.instanceDAO = instanceDAO;
+        timerService.configService = configService;
+        timerService1.configService = configService;
+        timerService.provServFact = provFactoryBean;
+        timerService1.provServFact = provFactoryBean;
+        timerService.besDAO = besDAOMock;
+        timerService1.besDAO = besDAOMock;
+        timerService.mailService = mailService;
+        timerService1.mailService = mailService;
+        timerService.operationDAO = operationDAOMock;
+        timerService1.operationDAO = operationDAOMock;
+        timerService.opBean = opBean;
+        timerService1.opBean = opBean;
+        timerService.appTimerServiceBean = timerService1;
     }
 
     private InstanceResult getInstanceResult(int returnCode) {
@@ -168,7 +182,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
 
         // then
         verifyZeroInteractions(provFactoryBean);
-        verify(timerService).cancelTimers();
+        verify(timerService1).cancelTimers();
     }
 
     @Test
@@ -182,7 +196,7 @@ public class APPTimerServiceBeanIT extends EJBTestBase {
         // then
         verifyZeroInteractions(provFactoryBean);
         validateServiceInstanceStatus(ProvisioningStatus.COMPLETED);
-        verify(timerService).cancelTimers();
+        verify(timerService1).cancelTimers();
     }
 
     @Test

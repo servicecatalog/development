@@ -22,7 +22,6 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.hibernate.search.annotations.Indexed;
 import org.oscm.domobjects.annotations.BusinessKey;
 
 /**
@@ -32,7 +31,6 @@ import org.oscm.domobjects.annotations.BusinessKey;
  * @author weiser
  * 
  */
-@Indexed
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {
         "udaDefinitionKey", "targetObjectKey" }))
