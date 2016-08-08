@@ -1073,10 +1073,16 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void grantAccessToMarketPlaceToOrganization(Marketplace marketplace,
             Organization organization) throws NonUniqueBusinessKeyException {
+
         MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
         marketplaceAccess.setMarketplace(marketplace);
         marketplaceAccess.setOrganization(organization);
-        ds.persist(marketplaceAccess);
+
+        try {
+            ds.getReferenceByBusinessKey(marketplaceAccess);
+        } catch (ObjectNotFoundException e) {
+            ds.persist(marketplaceAccess);
+        }
     }
 
     @Override
@@ -1092,9 +1098,25 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
         MarketplaceAccess marketplaceAccess = new MarketplaceAccess();
         marketplaceAccess.setMarketplace_tkey(marketplaceKey);
         marketplaceAccess.setOrganization_tkey(organizationKey);
-        MarketplaceAccess mp = (MarketplaceAccess) ds
-                .getReferenceByBusinessKey(marketplaceAccess);
-        ds.remove(mp);
+
+        try {
+            MarketplaceAccess mpa = (MarketplaceAccess) ds
+                    .getReferenceByBusinessKey(marketplaceAccess);
+            ds.remove(mpa);
+        } catch (ObjectNotFoundException e) {
+            // if no entry exists just continue
+        }
+
+        Organization org = ds.getReference(Organization.class, organizationKey);
+        Marketplace mp = ds.getReference(Marketplace.class, marketplaceKey);
+
+        CatalogEntry ce;
+        for (Product prod : org.getProducts()) {
+            ce = prod.getCatalogEntryForMarketplace(mp);
+            if (ce != null) {
+                ce.setMarketplace(null);
+            }
+        }
     }
 
     @Override

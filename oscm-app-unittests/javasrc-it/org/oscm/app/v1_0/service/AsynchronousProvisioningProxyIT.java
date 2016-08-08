@@ -81,6 +81,7 @@ import org.oscm.provisioning.intf.ProvisioningService;
  * 
  * @author hoffmann
  */
+@Ignore
 public class AsynchronousProvisioningProxyIT extends EJBTestBase {
 
     private AsynchronousProvisioningProxy proxy;
@@ -277,7 +278,7 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         map.put(param.getParameterId(), param.getValue());
         map.put(null, "null"); // check error resistance
         descr.setChangedParameters(map);
-        
+
         List<LocalizedText> msgs = Arrays.asList(new LocalizedText("en",
                 "enMsg"), new LocalizedText("de", "deMsg"), new LocalizedText(
                 "ja", "ja"));
@@ -286,9 +287,9 @@ public class AsynchronousProvisioningProxyIT extends EJBTestBase {
         when(
                 controllerMock.createInstance(Matchers
                         .any(ProvisioningSettings.class))).thenReturn(descr);
-        
+
         doReturn("en").when(proxy).getLocale(any(User.class));
-        
+
         final BaseResult result = runTX(new Callable<BaseResult>() {
             @Override
             public BaseResult call() {

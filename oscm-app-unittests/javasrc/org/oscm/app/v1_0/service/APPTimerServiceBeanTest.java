@@ -65,6 +65,7 @@ public class APPTimerServiceBeanTest {
     private APPCommunicationServiceBean mailService;
     private Logger logger;
     private APPlatformController controller;
+    private APPTimerServiceBean timerBean;
 
     @Before
     public void setup() throws Exception {
@@ -81,14 +82,16 @@ public class APPTimerServiceBeanTest {
         provFactoryBean = mock(ProductProvisioningServiceFactoryBean.class);
         configService = mock(APPConfigurationServiceBean.class);
         instanceDAO = mock(ServiceInstanceDAO.class);
+        timerBean = mock(APPTimerServiceBean.class);
         timerService.instanceDAO = instanceDAO;
         timerService.configService = configService;
         timerService.mailService = mailService;
         timerService.besDAO = besDAOMock;
         timerService.timerService = ts;
+        timerService.appTimerServiceBean = timerBean;
         Collection<Timer> timers = new ArrayList<Timer>();
         controller = mock(APPlatformController.class);
-        
+
         doReturn(getResult()).when(instanceDAO).getInstancesInWaitingState();
         doReturn(timers).when(timerService.timerService).getTimers();
 
@@ -114,7 +117,7 @@ public class APPTimerServiceBeanTest {
         timerService.handleTimer(timer);
 
         // then
-        verify(timerService, times(1)).cancelTimers();
+        verify(timerBean, times(1)).cancelTimers();
     }
 
     @Test
