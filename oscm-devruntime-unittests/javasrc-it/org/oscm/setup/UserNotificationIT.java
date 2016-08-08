@@ -514,7 +514,10 @@ public class UserNotificationIT {
 	 * @return the file object for the passed resource name.
 	 */
 	private static File getFile(String name) {
+		System.out.println("get file: " +name);
+		
 		URL resource = UserNotificationIT.class.getResource("/" + name);
+		
 		Assert.assertNotNull(resource);
 		return new File(resource.getFile());
 	}
