@@ -24,8 +24,10 @@ import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.types.enumtypes.UdaTargetType;
 
 /**
+ * Custom class bridge implementation for indexing subscription domain objects
+ * together with related information.
+ * 
  * @author miethaner
- *
  */
 public class SubscriptionClassBridge implements FieldBridge {
 
@@ -42,6 +44,7 @@ public class SubscriptionClassBridge implements FieldBridge {
 
         Subscription sub = (Subscription) value;
 
+        // write subscription id to index
         String subId = "";
 
         if (sub.getSubscriptionId() != null) {
@@ -53,6 +56,7 @@ public class SubscriptionClassBridge implements FieldBridge {
         field.setBoost(options.getBoost());
         doc.add(field);
 
+        // write subscription reference to index
         String subRef = "";
 
         if (sub.getPurchaseOrderNumber() != null) {
@@ -64,6 +68,7 @@ public class SubscriptionClassBridge implements FieldBridge {
         field.setBoost(options.getBoost());
         doc.add(field);
 
+        // write all string parameters of the corresponding service to index
         List<Parameter> params = new ArrayList<Parameter>();
 
         if (sub.getProduct() != null
@@ -87,6 +92,8 @@ public class SubscriptionClassBridge implements FieldBridge {
         field.setBoost(options.getBoost());
         doc.add(field);
 
+        // write all corresponding udas to index, if no uda exits for a
+        // definition write default value
         sb = new StringBuilder();
 
         List<UdaDefinition> udaDefList = new ArrayList<UdaDefinition>();
@@ -100,10 +107,10 @@ public class SubscriptionClassBridge implements FieldBridge {
         List<Uda> udaList;
         boolean exists;
         for (UdaDefinition udaDef : udaDefList) {
-            udaList = udaDef.getUdas();
-
             if (udaDef.getTargetType() == UdaTargetType.CUSTOMER_SUBSCRIPTION
                     && udaDef.getConfigurationType() != UdaConfigurationType.SUPPLIER) {
+
+                udaList = udaDef.getUdas();
                 exists = false;
                 for (Uda uda : udaList) {
                     if (uda.getTargetObjectKey() == sub.getKey()) {
