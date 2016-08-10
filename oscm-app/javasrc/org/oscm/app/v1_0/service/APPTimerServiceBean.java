@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -82,15 +83,14 @@ import org.slf4j.Logger;
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @Singleton
 @LocalBean
-public class APPTimerServiceBean {
+public class APPTimerServiceBean implements Cloneable {
 
     private static final String EVENT_KEY_NOTIFY = "notify";
     private static final String EVENT_KEY_RESUME = "_resume";
     private static final String EVENT_VALUE_YES = "yes";
     private static final long DEFAULT_TIMER_INTERVAL = 15000;
 
-    @EJB
-    protected APPTimerServiceBean appTimerServiceBean;
+    protected APPTimerServiceBean appTimerServiceBean = null;
 
     public Object TIMER_LOCK = new Object();
 
@@ -128,6 +128,15 @@ public class APPTimerServiceBean {
 
     @EJB
     protected ProductProvisioningServiceFactoryBean provServFact;
+
+    @PostConstruct
+    public void init() {
+        try {
+            appTimerServiceBean = (APPTimerServiceBean) this.clone();
+        } catch (CloneNotSupportedException e) {
+            // ignore since class is cloneable
+        }
+    }
 
     public void initTimers() {
         synchronized (TIMER_LOCK) {
