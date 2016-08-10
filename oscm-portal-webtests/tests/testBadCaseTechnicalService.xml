@@ -58,7 +58,7 @@
       <techservice.import file="${techService.import.file}" />
       
       <!-- Bug 10159 -->
-      <verifyXPath xpath="//*[matches(@style, 'max-height: 100%;') and matches(@class,'table_padding')]" />
+      <verifyXPath xpath="//*[matches(@class,'table_padding')]" />
       
       <dataDriven tableContainer="data/pageFields/techServiceEditFields.xls">
         <common.clickAndVerfyLink label="${techService.edit.title}" />
