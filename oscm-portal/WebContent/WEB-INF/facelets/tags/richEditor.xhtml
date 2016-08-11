@@ -24,7 +24,8 @@
             language: '#{userBean.myLocale}',
             removePlugins: 'elementspath',
             resize_enabled: false,
-            CKEDITOR.ENTER_P: true,
+            shiftEnterMode: CKEDITOR.ENTER_BR,
+            enterMode: CKEDITOR.ENTER_BR,
             toolbar_custom:[
 	           ['Paste','Format','Bold','Italic','Underline','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock',
 	           '-','BulletedList','NumberedList','Outdent','Indent','-','Link','Unlink','Image']
