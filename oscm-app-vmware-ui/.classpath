@@ -12,6 +12,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-lang/javalib/commons-lang-2.6.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-codec/javalib/commons-codec-1.7.jar"/>
 	<classpathentry kind="src" path="/oscm-extsvc"/>
+	<classpathentry kind="src" path="/oscm-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
-
