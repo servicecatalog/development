@@ -9,7 +9,9 @@
 		<project>oscm-app-vmware-service</project>
 		<project>oscm-app-vmware-setup</project>
 		<project>oscm-app-vmware-ui</project>
+		<project>oscm-common</project>
 		<project>oscm-extsvc</project>
+		<project>oscm-extsvc-internal</project>
 	</projects>
 	<buildSpec>
 	</buildSpec>
