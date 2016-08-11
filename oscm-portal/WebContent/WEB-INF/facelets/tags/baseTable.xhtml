@@ -15,7 +15,7 @@
       <c:set var="emptyText" value="#{msg['table.empty']}" />
     </c:if>
     <c:if test="#{empty height}">
-      <c:set var="style" value="max-height: auto;" />
+      <c:set var="style" value="max-height: 100%;" />
     </c:if>
     <c:if test="#{not empty height}">
       <c:set var="style" value="max-height: #{height}; overflow-y:auto;" />
