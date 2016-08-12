@@ -49,7 +49,12 @@ public abstract class RestResource {
 
         reviseData(version, item);
 
-        return Response.ok(item).tag(item.getTag()).build();
+        String tag = "";
+        if (item.getETag() != null) {
+            tag = item.getETag().toString();
+        }
+
+        return Response.ok(item).tag(tag).build();
     }
 
     /**
@@ -104,10 +109,9 @@ public abstract class RestResource {
 
         prepareData(version, params, true, content, true);
 
-        prepareTag(params, content, true);
-
         if (content != null) {
             content.setId(params.getId());
+            content.setETag(params.getETag());
         }
 
         backend.put(content, params);
@@ -182,7 +186,7 @@ public abstract class RestResource {
             params.validateId();
         }
 
-        params.validateTag();
+        params.validateETag();
         params.validateParameters();
 
         params.setVersion(version);
@@ -199,37 +203,6 @@ public abstract class RestResource {
 
             rep.setVersion(new Integer(version));
             rep.update();
-        }
-    }
-
-    /**
-     * Prepares tag for the backend call
-     * 
-     * @param params
-     *            the injected parameters
-     * @param rep
-     *            the representation (can be null)
-     * @param match
-     *            if true use If-Match else If-None-Match
-     * @throws WebApplicationException
-     */
-    protected void prepareTag(RequestParameters params, Representation rep,
-            boolean match) throws WebApplicationException {
-
-        params.validateTag();
-
-        if (rep != null) {
-            if (match) {
-                if (params.getMatch() != null) {
-                    rep.setTag(params.getMatch());
-                }
-            } else {
-                if (params.getNoneMatch() != null) {
-                    rep.setTag(params.getNoneMatch());
-                }
-            }
-
-            RequestParameters.validateTag(rep.getTag());
         }
     }
 

@@ -11,6 +11,7 @@ package org.oscm.rest.common.unittests;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -96,6 +97,18 @@ public class RestResourceTest extends RestResource {
         public void put(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
+            assertNull(content.getETag());
+            assertNotNull(params);
+        }
+    };
+
+    private RestBackend.Put<MockRepresentation, MockRequestParameters> backendPutETag = new RestBackend.Put<MockRepresentation, MockRequestParameters>() {
+
+        @Override
+        public void put(MockRepresentation content, MockRequestParameters params) {
+
+            assertNotNull(content);
+            assertNotNull(content.getETag());
             assertNotNull(params);
         }
     };
@@ -156,7 +169,7 @@ public class RestResourceTest extends RestResource {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
-        content.setTag(new Long(1L).toString());
+        content.setETag(new Long(1L));
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
@@ -168,6 +181,28 @@ public class RestResourceTest extends RestResource {
         Mockito.when(request.getProperties()).thenReturn(map);
 
         Response response = put(request, backendPut, content, params);
+
+        assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
+    }
+
+    @Test
+    public void testPutWithETag() {
+
+        MockRepresentation content = new MockRepresentation();
+        content.setId(new Long(1L));
+        content.setETag(new Long(1L));
+
+        MockRequestParameters params = new MockRequestParameters();
+        params.setId(new Long(1L));
+        params.setMatch("1");
+
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
+
+        ContainerRequest request = Mockito.mock(ContainerRequest.class);
+        Mockito.when(request.getProperties()).thenReturn(map);
+
+        Response response = put(request, backendPutETag, content, params);
 
         assertEquals(Status.NO_CONTENT.getStatusCode(), response.getStatus());
     }
