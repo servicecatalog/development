@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
+import java.util.Enumeration;
 import java.util.Locale;
 
 import org.junit.Test;
@@ -105,6 +106,22 @@ public class DefaultMessagesTest {
         assertEquals("Abort", combinedMessages.getString("button.abort"));
         assertEquals("You are not allowed to perform this operation.",
                 combinedMessages.getString("ex.OperationNotPermittedException"));
+    }
+
+    @Test
+    public void dbMessagesResourcesTest() throws Exception{
+        //given
+        DefaultMessages defaultMessagesEN = new DefaultMessages_en();
+        DefaultMessages defaultMessagesDE = new DefaultMessages_de();
+        DefaultMessages defaultMessagesJA = new DefaultMessages_ja();
+        //when
+        final Enumeration<String> keysEN = defaultMessagesEN.getKeys();
+        final Enumeration<String> keysDE = defaultMessagesDE.getKeys();
+        final Enumeration<String> keysJA = defaultMessagesJA.getKeys();
+        //then
+        assertTrue(keysEN.nextElement() != null);
+        assertTrue(keysDE.nextElement() != null);
+        assertTrue(keysJA.nextElement() != null);
     }
 
 }
