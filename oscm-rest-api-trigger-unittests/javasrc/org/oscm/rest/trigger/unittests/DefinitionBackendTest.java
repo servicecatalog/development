@@ -102,7 +102,6 @@ public class DefinitionBackendTest {
 
         VOTriggerDefinition definition = new VOTriggerDefinition();
         definition.setKey(id.longValue());
-        definition.setOrganization(new VOOrganization());
 
         TriggerDefinitionService service = Mockito
                 .mock(TriggerDefinitionService.class);
@@ -113,10 +112,13 @@ public class DefinitionBackendTest {
         DefinitionBackend backend = new DefinitionBackend();
         backend.setService(service);
         backend.postCollection().post(trigger, params);
+
+        Mockito.verify(service).createTriggerDefinition(
+                Mockito.any(VOTriggerDefinition.class));
     }
 
     @Test
-    public void testPutItem() throws Exception {
+    public void testPutItemWithEtag() throws Exception {
 
         Long id = new Long(1L);
 
@@ -125,12 +127,7 @@ public class DefinitionBackendTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setId(id);
-        trigger.setTag("0");
-        trigger.setOwner(new DefinitionRepresentation.Owner());
-
-        VOTriggerDefinition definition = new VOTriggerDefinition();
-        definition.setKey(id.longValue());
-        definition.setOrganization(new VOOrganization());
+        trigger.setETag(new Long(1L));
 
         TriggerDefinitionService service = Mockito
                 .mock(TriggerDefinitionService.class);
@@ -139,6 +136,37 @@ public class DefinitionBackendTest {
         backend.setService(service);
         backend.putItem().put(trigger, params);
 
+        Mockito.verify(service, Mockito.never()).getTriggerDefinition(id);
+        Mockito.verify(service).updateTriggerDefinition(
+                Mockito.any(VOTriggerDefinition.class));
+    }
+
+    @Test
+    public void testPutItemWithoutEtag() throws Exception {
+
+        Long id = new Long(1L);
+
+        TriggerParameters params = new TriggerParameters();
+        params.setId(id);
+
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
+        trigger.setId(id);
+
+        VOTriggerDefinition definition = new VOTriggerDefinition();
+        definition.setKey(id.longValue());
+        definition.setVersion(3);
+
+        TriggerDefinitionService service = Mockito
+                .mock(TriggerDefinitionService.class);
+        Mockito.when(service.getTriggerDefinition(id)).thenReturn(definition);
+
+        DefinitionBackend backend = new DefinitionBackend();
+        backend.setService(service);
+        backend.putItem().put(trigger, params);
+
+        Mockito.verify(service).getTriggerDefinition(id);
+        Mockito.verify(service).updateTriggerDefinition(
+                Mockito.any(VOTriggerDefinition.class));
     }
 
     @Test

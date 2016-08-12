@@ -29,6 +29,8 @@ public class DefinitionRepresentationTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
         trigger.setTargetURL("http://abc.de/asdf");
         trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
@@ -46,6 +48,10 @@ public class DefinitionRepresentationTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription(sb.toString());
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
         try {
             trigger.validateContent();
@@ -57,6 +63,10 @@ public class DefinitionRepresentationTest {
 
         trigger = new DefinitionRepresentation();
         trigger.setTargetURL("<http://");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
         try {
             trigger.validateContent();
@@ -68,6 +78,35 @@ public class DefinitionRepresentationTest {
 
         trigger = new DefinitionRepresentation();
         trigger.setAction("SUB");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        trigger = new DefinitionRepresentation();
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_");
+        trigger.setTargetURL("http://abc.de/asdf");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        trigger = new DefinitionRepresentation();
 
         try {
             trigger.validateContent();
