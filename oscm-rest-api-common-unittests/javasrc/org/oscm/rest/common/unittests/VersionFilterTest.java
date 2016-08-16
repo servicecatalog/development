@@ -94,12 +94,60 @@ public class VersionFilterTest {
     }
 
     @Test
-    public void testVersionFilterVersionNegative() {
+    public void testVersionFilterVersionNegativePrefix() {
 
         String version = "n42";
 
         try {
             testVersionFilter(version, false, 0, false, 0);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testVersionFilterVersionNegativeNumber() {
+
+        String version = "v22";
+
+        try {
+            testVersionFilter(version, false, 0, false, 0);
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @SuppressWarnings("boxing")
+    @Test
+    public void testVersionFilterVersionNotExisting() {
+
+        try {
+            UriInfo info = Mockito.mock(UriInfo.class);
+            MultivaluedMap<String, String> map = Mockito
+                    .mock(MockMultivaluedMap.class);
+            AbstractMethod method = Mockito.mock(AbstractMethod.class);
+            ContainerRequest request = Mockito.mock(ContainerRequest.class);
+            Mockito.when(info.getPathParameters()).thenReturn(map);
+            Mockito.when(map.containsKey(CommonParams.PARAM_VERSION))
+                    .thenReturn(false);
+
+            VersionFilter filter = new VersionFilter(method, info);
+            filter.filter(request);
+        } catch (WebApplicationException e) {
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testVersionFilterVersionNull() {
+
+        try {
+            testVersionFilter(null, false, 0, false, 0);
             fail();
         } catch (WebApplicationException e) {
             assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()

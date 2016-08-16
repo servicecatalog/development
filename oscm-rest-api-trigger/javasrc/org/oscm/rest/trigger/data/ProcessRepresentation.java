@@ -27,11 +27,6 @@ public class ProcessRepresentation extends Representation {
     public ProcessRepresentation() {
     }
 
-    public ProcessRepresentation(Long id, String comment) {
-        super(id);
-        this.comment = comment;
-    }
-
     public String getComment() {
         return comment;
     }

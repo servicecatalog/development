@@ -85,7 +85,12 @@ public class DefinitionRepresentation extends Representation {
     }
 
     public DefinitionRepresentation(VOTriggerDefinition definition) {
-        super(new Long(definition.getKey()));
+        super(definition);
+
+        if (definition == null) {
+            return;
+        }
+
         setETag(new Long(definition.getVersion()));
         this.description = definition.getName();
 
@@ -107,19 +112,6 @@ public class DefinitionRepresentation extends Representation {
             this.links = new Links(new Long(definition.getOrganization()
                     .getKey()));
         }
-    }
-
-    public DefinitionRepresentation(Long id, String description,
-            Boolean suspend, String target_type, String target_url,
-            String action, Owner owner, Links links) {
-        super(id);
-        this.description = description;
-        this.suspend = suspend;
-        this.target_type = target_type;
-        this.target_url = target_url;
-        this.owner = owner;
-        this.action = action;
-        this.links = links;
     }
 
     public Long getOwnerId() {
