@@ -15,7 +15,6 @@
   <script language="JavaScript1.2" type="text/javascript">
     var onSubmitFlag = false;
     function getUnloadMessage() { return "#{targetLocationBean.unsavedChangesMsg}"; }
-    function getIe7UploadValidationMessage() { return "#{appBean.errorUploadMsg}"; }
     function setDirty(flag) { if ((onSubmitFlag &amp;&amp; (!flag)) || (!onSubmitFlag)) { window.onbeforeunload = (flag) ? getUnloadMessage : null; } }
     function getDirty() { return null != window.onbeforeunload; }
     function setOnSubmit(flag) { onSubmitFlag = flag; }
