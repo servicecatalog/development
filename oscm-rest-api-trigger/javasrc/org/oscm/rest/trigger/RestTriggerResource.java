@@ -51,8 +51,16 @@ public class RestTriggerResource extends RestResource {
     @EJB
     private DefinitionBackend triggerBackend;
 
+    public void setDefinitionBackend(DefinitionBackend triggerBackend) {
+        this.triggerBackend = triggerBackend;
+    }
+
     @EJB
     private ProcessBackend processBackend;
+
+    public void setProcessBackend(ProcessBackend processBackend) {
+        this.processBackend = processBackend;
+    }
 
     /**
      * Endpoint class for trigger definition
@@ -230,8 +238,9 @@ public class RestTriggerResource extends RestResource {
         public Response putApprove(@Context Request request,
                 @InjectParam TriggerParameters params)
                 throws WebApplicationException {
-            return put(request, processBackend.putApprove(),
-                    new ProcessRepresentation(), params);
+            ProcessRepresentation process = new ProcessRepresentation();
+            process.setComment("");
+            return put(request, processBackend.putApprove(), process, params);
         }
 
         /**

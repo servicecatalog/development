@@ -9,12 +9,8 @@
 package org.oscm.rest.common;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.ejb.EJB;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -23,12 +19,16 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.sql.DataSource;
 import javax.ws.rs.core.Response.Status;
 
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationRemovedException;
+import org.oscm.internal.vo.VOUser;
 import org.oscm.types.constants.Configuration;
 
 import com.sun.enterprise.security.auth.login.common.LoginException;
@@ -42,8 +42,6 @@ import com.sun.web.security.WebProgrammaticLoginImpl;
  */
 public class BasicAuthFilter implements Filter {
 
-    private static final String SAML_PWD_PREFIX = "RS";
-
     private WebProgrammaticLoginImpl programmaticLogin;
 
     public void setProgrammaticLogin(WebProgrammaticLoginImpl programmaticLogin) {
@@ -52,6 +50,17 @@ public class BasicAuthFilter implements Filter {
 
     @EJB
     private ConfigurationService configService;
+
+    public void setConfigurationService(ConfigurationService configService) {
+        this.configService = configService;
+    }
+
+    @EJB
+    private IdentityService identityService;
+
+    public void setIdentityService(IdentityService identityService) {
+        this.identityService = identityService;
+    }
 
     @Override
     public void init(FilterConfig config) throws ServletException {
@@ -81,21 +90,26 @@ public class BasicAuthFilter implements Filter {
                     ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT)
                     .getValue();
 
-            if (AuthenticationMode.SAML_SP.name().equals(authMode)) {
-                pwd = SAML_PWD_PREFIX + pwd;
+            if (!AuthenticationMode.INTERNAL.name().equals(authMode)) {
+                rs.sendError(Status.UNAUTHORIZED.getStatusCode(),
+                        CommonParams.ERROR_NOT_INTERNAL_MODE);
             }
 
             try {
-                String userKey = getUserKeyFromId(split[0]);
+                VOUser user = new VOUser();
+                user.setUserId(split[0]);
 
-                programmaticLogin.login(userKey, pwd.toCharArray(),
-                        CommonParams.REALM, rq, rs);
+                user = identityService.getUser(user);
 
-            } catch (NamingException | SQLException | LoginException e) {
+                programmaticLogin.login(Long.toString(user.getKey()),
+                        pwd.toCharArray(), CommonParams.REALM, rq, rs);
+
+            } catch (ObjectNotFoundException | LoginException
+                    | OperationNotPermittedException
+                    | OrganizationRemovedException e) {
                 rs.sendError(Status.UNAUTHORIZED.getStatusCode(),
                         CommonParams.ERROR_LOGIN_FAILED);
             }
-
         }
 
         chain.doFilter(request, response);
@@ -104,17 +118,6 @@ public class BasicAuthFilter implements Filter {
     @Override
     public void destroy() {
 
-    }
-
-    private String getUserKeyFromId(String userId) throws NamingException,
-            SQLException {
-        long userKey = -1;
-        Context context = new InitialContext();
-        DataSource ds = (DataSource) context.lookup("BSSDS");
-        KeyQuery keyQuery = new KeyQuery(ds, userId);
-        keyQuery.execute();
-        userKey = keyQuery.getUserKey();
-        return String.valueOf(userKey);
     }
 
 }

@@ -10,6 +10,8 @@ package org.oscm.rest.common;
 
 import javax.ws.rs.WebApplicationException;
 
+import org.oscm.internal.vo.BaseVO;
+
 /**
  * Base class for all representations
  * 
@@ -27,14 +29,12 @@ public abstract class Representation {
     public Representation() {
     }
 
-    /**
-     * Creates new representation with resource id
-     * 
-     * @param id
-     *            the resource id
-     */
-    public Representation(Long id) {
-        this.id = id;
+    public Representation(BaseVO vo) {
+        if (vo == null) {
+            return;
+        }
+
+        this.id = new Long(vo.getKey());
     }
 
     public Integer getVersion() {
