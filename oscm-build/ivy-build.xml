@@ -152,7 +152,8 @@
     <copy file="${ivy.lib.dir}/hibernate-commons-annotations-4.0.1.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-jpa-2.1-api-1.0.0.Final.jar"
           todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/jboss-transaction-api_1.1_spec-1.0.0.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/jboss-transaction-api_1.1_spec-1.0.1.Final.jar"
+          todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/javassist-3.18.1-GA.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jboss-logging-3.1.3.GA.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-core-4.1.8.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>

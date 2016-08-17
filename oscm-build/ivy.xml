@@ -291,7 +291,7 @@
     <dependency org="org.hibernate.common" name="hibernate-commons-annotations" rev="4.0.1.Final" transitive="false"/>
     <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.1-api" rev="1.0.0.Final"
                 transitive="false"/>
-    <dependency org="org.jboss.spec.javax.transaction" name="jboss-transaction-api_1.1_spec" rev="1.0.0.Final"
+    <dependency org="org.jboss.spec.javax.transaction" name="jboss-transaction-api_1.1_spec" rev="1.0.1.Final"
                 transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-core" rev="4.1.8.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-entitymanager" rev="4.1.8.Final" transitive="false"/>

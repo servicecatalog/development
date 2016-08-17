@@ -10,6 +10,7 @@ package org.oscm.internal.types.enumtypes;
 
 import java.util.AbstractList;
 import java.util.List;
+import java.util.Spliterator;
 
 /**
  * Specifies the type of the marketplace landingpage.
@@ -47,6 +48,11 @@ public enum LandingpageType {
             @Override
             public String get(int index) {
                 return types[index].name();
+            }
+
+            @Override
+            public Spliterator<String> spliterator() {
+                return super.spliterator();
             }
 
             @Override
