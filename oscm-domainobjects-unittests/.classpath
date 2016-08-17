@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-3.6.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-3.6.2.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

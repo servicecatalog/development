@@ -289,7 +289,7 @@
     <dependency org="antlr" name="antlr" rev="2.7.7" transitive="false"/>
     <dependency org="dom4j" name="dom4j" rev="1.6.1" transitive="false"/>
     <dependency org="org.hibernate.common" name="hibernate-commons-annotations" rev="4.0.1.Final" transitive="false"/>
-    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.0-api" rev="1.0.1.Final"
+    <dependency org="org.hibernate.javax.persistence" name="hibernate-jpa-2.1-api" rev="1.0.0.Final"
                 transitive="false"/>
     <dependency org="org.jboss.spec.javax.transaction" name="jboss-transaction-api_1.1_spec" rev="1.0.0.Final"
                 transitive="false"/>

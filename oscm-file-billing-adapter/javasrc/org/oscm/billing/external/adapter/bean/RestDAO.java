@@ -16,13 +16,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 
 import org.oscm.billing.external.exception.BillingException;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterface;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * Manages REST communication with the file billing application.
@@ -32,20 +32,20 @@ public class RestDAO {
     /**
      * Create a web resource for the given URL
      */
-    public WebResource createWebResource(String serviceURL) {
+    public WebTarget createWebResource(String serviceURL) {
 
-        Client client = Client.create();
-        WebResource webResource = client.resource(serviceURL);
+        Client client = ClientBuilder.newClient();
+        WebTarget webResource = client.target(serviceURL);
         return webResource;
     }
 
     /**
      * Create a web resource with the given parameters for the given URL
      */
-    public WebResource createWebResource(String serviceURL,
+    public WebTarget createWebResource(String serviceURL,
             Map<String, String> queryParams) {
-        Client client = Client.create();
-        WebResource webResource = client.resource(serviceURL);
+        Client client = ClientBuilder.newClient();
+        WebTarget webResource = client.target(serviceURL);
         for (String key : queryParams.keySet()) {
             webResource = webResource.queryParam(key, queryParams.get(key));
         }
@@ -56,11 +56,13 @@ public class RestDAO {
      * Create a web resource with the given multi-valued parameters for the
      * given URL
      */
-    public WebResource createMultiValueWebResource(String serviceURL,
+    public WebTarget createMultiValueWebResource(String serviceURL,
             QueryParamMultiValuedMap queryParams) {
-        Client client = Client.create();
-        WebResource webResource = client.resource(serviceURL);
-        webResource = webResource.queryParams(queryParams.getMap());
+        Client client = ClientBuilder.newClient();
+        WebTarget webResource = client.target(serviceURL);
+        for (Map.Entry entry : queryParams.getMap().entrySet()) {
+            webResource = webResource.queryParam(entry.getKey().toString(), entry.getValue());
+        }
         return webResource;
     }
 
@@ -73,13 +75,13 @@ public class RestDAO {
      * @throws BillingException
      *             if the GET request fails
      */
-    public String getTextResponse(WebResource webResource)
+    public String getTextResponse(WebTarget webResource)
             throws BillingException {
 
-        ClientResponse response = sendGetRequest(webResource
-                .accept(MediaType.TEXT_PLAIN_TYPE));
+        Invocation invocation = webResource
+                .request(MediaType.TEXT_PLAIN_TYPE).buildGet();
         try {
-            return response.getEntity(String.class);
+            return invocation.invoke(String.class);
         } catch (RuntimeException e) {
             throw new BillingException(
                     "Error when processing response from File Billing Application",
@@ -97,14 +99,14 @@ public class RestDAO {
      * @throws BillingException
      *             if the GET request fails
      */
-    public byte[] getFileResponse(WebResource webResource)
+    public byte[] getFileResponse(WebTarget webResource)
             throws BillingException {
 
-        ClientResponse response = sendGetRequest(webResource
-                .accept(MediaType.APPLICATION_OCTET_STREAM));
+        Invocation invocation = webResource
+            .request(MediaType.APPLICATION_OCTET_STREAM).buildGet();
 
         try {
-            InputStream is = response.getEntityInputStream();
+            InputStream is = invocation.invoke(InputStream.class);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             int next = is.read();
@@ -128,37 +130,6 @@ public class RestDAO {
     }
 
     /**
-     * Send a GET request
-     * 
-     * @param httpInterface
-     *            a http interface
-     * @return the GET response
-     * @throws BillingException
-     *             if the GET request fails
-     */
-    ClientResponse sendGetRequest(UniformInterface httpInterface)
-            throws BillingException {
-
-        ClientResponse response;
-        try {
-            response = httpInterface.get(ClientResponse.class);
-        } catch (Exception e) {
-            throw new BillingException(
-                    "Call to File Billing Application failed",
-                    new RuntimeException("HTTP call failed"));
-        }
-
-        if (response.getStatus() != 200) {
-            throw new BillingException(
-                    "Call to File Billing Application failed",
-                    new RuntimeException("Failed : HTTP error code : "
-                            + response.getStatus()));
-        }
-
-        return response;
-    }
-
-    /**
      * Send a GET request and decode the price model data, which are contained
      * as XML String in the GET response
      * 
@@ -169,7 +140,7 @@ public class RestDAO {
      *             if the GET request fails
      */
     @SuppressWarnings("unchecked")
-    public List<String> getPriceModelData(WebResource webResource)
+    public List<String> getPriceModelData(WebTarget webResource)
             throws BillingException {
 
         String xml = getTextResponse(webResource);

@@ -15,25 +15,21 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Provider;
 
-import com.sun.jersey.api.model.AbstractMethod;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
-import com.sun.jersey.spi.container.ContainerResponseFilter;
-import com.sun.jersey.spi.container.ResourceFilter;
-import com.sun.jersey.spi.container.ResourceFilterFactory;
-
 /**
  * Factory class for all common filters for the endpoints
  * 
  * @author miethaner
  */
 @Provider
-public class CommonFilterFactory implements ResourceFilterFactory {
+public class CommonFilterFactory {// implements ResourceFilterFactory {
 
     /**
      * Wrapper class for the actual filters
      * 
      * @author miethaner
      */
+    //TODO glassfish upgrade
+        /*
     private class CommonResourceFilter implements ResourceFilter {
 
         private ContainerRequestFilter requestFilter;
@@ -73,5 +69,5 @@ public class CommonFilterFactory implements ResourceFilterFactory {
 
         return filter;
     }
-
+*/
 }

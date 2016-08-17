@@ -8,10 +8,10 @@ package org.oscm.billing.external.adapter.bean;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
+import javax.ws.rs.client.WebTarget;
 
 import org.oscm.billing.external.billing.service.BillingPluginService;
 import org.oscm.billing.external.exception.BillingException;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * The implementation of the billing plugin interface
@@ -33,7 +33,7 @@ public class BillingPlugin implements BillingPluginService {
         String configProperty = properties
                 .getConfigProperty(TEST_CONNECTION_URL);
 
-        WebResource webResource = restDao.createWebResource(configProperty);
+        WebTarget webResource = restDao.createWebResource(configProperty);
         restDao.getTextResponse(webResource);
     }
 

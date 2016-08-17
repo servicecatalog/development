@@ -8,15 +8,13 @@
 
 package org.oscm.rest.common;
 
-import java.lang.annotation.Annotation;
+
+import java.io.IOException;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.UriInfo;
-
-import com.sun.jersey.api.model.AbstractMethod;
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
+import javax.ws.rs.container.ContainerRequestFilter;
 
 /**
  * Request filter for validating the requested version and comparing with
@@ -26,7 +24,7 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
  */
 public class VersionFilter implements ContainerRequestFilter {
 
-    private AbstractMethod method;
+    //private AbstractMethod method;
     private UriInfo uriInfo;
 
     /**
@@ -35,6 +33,8 @@ public class VersionFilter implements ContainerRequestFilter {
      * @param method
      *            the called method
      */
+    //TODO glassfish upgrade
+    /*
     public VersionFilter(AbstractMethod method, UriInfo uriInfo) {
         this.method = method;
         this.uriInfo = uriInfo;
@@ -84,7 +84,7 @@ public class VersionFilter implements ContainerRequestFilter {
 
         return request;
     }
-
+*/
     /**
      * Validates the version string and compares it with the existing version
      * numbers. Throws a NotFoundException if not valid.
@@ -131,4 +131,8 @@ public class VersionFilter implements ContainerRequestFilter {
         return vnr;
     }
 
+    @Override
+    public void filter(ContainerRequestContext containerRequestContext) throws IOException {
+
+    }
 }
