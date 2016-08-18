@@ -17,6 +17,7 @@ import org.oscm.internal.billingadapter.POBillingAdapter;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 
 import junit.framework.Assert;
+import org.oscm.validation.Invariants;
 
 /**
  * Authored by dawidch
@@ -37,5 +38,7 @@ public class BillingAdapterWrapperTest {
         Assert.assertEquals(baw.getConnectionProperties().size(), 2);
         baw.removeItem(0);
         Assert.assertEquals(baw.getConnectionProperties().size(), 1);
+        baw.setConnectionProperties(null);
+        Invariants.assertNull(baw.getConnectionProperties());
     }
 }

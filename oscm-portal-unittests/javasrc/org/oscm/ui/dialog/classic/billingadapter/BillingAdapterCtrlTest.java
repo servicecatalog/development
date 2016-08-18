@@ -69,6 +69,9 @@ public class BillingAdapterCtrlTest {
         bean.setUiDelegate(ui);
 
         doNothing().when(ui).handle(any(String.class));
+    }
+
+    protected void decorateInBillingAdapters() {
         List<POBillingAdapter> billingAdapters = new ArrayList<>();
         billingAdapters.add(createBillingAdapter());
         doReturn(billingAdapters).when(bean).getBillingAdapters();
@@ -106,6 +109,7 @@ public class BillingAdapterCtrlTest {
                 .saveBillingAdapter(any(POBillingAdapter.class));
         doReturn(createBillingAdapter()).when(bean)
                 .getBillingAdapter(any(String.class));
+        decorateInBillingAdapters();
 
         // when
         String result = bean.save();
@@ -121,8 +125,10 @@ public class BillingAdapterCtrlTest {
         // given
         doThrow(new ObjectNotFoundException()).when(billingAdapterService)
                 .saveBillingAdapter(any(POBillingAdapter.class));
-        doReturn(createBillingAdapter()).when(bean)
+        POBillingAdapter billingAdapter = createBillingAdapter();
+        doReturn(billingAdapter).when(bean)
                 .getBillingAdapter(any(String.class));
+        decorateInBillingAdapters();
 
         // when
         String result = bean.save();
@@ -130,6 +136,9 @@ public class BillingAdapterCtrlTest {
         // then
         assertEquals(result, "error");
         verify(bean, times(1)).setDisabledAddBtn(false);
+        billingAdapter.getConnectionProperties().add(model.getSelectedBillingAdapter().getConnectionProperties().get(0));
+        result = bean.save();
+        assertEquals(result, "error");
     }
 
     @Test
@@ -138,6 +147,7 @@ public class BillingAdapterCtrlTest {
         // given
         doReturn(new Response()).when(billingAdapterService)
                 .setDefaultBillingAdapter(any(POBillingAdapter.class));
+        decorateInBillingAdapters();
 
         // when
         String result = bean.setDefaultAdapter();
@@ -153,6 +163,7 @@ public class BillingAdapterCtrlTest {
         // given
         doThrow(new ObjectNotFoundException()).when(billingAdapterService)
                 .setDefaultBillingAdapter(any(POBillingAdapter.class));
+        decorateInBillingAdapters();
 
         // when
         String result = bean.setDefaultAdapter();
@@ -167,6 +178,7 @@ public class BillingAdapterCtrlTest {
         // given
         doReturn(new Response()).when(billingAdapterService)
                 .deleteAdapter(any(POBillingAdapter.class));
+        decorateInBillingAdapters();
 
         // when
         String result = bean.deleteAdapter();
@@ -182,6 +194,7 @@ public class BillingAdapterCtrlTest {
         doThrow(new DeletionConstraintException()).when(billingAdapterService)
                 .deleteAdapter(any(POBillingAdapter.class));
         doNothing().when(bean).updateAdapter(anyString());
+        decorateInBillingAdapters();
 
         // when
         String result = bean.deleteAdapter();
@@ -197,6 +210,7 @@ public class BillingAdapterCtrlTest {
         doThrow(new ObjectNotFoundException()).when(billingAdapterService)
                 .deleteAdapter(any(POBillingAdapter.class));
         doNothing().when(bean).updateAdapter(anyString());
+        decorateInBillingAdapters();
 
         // when
         String result = bean.deleteAdapter();
@@ -221,7 +235,7 @@ public class BillingAdapterCtrlTest {
         doReturn(new Response()).when(billingAdapterService)
                 .getBillingAdapters();
         List<POBillingAdapter> billingAdapters = bean.getBillingAdapters();
-        assertEquals(1, billingAdapters.size());
+        assertEquals(0, billingAdapters.size());
 
         doReturn(new Response()).when(billingAdapterService)
                 .getBillingAdapter(anyString());
