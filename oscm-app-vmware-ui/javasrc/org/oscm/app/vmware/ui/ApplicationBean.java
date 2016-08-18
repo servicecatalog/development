@@ -15,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Properties;
 
 import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,12 @@ public class ApplicationBean implements Serializable {
     private static final long serialVersionUID = -4479522469761297L;
     private String buildId = null;
     private String buildDate = null;
+
+    /**
+     * The interval in milliseconds between the previous response and the next
+     * request of <a4j:poll> component.
+     */
+    private Long interval = null;
 
     /**
      * Read the build id and date from the ear manifest.
@@ -71,6 +78,27 @@ public class ApplicationBean implements Serializable {
             logger.error(e.getMessage());
         }
 
+    }
+
+    /**
+     * @return the interval of keepAlive tag
+     */
+    public Long getInterval() {
+        if (interval == null) {
+            FacesContext ctx = getFacesContext();
+            HttpSession httpSession = (HttpSession) ctx.getExternalContext()
+                    .getSession(false);
+            int maxInactiveInterval = httpSession.getMaxInactiveInterval();
+            // To keep session alive, the interval value is 1 minute less than
+            // session timeout.
+            long intervalValue = (long) maxInactiveInterval * 1000 - 60000L;
+            interval = Long.valueOf(intervalValue);
+        }
+        return interval;
+    }
+
+    protected FacesContext getFacesContext() {
+        return FacesContext.getCurrentInstance();
     }
 
     public String getBuildId() {

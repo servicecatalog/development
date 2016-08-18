@@ -39,5 +39,9 @@
      <ui:param name="dialogHeight" value="329" />
      <ui:param name="dialogWidth" value="480" />
    </ui:include>
+
+  <ui:include src="keepAlive.xhtml">
+    <ui:param name="interval" value="#{appBean.interval}"/>
+  </ui:include>
    
 </ui:composition>
