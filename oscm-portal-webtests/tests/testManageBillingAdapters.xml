@@ -76,20 +76,58 @@
       <clickButton label="Add" />
       <setInputField name="panels:1:panelAdapterItemForm:adapterId" value="Test service" />
       <setInputField name="panels:1:panelAdapterItemForm:adapterName" value="Test service" />
-      <setInputField xpath="//input[starts-with(@name,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" value="Test connection1" />
-      <!-- Try to add  a second connection property -->
-      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" />
+      <!-- Try to add  a 4 connection properties -->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+
+      <!--verify existence-->
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:5:connectionProperty')]"/>
+
+      <!--remove second, empty entry-->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:2:removeConnectionProperty')]" />
+
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionProperty')]"/>
+      <verifyXPath xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty')]"/>
+      <verifyXPath xpath="//input[not(starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:5:connectionProperty'))]"/>
+
+      <!--set values-->
       <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionProperty']" value="Second property" />
-      <setInputField xpath="//input[starts-with(@name,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:j_')]" value="Test connection2" />
-      <!-- Add third connection property -->
-      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:j_')]" />
-      <verifyXPath xpath="//*[@value='Test connection1']"/>
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:1:connectionPropertyValue']" value="Second property value" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionProperty']" value="Third property" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:2:connectionPropertyValue']" value="Third property value" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionProperty']" value="Fourth property" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:3:connectionPropertyValue']" value="Fourth property value" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty']" value="And the fifth property" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionPropertyValue']" value="And the fifth property value" />
+
+      <!--remove second-->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:2:removeConnectionProperty')]" />
+
+      <!--verify all of the rest-->
       <verifyXPath xpath="//*[@value='Second property']"/>
-      <verifyXPath xpath="//*[@value='Test connection2']"/>
-      <!-- Remove the second property -->
-      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:1:j_')]" />
-      <verifyXPath xpath="//*[not(@value='Second property')]"/>
-      <verifyXPath xpath="//*[not(@value='Test connection2')]"/>
+      <verifyXPath xpath="//*[@value='Second property value']"/>
+      <verifyXPath xpath="//*[@value='Fourth property']"/>
+      <verifyXPath xpath="//*[@value='Fourth property value']"/>
+      <verifyXPath xpath="//*[@value='And the fifth property']"/>
+      <verifyXPath xpath="//*[@value='And the fifth property value']"/>
+
+      <!--add one more but duplicated-->
+      <clickElement xpath="//input[starts-with(@id,'panels:1:panelAdapterItemForm:connectionPropertiesTable:0:addConnectionProperty')]" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionProperty']" value="Fourth property" />
+      <setInputField xpath="//*[@id='panels:1:panelAdapterItemForm:connectionPropertiesTable:4:connectionPropertyValue']" value="Fourth property value" />
+
+      <!--try to save and expect error-->
+      <clickButton label="Save"/>
+      <common.verifyError label="Duplicated connection properties are not allowed" />
      </webtest>
     
     <webtest name="Bug 11919 - Technical service/View billing systems ':' missing after labels">

@@ -26,14 +26,8 @@ import org.oscm.internal.billingadapter.BillingAdapterService;
 import org.oscm.internal.billingadapter.ConnectionPropertyItem;
 import org.oscm.internal.billingadapter.POBillingAdapter;
 import org.oscm.internal.components.response.Response;
-import org.oscm.internal.types.exception.BillingAdapterConnectionException;
-import org.oscm.internal.types.exception.BillingApplicationException;
-import org.oscm.internal.types.exception.DeletionConstraintException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.DuplicateAdapterException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.UiDelegate;
 
@@ -79,7 +73,7 @@ public class BillingAdapterCtrl extends BaseBean {
 
     public int reinitializeAdapters() {
         int defaultIndex = 0;
-        List<BillingAdapterWrapper> adapterWrappers = new ArrayList<BillingAdapterWrapper>();
+        List<BillingAdapterWrapper> adapterWrappers = new ArrayList<>();
         List<POBillingAdapter> adapters = getBillingAdapters();
         for (int i = 0; i < adapters.size(); i++) {
 
@@ -137,9 +131,16 @@ public class BillingAdapterCtrl extends BaseBean {
         }
 
         String retVal = OUTCOME_SUCCESS;
-
         POBillingAdapter selectedBillingAdapter = getSelectedBillingAdapter();
-
+        List<ConnectionPropertyItem> connectionProperties = model.getSelectedBillingAdapter().getConnectionProperties();
+        selectedBillingAdapter.getConnectionProperties().clear();
+        for (ConnectionPropertyItem connectionProperty : connectionProperties) {
+            boolean exists = selectedBillingAdapter.getConnectionProperties().add(connectionProperty);
+            if (!exists) {
+                ui.handleException(new SaaSApplicationException());
+                return OUTCOME_ERROR;
+            }
+        }
         try {
             getBillingAdapterService()
                     .saveBillingAdapter(selectedBillingAdapter);
