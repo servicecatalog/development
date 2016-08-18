@@ -9,6 +9,8 @@
 package org.oscm.ui.dialog.classic.billingadapter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -211,6 +213,19 @@ public class BillingAdapterCtrlTest {
                 .getBillingAdapter(any(String.class));
 
         bean.validateDuplicatedId(fc, component, "BILLING_ADAPTER1");
+    }
+
+    @Test(expected = ObjectNotFoundException.class)
+    public void udpateAdapterNull() throws SaaSApplicationException {
+        assertNotNull(bean.getBillingAdapterService());
+        doReturn(new Response()).when(billingAdapterService)
+                .getBillingAdapters();
+        List<POBillingAdapter> billingAdapters = bean.getBillingAdapters();
+        assertEquals(1, billingAdapters.size());
+
+        doReturn(new Response()).when(billingAdapterService)
+                .getBillingAdapter(anyString());
+        bean.updateAdapter("adapter");
     }
 
     private POBillingAdapter createBillingAdapter() {
