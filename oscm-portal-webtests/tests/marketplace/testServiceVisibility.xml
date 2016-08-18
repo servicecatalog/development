@@ -64,9 +64,8 @@
 
       <mpl_visibility.checkErrorHandlingForSuspension />
       <mpl_visibility.suspendService />
-      <sleep milliseconds="1000" />
       <clickElement htmlId="buttonBrowseAllRelated" />
-      <clickElement htmlId="filterSelectionForm:showFilteredList" />
+      <sleep milliseconds="1000" />
       <clickElement xpath="//*[contains(@id, 'showFilteredList')]" />
       <verifyElementText description="Verify service MS S1" htmlId="service2Name" text="MS S1" />
       <common.ignorePageScriptError />	
