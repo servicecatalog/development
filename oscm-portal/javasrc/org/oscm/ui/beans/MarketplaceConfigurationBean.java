@@ -17,8 +17,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.faces.bean.ApplicationScoped;
 import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.servlet.http.HttpServletRequest;
 
 import org.oscm.internal.intf.MarketplaceService;
@@ -38,7 +38,7 @@ import org.oscm.ui.model.MarketplaceConfiguration;
  * @author Zou
  * 
  */
-@ApplicationScoped
+@SessionScoped
 @ManagedBean(name = "marketplaceConfigurationBean")
 public class MarketplaceConfigurationBean implements Serializable {
 
