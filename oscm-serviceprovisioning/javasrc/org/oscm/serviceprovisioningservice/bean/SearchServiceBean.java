@@ -26,20 +26,19 @@ import javax.inject.Inject;
 import javax.interceptor.Interceptors;
 import javax.jms.JMSException;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
+import org.apache.lucene.queryparser.flexible.standard.StandardQueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.util.Version;
+import org.apache.solr.parser.QueryParser;
+import org.apache.solr.search.SyntaxError;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
-import org.hibernate.search.SearchException;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
@@ -146,14 +145,14 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
                 org.apache.lucene.search.Query query = getLuceneQuery(
                         LuceneQueryBuilder.getServiceQuery(searchPhrase,
                                 locale, DEFAULT_LOCALE, false), marketplaceId,
-                        locale, fts);
+                        locale);
                 searchViaLucene(query, fts, map);
 
                 if (!DEFAULT_LOCALE.equals(locale)) {
                     // (2) search in default locale
                     query = getLuceneQuery(LuceneQueryBuilder.getServiceQuery(
                             searchPhrase, locale, DEFAULT_LOCALE, true),
-                            marketplaceId, DEFAULT_LOCALE, fts);
+                            marketplaceId, DEFAULT_LOCALE);
                     searchViaLucene(query, fts, map);
                 }
 
@@ -179,7 +178,7 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
                     }
                 }
             }
-        } catch (ParseException e) {
+        } catch (SyntaxError | QueryNodeException e) {
             InvalidPhraseException ipe = new InvalidPhraseException(e,
                     searchPhrase);
             logger.logDebug(ipe.getMessage());
@@ -211,37 +210,24 @@ public class SearchServiceBean implements SearchService, SearchServiceLocal {
      *            the locale for the analyzer to use
      * @param mId
      *            the marketplace id
-     * @param fts
-     *            the Hibernate Search FullTextSession
      * @return the Lucene query for the given locale and query text
-     * @throws ParseException
-     *             in case the query cannot be parsed
      */
     private org.apache.lucene.search.Query getLuceneQuery(String searchString,
-            String mId, String locale, FullTextSession fts)
-            throws ParseException {
-        Analyzer analyzer = fts.getSearchFactory().getAnalyzer(Product.class);
-        try {
-            // try to find the correct analyzer for the locale
-            analyzer = fts.getSearchFactory().getAnalyzer(locale);
-        } catch (SearchException e) {
-            // default will hold
-        }
+        String mId, String locale) throws SyntaxError, QueryNodeException {
 
         // use analyzer for actual text part of query
-        QueryParser parser = new QueryParser(Version.LUCENE_31,
-                ProductClassBridge.TAGS + locale, analyzer);
-        org.apache.lucene.search.Query textQuery = parser.parse(searchString);
+        StandardQueryParser  parser = new StandardQueryParser();
+        org.apache.lucene.search.Query textQuery = parser.parse(searchString, ProductClassBridge.TAGS + locale);
 
         // build mId part (use no analyzer!)
         TermQuery mIdQuery = new TermQuery(new Term(ProductClassBridge.MP_ID,
                 QueryParser.escape(mId).toLowerCase()));
 
         // now construct final query
-        BooleanQuery query = new BooleanQuery();
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
         query.add(mIdQuery, Occur.MUST);
         query.add(textQuery, Occur.MUST);
-        return query;
+        return query.build();
     }
 
     /**

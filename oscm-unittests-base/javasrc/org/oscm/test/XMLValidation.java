@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.net.URL;
 
 import javax.xml.transform.OutputKeys;

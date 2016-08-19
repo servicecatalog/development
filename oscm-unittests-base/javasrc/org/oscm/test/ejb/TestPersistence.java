@@ -7,12 +7,10 @@ package org.oscm.test.ejb;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import javax.transaction.Transaction;
 import javax.transaction.TransactionManager;
 import javax.transaction.xa.XAException;
 
@@ -23,10 +21,6 @@ import org.apache.commons.dbcp.managed.ManagedDataSource;
 import org.apache.commons.dbcp.managed.XAConnectionFactory;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.geronimo.transaction.manager.TransactionManagerImpl;
-import org.hibernate.HibernateException;
-import org.hibernate.cfg.Environment;
-import org.hibernate.ejb.Ejb3Configuration;
-import org.hibernate.transaction.TransactionManagerLookup;
 
 import org.oscm.test.db.ITestDB;
 
@@ -41,6 +35,7 @@ import org.oscm.test.db.ITestDB;
  * @author hoffmann
  */
 @SuppressWarnings("deprecation")
+//TODO glassfish upgrade
 public class TestPersistence {
 
     private final TransactionManager transactionManager;
@@ -73,6 +68,7 @@ public class TestPersistence {
         this.runOnProductiveDB = true;
     }
 
+
     public EntityManagerFactory getEntityManagerFactory(String unitName)
             throws Exception {
         final ITestDB testDb = TestDataSources.get(unitName, runOnProductiveDB);
@@ -80,15 +76,17 @@ public class TestPersistence {
             testDb.initialize();
             initializedDBs.add(testDb);
         }
+
         EntityManagerFactory f = factoryCache.get(unitName);
+        /*
         if (f == null) {
             f = buildEntityManagerFactory(testDb, unitName);
             factoryCache.put(unitName, f);
-        }
+        }*/
         return f;
     }
 
-    private EntityManagerFactory buildEntityManagerFactory(ITestDB testDb,
+    /*private EntityManagerFactory buildEntityManagerFactory(ITestDB testDb,
             String unitName) throws Exception {
         Ejb3Configuration configuration = new Ejb3Configuration();
         Map<Object, Object> properties = new HashMap<Object, Object>();
@@ -115,7 +113,7 @@ public class TestPersistence {
         } finally {
             TMLookup.TM.remove();
         }
-    }
+    }*/
 
     private DataSource createManagedDataSource(DataSource ds) {
 
@@ -145,7 +143,8 @@ public class TestPersistence {
         return null;
     }
 
-    public static class TMLookup implements TransactionManagerLookup {
+
+    /*public static class TMLookup implements TransactionManagerLookup {
 
         static final ThreadLocal<TransactionManager> TM = new ThreadLocal<TransactionManager>();
 
@@ -162,7 +161,7 @@ public class TestPersistence {
             return transaction;
         }
 
-    }
+    }*/
 
     /**
      * Clear cached EntityManagerFactory objects in order to enable

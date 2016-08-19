@@ -6,7 +6,7 @@
   version="1.0">
 
   <persistence-unit name="oscm-auditlog">
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
     <jta-data-source>BSSDS</jta-data-source>
     <class>org.oscm.auditlog.model.AuditLog</class>

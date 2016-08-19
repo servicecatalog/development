@@ -34,7 +34,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.hibernate.search.Environment;
+import org.hibernate.search.cfg.Environment;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;

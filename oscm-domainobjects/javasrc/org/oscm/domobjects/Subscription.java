@@ -34,7 +34,10 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.solr.analysis.*;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.standard.StandardFilterFactory;
 import org.hibernate.search.annotations.*;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;

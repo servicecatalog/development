@@ -16,7 +16,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.hibernate.search.Environment;
+import org.hibernate.search.cfg.Environment;
 
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;

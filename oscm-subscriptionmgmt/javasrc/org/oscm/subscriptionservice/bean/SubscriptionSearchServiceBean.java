@@ -16,17 +16,20 @@ import javax.ejb.Local;
 import javax.ejb.Stateless;
 
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.*;
 import org.apache.lucene.search.BooleanClause.Occur;
+import org.apache.lucene.search.BooleanQuery.Builder;
+import org.apache.lucene.search.PhraseQuery;
+import org.apache.lucene.search.TermQuery;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextQuery;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.internal.intf.SubscriptionSearchService;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
@@ -62,7 +65,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
         searchPhrase = searchPhrase.trim();
         Set<Long> voList = new HashSet<>(100);
-        try {
+
             Session session = getDm().getSession();
             if (session != null) {
                 FullTextSession fts = Search.getFullTextSession(session);
@@ -113,12 +116,7 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
                     }
                 }
             }
-        } catch (ParseException e) {
-            InvalidPhraseException ipe = new InvalidPhraseException(e,
-                    searchPhrase);
-            logger.logDebug(ipe.getMessage());
-            throw ipe;
-        }
+
         return voList;
     }
 
@@ -141,14 +139,14 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private org.apache.lucene.search.Query getLuceneQueryForFields(
-            String searchString, String... fieldNames) throws ParseException {
-        BooleanQuery bq = new BooleanQuery();
+            String searchString, String... fieldNames) {
+        Builder bq = new Builder();
         if (isPhraseQuery(searchString)) {
             getPhraseQuery(searchString, fieldNames, bq);
         } else {
             getTermQuery(searchString, fieldNames, bq);
         }
-        return bq;
+        return bq.build();
     }
 
     private boolean isPhraseQuery(String searchString) {
@@ -158,33 +156,33 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
     }
 
     private void getTermQuery(String searchString, String[] fieldNames,
-            BooleanQuery bq) {
+            Builder bq) {
         String[] split = searchString.replaceAll("\"", "").split(" ");
         TermQuery wq;
         int counter = 0;
-        BooleanQuery internal;
+        Builder internal;
         for (String singleString : split) {
-            internal = new BooleanQuery();
+            internal = new Builder();
             while (counter < fieldNames.length) {
                 wq = new TermQuery(new Term(fieldNames[counter++], singleString));
                 internal.add(wq, Occur.SHOULD);
             }
-            bq.add(internal, Occur.SHOULD);
+            bq.add(internal.build(), Occur.SHOULD);
             counter = 0;
         }
     }
 
     private void getPhraseQuery(String searchString, String[] fieldNames,
-            BooleanQuery bq) {
+            Builder bq) {
         String[] split = searchString.replaceAll("\"", "").split(" ");
-        PhraseQuery phraseQuery;
+        PhraseQuery.Builder phraseQuery;
         int counter = 0;
         for (String singleString : split) {
-            phraseQuery = new PhraseQuery();
+            phraseQuery = new PhraseQuery.Builder();
             while (counter < fieldNames.length) {
                 phraseQuery.add(new Term(fieldNames[counter++], singleString));
             }
-            bq.add(phraseQuery, Occur.MUST);
+            bq.add(phraseQuery.build(), Occur.MUST);
             counter = 0;
         }
     }

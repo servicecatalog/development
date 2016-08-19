@@ -12,53 +12,28 @@
 
 package org.oscm.domobjects;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
-import org.apache.solr.analysis.GermanStemFilterFactory;
-import org.apache.solr.analysis.LowerCaseFilterFactory;
-import org.apache.solr.analysis.SnowballPorterFilterFactory;
-import org.apache.solr.analysis.WhitespaceTokenizerFactory;
-import org.apache.solr.analysis.WordDelimiterFilterFactory;
-import org.hibernate.search.annotations.AnalyzerDef;
-import org.hibernate.search.annotations.AnalyzerDefs;
-import org.hibernate.search.annotations.AnalyzerDiscriminator;
-import org.hibernate.search.annotations.ClassBridge;
-import org.hibernate.search.annotations.Indexed;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
+import org.apache.lucene.analysis.de.GermanStemFilterFactory;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
+import org.hibernate.search.annotations.*;
 import org.hibernate.search.annotations.Parameter;
-import org.hibernate.search.annotations.Similarity;
-import org.hibernate.search.annotations.TokenFilterDef;
-import org.hibernate.search.annotations.TokenizerDef;
-
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.bridge.ProductClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
-import org.oscm.domobjects.similarity.CustomSimilarity;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
  * What is offered on the SaaS platform to the market is called a "product". A
@@ -75,9 +50,10 @@ import org.oscm.internal.types.enumtypes.ServiceType;
 @Entity
 @Indexed
 @ClassBridge(impl = ProductClassBridge.class)
-@Similarity(impl = CustomSimilarity.class)
 @AnalyzerDefs({
-        @AnalyzerDef(name = "en", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class), filters = {
+        @AnalyzerDef(name = "en", tokenizer = @TokenizerDef(factory = WhitespaceTokenizerFactory.class),
+            filters
+            = {
                 @TokenFilterDef(factory = WordDelimiterFilterFactory.class, params = {
                         @Parameter(name = "preserveOriginal", value = "1"),
                         @Parameter(name = "catenateAll", value = "1") }),

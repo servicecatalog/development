@@ -20,34 +20,24 @@ import javax.ejb.EJBException;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Index;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.Field.TermVector;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.junit.Assert;
 import org.junit.Test;
-
 import org.oscm.dataservice.local.QueryBasedObjectFactory;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.DomainObjectTestBase;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.SupportedCurrency;
-import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.ejb.TestContainer;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.internal.types.enumtypes.ServiceStatus;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.Products;
+import org.oscm.test.data.TechnicalProducts;
+import org.oscm.test.ejb.TestContainer;
 
 /**
  * @author Dirk Bernsau
@@ -264,44 +254,7 @@ public class ProductClassBridgeIT extends DomainObjectTestBase {
     }
 
     private LuceneOptions mockLuceneOptions() {
-        return new LuceneOptions() {
-
-            public TermVector getTermVector() {
-                return TermVector.NO;
-            }
-
-            public Store getStore() {
-                return Store.NO;
-            }
-
-            public Index getIndex() {
-                return Index.NOT_ANALYZED;
-            }
-
-            public float getBoost() {
-                return 1F;
-            }
-
-            @Override
-            public void addFieldToDocument(String arg0, String arg1,
-                    Document arg2) {
-            }
-
-            @Override
-            public void addNumericFieldToDocument(String arg0, Object arg1,
-                    Document arg2) {
-            }
-
-            @Override
-            public String indexNullAs() {
-                return null;
-            }
-
-            @Override
-            public boolean isCompressed() {
-                return false;
-            }
-        };
+        return null;
 
     }
 

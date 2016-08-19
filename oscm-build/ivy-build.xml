@@ -81,9 +81,16 @@
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/libraries/apache-log4j/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-logging-1.1.3.jar" todir="${root.dir}/libraries/apache-logging/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/lucene-analyzers-3.6.2.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/lucene-core-3.6.2.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/solr-core-3.6.2.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/solr-solrj-3.6.2.jar" todir="${root.dir}/libraries/apache-lucene/javalib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/lucene-analyzers-common-6.1.0.jar" todir="${root.dir}/libraries/apache-lucene/javalib"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/lucene-core-6.1.0.jar" todir="${root.dir}/libraries/apache-lucene/javalib"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/solr-core-6.1.0.jar" todir="${root.dir}/libraries/apache-lucene/javalib"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/solr-solrj-6.1.0.jar" todir="${root.dir}/libraries/apache-lucene/javalib"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/lucene-queryparser-6.1.0.jar" todir="${root.dir}/libraries/apache-lucene/javalib"
+          overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/poi-3.9.jar" todir="${root.dir}/libraries/apache-poi/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/tomahawk20-1.1.14.jar" todir="${root.dir}/libraries/apache-tomahawk/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-validator-1.4.0.jar" todir="${root.dir}/libraries/apache-validator/javalib" overwrite="true"></copy>
@@ -98,8 +105,9 @@
     <copy file="${ivy.lib.dir}/dbunit-2.4.7.jar" todir="${root.dir}/libraries/dbunit/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/ecj-4.2.1.jar" todir="${root.dir}/libraries/eclipse-ecj/javalib" overwrite="true"></copy>
     <!-- The postgresql-9.1-903.jdbc4 is not found in the Maven repository -->
-    <get src="https://jdbc.postgresql.org/download/postgresql-9.1-903.jdbc4.jar" dest="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar"/>
-    <copy file="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar" todir="${root.dir}/oscm-app/resources/lib" overwrite="true"></copy>
+    <get src="https://jdbc.postgresql.org/download/postgresql-9.4.1209.jar"
+         dest="${ivy.lib.dir}/postgresql-9.4.1209.jar"/>
+    <copy file="${ivy.lib.dir}/postgresql-9.4.1209.jar" todir="${root.dir}/oscm-app/resources/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/junit-4.5.jar" todir="${root.dir}/oscm-integrationtests-apiversioning-test-client/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/log4j-1.2.16.jar" todir="${root.dir}/j2ep/WebContent/WEB-INF/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.agent-0.6.1.201212231917.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
@@ -113,8 +121,8 @@
     <copy file="${ivy.lib.dir}/asm-all-4.1.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.report-0.6.1.201212231917.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/oro-2.0.8.jar" tofile="${root.dir}/libraries/jakarta-oro/javalib/jakarta-oro-2.0.8.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hibernate-search-engine-4.3.0.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hibernate-search-orm-4.3.0.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/hibernate-search-engine-5.5.4.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/hibernate-search-orm-5.5.4.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/cssparser-0.9.14.jar" todir="${root.dir}/libraries/jboss-richfaces/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/guava-18.0.jar" todir="${root.dir}/libraries/jboss-richfaces/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/richfaces-a4j-4.5.0.Final.jar" tofile="${root.dir}/libraries/jboss-richfaces/javalib/richfaces-components-a4j-4.5.0.Final.jar" overwrite="true"></copy>
@@ -146,18 +154,30 @@
     <copy file="${ivy.lib.dir}/velocity-1.7.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/xmlsec-1.5.4.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/xmltooling-1.4.0.jar" todir="${root.dir}/libraries/opensaml/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/postgresql-9.1-903.jdbc4.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/postgresql-9.4.1209.jar" todir="${root.dir}/libraries/postgresql-jdbc/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/antlr-2.7.7.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/dom4j-1.6.1.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hibernate-commons-annotations-4.0.1.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/hibernate-commons-annotations-5.0.1.Final.jar"
+          todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-jpa-2.1-api-1.0.0.Final.jar"
           todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/jboss-transaction-api_1.1_spec-1.0.1.Final.jar"
           todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/javassist-3.18.1-GA.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/jboss-logging-3.1.3.GA.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hibernate-core-4.1.8.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/hibernate-entitymanager-4.1.8.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/javassist-3.20.0-GA.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/jboss-logging-3.3.0.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/classmate-1.3.0.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"
+          overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/geronimo-jta_1.1_spec-1.1.1.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"
+          overwrite="true"></copy>
+
+    <copy file="${ivy.lib.dir}/jandex-2.0.0.Final.jar" todir="${root.dir}/libraries/redhat-hibernate/javalib/"
+          overwrite="true"></copy>
+
+    <copy file="${ivy.lib.dir}/hibernate-core-5.2.2.Final.jar"
+          todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/hibernate-entitymanager-5.2.2.Final.jar"
+          todir="${root.dir}/libraries/redhat-hibernate/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/slf4j-api-1.7.7.jar" todir="${root.dir}/libraries/slf4j/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/slf4j-simple-1.7.7.jar" todir="${root.dir}/libraries/slf4j/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/slf4j-log4j12-1.7.7.jar" todir="${root.dir}/libraries/slf4j-log4j/javalib" overwrite="true"></copy>
