@@ -20,6 +20,7 @@ import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
+import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
@@ -38,6 +39,7 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  */
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
+@Lock(LockType.READ)
 public class MarketplaceCacheBean {
 
     /** Caching marketplace configurations */
@@ -49,11 +51,11 @@ public class MarketplaceCacheBean {
     @EJB
     private MarketplaceService mp;
 
-    protected Log4jLogger getLogger() {
+    public Log4jLogger getLogger() {
         return logger;
     }
 
-    protected MarketplaceService getMarketplaceService() {
+    public MarketplaceService getMarketplaceService() {
         return mp;
     }
 
@@ -65,7 +67,6 @@ public class MarketplaceCacheBean {
      *            the marketplace id
      * @return the configuration
      */
-    @Lock(LockType.READ)
     public MarketplaceConfiguration getConfiguration(String marketplaceId) {
         MarketplaceConfiguration conf = configurationCache.get(marketplaceId);
         if (conf == null) {
@@ -133,6 +134,12 @@ public class MarketplaceCacheBean {
     @Lock(LockType.WRITE)
     public void resetConfiguration(String marketplaceId) {
         configurationCache.remove(marketplaceId);
+    }
+
+    @Schedule(minute = "*/10")
+    @Lock(LockType.WRITE)
+    public void scheduledReset() {
+        configurationCache.clear();
     }
 
 }
