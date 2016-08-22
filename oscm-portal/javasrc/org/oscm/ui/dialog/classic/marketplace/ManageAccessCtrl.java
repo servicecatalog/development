@@ -30,7 +30,6 @@ import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 
@@ -42,9 +41,6 @@ public class ManageAccessCtrl {
 
     @ManagedProperty(value = "#{manageAccessModel}")
     private ManageAccessModel model;
-
-    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean configuration;
 
     @EJB
     private MarketplaceService marketplaceService;
@@ -141,7 +137,8 @@ public class ManageAccessCtrl {
 
     public String save() {
         try {
-            configuration.resetConfiguration(model.getSelectedMarketplaceId());
+            marketplaceService.clearCachedMarketplaceConfiguration(model
+                    .getSelectedMarketplaceId());
 
             if (model.isSelectedMarketplaceRestricted()) {
                 prepareOrganizationsListsForUpdate();
@@ -213,14 +210,6 @@ public class ManageAccessCtrl {
 
     public void setModel(ManageAccessModel model) {
         this.model = model;
-    }
-
-    public MarketplaceConfigurationBean getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(MarketplaceConfigurationBean configuration) {
-        this.configuration = configuration;
     }
 
     public MarketplaceService getMarketplaceService() {

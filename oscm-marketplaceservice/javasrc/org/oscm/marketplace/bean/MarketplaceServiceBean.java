@@ -52,6 +52,7 @@ import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -81,6 +82,7 @@ import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.marketplace.cache.MarketplaceCacheBean;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.serviceprovisioningservice.assembler.CatalogEntryAssembler;
@@ -125,6 +127,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
 
     @EJB
     ApplicationServiceLocal appServiceLocal;
+
+    @EJB
+    private MarketplaceCacheBean marketplaceCache;
 
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
@@ -1145,6 +1150,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
             marketplaceServiceLocal.removeMarketplaceAccess(
                     marketplace.getKey(), orgKey);
         }
+
+        marketplaceCache.resetConfiguration(marketplaceId);
     }
 
     @Override
@@ -1158,6 +1165,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                 .toMarketplaceWithKey(voMarketplace);
         marketplaceServiceLocal.grantAccessToMarketPlaceToOrganization(
                 marketplace, organization);
+
+        marketplaceCache.resetConfiguration(voMarketplace.getMarketplaceId());
     }
 
     @Override
@@ -1173,6 +1182,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         marketplace = marketplaceServiceLocal.updateMarketplaceAccessType(
                 marketplaceId, false);
         marketplaceServiceLocal.removeMarketplaceAccesses(marketplace.getKey());
+
+        marketplaceCache.resetConfiguration(marketplaceId);
     }
 
     @Override
@@ -1226,5 +1237,17 @@ public class MarketplaceServiceBean implements MarketplaceService {
         } catch (ObjectNotFoundException e) {
             return new ArrayList<VOOrganization>();
         }
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+
+        return marketplaceCache.getConfiguration(marketplaceId);
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+        marketplaceCache.resetConfiguration(marketplaceId);
     }
 }

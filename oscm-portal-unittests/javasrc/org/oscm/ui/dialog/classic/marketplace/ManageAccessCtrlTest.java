@@ -34,14 +34,12 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.stubs.FacesContextStub;
 
 public class ManageAccessCtrlTest {
 
     private ManageAccessCtrl ctrl;
     private ManageAccessModel model;
-    private MarketplaceConfigurationBean configuration;
     private MarketplaceService marketplaceService;
 
     private static final String MARKETPLACE_ID = "marketplace1";
@@ -56,10 +54,8 @@ public class ManageAccessCtrlTest {
 
         ctrl = spy(new ManageAccessCtrl());
         model = new ManageAccessModel();
-        configuration = new MarketplaceConfigurationBean();
 
         ctrl.setModel(model);
-        ctrl.setConfiguration(configuration);
         ctrl.setMarketplaceService(marketplaceService);
     }
 
@@ -151,6 +147,8 @@ public class ManageAccessCtrlTest {
         verify(marketplaceService, times(1)).closeMarketplace(MARKETPLACE_ID,
                 model.getAuthorizedOrganizations(),
                 model.getUnauthorizedOrganizations());
+        verify(marketplaceService, times(1))
+                .clearCachedMarketplaceConfiguration(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
@@ -167,6 +165,8 @@ public class ManageAccessCtrlTest {
 
         // then
         verify(marketplaceService, times(1)).openMarketplace(MARKETPLACE_ID);
+        verify(marketplaceService, times(1))
+                .clearCachedMarketplaceConfiguration(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 

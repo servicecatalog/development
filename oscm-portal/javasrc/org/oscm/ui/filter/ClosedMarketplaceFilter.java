@@ -12,6 +12,7 @@ import static org.oscm.ui.beans.BaseBean.ERROR_PAGE;
 
 import java.io.IOException;
 
+import javax.ejb.EJB;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -22,15 +23,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.EJBServiceAccess;
 import org.oscm.ui.common.ServiceAccess;
-import org.oscm.ui.model.MarketplaceConfiguration;
 
 /**
  * @author Paulina Badziak
@@ -41,6 +42,14 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     RequestRedirector redirector;
     String excludeUrlPattern;
     ServiceAccess serviceAccess;
+
+    @EJB
+    private MarketplaceService marketplaceService;
+
+    public MarketplaceConfiguration getConfig(String marketplaceId) {
+        return marketplaceService
+                .getCachedMarketplaceConfiguration(marketplaceId);
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -72,21 +81,15 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
                         Constants.REQ_PARAM_MARKETPLACE_ID);
             }
 
-            MarketplaceConfigurationBean configBean = (MarketplaceConfigurationBean) httpRequest
-                    .getServletContext().getAttribute(
-                            "marketplaceConfigurationBean");
-
             VOUserDetails voUserDetails = (VOUserDetails) httpRequest
                     .getSession().getAttribute(Constants.SESS_ATTR_USER);
 
-
-            if (mId == null || mId.equals("") || configBean == null) {
+            if (mId == null || mId.equals("")) {
                 chain.doFilter(request, response);
                 return;
             }
 
-            MarketplaceConfiguration config = configBean.getConfiguration(mId,
-                    httpRequest);
+            MarketplaceConfiguration config = getConfig(mId);
 
             if (config != null && config.isRestricted()) {
                 if (voUserDetails != null
@@ -112,8 +115,8 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     }
 
     boolean isSAMLAuthentication() {
-        ConfigurationService cfgService = getServiceAccess()
-                .getService(ConfigurationService.class);
+        ConfigurationService cfgService = getServiceAccess().getService(
+                ConfigurationService.class);
         authSettings = new AuthenticationSettings(cfgService);
         return authSettings.isServiceProvider();
     }
@@ -125,19 +128,19 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
         return new EJBServiceAccess();
     }
 
-    private void forwardToErrorPage(HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws ServletException, IOException {
+    private void forwardToErrorPage(HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse) throws ServletException,
+            IOException {
         if (isSAMLAuthentication()) {
-            RequestDispatcher requestDispatcher = httpRequest.getServletContext().getRequestDispatcher(ERROR_PAGE);
+            RequestDispatcher requestDispatcher = httpRequest
+                    .getServletContext().getRequestDispatcher(ERROR_PAGE);
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                     BaseBean.ERROR_ACCESS_TO_CLOSED_MARKETPLACE);
             requestDispatcher.forward(httpRequest, httpResponse);
         } else {
-            redirector
-                    .forward(
-                            httpRequest,
-                            httpResponse,
-                            Marketplace.MARKETPLACE_ROOT
-                                    + Constants.INSUFFICIENT_AUTHORITIES_URI);
+            redirector.forward(httpRequest, httpResponse,
+                    Marketplace.MARKETPLACE_ROOT
+                            + Constants.INSUFFICIENT_AUTHORITIES_URI);
         }
     }
 

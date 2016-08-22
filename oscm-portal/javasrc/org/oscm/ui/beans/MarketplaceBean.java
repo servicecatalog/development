@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -24,6 +25,8 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ComponentSystemEvent;
 import javax.faces.event.ValueChangeEvent;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
@@ -67,8 +70,8 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     @ManagedProperty(value = "#{menuBean}")
     private MenuBean menuBean;
 
-    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
-    private MarketplaceConfigurationBean configuration;
+    @EJB
+    private MarketplaceService marketplaceService;
 
     public MarketplaceBean() {
         super();
@@ -81,13 +84,10 @@ public class MarketplaceBean extends BaseBean implements Serializable {
     public void setMenuBean(final MenuBean menuBean) {
         this.menuBean = menuBean;
     }
-    
-    public MarketplaceConfigurationBean getConfiguration() {
-        return configuration;
-    }
 
-    public void setConfiguration(MarketplaceConfigurationBean configuration) {
-        this.configuration = configuration;
+    private MarketplaceConfiguration getConfig() {
+        return marketplaceService.getCachedMarketplaceConfiguration(BaseBean
+                .getMarketplaceIdStatic());
     }
 
     /**
@@ -548,7 +548,7 @@ public class MarketplaceBean extends BaseBean implements Serializable {
 
     public boolean isRestricted() {
 
-        return configuration.getCurrentConfiguration().isRestricted();
+        return getConfig().isRestricted();
     }
 
 }

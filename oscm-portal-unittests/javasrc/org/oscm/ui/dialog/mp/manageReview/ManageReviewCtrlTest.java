@@ -13,8 +13,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,21 +29,19 @@ import javax.servlet.http.HttpSession;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceConfigurationBean;
-import org.oscm.ui.beans.SessionBean;
-import org.oscm.ui.common.UiDelegate;
-import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
-import org.oscm.ui.model.MarketplaceConfiguration;
-import org.oscm.ui.model.Service;
-import org.oscm.ui.model.User;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.review.POServiceFeedback;
 import org.oscm.internal.review.POServiceReview;
 import org.oscm.internal.review.ReviewInternalService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.vo.VOService;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
+import org.oscm.ui.common.UiDelegate;
+import org.oscm.ui.dialog.mp.serviceDetails.ServiceDetailsModel;
+import org.oscm.ui.model.Service;
+import org.oscm.ui.model.User;
 
 /**
  * Unit test for ManageReviewCtrl
@@ -71,11 +71,8 @@ public class ManageReviewCtrlTest {
         SessionBean sb = mock(SessionBean.class);
         when(manageReviewCtrl.ui.findSessionBean()).thenReturn(sb);
 
-        MarketplaceConfigurationBean mpConfigMock = mock(MarketplaceConfigurationBean.class);
         currentMarketplaceConfig = new MarketplaceConfiguration();
-        when(mpConfigMock.getCurrentConfiguration()).thenReturn(
-                currentMarketplaceConfig);
-        manageReviewCtrl.setMarketplaceConfigurationBean(mpConfigMock);
+        doReturn(currentMarketplaceConfig).when(manageReviewCtrl).getConfig();
         user = mock(User.class);
         serviceReview = new POServiceReview();
         serviceReview.setKey(1l);
@@ -345,7 +342,7 @@ public class ManageReviewCtrlTest {
                 "http://test.com/servlet");
         when(httpServletReqMock.getSession()).thenReturn(sessionMock);
 
-        manageReviewCtrl = new ManageReviewCtrl() {
+        manageReviewCtrl = spy(new ManageReviewCtrl() {
             @Override
             public HttpServletRequest getRequest() {
                 return httpServletReqMock;
@@ -360,7 +357,7 @@ public class ManageReviewCtrlTest {
             public User getUserFromSession() {
                 return user;
             }
-        };
+        });
         return manageReviewCtrl;
     }
 

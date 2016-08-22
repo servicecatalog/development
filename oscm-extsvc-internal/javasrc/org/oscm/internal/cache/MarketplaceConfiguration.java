@@ -1,21 +1,22 @@
 /*******************************************************************************
  *                                                                              
- *  Copyright FUJITSU LIMITED 2016                                             
- *           
- *  Author: Zou
- *                                                                                  
- *  Creation Date: 14.03.2012                                                      
+ *  Copyright FUJITSU LIMITED 2016                                           
+ *                                                                                                                                 
+ *  Creation Date: Aug 22, 2016                                                      
  *                                                                              
  *******************************************************************************/
 
-package org.oscm.ui.model;
+package org.oscm.internal.cache;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * UI model for Marketplace configurations(tagging, review, social bookmark)
  */
-public class MarketplaceConfiguration {
+public class MarketplaceConfiguration implements Serializable {
+
+    private static final long serialVersionUID = -7649326629529571515L;
 
     private boolean taggingEnabled = true;
 
