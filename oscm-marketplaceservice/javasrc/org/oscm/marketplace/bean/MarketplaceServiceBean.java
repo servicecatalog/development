@@ -413,6 +413,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
                             .getOrganization().getKey());
         }
 
+        marketplaceCache.resetConfiguration(marketplace.getMarketplaceId());
+
         return result;
     }
 
@@ -487,6 +489,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
         Organization owningOrganization = mp.getOrganization();
         owningOrganization.getMarketplaces().remove(mp);
 
+        marketplaceCache.resetConfiguration(marketplaceId);
+
         dm.remove(mp);
 
         // if owningOrganization has no marketplaces left revoke marketplace
@@ -497,7 +501,6 @@ public class MarketplaceServiceBean implements MarketplaceService {
         } catch (NonUniqueBusinessKeyException e) {
             // cannot be thrown in this case
         }
-
     }
 
     private void deleteCategory(String marketplaceId) {

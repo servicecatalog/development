@@ -147,8 +147,6 @@ public class ManageAccessCtrlTest {
         verify(marketplaceService, times(1)).closeMarketplace(MARKETPLACE_ID,
                 model.getAuthorizedOrganizations(),
                 model.getUnauthorizedOrganizations());
-        verify(marketplaceService, times(1))
-                .clearCachedMarketplaceConfiguration(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 
@@ -165,8 +163,6 @@ public class ManageAccessCtrlTest {
 
         // then
         verify(marketplaceService, times(1)).openMarketplace(MARKETPLACE_ID);
-        verify(marketplaceService, times(1))
-                .clearCachedMarketplaceConfiguration(MARKETPLACE_ID);
         assertEquals(BaseBean.OUTCOME_SUCCESS, result);
     }
 

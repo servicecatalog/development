@@ -137,9 +137,6 @@ public class ManageAccessCtrl {
 
     public String save() {
         try {
-            marketplaceService.clearCachedMarketplaceConfiguration(model
-                    .getSelectedMarketplaceId());
-
             if (model.isSelectedMarketplaceRestricted()) {
                 prepareOrganizationsListsForUpdate();
                 getMarketplaceService().closeMarketplace(
