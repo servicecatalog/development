@@ -129,7 +129,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
     ApplicationServiceLocal appServiceLocal;
 
     @EJB
-    private MarketplaceCacheService marketplaceCache;
+    MarketplaceCacheService marketplaceCache;
 
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })
