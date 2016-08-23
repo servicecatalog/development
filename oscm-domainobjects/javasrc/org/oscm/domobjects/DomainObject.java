@@ -70,7 +70,6 @@ public abstract class DomainObject<D extends DomainDataContainer> implements
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
     @SequenceGenerator(name = "do_seq", allocationSize = 1000)
     @Column(name = "TKEY")
-    @AccessType("property")
     // Required to access key without resolving proxy
     private long key;
 
