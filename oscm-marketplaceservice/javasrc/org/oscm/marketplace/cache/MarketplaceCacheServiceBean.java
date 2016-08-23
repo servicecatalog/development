@@ -20,10 +20,12 @@ import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.EJB;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
+import javax.ejb.Remote;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOMarketplace;
@@ -37,16 +39,17 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
  * 
  * @author miethaner
  */
+@Remote(MarketplaceCacheService.class)
 @Singleton
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 @Lock(LockType.READ)
-public class MarketplaceCacheBean {
+public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
 
     /** Caching marketplace configurations */
     private Map<String, MarketplaceConfiguration> configurationCache = new HashMap<String, MarketplaceConfiguration>();
 
     private static final Log4jLogger logger = LoggerFactory
-            .getLogger(MarketplaceCacheBean.class);
+            .getLogger(MarketplaceCacheServiceBean.class);
 
     @EJB
     private MarketplaceService mp;
@@ -59,14 +62,7 @@ public class MarketplaceCacheBean {
         return mp;
     }
 
-    /**
-     * Gets the corresponding marketplace configuration for the given
-     * marketplace id
-     * 
-     * @param marketplaceId
-     *            the marketplace id
-     * @return the configuration
-     */
+    @Override
     public MarketplaceConfiguration getConfiguration(String marketplaceId) {
         MarketplaceConfiguration conf = configurationCache.get(marketplaceId);
         if (conf == null) {
@@ -75,14 +71,7 @@ public class MarketplaceCacheBean {
         return conf;
     }
 
-    /**
-     * Loads the marketplace configuration for the given marketplace id into the
-     * cache
-     * 
-     * @param marketplaceId
-     *            the marketplace id
-     * @return the configuration for the loaded marketplace
-     */
+    @Override
     @Lock(LockType.WRITE)
     public MarketplaceConfiguration loadConfiguration(String marketplaceId) {
         MarketplaceConfiguration conf = new MarketplaceConfiguration();
@@ -128,9 +117,7 @@ public class MarketplaceCacheBean {
         conf.setLandingPage(voMarketPlace.isHasPublicLandingPage());
     }
 
-    /**
-     * Reset configuration with specified Marketplace ID.
-     */
+    @Override
     @Lock(LockType.WRITE)
     public void resetConfiguration(String marketplaceId) {
         configurationCache.remove(marketplaceId);

@@ -53,6 +53,7 @@ import org.oscm.interceptor.DateFactory;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.cache.MarketplaceConfiguration;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -82,7 +83,6 @@ import org.oscm.landingpageService.local.LandingpageServiceLocal;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
-import org.oscm.marketplace.cache.MarketplaceCacheBean;
 import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 import org.oscm.permission.PermissionCheck;
 import org.oscm.serviceprovisioningservice.assembler.CatalogEntryAssembler;
@@ -129,7 +129,7 @@ public class MarketplaceServiceBean implements MarketplaceService {
     ApplicationServiceLocal appServiceLocal;
 
     @EJB
-    private MarketplaceCacheBean marketplaceCache;
+    private MarketplaceCacheService marketplaceCache;
 
     @Override
     @RolesAllowed({ "SERVICE_MANAGER", "RESELLER_MANAGER", "BROKER_MANAGER" })

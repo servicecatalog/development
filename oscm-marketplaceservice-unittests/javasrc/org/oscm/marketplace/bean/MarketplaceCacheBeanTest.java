@@ -30,7 +30,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.logging.Log4jLogger;
-import org.oscm.marketplace.cache.MarketplaceCacheBean;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 
 /**
@@ -42,13 +42,13 @@ public class MarketplaceCacheBeanTest {
 
     private MarketplaceService msMock;
     private VOMarketplace marketplace;
-    private MarketplaceCacheBean beanSpy;
+    private MarketplaceCacheServiceBean beanSpy;
 
     @Before
     public void setup() throws Exception {
         msMock = Mockito.mock(MarketplaceService.class);
 
-        beanSpy = spy(new MarketplaceCacheBean());
+        beanSpy = spy(new MarketplaceCacheServiceBean());
         doReturn(msMock).when(beanSpy).getMarketplaceService();
 
         marketplace = new VOMarketplace();
