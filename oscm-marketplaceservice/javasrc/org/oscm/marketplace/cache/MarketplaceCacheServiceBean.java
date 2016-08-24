@@ -123,7 +123,7 @@ public class MarketplaceCacheServiceBean implements MarketplaceCacheService {
         configurationCache.remove(marketplaceId);
     }
 
-    @Schedule(minute = "*/10")
+    @Schedule(minute = "*/10", hour = "*", persistent = false)
     @Lock(LockType.WRITE)
     public void scheduledReset() {
         configurationCache.clear();
