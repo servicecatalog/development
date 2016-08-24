@@ -29,24 +29,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
-import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
-import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.pricing.POMarketplacePriceModel;
 import org.oscm.internal.pricing.POPartnerPriceModel;
 import org.oscm.internal.pricing.PORevenueShare;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.types.exception.IllegalArgumentException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
+import org.oscm.types.enumtypes.EmailType;
 
 /**
  * @author barzu
@@ -59,6 +59,7 @@ public class MarketplaceServiceManagePartnerBeanTest {
     @Before
     public void setup() throws Exception {
         bean.mpServiceLocal = mock(MarketplaceServiceLocalBean.class);
+        bean.mpService = mock(MarketplaceServiceBean.class);
         marketplace = givenMarketplace();
         doReturn(marketplace).when(bean.mpServiceLocal).getMarketplace(
                 anyString());
@@ -70,6 +71,7 @@ public class MarketplaceServiceManagePartnerBeanTest {
 
         // mock saving of revenue shares
         doAnswer(new Answer<Boolean>() {
+            @Override
             public Boolean answer(InvocationOnMock invocation) throws Throwable {
                 Object[] args = invocation.getArguments();
                 Marketplace mp = ((Marketplace) args[0]);

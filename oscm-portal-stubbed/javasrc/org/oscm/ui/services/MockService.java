@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oscm.converter.XMLConverter;
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.BrandService;
 import org.oscm.internal.intf.ConfigurationService;
@@ -2755,6 +2756,17 @@ public class MockService implements IdentityService, SubscriptionService,
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId) {
         return new ArrayList<VOOrganization>();
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+        return null;
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
+
     }
 
 }

@@ -27,7 +27,6 @@ import org.mockito.Captor;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.DomainObject;
@@ -41,12 +40,13 @@ import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.ILdapResultMapper;
 import org.oscm.identityservice.local.LdapAccessServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.ejb.TestContainer;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.ejb.TestContainer;
 
 public class AccountServiceLocalBeanIT extends EJBTestBase {
 
@@ -75,6 +75,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Test
     public void registerOrganization_NoLdapUsed() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 asl.registerOrganization(orgToRegister, null, user, null, "DE",
                         "mId", null, OrganizationRoleType.CUSTOMER);
@@ -88,6 +89,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
     @Test
     public void registerOrganization_LdapUsed() throws Exception {
         runTX(new Callable<Void>() {
+            @Override
             public Void call() throws Exception {
                 asl.registerOrganization(orgToRegister, null, user,
                         new Properties(), "DE", "mId", null,
@@ -120,6 +122,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
 
         DataService ds = mock(DataService.class);
         doAnswer(new Answer<DomainObject<?>>() {
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 DomainObject<?> arg = (DomainObject<?>) invocation
@@ -133,6 +136,7 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
             }
         }).when(ds).getReferenceByBusinessKey(any(DomainObject.class));
         doAnswer(new Answer<DomainObject<?>>() {
+            @Override
             public DomainObject<?> answer(InvocationOnMock invocation)
                     throws Throwable {
                 DomainObject<?> arg = (DomainObject<?>) invocation
@@ -148,24 +152,21 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         doNothing().when(ds).persist(storedValues.capture());
 
         LdapAccessServiceLocal ldapAccess = mock(LdapAccessServiceLocal.class);
-        doReturn(Collections.singletonList(new VOUserDetails()))
-                .when(ldapAccess).search(any(Properties.class), anyString(),
-                        anyString(), any(ILdapResultMapper.class),
-                        anyBoolean());
+        doReturn(Collections.singletonList(new VOUserDetails())).when(
+                ldapAccess).search(any(Properties.class), anyString(),
+                anyString(), any(ILdapResultMapper.class), anyBoolean());
         doReturn("user1").when(ldapAccess).dnSearch(any(Properties.class),
                 anyString(), anyString());
 
-        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(
-                LdapSettingsManagementServiceLocal.class);
+        LdapSettingsManagementServiceLocal ldapSettingsMgmt = mock(LdapSettingsManagementServiceLocal.class);
         doReturn(getLdapProperties()).when(ldapSettingsMgmt)
                 .getOrganizationSettingsResolved(anyString());
         when(ldapSettingsMgmt.getDefaultValueForSetting(any(SettingType.class)))
                 .thenReturn("someDefault");
 
-        MarketplaceServiceLocal mplService = mock(
-                MarketplaceServiceLocal.class);
+        MarketplaceService mplService = mock(MarketplaceService.class);
         doReturn(getMarketplace("TestMpl")).when(mplService)
-                .getMarketplaceForId(anyString());
+                .getMarketplaceById(anyString());
 
         container.addBean(ldapSettingsMgmt);
         container.addBean(localizerMock);
@@ -187,7 +188,9 @@ public class AccountServiceLocalBeanIT extends EJBTestBase {
         return org;
     }
 
-    private Marketplace getMarketplace(String mplId) {
-        return new Marketplace(mplId);
+    private VOMarketplace getMarketplace(String mplId) {
+        VOMarketplace mpl = new VOMarketplace();
+        mpl.setMarketplaceId(mplId);
+        return mpl;
     }
 }
