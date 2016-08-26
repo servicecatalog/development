@@ -42,9 +42,8 @@ import com.sun.jersey.spi.container.ContainerRequest;
 public class RestTriggerResourceTest {
 
     @Test
-    public void testAction() {
-        RestTriggerResource.Action action = new RestTriggerResource()
-                .redirectToAction();
+    public void testAction() throws Exception {
+        RestTriggerResource.Action action = new RestTriggerResource().redirectToAction();
 
         TriggerParameters params = new TriggerParameters();
         params.setId(new Long(1L));
@@ -56,8 +55,7 @@ public class RestTriggerResourceTest {
         Mockito.when(request.getProperties()).thenReturn(map);
 
         Response response = action.getCollection(request, params);
-        assertThat(response.getEntity(),
-                instanceOf(RepresentationCollection.class));
+        assertThat(response.getEntity(), instanceOf(RepresentationCollection.class));
 
         assertNull(action.getItem(request, params));
     }
