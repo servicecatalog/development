@@ -43,6 +43,7 @@ import com.sun.jersey.spi.container.ContainerRequest;
 public class RestResourceTest extends RestResource {
 
     private class MockRepresentation extends Representation {
+
         @Override
         public void validateContent() throws WebApplicationException {
         }
@@ -81,8 +82,7 @@ public class RestResourceTest extends RestResource {
     private RestBackend.Post<MockRepresentation, MockRequestParameters> backendPost = new RestBackend.Post<MockRepresentation, MockRequestParameters>() {
 
         @Override
-        public Object post(MockRepresentation content,
-                MockRequestParameters params) {
+        public Object post(MockRepresentation content, MockRequestParameters params) {
 
             assertNotNull(content);
             assertNotNull(params);
@@ -123,7 +123,7 @@ public class RestResourceTest extends RestResource {
     };
 
     @Test
-    public void testGet() {
+    public void testGet() throws Exception {
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
@@ -142,7 +142,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPost() {
+    public void testPost() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
@@ -165,7 +165,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testPut() {
+    public void testPut() throws Exception {
 
         MockRepresentation content = new MockRepresentation();
         content.setId(new Long(1L));
@@ -208,7 +208,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testDelete() {
+    public void testDelete() throws Exception {
 
         MockRequestParameters params = new MockRequestParameters();
         params.setId(new Long(1L));
@@ -225,7 +225,7 @@ public class RestResourceTest extends RestResource {
     }
 
     @Test
-    public void testVersionAndID() {
+    public void testVersionAndID() throws Exception {
 
         Map<String, Object> map = new HashMap<String, Object>();
         map.put(CommonParams.PARAM_VERSION, new Integer(CommonParams.VERSION_1));
@@ -240,56 +240,49 @@ public class RestResourceTest extends RestResource {
             get(requestWithout, backendGet, params, false);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             post(requestWithout, backendPost, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             put(requestWithout, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             delete(requestWithout, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             get(requestWith, backendGet, params, true);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             put(requestWith, backendPut, null, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
 
         try {
             delete(requestWith, backendDelete, params);
             fail();
         } catch (WebApplicationException e) {
-            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse()
-                    .getStatus());
+            assertEquals(Status.NOT_FOUND.getStatusCode(), e.getResponse().getStatus());
         }
     }
 }

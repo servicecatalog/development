@@ -8,8 +8,6 @@
 
 package org.oscm.rest.common;
 
-import javax.ws.rs.WebApplicationException;
-
 /**
  * Interfaces for backend commands.
  * 
@@ -36,9 +34,33 @@ public interface RestBackend {
          * @param params
          *            the request parameters
          * @return the requested representation or -collection
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public R get(P params) throws WebApplicationException;
+        public R get(P params) throws Exception;
+    }
+
+    /**
+     * Interface for GET commands to return collection.
+     * 
+     * @author weiser
+     *
+     * @param <R>
+     *            the representation type contained in the collection
+     * @param <P>
+     *            request parameters
+     */
+    public interface GetCollection<R extends Representation, P extends RequestParameters> {
+
+        /**
+         * Backend command called by GET frontend methods. Reads the entities
+         * specified by the parameters and returns them.
+         * 
+         * @param params
+         *            the request parameters
+         * @return the requested representation collection
+         * @throws Exception
+         */
+        public RepresentationCollection<R> getCollection(P params) throws Exception;
     }
 
     /**
@@ -63,9 +85,9 @@ public interface RestBackend {
          * @param params
          *            the request parameters
          * @return the id object
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Object post(R content, P params) throws WebApplicationException;
+        public Object post(R content, P params) throws Exception;
     }
 
     /**
@@ -88,9 +110,9 @@ public interface RestBackend {
          *            the representation to update
          * @param params
          *            the request parameters
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public void put(R content, P params) throws WebApplicationException;
+        public void put(R content, P params) throws Exception;
     }
 
     /**
@@ -109,9 +131,9 @@ public interface RestBackend {
          * 
          * @param params
          *            the request parameters
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public void delete(P params) throws WebApplicationException;
+        public void delete(P params) throws Exception;
     }
 
 }
