@@ -8,7 +8,6 @@
 
 package org.oscm.rest.common;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
@@ -38,10 +37,9 @@ public interface RestFrontend {
          * @param params
          *            the request parameters
          * @return the response with the representation
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Response getItem(Request request, P params)
-                throws WebApplicationException;
+        public Response getItem(Request request, P params) throws Exception;
 
         /**
          * Gets all valid entry representations and wraps them in the response.
@@ -51,10 +49,9 @@ public interface RestFrontend {
          * @param params
          *            the request parameters
          * @return the response with the representations
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Response getCollection(Request request, P params)
-                throws WebApplicationException;
+        public Response getCollection(Request request, P params) throws Exception;
     }
 
     /**
@@ -80,10 +77,9 @@ public interface RestFrontend {
          * @param params
          *            the request parameters
          * @return the response with the location
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Response postCollection(Request request, R content, P params)
-                throws WebApplicationException;
+        public Response postCollection(Request request, R content, P params) throws Exception;
     }
 
     /**
@@ -109,10 +105,9 @@ public interface RestFrontend {
          * @param params
          *            the request parameters
          * @return the response without content
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Response putItem(Request request, R content, P params)
-                throws WebApplicationException;
+        public Response putItem(Request request, R content, P params) throws Exception;
     }
 
     /**
@@ -133,10 +128,9 @@ public interface RestFrontend {
          * @param params
          *            the request parameters
          * @return the response without content
-         * @throws WebApplicationException
+         * @throws Exception
          */
-        public Response deleteItem(Request request, P params)
-                throws WebApplicationException;
+        public Response deleteItem(Request request, P params) throws Exception;
     }
 
     /**
@@ -149,8 +143,8 @@ public interface RestFrontend {
      * @param <P>
      *            request parameters
      */
-    public interface Crud<R extends Representation, P extends RequestParameters>
-            extends Get<P>, Post<R, P>, Put<R, P>, Delete<P> {
+    public interface Crud<R extends Representation, P extends RequestParameters> extends Get<P>, Post<R, P>, Put<R, P>,
+            Delete<P> {
     }
 
 }
