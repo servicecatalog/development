@@ -12,11 +12,7 @@
 
 package org.oscm.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.Serializable;
@@ -31,36 +27,16 @@ import javax.jms.ObjectMessage;
 
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.util.ReaderUtil;
+import org.apache.lucene.index.MultiFields;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.CategoryToCatalogEntry;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.Parameter;
-import org.oscm.domobjects.ParameterDefinition;
-import org.oscm.domobjects.ParameterSet;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.bridge.ProductClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
@@ -68,14 +44,7 @@ import org.oscm.domobjects.index.IndexRequestMessage;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
+import org.oscm.internal.types.enumtypes.*;
 import org.oscm.internal.vo.VOCategory;
 import org.oscm.marketplace.bean.CategorizationServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -84,13 +53,7 @@ import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
 import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
-import org.oscm.test.data.TechnicalProducts;
-import org.oscm.test.data.Udas;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
@@ -753,55 +716,51 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private void assertDocsInIndex(final String comment,
             final int expectedNumDocs) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+        Boolean evaluationTookPlace = runTX(() -> {
+            boolean evaluatedIndex = false;
+            Session session = dm.getSession();
+            if (session != null) {
+                FullTextSession fullTextSession = Search
+                        .getFullTextSession(session);
+                SearchFactory searchFactory = fullTextSession
+                        .getSearchFactory();
+                IndexReader reader = searchFactory.getIndexReaderAccessor()
+                        .open(Product.class);
 
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Product.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedIndexedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
+                try {
+                    assertEquals(comment, expectedNumDocs, reader.numDocs());
+                    if (expectedNumDocs > 0) {
+                        final FieldInfos indexedFieldNames = MultiFields
+                                .getMergedFieldInfos(reader);
+                        for (String expectedAttr : expectedIndexedAttributes) {
+                            assertNotNull("attribute " + expectedAttr
+                                    + " does not exist in index: "
+                                    + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedIndexedAttributes.size() + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
+                                            .fieldInfo(expectedAttr));
                         }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
+                        assertNotNull(
+                                "attribute \"key\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames.fieldInfo("key"));
+                        assertNotNull(
+                                "attribute \"_hibernate_class\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames
+                                        .fieldInfo("_hibernate_class"));
+                        assertEquals(
+                                "More or less attributes indexed than expected, attributes retrieved from index: "
+                                        + indexedFieldNames,
+                                expectedIndexedAttributes.size() + 2,
+                                indexedFieldNames.size());
+                        evaluatedIndex = true;
                     }
+                } finally {
+                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
-
-                return Boolean.valueOf(evaluatedIndex);
             }
+
+            return Boolean.valueOf(evaluatedIndex);
         });
 
         if (expectedNumDocs > 0) {
@@ -1099,55 +1058,51 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     private void assertSubscriptionDocsInIndex(final String comment,
             final int expectedNumDocs, final int expectedNumIndexedAttributes,
             final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+        Boolean evaluationTookPlace = runTX(() -> {
+            boolean evaluatedIndex = false;
+            Session session = dm.getSession();
+            if (session != null) {
+                FullTextSession fullTextSession = Search
+                        .getFullTextSession(session);
+                SearchFactory searchFactory = fullTextSession
+                        .getSearchFactory();
+                IndexReader reader = searchFactory.getIndexReaderAccessor()
+                        .open(Subscription.class);
 
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Subscription.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
+                try {
+                    assertEquals(comment, expectedNumDocs, reader.numDocs());
+                    if (expectedNumDocs > 0) {
+                        final FieldInfos indexedFieldNames = MultiFields
+                                .getMergedFieldInfos(reader);
+                        for (String expectedAttr : expectedAttributes) {
+                            assertNotNull("attribute " + expectedAttr
+                                    + " does not exist in index: "
+                                    + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
+                                            .fieldInfo(expectedAttr));
                         }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
+                        assertNotNull(
+                                "attribute \"key\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames.fieldInfo("key"));
+                        assertNotNull(
+                                "attribute \"_hibernate_class\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames
+                                        .fieldInfo("_hibernate_class"));
+                        assertEquals(
+                                "More or less attributes indexed than expected, attributes retrieved from index: "
+                                        + indexedFieldNames,
+                                expectedNumIndexedAttributes + 2,
+                                indexedFieldNames.size());
+                        evaluatedIndex = true;
                     }
+                } finally {
+                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
-
-                return Boolean.valueOf(evaluatedIndex);
             }
+
+            return Boolean.valueOf(evaluatedIndex);
         });
 
         if (expectedNumDocs > 0) {
@@ -1348,55 +1303,51 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     private void assertParameterDocsInIndex(final String comment,
             final int expectedNumDocs, final int expectedNumIndexedAttributes,
             final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+        Boolean evaluationTookPlace = runTX(() -> {
+            boolean evaluatedIndex = false;
+            Session session = dm.getSession();
+            if (session != null) {
+                FullTextSession fullTextSession = Search
+                        .getFullTextSession(session);
+                SearchFactory searchFactory = fullTextSession
+                        .getSearchFactory();
+                IndexReader reader = searchFactory.getIndexReaderAccessor()
+                        .open(Parameter.class);
 
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Parameter.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
+                try {
+                    assertEquals(comment, expectedNumDocs, reader.numDocs());
+                    if (expectedNumDocs > 0) {
+                        final FieldInfos indexedFieldNames = MultiFields
+                                .getMergedFieldInfos(reader);
+                        for (String expectedAttr : expectedAttributes) {
+                            assertNotNull("attribute " + expectedAttr
+                                    + " does not exist in index: "
+                                    + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
+                                            .fieldInfo(expectedAttr));
                         }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
+                        assertNotNull(
+                                "attribute \"key\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames.fieldInfo("key"));
+                        assertNotNull(
+                                "attribute \"_hibernate_class\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames
+                                        .fieldInfo("_hibernate_class"));
+                        assertEquals(
+                                "More or less attributes indexed than expected, attributes retrieved from index: "
+                                        + indexedFieldNames,
+                                expectedNumIndexedAttributes + 2,
+                                indexedFieldNames.size());
+                        evaluatedIndex = true;
                     }
+                } finally {
+                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
-
-                return Boolean.valueOf(evaluatedIndex);
             }
+
+            return Boolean.valueOf(evaluatedIndex);
         });
 
         if (expectedNumDocs > 0) {
@@ -1627,55 +1578,51 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     private void assertUdaDocsInIndex(final String comment,
             final int expectedNumDocs, final int expectedNumIndexedAttributes,
             final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+        Boolean evaluationTookPlace = runTX(() -> {
+            boolean evaluatedIndex = false;
+            Session session = dm.getSession();
+            if (session != null) {
+                FullTextSession fullTextSession = Search
+                        .getFullTextSession(session);
+                SearchFactory searchFactory = fullTextSession
+                        .getSearchFactory();
+                IndexReader reader = searchFactory.getIndexReaderAccessor()
+                        .open(Uda.class);
 
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(Uda.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
+                try {
+                    assertEquals(comment, expectedNumDocs, reader.numDocs());
+                    if (expectedNumDocs > 0) {
+                        final FieldInfos indexedFieldNames = MultiFields
+                                .getMergedFieldInfos(reader);
+                        for (String expectedAttr : expectedAttributes) {
+                            assertNotNull("attribute " + expectedAttr
+                                    + " does not exist in index: "
+                                    + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
+                                            .fieldInfo(expectedAttr));
                         }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
+                        assertNotNull(
+                                "attribute \"key\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames.fieldInfo("key"));
+                        assertNotNull(
+                                "attribute \"_hibernate_class\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames
+                                        .fieldInfo("_hibernate_class"));
+                        assertEquals(
+                                "More or less attributes indexed than expected, attributes retrieved from index: "
+                                        + indexedFieldNames,
+                                expectedNumIndexedAttributes + 2,
+                                indexedFieldNames.size());
+                        evaluatedIndex = true;
                     }
+                } finally {
+                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
-
-                return Boolean.valueOf(evaluatedIndex);
             }
+
+            return Boolean.valueOf(evaluatedIndex);
         });
 
         if (expectedNumDocs > 0) {
@@ -1687,55 +1634,52 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     private void assertUdaDefsDocsInIndex(final String comment,
             final int expectedNumDocs, final int expectedNumIndexedAttributes,
             final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
+        Boolean evaluationTookPlace = runTX(() -> {
+            boolean evaluatedIndex = false;
+            Session session = dm.getSession();
+            if (session != null) {
+                FullTextSession fullTextSession = Search
+                        .getFullTextSession(session);
+                SearchFactory searchFactory = fullTextSession
+                        .getSearchFactory();
+                IndexReader reader = searchFactory.getIndexReaderAccessor()
+                        .open(UdaDefinition.class);
 
-            @Override
-            public Boolean call() throws Exception {
-                boolean evaluatedIndex = false;
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    SearchFactory searchFactory = fullTextSession
-                            .getSearchFactory();
-                    IndexReader reader = searchFactory.getIndexReaderAccessor()
-                            .open(UdaDefinition.class);
-
-                    try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
-                        if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
-                                    .getMergedFieldInfos(reader);
-                            for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
-                                        indexedFieldNames
-                                                .fieldInfo(expectedAttr));
-                            }
-                            assertNotNull(
-                                    "attribute \"key\" does not exist in index: "
-                                            + indexedFieldNames,
-                                    indexedFieldNames.fieldInfo("key"));
-                            assertNotNull(
-                                    "attribute \"_hibernate_class\" does not exist in index: "
-                                            + indexedFieldNames,
+                try {
+                    assertEquals(comment, expectedNumDocs, reader.numDocs());
+                    if (expectedNumDocs > 0) {
+                        final FieldInfos indexedFieldNames = MultiFields
+                                .getMergedFieldInfos(reader);
+                        for (String expectedAttr : expectedAttributes) {
+                            assertNotNull("attribute " + expectedAttr
+                                    + " does not exist in index: "
+                                    + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo("_hibernate_class"));
-                            assertEquals(
-                                    "More or less attributes indexed than expected, attributes retrieved from index: "
-                                            + indexedFieldNames,
-                                    expectedNumIndexedAttributes + 2,
-                                    indexedFieldNames.size());
-                            evaluatedIndex = true;
+                                            .fieldInfo(expectedAttr));
                         }
-                    } finally {
-                        searchFactory.getIndexReaderAccessor().close(reader);
+                        assertNotNull(
+                                "attribute \"key\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames.fieldInfo("key"));
+                        assertNotNull(
+                                "attribute \"_hibernate_class\" does not exist in index: "
+                                        + indexedFieldNames,
+                                indexedFieldNames
+                                        .fieldInfo("_hibernate_class"));
+                        assertEquals(
+                                "More or less attributes indexed than expected, attributes retrieved from index: "
+                                        + indexedFieldNames,
+                                expectedNumIndexedAttributes + 2,
+                                indexedFieldNames.size());
+                        evaluatedIndex = true;
                     }
+                } finally {
+                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
 
-                return Boolean.valueOf(evaluatedIndex);
             }
+
+            return Boolean.valueOf(evaluatedIndex);
         });
 
         if (expectedNumDocs > 0) {
