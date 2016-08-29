@@ -13,10 +13,10 @@ package org.oscm.domobjects;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.domobjects.converters.FCConverter;
 import org.oscm.types.enumtypes.FillinCriterion;
 
 /**
@@ -39,7 +39,7 @@ public class PublicLandingpageData extends DomainDataContainer implements
      * enough featured services are available
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = FCConverter.class)
     private FillinCriterion fillinCriterion;
 
     public int getNumberServices() {

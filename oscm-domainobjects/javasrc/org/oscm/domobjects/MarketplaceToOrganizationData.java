@@ -8,11 +8,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.LBRTConverter;
+import org.oscm.domobjects.converters.PAConverter;
 import org.oscm.domobjects.enums.PublishingAccess;
 
 /**
@@ -24,8 +23,7 @@ public class MarketplaceToOrganizationData extends DomainDataContainer {
 
     private static final long serialVersionUID = -8262011730647781904L;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Convert( converter=PAConverter.class )
     private PublishingAccess publishingAccess;
 
     public PublishingAccess getPublishingAccess() {

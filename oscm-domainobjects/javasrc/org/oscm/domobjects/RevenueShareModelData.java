@@ -15,11 +15,9 @@ package org.oscm.domobjects;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.RSMDConverter;
 import org.oscm.domobjects.enums.RevenueShareModelType;
 
 /**
@@ -46,7 +44,7 @@ public class RevenueShareModelData extends DomainDataContainer implements
         this.revenueShare = revenueShare;
     }
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = RSMDConverter.class)
     @Column(nullable = false)
     private RevenueShareModelType revenueShareModelType;
 

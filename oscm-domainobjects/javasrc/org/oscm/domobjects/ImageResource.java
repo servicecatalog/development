@@ -12,17 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Lob;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.domobjects.converters.ETConverter;
 import org.oscm.internal.types.enumtypes.ImageType;
 
 /**
@@ -57,7 +50,7 @@ public class ImageResource extends
 
     private String contentType;
 
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=ETConverter.class )
     private ImageType imageType;
 
     private long objectKey;

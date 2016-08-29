@@ -12,11 +12,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.ETConverter;
 import org.oscm.internal.types.enumtypes.EventType;
 
 @Embeddable
@@ -46,7 +44,7 @@ public class GatheredEventData extends DomainDataContainer {
      * The type of the event, based on the currently supported set of types.
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=ETConverter.class )
     private EventType type;
 
     /**

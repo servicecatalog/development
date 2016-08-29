@@ -77,22 +77,22 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
         @NamedQuery(name = "Product.getPartnerCopiesForTemplate", query = "SELECT p FROM Product p WHERE p.template =:template AND p.targetCustomer IS NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getPartnerCopiesForTemplateNotInState", query = "SELECT p FROM Product p WHERE p.template =:template AND p.dataContainer.status NOT IN (:statusToIgnore) AND p.targetCustomer IS NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getProductTemplatesForVendor", query = "SELECT p FROM Product p WHERE p.vendorKey=:vendorKey AND p.dataContainer.type IN (:productTypes) AND p.dataContainer.status NOT IN (:filterOutWithStatus) ORDER BY p.key ASC"),
-        @NamedQuery(name = "Product.getProductsForVendorPaymentConfiguration", query = "SELECT p FROM Product p JOIN p.technicalProduct tp WHERE p.vendorKey=:vendorKey AND p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE') AND p.dataContainer.status NOT IN (:statusToIgnore) AND tp.dataContainer.billingIdentifier='NATIVE_BILLING' ORDER BY p.key ASC"),
-        @NamedQuery(name = "Product.getProductsForVendorOnMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE p.vendorKey=:vendorKey AND p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE') AND EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
+        @NamedQuery(name = "Product.getProductsForVendorPaymentConfiguration", query = "SELECT p FROM Product p JOIN p.technicalProduct tp WHERE p.vendorKey=:vendorKey AND p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) AND p.dataContainer.status NOT IN (:statusToIgnore) AND tp.dataContainer.billingIdentifier='NATIVE_BILLING' ORDER BY p.key ASC"),
+        @NamedQuery(name = "Product.getProductsForVendorOnMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE p.vendorKey=:vendorKey AND p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) AND EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getProductsForCustomerOnMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce "
-                + " WHERE (p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE') AND EXISTS(SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace)) "
-                + "    OR (p.dataContainer.type = 'CUSTOMER_TEMPLATE' AND p.targetCustomer = :customer AND EXISTS (SELECT template FROM Product template LEFT JOIN template.catalogEntries ce2 WHERE template.key = p.template.key AND EXISTS(SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce2.marketplace)) ) "
+                + " WHERE (p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) AND EXISTS(SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace)) "
+                + "    OR (p.dataContainer.type = org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE AND p.targetCustomer = :customer AND EXISTS (SELECT template FROM Product template LEFT JOIN template.catalogEntries ce2 WHERE template.key = p.template.key AND EXISTS(SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce2.marketplace)) ) "
                 + "ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getProductsForTemplateIndexUpdate", query = "SELECT p FROM Product p WHERE p.template =:template AND p.dataContainer.type IN (:type) AND p.dataContainer.status IN (:state) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getTemplatesInAllStates", query = "SELECT p FROM Product p WHERE p.template IS NULL ORDER BY p.dataContainer.productId ASC"),
         @NamedQuery(name = "Product.getTemplatesForMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE p.template IS NULL AND EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace)) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getRelatedProductsForMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE (p.targetCustomer = :customer OR (p.template IS NULL AND EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace))) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) AND p.technicalProduct=:technicalProduct AND p.vendor=:vendor ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getRelatedPublicProductsForMarketplace", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE (p.template IS NULL AND EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace)) AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) AND p.technicalProduct=:technicalProduct AND ce.dataContainer.anonymousVisible=TRUE AND p.vendor=:vendor ORDER BY p.key ASC"),
-        @NamedQuery(name = "Product.getPublicProductsForMarketplace", query = "SELECT p FROM Product p, CatalogEntry c WHERE p.template IS NULL AND p.dataContainer.status = 'ACTIVE' AND c.marketplace = :marketplace AND c.product = p AND c.dataContainer.anonymousVisible=TRUE ORDER BY p.key ASC"),
-        @NamedQuery(name = "Product.getActiveProductsForMarketplace", query = "SELECT ce FROM Product p INNER JOIN p.catalogEntries ce WHERE p.targetCustomer IS NULL AND (SELECT s from Subscription s WHERE p = s.product) IS NULL AND p.dataContainer.status = 'ACTIVE' AND p.technicalProduct=:technicalProduct AND p.vendorKey=:vendorKey"),
+        @NamedQuery(name = "Product.getPublicProductsForMarketplace", query = "SELECT p FROM Product p, CatalogEntry c WHERE p.template IS NULL AND p.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE AND c.marketplace = :marketplace AND c.product = p AND c.dataContainer.anonymousVisible=TRUE ORDER BY p.key ASC"),
+        @NamedQuery(name = "Product.getActiveProductsForMarketplace", query = "SELECT ce FROM Product p INNER JOIN p.catalogEntries ce WHERE p.targetCustomer IS NULL AND (SELECT s from Subscription s WHERE p = s.product) IS NULL AND p.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE AND p.technicalProduct=:technicalProduct AND p.vendorKey=:vendorKey"),
         @NamedQuery(name = "Product.getCustomerProductsForVendor", query = "select p from Product p where p.vendorKey=:vendorKey AND p.targetCustomer IS NOT NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getCustomerSpecificProducts", query = "select p from Product p where p.vendorKey=:vendorKey AND p.template IS NOT NULL AND p.targetCustomer = :customer AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
-        @NamedQuery(name = "Product.getSpecificCustomerProduct", query = "SELECT p FROM Product p WHERE p.template = :template AND p.targetCustomer = :customer AND p.dataContainer.type='CUSTOMER_TEMPLATE' ORDER BY p.key ASC"),
+        @NamedQuery(name = "Product.getSpecificCustomerProduct", query = "SELECT p FROM Product p WHERE p.template = :template AND p.targetCustomer = :customer AND p.dataContainer.type=org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE ORDER BY p.key ASC"),
         @NamedQuery(name = "Product.getForCustomerAndTemplate", query = "SELECT prod FROM Product prod WHERE prod.targetCustomer = :customer AND prod.template = :template AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = prod) ORDER BY prod.key ASC"),
         @NamedQuery(name = "Product.getForTemplate", query = "SELECT prod FROM Product prod WHERE prod.template = :template AND EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = prod) ORDER BY prod.key ASC"),
         @NamedQuery(name = "Product.getForCustomerOnly", query = "select p from Product p where p.vendorKey=:vendorKey AND p.targetCustomer = :customer AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p) ORDER BY p.key ASC"),
@@ -102,22 +102,22 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
         @NamedQuery(name = "Product.countAllReferences", query = "SELECT COUNT(*) FROM ProductReference pr WHERE (pr.sourceProduct.key=:productKey AND pr.targetProduct.dataContainer.status NOT IN (:status)) OR (pr.targetProduct.key=:productKey AND pr.sourceProduct.dataContainer.status NOT IN (:status))"),
         @NamedQuery(name = "Product.getCopyForCustomer", query = "SELECT prod FROM Product prod WHERE prod.template = :template AND prod.targetCustomer = :customer AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = prod)"),
         @NamedQuery(name = "Product.getPotentialCompatibleForProduct", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce WHERE p.vendorKey=:vendorKey AND p.template IS NULL AND p.technicalProduct=:tp AND p.dataContainer.status NOT IN (:status) AND ce.marketplace IN (:marketplaces)"),
-        @NamedQuery(name = "Product.getPublishedProductTemplates", query = "SELECT p FROM Product p INNER JOIN p.catalogEntries ce WHERE p.dataContainer.status NOT IN (:filterOutWithStatus) AND p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE') AND ce.marketplace = :marketplace AND NOT EXISTS (SELECT lp FROM PublicLandingpage lp INNER JOIN lp.marketplace mp INNER JOIN lp.landingpageProducts lpp WHERE mp = :marketplace AND lpp.product = p)"),
+        @NamedQuery(name = "Product.getPublishedProductTemplates", query = "SELECT p FROM Product p INNER JOIN p.catalogEntries ce WHERE p.dataContainer.status NOT IN (:filterOutWithStatus) AND p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) AND ce.marketplace = :marketplace AND NOT EXISTS (SELECT lp FROM PublicLandingpage lp INNER JOIN lp.marketplace mp INNER JOIN lp.landingpageProducts lpp WHERE mp = :marketplace AND lpp.product = p)"),
         @NamedQuery(name = "Product.getActivePublishedProductTemplates", query = "SELECT p FROM Product p INNER JOIN p.catalogEntries ce"
-                + " WHERE p.dataContainer.status = 'ACTIVE'"
+                + " WHERE p.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE"
                 + " AND ce.dataContainer.visibleInCatalog=TRUE"
                 + " AND ce.dataContainer.anonymousVisible=TRUE"
-                + " AND p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE')"
+                + " AND p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE)"
                 + " AND ce.marketplace.dataContainer.marketplaceId = :marketplaceId"
                 + " AND NOT EXISTS (SELECT lp FROM LandingpageProduct lp WHERE lp.landingpage.marketplace.dataContainer.marketplaceId = :marketplaceId AND lp.product.key = p.key)"
                 + " ORDER BY p.dataContainer.provisioningDate DESC"),
         @NamedQuery(name = "Product.getActivePublishedProducts", query = "SELECT p FROM Product p LEFT JOIN p.catalogEntries ce"
                 + " WHERE NOT EXISTS (SELECT lp FROM LandingpageProduct lp WHERE lp.landingpage.marketplace.dataContainer.marketplaceId = :marketplaceId AND ((p.targetCustomer IS NULL AND lp.product = p) OR (p.targetCustomer = :customer AND lp.product = p.template)))"
-                + " AND p.dataContainer.type IN ('TEMPLATE', 'PARTNER_TEMPLATE', 'CUSTOMER_TEMPLATE')"
+                + " AND p.dataContainer.type IN (org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE, org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE)"
                 + " AND ((EXISTS (SELECT m FROM Marketplace m WHERE m.dataContainer.marketplaceId = :marketplaceId AND m = ce.marketplace AND ce.dataContainer.visibleInCatalog=TRUE))"
-                + "  OR (p.dataContainer.type = 'CUSTOMER_TEMPLATE' AND p.targetCustomer = :customer AND EXISTS (SELECT ce1 FROM CatalogEntry ce1 WHERE ce1.marketplace.dataContainer.marketplaceId = :marketplaceId AND ce1.product = p.template AND ce1.dataContainer.visibleInCatalog=TRUE)))"
-                + " AND NOT EXISTS (SELECT pr FROM Product pr WHERE pr.dataContainer.type = 'CUSTOMER_TEMPLATE' AND pr.template = p AND pr.targetCustomer = :customer)"
-                + " AND p.dataContainer.status = 'ACTIVE'"
+                + "  OR (p.dataContainer.type = org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE AND p.targetCustomer = :customer AND EXISTS (SELECT ce1 FROM CatalogEntry ce1 WHERE ce1.marketplace.dataContainer.marketplaceId = :marketplaceId AND ce1.product = p.template AND ce1.dataContainer.visibleInCatalog=TRUE)))"
+                + " AND NOT EXISTS (SELECT pr FROM Product pr WHERE pr.dataContainer.type = org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE AND pr.template = p AND pr.targetCustomer = :customer)"
+                + " AND p.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE"
                 + " ORDER BY p.dataContainer.provisioningDate DESC") })
 @BusinessKey(attributes = { "productId", "vendorKey" })
 public class Product extends DomainObjectWithHistory<ProductData> {
@@ -367,7 +367,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
     }
 
     public Boolean isAutoAssignUserEnabled() {
-        if (this.getType() == ServiceType.PARTNER_TEMPLATE) {
+        if (this.getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) {
             return getTemplate().getDataContainer().isAutoAssignUserEnabled();
         } else {
             return this.getDataContainer().isAutoAssignUserEnabled();
@@ -387,7 +387,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
     }
 
     public List<Product> getCompatibleProductsList() {
-        Product templ = getType() == ServiceType.PARTNER_TEMPLATE ? null
+        Product templ = getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE ? null
                 : getTemplate();
         if (templ != null) {
             return templ.getCompatibleProductsList();
@@ -407,7 +407,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
      * @return The list of products the current product can be migrated to.
      */
     public List<ProductReference> getAllCompatibleProducts() {
-        Product templ = getType() == ServiceType.PARTNER_TEMPLATE ? null
+        Product templ = getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE ? null
                 : getTemplate();
         if (templ != null) {
             return templ.getAllCompatibleProducts();
@@ -494,7 +494,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
 
     void setParamatersAndPriceModel(Product copy) {
         ParameterSet parameterSet = getParameterSet();
-        if (parameterSet == null && getType() == ServiceType.PARTNER_TEMPLATE) {
+        if (parameterSet == null && getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) {
             parameterSet = getTemplate().getParameterSet();
         }
 
@@ -503,7 +503,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         }
 
         PriceModel pm = getPriceModel();
-        if (pm == null && getType() == ServiceType.PARTNER_TEMPLATE) {
+        if (pm == null && getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE) {
             pm = getTemplate().getPriceModel();
         }
 
@@ -522,22 +522,22 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         }
         switch (this.getType()) {
         case TEMPLATE:
-            subscriptionCopy.setType(ServiceType.SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.SUBSCRIPTION);
             break;
         case CUSTOMER_TEMPLATE:
-            subscriptionCopy.setType(ServiceType.CUSTOMER_SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_SUBSCRIPTION);
             break;
         case PARTNER_TEMPLATE:
-            subscriptionCopy.setType(ServiceType.PARTNER_SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.PARTNER_SUBSCRIPTION);
             break;
         case SUBSCRIPTION:
-            subscriptionCopy.setType(ServiceType.SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.SUBSCRIPTION);
             break;
         case CUSTOMER_SUBSCRIPTION:
-            subscriptionCopy.setType(ServiceType.CUSTOMER_SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_SUBSCRIPTION);
             break;
         case PARTNER_SUBSCRIPTION:
-            subscriptionCopy.setType(ServiceType.PARTNER_SUBSCRIPTION);
+            subscriptionCopy.setType(org.oscm.internal.types.enumtypes.ServiceType.PARTNER_SUBSCRIPTION);
             break;
         }
     }
@@ -567,7 +567,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         Product copy = new Product();
         copy.setDataContainer(new ProductData());
 
-        copy.setType(ServiceType.TEMPLATE);
+        copy.setType(org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE);
         copy.setStatus(ServiceStatus.INACTIVE);
         copy.setTemplate(null);
         copy.setTargetCustomer(null);
@@ -576,7 +576,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         copy.setVendor(this.getVendor());
         copy.setProductFeedback(null);
 
-        setDatacontainerValues(copy, ServiceType.TEMPLATE);
+        setDatacontainerValues(copy, org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE);
 
         // overwrite
         copy.setProductId(productId);
@@ -609,7 +609,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         Product copy = new Product();
         copy.setDataContainer(new ProductData());
 
-        copy.setType(ServiceType.CUSTOMER_TEMPLATE);
+        copy.setType(org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE);
         copy.setStatus(ServiceStatus.INACTIVE);
         copy.setOwningSubscription(null);
         copy.setTargetCustomer(targetCustomer);
@@ -617,7 +617,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         copy.setTechnicalProduct(this.getTechnicalProduct());
         copy.setTemplate(getTemplateOrSelf());
 
-        setDatacontainerValues(copy, ServiceType.CUSTOMER_TEMPLATE);
+        setDatacontainerValues(copy, org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE);
 
         setParamatersAndPriceModel(copy);
 
@@ -631,7 +631,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         copy.setProductId(getTemplateOrSelf().getProductId() + "#"
                 + UUID.randomUUID());
         copy.setAutoAssignUserEnabled(this.isAutoAssignUserEnabled());
-        if (serviceType == ServiceType.TEMPLATE) {
+        if (serviceType == org.oscm.internal.types.enumtypes.ServiceType.TEMPLATE) {
             copy.setConfiguratorUrl(this.getConfiguratorUrl());
         } else {
             copy.setConfiguratorUrl(null);
@@ -665,7 +665,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         Product copy = new Product();
         copy.setDataContainer(new ProductData());
 
-        copy.setType(ServiceType.PARTNER_TEMPLATE);
+        copy.setType(org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE);
         copy.setStatus(this.getStatus());
         copy.setVendor(vendor);
         copy.setTechnicalProduct(this.getTechnicalProduct());
@@ -676,7 +676,7 @@ public class Product extends DomainObjectWithHistory<ProductData> {
         copy.setParameterSet(null);
         copy.setConfiguratorUrl(null);
 
-        setDatacontainerValues(copy, ServiceType.PARTNER_TEMPLATE);
+        setDatacontainerValues(copy, org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE);
         copy.setAutoAssignUserEnabled(null);
         // to set the template, ensure that this object is not a copy itself. If
         // it is, set it's parent!
@@ -939,11 +939,11 @@ public class Product extends DomainObjectWithHistory<ProductData> {
      */
     public Product getSupplierOrResellerTemplate() {
         Product prod = this;
-        if (prod.getType() == ServiceType.CUSTOMER_TEMPLATE
-                || ServiceType.isSubscription(prod.getType())) {
+        if (prod.getType() == org.oscm.internal.types.enumtypes.ServiceType.CUSTOMER_TEMPLATE
+                || org.oscm.internal.types.enumtypes.ServiceType.isSubscription(prod.getType())) {
             prod = prod.getTemplate();
         }
-        if (prod.getType() == ServiceType.PARTNER_TEMPLATE
+        if (prod.getType() == org.oscm.internal.types.enumtypes.ServiceType.PARTNER_TEMPLATE
                 && prod.getVendor().getGrantedRoleTypes()
                         .contains(OrganizationRoleType.BROKER)) {
             prod = prod.getTemplate();

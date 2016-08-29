@@ -7,11 +7,10 @@
  *******************************************************************************/
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.ServiceAccessTypeConverter;
+import org.oscm.domobjects.converters.UnitRoleNameConverter;
 import org.oscm.internal.types.enumtypes.UnitRoleType;
 
 /**
@@ -22,7 +21,7 @@ public class UnitUserRoleData extends DomainDataContainer {
 
     private static final long serialVersionUID = -5293824177708202797L;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter =UnitRoleNameConverter.class)
     @Column(nullable = false)
     private UnitRoleType roleName;
 

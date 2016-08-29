@@ -44,7 +44,7 @@ import org.oscm.domobjects.enums.OrganizationReferenceType;
 @Entity
 @NamedQueries({
         @NamedQuery(name = "OrganizationReference.findByBusinessKey", query = "SELECT c FROM OrganizationReference c WHERE c.sourceKey=:sourceKey AND c.targetKey=:targetKey AND c.dataContainer.referenceType = :referenceType"),
-        @NamedQuery(name = "OrganizationReference.findOrganizationForDiscountEndNotification", query = "SELECT r FROM OrganizationReference r WHERE r.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND r.discount.dataContainer.endTime >= :firstMillis AND r.discount.dataContainer.endTime <= :lastMillis"),
+        @NamedQuery(name = "OrganizationReference.findOrganizationForDiscountEndNotification", query = "SELECT r FROM OrganizationReference r WHERE r.dataContainer.referenceType = org.oscm.domobjects.enums.OrganizationReferenceType.SUPPLIER_TO_CUSTOMER AND r.discount.dataContainer.endTime >= :firstMillis AND r.discount.dataContainer.endTime <= :lastMillis"),
         @NamedQuery(name = "OrganizationReference.getObsolete", query = "SELECT orgRef FROM OrganizationReference orgRef WHERE 0 = (SELECT COUNT(mp.key) FROM MarketingPermission mp WHERE mp.organizationReference.key = orgRef.key) AND orgRef.key IN (:refKeys)") })
 @BusinessKey(attributes = { "sourceKey", "targetKey", "referenceType" })
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "sourceKey",

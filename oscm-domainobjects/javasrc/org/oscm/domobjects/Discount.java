@@ -31,8 +31,8 @@ import javax.persistence.UniqueConstraint;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "ORGANIZATIONREFERENCE_TKEY" }))
 @NamedQueries({
-        @NamedQuery(name = "Discount.findForOrganizationAndPeriod", query = "SELECT c FROM Discount c WHERE c.organizationReference.target = :organization AND c.organizationReference.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND ((c.dataContainer.endTime >=:bS AND c.dataContainer.endTime <= :bE) OR (c.dataContainer.startTime >=:bS AND c.dataContainer.startTime <= :bE) OR (c.dataContainer.startTime <=:bS AND c.dataContainer.endTime >= :bS AND c.dataContainer.startTime <=:bE AND c.dataContainer.endTime >= :bE))"),
-        @NamedQuery(name = "Discount.findForOrganizationAndSupplier", query = "SELECT c FROM Discount c WHERE c.organizationReference.target = :organization AND c.organizationReference.dataContainer.referenceType = 'SUPPLIER_TO_CUSTOMER' AND c.organizationReference.source = :supplier") })
+        @NamedQuery(name = "Discount.findForOrganizationAndPeriod", query = "SELECT c FROM Discount c WHERE c.organizationReference.target = :organization AND c.organizationReference.dataContainer.referenceType = org.oscm.domobjects.enums.OrganizationReferenceType.SUPPLIER_TO_CUSTOMER AND ((c.dataContainer.endTime >=:bS AND c.dataContainer.endTime <= :bE) OR (c.dataContainer.startTime >=:bS AND c.dataContainer.startTime <= :bE) OR (c.dataContainer.startTime <=:bS AND c.dataContainer.endTime >= :bS AND c.dataContainer.startTime <=:bE AND c.dataContainer.endTime >= :bE))"),
+        @NamedQuery(name = "Discount.findForOrganizationAndSupplier", query = "SELECT c FROM Discount c WHERE c.organizationReference.target = :organization AND c.organizationReference.dataContainer.referenceType = org.oscm.domobjects.enums.OrganizationReferenceType.SUPPLIER_TO_CUSTOMER AND c.organizationReference.source = :supplier") })
 public class Discount extends DomainObjectWithHistory<DiscountData> {
 
     /**

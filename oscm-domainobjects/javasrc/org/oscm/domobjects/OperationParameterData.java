@@ -10,11 +10,9 @@ package org.oscm.domobjects;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.OPConverter;
 import org.oscm.types.enumtypes.OperationParameterType;
 
 /**
@@ -31,7 +29,7 @@ public class OperationParameterData extends DomainDataContainer implements
     private String id;
 
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = OPConverter.class)
     private OperationParameterType type;
 
     @Column

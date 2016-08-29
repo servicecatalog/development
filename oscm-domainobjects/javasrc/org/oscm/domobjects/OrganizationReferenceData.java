@@ -9,10 +9,10 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.domobjects.converters.ORefTConverter;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 
 /**
@@ -24,7 +24,7 @@ public class OrganizationReferenceData extends DomainDataContainer {
 
     private static final long serialVersionUID = -66626743587180388L;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ORefTConverter.class)
     @Column(nullable = false)
     private OrganizationReferenceType referenceType;
 

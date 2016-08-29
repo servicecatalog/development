@@ -13,10 +13,10 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.domobjects.converters.SessionTypeConverter;
 import org.oscm.internal.types.enumtypes.SessionType;
 
 /**
@@ -61,7 +61,7 @@ public class SessionData extends DomainDataContainer {
     /**
      * The type of the session.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = SessionTypeConverter.class)
     private SessionType sessionType;
 
     /**
@@ -74,28 +74,28 @@ public class SessionData extends DomainDataContainer {
         return subscriptionTKey;
     }
 
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public String getUserToken() {
-        return userToken;
-    }
-
-    public String getPlatformUserId() {
-        return platformUserId;
-    }
-
     public void setSubscriptionTKey(Long subscriptionTKey) {
         this.subscriptionTKey = subscriptionTKey;
+    }
+
+    public String getSessionId() {
+        return sessionId;
     }
 
     public void setSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 
+    public String getUserToken() {
+        return userToken;
+    }
+
     public void setUserToken(String userToken) {
         this.userToken = userToken;
+    }
+
+    public String getPlatformUserId() {
+        return platformUserId;
     }
 
     public void setPlatformUserId(String platformUserId) {

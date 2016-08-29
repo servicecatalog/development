@@ -4,11 +4,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.SettingTypeConverter;
 import org.oscm.internal.types.enumtypes.SettingType;
 
 /**
@@ -22,7 +20,7 @@ public class OrganizationSettingData extends DomainDataContainer {
 
     private static final long serialVersionUID = 3881765988772914637L;
 
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = SettingTypeConverter.class)
     @Column(nullable = false)
     private SettingType settingType;
 

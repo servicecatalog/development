@@ -15,13 +15,13 @@ package org.oscm.domobjects;
 import java.io.Serializable;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.Field;
+import org.oscm.domobjects.converters.SSConverter;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 
 /**
@@ -47,7 +47,7 @@ public class SubscriptionData extends DomainDataContainer implements
     /**
      * Current status of the subscription (ACTIVE/PENDING/INVALID/DEACTIVATED)
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = SSConverter.class)
     @Column(nullable = false)
     private SubscriptionStatus status;
 
