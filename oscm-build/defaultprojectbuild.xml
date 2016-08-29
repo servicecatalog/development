@@ -61,8 +61,8 @@
 
     <!-- Project specific settings -->
     <property file="${project.dir}/build.properties" />
-    <property name="javasource" value="1.7" />
-    <property name="javatarget" value="1.7" />
+    <property name="javasource" value="1.8" />
+    <property name="javatarget" value="1.8" />
     <property name="licensefiles" value="*license.*,javalib/*.txt" />
     <property name="javadocpackagenames" value="*" />
     <property name="ear-content.dir" value="EarContent" />
