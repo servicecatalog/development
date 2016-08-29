@@ -15,16 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -107,6 +98,10 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     @OneToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private RevenueShareModel resellerPriceModel;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_tkey")
+    private Tenant tenant;
 
     public RevenueShareModel getPriceModel() {
         return priceModel;
@@ -270,5 +265,13 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
     public void setMarketplaceAccesses(List<MarketplaceAccess> marketplaceAccesses) {
         this.marketplaceAccesses = marketplaceAccesses;
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 }

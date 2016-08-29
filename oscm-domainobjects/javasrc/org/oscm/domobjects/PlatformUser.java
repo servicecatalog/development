@@ -47,7 +47,7 @@ import org.oscm.internal.types.enumtypes.UserRoleType;
  * @author schmid
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "userId" }))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "userId", "tenant_tkey" }))
 @NamedQueries({
         @NamedQuery(name = "PlatformUser.findByBusinessKey", query = "select obj from PlatformUser obj where obj.dataContainer.userId=:userId"),
         @NamedQuery(name = "PlatformUser.getOverdueOrganizationAdmins", query = "select obj from PlatformUser obj where obj.dataContainer.status = :status and obj.dataContainer.creationDate < :date"),
@@ -98,6 +98,10 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<UsageLicense> licenses;
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_tkey")
+    private Tenant tenant;
 
     /**
      * Fill creation date (if not already set)
@@ -515,5 +519,13 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
      */
     public boolean isSubscriptionManager() {
         return hasRole(UserRoleType.SUBSCRIPTION_MANAGER);
+    }
+
+    public Tenant getTenant() {
+        return tenant;
+    }
+
+    public void setTenant(Tenant tenant) {
+        this.tenant = tenant;
     }
 }

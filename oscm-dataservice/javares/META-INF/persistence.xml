@@ -199,6 +199,8 @@
     <class>org.oscm.domobjects.UnitUserRole</class>
     <class>org.oscm.domobjects.UnitUserRoleData</class>
     <class>org.oscm.domobjects.UnitRoleAssignment</class>
+    <class>org.oscm.domobjects.Tenant</class>
+    <class>org.oscm.domobjects.TenantData</class>
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="validate" />
