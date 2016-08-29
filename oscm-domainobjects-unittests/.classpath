@@ -12,10 +12,10 @@
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-3.6.2.jar"/><classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-common-6.1.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-6.1.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-6.1.0.jar"/>
-	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-6.1.0.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-analyzers-common-5.3.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/lucene-core-5.3.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-core-5.3.1.jar"/>
+	<classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-5.3.1.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

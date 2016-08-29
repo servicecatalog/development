@@ -67,7 +67,7 @@
       <property name="hibernate.commons.jar.name" value="hibernate-commons-annotations-5.0.1.Final.jar" />
       <property name="hibernate.commons.jar" value="${jdbc.driver.jar.path}/${hibernate.commons.jar.name}" />
       <!-- app hibernate-core jar -->
-      <property name="hibernate.core.jar.name" value="hibernate-core-4.1.8.Final.jar" />
+      <property name="hibernate.core.jar.name" value="hibernate-core-5.0.9.Final.jar" />
       <property name="hibernate.core.jar" value="${jdbc.driver.jar.path}/${hibernate.core.jar.name}" />
       <!-- app hibernate-entitymanager jar -->
       <property name="hibernate.entitymanager.jar.name" value="hibernate-entitymanager-4.1.8.Final.jar" />
@@ -861,6 +861,7 @@ AS_ADMIN_MASTERPASSWORD=@{masterpwd}
     <sequential>
       <echo message="Wait for @{waitSeconds} seconds to stop the domain." />
       <asadmin_noauth command="stop-domain" failonerror="@{failonerror}">
+        <arg value="--kill=true" />
         <arg value="@{domain}" />
       </asadmin_noauth>
       <!-- short sleep for sureness -->

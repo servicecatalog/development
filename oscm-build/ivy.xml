@@ -99,12 +99,15 @@
     <dependency org="commons-lang" name="commons-lang" rev="2.6" transitive="false"/>
     <dependency org="log4j" name="log4j" rev="1.2.16" transitive="false"/>
     <dependency org="commons-logging" name="commons-logging" rev="1.1.1" transitive="false"/>
-    <dependency org="org.apache.lucene" name="lucene-analyzers" rev="3.6.2" transitive="false"/>
-    <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="6.1.0" transitive="false"/>
-    <dependency org="org.apache.lucene" name="lucene-core" rev="6.1.0" transitive="false"/>
-    <dependency org="org.apache.lucene" name="lucene-queryparser" rev="6.1.0" transitive="false"/>
-    <dependency org="org.apache.solr" name="solr-core" rev="6.1.0" transitive="false"/>
-    <dependency org="org.apache.solr" name="solr-solrj" rev="6.1.0" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-analyzers-common" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-core" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-facet" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-misc" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-queries" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-queryparser" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.lucene" name="lucene-backward-codecs" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.solr" name="solr-core" rev="5.3.1" transitive="false"/>
+    <dependency org="org.apache.solr" name="solr-solrj" rev="5.3.1" transitive="false"/>
     <dependency org="org.apache.poi" name="poi" rev="3.5-FINAL" transitive="false"/>
     <dependency org="org.apache.myfaces.tomahawk" name="tomahawk20" rev="1.1.14" transitive="false"/>
     <dependency org="commons-validator" name="commons-validator" rev="1.4.0" transitive="false"/>
@@ -295,8 +298,8 @@
                 transitive="false"/>
     <dependency org="org.jboss.spec.javax.transaction" name="jboss-transaction-api_1.1_spec" rev="1.0.1.Final"
                 transitive="false"/>
-    <dependency org="org.hibernate" name="hibernate-core" rev="5.2.2.Final" transitive="false"/>
-    <dependency org="org.hibernate" name="hibernate-entitymanager" rev="5.2.2.Final" transitive="false"/>
+    <dependency org="org.hibernate" name="hibernate-core" rev="5.0.9.Final" transitive="false"/>
+    <dependency org="org.hibernate" name="hibernate-entitymanager" rev="5.0.9.Final" transitive="false"/>
     <dependency org="org.slf4j" name="slf4j-simple" rev="1.7.5" transitive="false"/>
     <dependency org="org.codehaus.sonar-plugins" name="sonar-ant-task" rev="1.1" transitive="false"/>
     <dependency org="org.codehaus.sonar" name="sonar-ws-client" rev="4.5" transitive="false"/>
