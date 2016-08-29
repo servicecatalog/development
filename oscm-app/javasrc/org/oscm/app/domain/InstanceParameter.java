@@ -18,7 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.TableGenerator;
 
 import org.oscm.app.business.exceptions.BadResultException;
 import org.oscm.app.security.AESEncrypter;
@@ -107,7 +107,7 @@ public class InstanceParameter {
     @Column(nullable = false)
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences",  name = "do_seq", allocationSize = 1000)
     private long tkey;
 
     /**
