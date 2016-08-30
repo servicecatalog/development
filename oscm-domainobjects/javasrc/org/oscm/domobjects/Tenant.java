@@ -35,6 +35,9 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<PlatformUser> platformUsers;
 
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private Collection<TenantSetting> tenantSettings;
+
     public Collection<Organization> getOrganizations() {
         return organizations;
     }
@@ -57,5 +60,13 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
     public void setPlatformUsers(Collection<PlatformUser> platformUsers) {
         this.platformUsers = platformUsers;
+    }
+
+    public Collection<TenantSetting> getTenantSettings() {
+        return tenantSettings;
+    }
+
+    public void setTenantSettings(Collection<TenantSetting> tenantSettings) {
+        this.tenantSettings = tenantSettings;
     }
 }

@@ -71,6 +71,7 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
     public static final String LINK_OPERATOR_EXECUTE_BILLING_TASKS = "/operator/executeBillingTasks.jsf";
     public static final String LINK_OPERATOR_EXPORT_AUDIT_LOG_DATA = "/operator/exportAuditLogData.jsf";
     public static final String LINK_OPERATOR_MANAGE_LANGUAGES = "/operator/manageLanguages.jsf";
+    public static final String LINK_OPERATOR_MANAGE_TENANTS = "/operator/manageTenants.jsf";
     public static final String LINK_ORGANIZATION_ADD_CUSTOMER = "/organization/addCustomer.jsf";
     public static final String LINK_ORGANIZATION_EDIT_CUSTOMER = "/organization/editCustomer.jsf";
     public static final String LINK_ORGANIZATION_VIEW_CUSTOMER = "/organization/viewCustomer.jsf";
@@ -394,7 +395,8 @@ public class MenuBean extends BaseBean implements UIStatus, Serializable {
         group.addItem(
                 HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_BILLING_ADAPTERS,
                 LINK_OPERATOR_MANAGE_BILLING_ADAPTERS, OPERATOR);
-
+        group.addItem(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_TENANTS,
+                LINK_OPERATOR_MANAGE_TENANTS, OPERATOR, SAML_SP_AUTH_MODE);
         // === CUSTOMER ========================================================
         group = main.addGroup(HiddenUIConstants.MENU_GROUP_NAVIGATION_CUSTOMER,
                 or(SERVICE_MANAGER, BROKER_MANAGER, RESELLER_MANAGER));
