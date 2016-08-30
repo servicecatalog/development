@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry excluding="devscripts/localdevscripts/|devscripts/|local/|local/estafschar/|local/estbaumann2/|local/ESTBERNSAUNB2/|local/estbogdan2/|local/estbrandstetter/|local/estcheld/|local/estfalkenhahn/|local/ESTFALKENNB2/|local/estfarmaki/|local/estgoebelnb/|local/estgoebelsuse/|local/estjaegernb/|local/estkulle/|local/estmgroch/|local/estsejfi/|local/eststavreva/|local/esttokoda/|local/estweisernb2/" kind="src" path="javares"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="lib" path="/libraries/dbunit/javalib/dbunit-2.4.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant.jar"/>
 	<classpathentry kind="lib" path="/libraries/apache-ant/javalib/ant-junit.jar"/>

@@ -28,14 +28,14 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-review"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-triggerservice-intsvc"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
 		<attributes>
 			<attribute name="owner.project.facets" value="java"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-dataservice-unittests"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/libraries/apache-commons-csv/javalib/commons-csv-1.0.jar"/>
-	<classpathentry kind="lib" path="/oscm-subscriptionmgmt"/>
+	<classpathentry kind="lib" path="/libraries/apache-commons-csv/javalib/commons-csv-1.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/antlr-2.7.7.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/dom4j-1.6.1.jar"/><classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jandex-2.0.0.Final.jar"/>
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/hibernate-commons-annotations-5.0.1.Final.jar"/>
