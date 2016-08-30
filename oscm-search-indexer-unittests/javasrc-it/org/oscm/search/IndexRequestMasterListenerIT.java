@@ -1,13 +1,13 @@
 /*******************************************************************************
- *                                                                              
+ *
  *  Copyright FUJITSU LIMITED 2016                                             
- *                                                                              
+ *
  *  Author: groch                                                      
- *                                                                              
+ *
  *  Creation Date: 18.07.2011                                                      
- *                                                                              
+ *
  *  Completion Time: 20.07.2011                                              
- *                                                                              
+ *
  *******************************************************************************/
 
 package org.oscm.search;
@@ -38,13 +38,17 @@ import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
 import org.oscm.domobjects.bridge.ProductClassBridge;
+import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.ModificationType;
 import org.oscm.domobjects.index.IndexRequestMessage;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
 import org.oscm.internal.vo.VOCategory;
 import org.oscm.marketplace.bean.CategorizationServiceBean;
 import org.oscm.marketplace.bean.MarketplaceServiceBean;
@@ -58,33 +62,18 @@ import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
 import org.oscm.triggerservice.local.TriggerMessage;
-import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.types.exceptions.InvalidUserSession;
 
 public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private static final String TEMP_INDEX_BASE_DIR = "tempIndexDir";
-    private DataService dm;
-    private static FifoJMSQueue indexerQueue;
-    private PlatformUser user;
-    private LocalizerServiceLocal locSvc;
-    private TagServiceLocal tagSvc;
-    private Marketplace mpGlobal;
-    private TechnicalProduct techProd;
-    private int svcCounter;
-    private long categoryKey;
-    private static String sysPropertyBaseDir = null;
-    private IndexRequestMasterListener irl;
-
     private static final String locale = "en";
-
     private static final List<LocalizedObjectTypes> localizedAttributes = Arrays
             .asList(LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
-
-    private static final List<String> expectedIndexedAttributes = Arrays
+    private static final List<String> expectedIndexedAttributesProduct = Arrays
             .asList(ProductClassBridge.SERVICE_NAME + locale,
                     ProductClassBridge.SERVICE_DESCRIPTION + locale,
                     ProductClassBridge.SERVICE_SHORT_DESC + locale,
@@ -102,15 +91,22 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     ProductClassBridge.CATEGORY_NAME
                             + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
                     ProductClassBridge.MP_ID);
-    private static final List<String> expectedIndexedAttributesForSubscription = Arrays
-            .asList("dataContainer.purchaseOrderNumber",
-                    "dataContainer.subscriptionId");
-    private static final List<String> expectedIndexedAttributesForParameter = Arrays
-            .asList("dataContainer.value");
-    private static final List<String> expectedIndexedAttributesForUda = Arrays
-            .asList("dataContainer.udaValue");
-    private static final List<String> expectedIndexedAttributesForUdaDefs = Arrays
-            .asList("dataContainer.defaultValue");
+    private static final List<String> expectedIndexedAttributesSubscription = Arrays
+            .asList(SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
+                    SubscriptionClassBridge.NAME_REFERENCE,
+                    SubscriptionClassBridge.NAME_PARAMETER_VALUE,
+                    SubscriptionClassBridge.NAME_UDA_VALUE);
+    private static FifoJMSQueue indexerQueue;
+    private static String sysPropertyBaseDir = null;
+    private DataService dm;
+    private PlatformUser user;
+    private LocalizerServiceLocal locSvc;
+    private TagServiceLocal tagSvc;
+    private Marketplace mpGlobal;
+    private TechnicalProduct techProd;
+    private int svcCounter;
+    private long categoryKey;
+    private IndexRequestMasterListener irl;
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -263,24 +259,40 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 cat.setName("name en");
                 cat.setCategoryId("id");
                 cat.setMarketplaceId(mpGlobal.getMarketplaceId());
-                user.setOrganization(dm.getReference(Marketplace.class,
-                        mpGlobal.getKey()).getOrganization());
+                user.setOrganization(
+                        dm.getReference(Marketplace.class, mpGlobal.getKey())
+                                .getOrganization());
                 cs.saveCategories(Arrays.asList(cat), null, "en");
-                List<VOCategory> list = cs.getCategories(
-                        mpGlobal.getMarketplaceId(), "en");
+                List<VOCategory> list = cs
+                        .getCategories(mpGlobal.getMarketplaceId(), "en");
                 categoryKey = list.get(0).getKey();
                 return null;
             }
         });
-        emptyCurrentIndex();
-        assertDocsInIndex("Index must contain 0 document at test start", 0);
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        assertDocsInIndex(Product.class,
+                "Index must contain 0 document at test start", 0,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 0 document at test start", 0,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         svcCounter = 0;
     }
 
     @Test
     public void testInitIndexForFulltextSearch_NoIndexPresentEmptyDB()
             throws Throwable {
-        assertDocsInIndex("Index must have no documents before indexing", 0);
+        assertDocsInIndex(Product.class,
+                "Index must have no documents before indexing", 0,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must have no document before indexing", 0,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -288,16 +300,35 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex("Index must have no documents after indexing", 0);
+        assertDocsInIndex(Product.class,
+                "Index must have no documents after indexing", 0,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must have 1 document after indexing", 1,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
     }
 
     @Test
     public void testInitIndexForFulltextSearch_NoIndexPresentDataAvailable()
             throws Throwable {
-        addItemsToDatabase(3);
+
+        addProductsToDatabase(3);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+
         // manually delete the index
-        emptyCurrentIndex();
-        assertDocsInIndex("Index must have no documents before indexing", 0);
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        assertDocsInIndex(Product.class,
+                "Index must have no documents before indexing", 0,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must have no documents before indexing", 0,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -305,7 +336,14 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex("Index must contain 3 documents after indexing", 3);
+        assertDocsInIndex(Product.class,
+                "Index must contain 3 documents after indexing", 3,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 3 document after indexing", 3,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
     }
 
     @Ignore
@@ -314,18 +352,38 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             throws Throwable {
 
         // first have a dummy call to setup the scenario etc.
-        emptyCurrentIndex();
-        addItemsToDatabase(1);
-        emptyCurrentIndex();
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        addProductsToDatabase(1);
+
+        emptyProductIndex();
+        emptySubscriptionIndex();
         // now create 3 elements on the empty index
-        addItemsToDatabase(3);
-        assertDocsInIndex(
-                "Index must contain 3 documents due to automatic indexing", 3);
+        addProductsToDatabase(3);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        assertDocsInIndex(Product.class,
+                "Index must contain 3 documents due to automatic indexing", 3,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 3 documents due to automatic indexing", 3,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         // manually delete the index
-        emptyCurrentIndex();
-        addItemsToDatabase(1);
-        assertDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1);
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        addProductsToDatabase(1);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        assertDocsInIndex(Product.class,
+                "Index must contain 1 document due to automatic indexing", 1,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 1 document due to automatic indexing", 1,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -333,9 +391,14 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex(
+        assertDocsInIndex(Product.class,
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
-                1);
+                1, expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must still contain 1 document after indexing (although the db contains 4 items)",
+                1, expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
     }
 
     @Ignore
@@ -343,8 +406,9 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     public void testInitIndexForFulltextSearch_IndexPresentForceSet()
             throws Throwable {
         // first have a dummy call to setup the scenario etc.
-        emptyCurrentIndex();
-        addItemsToDatabase(1); // db contains 1 product
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        addProductsToDatabase(1); // db contains 1 product
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -353,16 +417,34 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        emptyCurrentIndex();
+        emptyProductIndex();
+        emptySubscriptionIndex();
         // now create 3 elements on the empty index, db contains 4 products
-        addItemsToDatabase(3);
-        assertDocsInIndex(
-                "Index must contain 3 documents due to automatic indexing", 3);
+        addProductsToDatabase(3);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        assertDocsInIndex(Product.class,
+                "Index must contain 3 documents due to automatic indexing", 3,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 3 documents due to automatic indexing", 3,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         // manually delete the index
-        emptyCurrentIndex();
-        addItemsToDatabase(1); // db contains 5 products
-        assertDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1);
+        emptyProductIndex();
+        emptySubscriptionIndex();
+        addProductsToDatabase(1); // db contains 5 products
+        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
+        assertDocsInIndex(Product.class,
+                "Index must contain 1 document due to automatic indexing", 1,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain 1 document due to automatic indexing", 1,
+                expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
@@ -371,20 +453,28 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        assertDocsInIndex("Index must contain " + 5
-                + " documents after indexing (and so does the db)", 5);
+        assertDocsInIndex(Product.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
+        assertDocsInIndex(Subscription.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesSubscription.size(),
+                expectedIndexedAttributesSubscription);
     }
 
     /**
      * When deleting a catalog entry we expect that the system requests the
      * respective product to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
     public void testDeleteCatalogEntry() throws Exception {
 
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
         final List<Long> keys = new ArrayList<Long>();
 
         assertNotNull(ids);
@@ -417,14 +507,14 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key expected - ", keys.get(0),
                 Long.valueOf(irm.getKey()));
-        assertEquals("Wrong class - ", Product.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", Product.class.getName(),
+                irm.getObjectClass().getName());
     }
 
     @Test
     public void testProductUpdateWithCustomerCopy_B9670() throws Exception {
 
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -439,19 +529,21 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.CUSTOMER_TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then two products in index
-        assertDocsInIndex("Index must contain 2 entries", 2);
+        assertDocsInIndex(Product.class, "Index must contain 2 entries", 2,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
     }
 
     @Test
     public void getProductAndCopiesForIndexUpdate_InactivePartnerCopy_B9670()
             throws Exception {
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -472,8 +564,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 List<Product> products = irl
                         .getProductAndCopiesForIndexUpdate(prod);
                 assertEquals(2, products.size());
-                assertTrue("Keys equal.", products.get(0).getKey() != products
-                        .get(1).getKey());
+                assertTrue("Keys equal.",
+                        products.get(0).getKey() != products.get(1).getKey());
                 return null;
             }
         });
@@ -483,7 +575,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     @Test
     public void getProductAndCopiesForIndexUpdate_SuspendedCustomerCopy_B9670()
             throws Exception {
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -513,7 +605,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     @Test
     public void getProductAndCopiesForIndexUpdate_OtherCopy_B9670()
             throws Exception {
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -543,7 +635,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
     @Test
     public void testProductUpdateWithPartnerCopy() throws Exception {
 
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -558,19 +650,21 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.PARTNER_TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then two products in index
-        assertDocsInIndex("Index must contain 2 entries", 2);
+        assertDocsInIndex(Product.class, "Index must contain 2 entries", 2,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
     }
 
     @Test
     public void testProductUpdateWithNormalCopy() throws Exception {
 
-        final List<String> ids = addItemsToDatabase(1);
+        final List<String> ids = addProductsToDatabase(1);
 
         assertNotNull(ids);
         assertEquals(1, ids.size());
@@ -585,13 +679,15 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
         createProductCopy(ids.get(0), ServiceType.TEMPLATE);
 
-        emptyCurrentIndex();
+        emptyProductIndex();
 
         // when
         modifyShortDescription(ids.get(0));
 
         // then one product in index
-        assertDocsInIndex("Index must contain 1 entries", 1);
+        assertDocsInIndex(Product.class, "Index must contain 1 entries", 1,
+                expectedIndexedAttributesProduct.size(),
+                expectedIndexedAttributesProduct);
     }
 
     @Test
@@ -604,8 +700,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             public Product call() throws Exception {
                 String prodId = "prodId";
                 final Product prod = Products.createProduct(
-                        Scenario.getSupplier(), techProd, true, prodId, "pMId"
-                                + svcCounter, mpGlobal, dm);
+                        Scenario.getSupplier(), techProd, true, prodId,
+                        "pMId" + svcCounter, mpGlobal, dm);
                 pm.setProduct(prod);
                 dm.persist(pm);
                 dm.flush();
@@ -617,8 +713,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product pd = dm.getReference(Product.class, pm.getProduct()
-                        .getKey());
+                Product pd = dm.getReference(Product.class,
+                        pm.getProduct().getKey());
                 dm.remove(pd);
                 dm.flush();
                 return null;
@@ -650,7 +746,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
      * When deleting a technical product tag we expect that the system requests
      * the respective technical product (resulting in this marketable products)
      * to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -710,57 +806,64 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         assertTrue(message instanceof IndexRequestMessage);
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key - ", techProd.getKey(), irm.getKey());
-        assertEquals("Wrong class - ", TechnicalProduct.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", TechnicalProduct.class.getName(),
+                irm.getObjectClass().getName());
     }
 
-    private void assertDocsInIndex(final String comment,
-            final int expectedNumDocs) throws Exception {
-        Boolean evaluationTookPlace = runTX(() -> {
-            boolean evaluatedIndex = false;
-            Session session = dm.getSession();
-            if (session != null) {
-                FullTextSession fullTextSession = Search
-                        .getFullTextSession(session);
-                SearchFactory searchFactory = fullTextSession
-                        .getSearchFactory();
-                IndexReader reader = searchFactory.getIndexReaderAccessor()
-                        .open(Product.class);
+    private void assertDocsInIndex(final Class<?> clazz, final String comment,
+            final int expectedNumDocs, final int expectedNumIndexedAttributes,
+            final List<String> expectedAttributes) throws Exception {
+        Boolean evaluationTookPlace = runTX(new Callable<Boolean>() {
 
-                try {
-                    assertEquals(comment, expectedNumDocs, reader.numDocs());
-                    if (expectedNumDocs > 0) {
-                        final FieldInfos indexedFieldNames = MultiFields
-                                .getMergedFieldInfos(reader);
-                        for (String expectedAttr : expectedIndexedAttributes) {
-                            assertNotNull("attribute " + expectedAttr
-                                    + " does not exist in index: "
-                                    + indexedFieldNames,
+            @Override
+            public Boolean call() throws Exception {
+                boolean evaluatedIndex = false;
+                Session session = dm.getSession();
+                if (session != null) {
+                    FullTextSession fullTextSession = Search
+                            .getFullTextSession(session);
+                    SearchFactory searchFactory = fullTextSession
+                            .getSearchFactory();
+                    IndexReader reader = searchFactory.getIndexReaderAccessor()
+                            .open(clazz);
+
+                    try {
+                        assertEquals(comment, expectedNumDocs,
+                                reader.numDocs());
+                        if (expectedNumDocs > 0) {
+                            final FieldInfos indexedFieldNames = MultiFields
+                                    .getMergedFieldInfos(reader);
+                            for (String expectedAttr : expectedAttributes) {
+                                assertNotNull(
+                                        "attribute " + expectedAttr
+                                                + " does not exist in index: "
+                                                + indexedFieldNames,
+                                        indexedFieldNames
+                                                .fieldInfo(expectedAttr));
+                            }
+                            assertNotNull(
+                                    "attribute \"key\" does not exist in index: "
+                                            + indexedFieldNames,
+                                    indexedFieldNames.fieldInfo("key"));
+                            assertNotNull(
+                                    "attribute \"_hibernate_class\" does not exist in index: "
+                                            + indexedFieldNames,
                                     indexedFieldNames
-                                            .fieldInfo(expectedAttr));
+                                            .fieldInfo("_hibernate_class"));
+                            assertEquals(
+                                    "More or less attributes indexed than expected, attributes retrieved from index: "
+                                            + indexedFieldNames,
+                                    expectedNumIndexedAttributes + 2,
+                                    indexedFieldNames.size());
+                            evaluatedIndex = true;
                         }
-                        assertNotNull(
-                                "attribute \"key\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames.fieldInfo("key"));
-                        assertNotNull(
-                                "attribute \"_hibernate_class\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames
-                                        .fieldInfo("_hibernate_class"));
-                        assertEquals(
-                                "More or less attributes indexed than expected, attributes retrieved from index: "
-                                        + indexedFieldNames,
-                                expectedIndexedAttributes.size() + 2,
-                                indexedFieldNames.size());
-                        evaluatedIndex = true;
+                    } finally {
+                        searchFactory.getIndexReaderAccessor().close(reader);
                     }
-                } finally {
-                    searchFactory.getIndexReaderAccessor().close(reader);
                 }
-            }
 
-            return Boolean.valueOf(evaluatedIndex);
+                return Boolean.valueOf(evaluatedIndex);
+            }
         });
 
         if (expectedNumDocs > 0) {
@@ -769,7 +872,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         }
     }
 
-    private void emptyCurrentIndex() throws Exception {
+    private void emptyProductIndex() throws Exception {
         runTX(new Callable<Void>() {
 
             @Override
@@ -787,7 +890,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     }
 
-    private List<String> addItemsToDatabase(final int num) throws Exception {
+    private List<String> addProductsToDatabase(final int num) throws Exception {
 
         final List<String> createdProductIds = new ArrayList<String>();
 
@@ -827,7 +930,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     dm.persist(ce);
                     CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
                     cc.setCatalogEntry(ce);
-                    cc.setCategory(dm.getReference(Category.class, categoryKey));
+                    cc.setCategory(
+                            dm.getReference(Category.class, categoryKey));
                     dm.persist(cc);
                     // also store given localized resources for created product
                     for (LocalizedObjectTypes type : localizedAttributes) {
@@ -886,8 +990,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 prod.setProductId(srcProductId);
                 prod.setVendor(Scenario.getSupplier());
                 prod = (Product) dm.getReferenceByBusinessKey(prod);
-                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE) ? Scenario
-                        .getCustomer() : null;
+                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE)
+                        ? Scenario.getCustomer() : null;
                 Product copy = prod.copyForCustomer(customer);
                 copy.setStatus(serviceStatus);
                 copy.setType(serviceType);
@@ -917,94 +1021,6 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-    }
-
-    @Test
-    public void testIndexSubscriptions_validStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
-        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
-    }
-
-    @Test
-    public void testIndexSubscriptions_invalidStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
-        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
-    }
-
-    @Test
-    public void testIndexSubscriptions_variousStatus() throws Throwable {
-        addSubscriptionToDatabase(SubscriptionStatus.ACTIVE);
-        addSubscriptionToDatabase(SubscriptionStatus.DEACTIVATED);
-        addSubscriptionToDatabase(SubscriptionStatus.EXPIRED);
-        addSubscriptionToDatabase(SubscriptionStatus.INVALID);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING);
-        addSubscriptionToDatabase(SubscriptionStatus.PENDING_UPD);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED);
-        addSubscriptionToDatabase(SubscriptionStatus.SUSPENDED_UPD);
-        emptySubscriptionIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexSubscriptions(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One subscription is created during the common setup, and so the
-        // actual number of subscriptions is one greater than that of
-        // subscriptions that are created and eligible for indexing.
-        assertSubscriptionDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForSubscription.size(),
-                expectedIndexedAttributesForSubscription);
     }
 
     private void addSubscriptionToDatabase(final SubscriptionStatus status)
@@ -1054,638 +1070,4 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         });
 
     }
-
-    private void assertSubscriptionDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(() -> {
-            boolean evaluatedIndex = false;
-            Session session = dm.getSession();
-            if (session != null) {
-                FullTextSession fullTextSession = Search
-                        .getFullTextSession(session);
-                SearchFactory searchFactory = fullTextSession
-                        .getSearchFactory();
-                IndexReader reader = searchFactory.getIndexReaderAccessor()
-                        .open(Subscription.class);
-
-                try {
-                    assertEquals(comment, expectedNumDocs, reader.numDocs());
-                    if (expectedNumDocs > 0) {
-                        final FieldInfos indexedFieldNames = MultiFields
-                                .getMergedFieldInfos(reader);
-                        for (String expectedAttr : expectedAttributes) {
-                            assertNotNull("attribute " + expectedAttr
-                                    + " does not exist in index: "
-                                    + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo(expectedAttr));
-                        }
-                        assertNotNull(
-                                "attribute \"key\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames.fieldInfo("key"));
-                        assertNotNull(
-                                "attribute \"_hibernate_class\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames
-                                        .fieldInfo("_hibernate_class"));
-                        assertEquals(
-                                "More or less attributes indexed than expected, attributes retrieved from index: "
-                                        + indexedFieldNames,
-                                expectedNumIndexedAttributes + 2,
-                                indexedFieldNames.size());
-                        evaluatedIndex = true;
-                    }
-                } finally {
-                    searchFactory.getIndexReaderAccessor().close(reader);
-                }
-            }
-
-            return Boolean.valueOf(evaluatedIndex);
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
-    @Test
-    public void testIndexParameters_ParameterDefinitionValueType()
-            throws Throwable {
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.BOOLEAN, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.DURATION, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.ENUMERATION, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.INTEGER, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.LONG, true,
-                SubscriptionStatus.ACTIVE);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 2 document due to automatic indexing", 2,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    @Test
-    public void testIndexParameters_SubscriptionStatus() throws Throwable {
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.DEACTIVATED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.EXPIRED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.INVALID);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.PENDING);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.PENDING_UPD);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.SUSPENDED);
-        createParameter(ParameterValueType.STRING, true,
-                SubscriptionStatus.SUSPENDED_UPD);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    @Test
-    public void testIndexParameters_withoutSubscription() throws Throwable {
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.ACTIVE);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.DEACTIVATED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.EXPIRED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.INVALID);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.PENDING);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.PENDING_UPD);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.SUSPENDED);
-        createParameter(ParameterValueType.STRING, false,
-                SubscriptionStatus.SUSPENDED_UPD);
-        emptyParameterIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexParameters(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // One parameter is created during the common setup, and so the actual
-        // number of parameters is one greater than that of parameters that are
-        // created and eligible for indexing.
-        assertParameterDocsInIndex(
-                "Index must contain 1 document due to automatic indexing", 1,
-                expectedIndexedAttributesForParameter.size(),
-                expectedIndexedAttributesForParameter);
-    }
-
-    private void emptyParameterIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(Parameter.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
-
-    private Parameter createParameter(
-            final ParameterValueType parameterValueType,
-            final boolean createSubscription,
-            final SubscriptionStatus subscriptionStatus) throws Exception {
-        final Parameter parameter = runTX(new Callable<Parameter>() {
-            @Override
-            public Parameter call() throws Exception {
-
-                Organization tp = Organizations.createOrganization(dm,
-                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                ParameterDefinition pd = new ParameterDefinition();
-                pd.setParameterId("parameterIndexingTest");
-                pd.setParameterType(ParameterType.PLATFORM_PARAMETER);
-                pd.setValueType(parameterValueType);
-
-                Parameter parameter = new Parameter();
-                parameter.setValue("parameterIndexingTest");
-
-                ParameterSet parameterSet = new ParameterSet();
-                parameter.setParameterDefinition(pd);
-                parameter.setParameterSet(parameterSet);
-                dm.persist(pd);
-                Product product = Products.createProduct(
-                        tp.getOrganizationId(), "parameterIndexingTest",
-                        "techProd", dm);
-                if (createSubscription) {
-                    Subscription subscription = Subscriptions
-                            .createSubscription(dm, tp.getOrganizationId(),
-                                    product.getProductId(),
-                                    "parameterIndexingTest", tp);
-                    subscription.setStatus(subscriptionStatus);
-                    Product subscriptionProduct = subscription.getProduct();
-                    parameterSet.setProduct(subscriptionProduct);
-                    subscriptionProduct.setParameterSet(parameterSet);
-                    dm.persist(subscriptionProduct);
-                    dm.persist(subscription);
-                }
-                dm.persist(parameterSet);
-                dm.persist(parameter);
-                dm.flush();
-                return parameter;
-            }
-        });
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                flushQueue(indexerQueue, irl, 1000);
-                return null;
-            }
-        });
-        return parameter;
-    }
-
-    private void assertParameterDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(() -> {
-            boolean evaluatedIndex = false;
-            Session session = dm.getSession();
-            if (session != null) {
-                FullTextSession fullTextSession = Search
-                        .getFullTextSession(session);
-                SearchFactory searchFactory = fullTextSession
-                        .getSearchFactory();
-                IndexReader reader = searchFactory.getIndexReaderAccessor()
-                        .open(Parameter.class);
-
-                try {
-                    assertEquals(comment, expectedNumDocs, reader.numDocs());
-                    if (expectedNumDocs > 0) {
-                        final FieldInfos indexedFieldNames = MultiFields
-                                .getMergedFieldInfos(reader);
-                        for (String expectedAttr : expectedAttributes) {
-                            assertNotNull("attribute " + expectedAttr
-                                    + " does not exist in index: "
-                                    + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo(expectedAttr));
-                        }
-                        assertNotNull(
-                                "attribute \"key\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames.fieldInfo("key"));
-                        assertNotNull(
-                                "attribute \"_hibernate_class\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames
-                                        .fieldInfo("_hibernate_class"));
-                        assertEquals(
-                                "More or less attributes indexed than expected, attributes retrieved from index: "
-                                        + indexedFieldNames,
-                                expectedNumIndexedAttributes + 2,
-                                indexedFieldNames.size());
-                        evaluatedIndex = true;
-                    }
-                } finally {
-                    searchFactory.getIndexReaderAccessor().close(reader);
-                }
-            }
-
-            return Boolean.valueOf(evaluatedIndex);
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
-    @Test
-    public void testindexUdas_Customer() throws Throwable {
-        createUdaOnCustomer("UDA1", "UDA2", "UDA3");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 7 document due to automatic indexing", 7,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdas_Subscription() throws Throwable {
-        createUdaOnSubscription("UDA1", "UDA2", "UDA3", "UDA4");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 8 document due to automatic indexing", 8,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdas_CustomerAndSubscription() throws Throwable {
-        createUdaOnCustomer("UDA_C-1", "UDA_C-2", "UDA_C-3", "UDA_C-4");
-        createUdaOnSubscription("UDA_S-1", "UDA_S-2", "UDA_S-3", "UDA_S-4",
-                "UDA_S-5");
-        emptyUdaIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdas(fullTextSession);
-                }
-                return null;
-            }
-        });
-        // Four Udas are created during the common setup, and so the actual
-        // number of Udas is one greater than that of Udas that are created and
-        // eligible for indexing.
-        assertUdaDocsInIndex(
-                "Index must contain 13 document due to automatic indexing", 13,
-                expectedIndexedAttributesForUda.size(),
-                expectedIndexedAttributesForUda);
-    }
-
-    @Test
-    public void testindexUdaDefs() throws Throwable {
-        createUdaDefOnCustomer("UDADef1", "UDADef2", "UDADef3");
-        emptyUdaDefIndex();
-        runTX(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    irl.indexUdaDefs(fullTextSession);
-                }
-                return null;
-            }
-        });
-        assertUdaDefsDocsInIndex(
-                "Index must contain 3 document due to automatic indexing", 3,
-                expectedIndexedAttributesForUdaDefs.size(),
-                expectedIndexedAttributesForUdaDefs);
-    }
-
-    private List<Uda> createUdaOnCustomer(final String... udaId)
-            throws Exception {
-        List<Uda> result = runTX(new Callable<List<Uda>>() {
-
-            @Override
-            public List<Uda> call() throws Exception {
-                Organization supplier = Organizations.createOrganization(dm,
-                        OrganizationRoleType.SUPPLIER);
-                Organization customer = Organizations.createOrganization(dm,
-                        OrganizationRoleType.CUSTOMER);
-
-                List<Uda> result = new ArrayList<Uda>();
-                for (String id : udaId) {
-                    UdaDefinition def = Udas.createUdaDefinition(dm, supplier,
-                            UdaTargetType.CUSTOMER, id, null,
-                            UdaConfigurationType.USER_OPTION_MANDATORY);
-                    Uda uda = Udas.createUda(dm, customer, def, "42");
-                    result.add(uda);
-                }
-                return result;
-            }
-        });
-        return result;
-    }
-
-    private List<Uda> createUdaDefOnCustomer(final String... udaId)
-            throws Exception {
-        List<Uda> result = runTX(new Callable<List<Uda>>() {
-
-            @Override
-            public List<Uda> call() throws Exception {
-                Organization supplier = Organizations.createOrganization(dm,
-                        OrganizationRoleType.SUPPLIER);
-                Organization customer = Organizations.createOrganization(dm,
-                        OrganizationRoleType.CUSTOMER);
-
-                List<Uda> result = new ArrayList<>();
-                for (String id : udaId) {
-                    UdaDefinition def = Udas.createUdaDefinition(dm, supplier,
-                            UdaTargetType.CUSTOMER_SUBSCRIPTION, id, "default definition value",
-                            UdaConfigurationType.USER_OPTION_MANDATORY);
-                    Uda uda = Udas.createUda(dm, customer, def, null);
-                    result.add(uda);
-                }
-                return result;
-            }
-        });
-        return result;
-    }
-
-    private List<Uda> createUdaOnSubscription(final String... udaId)
-            throws Exception {
-        List<Uda> result = runTX(new Callable<List<Uda>>() {
-
-            @Override
-            public List<Uda> call() throws Exception {
-                Organization provider = Organizations.createOrganization(dm,
-                        OrganizationRoleType.TECHNOLOGY_PROVIDER);
-                Organization supplier = Organizations.createOrganization(dm,
-                        OrganizationRoleType.SUPPLIER);
-                Organization customer = Organizations.createOrganization(dm,
-                        OrganizationRoleType.CUSTOMER);
-
-                TechnicalProduct tp = TechnicalProducts.createTechnicalProduct(
-                        dm, provider, "TPID", false, ServiceAccessType.LOGIN);
-                Product prod = Products.createProduct(supplier, tp, false,
-                        "PRODID", null, dm);
-                Subscription sub = Subscriptions.createSubscription(dm,
-                        customer.getOrganizationId(), prod.getProductId(),
-                        "SUBID", supplier);
-                List<Uda> result = new ArrayList<Uda>();
-                for (String id : udaId) {
-                    UdaDefinition def = Udas.createUdaDefinition(dm, supplier,
-                            UdaTargetType.CUSTOMER_SUBSCRIPTION, id, null,
-                            UdaConfigurationType.USER_OPTION_MANDATORY);
-                    Uda uda = Udas.createUda(dm, sub, def, "42");
-                    result.add(uda);
-                }
-                return result;
-            }
-        });
-        return result;
-    }
-
-    private void emptyUdaIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(Uda.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
-
-    private void emptyUdaDefIndex() throws Exception {
-        runTX(new Callable<Void>() {
-
-            @Override
-            public Void call() throws Exception {
-                Session session = dm.getSession();
-                if (session != null) {
-                    FullTextSession fullTextSession = Search
-                            .getFullTextSession(session);
-                    fullTextSession.purgeAll(UdaDefinition.class);
-                }
-
-                return null;
-            }
-        });
-
-    }
-
-    private void assertUdaDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(() -> {
-            boolean evaluatedIndex = false;
-            Session session = dm.getSession();
-            if (session != null) {
-                FullTextSession fullTextSession = Search
-                        .getFullTextSession(session);
-                SearchFactory searchFactory = fullTextSession
-                        .getSearchFactory();
-                IndexReader reader = searchFactory.getIndexReaderAccessor()
-                        .open(Uda.class);
-
-                try {
-                    assertEquals(comment, expectedNumDocs, reader.numDocs());
-                    if (expectedNumDocs > 0) {
-                        final FieldInfos indexedFieldNames = MultiFields
-                                .getMergedFieldInfos(reader);
-                        for (String expectedAttr : expectedAttributes) {
-                            assertNotNull("attribute " + expectedAttr
-                                    + " does not exist in index: "
-                                    + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo(expectedAttr));
-                        }
-                        assertNotNull(
-                                "attribute \"key\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames.fieldInfo("key"));
-                        assertNotNull(
-                                "attribute \"_hibernate_class\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames
-                                        .fieldInfo("_hibernate_class"));
-                        assertEquals(
-                                "More or less attributes indexed than expected, attributes retrieved from index: "
-                                        + indexedFieldNames,
-                                expectedNumIndexedAttributes + 2,
-                                indexedFieldNames.size());
-                        evaluatedIndex = true;
-                    }
-                } finally {
-                    searchFactory.getIndexReaderAccessor().close(reader);
-                }
-            }
-
-            return Boolean.valueOf(evaluatedIndex);
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
-    private void assertUdaDefsDocsInIndex(final String comment,
-            final int expectedNumDocs, final int expectedNumIndexedAttributes,
-            final List<String> expectedAttributes) throws Exception {
-        Boolean evaluationTookPlace = runTX(() -> {
-            boolean evaluatedIndex = false;
-            Session session = dm.getSession();
-            if (session != null) {
-                FullTextSession fullTextSession = Search
-                        .getFullTextSession(session);
-                SearchFactory searchFactory = fullTextSession
-                        .getSearchFactory();
-                IndexReader reader = searchFactory.getIndexReaderAccessor()
-                        .open(UdaDefinition.class);
-
-                try {
-                    assertEquals(comment, expectedNumDocs, reader.numDocs());
-                    if (expectedNumDocs > 0) {
-                        final FieldInfos indexedFieldNames = MultiFields
-                                .getMergedFieldInfos(reader);
-                        for (String expectedAttr : expectedAttributes) {
-                            assertNotNull("attribute " + expectedAttr
-                                    + " does not exist in index: "
-                                    + indexedFieldNames,
-                                    indexedFieldNames
-                                            .fieldInfo(expectedAttr));
-                        }
-                        assertNotNull(
-                                "attribute \"key\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames.fieldInfo("key"));
-                        assertNotNull(
-                                "attribute \"_hibernate_class\" does not exist in index: "
-                                        + indexedFieldNames,
-                                indexedFieldNames
-                                        .fieldInfo("_hibernate_class"));
-                        assertEquals(
-                                "More or less attributes indexed than expected, attributes retrieved from index: "
-                                        + indexedFieldNames,
-                                expectedNumIndexedAttributes + 2,
-                                indexedFieldNames.size());
-                        evaluatedIndex = true;
-                    }
-                } finally {
-                    searchFactory.getIndexReaderAccessor().close(reader);
-                }
-
-            }
-
-            return Boolean.valueOf(evaluatedIndex);
-        });
-
-        if (expectedNumDocs > 0) {
-            Assert.assertTrue("Index not found, no evaluation took place",
-                    evaluationTookPlace.booleanValue());
-        }
-    }
-
 }

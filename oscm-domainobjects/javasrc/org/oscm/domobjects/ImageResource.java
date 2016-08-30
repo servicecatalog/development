@@ -15,7 +15,7 @@ package org.oscm.domobjects;
 import javax.persistence.*;
 
 import org.oscm.domobjects.annotations.BusinessKey;
-import org.oscm.domobjects.converters.ETConverter;
+import org.oscm.domobjects.converters.ITConverter;
 import org.oscm.internal.types.enumtypes.ImageType;
 
 /**
@@ -50,7 +50,7 @@ public class ImageResource extends
 
     private String contentType;
 
-    @Convert( converter=ETConverter.class )
+    @Convert( converter=ITConverter.class )
     private ImageType imageType;
 
     private long objectKey;
