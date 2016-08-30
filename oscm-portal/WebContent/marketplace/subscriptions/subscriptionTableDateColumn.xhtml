@@ -33,7 +33,7 @@
                                 rendered="#{bean.sortOrders[property] == 'descending'}" />
             </a4j:outputPanel>
             <adm:filterInput inputId="#{property}" inputValue="#{bean.filterValues[property]}" 
-              queueName="#{queueName}" render="#{tableName}@body #{scroller} :pagerPanel"
+              queueName="#{queueName}" render="#{tableName}@body #{scroller} :pagerPanel subscriptionDetailsPanel"
               onkeyup="AdmUtils.setFirstPage(#{rich:element(scroller)});" />
         </f:facet>
         <h:outputText value="#{record[property]}">

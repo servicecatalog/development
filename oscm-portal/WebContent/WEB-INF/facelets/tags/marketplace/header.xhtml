@@ -34,7 +34,7 @@
                     onkeydown="AdmUtils.clickOnReturn(event,'searchForm:hiddenLink');" />
                 </c:if>
                 <h:commandLink id="hiddenLink" style="display:none; visibility: hidden;"
-                  onclick="AdmUtils.copyElementValues('Search','searchForm:searchPhrase');return true;"
+                  onclick="AdmUtils.copyElementValues('Search','searchForm:searchPhrase');AdmUtils.IE9AfterClick('Search');return true;"
                   action="#{serviceListingBean.showServiceListSearch}" />
                 <h:inputHidden value="UTF-8" name="ie" />
               </a4j:outputPanel>
@@ -42,7 +42,7 @@
 
                 <c:if test="#{servicePagingBean.searchAvailable}">
                   <h:commandButton name="btnG" id="submit"
-                    onclick="AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
+                    onclick="AdmUtils.IE9OnClick('Search');AdmUtils.showProgress(true);AdmUtils.executeOnClick('searchForm:hiddenLink');"
                     styleClass="searchButton" />
                 </c:if>
 
@@ -125,5 +125,5 @@
       </ul>
     </a4j:outputPanel>
   </a4j:outputPanel>
-
+  <script type="text/javascript">AdmUtils.IE9PlaceHolderFix('#{servicePagingBean.searchPhrase}', 'Search');</script>
 </ui:composition>

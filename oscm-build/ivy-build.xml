@@ -6,6 +6,8 @@
   <property name="ivy.lib.dir" value="${root.dir}/oscm-build/lib/"/>
   
   <target name="resolve">
+    <ivy:settings file="ivy-settings.xml"/>
+    <ivy:resolve conf="default" />
     <ivy:retrieve />
   </target>
   

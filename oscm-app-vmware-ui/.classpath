@@ -12,5 +12,6 @@
 	<classpathentry kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/gf-client.jar"/>
+	<classpathentry kind="src" path="/oscm-common"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

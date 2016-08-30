@@ -5,16 +5,17 @@
   xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:a4j="http://richfaces.org/a4j"
   xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:rich="http://richfaces.org/rich"
   xmlns:adm="http://www.fujitsu.com/global/services/software/interstage">
+  <c:set var="subSearchPlaceHolderText" value="#{msg['marketplace.searchSubscriptions']}" />
   <a4j:outputPanel layout="block" id="subscriptionSearch">
     <a4j:outputPanel>
       <a4j:outputPanel layout="block">
         <h:inputHidden id="searchPhrase" value="#{searchPhraseProperty}" />
         <input id="#{formId}:search" value="#{searchPhraseProperty}"
-               placeholder="#{msg['marketplace.searchSubscriptions']}" size="30"
+               placeholder="#{subSearchPlaceHolderText}" size="30"
                maxlength="#{servicePagingBean.maxLengthSearchPhrase}"
                onkeydown="AdmUtils.clickOnReturn(event,'#{formId}:submitLink');" onfocus="this.value = '';" />
         <a4j:commandLink id="submitLink" value=" "
-                         onclick="AdmUtils.showProgress(true);AdmUtils.copyElementValues('#{formId}:search','#{formId}:searchPhrase');return true;"
+                         onclick="AdmUtils.IE9OnClick('#{formId}:search');AdmUtils.showProgress(true);AdmUtils.copyElementValues('#{formId}:search','#{formId}:searchPhrase');AdmUtils.IE9AfterClick('#{formId}:search');return true;"
                          oncomplete="AdmUtils.showProgress(false);"
                          execute="@form" styleClass="searchButton"
                          render="#{renderElementList}"/>
@@ -22,4 +23,5 @@
       </a4j:outputPanel>
     </a4j:outputPanel>
   </a4j:outputPanel>
+  <script type="text/javascript">AdmUtils.IE9PlaceHolderFix('#{searchPhraseProperty}', '#{formId}:search');</script>
 </ui:composition>

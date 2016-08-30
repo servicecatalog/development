@@ -14,7 +14,19 @@ package org.oscm.domobjects.index;
 
 import java.io.Serializable;
 
-import org.oscm.domobjects.*;
+import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.Category;
+import org.oscm.domobjects.CategoryToCatalogEntry;
+import org.oscm.domobjects.DomainObject;
+import org.oscm.domobjects.LocalizedResource;
+import org.oscm.domobjects.Parameter;
+import org.oscm.domobjects.PriceModel;
+import org.oscm.domobjects.Product;
+import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.TechnicalProduct;
+import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.Uda;
+import org.oscm.domobjects.UdaDefinition;
 import org.oscm.domobjects.enums.ModificationType;
 
 /**
@@ -111,11 +123,15 @@ public class IndexRequestMessage implements Serializable {
             return message;
         }
         if (object instanceof UdaDefinition) {
-            IndexRequestMessage message = new IndexRequestMessage((UdaDefinition) object,
-                    UdaDefinition.class, modType);
+            IndexRequestMessage message = new IndexRequestMessage(
+                    (UdaDefinition) object, UdaDefinition.class, modType);
             return message;
         }
         if (object instanceof Parameter) {
+            if (ModificationType.DELETE.equals(modType)) {
+                // delete is handled by cascading subscription
+                return null;
+            }
             IndexRequestMessage message = new IndexRequestMessage(
                     (Parameter) object, Parameter.class, modType);
             return message;

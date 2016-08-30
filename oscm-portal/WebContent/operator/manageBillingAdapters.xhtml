@@ -59,7 +59,7 @@
                   action="#{adapter.addItem}" render=":connectionPropertiesTable, :mainTmplMessagesPanel," />
 
                 <a4j:commandButton value="#{msg['button.minus']}" id="removeConnectionProperty" rendered="#{key > 0}"
-                  action="#{adapter.removeItem(item)}" immediate="true"
+                  action="#{adapter.removeItem(key)}"
                   render=":connectionPropertiesTable, :mainTmplMessagesPanel">
                 </a4j:commandButton>
               </rich:column>

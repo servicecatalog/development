@@ -87,7 +87,7 @@
 			<adm:outputStep value="#{msg['techService.parameterDefinitions']}" />
 
 			<a4j:outputPanel layout="block" styleClass="tablePanel">
-				<adm:dataTable width="555px" tableId="parameterDefinitionTable"
+				<adm:dataTable width="555px" tableId="parameterDefinitionTable" height="none"
 					value="#{techServiceBean.selectedTechnicalService.parameterDefinitions}"
 					label="#{msg['techService.parameterDefinitions.table.header']}">
 					<rich:column style="min-width:20px; max-width:270px;">
@@ -112,7 +112,7 @@
 			<adm:outputStep value="#{msg['techService.eventDefinitions']}" />
 
 			<a4j:outputPanel layout="block" styleClass="tablePanel">
-				<adm:dataTable width="555px" tableId="eventDefinitionTable"
+				<adm:dataTable width="555px" tableId="eventDefinitionTable" height="none"
 					value="#{techServiceBean.selectedTechnicalService.eventDefinitions}"
 					label="#{msg['techService.eventDefinitions.table.header']}">
 					<rich:column style="min-width:20px; max-width:270px;">
@@ -137,7 +137,7 @@
 			<adm:outputStep value="#{msg['techService.roleDefinitions']}" />
 
 			<a4j:outputPanel layout="block" styleClass="tablePanel">
-				<adm:dataTable width="555px" tableId="roleDefinitionTable"
+				<adm:dataTable width="555px" tableId="roleDefinitionTable" height="none"
 					value="#{techServiceBean.selectedTechnicalService.roleDefinitions}"
 					label="#{msg['techService.roleDefinitions.table.header']}">
 					<rich:column style="min-width:20px; max-width:175px;">
@@ -170,7 +170,7 @@
 			<adm:outputStep value="#{msg['techService.operationDefinitions']}" />
 
 			<a4j:outputPanel layout="block" styleClass="tablePanel">
-				<adm:dataTable width="555px" tableId="operationDefinitionTable"
+				<adm:dataTable width="555px" tableId="operationDefinitionTable" height="none"
 					value="#{techServiceBean.operations}"
 					label="#{msg['techService.operationDefinitions.table.header']}">
 					<rich:column style="min-width:20px; width:100px; max-width:100px;">

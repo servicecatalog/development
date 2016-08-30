@@ -24,20 +24,16 @@ import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
-import javax.security.auth.login.LoginException;
 
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.types.enumtypes.Sorting;
+import org.oscm.internal.vo.ListCriteria;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MarketplaceConfigurationBean;
-import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.Constants;
-import org.oscm.internal.types.enumtypes.Sorting;
-import org.oscm.internal.vo.ListCriteria;
 
 /**
  * Session scope bean that stores sorting, filtering and paging information for
@@ -47,7 +43,7 @@ import org.oscm.internal.vo.ListCriteria;
  * 
  */
 @SessionScoped
-@ManagedBean(name="servicePagingBean")
+@ManagedBean(name = "servicePagingBean")
 public class ServicePagingBean extends BaseBean implements Serializable {
 
     private static final long serialVersionUID = -4386146284583103303L;
@@ -87,7 +83,7 @@ public class ServicePagingBean extends BaseBean implements Serializable {
      */
     private static ListCriteria landingPageCriteria = null;
 
-    @ManagedProperty(value="#{marketplaceConfigurationBean}")
+    @ManagedProperty(value = "#{marketplaceConfigurationBean}")
     private MarketplaceConfigurationBean marketplaceConfigurationBean;
 
     public void setMarketplaceConfigurationBean(
@@ -125,8 +121,8 @@ public class ServicePagingBean extends BaseBean implements Serializable {
                     Math.max(nOfPages, 1));
         } else {
             // case if (selectedPage >= getNumberOfPages() - 3)
-            firstVisiblePage = (nOfPages - Math.min(PAGE_DIRECT_SELECTION_SIZE,
-                    nOfPages)) + 1;
+            firstVisiblePage = (nOfPages
+                    - Math.min(PAGE_DIRECT_SELECTION_SIZE, nOfPages)) + 1;
             lastVisiblePage = nOfPages;
         }
         if (selectedPage > nOfPages) {
@@ -486,7 +482,8 @@ public class ServicePagingBean extends BaseBean implements Serializable {
      * Returns whether the current request should return a search result.
      */
     public boolean isSearchRequested() {
-        return getRequest().getAttribute(Constants.REQ_ATTR_SEARCH_REQUEST) != null;
+        return getRequest()
+                .getAttribute(Constants.REQ_ATTR_SEARCH_REQUEST) != null;
     }
 
     /**
@@ -522,8 +519,8 @@ public class ServicePagingBean extends BaseBean implements Serializable {
     public String getHeaderPrefixForSelectedFilter() {
         String filterTagForDisplay = getFilterTagForDisplay();
         String filterCategoryForDisplay = getFilterCategoryForDisplay();
-        if (!(filterTagForDisplay.isEmpty() && filterCategoryForDisplay
-                .isEmpty())) {
+        if (!(filterTagForDisplay.isEmpty()
+                && filterCategoryForDisplay.isEmpty())) {
             return (filterTagForDisplay + filterCategoryForDisplay + " : ");
         } else {
             return "";
@@ -548,24 +545,22 @@ public class ServicePagingBean extends BaseBean implements Serializable {
         }
     }
 
-    public boolean isSearchAvailable() throws ObjectNotFoundException {
-        VOUserDetails voUserDetails = identityService.getCurrentUserDetailsIfPresent();
-        String marketplaceId = applicationBean.getMarketplaceId();
-        VOMarketplace voMarketplace = marketplaceService.getMarketplaceById(marketplaceId);
-        if (!voMarketplace.isRestricted()) {
+    public boolean isSearchAvailable() {
+        boolean isRestricted = marketplaceConfigurationBean
+                .getCurrentConfiguration().isRestricted();
+
+        if (!isRestricted) {
             return true;
         }
-        if (voUserDetails == null) {
-            return false;
-        }
-        try {
-            if (marketplaceService.doesOrganizationHaveAccessMarketplace(marketplaceId, voUserDetails.getOrganizationId())) {
-                return true;
+        VOUserDetails user = getUserFromSessionWithoutException();
+        if (user != null) {
+            String org = user.getOrganizationId();
+            if (org != null) {
+                return (marketplaceConfigurationBean.getCurrentConfiguration()
+                        .getAllowedOrganizations().contains(org));
             }
-        } catch (LoginException e) {
-            throw new ObjectNotFoundException();
         }
-        return false;
+        return true;
     }
 
     public ApplicationBean getApplicationBean() {

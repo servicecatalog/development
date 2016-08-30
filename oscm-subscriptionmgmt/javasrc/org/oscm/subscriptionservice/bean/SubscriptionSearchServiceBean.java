@@ -8,37 +8,32 @@
 
 package org.oscm.subscriptionservice.bean;
 
-import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.Local;
 import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
 
-import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause.Occur;
-import org.apache.lucene.search.BooleanQuery.Builder;
-import org.apache.lucene.search.PhraseQuery;
-import org.apache.lucene.search.TermQuery;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.search.FullTextQuery;
-import org.hibernate.search.FullTextSession;
-import org.hibernate.search.Search;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.queryParser.MultiFieldQueryParser;
+import org.apache.lucene.queryParser.ParseException;
+import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryParser.QueryParser.Operator;
+import org.apache.lucene.util.Version;
+import org.hibernate.search.jpa.FullTextEntityManager;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Parameter;
 import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Uda;
-import org.oscm.domobjects.UdaDefinition;
+import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.internal.intf.SubscriptionSearchService;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.internal.types.exception.InvalidPhraseException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.subscriptionservice.dao.SubscriptionDao;
-import org.oscm.types.enumtypes.UdaTargetType;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.validation.ArgumentValidator;
 
 /**
@@ -50,87 +45,46 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(SubscriptionSearchServiceBean.class);
-    public static final String SUBSCRIPTION_PURCHASE_ORDER_NUMBER = "dataContainer.purchaseOrderNumber";
-    public static final String SUBSCRIPTION_ID = "dataContainer.subscriptionId";
-    public static final String UDA_VALUE = "dataContainer.udaValue";
-    public static final String PARAMETER_VALUE = "dataContainer.value";
-    public static final String UDA_DEFINITION_VALUE = "dataContainer.defaultValue";
 
     @EJB
     private DataService dm;
 
+    @SuppressWarnings("unchecked")
     @Override
     public Collection<Long> searchSubscriptions(String searchPhrase)
             throws InvalidPhraseException, ObjectNotFoundException {
         ArgumentValidator.notEmptyString("searchPhrase", searchPhrase);
-        searchPhrase = searchPhrase.trim();
-        Set<Long> voList = new HashSet<>(100);
 
-            Session session = getDm().getSession();
-            if (session != null) {
-                FullTextSession fts = Search.getFullTextSession(session);
-                searchPhrase = searchPhrase.toLowerCase();
-                String[] split = searchPhrase.replaceAll("\"", "").split(" ");
-                Set<Long> runResult;
-                for (int i = 0; i < split.length; i++) {
-                    String singleString = split[i];
-                    singleString = singleString.trim();
-                    if (singleString.length() == 0) {
-                        continue;
-                    }
-                    org.apache.lucene.search.Query query = getLuceneQueryForFields(
-                            singleString, SUBSCRIPTION_PURCHASE_ORDER_NUMBER);
-                    runResult = searchSubscriptionViaLucene(query, fts);
-                    logger.logDebug("I have found " + voList.size()
-                            + " subscriptions by referenceId");
+        FullTextEntityManager ftem = getFtem();
 
-                    query = getLuceneQueryForFields(singleString,
-                            SUBSCRIPTION_ID);
-                    runResult.addAll(searchSubscriptionViaLucene(query, fts));
-                    logger.logDebug("I have found "
-                            + voList.size()
-                            + " subscriptions by referenceId and subscriptionId");
+        Analyzer analyzer = ftem.getSearchFactory().getAnalyzer(
+                "customanalyzer");
+        MultiFieldQueryParser parser = getParser(analyzer);
 
-                    query = getLuceneQueryForFields(singleString,
-                            PARAMETER_VALUE);
-                    runResult.addAll(searchParametersViaLucene(query, fts));
-                    logger.logDebug("I have found " + voList.size()
-                            + " subscriptions by parameters value");
+        List<Subscription> list;
+        try {
+            org.apache.lucene.search.Query luceneQuery = parser
+                    .parse(QueryParser.escape(searchPhrase));
 
-                    query = getLuceneQueryForFields(singleString,
-                            UDA_VALUE);
-                    runResult.addAll(searchUdasViaLucene(query, fts));
-                    logger.logDebug("I have found " + voList.size()
-                            + " subscriptions by uda value");
+            javax.persistence.Query jpaQuery = ftem.createFullTextQuery(
+                    luceneQuery, Subscription.class);
 
-                    query = getLuceneQueryForFields(singleString,
-                            UDA_DEFINITION_VALUE);
-                    runResult.addAll(searchUdaDefinitionsViaLucene(query, fts));
-                    logger.logDebug("I have found " + voList.size()
-                            + " subscriptions by uda definitions value");
-
-                    if (i == 0) {
-                        voList.addAll(runResult);
-                    } else {
-                        voList = findCommonIds(voList, runResult);
-                    }
-                }
-            }
-
-        return voList;
-    }
-
-    private Set<Long> findCommonIds(Set<Long> voList, Set<Long> runResult) {
-        Set<Long> result = new HashSet<>();
-        Set<Long> shorter = voList.size() < runResult.size() ? voList
-                : runResult;
-        Set<Long> longer = voList.size() >= runResult.size() ? voList
-                : runResult;
-        for (Long aLong : shorter) {
-            if (longer.contains(aLong)) {
-                result.add(aLong);
-            }
+            list = jpaQuery.getResultList();
+        } catch (ParseException e) {
+            logger.logError(
+                    Log4jLogger.SYSTEM_LOG,
+                    e,
+                    LogMessageIdentifier.ERROR_SUBSCRIPTION_SEARCH_QUERY_PARSER_FAILED,
+                    searchPhrase);
+            throw new InvalidPhraseException(e, searchPhrase);
         }
+
+        List<Long> result = new ArrayList<Long>();
+
+        for (Subscription sub : list) {
+            result.add(new Long(sub.getKey()));
+        }
+
         return result;
     }
 
@@ -138,134 +92,22 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
         return dm;
     }
 
-    private org.apache.lucene.search.Query getLuceneQueryForFields(
-            String searchString, String... fieldNames) {
-        Builder bq = new Builder();
-        if (isPhraseQuery(searchString)) {
-            getPhraseQuery(searchString, fieldNames, bq);
-        } else {
-            getTermQuery(searchString, fieldNames, bq);
-        }
-        return bq.build();
+    public FullTextEntityManager getFtem() {
+        EntityManager em = getDm().getEntityManager();
+
+        return org.hibernate.search.jpa.Search.getFullTextEntityManager(em);
     }
 
-    private boolean isPhraseQuery(String searchString) {
-        // Uncomment if you want to phrase querying
-        // return searchString.startsWith("\"") && searchString.endsWith("\"");
-        return false;
-    }
+    public MultiFieldQueryParser getParser(Analyzer analyzer) {
+        MultiFieldQueryParser parser = new MultiFieldQueryParser(
+                Version.LUCENE_36, new String[] {
+                        SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
+                        SubscriptionClassBridge.NAME_REFERENCE,
+                        SubscriptionClassBridge.NAME_PARAMETER_VALUE,
+                        SubscriptionClassBridge.NAME_UDA_VALUE }, analyzer);
+        parser.setDefaultOperator(Operator.AND);
 
-    private void getTermQuery(String searchString, String[] fieldNames,
-            Builder bq) {
-        String[] split = searchString.replaceAll("\"", "").split(" ");
-        TermQuery wq;
-        int counter = 0;
-        Builder internal;
-        for (String singleString : split) {
-            internal = new Builder();
-            while (counter < fieldNames.length) {
-                wq = new TermQuery(new Term(fieldNames[counter++], singleString));
-                internal.add(wq, Occur.SHOULD);
-            }
-            bq.add(internal.build(), Occur.SHOULD);
-            counter = 0;
-        }
-    }
-
-    private void getPhraseQuery(String searchString, String[] fieldNames,
-            Builder bq) {
-        String[] split = searchString.replaceAll("\"", "").split(" ");
-        PhraseQuery.Builder phraseQuery;
-        int counter = 0;
-        for (String singleString : split) {
-            phraseQuery = new PhraseQuery.Builder();
-            while (counter < fieldNames.length) {
-                phraseQuery.add(new Term(fieldNames[counter++], singleString));
-            }
-            bq.add(phraseQuery.build(), Occur.MUST);
-            counter = 0;
-        }
-    }
-
-    private Set<Long> searchSubscriptionViaLucene(
-            org.apache.lucene.search.Query query, FullTextSession fts)
-            throws HibernateException {
-        Set<Long> set = new LinkedHashSet<>();
-        FullTextQuery ftQuery = fts.createFullTextQuery(query,
-                Subscription.class);
-        ftQuery.setProjection("key");
-        List<?> result = ftQuery.list();
-        for (Object item : result) {
-            set.add((Long) ((Object[]) item)[0]);
-        }
-        return set;
-    }
-
-    private Set<Long> searchParametersViaLucene(
-            org.apache.lucene.search.Query query, FullTextSession fts)
-            throws HibernateException {
-        Set<Long> set = new LinkedHashSet<>();
-        FullTextQuery ftQuery = fts.createFullTextQuery(query, Parameter.class);
-        List<Parameter> result = ftQuery.list();
-        for (Parameter item : result) {
-            set.add(item.getParameterSet().getProduct().getOwningSubscription()
-                    .getKey());
-        }
-        return set;
-    }
-
-    private Set<Long> searchUdasViaLucene(org.apache.lucene.search.Query query,
-            FullTextSession fts) throws HibernateException {
-        Set<Long> set = new LinkedHashSet<>();
-        FullTextQuery ftQuery = fts.createFullTextQuery(query, Uda.class);
-        List<Uda> result = ftQuery.list();
-        for (Uda item : result) {
-            if (UdaConfigurationType.SUPPLIER.equals(item.getUdaDefinition()
-                    .getConfigurationType())) {
-                continue;
-            }
-            if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item.getUdaDefinition()
-                        .getTargetType())) {
-                set.add(item.getTargetObjectKey());
-            }
-        }
-        return set;
-    }
-
-    private Set<Long> searchUdaDefinitionsViaLucene(org.apache.lucene.search.Query query,
-            FullTextSession fts) throws HibernateException {
-        Set<Long> set = new LinkedHashSet<>();
-        FullTextQuery ftQuery = fts.createFullTextQuery(query, UdaDefinition.class);
-        List<UdaDefinition> result = ftQuery.list();
-        SubscriptionDao subscriptionDao = getSubscriptionDao();
-        Set<Long> udaDefsFound = new HashSet<>();
-        for (UdaDefinition item : result) {
-            if (UdaConfigurationType.SUPPLIER.equals(item
-                    .getConfigurationType())) {
-                continue;
-            }
-            if (UdaTargetType.CUSTOMER_SUBSCRIPTION.equals(item
-                    .getTargetType())) {
-                udaDefsFound.add(item.getKey());
-            }
-        }
-
-        if (!udaDefsFound.isEmpty()) {
-            List<BigInteger> subs = subscriptionDao
-                    .getSubscriptionsWithDefaultUdaValuesAndVendor(getDm().getCurrentUser(),
-                            getStates(), udaDefsFound);
-            for (BigInteger subIds : subs) {
-                set.add(subIds.longValue());
-            }
-        }
-        return set;
-    }
-
-    private Set<SubscriptionStatus> getStates() {
-        Set<SubscriptionStatus> retVal = new HashSet<>(20);
-        retVal.addAll(Subscription.ASSIGNABLE_SUBSCRIPTION_STATUS);
-        retVal.addAll(Subscription.VISIBLE_SUBSCRIPTION_STATUS);
-        return retVal;
+        return parser;
     }
 
     public SubscriptionDao getSubscriptionDao() {

@@ -64,6 +64,7 @@
 
       <mpl_visibility.checkErrorHandlingForSuspension />
       <mpl_visibility.suspendService />
+      <sleep milliseconds="1000" />
       <clickElement htmlId="buttonBrowseAllRelated" />
       <clickElement htmlId="filterSelectionForm:showFilteredList" />
       <clickElement xpath="//*[contains(@id, 'showFilteredList')]" />

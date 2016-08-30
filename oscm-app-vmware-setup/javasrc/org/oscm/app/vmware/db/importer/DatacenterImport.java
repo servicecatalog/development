@@ -61,7 +61,7 @@ public class DatacenterImport extends GenericImport {
                             + datacenter + " " + dcId);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
                 try {
                     line = csv.readNext();
@@ -70,7 +70,7 @@ public class DatacenterImport extends GenericImport {
                             + vcenter + " " + datacenter + " " + dcId);
                     logger.error(e.getMessage());
                     conn.rollback();
-                    return;
+                    throw e;
                 }
             }
             conn.commit();

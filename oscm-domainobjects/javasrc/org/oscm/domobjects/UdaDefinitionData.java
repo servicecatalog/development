@@ -38,7 +38,6 @@ public class UdaDefinitionData extends DomainDataContainer {
     @Column(nullable = false)
     private String udaId;
 
-    @Field(analyzer = @Analyzer(definition = "customanalyzer"))
     private String defaultValue;
 
     /**
