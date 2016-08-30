@@ -72,6 +72,7 @@
 		<project>oscm-webservices</project>
 		<project>oscm-webservices-client</project>
 		<project>oscm-wsdldeliver</project>
+		<project>oscm-tenantmgmt</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

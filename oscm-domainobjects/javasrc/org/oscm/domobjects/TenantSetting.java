@@ -12,6 +12,7 @@
 package org.oscm.domobjects;
 
 import org.oscm.domobjects.annotations.BusinessKey;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
 
 import javax.persistence.*;
 
@@ -23,6 +24,7 @@ import javax.persistence.*;
 public class TenantSetting extends DomainObjectWithVersioning<TenantSettingData> {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_tkey")
     private Tenant tenant;
 
     public TenantSetting() {
@@ -35,5 +37,13 @@ public class TenantSetting extends DomainObjectWithVersioning<TenantSettingData>
 
     public void setTenant(Tenant tenant) {
         this.tenant = tenant;
+    }
+
+    public IdpSettingType getName() {
+        return dataContainer.getName();
+    }
+
+    public String getValue() {
+        return dataContainer.getValue();
     }
 }

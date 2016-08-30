@@ -11,8 +11,9 @@ import org.oscm.ui.beans.BaseModel;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
+import java.io.Serializable;
 
 @ViewScoped
 @ManagedBean
-public class ManageTenantsModel extends BaseModel {
+public class ManageTenantsModel extends BaseModel implements Serializable {
 }

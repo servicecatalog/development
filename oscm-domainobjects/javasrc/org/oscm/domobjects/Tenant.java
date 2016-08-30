@@ -18,6 +18,8 @@ import java.util.Collection;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "tenantId" }))
+@NamedQueries({
+    @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t")})
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
