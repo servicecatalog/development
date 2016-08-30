@@ -24,6 +24,7 @@
     <copy file="${ivy.lib.dir}/commons-httpclient-3.1.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-logging-1.1.3.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/ivy-2.4.0.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/commons-csv-1.0.jar" todir="${root.dir}/libraries/apache-commons-csv/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/ant-contrib-1.0b3.jar" todir="${root.dir}/libraries/apache-ant-contrib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/annogen-0.1.0.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/axiom-api-1.2.8.jar" todir="${root.dir}/libraries/apache-axis2-lib/javalib/" overwrite="true"></copy>
