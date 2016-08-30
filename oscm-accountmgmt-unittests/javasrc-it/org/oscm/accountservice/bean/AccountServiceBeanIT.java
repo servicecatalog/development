@@ -13,10 +13,6 @@
 
 package org.oscm.accountservice.bean;
 
-import static org.oscm.test.Numbers.L1;
-import static org.oscm.test.Numbers.L100;
-import static org.oscm.test.Numbers.L200;
-import static org.oscm.test.Numbers.L300;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -33,6 +29,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.Numbers.L1;
+import static org.oscm.test.Numbers.L100;
+import static org.oscm.test.Numbers.L200;
+import static org.oscm.test.Numbers.L300;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -113,6 +113,55 @@ import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.identityservice.bean.LdapAccessStub;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.interceptor.DateFactory;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.Salutation;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.ServiceType;
+import org.oscm.internal.types.enumtypes.SettingType;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.TriggerType;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.DeletionConstraintException;
+import org.oscm.internal.types.exception.DistinguishedNameException;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.IllegalArgumentException;
+import org.oscm.internal.types.exception.ImageException;
+import org.oscm.internal.types.exception.IncompatibleRolesException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthorityException;
+import org.oscm.internal.types.exception.ServiceParameterException;
+import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
+import org.oscm.internal.types.exception.TechnicalServiceOperationException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
+import org.oscm.internal.vo.LdapProperties;
+import org.oscm.internal.vo.VOBillingContact;
+import org.oscm.internal.vo.VODiscount;
+import org.oscm.internal.vo.VOImageResource;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
+import org.oscm.internal.vo.VOPaymentInfo;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOPriceModel;
+import org.oscm.internal.vo.VOService;
+import org.oscm.internal.vo.VOServicePaymentConfiguration;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.reviewservice.dao.ProductReviewDao;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -152,53 +201,6 @@ import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
 import org.oscm.usergroupservice.dao.UserGroupDao;
 import org.oscm.usergroupservice.dao.UserGroupUsersDao;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.Salutation;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.ServiceType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.ConcurrentModificationException;
-import org.oscm.internal.types.exception.DeletionConstraintException;
-import org.oscm.internal.types.exception.DistinguishedNameException;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.IllegalArgumentException;
-import org.oscm.internal.types.exception.ImageException;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthorityException;
-import org.oscm.internal.types.exception.ServiceParameterException;
-import org.oscm.internal.types.exception.TechnicalServiceNotAliveException;
-import org.oscm.internal.types.exception.TechnicalServiceOperationException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOBillingContact;
-import org.oscm.internal.vo.VODiscount;
-import org.oscm.internal.vo.VOImageResource;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
-import org.oscm.internal.vo.VOPaymentInfo;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOPriceModel;
-import org.oscm.internal.vo.VOService;
-import org.oscm.internal.vo.VOServicePaymentConfiguration;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 @SuppressWarnings("boxing")
 public class AccountServiceBeanIT extends EJBTestBase {
@@ -268,9 +270,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     private UserGroupServiceLocalBean userGroupServiceLocal;
     private UserGroupDao userGroupDao;
-    
-    private MarketplaceServiceLocal mplServiceLocal;
-    private Marketplace mpl;
+
+    private MarketplaceService mplService;
+    private VOMarketplace mpl;
 
     @Captor
     ArgumentCaptor<Properties> storedProps;
@@ -344,8 +346,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         userGroupServiceLocal = mock(UserGroupServiceLocalBean.class);
         container.addBean(userGroupServiceLocal);
         container.addBean(new UserGroupUsersDao());
-        mplServiceLocal = mock(MarketplaceServiceLocal.class);
-        container.addBean(mplServiceLocal);
+        mplService = mock(MarketplaceService.class);
+        container.addBean(mplService);
         container.addBean(new ImageResourceServiceStub() {
             ImageResource saved;
 
@@ -585,8 +587,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
         supplierIds.add(organization.getOrganizationId());
-        
-        when(mplServiceLocal.getMarketplaceForId(anyString())).thenReturn(mpl);
+
+        when(mplService.getMarketplaceById(anyString())).thenReturn(mpl);
     }
 
     @Test
@@ -701,16 +703,17 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
         container.login(String.valueOf(tmp.getKey()), ROLE_ORGANIZATION_ADMIN);
 
-        mpl = runTX(new Callable<Marketplace>() {
+        mpl = runTX(new Callable<VOMarketplace>() {
             @Override
-            public Marketplace call() throws Exception {
+            public VOMarketplace call() throws Exception {
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(marketplaceId);
                 if (mgr.find(mp) == null) {
                     Marketplaces.createMarketplace(supplier, marketplaceId,
                             false, mgr);
                 }
-                return mp;
+                return MarketplaceAssembler.toVOMarketplace(mp,
+                        new LocalizerFacade(localizer, "en"));
             }
         });
         organization = accountMgmt.registerCustomer(organization, admin,
@@ -5892,8 +5895,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
         // prepare services with external price model
         for (int i = 0; i < numNoPriceModel; i++) {
-            prepareProductWithExternalPriceModel(providerId, supplierIds.get(0),
-                    false, paymentTypes, false);
+            prepareProductWithExternalPriceModel(providerId,
+                    supplierIds.get(0), false, paymentTypes, false);
         }
 
         // login as supplier user

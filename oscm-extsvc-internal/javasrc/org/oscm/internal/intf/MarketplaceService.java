@@ -15,6 +15,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
@@ -610,4 +611,24 @@ public interface MarketplaceService {
      */
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId);
+
+    /**
+     * Gets the cached version of the marketplace with allowed organizations (if
+     * it is restricted) for the marketplace with the given id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     * @return the configuration or null if marketplace id is invalid
+     */
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId);
+
+    /**
+     * Clears the cache from the configuration of the marketplace with the given
+     * id.
+     * 
+     * @param marketplaceId
+     *            the marketplace id
+     */
+    public void clearCachedMarketplaceConfiguration(String marketplaceId);
 }

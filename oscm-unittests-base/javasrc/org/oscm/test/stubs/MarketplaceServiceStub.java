@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.security.auth.login.LoginException;
 
+import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.MarketplaceAccessTypeUneligibleForOperationException;
@@ -205,6 +206,17 @@ public class MarketplaceServiceStub implements MarketplaceService {
     @Override
     public List<VOOrganization> getAllOrganizationsWithAccessToMarketplace(
             String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public MarketplaceConfiguration getCachedMarketplaceConfiguration(
+            String marketplaceId) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clearCachedMarketplaceConfiguration(String marketplaceId) {
         throw new UnsupportedOperationException();
     }
 

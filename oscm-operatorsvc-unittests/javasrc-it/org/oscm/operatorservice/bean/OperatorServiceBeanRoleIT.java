@@ -6,9 +6,9 @@ package org.oscm.operatorservice.bean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Matchers.anyString;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import javax.persistence.Query;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
@@ -46,7 +45,25 @@ import org.oscm.domobjects.SupportedCountry;
 import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
+import org.oscm.i18nservice.bean.LocalizerFacade;
+import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.ImageType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
+import org.oscm.internal.types.exception.IncompatibleRolesException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOperatorOrganization;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOTimerInfo;
+import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
@@ -64,21 +81,6 @@ import org.oscm.test.stubs.QueryStub;
 import org.oscm.test.stubs.SearchServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.timerservice.bean.TimerServiceBean;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ImageType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.exception.DomainObjectException.ClassEnum;
-import org.oscm.internal.types.exception.IncompatibleRolesException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOTimerInfo;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.marketplaceservice.local.MarketplaceServiceLocal;
 
 public class OperatorServiceBeanRoleIT extends EJBTestBase {
 
@@ -365,16 +367,19 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         container.addBean(new ApplicationServiceStub());
         container.addBean(mock(MarketingPermissionServiceLocal.class));
         container.addBean(mock(LdapSettingsManagementServiceLocal.class));
-        
-        MarketplaceServiceLocal marketplaceServiceLocal = mock(MarketplaceServiceLocal.class);
-        when(marketplaceServiceLocal.getMarketplaceForId(anyString())).thenReturn(new Marketplace("testMpl"));
-        container.addBean(marketplaceServiceLocal);
-        
+
+        MarketplaceService marketplaceService = mock(MarketplaceService.class);
+        when(marketplaceService.getMarketplaceById(anyString())).thenReturn(
+                MarketplaceAssembler.toVOMarketplace(
+                        new Marketplace("testMpl"), new LocalizerFacade(
+                                container.get(LocalizerServiceLocal.class),
+                                "de")));
+        container.addBean(marketplaceService);
+
         container.addBean(new AccountServiceBean());
         accountMgmt = container.get(AccountService.class);
         accountMgmtLocal = container.get(AccountServiceLocal.class);
-        
-       
+
         AuditLogServiceBean auditLogMock = mock(AuditLogServiceBean.class);
         when(
                 auditLogMock.loadAuditLogs(Mockito.anyListOf(String.class),
@@ -687,13 +692,13 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         }
 
         dataManager_getReferenceByBusinessKey_return.add(pt);
-        
+
         // set marketplace to pass the validation of marketplaceID
         if (orgRoles.length == 0 && marketplaceID != null) {
             Marketplace marketplace = new Marketplace();
             dataManager_getReferenceByBusinessKey_return.add(marketplace);
         }
-        
+
         VOOrganization createdOrg = runTX(new Callable<VOOrganization>() {
             @Override
             public VOOrganization call() throws Exception {
