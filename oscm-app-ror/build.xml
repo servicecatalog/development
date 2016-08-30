@@ -13,7 +13,7 @@
 
     <!-- Compile -->
    <mkdir dir="bin" />
-    <javac srcdir="src" destdir="bin" encoding="utf-8" target="1.7">
+    <javac srcdir="src" destdir="bin" encoding="utf-8" target="1.8">
       <classpath>
         <path refid="classpath" />
       </classpath>

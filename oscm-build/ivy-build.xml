@@ -16,9 +16,9 @@
     <copy file="${ivy.lib.dir}/commons-pool2-2.4.2.jar" todir="${root.dir}/libraries/apache-commons-pool/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/opencsv-3.7.jar" todir="${root.dir}/libraries/opencsv/javalib" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/antlr4-runtime-4.1.jar" todir="${root.dir}/libraries/antlr/javalib" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/ant-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/ant-junit-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/ant-launcher-1.7.0.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-launcher.jar" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/ant-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant.jar" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/ant-junit-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-junit.jar" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/ant-launcher-1.9.4.jar" tofile="${root.dir}/libraries/apache-ant/javalib/ant-launcher.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/wsit-ant-tasks-1.0.7.jar" tofile="${root.dir}/libraries/apache-ant/javalib/wsit-ant-tasks.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/bcel-5.1.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/commons-httpclient-3.1.jar" todir="${root.dir}/libraries/apache-ant-contrib/lib" overwrite="true"></copy>
