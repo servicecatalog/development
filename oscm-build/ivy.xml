@@ -259,11 +259,11 @@
     <dependency org="org.eclipse.birt.runtime.3_7_1" name="org.w3c.dom.svg" rev="1.1.0" transitive="false"/>
     <dependency org="org.apache.axis" name="axis-saaj" rev="1.4" transitive="false"/>
     <dependency org="org.eclipse.birt.runtime" name="viewservlets" rev="4.3.1" transitive="false"/>
-    <dependency org="org.eclipse.jdt.core.compiler" name="ecj" rev="4.5.1" transitive="false"/>
-    <dependency org="org.jacoco" name="org.jacoco.agent" rev="0.6.1.201212231917" transitive="false"/>
-    <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.6.1.201212231917" transitive="false"/>
-    <dependency org="org.jacoco" name="org.jacoco.core" rev="0.6.1.201212231917"/>
-    <dependency org="org.jacoco" name="org.jacoco.report" rev="0.6.1.201212231917" transitive="false"/>
+    <dependency org="org.eclipse.jdt.core.compiler" name="ecj" rev="4.2.1" transitive="false"/>
+    <dependency org="org.jacoco" name="org.jacoco.agent" rev="0.7.7.201606060606" transitive="false"/>
+    <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.7.7.201606060606" transitive="false"/>
+    <dependency org="org.jacoco" name="org.jacoco.core" rev="0.7.7.201606060606"/>
+    <dependency org="org.jacoco" name="org.jacoco.report" rev="0.7.7.201606060606" transitive="false"/>
     <dependency org="oro" name="oro" rev="2.0.8" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-search-orm" rev="5.5.4.Final" transitive="false"/>
     <dependency org="org.hibernate" name="hibernate-search-engine" rev="5.5.4.Final" transitive="false"/>
