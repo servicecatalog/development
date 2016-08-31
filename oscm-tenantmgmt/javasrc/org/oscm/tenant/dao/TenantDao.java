@@ -7,25 +7,28 @@
  *******************************************************************************/
 package org.oscm.tenant.dao;
 
-import org.oscm.converter.ParameterizedTypes;
-import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Tenant;
+import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 import javax.persistence.Query;
-import java.util.List;
+
+import org.oscm.converter.ParameterizedTypes;
+import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.Tenant;
+import org.oscm.interceptor.ExceptionMapper;
 
 @Stateless
 @LocalBean
 public class TenantDao {
 
-    @EJB(beanInterface = DataService.class)
-    DataService dataService;
+    @EJB
+    DataService dataManager;
 
     public List<Tenant> getAllTenants() {
-        Query query = dataService.createNamedQuery("Tenant.getAll");
+        Query query = dataManager.createNamedQuery("Tenant.getAll");
         return ParameterizedTypes.list(query.getResultList(), Tenant.class);
     }
 }

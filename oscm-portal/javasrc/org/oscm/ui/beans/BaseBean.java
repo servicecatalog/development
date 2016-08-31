@@ -61,6 +61,7 @@ import org.oscm.internal.review.ReviewInternalService;
 import org.oscm.internal.subscriptiondetails.SubscriptionDetailsService;
 import org.oscm.internal.subscriptions.SubscriptionsService;
 import org.oscm.internal.techserviceoperationmgmt.OperationRecordService;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.usergroupmgmt.UserGroupService;

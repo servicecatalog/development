@@ -10,25 +10,26 @@ package org.oscm.tenant.bean;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.LocalBean;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 
 import org.oscm.domobjects.Tenant;
 import org.oscm.interceptor.InvocationDateContainer;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.tenant.dao.TenantDao;
+import org.oscm.tenant.local.TenantServiceLocal;
 
 @RolesAllowed("PLATFORM_OPERATOR")
 @Interceptors({ InvocationDateContainer.class, org.oscm.interceptor.ExceptionMapper.class })
-@LocalBean
-public class TenantServiceLocalBean {
+@Stateless
+@Local(TenantServiceLocal.class)
+public class TenantServiceLocalBean implements TenantServiceLocal {
 
-    @EJB(beanInterface = TenantDao.class)
+    @EJB
     TenantDao tenantDao;
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Override
     public List<Tenant> getAllTenants() {
         return tenantDao.getAllTenants();
     }

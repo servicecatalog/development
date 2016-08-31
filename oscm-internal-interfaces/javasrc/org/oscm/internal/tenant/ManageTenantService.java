@@ -1,4 +1,4 @@
-package org.oscm.internal.tenants;
+package org.oscm.internal.tenant;
 
 import javax.ejb.Remote;
 import java.util.List;

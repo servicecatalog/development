@@ -10,23 +10,27 @@ package org.oscm.ui.dialog.classic.manageTenants;
 import java.io.Serializable;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.internal.tenants.ManageTenantService;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.ui.beans.BaseBean;
 
 @ManagedBean
 @ViewScoped
 public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
+    @EJB
+    private ManageTenantService manageTenantService;
+
     @ManagedProperty(value="#{manageTenantsModel}")
     private ManageTenantsModel manageTenantsModel;
 
     @PostConstruct
     public void init() {
-        getManageTenantService().getAllTenants();
+        manageTenantService.getAllTenants();
     }
 
     public ManageTenantsModel getManageTenantsModel() {
@@ -37,9 +41,4 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         this.manageTenantsModel = manageTenantsModel;
     }
 
-    ManageTenantService getManageTenantService() {
-        ManageTenantService manageTenantService = sl
-                .findService(ManageTenantService.class);
-        return manageTenantService;
-    }
 }

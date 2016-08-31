@@ -5,7 +5,6 @@
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-common"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/oscm-tenantmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-intsvc-base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
