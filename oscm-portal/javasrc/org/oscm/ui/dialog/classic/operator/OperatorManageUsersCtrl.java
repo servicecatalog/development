@@ -48,7 +48,7 @@ import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * Controller for operator manage users.
- * 
+ *
  * @author afschar
  */
 @ManagedBean(name="operatorManageUsersCtrl")
@@ -57,13 +57,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         Serializable {
 
     /**
-     * 
+     *
      */
     private static final String NO_SELECTION = "0";
     public static final String APPLICATION_BEAN = "appBean";
     private static final long serialVersionUID = -9126265695343363133L;
 
     transient ApplicationBean appBean;
+    private String selectedUserId;
 
     @ManagedProperty(value = "#{operatorManageUsersModel}")
     OperatorManageUsersModel model;
@@ -122,6 +123,21 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             String pattern = userId + "%";
             return mapper.map(getOperatorService().getUsers(pattern));
         } catch (SaaSApplicationException e) {
+            ExceptionHandler.execute(e);
+        }
+        return null;
+    }
+
+    public List<User> getUsersList() {
+        Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
+            @Override
+            public User createModel(final VOUserDetails vo) {
+                return new User(vo);
+            }
+        };
+        try {
+            return mapper.map(getOperatorService().getUsers("%"));
+        } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
         return null;
@@ -191,6 +207,12 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
     }
 
+    public void updateSelectedUser(){
+        VOUser selectedUser = new VOUser();
+        selectedUser.setUserId(selectedUserId);
+        model.setUser(selectedUser);
+    }
+
     public OperatorManageUsersModel getModel() {
         return model;
     }
@@ -218,6 +240,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             throw new SaaSSystemException(ex);
         }
         return OUTCOME_SUCCESS;
+    }
+
+    public void setSelectedUserId(String userId) {
+        this.selectedUserId = userId;
+    }
+
+    public String getSelectedUserId() {
+        return selectedUserId;
     }
 
     String getSelectedMarketplace() {
