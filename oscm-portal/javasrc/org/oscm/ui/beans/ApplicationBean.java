@@ -222,6 +222,10 @@ public class ApplicationBean implements Serializable {
         return ADMValidator.LENGTH_NAME;
     }
 
+    public int getTenantFieldLen() {
+        return ADMValidator.LENGTH_TENANT_FIELD;
+    }
+
     /**
      * Get the length for a field which contains a description.
      * 

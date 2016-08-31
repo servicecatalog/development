@@ -4,32 +4,77 @@
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
                 xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
                 xmlns:rich="http://richfaces.org/rich" xmlns:c="http://java.sun.com/jsp/jstl/core"
-                xmlns:a4j="http://richfaces.org/a4j" xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
+                xmlns:a4j="http://richfaces.org/a4j"
+                xmlns:adm="http://www.fujitsu.com/global/services/software/interstage"
                 xmlns:t="http://myfaces.apache.org/tomahawk" template="../templates/main.xhtml">
 
   <ui:define name="pageId">
-    <c:set var="pageId" value="operator.manageTenants" />
+    <c:set var="pageId" value="operator.manageTenants"/>
   </ui:define>
 
   <ui:define name="body">
 
     <h:form id="manageTenants">
-      <adm:outputStep value="#{msg['operator.manageTenants.step1']}" />
+      <adm:outputStep value="#{msg['operator.manageTenants.step1']}"/>
+      <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
+        <adm:dataTableCustomizedOnColumns tableId="tenants" value="#{manageTenantsCtrl.model.tenants}"
+                                          styleClass="sortable" rows="10" headerClass="rowTitle sortable"
+                                          rowClasses="rowOdd,rowEven"
+                                          pagerId="tenantsPager"
+                                          headers="#{manageTenantsCtrl.dataTableHeaders}"
+                                          size="#{manageTenantsCtrl.tenantsNumber}"
+                                          columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
+                                          onRowClick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.tenantId}');}"
+                                          onRowMouseOver="AdmUtils.mouseOverRow(this);"
+                                          onRowMouseOut="AdmUtils.mouseOutRow(this);"
+                                          render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single"
+                                          showAddButton="true">
+        </adm:dataTableCustomizedOnColumns>
 
-      <adm:dataTableCustomizedOnColumns tableId="tenants" value="#{manageTenantsCtrl.model.tenants}"
-                                        styleClass="sortable" rows="10" headerClass="rowTitle sortable"
-                                        rowClasses="rowOdd,rowEven"
-                                        columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
-                                        onRowClick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.tenantId}');}"
-                                        onRowMouseOver="AdmUtils.mouseOverRow(this);"
-                                        onRowMouseOut="AdmUtils.mouseOutRow(this);"
-                                        render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single">
-      </adm:dataTableCustomizedOnColumns>
+        <script type="text/javascript">
+		AdmUtils.findRow("manageTenants:tenants:", "tenantId",
+				"#{manageTenantsCtrl.model.selectedTenantId}", "#{size}", function(element) {
+					AdmUtils.selectRow(element);
+				});
+	</script>
 
+      </a4j:outputPanel>
     </h:form>
   </ui:define>
 
   <ui:define name="body_sub">
-  <adm:outputStep value="#{msg['operator.manageTenants.step2']}" />
+    <adm:outputStep value="#{msg['operator.manageTenants.step2']}"/>
+
+    <h:form id="editForm">
+      <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2" columnClasses="valignTop,valignTop">
+        <h:panelGroup>
+          <adm:panelGrid minColWidth="false">
+
+            <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
+                                   required="#{manageTenantsCtrl.model.tenantId.required}" value="#{manageTenantsCtrl.model.tenantId.value}"
+                                   maxlength="#{appBean.tenantFieldLen}"
+                                   disabled="#{manageTenantsCtrl.model.tenantId.readOnly}"
+                                   converterId="trimConverter" />
+
+            <adm:labelAndInputText id="tenantDescription" label="#{msg['dataTable.header.description']}"
+                                   required="#{manageTenantsCtrl.model.tenantDescription.required}"
+                                   value="#{manageTenantsCtrl.model.tenantDescription.value}"
+                                   maxlength="#{appBean.tenantFieldLen}"
+                                   disabled="#{manageTenantsCtrl.model.tenantDescription.readOnly}"
+                                   converterId="trimConverter" />
+
+            <adm:labelAndInputText id="tenantIdp" label="#{msg['dataTable.header.idp']}"
+                                   required="#{manageTenantsCtrl.model.tenantIdp.required}"
+                                   value="#{manageTenantsCtrl.model.tenantIdp.value}"
+                                   maxlength="#{appBean.tenantFieldLen}"
+                                   disabled="#{manageTenantsCtrl.model.tenantIdp.readOnly}"
+                                   converterId="trimConverter" />
+          </adm:panelGrid>
+        </h:panelGroup>
+      </h:panelGrid>
+
+
+    </h:form>
+
   </ui:define>
 </ui:composition>

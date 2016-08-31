@@ -44,6 +44,7 @@ public class ADMValidator {
     public static final int LENGTH_TEXT = 32767; // KEY_PRIVACY_POLICY,
                                                  // KEY_TERMS
     public static final int MIN_LENGTH_PASSWORD = 6;
+    public static final int LENGTH_TENANT_FIELD = 255;
 
     private static final Pattern ipv6Authority;
 
