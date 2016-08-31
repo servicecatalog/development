@@ -113,7 +113,7 @@
   
   <target name="_checkjre" unless="bss.java.home.dir">
     <echo level="warn">===========================================================================</echo>
-    <echo level="warn">Either the JRE7 location is not set or missing /lib/rt.jar file!</echo>
+    <echo level="warn">Either the JRE location is not set or missing /lib/rt.jar file!</echo>
     <echo level="warn">Set the bss.java.home property in your integration.properties file!</echo>
     <echo level="warn">===========================================================================</echo>
     <fail message="JRE location not set" />
