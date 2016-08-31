@@ -119,7 +119,7 @@
     </unjar>
     <copy file="${ivy.lib.dir}/org.jacoco.ant-0.7.7.201606060606.jar" tofile="${root.dir}/libraries/jacoco/javalib/org.jacoco.ant-0.7.7.201606060606.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.core-0.7.7.201606060606.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
-    <copy file="${ivy.lib.dir}/asm-all-3.3.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
+    <copy file="${ivy.lib.dir}/asm-debug-all-5.1.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/org.jacoco.report-0.7.7.201606060606.jar" todir="${root.dir}/libraries/jacoco/javalib/" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/oro-2.0.8.jar" tofile="${root.dir}/libraries/jakarta-oro/javalib/jakarta-oro-2.0.8.jar" overwrite="true"></copy>
     <copy file="${ivy.lib.dir}/hibernate-search-engine-5.5.4.Final.jar" todir="${root.dir}/libraries/jboss-hibernate-search/javalib/" overwrite="true"></copy>
