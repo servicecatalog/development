@@ -109,6 +109,9 @@ public class User implements Serializable {
     public String getOrganizationId() {
         return voUserDetails.getOrganizationId();
     }
+    public String getOrganizationName() {
+        return voUserDetails.getOrganizationName();
+    }
 
     public String getPhone() {
         return voUserDetails.getPhone();
