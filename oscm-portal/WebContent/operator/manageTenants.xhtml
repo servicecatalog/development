@@ -15,7 +15,16 @@
 
     <h:form id="manageTenants">
       <adm:outputStep value="#{msg['operator.manageTenants.step1']}" />
-      <adm:outputStep value="#{manageTenantsCtrl.manageTenantsModel}" />
+
+      <adm:dataTableCustomizedOnColumns tableId="tenants" value="#{manageTenantsCtrl.model.tenants}"
+                                        styleClass="sortable" rows="10" headerClass="rowTitle sortable"
+                                        rowClasses="rowOdd,rowEven"
+                                        columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
+                                        onRowClick="if(AdmUtils.isNotDirtyOrConfirmed()){AdmUtils.selectRow(this);selectItem('#{rowItem.tenantId}');}"
+                                        onRowMouseOver="AdmUtils.mouseOverRow(this);"
+                                        onRowMouseOut="AdmUtils.mouseOutRow(this);"
+                                        render="scriptPanel,pagerPanel,dataTableScriptPanel" selectionMode="single">
+      </adm:dataTableCustomizedOnColumns>
 
     </h:form>
   </ui:define>

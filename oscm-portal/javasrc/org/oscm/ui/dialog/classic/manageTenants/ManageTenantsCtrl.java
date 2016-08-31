@@ -26,19 +26,18 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     private ManageTenantService manageTenantService;
 
     @ManagedProperty(value="#{manageTenantsModel}")
-    private ManageTenantsModel manageTenantsModel;
+    private ManageTenantsModel model;
 
     @PostConstruct
     public void init() {
-        manageTenantService.getAllTenants();
+        model.setTenants(manageTenantService.getAllTenants());
     }
 
-    public ManageTenantsModel getManageTenantsModel() {
-        return manageTenantsModel;
+    public ManageTenantsModel getModel() {
+        return model;
     }
 
-    public void setManageTenantsModel(ManageTenantsModel manageTenantsModel) {
-        this.manageTenantsModel = manageTenantsModel;
+    public void setModel(ManageTenantsModel model) {
+        this.model = model;
     }
-
 }

@@ -10,6 +10,7 @@ package org.oscm.internal.tenant;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -21,6 +22,7 @@ import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.vo.VOTenant;
 
 @Stateless
+@RolesAllowed("PLATFORM_OPERATOR")
 @Remote(ManageTenantService.class)
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 public class ManageTenantServiceBean implements ManageTenantService {
