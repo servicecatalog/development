@@ -1840,6 +1840,8 @@ public class IdentityServiceBean implements IdentityService,
     public void sendMailToCreatedUser(String password, boolean userLocalLdap,
             Marketplace marketplace, PlatformUser pu)
             throws MailOperationException {
+        //TODO parameter
+        String tenantId = "dfafsadasdssdsd";
         if (!SendMailControl.isSendMail()) {
             // keep password for later sending
             SendMailControl.setMailData(password, marketplace);
@@ -1881,7 +1883,7 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl() },
+                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId)},
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
@@ -1893,12 +1895,21 @@ public class IdentityServiceBean implements IdentityService,
 
             } else {
                 if (cs.isServiceProvider()) {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_CREATED_SAML_SP,
-                            new Object[] { pu.getUserId(),
-                                    cm.getMarketplaceUrl(marketplaceId) },
-                            marketplace);
+                    if (tenantId != null && tenantId.trim().length() > 0) {
+                        cm.sendMail(
+                                pu,
+                                EmailType.USER_CREATED_SAML_SP,
+                                new Object[] { pu.getUserId(),
+                                        cm.getBaseUrlWithTenant(tenantId) },
+                                marketplace);
+                    } else {
+                        cm.sendMail(
+                                pu,
+                                EmailType.USER_CREATED_SAML_SP,
+                                new Object[]{pu.getUserId(),
+                                        cm.getMarketplaceUrl(marketplaceId)},
+                                marketplace);
+                    }
 
                 } else {
                     cm.sendMail(

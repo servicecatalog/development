@@ -238,10 +238,10 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
     }
 
-    public void updateSelectedUser(){
+    public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
         VOUser selectedUser = new VOUser();
         selectedUser.setUserId(selectedUserId);
-        model.setUser(selectedUser);
+        model.setUser(getIdService().getUser(selectedUser));
     }
 
     public OperatorManageUsersModel getModel() {

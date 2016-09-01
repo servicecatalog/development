@@ -21,11 +21,4 @@
 	<a4j:jsFunction name="updateSelectedUser" action="#{operatorManageUsersCtrl.updateSelectedUser}">
 		<a4j:param name="selectedUserId" assignTo="#{operatorManageUsersCtrl.selectedUserId}" />
 	</a4j:jsFunction>
-	<script type="text/javascript">
-		AdmUtils.findRow("userListForm:userListTable:", "userId",
-				"#{sessionBean.selectedUserId}", "#{size}", function(element) {
-					AdmUtils.selectRow(element);
-				});
-	</script>
-
 </ui:composition>
