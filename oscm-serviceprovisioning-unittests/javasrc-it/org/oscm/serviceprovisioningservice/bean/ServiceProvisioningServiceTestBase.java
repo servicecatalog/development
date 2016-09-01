@@ -45,6 +45,7 @@ import org.w3c.dom.NodeList;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -103,7 +104,6 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.setup.ProductImportParser;
 import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
@@ -253,7 +253,7 @@ public class ServiceProvisioningServiceTestBase extends EJBTestBase {
                 saved = null;
             }
         });
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new IdentityServiceBean());
         container.addBean(new TriggerQueueServiceStub() {
             @Override

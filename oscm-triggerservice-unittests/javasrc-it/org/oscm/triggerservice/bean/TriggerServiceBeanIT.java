@@ -8,6 +8,8 @@
 
 package org.oscm.triggerservice.bean;
 
+import static org.mockito.Mockito.mock;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -36,7 +39,6 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
@@ -95,7 +97,7 @@ public class TriggerServiceBeanIT extends EJBTestBase {
     @Override
     public void setup(final TestContainer container) throws Exception {
 
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new AccountServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());

@@ -20,6 +20,8 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.junit.Test;
+
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
@@ -36,7 +38,6 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
@@ -73,7 +74,7 @@ public class SubscriptionDaoIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
         container.addBean(new DataServiceBean());

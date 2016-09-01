@@ -9,12 +9,14 @@
 package org.oscm.subscriptionservice.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -29,7 +31,6 @@ import org.oscm.subscriptionservice.bean.SubscriptionListServiceBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
@@ -80,18 +81,18 @@ public class SessionDaoIT extends EJBTestBase {
         };
         container.enableInterfaceMocking(true);
         container.addBean(ds);
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
         container.addBean(new UserGroupUsersDao());
         container.addBean(new UserGroupAuditLogCollector());
         container.addBean(new SubscriptionListServiceBean());
         container.addBean(new UserGroupServiceLocalBean());
-        container.addBean(Mockito.mock(SubscriptionServiceLocal.class));
+        container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new EventServiceBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new SessionServiceBean());
-        container.addBean(Mockito.mock(IdentityService.class));
+        container.addBean(mock(IdentityService.class));
         sessionMgmt = container.get(SessionService.class);
         dao = new SessionDao(ds);
         container.login("1", ROLE_ORGANIZATION_ADMIN);

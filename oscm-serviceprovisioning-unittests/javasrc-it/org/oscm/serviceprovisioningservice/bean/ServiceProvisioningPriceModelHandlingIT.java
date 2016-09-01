@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.converter.BigDecimalComparator;
 import org.oscm.converter.PriceConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -54,7 +55,6 @@ import org.oscm.test.data.Scenario;
 import org.oscm.test.data.Subscriptions;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
@@ -96,7 +96,7 @@ public class ServiceProvisioningPriceModelHandlingIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new SessionServiceStub());
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new ApplicationServiceStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new ServiceProvisioningServiceLocalizationBean());

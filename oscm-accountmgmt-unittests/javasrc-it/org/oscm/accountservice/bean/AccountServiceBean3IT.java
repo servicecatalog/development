@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -29,7 +30,6 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
@@ -63,7 +63,7 @@ public class AccountServiceBean3IT extends EJBTestBase {
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new PaymentServiceStub());
         container.addBean(new LdapAccessServiceStub());
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new IdentityServiceStub());
         container.addBean(mock(MarketingPermissionServiceLocal.class));

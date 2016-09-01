@@ -31,6 +31,7 @@ import org.junit.Test;
 
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingContact;
@@ -60,7 +61,6 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
@@ -114,7 +114,7 @@ public class ServiceProvisioningSteppedPricingIT extends EJBTestBase {
 
         container.addBean(new DataServiceBean());
         container.addBean(new SessionServiceStub());
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new ApplicationServiceStub() {
 
             @Override

@@ -23,6 +23,8 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
+
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.*;
@@ -39,7 +41,6 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.types.enumtypes.UdaTargetType;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
@@ -72,7 +73,7 @@ public class SubscriptionDaoCustomerIT extends EJBTestBase {
     @Override
     protected void setup(TestContainer container) throws Exception {
         container.enableInterfaceMocking(true);
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
         container.addBean(new DataServiceBean());

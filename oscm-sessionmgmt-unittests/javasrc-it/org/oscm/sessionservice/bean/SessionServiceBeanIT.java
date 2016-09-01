@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -23,6 +24,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -51,7 +54,6 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.types.constants.Configuration;
@@ -123,7 +125,7 @@ public class SessionServiceBeanIT extends EJBTestBase {
             }
         });
 
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new LocalizerServiceBean());
         container.addBean(new UserGroupDao());
         container.addBean(new UserGroupUsersDao());

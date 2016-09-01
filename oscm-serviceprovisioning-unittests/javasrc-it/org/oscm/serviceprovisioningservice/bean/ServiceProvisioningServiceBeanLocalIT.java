@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.app.control.ApplicationServiceBaseStub;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -47,7 +48,6 @@ import org.oscm.test.data.Products;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
@@ -104,7 +104,7 @@ public class ServiceProvisioningServiceBeanLocalIT extends EJBTestBase {
             }
 
         });
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new ApplicationServiceBaseStub());
         container.addBean(new LocalizerServiceBean());
         container.addBean(new ConfigurationServiceStub());

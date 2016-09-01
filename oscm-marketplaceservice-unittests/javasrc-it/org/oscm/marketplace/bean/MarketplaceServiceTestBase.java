@@ -12,13 +12,14 @@
 
 package org.oscm.marketplace.bean;
 
-import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.oscm.internal.types.enumtypes.OrganizationRoleType.SUPPLIER;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.oscm.accountservice.bean.AccountServiceBean;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -48,6 +50,22 @@ import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
+import org.oscm.internal.intf.CategorizationService;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.UpdateConstraintException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOCatalogEntry;
+import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOService;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
@@ -61,27 +79,9 @@ import org.oscm.test.data.Subscriptions;
 import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.types.enumtypes.EmailType;
-import org.oscm.internal.intf.CategorizationService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.UpdateConstraintException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOCatalogEntry;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOService;
 
 /**
  * For the management of marketplace unit tests. Since there are many methods
@@ -189,40 +189,7 @@ public class MarketplaceServiceTestBase extends EJBTestBase {
         container.addBean(new DataServiceBean());
         container.addBean(new LocalizerServiceBean());
 
-        container.addBean(new CommunicationServiceStub() {
-            @Override
-            public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params, Marketplace marketplace) {
-                if (emailType1 == null)
-                    emailType1 = type;
-                else
-                    emailType2 = type;
-                mailCounter++;
-                if (emailRecipient1 == null)
-                    emailRecipient1 = recipient;
-                else
-                    emailRecipient2 = recipient;
-                publicAccessUrl = (String) params[1];
-                if (params.length > 2) {
-                    adminUrl = (String) params[2];
-                }
-            }
-
-            @Override
-            public String getMarketplaceUrl(String marketplaceId)
-                    throws MailOperationException {
-                return "myBaseUrl"
-                        + (marketplaceId == null
-                                || marketplaceId.trim().length() == 0 ? ""
-                                : "/marketplace/index.jsf?mId=" + marketplaceId);
-            }
-
-            @Override
-            public String getBaseUrl() {
-                return "myBaseUrl";
-            }
-
-        });
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ServiceProvisioningServiceBean());

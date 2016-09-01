@@ -8,7 +8,6 @@
 
 package org.oscm.identityservice.bean;
 
-import static org.oscm.test.matchers.BesMatchers.isPersisted;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -18,20 +17,17 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.matchers.BesMatchers.isPersisted;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 
@@ -42,7 +38,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.oscm.communicationservice.data.SendMailStatus;
+
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterEncoder;
 import org.oscm.converter.ParameterizedTypes;
@@ -57,7 +54,6 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.UnitUserRole;
 import org.oscm.domobjects.UsageLicense;
 import org.oscm.domobjects.UserGroup;
 import org.oscm.domobjects.UserGroupToUser;
@@ -65,33 +61,11 @@ import org.oscm.identityservice.assembler.UserDataAssembler;
 import org.oscm.identityservice.ldap.LdapAccessStub;
 import org.oscm.identityservice.local.IdentityServiceLocal;
 import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
-import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
-import org.oscm.sessionservice.bean.SessionManagementStub;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.taskhandling.local.TaskMessage;
-import org.oscm.taskhandling.operations.UpdateUserHandler;
-import org.oscm.taskhandling.payloads.UpdateUserPayload;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.MailDetails;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.PlatformUsers;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.TaskQueueServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.types.constants.Configuration;
-import org.oscm.types.enumtypes.EmailType;
-import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
-import org.oscm.usergroupservice.dao.UserGroupDao;
-import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.SettingType;
 import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UnitRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
@@ -109,6 +83,26 @@ import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.types.exception.ValidationException.ReasonEnum;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
+import org.oscm.sessionservice.bean.SessionManagementStub;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.taskhandling.local.TaskMessage;
+import org.oscm.taskhandling.operations.UpdateUserHandler;
+import org.oscm.taskhandling.payloads.UpdateUserPayload;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.MailDetails;
+import org.oscm.test.data.Marketplaces;
+import org.oscm.test.data.Organizations;
+import org.oscm.test.data.PlatformUsers;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.TaskQueueServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.types.constants.Configuration;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.usergroupservice.bean.UserGroupServiceLocalBean;
+import org.oscm.usergroupservice.dao.UserGroupDao;
+import org.oscm.usergroupservice.dao.UserGroupUsersDao;
 
 @SuppressWarnings("boxing")
 public class IdentityServiceBeanIT extends EJBTestBase {
@@ -175,61 +169,7 @@ public class IdentityServiceBeanIT extends EJBTestBase {
         container.addBean(new UserGroupServiceLocalBean());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());
-        container.addBean(new CommunicationServiceStub() {
-            @Override
-            public SendMailStatus<PlatformUser> sendMail(EmailType type,
-                                                         Object[] params, Marketplace marketplace,
-                                                         PlatformUser... recipients) {
-
-                SendMailStatus<PlatformUser> mailStatus = new SendMailStatus<>();
-                for (PlatformUser recipient : recipients) {
-                    try {
-                        sendMail(recipient, type, params, marketplace);
-                        mailStatus.addMailStatus(recipient);
-                    } catch (MailOperationException e) {
-                        mailStatus.addMailStatus(recipient, e);
-                    }
-                }
-                return mailStatus;
-            }
-
-            @Override
-            public void sendMail(PlatformUser recipient, EmailType type,
-                                 Object[] params, Marketplace marketplace)
-                    throws MailOperationException {
-                mailCounter++;
-                mailType = type;
-                receivedParams = params;
-                // reset member
-                encodedParam = null;
-
-                if (params != null && params.length > 1) {
-                    initialPassword = String.valueOf(params[1]);
-                }
-                if (params != null && params.length == 1) {
-                    String param = String.valueOf(params[0]);
-                    if (param.contains("/confirm.jsf?")
-                            && param.indexOf("/confirm.jsf?") < param
-                            .indexOf("enc=")) {
-                        encodedParam = param.substring(param.indexOf("enc=") + 4);
-                    }
-                }
-                if (throwMailOperationFailed) {
-                    throw new MailOperationException("Test");
-                }
-                if (exceptionCausingEmailType == EmailType.USER_CONFIRM) {
-                    throw new MailOperationException("Test");
-                }
-
-                sendedMails.add(new MailDetails<>(recipient, type,
-                        params));
-            }
-
-            @Override
-            public String getMarketplaceUrl(String marketplaceId) {
-                return "?mId=" + MP_ID;
-            }
-        });
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new SessionManagementStub() {
             @Override
             public List<Session> getSessionsForUserKey(long platformUserKey) {

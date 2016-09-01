@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -34,6 +35,7 @@ import org.junit.Test;
 
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.applicationservice.bean.ApplicationServiceStub;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -108,7 +110,6 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
@@ -225,19 +226,7 @@ public class SubscriptionServiceBeanWithoutHeidelpayIT extends EJBTestBase {
         });
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(new CommunicationServiceStub() {
-            @Override
-            public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params,
-                    org.oscm.domobjects.Marketplace marketplace) {
-
-                isCorrectSubscriptionIdForMail = params[0]
-                        .equals(SUBSCRIPTION_ID);
-
-                mailType = type;
-                receivedParams = params;
-            }
-        });
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new LocalizerServiceStub() {
 
             Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();

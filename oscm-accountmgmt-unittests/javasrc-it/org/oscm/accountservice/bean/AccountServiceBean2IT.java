@@ -28,32 +28,29 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.identityservice.bean.LdapAccessStub;
-import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
-import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.ApplicationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
-import org.oscm.test.stubs.ConfigurationServiceStub;
-import org.oscm.test.stubs.IdentityServiceStub;
-import org.oscm.test.stubs.PaymentServiceStub;
-import org.oscm.test.stubs.SessionServiceStub;
-import org.oscm.test.stubs.TriggerQueueServiceStub;
-import org.oscm.types.enumtypes.EmailType;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOBillingContact;
 import org.oscm.internal.vo.VOOrganization;
 import org.oscm.internal.vo.VOTechnicalService;
+import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
+import org.oscm.test.EJBTestBase;
+import org.oscm.test.data.Scenario;
+import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.ConfigurationServiceStub;
+import org.oscm.test.stubs.IdentityServiceStub;
+import org.oscm.test.stubs.PaymentServiceStub;
+import org.oscm.test.stubs.SessionServiceStub;
+import org.oscm.test.stubs.TriggerQueueServiceStub;
 
 public class AccountServiceBean2IT extends EJBTestBase {
 
@@ -77,12 +74,7 @@ public class AccountServiceBean2IT extends EJBTestBase {
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new ApplicationServiceStub());
         container.addBean(new SessionServiceStub());
-        container.addBean(new CommunicationServiceStub() {
-            @Override
-            public void sendMail(PlatformUser recipient, EmailType type,
-                    Object[] params, Marketplace marketplace) {
-            }
-        });
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new LdapAccessStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new IdentityServiceStub());

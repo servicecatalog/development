@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -92,7 +93,6 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.stubs.ApplicationServiceStub;
 import org.oscm.test.stubs.CategorizationServiceStub;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
@@ -240,7 +240,7 @@ public class ServiceProvisioningServiceBeanGetServiceIT extends
 
         container.addBean(new ServiceProvisioningServiceLocalizationBean());
 
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(mock(LandingpageServiceLocal.class));
         container.addBean(mock(SubscriptionListServiceBean.class));
         container.addBean(new SubscriptionServiceBean());

@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.app.control.ApplicationServiceBaseStub;
+import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
@@ -28,7 +29,6 @@ import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
 import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
-import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
@@ -54,7 +54,7 @@ public class TagServiceBeanLocalIT extends EJBTestBase {
 
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new DataServiceBean());
-        container.addBean(new CommunicationServiceStub());
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new TriggerQueueServiceBean());
         container.addBean(new SessionServiceStub());
         container.addBean(new ApplicationServiceBaseStub());
