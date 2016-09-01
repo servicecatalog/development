@@ -39,6 +39,12 @@
 	</script>
 
       </a4j:outputPanel>
+
+      <a4j:jsFunction name="selectItem" render="details,mainTmplMessagesPanel"
+                      action="#{manageTenantsCtrl.setSelectedTenant}"
+                      oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+        <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}" />
+      </a4j:jsFunction>
     </h:form>
   </ui:define>
 
@@ -73,6 +79,18 @@
         </h:panelGroup>
       </h:panelGrid>
 
+      <h:commandButton style="display:none;" id="confirmedButton" onclick="setDirty(false);"
+                       value="#{msg['button.delete']}" action="#{manageTenantsCtrl.delete}" />
+      <adm:buttonPanel>
+        <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{manageTenantsCtrl.save}"
+                         style="display:none;" />
+        <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
+                                     onclick="setDirty(false);#{rich:element('saveButton')}.click();return false;"
+                                     disabled="#{manageTenantsCtrl.model.saveDisabled}" />
+        <adm:buttonCustomizedOnClick id="deleteButton" value="#{msg['button.delete']}" buttonType="delete"
+                                     onclick="#{rich:component('deleteConfirmPl')}.show();return false;"
+                                     disabled="#{manageTenantsCtrl.model.deleteDisabled}" />
+      </adm:buttonPanel>
 
     </h:form>
 

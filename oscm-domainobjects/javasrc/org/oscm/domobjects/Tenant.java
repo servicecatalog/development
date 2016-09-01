@@ -19,7 +19,9 @@ import java.util.Collection;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "tenantId" }))
 @NamedQueries({
-    @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t")})
+    @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t"),
+    @NamedQuery(name = "Tenant.findByTenantId", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
+        + ":tenantId")})
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 

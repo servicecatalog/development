@@ -8,6 +8,7 @@
 package org.oscm.tenant.local;
 
 import org.oscm.domobjects.Tenant;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
@@ -18,4 +19,7 @@ import java.util.List;
 public interface TenantServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getAllTenants();
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
 }

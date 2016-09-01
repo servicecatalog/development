@@ -16,6 +16,8 @@ import javax.interceptor.Interceptors;
 import org.oscm.domobjects.Tenant;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.tenant.dao.TenantDao;
 import org.oscm.tenant.local.TenantServiceLocal;
 
@@ -32,5 +34,17 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     @Override
     public List<Tenant> getAllTenants() {
         return tenantDao.getAllTenants();
+    }
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Override
+    public Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
+        Tenant tenant = tenantDao.getTenantByTenantId(tenantId);
+        if (tenant == null) {
+            ObjectNotFoundException onfe = new ObjectNotFoundException(ObjectNotFoundException.ClassEnum.TENANT,
+                tenantId);
+            throw onfe;
+        }
+        return tenant;
     }
 }

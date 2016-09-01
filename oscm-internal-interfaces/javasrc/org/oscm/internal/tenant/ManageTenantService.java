@@ -7,10 +7,14 @@
  *******************************************************************************/
 package org.oscm.internal.tenant;
 
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+
 import javax.ejb.Remote;
 import java.util.List;
 
 @Remote
 public interface ManageTenantService {
     public List<POTenant> getAllTenants();
+
+    POTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
 }

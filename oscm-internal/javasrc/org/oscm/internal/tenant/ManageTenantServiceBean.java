@@ -19,6 +19,7 @@ import javax.interceptor.Interceptors;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
 
 @Stateless
@@ -39,4 +40,8 @@ public class ManageTenantServiceBean implements ManageTenantService {
         return poTenants;
     }
 
+    @Override
+    public POTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
+        return new POTenant(tenantService.getTenantByTenantId(tenantId));
+    }
 }

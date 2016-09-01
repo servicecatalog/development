@@ -26,6 +26,8 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private FieldData<String> tenantDescription;
     private FieldData<String> tenantIdp;
     private String selectedTenantId;
+    private boolean saveDisabled;
+    private boolean deleteDisabled;
 
     public List<POTenant> getTenants() {
         return tenants;
@@ -78,4 +80,19 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
         this.selectedTenantId = selectedTenantId;
     }
 
+    public boolean isSaveDisabled() {
+        return saveDisabled;
+    }
+
+    public void setSaveDisabled(boolean saveDisabled) {
+        this.saveDisabled = saveDisabled;
+    }
+
+    public boolean isDeleteDisabled() {
+        return deleteDisabled;
+    }
+
+    public void setDeleteDisabled(boolean deleteDisabled) {
+        this.deleteDisabled = deleteDisabled;
+    }
 }

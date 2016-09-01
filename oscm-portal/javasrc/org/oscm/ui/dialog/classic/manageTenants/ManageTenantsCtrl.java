@@ -18,11 +18,10 @@ import javax.faces.bean.ViewScoped;
 
 import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.tenant.POTenant;
+import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.usermanagement.POUser;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DataTableHandler;
-import org.oscm.ui.dialog.classic.manageusers.ManageUsersModel;
 import org.oscm.ui.profile.FieldData;
 
 @ManagedBean
@@ -40,6 +39,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setTenants(manageTenantService.getAllTenants());
         if (model.getSelectedTenantId() == null) {
             initWithoutSelection();
+            model.setSaveDisabled(true);
+            model.setDeleteDisabled(true);
         }
     }
 
@@ -71,5 +72,28 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         model.setTenantId(new FieldData<String>(null, true, true));
         model.setTenantDescription(new FieldData<String>(null, true, false));
         model.setTenantIdp(new FieldData<String>(null, true, false));
+    }
+
+    public void setSelectedTenantId(String tenantId) {
+        model.setSelectedTenantId(tenantId);
+    }
+
+    public void setSelectedTenant() {
+        POTenant poTenant = getSelectedTenant();
+        model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
+        model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
+        model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
+        model.setSaveDisabled(false);
+        model.setDeleteDisabled(false);
+    }
+
+    private POTenant getSelectedTenant() {
+        POTenant poTenant = null;
+        try {
+            poTenant = manageTenantService.getTenantByTenantId(model.getSelectedTenantId());
+        } catch (SaaSApplicationException e) {
+            ui.handleException(e);
+        }
+        return poTenant;
     }
 }

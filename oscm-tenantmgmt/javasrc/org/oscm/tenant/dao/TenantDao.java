@@ -31,4 +31,10 @@ public class TenantDao {
         Query query = dataManager.createNamedQuery("Tenant.getAll");
         return ParameterizedTypes.list(query.getResultList(), Tenant.class);
     }
+
+    public Tenant getTenantByTenantId(String tenantId) {
+        Query query = dataManager.createNamedQuery("Tenant.findByTenantId");
+        query.setParameter("tenantId", tenantId);
+        return (Tenant) query.getSingleResult();
+    }
 }
