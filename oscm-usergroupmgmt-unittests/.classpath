@@ -19,5 +19,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-taskhandling-intsvc"/>
+    <classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

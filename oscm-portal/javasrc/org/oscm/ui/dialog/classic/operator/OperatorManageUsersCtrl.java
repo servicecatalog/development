@@ -133,7 +133,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return null;
     }
 
-    public List<User> getUsersList() {
+    public List<POUserAndOrganization> getUsersList() {
         Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
             @Override
             public User createModel(final VOUserDetails vo) {
@@ -141,21 +141,22 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             }
         };
         try {
-            return mapper.map(getOperatorService().getUsers("%"));
+            final List<User> map = mapper.map(getOperatorService().getUsers("%"));
+            List<POUserAndOrganization> resultList = new ArrayList<>();
+            for (User user : map) {
+                POUserAndOrganization userAndOrganization = new POUserAndOrganization();
+                userAndOrganization.setUserId(user.getUserId());
+                userAndOrganization.setEmail(user.getEmail());
+                userAndOrganization.setOrganizationName(user.getOrganizationName());
+                userAndOrganization.setOrganizationId(user.getOrganizationId());
+                resultList.add(userAndOrganization);
+            }
+            return resultList;
+
         } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
         return null;
-    }
-
-    private List<POUser> userToPO(List<User> users) {
-        List<POUser> poList = new ArrayList<>();
-        for (User user : users) {
-            POUser poUser = new POUser();
-            poUser.setUserId(user.getUserId());
-            poList.add(poUser);
-        }
-        return poList;
     }
 
     public List<String> getDataTableHeaders() {

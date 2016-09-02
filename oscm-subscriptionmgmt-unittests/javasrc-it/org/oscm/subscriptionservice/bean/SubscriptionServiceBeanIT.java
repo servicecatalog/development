@@ -288,7 +288,7 @@ public class SubscriptionServiceBeanIT extends EJBTestBase {
         });
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(mock(CommunicationServiceBean.class);
+        container.addBean(mock(CommunicationServiceBean.class));
         container.addBean(new LocalizerServiceStub() {
 
             Map<String, List<VOLocalizedText>> map = new HashMap<String, List<VOLocalizedText>>();
