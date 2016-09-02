@@ -85,6 +85,7 @@ public class NewMarketplaceBeanTest {
         nmp.setReviewEnabled(false);
         nmp.setSocialBookmarkEnabled(true);
         nmp.setCategoriesEnabled(false);
+        nmp.setTenantId("tenant123");
 
         VOMarketplace vmp = nmpb.toVOMarketplace(nmp);
 
@@ -98,6 +99,7 @@ public class NewMarketplaceBeanTest {
         assertEquals(nmp.isSocialBookmarkEnabled(),
                 vmp.isSocialBookmarkEnabled());
         assertEquals(nmp.isCategoriesEnabled(), vmp.isCategoriesEnabled());
+        assertEquals(nmp.getTenantId(), vmp.getTenantId());
 
     }
 

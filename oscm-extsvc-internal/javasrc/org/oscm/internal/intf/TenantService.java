@@ -17,6 +17,7 @@ import java.util.List;
 
 @Remote
 public interface TenantService {
+    
     List<VOTenant> getTenants();
 
     VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
@@ -27,4 +28,6 @@ public interface TenantService {
         throws NonUniqueBusinessKeyException, ObjectNotFoundException, ConcurrentModificationException;
 
     void removeTenant(VOTenant voTenant) throws ObjectNotFoundException;
+    
+    List<VOTenant> getTenantsByIdPattern(String tenantIdPattern);
 }

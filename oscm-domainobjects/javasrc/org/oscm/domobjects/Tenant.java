@@ -19,9 +19,11 @@ import java.util.Collection;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "tenantId" }))
 @NamedQueries({
+
     @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t"),
     @NamedQuery(name = "Tenant.findByBusinessKey", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
-        + ":tenantId")})
+        + ":tenantId"),
+    @NamedQuery(name = "Tenant.getTenantsByIdPattern", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId LIKE :tenantIdPattern") })
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 

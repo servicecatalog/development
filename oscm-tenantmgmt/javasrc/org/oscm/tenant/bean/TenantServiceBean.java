@@ -68,4 +68,14 @@ public class TenantServiceBean implements TenantService {
         Tenant tenantToRemove = tenantServiceLocal.getTenantByKey(voTenant.getKey());
         tenantServiceLocal.removeTenant(tenantToRemove);
     }
+    
+    @Override
+    public List<VOTenant> getTenantsByIdPattern(String tenantIdPattern) {
+        List<VOTenant> voTenants = new ArrayList<>();
+        List<Tenant> tenants = tenantServiceLocal.getTenantsByIdPattern(tenantIdPattern);
+        for (Tenant tenant : tenants) {
+            voTenants.add(TenantAssembler.toVOTenant(tenant));
+        }
+        return voTenants;
+    }
 }

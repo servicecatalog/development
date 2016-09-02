@@ -36,4 +36,10 @@ public class TenantDao {
         tenant.getDataContainer().setTenantId(tenantId);
         return (Tenant) dataManager.getReferenceByBusinessKey(tenant);
     }
+    
+    public List<Tenant> getTenantsByIdPattern(String tenantIdPattern) {
+        Query query = dataManager.createNamedQuery("Tenant.getTenantsByIdPattern");
+        query.setParameter("tenantIdPattern", tenantIdPattern);
+        return ParameterizedTypes.list(query.getResultList(), Tenant.class);
+    }
 }
