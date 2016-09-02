@@ -46,7 +46,7 @@
         <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}" />
       </a4j:jsFunction>
 
-      <a4j:jsFunction name="addItem" render="editForm"
+      <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel"
                       action="#{manageTenantsCtrl.addTenant}"
                       oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
       </a4j:jsFunction>

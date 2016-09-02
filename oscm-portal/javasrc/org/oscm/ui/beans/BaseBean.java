@@ -338,6 +338,9 @@ public class BaseBean {
     public static final String INFO_SUPPORTEDLANGUAGE_ADDED = "info.supportedlanguage.added";
     public static final String INFO_NO_MORE_USERS = "info.subscriptions.noMoreUsersForAssignment";
     public static final String INFO_EXTERNAL_PRICE_UPLOADED = "info.externalPriceModel.upload";
+    public static final String INFO_TENANT_SAVED = "info.tenant.saved";
+    public static final String INFO_TENANT_ADDED = "info.tenant.added";
+    public static final String INFO_TENANT_DELETED = "info.tenant.deleted";
 
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";

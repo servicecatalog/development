@@ -104,26 +104,31 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 model.getSelectedTenant().setTenantId(model.getTenantId().getValue());
                 model.getSelectedTenant().setDescription(model.getTenantDescription().getValue());
                 manageTenantService.updateTenant(model.getSelectedTenant());
+                handleSuccessMessage(BaseBean.INFO_TENANT_SAVED, model.getTenantId().getValue());
                 refreshModelAfterUpdate();
             } else {
                 POTenant poTenant = new POTenant();
                 poTenant.setTenantId(model.getTenantId().getValue());
                 poTenant.setDescription(model.getTenantDescription().getValue());
                 manageTenantService.addTenant(poTenant);
-                refreshModelAfterDelete();
+                handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, model.getTenantId().getValue());
+                refreshModel();
             }
-            ui.handle(new Response(), BaseBean.INFO_USER_SAVED, model.getSelectedTenantId());
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
         return null;
     }
 
+    private void handleSuccessMessage(String message, String tenantId) {
+        ui.handle(new Response(), message, tenantId);
+    }
+
     public String delete() {
         try {
             manageTenantService.removeTenant(model.getSelectedTenant());
-            refreshModelAfterDelete();
-            ui.handle(new Response(), BaseBean.INFO_USER_DELETED, model.getSelectedTenantId());
+            handleSuccessMessage(BaseBean.INFO_TENANT_DELETED, model.getSelectedTenantId());
+            refreshModel();
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -139,7 +144,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         }
     }
 
-    private void refreshModelAfterDelete() {
+    private void refreshModel() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
         initWithoutSelection();
