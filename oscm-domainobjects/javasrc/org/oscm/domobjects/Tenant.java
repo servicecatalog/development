@@ -75,8 +75,12 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
     public void setTenantSettings(Collection<TenantSetting> tenantSettings) {
         this.tenantSettings = tenantSettings;
     }
-
+    
+    public void setTenantId(String tenantId) {
+        dataContainer.setTenantId(tenantId);
+    }
+    
     public String getTenantId() {
-        return getDataContainer().getTenantId();
+        return dataContainer.getTenantId();
     }
 }

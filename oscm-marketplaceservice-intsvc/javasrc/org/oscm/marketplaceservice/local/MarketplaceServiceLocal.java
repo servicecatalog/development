@@ -547,4 +547,19 @@ public interface MarketplaceServiceLocal {
      */
     public List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey);
+    
+    /**
+     * Updates the tenant for marketplace.
+     * 
+     * @param marketplace
+     *            the marketplace to update the tenant for
+     * @param tenantId
+     *            the identifier of the related tenant
+     * @return <code>true</code> if the owning organization was updated,
+     *         <code>false</code> if there was no need to update the owning
+     *         organization
+     * @throws ObjectNotFoundException
+     */
+    public boolean updateTenant(Marketplace marketplace, final String tenantId)
+            throws ObjectNotFoundException;
 }
