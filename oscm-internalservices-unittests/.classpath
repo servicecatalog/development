@@ -50,5 +50,6 @@
 	<classpathentry kind="lib" path="/libraries/redhat-hibernate/javalib/jboss-transaction-api_1.1_spec-1.0.0.Final.jar"/>
     <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-4.3.0.Final.jar" />
     <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-4.3.0.Final.jar" />
+    <classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
