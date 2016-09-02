@@ -19,6 +19,8 @@ import javax.interceptor.Interceptors;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
 
@@ -43,5 +45,21 @@ public class ManageTenantServiceBean implements ManageTenantService {
     @Override
     public POTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return new POTenant(tenantService.getTenantByTenantId(tenantId));
+    }
+
+    @Override
+    public void addTenant(POTenant poTenant) throws NonUniqueBusinessKeyException {
+        tenantService.addTenant(poTenant.toVOTenanat());
+    }
+
+    @Override
+    public void updateTenant(POTenant poTenant)
+        throws ConcurrentModificationException, ObjectNotFoundException, NonUniqueBusinessKeyException {
+        tenantService.updateTenant(poTenant.toVOTenanat());
+    }
+
+    @Override
+    public void removeTenant(POTenant poTenant) throws ObjectNotFoundException {
+        tenantService.removeTenant(poTenant.toVOTenanat());
     }
 }

@@ -8,6 +8,7 @@
 package org.oscm.tenant.local;
 
 import org.oscm.domobjects.Tenant;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 import javax.ejb.Local;
@@ -22,4 +23,10 @@ public interface TenantServiceLocal {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
+
+    void saveTenant(Tenant tenant) throws NonUniqueBusinessKeyException;
+
+    Tenant getTenantByKey(long tkey) throws ObjectNotFoundException;
+
+    void removeTenant(Tenant tenant);
 }

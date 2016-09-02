@@ -13,10 +13,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
 
+import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Tenant;
 import org.oscm.interceptor.InvocationDateContainer;
-import org.oscm.internal.intf.TenantService;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.tenant.dao.TenantDao;
 import org.oscm.tenant.local.TenantServiceLocal;
@@ -30,6 +30,9 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     @EJB
     TenantDao tenantDao;
 
+    @EJB
+    DataService dataManager;
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @Override
     public List<Tenant> getAllTenants() {
@@ -39,12 +42,21 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @Override
     public Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
-        Tenant tenant = tenantDao.getTenantByTenantId(tenantId);
-        if (tenant == null) {
-            ObjectNotFoundException onfe = new ObjectNotFoundException(ObjectNotFoundException.ClassEnum.TENANT,
-                tenantId);
-            throw onfe;
-        }
-        return tenant;
+        return tenantDao.getTenantByTenantId(tenantId);
+    }
+
+    @Override
+    public void saveTenant(Tenant tenant) throws NonUniqueBusinessKeyException {
+        dataManager.persist(tenant);
+    }
+
+    @Override
+    public Tenant getTenantByKey(long tkey) throws ObjectNotFoundException {
+        return dataManager.getReference(Tenant.class, tkey);
+    }
+
+    @Override
+    public void removeTenant(Tenant tenant) {
+        dataManager.remove(tenant);
     }
 }

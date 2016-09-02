@@ -45,6 +45,11 @@
                       oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
         <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}" />
       </a4j:jsFunction>
+
+      <a4j:jsFunction name="addItem" render="editForm"
+                      action="#{manageTenantsCtrl.addTenant}"
+                      oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+      </a4j:jsFunction>
     </h:form>
   </ui:define>
 
@@ -84,6 +89,7 @@
       <adm:buttonPanel>
         <h:commandButton id="saveButton" value="#{msg['button.save']}" action="#{manageTenantsCtrl.save}"
                          style="display:none;" />
+
         <adm:buttonCustomizedOnClick id="saveButtonLink" value="#{msg['button.save']}" buttonType="save"
                                      onclick="setDirty(false);#{rich:element('saveButton')}.click();return false;"
                                      disabled="#{manageTenantsCtrl.model.saveDisabled}" />
@@ -94,5 +100,6 @@
 
     </h:form>
 
+    <adm:confirmPanel panelId="deleteConfirmPl" formId="deleteConfirmForm" text="#{msg['confirm.user.delete']}" submitId="confirmedButton"/>
   </ui:define>
 </ui:composition>

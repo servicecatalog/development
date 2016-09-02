@@ -7,6 +7,8 @@
  *******************************************************************************/
 package org.oscm.internal.intf;
 
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
 
@@ -18,4 +20,11 @@ public interface TenantService {
     List<VOTenant> getTenants();
 
     VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
+
+    void addTenant(VOTenant voTenant) throws NonUniqueBusinessKeyException;
+
+    void updateTenant(VOTenant voTenant)
+        throws NonUniqueBusinessKeyException, ObjectNotFoundException, ConcurrentModificationException;
+
+    void removeTenant(VOTenant voTenant) throws ObjectNotFoundException;
 }

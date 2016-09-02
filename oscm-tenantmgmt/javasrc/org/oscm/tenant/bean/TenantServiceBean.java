@@ -17,6 +17,8 @@ import org.oscm.domobjects.Tenant;
 import org.oscm.interceptor.ExceptionMapper;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.ConcurrentModificationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.tenant.assembler.TenantAssembler;
@@ -25,9 +27,6 @@ import org.oscm.tenant.local.TenantServiceLocal;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by BadziakP on 2016-08-31.
- */
 @Stateless
 @Remote(TenantService.class)
 @RolesAllowed("PLATFORM_OPERATOR")
@@ -49,5 +48,24 @@ public class TenantServiceBean implements TenantService {
     @Override
     public VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByTenantId(tenantId));
+    }
+
+    @Override
+    public void addTenant(VOTenant voTenant) throws NonUniqueBusinessKeyException {
+        tenantServiceLocal.saveTenant(TenantAssembler.toTenant(voTenant));
+    }
+
+    @Override
+    public void updateTenant(VOTenant voTenant)
+        throws NonUniqueBusinessKeyException, ObjectNotFoundException, ConcurrentModificationException {
+        Tenant tenantToUpdate = tenantServiceLocal.getTenantByKey(voTenant.getKey());
+        tenantServiceLocal.saveTenant(TenantAssembler.updateTenantData(voTenant,
+            tenantToUpdate));
+    }
+
+    @Override
+    public void removeTenant(VOTenant voTenant) throws ObjectNotFoundException {
+        Tenant tenantToRemove = tenantServiceLocal.getTenantByKey(voTenant.getKey());
+        tenantServiceLocal.removeTenant(tenantToRemove);
     }
 }

@@ -17,10 +17,16 @@ public class POTenant extends BasePO {
     private String description;
     private String idp;
 
+    public POTenant() {
+
+    }
+
     public POTenant(VOTenant voTenant) {
         this.tenantId = voTenant.getTenantId();
         this.description = voTenant.getDescription();
         this.idp = voTenant.getTenantSettings().get(IdpSettingType.SSO_IDP_URL);
+        this.setKey(voTenant.getKey());
+        this.setVersion(voTenant.getVersion());
     }
 
     public String getTenantId() {
@@ -45,5 +51,14 @@ public class POTenant extends BasePO {
 
     public void setIdp(String idp) {
         this.idp = idp;
+    }
+
+    public VOTenant toVOTenanat() {
+        VOTenant voTenant = new VOTenant();
+        voTenant.setKey(this.getKey());
+        voTenant.setVersion(this.getVersion());
+        voTenant.setTenantId(this.getTenantId());
+        voTenant.setDescription(this.getDescription());
+        return voTenant;
     }
 }

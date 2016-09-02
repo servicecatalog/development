@@ -28,6 +28,7 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private String selectedTenantId;
     private boolean saveDisabled;
     private boolean deleteDisabled;
+    private POTenant selectedTenant;
 
     public List<POTenant> getTenants() {
         return tenants;
@@ -94,5 +95,13 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     public void setDeleteDisabled(boolean deleteDisabled) {
         this.deleteDisabled = deleteDisabled;
+    }
+
+    public POTenant getSelectedTenant() {
+        return selectedTenant;
+    }
+
+    public void setSelectedTenant(POTenant selectedTenant) {
+        this.selectedTenant = selectedTenant;
     }
 }

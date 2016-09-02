@@ -30,13 +30,14 @@
       <c:set var="headerClass" value="rowTitle" />
     </c:if>     
     <!-- label that will be rendered if no data is provided -->
-    <h:outputText id="#{tableId}EmptyText" styleClass="block #{styleClass} preWrapping" value="#{emptyText}" rendered="#{empty value}" />
+    <h:outputText id="#{tableId}EmptyText" styleClass="block #{styleClass} preWrapping" value="#{emptyText}"
+                  rendered="#{empty value and empty showAddButton}" />
     <!-- table if width attribute is set and data is provided -->
     <div style="#{style}" class="#{styleClass}">
 
       <c:if test="#{empty columnsWidth}">
       <rich:dataTable 
-        rendered="#{not empty value}"
+        rendered="#{not empty value or not empty showAddButton}"
         width="#{width}" 
         headerClass="#{headerClass}" 
         rowClasses="rowOdd,rowEven"
@@ -61,7 +62,7 @@
     <!-- table if columns/columnsWidth attribute is set and data is provided -->
     <c:if test="#{not empty columnsWidth}">
       <rich:dataTable 
-        rendered="#{not empty value}"
+        rendered="#{not empty value or not empty showAddButton}"
         width="#{width}" 
         columnsWidth="#{columnsWidth}"
         headerClass="#{headerClass}" 

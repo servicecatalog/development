@@ -20,7 +20,7 @@ import java.util.Collection;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "tenantId" }))
 @NamedQueries({
     @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t"),
-    @NamedQuery(name = "Tenant.findByTenantId", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
+    @NamedQuery(name = "Tenant.findByBusinessKey", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
         + ":tenantId")})
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
@@ -72,5 +72,9 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
     public void setTenantSettings(Collection<TenantSetting> tenantSettings) {
         this.tenantSettings = tenantSettings;
+    }
+
+    public String getTenantId() {
+        return getDataContainer().getTenantId();
     }
 }

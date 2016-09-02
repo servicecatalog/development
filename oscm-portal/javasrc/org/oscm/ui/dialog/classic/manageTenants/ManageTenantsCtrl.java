@@ -16,10 +16,10 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.tenant.POTenant;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DataTableHandler;
 import org.oscm.ui.profile.FieldData;
@@ -36,11 +36,8 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        model.setTenants(manageTenantService.getAllTenants());
-        if (model.getSelectedTenantId() == null) {
+        if (model.getSelectedTenant() == null) {
             initWithoutSelection();
-            model.setSaveDisabled(true);
-            model.setDeleteDisabled(true);
         }
     }
 
@@ -69,9 +66,12 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     }
 
     private void initWithoutSelection() {
+        model.setTenants(manageTenantService.getAllTenants());
         model.setTenantId(new FieldData<String>(null, true, true));
         model.setTenantDescription(new FieldData<String>(null, true, false));
         model.setTenantIdp(new FieldData<String>(null, true, false));
+        model.setSaveDisabled(true);
+        model.setDeleteDisabled(true);
     }
 
     public void setSelectedTenantId(String tenantId) {
@@ -80,6 +80,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public void setSelectedTenant() {
         POTenant poTenant = getSelectedTenant();
+        model.setSelectedTenant(poTenant);
         model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
         model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
@@ -95,5 +96,62 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
             ui.handleException(e);
         }
         return poTenant;
+    }
+
+    public String save() {
+        try {
+            if (model.getSelectedTenant() != null) {
+                model.getSelectedTenant().setTenantId(model.getTenantId().getValue());
+                model.getSelectedTenant().setDescription(model.getTenantDescription().getValue());
+                manageTenantService.updateTenant(model.getSelectedTenant());
+                refreshModelAfterUpdate();
+            } else {
+                POTenant poTenant = new POTenant();
+                poTenant.setTenantId(model.getTenantId().getValue());
+                poTenant.setDescription(model.getTenantDescription().getValue());
+                manageTenantService.addTenant(poTenant);
+                refreshModelAfterDelete();
+            }
+            ui.handle(new Response(), BaseBean.INFO_USER_SAVED, model.getSelectedTenantId());
+        }  catch (SaaSApplicationException e) {
+            ui.handleException(e);
+        }
+        return null;
+    }
+
+    public String delete() {
+        try {
+            manageTenantService.removeTenant(model.getSelectedTenant());
+            refreshModelAfterDelete();
+            ui.handle(new Response(), BaseBean.INFO_USER_DELETED, model.getSelectedTenantId());
+        } catch (SaaSApplicationException e) {
+            ui.handleException(e);
+        }
+        return null;
+    }
+
+    private void refreshModelAfterUpdate() {
+        model.setTenants(manageTenantService.getAllTenants());
+        for (POTenant poTenant : manageTenantService.getAllTenants()) {
+            if (poTenant.getKey() == model.getSelectedTenant().getKey()) {
+                model.setSelectedTenant(poTenant);
+            }
+        }
+    }
+
+    private void refreshModelAfterDelete() {
+        model.setSelectedTenant(null);
+        model.setSelectedTenantId(null);
+        initWithoutSelection();
+    }
+
+    public void addTenant() {
+        model.setSelectedTenant(null);
+        model.setSelectedTenantId(null);
+        model.setTenantId(new FieldData<String>(null, false, true));
+        model.setTenantDescription(new FieldData<String>(null, false, false));
+        model.setTenantIdp(new FieldData<String>(null, true, false));
+        model.setSaveDisabled(false);
+        model.setDeleteDisabled(true);
     }
 }
