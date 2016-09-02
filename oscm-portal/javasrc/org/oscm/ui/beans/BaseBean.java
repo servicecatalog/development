@@ -1447,6 +1447,24 @@ public class BaseBean {
     }
 
     /**
+     * Checks if current user is logged in and allowed to subscribe
+     *
+     * @return true if user is organization admin or subscription manager or
+     *         unit administrator, otherwise false.
+     */
+    public boolean isAdministrationAccess() {
+        VOUserDetails user = this.getUserFromSessionWithoutException();
+
+
+
+        return user != null && (user.getUserRoles()
+                .contains(UserRoleType.SUBSCRIPTION_MANAGER)
+                || user.getUserRoles().contains(UserRoleType.ORGANIZATION_ADMIN)
+                || user.getUserRoles()
+                        .contains(UserRoleType.TECHNOLOGY_MANAGER));
+    }
+
+    /**
      * Returns the resource bundle for the marketplace the user is logged in.
      * 
      * @return the bundle according to the given locale

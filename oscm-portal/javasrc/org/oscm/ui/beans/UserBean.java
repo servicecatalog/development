@@ -1135,4 +1135,12 @@ public class UserBean extends BaseBean implements Serializable {
         }
     }
 
+    public String getAdminPortalAddress() {
+        if (!getAuthenticationSettings().isInternal()) {
+            //TODO tenantID
+            return appBean.getServerBaseUrl() + "tenantId";
+        }
+        return appBean.getServerBaseUrl();
+    }
+
 }
