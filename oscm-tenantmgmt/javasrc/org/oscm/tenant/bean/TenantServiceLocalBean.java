@@ -10,7 +10,11 @@ package org.oscm.tenant.bean;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.*;
+import javax.ejb.EJB;
+import javax.ejb.Local;
+import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 
 import org.oscm.dataservice.local.DataService;
@@ -74,5 +78,11 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     @Override
     public List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant) {
         return tenantDao.getAllTenantSettingsForTenant(tenant);
+    }
+    
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @Override
+    public List<Tenant> getTenantsByIdPattern(String tenantIdPattern) {
+        return tenantDao.getTenantsByIdPattern(tenantIdPattern);
     }
 }

@@ -9,9 +9,7 @@ package org.oscm.ui.dialog.classic.manageTenants;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -26,7 +24,6 @@ import org.oscm.converter.PropertiesLoader;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.tenant.POTenant;
-import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.ui.beans.BaseBean;

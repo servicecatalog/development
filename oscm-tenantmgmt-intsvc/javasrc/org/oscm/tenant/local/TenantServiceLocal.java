@@ -19,6 +19,7 @@ import java.util.List;
 
 @Local
 public interface TenantServiceLocal {
+    
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getAllTenants();
 
@@ -36,4 +37,7 @@ public interface TenantServiceLocal {
     void removeTenantSetting(TenantSetting tenantSetting) throws ObjectNotFoundException;
 
     List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant);
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Tenant> getTenantsByIdPattern(String tenantIdPattern);
 }

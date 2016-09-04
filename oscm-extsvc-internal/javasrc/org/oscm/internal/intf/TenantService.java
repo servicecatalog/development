@@ -18,6 +18,7 @@ import java.util.List;
 
 @Remote
 public interface TenantService {
+    
     List<VOTenant> getTenants();
 
     VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException;
@@ -35,4 +36,6 @@ public interface TenantService {
     void removeTenantIdpProperties(VOTenant voTenant) throws ObjectNotFoundException;
 
     List<VOTenantSetting> getSettingsForTenant(long key);
+
+    List<VOTenant> getTenantsByIdPattern(String tenantIdPattern);
 }

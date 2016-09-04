@@ -43,4 +43,10 @@ public class TenantDao {
         query.setParameter("tenant", tenant);
         return ParameterizedTypes.list(query.getResultList(), TenantSetting.class);
     }
+    
+    public List<Tenant> getTenantsByIdPattern(String tenantIdPattern) {
+        Query query = dataManager.createNamedQuery("Tenant.getTenantsByIdPattern");
+        query.setParameter("tenantIdPattern", tenantIdPattern);
+        return ParameterizedTypes.list(query.getResultList(), Tenant.class);
+    }
 }

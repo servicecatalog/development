@@ -28,6 +28,8 @@ public class VOMarketplace extends BaseVO implements Serializable {
     private String owningOrganizationName;
 
     private String owningOrganizationId;
+    
+    private String tenantId;
 
     private boolean taggingEnabled = true;
     private boolean reviewEnabled = true;
@@ -288,5 +290,13 @@ public class VOMarketplace extends BaseVO implements Serializable {
 
     public void setHasPublicLandingPage(boolean hasPublicLandingPage) {
         this.hasPublicLandingPage = hasPublicLandingPage;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 }

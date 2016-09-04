@@ -97,10 +97,20 @@ public class TenantServiceBean implements TenantService {
         Tenant tenant = new Tenant();
         tenant.setKey(key);
         List<VOTenantSetting> voTenantSettings = new ArrayList<>();
-        List<TenantSetting> settings =  tenantServiceLocal.getAllTenantSettingsForTenant(tenant);
+        List<TenantSetting> settings = tenantServiceLocal.getAllTenantSettingsForTenant(tenant);
         for (TenantSetting tenantSetting : settings) {
             voTenantSettings.add(TenantAssembler.toVOTenantSetting(tenantSetting));
         }
         return voTenantSettings;
+    }
+    
+    @Override
+    public List<VOTenant> getTenantsByIdPattern(String tenantIdPattern) {
+        List<VOTenant> voTenants = new ArrayList<>();
+        List<Tenant> tenants = tenantServiceLocal.getTenantsByIdPattern(tenantIdPattern);
+        for (Tenant tenant : tenants) {
+            voTenants.add(TenantAssembler.toVOTenant(tenant));
+        }
+        return voTenants;
     }
 }
