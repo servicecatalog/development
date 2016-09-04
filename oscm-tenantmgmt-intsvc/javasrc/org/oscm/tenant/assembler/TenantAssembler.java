@@ -11,6 +11,7 @@ import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.vo.VOTenant;
+import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.vo.BaseAssembler;
 
 public class TenantAssembler extends BaseAssembler {
@@ -39,5 +40,24 @@ public class TenantAssembler extends BaseAssembler {
         tenant.getDataContainer().setTenantId(voTenant.getTenantId());
         tenant.getDataContainer().setDescription(voTenant.getDescription());
         return tenant;
+    }
+
+    public static TenantSetting toTenantSetting(VOTenantSetting voTenantSetting) {
+        TenantSetting tenantSetting = new TenantSetting();
+        tenantSetting.getDataContainer().setName(voTenantSetting.getName());
+        tenantSetting.getDataContainer().setValue(voTenantSetting.getValue());
+        Tenant t = new Tenant();
+        t.setKey(voTenantSetting.getVoTenant().getKey());
+        tenantSetting.setTenant(t);
+        return tenantSetting;
+    }
+
+    public static VOTenantSetting toVOTenantSetting(TenantSetting tenantSetting) {
+        VOTenantSetting voTenantSetting = new VOTenantSetting();
+        voTenantSetting.setKey(tenantSetting.getKey());
+        voTenantSetting.setVersion(tenantSetting.getVersion());
+        voTenantSetting.setName(tenantSetting.getDataContainer().getName());
+        voTenantSetting.setValue(tenantSetting.getDataContainer().getValue());
+        return voTenantSetting;
     }
 }

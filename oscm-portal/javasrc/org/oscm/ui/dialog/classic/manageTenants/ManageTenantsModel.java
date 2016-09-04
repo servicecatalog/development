@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.classic.manageTenants;
 
+import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.tenant.POTenant;
 import org.oscm.ui.beans.BaseModel;
 import org.oscm.ui.profile.FieldData;
@@ -29,6 +30,8 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
     private boolean saveDisabled;
     private boolean deleteDisabled;
     private POTenant selectedTenant;
+    private UploadedFile file;
+    private boolean clearExportAvailable;
 
     public List<POTenant> getTenants() {
         return tenants;
@@ -103,5 +106,21 @@ public class ManageTenantsModel extends BaseModel implements Serializable {
 
     public void setSelectedTenant(POTenant selectedTenant) {
         this.selectedTenant = selectedTenant;
+    }
+
+    public UploadedFile getFile() {
+        return file;
+    }
+
+    public void setFile(UploadedFile file) {
+        this.file = file;
+    }
+
+    public boolean isClearExportAvailable() {
+        return clearExportAvailable;
+    }
+
+    public void setClearExportAvailable(boolean clearExportAvailable) {
+        this.clearExportAvailable = clearExportAvailable;
     }
 }

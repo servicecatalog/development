@@ -13,6 +13,7 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 import javax.ejb.Remote;
 import java.util.List;
+import java.util.Properties;
 
 @Remote
 public interface ManageTenantService {
@@ -26,4 +27,9 @@ public interface ManageTenantService {
         throws ConcurrentModificationException, ObjectNotFoundException, NonUniqueBusinessKeyException;
 
     void removeTenant(POTenant poTenant) throws ObjectNotFoundException;
+
+    void setIdpSettingsForTenant(Properties properties, String tenantId)
+        throws ObjectNotFoundException, NonUniqueBusinessKeyException;
+
+    boolean doesSettingsForTenantExist(long tenantKey);
 }

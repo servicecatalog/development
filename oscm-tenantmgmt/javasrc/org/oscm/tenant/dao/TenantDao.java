@@ -17,6 +17,7 @@ import javax.persistence.Query;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Tenant;
+import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 @Stateless
@@ -35,5 +36,11 @@ public class TenantDao {
         Tenant tenant = new Tenant();
         tenant.getDataContainer().setTenantId(tenantId);
         return (Tenant) dataManager.getReferenceByBusinessKey(tenant);
+    }
+
+    public List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant) {
+        Query query = dataManager.createNamedQuery("TenantSetting.getAllForTenant");
+        query.setParameter("tenant", tenant);
+        return ParameterizedTypes.list(query.getResultList(), TenantSetting.class);
     }
 }

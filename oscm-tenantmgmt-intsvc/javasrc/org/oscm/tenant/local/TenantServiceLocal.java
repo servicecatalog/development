@@ -8,6 +8,7 @@
 package org.oscm.tenant.local;
 
 import org.oscm.domobjects.Tenant;
+import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 
@@ -29,4 +30,10 @@ public interface TenantServiceLocal {
     Tenant getTenantByKey(long tkey) throws ObjectNotFoundException;
 
     void removeTenant(Tenant tenant);
+
+    void saveTenantSetting(TenantSetting tenantSetting) throws NonUniqueBusinessKeyException;
+
+    void removeTenantSetting(TenantSetting tenantSetting) throws ObjectNotFoundException;
+
+    List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant);
 }

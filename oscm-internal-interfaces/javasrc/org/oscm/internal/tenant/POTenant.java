@@ -61,4 +61,5 @@ public class POTenant extends BasePO {
         voTenant.setDescription(this.getDescription());
         return voTenant;
     }
+
 }

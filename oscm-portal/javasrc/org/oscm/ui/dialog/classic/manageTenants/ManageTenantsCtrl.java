@@ -7,19 +7,28 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.classic.manageTenants;
 
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.apache.myfaces.custom.fileupload.UploadedFile;
+import org.oscm.converter.PropertiesLoader;
 import org.oscm.internal.components.response.Response;
 import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.tenant.POTenant;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.enumtypes.IdpSettingType;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.common.DataTableHandler;
 import org.oscm.ui.profile.FieldData;
@@ -80,6 +89,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public void setSelectedTenant() {
         POTenant poTenant = getSelectedTenant();
+        model.setClearExportAvailable(manageTenantService.doesSettingsForTenantExist(poTenant.getKey()));
         model.setSelectedTenant(poTenant);
         model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
@@ -140,23 +150,67 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         for (POTenant poTenant : manageTenantService.getAllTenants()) {
             if (poTenant.getKey() == model.getSelectedTenant().getKey()) {
                 model.setSelectedTenant(poTenant);
+                model.setClearExportAvailable(manageTenantService.doesSettingsForTenantExist(poTenant.getKey()));
+                model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
+                return;
             }
         }
+
     }
 
     private void refreshModel() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
+        model.setClearExportAvailable(false);
         initWithoutSelection();
     }
 
     public void addTenant() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
+        model.setClearExportAvailable(false);
         model.setTenantId(new FieldData<String>(null, false, true));
         model.setTenantDescription(new FieldData<String>(null, false, false));
         model.setTenantIdp(new FieldData<String>(null, true, false));
         model.setSaveDisabled(false);
         model.setDeleteDisabled(true);
+    }
+
+    public String importSettings() throws SaaSApplicationException {
+
+        Properties propsToStore = new Properties();
+        UploadedFile file = model.getFile();
+        if (file == null) {
+            ui.handleError(null, "error.organization.ldapsettings.nofile");
+            return OUTCOME_ERROR;
+        }
+        try {
+            propsToStore = PropertiesLoader.loadProperties(file
+                .getInputStream());
+            manageTenantService.setIdpSettingsForTenant(propsToStore, model.getSelectedTenantId());
+            refreshModelAfterUpdate();
+        } catch (IOException e) {
+            addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
+            return OUTCOME_ERROR;
+        }
+        addMessage(null, FacesMessage.SEVERITY_INFO, "info.organization.ldapsettings.imported");
+
+        return OUTCOME_SUCCESS;
+    }
+
+    public String exportSettings() throws IOException {
+
+        /*Properties props = new LdapSettingConverter().toProperties(
+            model.getSettings(),
+            Strings.isEmpty(model.getOrganizationIdentifier()));
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            props.store(baos, null);
+            writeSettings(baos.toByteArray());
+        } finally {
+            baos.close();
+        }*/
+
+        return OUTCOME_SUCCESS;
     }
 }

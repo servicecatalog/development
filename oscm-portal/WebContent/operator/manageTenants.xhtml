@@ -37,18 +37,16 @@
 					AdmUtils.selectRow(element);
 				});
 	</script>
-
       </a4j:outputPanel>
-
-      <a4j:jsFunction name="selectItem" render="details,mainTmplMessagesPanel"
+      <a4j:jsFunction name="selectItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.setSelectedTenant}"
                       oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
         <a4j:param name="param1" assignTo="#{manageTenantsCtrl.selectedTenantId}" />
       </a4j:jsFunction>
 
-      <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel"
+      <a4j:jsFunction name="addItem" render="editForm mainTmplMessagesPanel importForm"
                       action="#{manageTenantsCtrl.addTenant}"
-                      oncomplete="AdmUtils.showProgress(false);AdmUtils.initFocus();AdmUtils.setUIElements();">
+                      oncomplete="AdmUtils.setFocus(document.getElementById('editForm:tenantId'), true);">
       </a4j:jsFunction>
     </h:form>
   </ui:define>
@@ -60,7 +58,6 @@
       <h:panelGrid id="details" border="0" cellspacing="0" cellpadding="0" columns="2" columnClasses="valignTop,valignTop">
         <h:panelGroup>
           <adm:panelGrid minColWidth="false">
-
             <adm:labelAndInputText id="tenantId" label="#{msg['dataTable.header.tenantId']}"
                                    required="#{manageTenantsCtrl.model.tenantId.required}" value="#{manageTenantsCtrl.model.tenantId.value}"
                                    maxlength="#{appBean.tenantFieldLen}"
@@ -101,5 +98,37 @@
     </h:form>
 
     <adm:confirmPanel panelId="deleteConfirmPl" formId="deleteConfirmForm" text="#{msg['confirm.user.delete']}" submitId="confirmedButton"/>
+
+    <adm:outputStep value="#{msg['operator.manageTenants.step3']}"/>
+    <h:form id="importForm" enctype="multipart/form-data">
+      <a4j:outputPanel id="idpFile" layout="block">
+        <adm:panelGrid>
+          <adm:fileUpload value="#{manageTenantsCtrl.model.file}"
+                          disabled="#{empty manageTenantsCtrl.model.selectedTenant}"/>
+        </adm:panelGrid>
+
+        <adm:buttonPanel>
+          <adm:button id="importConfirmButton" value="#{msg['button.import']}" bean="#{manageTenantsCtrl}"
+                      action="importSettings" buttonType="confirm" style="display:none;" />
+          <adm:buttonCustomizedOnClick id="importButton" value="#{msg['button.import']}" disabled="#{empty manageTenantsCtrl.model.selectedTenant}"
+                                       onclick="#{rich:component('importConfirmPanel')}.show()" buttonType="confirm" />
+
+          <adm:button id="exportButton" value="#{msg['button.export']}" bean="#{manageTenantsCtrl}"
+                      action="exportSettings" progress="false" buttonType="export"
+                      rendered="#{manageTenantsCtrl.model.clearExportAvailable}"/>
+
+          <adm:button id="clearConfirmButton"
+                      value="#{msg['button.clear']}" bean="#{manageTenantsCtrl}" action="clear" buttonType="reset"
+                      style="display:none;" />
+          <adm:buttonCustomizedOnClick id="clearButton"
+                                       rendered="#{manageTenantsCtrl.model.clearExportAvailable}"
+                                       value="#{msg['button.clear']}"
+                                       onclick="#{rich:component('clearConfirmPanel')}.show()" buttonType="reset" />
+        </adm:buttonPanel>
+      </a4j:outputPanel>
+    </h:form>
+
+    <adm:confirmPanel text="#{msg['organization.manageTenants.confirmImport']}" panelId="importConfirmPanel"
+                      submitId="importConfirmButton" formId="importConfirmationForm" />
   </ui:define>
 </ui:composition>

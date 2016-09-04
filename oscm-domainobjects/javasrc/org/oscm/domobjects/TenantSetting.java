@@ -20,6 +20,11 @@ import javax.persistence.*;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {
     "tenant_tkey", "name" }))
+@NamedQueries({
+    @NamedQuery(name = "TenantSetting.getAllForTenant", query = "SELECT ts FROM TenantSetting ts WHERE ts.tenant = "
+        + ":tenant"),
+    @NamedQuery(name = "TenantSetting.findByBusinessKey", query = "SELECT ts FROM TenantSetting ts WHERE ts.dataContainer"
+        + ".name = :name AND ts.tenant = :tenant")})
 @BusinessKey(attributes = { "tenant", "name" })
 public class TenantSetting extends DomainObjectWithVersioning<TenantSettingData> {
 

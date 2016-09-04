@@ -15,6 +15,7 @@ import javax.interceptor.Interceptors;
 
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Tenant;
+import org.oscm.domobjects.TenantSetting;
 import org.oscm.interceptor.InvocationDateContainer;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
@@ -58,5 +59,20 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     @Override
     public void removeTenant(Tenant tenant) {
         dataManager.remove(tenant);
+    }
+
+    @Override
+    public void saveTenantSetting(TenantSetting tenantSetting) throws NonUniqueBusinessKeyException {
+        dataManager.persist(tenantSetting);
+    }
+
+    @Override
+    public void removeTenantSetting(TenantSetting tenantSetting) throws ObjectNotFoundException {
+        dataManager.remove(tenantSetting);
+    }
+
+    @Override
+    public List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant) {
+        return tenantDao.getAllTenantSettingsForTenant(tenant);
     }
 }
