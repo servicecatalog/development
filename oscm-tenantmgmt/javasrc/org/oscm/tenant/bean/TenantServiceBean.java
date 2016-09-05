@@ -116,12 +116,10 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
-    public VOTenant findByTkey(String tkey) {
-        return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByTkey(Long.parseLong(tkey)));
+
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    public VOTenant findByTkey(String tkey) throws ObjectNotFoundException {
+        return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByKey(Long.parseLong(tkey)));
     }
 
-    @Override
-    public VOTenant getMyTenant() {
-        return TenantAssembler.toVOTenant(tenantServiceLocal.getMyTenant());
-    }
 }

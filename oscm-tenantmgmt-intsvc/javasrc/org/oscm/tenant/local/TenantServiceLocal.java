@@ -44,8 +44,4 @@ public interface TenantServiceLocal {
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getTenantsByIdPattern(String tenantIdPattern);
 
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    Tenant getTenantByTkey(long tenantID);
-
-    Tenant getMyTenant();
 }
