@@ -28,7 +28,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -55,6 +54,7 @@ import org.oscm.test.data.Organizations;
 import org.oscm.test.data.Products;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.usergroupservice.auditlog.UserGroupAuditLogCollector;
 import org.oscm.usergroupservice.dao.UserGroupDao;
@@ -75,7 +75,7 @@ public class UserGroupServiceLocalBeanIT extends EJBTestBase {
 
     @Override
     protected void setup(TestContainer container) throws Exception {
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
         container.addBean(new DataServiceBean());

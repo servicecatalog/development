@@ -30,8 +30,6 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -70,6 +68,7 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
@@ -140,7 +139,13 @@ public class IdentityServiceBeanUserCreationIT extends EJBTestBase {
                 return false;
             }
         });
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub() {
+            @Override
+            public String getMarketplaceUrl(String marketplaceId)
+                    throws MailOperationException {
+                return "";
+            }
+        });
         container.addBean(new ApplicationServiceStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new TaskQueueServiceStub());

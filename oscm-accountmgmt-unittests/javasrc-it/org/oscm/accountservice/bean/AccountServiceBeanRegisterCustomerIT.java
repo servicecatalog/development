@@ -26,11 +26,11 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
+import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.OrganizationReference;
 import org.oscm.domobjects.PaymentInfo;
@@ -44,18 +44,6 @@ import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.ImageResourceServiceBean;
 import org.oscm.identityservice.bean.IdentityServiceBean;
 import org.oscm.identityservice.bean.LdapAccessStub;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.RegistrationException;
-import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.vo.VOLocalizedText;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.subscriptionservice.local.SubscriptionServiceLocal;
 import org.oscm.test.EJBTestBase;
@@ -66,12 +54,27 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.types.enumtypes.EmailType;
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
+import org.oscm.internal.types.enumtypes.ServiceStatus;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.RegistrationException;
+import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.vo.VOLocalizedText;
+import org.oscm.internal.vo.VOOrganization;
+import org.oscm.internal.vo.VOOrganizationPaymentConfiguration;
+import org.oscm.internal.vo.VOPaymentType;
+import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author pock
@@ -122,7 +125,19 @@ public class AccountServiceBeanRegisterCustomerIT extends EJBTestBase {
         container.addBean(new ApplicationServiceStub());
         container.addBean(new SessionServiceStub());
         container.addBean(new TriggerQueueServiceStub());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub() {
+            @Override
+            public void sendMail(PlatformUser recipient, EmailType type,
+                    Object[] params, Marketplace marketplace) {
+                mailParams = params;
+            }
+
+            @Override
+            public String getMarketplaceUrl(String marketplaceId)
+                    throws MailOperationException {
+                return "";
+            }
+        });
         container.addBean(new LdapAccessStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new TaskQueueServiceStub());

@@ -58,6 +58,5 @@
     <classpathentry kind="lib" path="/libraries/apache-lucene/javalib/solr-solrj-3.6.2.jar" />
     <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-orm-4.3.0.Final.jar" />
     <classpathentry kind="lib" path="/libraries/jboss-hibernate-search/javalib/hibernate-search-engine-4.3.0.Final.jar" />
-    <classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -33,7 +33,6 @@ import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBea
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorLocal;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.model.BillingRun;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.BillingResult;
@@ -45,9 +44,6 @@ import org.oscm.domobjects.SupportedCurrency;
 import org.oscm.domobjects.TechnicalProduct;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
@@ -62,12 +58,16 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
 import org.oscm.test.stubs.MarketplaceServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.ServiceAccessType;
 
 /**
  * Integration test for payment preview calculation.
@@ -475,7 +475,7 @@ public class CalculateBillingResultsForPaymentPreviewIntIT extends EJBTestBase {
         container.addBean(new PaymentServiceStub());
         container.addBean(new ApplicationServiceBaseStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new SessionServiceStub());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new LocalizerServiceBean());

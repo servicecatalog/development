@@ -67,14 +67,13 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
 import org.oscm.accountservice.assembler.OrganizationAssembler;
 import org.oscm.accountservice.assembler.PaymentTypeAssembler;
 import org.oscm.accountservice.dao.PaymentTypeDao;
 import org.oscm.accountservice.dao.UserLicenseDao;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
+import org.oscm.communicationservice.data.SendMailStatus;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -184,6 +183,7 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.data.UserRoles;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
@@ -414,7 +414,42 @@ public class AccountServiceBeanIT extends EJBTestBase {
             }
         });
 
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub() {
+            @Override
+            public void sendMail(PlatformUser recipient, EmailType type,
+                    Object[] params, Marketplace marketplace)
+                    throws MailOperationException {
+                if (throwMailOperationException) {
+                    throw new MailOperationException("Mail could not be sent.");
+                } else {
+                    sendedMails.add(new MailDetails<PlatformUser>(recipient,
+                            type, params));
+                }
+            }
+
+            @Override
+            public SendMailStatus<PlatformUser> sendMail(EmailType type,
+                    Object[] params, Marketplace marketplace,
+                    PlatformUser... recipients) {
+                SendMailStatus<PlatformUser> mailStatus = new SendMailStatus<PlatformUser>();
+                for (PlatformUser recipient : recipients) {
+                    try {
+                        sendMail(recipient, type, params, marketplace);
+                        mailStatus.addMailStatus(recipient);
+                    } catch (MailOperationException e) {
+                        mailStatus.addMailStatus(recipient, e);
+                    }
+                }
+                return mailStatus;
+            }
+
+            @Override
+            public String getMarketplaceUrl(String marketplaceId)
+                    throws MailOperationException {
+                return "";
+            }
+        });
+
         container.addBean(new LdapAccessStub());
         SubscriptionServiceLocal subService = mock(SubscriptionServiceLocal.class);
 

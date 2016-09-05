@@ -12,14 +12,6 @@
 
 package org.oscm.billingservice.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.oscm.test.BigDecimalAsserts.checkEquals;
 import static org.oscm.test.Numbers.BD10;
 import static org.oscm.test.Numbers.BD100;
@@ -48,6 +40,14 @@ import static org.oscm.test.Numbers.BIGDECIMAL_SCALE;
 import static org.oscm.test.Numbers.L_MAX;
 import static org.oscm.test.Numbers.L_MIN;
 import static org.oscm.test.Numbers.TIMESTAMP;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -69,13 +69,16 @@ import javax.persistence.Query;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import org.oscm.accountservice.bean.MarketingPermissionServiceBean;
 import org.oscm.app.control.ApplicationServiceBaseStub;
 import org.oscm.billingservice.business.calculation.revenue.RevenueCalculatorBean;
 import org.oscm.billingservice.business.calculation.share.SharesCalculatorLocal;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.BigDecimalComparator;
 import org.oscm.converter.ParameterizedTypes;
@@ -110,14 +113,6 @@ import org.oscm.domobjects.enums.BillingAdapterIdentifier;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.interceptor.DateFactory;
-import org.oscm.internal.intf.BillingService;
-import org.oscm.internal.intf.ServiceProvisioningService;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PriceModelType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.paymentservice.bean.PaymentServiceStub;
 import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
@@ -134,6 +129,7 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.setup.ProductImportParser;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
 import org.oscm.test.stubs.LdapAccessServiceStub;
@@ -142,11 +138,14 @@ import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
 import org.oscm.triggerservice.local.TriggerMessage;
 import org.oscm.types.enumtypes.PlatformEventIdentifier;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.oscm.internal.intf.BillingService;
+import org.oscm.internal.intf.ServiceProvisioningService;
+import org.oscm.internal.types.enumtypes.EventType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PriceModelType;
+import org.oscm.internal.types.enumtypes.PricingPeriod;
+import org.oscm.internal.types.enumtypes.SubscriptionStatus;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
 
 @SuppressWarnings({ "boxing", "deprecation" })
 public class BillingServiceBeanIT extends EJBTestBase {
@@ -265,7 +264,7 @@ public class BillingServiceBeanIT extends EJBTestBase {
         container.addBean(new PaymentServiceStub());
         container.addBean(new ApplicationServiceBaseStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new SessionServiceStub());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new LocalizerServiceBean());

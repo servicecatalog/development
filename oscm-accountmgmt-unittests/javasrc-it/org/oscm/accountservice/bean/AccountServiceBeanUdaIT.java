@@ -27,7 +27,6 @@ import java.util.concurrent.Callable;
 import org.junit.Test;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -51,6 +50,7 @@ import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.data.Udas;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.PaymentServiceStub;
@@ -100,7 +100,7 @@ public class AccountServiceBeanUdaIT extends EJBTestBase {
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new ApplicationServiceStub());
         container.addBean(new SessionServiceStub());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessStub());
         container.addBean(mock(SubscriptionServiceLocal.class));
         container.addBean(new TaskQueueServiceStub());

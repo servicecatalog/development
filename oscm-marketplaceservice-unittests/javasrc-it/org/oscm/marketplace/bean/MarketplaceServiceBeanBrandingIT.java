@@ -20,9 +20,7 @@ import java.util.concurrent.Callable;
 import javax.ejb.EJBException;
 
 import org.junit.Test;
-
 import org.oscm.applicationservice.local.ApplicationServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -52,6 +50,7 @@ import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.CategorizationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
@@ -79,7 +78,7 @@ public class MarketplaceServiceBeanBrandingIT extends EJBTestBase {
         container.addBean(new DataServiceBean());
         container.addBean(mock(MarketplaceAccessDao.class));
         container.addBean(new LocalizerServiceBean());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new ConfigurationServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());

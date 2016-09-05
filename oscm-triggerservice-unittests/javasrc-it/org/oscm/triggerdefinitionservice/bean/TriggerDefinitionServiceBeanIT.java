@@ -6,7 +6,6 @@ package org.oscm.triggerdefinitionservice.bean;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
 import java.util.List;
@@ -17,8 +16,8 @@ import javax.ejb.EJBException;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Organization;
@@ -32,6 +31,7 @@ import org.oscm.test.data.TriggerDefinitions;
 import org.oscm.test.data.TriggerProcesses;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.ServiceProvisioningServiceStub;
 import org.oscm.triggerservice.bean.TriggerDefinitionServiceBean;
@@ -90,10 +90,10 @@ public class TriggerDefinitionServiceBeanIT extends EJBTestBase {
         container.addBean(new DataServiceBean());
         mgr = container.get(DataService.class);
 
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new AccountServiceStub());
         container.addBean(new ServiceProvisioningServiceStub());
-        container.addBean(mock(SubscriptionServiceLocal.class));
+        container.addBean(Mockito.mock(SubscriptionServiceLocal.class));
         container.addBean(new LocalizerServiceStub());
         TriggerDefinitionServiceBean tsb = new TriggerDefinitionServiceBean();
         container.addBean(tsb);

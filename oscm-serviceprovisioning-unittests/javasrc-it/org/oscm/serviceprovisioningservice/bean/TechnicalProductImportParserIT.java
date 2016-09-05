@@ -34,7 +34,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
@@ -69,6 +68,7 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.TSXML;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
@@ -147,7 +147,7 @@ public class TechnicalProductImportParserIT extends EJBTestBase {
             }
         });
         container.addBean(mock(SubscriptionServiceLocal.class));
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new ApplicationServiceStub());
         container.addBean(new ImageResourceServiceStub() {

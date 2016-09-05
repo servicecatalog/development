@@ -29,7 +29,6 @@ import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
 import org.oscm.auditlog.bean.AuditLogServiceBean;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.domobjects.BillingResult;
 import org.oscm.domobjects.ConfigurationSetting;
 import org.oscm.domobjects.DomainObject;
@@ -70,6 +69,7 @@ import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
 import org.oscm.test.stubs.BillingServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.test.stubs.IdentityServiceStub;
@@ -361,7 +361,7 @@ public class OperatorServiceBeanRoleIT extends EJBTestBase {
         });
 
         container.addBean(mock(SubscriptionServiceLocal.class));
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new LdapAccessServiceStub());
         container.addBean(new TriggerQueueServiceStub());
         container.addBean(new ApplicationServiceStub());

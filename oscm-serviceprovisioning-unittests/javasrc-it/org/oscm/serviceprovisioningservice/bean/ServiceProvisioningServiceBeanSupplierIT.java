@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
 import org.junit.Test;
 
 import org.oscm.accountservice.local.MarketingPermissionServiceLocal;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.domobjects.DomainObject;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.Product;
@@ -26,6 +25,7 @@ import org.oscm.tenantprovisioningservice.bean.TenantProvisioningServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.DataServiceStub;
 import org.oscm.test.stubs.ImageResourceServiceStub;
@@ -63,7 +63,7 @@ public class ServiceProvisioningServiceBeanSupplierIT extends EJBTestBase {
             }
         });
         container.addBean(new ConfigurationServiceStub());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
         container.addBean(new SessionServiceStub());
         container.addBean(new ApplicationServiceStub());
         container.addBean(new ImageResourceServiceStub());

@@ -14,7 +14,6 @@ package org.oscm.reportingservice.bean;
 
 import static org.junit.Assert.assertEquals;
 import static org.oscm.test.Numbers.L123;
-import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -35,7 +34,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.oscm.billingservice.dao.BillingDataRetrievalServiceBean;
 import org.oscm.billingservice.service.BillingServiceBean;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.bean.DataServiceBean;
@@ -114,6 +112,7 @@ import org.oscm.test.data.SupportedCountries;
 import org.oscm.test.data.SupportedCurrencies;
 import org.oscm.test.data.TechnicalProducts;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.SessionServiceStub;
 import org.oscm.test.stubs.TriggerQueueServiceStub;
@@ -364,7 +363,7 @@ public class ReportingServiceBeanQueryIT extends EJBTestBase {
         container.addBean(new BillingServiceBean());
         container.addBean(new IdManagementStub());
         container.addBean(new TenantProvisioningServiceBean());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub());
 
         configurationStub = new ConfigurationServiceStub();
         configurationStub.setConfigurationSetting(

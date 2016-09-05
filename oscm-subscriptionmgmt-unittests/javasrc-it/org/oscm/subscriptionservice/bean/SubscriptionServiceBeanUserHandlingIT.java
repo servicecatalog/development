@@ -23,7 +23,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.oscm.auditlog.bean.AuditLogServiceBean;
 import org.oscm.auditlog.dao.AuditLogDao;
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Marketplace;
@@ -66,6 +65,7 @@ import org.oscm.test.data.UserRoles;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.test.stubs.AccountServiceStub;
 import org.oscm.test.stubs.ApplicationServiceStub;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.test.stubs.LocalizerServiceStub;
 import org.oscm.test.stubs.TaskQueueServiceStub;
@@ -132,7 +132,13 @@ public class SubscriptionServiceBeanUserHandlingIT extends EJBTestBase {
         container.addBean(new SessionManagementStub());
         container.addBean(new IdManagementStub());
         container.addBean(mock(TenantProvisioningServiceBean.class));
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub() {
+            @Override
+            public void sendMail(PlatformUser recipient, EmailType type,
+                    Object[] params, Marketplace marketplace) {
+                mailCounter++;
+            }
+        });
         container.addBean(new LocalizerServiceStub() {
             @Override
             public String getLocalizedTextFromBundle(

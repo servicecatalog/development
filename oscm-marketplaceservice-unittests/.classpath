@@ -37,6 +37,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-auditlog"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-subscriptionmgmt"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-usergroupmgmt"/>
-    <classpathentry combineaccessrules="false" kind="src" path="/oscm-communicationservices"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

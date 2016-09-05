@@ -9,7 +9,6 @@
 package org.oscm.internal.passwordrecovery;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -21,21 +20,16 @@ import java.util.concurrent.Callable;
 import org.junit.After;
 import org.junit.Test;
 
-import org.oscm.communicationservice.bean.CommunicationServiceBean;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterEncoder;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.ConfigurationSetting;
+import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Session;
 import org.oscm.identityservice.bean.IdentityServiceBean;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.sessionservice.bean.SessionManagementStub;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.MailDetails;
@@ -43,9 +37,16 @@ import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
 import org.oscm.test.data.PlatformUsers;
 import org.oscm.test.ejb.TestContainer;
+import org.oscm.test.stubs.CommunicationServiceStub;
 import org.oscm.test.stubs.ConfigurationServiceStub;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.EmailType;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.enumtypes.UserRoleType;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 
 /**
  * Container-based unit test for the password recovery service.
@@ -76,7 +77,15 @@ public class PasswordRecoveryServiceBeanIT extends EJBTestBase {
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
         container.addBean(new ConfigurationServiceStub());
-        container.addBean(mock(CommunicationServiceBean.class));
+        container.addBean(new CommunicationServiceStub() {
+            @Override
+            public void sendMail(PlatformUser recipient, EmailType type,
+                    Object[] params, Marketplace marketplace)
+                    throws MailOperationException {
+                sendedMails.add(new MailDetails<PlatformUser>(recipient, type,
+                        params));
+            }
+        });
         container.addBean(new SessionManagementStub() {
             @Override
             public List<Session> getSessionsForUserKey(long platformUserKey) {
