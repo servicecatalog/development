@@ -2257,3 +2257,7 @@ form .formHighlight div.div-for-input {
     width: 18px;
     height: 14px;
 }
+
+#manageTenants th.rf-dt-hdr-c {
+  padding-left: 0;
+}
