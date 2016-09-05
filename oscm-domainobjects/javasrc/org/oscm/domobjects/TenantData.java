@@ -25,8 +25,6 @@ public class TenantData extends DomainDataContainer implements
 
     private String description;
 
-    private String idp;
-
     public String getTenantId() {
         return tenantId;
     }
@@ -41,13 +39,5 @@ public class TenantData extends DomainDataContainer implements
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getIdp() {
-        return idp;
-    }
-
-    public void setIdp(String idp) {
-        this.idp = idp;
     }
 }

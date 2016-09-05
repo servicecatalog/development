@@ -18,6 +18,12 @@ import java.util.Collection;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "tenantId" }))
+@NamedQueries({
+
+    @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t"),
+    @NamedQuery(name = "Tenant.findByBusinessKey", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
+        + ":tenantId"),
+    @NamedQuery(name = "Tenant.getTenantsByIdPattern", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId LIKE :tenantIdPattern") })
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
@@ -34,6 +40,9 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<PlatformUser> platformUsers;
+
+    @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    private Collection<TenantSetting> tenantSettings;
 
     public Collection<Organization> getOrganizations() {
         return organizations;
@@ -57,5 +66,21 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
 
     public void setPlatformUsers(Collection<PlatformUser> platformUsers) {
         this.platformUsers = platformUsers;
+    }
+
+    public Collection<TenantSetting> getTenantSettings() {
+        return tenantSettings;
+    }
+
+    public void setTenantSettings(Collection<TenantSetting> tenantSettings) {
+        this.tenantSettings = tenantSettings;
+    }
+    
+    public void setTenantId(String tenantId) {
+        dataContainer.setTenantId(tenantId);
+    }
+    
+    public String getTenantId() {
+        return dataContainer.getTenantId();
     }
 }

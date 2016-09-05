@@ -274,6 +274,9 @@ public class MarketplaceServiceBean implements MarketplaceService {
         // Update owner organization and assign role
         marketplaceServiceLocal.updateOwningOrganization(mpNew,
                 marketplace.getOwningOrganizationId(), true);
+        
+        // Update related tenant 
+        marketplaceServiceLocal.updateTenant(mpNew, marketplace.getTenantId());
 
         PublicLandingpage landingpage = PublicLandingpage.newDefault();
         landingpage.setMarketplace(mpNew);

@@ -23,3 +23,21 @@ ALTER TABLE "platformuser" ADD CONSTRAINT "platformuser_tenant_fk" FOREIGN KEY (
     REFERENCES "tenant" ("tkey");
 
 ALTER TABLE "platformuser" ADD CONSTRAINT "pl_userid_tenantkey_uk" UNIQUE ("userid", "tenant_tkey");
+
+CREATE TABLE "tenantsetting"
+(
+  "tkey" BIGINT NOT NULL,
+  "version" INTEGER DEFAULT 0 NOT NULL ,
+  "name" character varying(255) NOT NULL,
+  "value" character varying(255),
+  "tenant_tkey" bigint);
+
+ALTER TABLE "tenantsetting" ADD CONSTRAINT "tenantsetting_pk" PRIMARY KEY ("tkey");
+
+ALTER TABLE "tenantsetting" ADD CONSTRAINT "tenantsetting_tenant_fk" FOREIGN KEY ("tenant_tkey")
+    REFERENCES "tenant" ("tkey");
+
+INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SELECT 'Tenant', COALESCE((MAX(tkey)
+    /1000),0)+10 FROM "tenant";
+INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SELECT 'TenantSetting', COALESCE(
+    (MAX(tkey)/1000),0)+10 FROM "tenantsetting";

@@ -8,6 +8,9 @@
 
 package org.oscm.ui.beans;
 
+import java.util.List;
+
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -15,8 +18,10 @@ import javax.faces.bean.ViewScoped;
 
 import org.oscm.ui.common.ExceptionActionListener;
 import org.oscm.ui.model.NewMarketplace;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.internal.vo.VOTenant;
 
 /**
  * The bean responsible for providing model and action for creating a new
@@ -33,7 +38,10 @@ public class NewMarketplaceBean extends BaseBean {
     
     @ManagedProperty(value="#{menuBean}")
     MenuBean menuBean;
-
+    
+    @EJB
+    TenantService tenantService;
+    
     /**
      * @return the menuBean
      */
@@ -84,6 +92,7 @@ public class NewMarketplaceBean extends BaseBean {
         vmp.setReviewEnabled(nmp.isReviewEnabled());
         vmp.setSocialBookmarkEnabled(nmp.isSocialBookmarkEnabled());
         vmp.setCategoriesEnabled(nmp.isCategoriesEnabled());
+        vmp.setTenantId(nmp.getTenantId());
         return vmp;
     }
 
@@ -109,6 +118,16 @@ public class NewMarketplaceBean extends BaseBean {
             model = null;
         }
         return null;
+    }
+    
+    public List<VOTenant> getSuggestionsForTenants(String tenantId) {
+
+        tenantId = tenantId.replaceAll("\\p{C}", "");
+        String pattern = tenantId + "%";
+
+        List<VOTenant> tenants = tenantService.getTenantsByIdPattern(pattern);
+
+        return tenants;
     }
 
 }

@@ -19,6 +19,7 @@ public class NewMarketplace {
 
     private String name;
     private String owningOrganizationId;
+    private String tenantId;
     private boolean closed = false;
     private boolean taggingEnabled = true;
     private boolean reviewEnabled = true;
@@ -130,6 +131,14 @@ public class NewMarketplace {
      */
     public boolean isCategoriesEnabled() {
         return categoriesEnabled;
+    }
+
+    public String getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
     }
 
 }

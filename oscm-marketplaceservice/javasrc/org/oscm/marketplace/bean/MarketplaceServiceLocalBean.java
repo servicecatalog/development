@@ -44,6 +44,7 @@ import org.oscm.domobjects.ProductReference;
 import org.oscm.domobjects.PublicLandingpage;
 import org.oscm.domobjects.RevenueShareModel;
 import org.oscm.domobjects.RoleAssignment;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -1166,5 +1167,28 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         return marketplaceAccessDao
                 .getAllOrganizationsWithAccessToMarketplace(marketplaceKey);
+    }
+
+    @Override
+    public boolean updateTenant(Marketplace marketplace, String tenantId)
+            throws ObjectNotFoundException {
+        
+        if(tenantId==null){
+            return false;
+        }
+        
+        String currentTenantId = (marketplace.getTenant() != null)
+                ? marketplace.getTenant().getTenantId() : null;
+
+        if (currentTenantId == null || !currentTenantId.equals(tenantId)) {
+            Tenant tenant = new Tenant();
+            tenant.setTenantId(tenantId);
+            tenant = (Tenant) ds.getReferenceByBusinessKey(tenant);
+
+            marketplace.setTenant(tenant);
+            return true;
+        }
+
+        return false;
     }
 }
