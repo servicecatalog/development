@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.ui.beans.BaseBean;
@@ -66,7 +67,7 @@ public class MarketplaceContextFilter extends BaseBesFilter {
         final String mId = retrieveMarketplaceId(httpRequest, rdo);
 
         if (rdo.isMarketplaceLoginPage()) {
-            String forwardUrl = null;
+            String forwardUrl;
 
             if (authSettings.isServiceProvider()) {
                 forwardUrl = httpRequest.getParameter("RelayState");
@@ -88,8 +89,12 @@ public class MarketplaceContextFilter extends BaseBesFilter {
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (rdo.isRequiredToChangePwd()
                 && !BesServletRequestReader.hasPasswordChangeToken(httpRequest)) {
-            forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
-                    httpResponse, chain);
+            try {
+                forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
+                        httpResponse, chain);
+            } catch (NotExistentTenantException e) {
+                //ain't gonna happen
+            }
             return;
         }
 

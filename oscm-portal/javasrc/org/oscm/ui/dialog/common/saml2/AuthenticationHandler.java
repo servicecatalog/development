@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.JAXBElement;
 
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.saml2.api.AuthnRequestGenerator;
@@ -34,6 +35,7 @@ public class AuthenticationHandler {
 
     private final String samlSpRedirectPage = "/saml2/redirectToIdp.jsf";
     private static final String OUTCOME_SAMLSP_REDIRECT = "redirectToIdp";
+    private final String tenantID;
 
     private HttpServletRequest request;
     private HttpServletResponse response;
@@ -42,26 +44,31 @@ public class AuthenticationHandler {
     private static final Log4jLogger LOGGER = LoggerFactory
             .getLogger(RedirectSamlURLBuilder.class);
     public AuthenticationHandler(HttpServletRequest request,
-            HttpServletResponse response, AuthenticationSettings authSettings) {
+            HttpServletResponse response, AuthenticationSettings authSettings, String tenantID) {
 
         this.request = request;
         this.response = response;
         this.authSettings = authSettings;
+        this.tenantID = tenantID;
     }
 
-    private boolean isGetMethod() {
-        String method = authSettings.getIdentityProviderHttpMethod();
+    private boolean isGetMethod() throws NotExistentTenantException {
+        String method = authSettings.getIdentityProviderHttpMethod(tenantID);
         return method != null && method.equals("GET");
     }
 
     private String handleAuthentication(boolean isFromBean)
-            throws SAML2AuthnRequestException {
+            throws SAML2AuthnRequestException, NotExistentTenantException {
         try {
             if (isGetMethod()) {
                 return handleRedirect();
             } else {
                 return handlePost(isFromBean);
             }
+        } catch (NotExistentTenantException e) {
+            getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_TENANT_NOT_FOUND);
+            throw e;
         } catch (Exception e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,
                     LogMessageIdentifier.ERROR_AUTH_REQUEST_GENERATION_FAILED);
@@ -72,7 +79,7 @@ public class AuthenticationHandler {
     }
 
     public String handleAuthentication(boolean isFromBean, HttpSession httpSession)
-            throws SAML2AuthnRequestException {
+            throws SAML2AuthnRequestException, NotExistentTenantException {
         httpSession.setAttribute(Constants.SESS_ATTR_DEFAULT_TIMEOUT,
                 httpSession.getMaxInactiveInterval());
         // set session timeout temporally to 30 minutes for saml
@@ -83,7 +90,7 @@ public class AuthenticationHandler {
     private String handleRedirect() throws Exception {
         Boolean isHttps = Boolean.valueOf(request.isSecure());
         AuthnRequestGenerator gen = new AuthnRequestGenerator(
-                authSettings.getIssuer(), isHttps);
+                authSettings.getIssuer(tenantID), isHttps);
         JAXBElement<AuthnRequestType> authRequest = gen.generateAuthnRequest();
         storeRequestIdInSession(gen.getRequestId());
         String redirectUrl = generateRedirectURL(authRequest);
@@ -114,9 +121,9 @@ public class AuthenticationHandler {
         return OUTCOME_SAMLSP_REDIRECT;
     }
 
-    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest) {
+    private String generateRedirectURL(JAXBElement<AuthnRequestType> authRequest) throws NotExistentTenantException {
 
-        if (authSettings.getIssuer() == null) {
+        if (authSettings.getIssuer(tenantID) == null) {
             return null;
         }
 
@@ -128,7 +135,7 @@ public class AuthenticationHandler {
                     .addRelayState(getRelayState())
                     .addSamlRequest(authRequest)
                     .addRedirectEndpoint(
-                            new URL(authSettings.getIdentityProviderURL()))
+                            new URL(authSettings.getIdentityProviderURL(tenantID)))
                     .getURL();
         } catch (Exception e) {
             getLogger().logError(Log4jLogger.SYSTEM_LOG, e,

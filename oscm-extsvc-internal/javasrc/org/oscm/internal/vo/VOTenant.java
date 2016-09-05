@@ -13,6 +13,8 @@ import org.oscm.internal.types.enumtypes.IdpSettingType;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.oscm.internal.types.enumtypes.IdpSettingType.*;
+
 public class VOTenant extends BaseVO {
 
     private String tenantId;
@@ -46,5 +48,33 @@ public class VOTenant extends BaseVO {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIssuer() {
+        return tenantSettings.get(SSO_ISSUER_ID);
+    }
+
+    public String getIDPURL() {
+        return tenantSettings.get(SSO_IDP_URL);
+    }
+
+    public String getIdpHttpMethod() {
+        return tenantSettings.get(SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD);
+    }
+
+    public String getSigningKeystorePass() {
+        return tenantSettings.get(SSO_SIGNING_KEYSTORE_PASS);
+    }
+
+    public String getSigningKeyAlias() {
+        return  tenantSettings.get(SSO_SIGNING_KEY_ALIAS);
+    }
+
+    public String getSigningKeystore() {
+        return tenantSettings.get(SSO_SIGNING_KEYSTORE);
+    }
+
+    public String getLogoutURL() {
+        return tenantSettings.get(SSO_LOGOUT_URL);
     }
 }

@@ -31,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.saml2.api.AuthnRequestGenerator;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
@@ -66,13 +67,17 @@ public class Saml2CtrlTest {
     private UiDelegate uiDelegateMock;
 
     @Before
-    public void setup() throws SAML2AuthnRequestException,
-            MalformedURLException {
+    public void setup() throws Exception {
         requestMock = mock(HttpServletRequest.class);
         saml2Ctrl = spy(new Saml2Ctrl() {
             @Override
             protected HttpServletRequest getRequest() {
                 return requestMock;
+            }
+
+            @Override
+            protected ConfigurationService getConfigurationService() {
+                return configServiceMock;
             }
         });
 
@@ -92,7 +97,6 @@ public class Saml2CtrlTest {
 
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
         doReturn(TEST_RELAY_STATE).when(saml2Ctrl).getRelayState();
-        doReturn(configServiceMock).when(saml2Ctrl).getConfigService();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(authnReqGenMock).when(saml2Ctrl).getAuthnRequestGenerator();
         doReturn(requestMock).when(saml2Ctrl.ui).getRequest();
@@ -112,7 +116,7 @@ public class Saml2CtrlTest {
     }
 
     @Test
-    public void initModelAndCheckForErrors_OK() {
+    public void initModelAndCheckForErrors_OK() throws NotExistentTenantException {
         // given
 
         // when
@@ -129,7 +133,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_AuthnRequestError_Portal()
-            throws SAML2AuthnRequestException {
+            throws Exception {
         // given
         doThrow(new SAML2AuthnRequestException()).when(authnReqGenMock)
                 .getEncodedAuthnRequest();
@@ -148,7 +152,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_AuthnRequestError_MP()
-            throws SAML2AuthnRequestException {
+            throws Exception {
         // given
         doThrow(new SAML2AuthnRequestException()).when(authnReqGenMock)
                 .getEncodedAuthnRequest();
@@ -167,7 +171,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_URLError_Portal()
-            throws MalformedURLException {
+            throws Exception {
         // given
         doThrow(new MalformedURLException()).when(saml2Ctrl).getAcsUrl();
         doReturn(Boolean.FALSE).when(saml2Ctrl).isOnMarketplace();
@@ -185,7 +189,7 @@ public class Saml2CtrlTest {
 
     @Test
     public void initModelAndCheckForErrors_URLError_MP()
-            throws MalformedURLException {
+            throws Exception {
         // given
         doThrow(new MalformedURLException()).when(saml2Ctrl).getAcsUrl();
         doReturn(Boolean.TRUE).when(saml2Ctrl).isOnMarketplace();
@@ -202,7 +206,7 @@ public class Saml2CtrlTest {
     }
 
     @Test
-    public void getAcsUrl_OK() throws MalformedURLException {
+    public void getAcsUrl_OK() throws Exception {
         // given
         final String expected = "https://some.different.acs.url.de";
         doReturn(expected).when(voConfigSetting).getValue();
@@ -216,7 +220,7 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = MalformedURLException.class)
-    public void getAcsUrl_UIError() throws MalformedURLException {
+    public void getAcsUrl_UIError() throws Exception {
         // given
         doReturn("no_url").when(voConfigSetting).getValue();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
@@ -228,7 +232,7 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = MalformedURLException.class)
-    public void getAcsUrl_UIErrorNull() throws MalformedURLException {
+    public void getAcsUrl_UIErrorNull() throws Exception {
         // given
         doReturn(null).when(voConfigSetting).getValue();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
@@ -240,7 +244,7 @@ public class Saml2CtrlTest {
     }
 
     @Test
-    public void getIssuer_OK() throws SAML2AuthnRequestException {
+    public void getIssuer_OK() throws Exception {
         // given
         final String expectedIssuer = "some_issuerid";
         VOConfigurationSetting voConfig = new VOConfigurationSetting();
@@ -256,7 +260,7 @@ public class Saml2CtrlTest {
     }
 
     @Test(expected = SAML2AuthnRequestException.class)
-    public void getIssuer_Error() throws SAML2AuthnRequestException {
+    public void getIssuer_Error() throws Exception {
         // given
         VOConfigurationSetting voConfig = new VOConfigurationSetting();
         doReturn(voConfig).when(configServiceMock).getVOConfigurationSetting(

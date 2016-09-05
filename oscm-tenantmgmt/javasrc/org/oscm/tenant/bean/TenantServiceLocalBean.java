@@ -26,7 +26,6 @@ import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.tenant.dao.TenantDao;
 import org.oscm.tenant.local.TenantServiceLocal;
 
-@RolesAllowed("PLATFORM_OPERATOR")
 @Interceptors({ InvocationDateContainer.class, org.oscm.interceptor.ExceptionMapper.class })
 @Stateless
 @Local(TenantServiceLocal.class)
@@ -39,12 +38,14 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     DataService dataManager;
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @RolesAllowed("PLATFORM_OPERATOR")
     @Override
     public List<Tenant> getAllTenants() {
         return tenantDao.getAllTenants();
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    @RolesAllowed("PLATFORM_OPERATOR")
     @Override
     public Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return tenantDao.getTenantByTenantId(tenantId);
@@ -79,10 +80,20 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     public List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant) {
         return tenantDao.getAllTenantSettingsForTenant(tenant);
     }
-    
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @Override
     public List<Tenant> getTenantsByIdPattern(String tenantIdPattern) {
         return tenantDao.getTenantsByIdPattern(tenantIdPattern);
+    }
+
+    @Override
+    public Tenant getTenantByTkey(long tenantID) {
+        return tenantDao.find(tenantID);
+    }
+
+    @Override
+    public Tenant getMyTenant() {
+        return tenantDao.getMyTenant();
     }
 }
