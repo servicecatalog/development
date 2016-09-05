@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -34,22 +35,11 @@ import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OperationPendingException;
-import org.oscm.internal.types.exception.OrganizationRemovedException;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.types.exception.SaaSApplicationException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.types.exception.SecurityCheckException;
-import org.oscm.internal.types.exception.UserRoleAssignmentException;
-import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
@@ -114,6 +104,9 @@ public class UserBean extends BaseBean implements Serializable {
 
     @ManagedProperty(value = "#{organizationBean}")
     private OrganizationBean organizationBean;
+
+    @EJB
+    private TenantService tenantService;
 
     private UploadedFile userImport;
     transient ApplicationBean appBean;
@@ -1085,20 +1078,23 @@ public class UserBean extends BaseBean implements Serializable {
         } catch (SAML2AuthnRequestException e) {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
             return OUTCOME_MARKETPLACE_ERROR_PAGE;
+        } catch (NotExistentTenantException e) {
+            //ain't gonna happen
+            return null;
         }
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
         if (authenticationSettings == null) {
             authenticationSettings = new AuthenticationSettings(
-                    getConfigurationService());
+                    tenantService, getConfigurationService());
         }
         return authenticationSettings;
     }
 
     protected AuthenticationHandler getAuthenticationHandler() {
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings());
+                getAuthenticationSettings(), sessionBean.getTenantID());
     }
 
     public UploadedFile getUserImport() {

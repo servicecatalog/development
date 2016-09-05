@@ -10,11 +10,17 @@ package org.oscm.ui.filter;
 
 import java.util.StringTokenizer;
 
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
+
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TENANT_PARAM;
+import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.TENANT_NOT_FOUND;
 
 /**
  * @author stavreva
@@ -22,48 +28,21 @@ import org.oscm.internal.vo.VOConfigurationSetting;
  */
 public class AuthenticationSettings {
 
-    private final String authenticationMode;
-    private final String issuer;
-    private final String identityProviderHttpMethod;
-    private final String identityProviderURL;
-    private final String identityProviderURLContextRoot;
-    private final String tuststorePath;
-    private final String truststorePassword;
-    private String recipient;
+    private String authenticationMode;
+    private String issuer;
+    private String identityProviderHttpMethod;
+    private String identityProviderURL;
+    private String identityProviderURLContextRoot;
+    private TenantService tenantService;
+    private String signingKeystorePass;
+    private String signingKeyAlias;
+    private String signingKeystore;
+    private String logoutURL;
 
-    public AuthenticationSettings(ConfigurationService cfgService) {
-
-        recipient = getConfigurationSetting(cfgService,
-                ConfigurationKey.BASE_URL);
-
-        if (recipient == null || recipient.length() == 0) {
-            recipient = getConfigurationSetting(cfgService,
-                    ConfigurationKey.BASE_URL_HTTPS);
-        }
-        if (recipient != null && !recipient.endsWith("/")) {
-            recipient += "/";
-        }
-
+    public AuthenticationSettings(TenantService tenantService, ConfigurationService cfgService) {
+        this.tenantService = tenantService;
         authenticationMode = getConfigurationSetting(cfgService,
                 ConfigurationKey.AUTH_MODE);
-
-        issuer = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_ISSUER_ID);
-
-        identityProviderURL = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_URL);
-
-        tuststorePath = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_TRUSTSTORE);
-
-        truststorePassword = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD);
-
-        identityProviderURLContextRoot = getContextRoot(identityProviderURL);
-
-        identityProviderHttpMethod = getConfigurationSetting(cfgService,
-                ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD);
-
     }
 
     String getConfigurationSetting(ConfigurationService cfgService,
@@ -98,44 +77,81 @@ public class AuthenticationSettings {
         return AuthenticationMode.SAML_SP.name().equals(authenticationMode);
     }
 
-    public boolean isIdentityProvider() {
-        return AuthenticationMode.SAML_IDP.name().equals(authenticationMode);
-    }
-
     public boolean isInternal() {
         return AuthenticationMode.INTERNAL.name().equals(authenticationMode);
     }
 
-    public boolean isOpenIdRelyingParty() {
-        return AuthenticationMode.OPENID_RP.name().equals(authenticationMode);
-    }
-
-    public String getIssuer() {
+    public String getIssuer(String tenantID) throws NotExistentTenantException {
+        if (issuer == null) {
+            init(tenantID);
+        }
         return issuer;
     }
 
-    public String getIdentityProviderURL() {
+    private void init(String tenantID) throws NotExistentTenantException {
+        if (tenantID == null) {
+            throw new NotExistentTenantException(MISSING_TENANT_PARAM);
+        }
+        VOTenant tenant = tenantService.findByTkey(tenantID);
+        if (tenant == null) {
+            throw new NotExistentTenantException(TENANT_NOT_FOUND);
+        }
+        issuer = tenant.getIssuer();
+        identityProviderURL = tenant.getIDPURL();
+        identityProviderHttpMethod = tenant.getIdpHttpMethod();
+        identityProviderURLContextRoot = getContextRoot(identityProviderURL);
+        signingKeystorePass = tenant.getSigningKeystorePass();
+        signingKeyAlias = tenant.getSigningKeyAlias();
+        signingKeystore = tenant.getSigningKeystore();
+        logoutURL = tenant.getLogoutURL();
+    }
+
+    public String getIdentityProviderURL(String tenantID) throws NotExistentTenantException {
+        if (identityProviderURL == null) {
+            init(tenantID);
+        }
         return identityProviderURL;
     }
 
-    public String getIdentityProviderURLContextRoot() {
+    public String getIdentityProviderURLContextRoot(String tenantID) throws NotExistentTenantException {
+        if (identityProviderURLContextRoot == null) {
+            init(tenantID);
+        }
         return identityProviderURLContextRoot;
     }
 
-    public String getIdentityProviderTruststorePath() {
-        return tuststorePath;
-    }
-
-    public String getIdentityProviderTruststorePassword() {
-        return truststorePassword;
-    }
-
-    public String getIdentityProviderHttpMethod() {
+    public String getIdentityProviderHttpMethod(String tenantID) throws NotExistentTenantException {
+        if (identityProviderHttpMethod == null) {
+            init(tenantID);
+        }
         return identityProviderHttpMethod;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public String getSigningKeystorePass(String tenantID) throws NotExistentTenantException {
+        if (signingKeystorePass == null) {
+            init(tenantID);
+        }
+        return signingKeystorePass;
     }
 
+    public String getSigningKeyAlias(String tenantID) throws NotExistentTenantException {
+        if (signingKeyAlias == null) {
+            init(tenantID);
+        }
+        return signingKeyAlias;
+    }
+
+    public String getSigningKeystore(String tenantID) throws NotExistentTenantException {
+        if (signingKeystore == null) {
+            init(tenantID);
+        }
+        return signingKeystore;
+    }
+
+    public String getLogoutURL(String tenantID) throws NotExistentTenantException {
+        if (logoutURL == null) {
+            init(tenantID);
+        }
+        return logoutURL;
+    }
 }

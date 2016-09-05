@@ -31,5 +31,7 @@ public interface ManageTenantService {
     void setIdpSettingsForTenant(Properties properties, String tenantId)
         throws ObjectNotFoundException, NonUniqueBusinessKeyException;
 
-    boolean doesSettingsForTenantExist(long tenantKey);
+    Properties getTenantIdpSettings(long tenantKey);
+
+    void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException;
 }

@@ -29,7 +29,6 @@ import java.util.List;
 
 @Stateless
 @Remote(TenantService.class)
-@RolesAllowed("PLATFORM_OPERATOR")
 @Interceptors({ InvocationDateContainer.class, ExceptionMapper.class })
 @TransactionAttribute(TransactionAttributeType.MANDATORY)
 public class TenantServiceBean implements TenantService {
@@ -38,6 +37,7 @@ public class TenantServiceBean implements TenantService {
     TenantServiceLocal tenantServiceLocal;
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOTenant> getTenants() {
         List<VOTenant> voTenants = new ArrayList<>();
         for (Tenant tenant : tenantServiceLocal.getAllTenants()) {
@@ -47,6 +47,7 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public VOTenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByTenantId(tenantId));
     }
@@ -73,16 +74,16 @@ public class TenantServiceBean implements TenantService {
     @Override
     public void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException {
-        removeTenantIdpProperties(voTenant);
+        removeTenantIdpProperties(voTenant.getKey());
         for (VOTenantSetting voTenantSetting : tenantSettings) {
             tenantServiceLocal.saveTenantSetting(TenantAssembler.toTenantSetting(voTenantSetting));
         }
     }
 
     @Override
-    public void removeTenantIdpProperties(VOTenant voTenant) throws ObjectNotFoundException {
+    public void removeTenantIdpProperties(long key) throws ObjectNotFoundException {
         Tenant tenant = new Tenant();
-        tenant.setKey(voTenant.getKey());
+        tenant.setKey(key);
         List<TenantSetting> settings = tenantServiceLocal.getAllTenantSettingsForTenant(tenant);
         if (settings.isEmpty()) {
             return;
@@ -103,7 +104,7 @@ public class TenantServiceBean implements TenantService {
         }
         return voTenantSettings;
     }
-    
+
     @Override
     public List<VOTenant> getTenantsByIdPattern(String tenantIdPattern) {
         List<VOTenant> voTenants = new ArrayList<>();
@@ -112,5 +113,15 @@ public class TenantServiceBean implements TenantService {
             voTenants.add(TenantAssembler.toVOTenant(tenant));
         }
         return voTenants;
+    }
+
+    @Override
+    public VOTenant findByTkey(String tkey) {
+        return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByTkey(Long.parseLong(tkey)));
+    }
+
+    @Override
+    public VOTenant getMyTenant() {
+        return TenantAssembler.toVOTenant(tenantServiceLocal.getMyTenant());
     }
 }

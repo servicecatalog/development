@@ -17,6 +17,9 @@ import org.oscm.vo.BaseAssembler;
 public class TenantAssembler extends BaseAssembler {
 
     public static VOTenant toVOTenant(Tenant tenant) {
+        if (tenant == null) {
+            return null;
+        }
         VOTenant voTenant = new VOTenant();
         voTenant.setKey(tenant.getKey());
         voTenant.setVersion(tenant.getVersion());

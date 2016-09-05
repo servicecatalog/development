@@ -24,6 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.constants.Configuration;
@@ -139,7 +142,9 @@ public abstract class BaseBesFilter implements Filter {
         ServiceAccess serviceAccess = new EJBServiceAccess();
         ConfigurationService cfgService = serviceAccess
                 .getService(ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
+        TenantService tenantService = serviceAccess
+                .getService(TenantService.class);
+        authSettings = new AuthenticationSettings(tenantService, cfgService);
     }
 
     /**
@@ -368,7 +373,7 @@ public abstract class BaseBesFilter implements Filter {
      */
     protected void forwardToLoginPage(String relativePath, boolean save,
             HttpServletRequest request, HttpServletResponse response,
-            FilterChain chain) throws IOException, ServletException {
+            FilterChain chain) throws IOException, ServletException, NotExistentTenantException {
 
         String actualLoginPage = getActualLoginPage(request, loginPage,
                 authSettings);
@@ -381,10 +386,10 @@ public abstract class BaseBesFilter implements Filter {
             }
 
             storeRelayStateInSession(relativePath, request);
-
             try {
+                String tenantID = getTenantID(request, response);
                 AuthenticationHandler ah = new AuthenticationHandler(request,
-                        response, authSettings);
+                        response, authSettings, tenantID);
                 ah.handleAuthentication(false, request.getSession());
                 return;
             } catch (SAML2AuthnRequestException e) {
@@ -411,6 +416,18 @@ public abstract class BaseBesFilter implements Filter {
         }
 
         chain.doFilter(request, response);
+    }
+
+    private String getTenantID(HttpServletRequest request, HttpServletResponse response) {
+        String tenantID = request.getParameter("tenantID");
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = JSFUtils.getCookieValue(request, "tenantID");
+        }
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = "0";
+        }
+        JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
+        return tenantID;
     }
 
     ConfigurationService getConfigurationService(HttpServletRequest request) {

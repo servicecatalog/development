@@ -7,6 +7,7 @@
  *******************************************************************************/
 package org.oscm.ui.dialog.classic.manageTenants;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
@@ -33,6 +34,8 @@ import org.oscm.ui.profile.FieldData;
 @ManagedBean
 @ViewScoped
 public class ManageTenantsCtrl extends BaseBean implements Serializable {
+
+    private static final String EXPORT_FILE_NAME = "idpProperties.properties";
 
     @EJB
     private ManageTenantService manageTenantService;
@@ -86,7 +89,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public void setSelectedTenant() {
         POTenant poTenant = getSelectedTenant();
-        model.setClearExportAvailable(manageTenantService.doesSettingsForTenantExist(poTenant.getKey()));
+        model.setClearExportAvailable(!manageTenantService.getTenantIdpSettings(poTenant.getKey()).isEmpty());
         model.setSelectedTenant(poTenant);
         model.setTenantId(new FieldData<String>(poTenant.getTenantId(), false, true));
         model.setTenantDescription(new FieldData<String>(poTenant.getDescription(), false, false));
@@ -111,20 +114,21 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
                 model.getSelectedTenant().setTenantId(model.getTenantId().getValue());
                 model.getSelectedTenant().setDescription(model.getTenantDescription().getValue());
                 manageTenantService.updateTenant(model.getSelectedTenant());
+                model.setSelectedTenantId(model.getSelectedTenant().getTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_SAVED, model.getTenantId().getValue());
-                refreshModelAfterUpdate();
             } else {
                 POTenant poTenant = new POTenant();
                 poTenant.setTenantId(model.getTenantId().getValue());
                 poTenant.setDescription(model.getTenantDescription().getValue());
                 manageTenantService.addTenant(poTenant);
+                model.setSelectedTenantId(poTenant.getTenantId());
                 handleSuccessMessage(BaseBean.INFO_TENANT_ADDED, model.getTenantId().getValue());
-                refreshModel();
             }
         }  catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
-        return null;
+        refreshModel();
+        return OUTCOME_SUCCESS;
     }
 
     private void handleSuccessMessage(String message, String tenantId) {
@@ -135,27 +139,27 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         try {
             manageTenantService.removeTenant(model.getSelectedTenant());
             handleSuccessMessage(BaseBean.INFO_TENANT_DELETED, model.getSelectedTenantId());
-            refreshModel();
+            refreshModelAfterDelete();
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
         return null;
     }
 
-    private void refreshModelAfterUpdate() {
+    private void refreshModel() {
         model.setTenants(manageTenantService.getAllTenants());
         for (POTenant poTenant : manageTenantService.getAllTenants()) {
-            if (poTenant.getKey() == model.getSelectedTenant().getKey()) {
+            if (poTenant.getTenantId().equals(model.getSelectedTenantId())) {
                 model.setSelectedTenant(poTenant);
-                model.setClearExportAvailable(manageTenantService.doesSettingsForTenantExist(poTenant.getKey()));
+                model.setClearExportAvailable(!manageTenantService.getTenantIdpSettings(poTenant.getKey()).isEmpty());
                 model.setTenantIdp(new FieldData<String>(poTenant.getIdp(), true, false));
+                model.setDeleteDisabled(false);
                 return;
             }
         }
-
     }
 
-    private void refreshModel() {
+    private void refreshModelAfterDelete() {
         model.setSelectedTenant(null);
         model.setSelectedTenantId(null);
         model.setClearExportAvailable(false);
@@ -178,36 +182,50 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         Properties propsToStore = new Properties();
         UploadedFile file = model.getFile();
         if (file == null) {
-            ui.handleError(null, "error.organization.ldapsettings.nofile");
+            ui.handleError(null, ERROR_NO_FILE_WITH_IDP_SETTINGS);
             return OUTCOME_ERROR;
         }
         try {
             propsToStore = PropertiesLoader.loadProperties(file
                 .getInputStream());
             manageTenantService.setIdpSettingsForTenant(propsToStore, model.getSelectedTenantId());
-            refreshModelAfterUpdate();
+            refreshModel();
         } catch (IOException e) {
             addMessage(null, FacesMessage.SEVERITY_ERROR, ERROR_UPLOAD);
             return OUTCOME_ERROR;
         }
-        addMessage(null, FacesMessage.SEVERITY_INFO, "info.organization.ldapsettings.imported");
+        addMessage(null, FacesMessage.SEVERITY_INFO, INFO_IDP_SETTINGS_IMPORTED);
 
         return OUTCOME_SUCCESS;
     }
 
     public String exportSettings() throws IOException {
 
-        /*Properties props = new LdapSettingConverter().toProperties(
-            model.getSettings(),
-            Strings.isEmpty(model.getOrganizationIdentifier()));
+        Properties properties = manageTenantService.getTenantIdpSettings(model.getSelectedTenant().getKey());
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            props.store(baos, null);
+            properties.store(baos, null);
             writeSettings(baos.toByteArray());
         } finally {
             baos.close();
-        }*/
+        }
 
+        return OUTCOME_SUCCESS;
+    }
+
+    private void writeSettings(byte[] content) throws IOException {
+        super.writeContentToResponse(content, EXPORT_FILE_NAME,
+            "text/plain");
+    }
+
+    public String clear() {
+        try {
+            manageTenantService.removeTenantIdpSettings(model.getSelectedTenant().getKey());
+            refreshModel();
+        } catch (SaaSApplicationException e) {
+            ui.handleException(e);
+        }
+        addMessage(null, FacesMessage.SEVERITY_INFO, INFO_IDP_SETTINGS_CLEAR);
         return OUTCOME_SUCCESS;
     }
 }

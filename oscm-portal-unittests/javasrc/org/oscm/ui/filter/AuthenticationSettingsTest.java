@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.intf.TenantService;
 import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
@@ -42,9 +43,11 @@ public class AuthenticationSettingsTest {
 
     private AuthenticationSettings authSettings;
     private ConfigurationService cfgMock;
+    private TenantService tenantService;
 
     @Before
     public void setup() throws Exception {
+        tenantService = mock(TenantService.class);
         cfgMock = mock(ConfigurationService.class);
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.BASE_URL,
@@ -93,7 +96,7 @@ public class AuthenticationSettingsTest {
                         Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
                 .getVOConfigurationSetting(ConfigurationKey.SSO_IDP_URL,
                         Configuration.GLOBAL_CONTEXT);
-        authSettings = new AuthenticationSettings(cfgMock);
+        authSettings = new AuthenticationSettings(tenantService, cfgMock);
     }
 
     @Test
@@ -130,16 +133,6 @@ public class AuthenticationSettingsTest {
     }
 
     @Test
-    public void isIdentityProvider() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_IDP, IDP);
-
-        // then
-        assertTrue(authSettings.isIdentityProvider());
-    }
-
-    @Test
     public void isInternal() throws Exception {
 
         // given
@@ -150,23 +143,13 @@ public class AuthenticationSettingsTest {
     }
 
     @Test
-    public void isOpenIdRelyingParty() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.OPENID_RP, IDP);
-
-        // then
-        assertTrue(authSettings.isOpenIdRelyingParty());
-    }
-
-    @Test
     public void getIssuer() throws Exception {
 
         // given
         givenMock(AuthenticationMode.SAML_SP, IDP);
 
         // then
-        assertEquals(ISSUER, authSettings.getIssuer());
+        assertEquals(ISSUER, authSettings.getIssuer("tenantID"));
     }
 
     @Test
@@ -176,7 +159,7 @@ public class AuthenticationSettingsTest {
         givenMock(AuthenticationMode.SAML_SP, IDP);
 
         // then
-        assertEquals(IDP, authSettings.getIdentityProviderURL());
+        assertEquals(IDP, authSettings.getIdentityProviderURL("tenantID"));
     }
 
     @Test
@@ -187,7 +170,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_CONTEXT_ROOT,
-                authSettings.getIdentityProviderURLContextRoot());
+                authSettings.getIdentityProviderURLContextRoot("tenantID"));
     }
 
     @Test
@@ -198,39 +181,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_CONTEXT_ROOT,
-                authSettings.getIdentityProviderURLContextRoot());
-    }
-
-    @Test
-    public void getKeystorePath() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(KEYSTORE_PATH,
-                authSettings.getIdentityProviderTruststorePath());
-    }
-
-    @Test
-    public void getKeystorePassword() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(KEYSTORE_PASSWORD,
-                authSettings.getIdentityProviderTruststorePassword());
-    }
-
-    @Test
-    public void getRecipient() throws Exception {
-
-        // given
-        givenMock(AuthenticationMode.SAML_SP, IDP);
-
-        // then
-        assertEquals(BASE_URL + "/", authSettings.getRecipient());
+                authSettings.getIdentityProviderURLContextRoot("tenantID"));
     }
 
     @Test
@@ -305,7 +256,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_HTTP_METHOD,
-                authSettings.getIdentityProviderHttpMethod());
+                authSettings.getIdentityProviderHttpMethod("tenantID"));
     }
 
 }
