@@ -8,22 +8,6 @@
 
 package org.oscm.ui.beans;
 
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.common.*;
-import org.oscm.billing.external.pricemodel.service.PriceModel;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.SaaSSystemException;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.SessionScoped;
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -32,6 +16,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.ejb.EJB;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+import javax.servlet.ServletRequest;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.oscm.billing.external.pricemodel.service.PriceModel;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.common.*;
 
 /**
  * Managed bean to store session specific values which are not persisted in the
@@ -52,6 +55,7 @@ public class SessionBean implements Serializable {
     private Long subscribeToServiceKey;
     private transient MarketplaceService marketplaceService = null;
     private Boolean selfRegistrationEnabled = null;
+
 
     /**
      * The key of the last edited user group.
@@ -546,5 +550,9 @@ public class SessionBean implements Serializable {
 
     public String getSamlLogoutRequest() {
         return (String) new UiDelegate().getSession().getAttribute("LOGOUT_REQUEST");
+    }
+
+    public String getTenantID() {
+        return JSFUtils.getCookieValue(getRequest(), "tenantID");
     }
 }

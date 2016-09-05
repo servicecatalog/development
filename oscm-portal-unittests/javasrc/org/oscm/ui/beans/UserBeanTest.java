@@ -46,6 +46,7 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.*;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.common.Constants;
@@ -109,9 +110,11 @@ public class UserBeanTest {
     static final String OUTCOME_ADD_USER = "addUser";
 
     private String errorCodeValue = null;
+    private TenantService tenantService;
 
     @Before
     public void setup() throws Exception {
+        tenantService = mock(TenantService.class);
         FacesContextStub contextStub = new FacesContextStub(Locale.ENGLISH) {
             @Override
             public void addMessage(String arg0, FacesMessage arg1) {
@@ -168,7 +171,6 @@ public class UserBeanTest {
         doReturn(loggedInUser).when(userBean).getLoggedInUser();
 
         authSettingsMock = mock(AuthenticationSettings.class);
-        when(authSettingsMock.getRecipient()).thenReturn(BASE_URL);
 
         authHandlerMock = mock(AuthenticationHandler.class);
         doReturn(OUTCOME_SAMLSP_REDIRECT).when(authHandlerMock)
@@ -418,21 +420,16 @@ public class UserBeanTest {
         // given
         ConfigurationService csMock = mockConfigurationService(AuthenticationMode.SAML_SP
                 .name());
-        AuthenticationSettings authSettings = new AuthenticationSettings(csMock);
+        AuthenticationSettings authSettings = new AuthenticationSettings(tenantService, csMock);
         // when
         AuthenticationSettings result = userBean.getAuthenticationSettings();
         // then
-        assertEquals(authSettings.getIssuer(), result.getIssuer());
-        assertEquals(authSettings.getIdentityProviderTruststorePassword(),
-                result.getIdentityProviderTruststorePassword());
-        assertEquals(authSettings.getIdentityProviderTruststorePath(),
-                result.getIdentityProviderTruststorePath());
-        assertEquals(authSettings.getIdentityProviderURL(),
-                result.getIdentityProviderURL());
-        assertEquals(authSettings.getIdentityProviderURLContextRoot(),
-                result.getIdentityProviderURLContextRoot());
-        assertEquals(authSettings.getIssuer(), result.getIssuer());
-        assertEquals(authSettings.getRecipient(), result.getRecipient());
+        assertEquals(authSettings.getIssuer("tenantID"), result.getIssuer("tenantID"));
+        assertEquals(authSettings.getIdentityProviderURL("tenantID"),
+                result.getIdentityProviderURL("tenantID"));
+        assertEquals(authSettings.getIdentityProviderURLContextRoot("tenantID"),
+                result.getIdentityProviderURLContextRoot("tenantID"));
+        assertEquals(authSettings.getIssuer("tenantID"), result.getIssuer("tenantID"));
     }
 
     @Test

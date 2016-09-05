@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
@@ -117,7 +118,9 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     boolean isSAMLAuthentication() {
         ConfigurationService cfgService = getServiceAccess().getService(
                 ConfigurationService.class);
-        authSettings = new AuthenticationSettings(cfgService);
+        TenantService tenantService = getServiceAccess().getService(
+                TenantService.class);
+        authSettings = new AuthenticationSettings(tenantService, cfgService);
         return authSettings.isServiceProvider();
     }
 

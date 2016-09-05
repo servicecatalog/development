@@ -61,50 +61,6 @@ public class IdPResponseFilterTest {
     }
 
     @Test
-    public void isInvalidIdpUrl_nullURL() throws Exception {
-        // given
-        doReturn(null).when(authSettingsMock).getIdentityProviderURL();
-        doReturn(null).when(authSettingsMock)
-                .getIdentityProviderURLContextRoot();
-
-        // then
-        assertTrue(idpFilter.isInvalidIdpUrl(authSettingsMock));
-    }
-
-    @Test
-    public void isInvalidIdpUrl_emptyURL() throws Exception {
-        // given
-        doReturn(EMPTY_STRING).when(authSettingsMock).getIdentityProviderURL();
-        doReturn(null).when(authSettingsMock)
-                .getIdentityProviderURLContextRoot();
-
-        // then
-        assertTrue(idpFilter.isInvalidIdpUrl(authSettingsMock));
-    }
-
-    @Test
-    public void isInvalidIdpUrl_noContextRoot() throws Exception {
-        // given
-        doReturn(NOT_BLANK).when(authSettingsMock).getIdentityProviderURL();
-        doReturn(null).when(authSettingsMock)
-                .getIdentityProviderURLContextRoot();
-
-        // then
-        assertTrue(idpFilter.isInvalidIdpUrl(authSettingsMock));
-    }
-
-    @Test
-    public void isInvalidIdpUrl_valid() throws Exception {
-        // given
-        doReturn(NOT_BLANK).when(authSettingsMock).getIdentityProviderURL();
-        doReturn(NOT_BLANK).when(authSettingsMock)
-                .getIdentityProviderURLContextRoot();
-
-        // then
-        assertFalse(idpFilter.isInvalidIdpUrl(authSettingsMock));
-    }
-
-    @Test
     public void getForwardUrl() throws Exception {
         // given
         doReturn(null).when(requestMock)
@@ -157,54 +113,6 @@ public class IdPResponseFilterTest {
     }
 
     @Test
-    public void containsSAMLResponse_invalidIdpUrl() throws Exception {
-        // given
-        doReturn(Boolean.TRUE).when(authSettingsMock).isServiceProvider();
-        doReturn(Boolean.TRUE).when(idpFilter)
-                .isInvalidIdpUrl(authSettingsMock);
-
-        // then
-        assertFalse(idpFilter.containsSamlResponse(requestMock));
-    }
-
-    @Test
-    public void containsSAMLResponse_noSAMLResponse() throws Exception {
-        // given
-        doReturn(Boolean.TRUE).when(authSettingsMock).isServiceProvider();
-        doReturn(Boolean.FALSE).when(idpFilter)
-                .isInvalidIdpUrl(authSettingsMock);
-        doReturn(null).when(requestMock).getParameter(matches("SAMLResponse"));
-
-        // then
-        assertFalse(idpFilter.containsSamlResponse(requestMock));
-    }
-
-    @Test
-    public void containsSAMLResponse_emptySAMLResponse() throws Exception {
-        // given
-        doReturn(Boolean.TRUE).when(authSettingsMock).isServiceProvider();
-        doReturn(Boolean.FALSE).when(idpFilter)
-                .isInvalidIdpUrl(authSettingsMock);
-        doReturn("").when(requestMock).getParameter(matches("SAMLResponse"));
-
-        // then
-        assertTrue(idpFilter.containsSamlResponse(requestMock));
-    }
-
-    @Test
-    public void containsSAMLResponse_notEmptySAMLResponse() throws Exception {
-        // given
-        doReturn(Boolean.TRUE).when(authSettingsMock).isServiceProvider();
-        doReturn(Boolean.FALSE).when(idpFilter)
-                .isInvalidIdpUrl(authSettingsMock);
-        doReturn("some_saml_response").when(requestMock)
-                .getParameter(matches("SAMLResponse"));
-
-        // then
-        assertTrue(idpFilter.containsSamlResponse(requestMock));
-    }
-
-    @Test
     public void containsSAMLResponse_notServiceProvider() throws Exception {
         // given
         doReturn(Boolean.FALSE).when(authSettingsMock).isServiceProvider();
@@ -232,7 +140,6 @@ public class IdPResponseFilterTest {
         doReturn("exclude pattern").when(filterConfig)
                 .getInitParameter("exclude-url-pattern");
         doReturn(mockSession).when(mockRequest).getSession();
-        doReturn(false).when(idpFilter).isInvalidIdpUrl(mockSettings);
         doReturn(true).when(mockSettings).isServiceProvider();
         doReturn("someSamlResponse").when(mockRequest)
                 .getParameter("SAMLResponse");
@@ -242,11 +149,11 @@ public class IdPResponseFilterTest {
                 "someRelayState");
         SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
-        doReturn("").when(idpFilter).getLogoutURL();
-        doReturn("").when(idpFilter).getKeyAlias();
-        doReturn("").when(idpFilter).getKeystorePath();
-        doReturn("").when(idpFilter).getKeystorePass();
-        doReturn("").when(idpFilter).getIssuer();
+        doReturn("").when(idpFilter).getLogoutURL("tenantID");
+        doReturn("").when(idpFilter).getKeyAlias("tenantID");
+        doReturn("").when(idpFilter).getKeystorePath("tenantID");
+        doReturn("").when(idpFilter).getKeystorePass("tenantID");
+        doReturn("").when(idpFilter).getIssuer("tenantID");
         doReturn("someSAMLSessionId").when(mockExtractor)
                 .getSessionIndex("someSamlResponse");
         doReturn(true).when(mockExtractor).isFromLogin("someSamlResponse");
@@ -283,7 +190,6 @@ public class IdPResponseFilterTest {
         doReturn("exclude pattern").when(filterConfig)
                 .getInitParameter("exclude-url-pattern");
         doReturn(mockSession).when(mockRequest).getSession();
-        doReturn(false).when(idpFilter).isInvalidIdpUrl(mockSettings);
         doReturn(true).when(mockSettings).isServiceProvider();
         doReturn("someSamlResponse").when(mockRequest)
                 .getParameter("SAMLResponse");

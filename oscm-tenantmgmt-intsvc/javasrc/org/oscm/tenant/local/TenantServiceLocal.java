@@ -11,15 +11,18 @@ import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TenantSetting;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
-import java.util.List;
+
+import org.oscm.domobjects.Tenant;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 @Local
 public interface TenantServiceLocal {
-    
+
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getAllTenants();
 
@@ -40,4 +43,9 @@ public interface TenantServiceLocal {
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getTenantsByIdPattern(String tenantIdPattern);
+
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    Tenant getTenantByTkey(long tenantID);
+
+    Tenant getMyTenant();
 }
