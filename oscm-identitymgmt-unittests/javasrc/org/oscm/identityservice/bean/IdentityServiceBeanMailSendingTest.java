@@ -683,7 +683,7 @@ public class IdentityServiceBeanMailSendingTest {
         idSrv.sendMailToCreatedUser("secret", true, new Marketplace(), pUser);
 
         // then verify that mail parameters are correct
-        verify(idSrv.cm, times(1)).getBaseUrl();
+        verify(idSrv.cm, times(1)).getBaseUrlWithTenant(anyString());
         verify(idSrv.cm, times(0)).getMarketplaceUrl(anyString());
 
         ArgumentCaptor<Object[]> ac = ArgumentCaptor.forClass(Object[].class);
@@ -692,7 +692,6 @@ public class IdentityServiceBeanMailSendingTest {
                 any(Marketplace.class));
         Object[] value = ac.getValue();
         assertEquals(pUser.getUserId(), value[0]);
-        assertEquals("baseUrl", value[1]);
     }
 
     @Test
