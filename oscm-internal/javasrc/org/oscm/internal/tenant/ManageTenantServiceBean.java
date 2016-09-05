@@ -93,7 +93,16 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public boolean doesSettingsForTenantExist(long tenantKey) {
-        return !tenantService.getSettingsForTenant(tenantKey).isEmpty();
+    public Properties getTenantIdpSettings(long tenantKey) {
+        Properties properties = new Properties();
+        for (VOTenantSetting voTenantSetting : tenantService.getSettingsForTenant(tenantKey)) {
+            properties.put(voTenantSetting.getName().name(), voTenantSetting.getValue());
+        }
+        return properties;
+    }
+
+    @Override
+    public void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException {
+        tenantService.removeTenantIdpProperties(tenantKey);
     }
 }

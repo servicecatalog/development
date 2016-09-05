@@ -73,16 +73,16 @@ public class TenantServiceBean implements TenantService {
     @Override
     public void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException {
-        removeTenantIdpProperties(voTenant);
+        removeTenantIdpProperties(voTenant.getKey());
         for (VOTenantSetting voTenantSetting : tenantSettings) {
             tenantServiceLocal.saveTenantSetting(TenantAssembler.toTenantSetting(voTenantSetting));
         }
     }
 
     @Override
-    public void removeTenantIdpProperties(VOTenant voTenant) throws ObjectNotFoundException {
+    public void removeTenantIdpProperties(long key) throws ObjectNotFoundException {
         Tenant tenant = new Tenant();
-        tenant.setKey(voTenant.getKey());
+        tenant.setKey(key);
         List<TenantSetting> settings = tenantServiceLocal.getAllTenantSettingsForTenant(tenant);
         if (settings.isEmpty()) {
             return;

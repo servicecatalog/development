@@ -33,7 +33,7 @@ public interface TenantService {
     void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException;
 
-    void removeTenantIdpProperties(VOTenant voTenant) throws ObjectNotFoundException;
+    void removeTenantIdpProperties(long key) throws ObjectNotFoundException;
 
     List<VOTenantSetting> getSettingsForTenant(long key);
 

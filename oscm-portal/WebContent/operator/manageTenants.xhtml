@@ -103,7 +103,7 @@
     <h:form id="importForm" enctype="multipart/form-data">
       <a4j:outputPanel id="idpFile" layout="block">
         <adm:panelGrid>
-          <adm:fileUpload value="#{manageTenantsCtrl.model.file}"
+          <adm:fileUpload value="#{manageTenantsCtrl.model.file}" required="false"
                           disabled="#{empty manageTenantsCtrl.model.selectedTenant}"/>
         </adm:panelGrid>
 
@@ -130,5 +130,8 @@
 
     <adm:confirmPanel text="#{msg['organization.manageTenants.confirmImport']}" panelId="importConfirmPanel"
                       submitId="importConfirmButton" formId="importConfirmationForm" />
+
+    <adm:confirmPanel text="#{msg['operator.manageIdpSettings.confirmClear']}" panelId="clearConfirmPanel"
+                      submitId="clearConfirmButton" formId="clearConfirmationForm" />
   </ui:define>
 </ui:composition>

@@ -235,6 +235,7 @@ public class BaseBean {
     public static final String ERROR_TO_PROCEED_SELECT_UNIT = "error.subscription.unitHasToBeSelected";
     public static final String ERROR_EXTERNAL_PRICEMODEL_NOT_AVAILABLE = "error.externalPricemodel.notavailable";
     public static final String ERROR_BILLING_ID_ALREADY_EXISTS = "ex.NonUniqueBusinessKeyException.BILLING_ADAPTER";
+    public static final String ERROR_NO_FILE_WITH_IDP_SETTINGS = "error.tenant.idpsettings.nofile";
 
     public static final String WARNING_SUBSCRIBE_ONLY_ONCE = "warning.subscription.onlyOne";
     public static final String WARNING_SUBSCRIBE_ONLY_BY_ADMIN = "warning.subscription.onlyByAdmin";
@@ -341,6 +342,8 @@ public class BaseBean {
     public static final String INFO_TENANT_SAVED = "info.tenant.saved";
     public static final String INFO_TENANT_ADDED = "info.tenant.added";
     public static final String INFO_TENANT_DELETED = "info.tenant.deleted";
+    public static final String INFO_IDP_SETTINGS_IMPORTED = "info.tenant.idpsettings.imported";
+    public static final String INFO_IDP_SETTINGS_CLEAR = "info.tenant.idpsettings.clear";
 
     public static final String LABEL_USERINTERFACE_TRANSLARIONS = "label.userinterface.title";
     public static final String LABEL_MAIL_TRANSLARIONS = "label.mail.title";
