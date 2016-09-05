@@ -87,13 +87,4 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
         return tenantDao.getTenantsByIdPattern(tenantIdPattern);
     }
 
-    @Override
-    public Tenant getTenantByTkey(long tenantID) {
-        return tenantDao.find(tenantID);
-    }
-
-    @Override
-    public Tenant getMyTenant() {
-        return tenantDao.getMyTenant();
-    }
 }

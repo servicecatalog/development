@@ -12,6 +12,7 @@ import java.util.StringTokenizer;
 
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
@@ -92,8 +93,10 @@ public class AuthenticationSettings {
         if (tenantID == null) {
             throw new NotExistentTenantException(MISSING_TENANT_PARAM);
         }
-        VOTenant tenant = tenantService.findByTkey(tenantID);
-        if (tenant == null) {
+        VOTenant tenant;
+        try {
+            tenant = tenantService.findByTkey(tenantID);
+        } catch (ObjectNotFoundException e) {
             throw new NotExistentTenantException(TENANT_NOT_FOUND);
         }
         issuer = tenant.getIssuer();
