@@ -12,11 +12,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.BSRDConverter;
 import org.oscm.internal.types.enumtypes.BillingSharesResultType;
 
 /**
@@ -55,7 +53,7 @@ public class BillingSharesResultData extends DomainDataContainer {
     @Column(nullable = false)
     private long organizationTKey;
 
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=BSRDConverter.class )
     @Column(nullable = false)
     private BillingSharesResultType resultType;
 

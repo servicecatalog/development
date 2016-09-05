@@ -1,22 +1,18 @@
 /*******************************************************************************
- *                                                                              
+ *
  *  Copyright FUJITSU LIMITED 2016                                             
- *                                                                              
+ *
  *  Author: groch                                                      
- *                                                                              
+ *
  *  Creation Date: 18.07.2011                                                      
- *                                                                              
+ *
  *  Completion Time: 20.07.2011                                              
- *                                                                              
+ *
  *******************************************************************************/
 
 package org.oscm.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.Serializable;
@@ -31,31 +27,16 @@ import javax.jms.ObjectMessage;
 
 import org.apache.lucene.index.FieldInfos;
 import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.util.ReaderUtil;
+import org.apache.lucene.index.MultiFields;
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.hibernate.search.SearchFactory;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
 import org.oscm.accountservice.bean.AccountServiceBean;
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.CatalogEntry;
-import org.oscm.domobjects.Category;
-import org.oscm.domobjects.CategoryToCatalogEntry;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.PriceModel;
-import org.oscm.domobjects.Product;
-import org.oscm.domobjects.Subscription;
-import org.oscm.domobjects.Tag;
-import org.oscm.domobjects.TechnicalProduct;
-import org.oscm.domobjects.TechnicalProductTag;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.bridge.ProductClassBridge;
 import org.oscm.domobjects.bridge.SubscriptionClassBridge;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
@@ -76,11 +57,7 @@ import org.oscm.serviceprovisioningservice.bean.ServiceProvisioningServiceBean;
 import org.oscm.serviceprovisioningservice.bean.TagServiceBean;
 import org.oscm.serviceprovisioningservice.local.TagServiceLocal;
 import org.oscm.test.EJBTestBase;
-import org.oscm.test.data.Marketplaces;
-import org.oscm.test.data.Organizations;
-import org.oscm.test.data.Products;
-import org.oscm.test.data.Scenario;
-import org.oscm.test.data.Subscriptions;
+import org.oscm.test.data.*;
 import org.oscm.test.ejb.FifoJMSQueue;
 import org.oscm.test.ejb.TestContainer;
 import org.oscm.triggerservice.bean.TriggerQueueServiceBean;
@@ -90,26 +67,12 @@ import org.oscm.types.exceptions.InvalidUserSession;
 public class IndexRequestMasterListenerIT extends EJBTestBase {
 
     private static final String TEMP_INDEX_BASE_DIR = "tempIndexDir";
-    private DataService dm;
-    private static FifoJMSQueue indexerQueue;
-    private PlatformUser user;
-    private LocalizerServiceLocal locSvc;
-    private TagServiceLocal tagSvc;
-    private Marketplace mpGlobal;
-    private TechnicalProduct techProd;
-    private int svcCounter;
-    private long categoryKey;
-    private static String sysPropertyBaseDir = null;
-    private IndexRequestMasterListener irl;
-
     private static final String locale = "en";
-
     private static final List<LocalizedObjectTypes> localizedAttributes = Arrays
             .asList(LocalizedObjectTypes.PRODUCT_MARKETING_NAME,
                     LocalizedObjectTypes.PRODUCT_MARKETING_DESC,
                     LocalizedObjectTypes.PRODUCT_SHORT_DESCRIPTION,
                     LocalizedObjectTypes.PRICEMODEL_DESCRIPTION);
-
     private static final List<String> expectedIndexedAttributesProduct = Arrays
             .asList(ProductClassBridge.SERVICE_NAME + locale,
                     ProductClassBridge.SERVICE_DESCRIPTION + locale,
@@ -128,12 +91,22 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     ProductClassBridge.CATEGORY_NAME
                             + ProductClassBridge.DEFINED_LOCALES_SUFFIX,
                     ProductClassBridge.MP_ID);
-
     private static final List<String> expectedIndexedAttributesSubscription = Arrays
             .asList(SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
                     SubscriptionClassBridge.NAME_REFERENCE,
                     SubscriptionClassBridge.NAME_PARAMETER_VALUE,
                     SubscriptionClassBridge.NAME_UDA_VALUE);
+    private static FifoJMSQueue indexerQueue;
+    private static String sysPropertyBaseDir = null;
+    private DataService dm;
+    private PlatformUser user;
+    private LocalizerServiceLocal locSvc;
+    private TagServiceLocal tagSvc;
+    private Marketplace mpGlobal;
+    private TechnicalProduct techProd;
+    private int svcCounter;
+    private long categoryKey;
+    private IndexRequestMasterListener irl;
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -286,11 +259,12 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 cat.setName("name en");
                 cat.setCategoryId("id");
                 cat.setMarketplaceId(mpGlobal.getMarketplaceId());
-                user.setOrganization(dm.getReference(Marketplace.class,
-                        mpGlobal.getKey()).getOrganization());
+                user.setOrganization(
+                        dm.getReference(Marketplace.class, mpGlobal.getKey())
+                                .getOrganization());
                 cs.saveCategories(Arrays.asList(cat), null, "en");
-                List<VOCategory> list = cs.getCategories(
-                        mpGlobal.getMarketplaceId(), "en");
+                List<VOCategory> list = cs
+                        .getCategories(mpGlobal.getMarketplaceId(), "en");
                 categoryKey = list.get(0).getKey();
                 return null;
             }
@@ -417,13 +391,11 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 return null;
             }
         });
-        assertDocsInIndex(
-                Product.class,
+        assertDocsInIndex(Product.class,
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
                 1, expectedIndexedAttributesProduct.size(),
                 expectedIndexedAttributesProduct);
-        assertDocsInIndex(
-                Subscription.class,
+        assertDocsInIndex(Subscription.class,
                 "Index must still contain 1 document after indexing (although the db contains 4 items)",
                 1, expectedIndexedAttributesSubscription.size(),
                 expectedIndexedAttributesSubscription);
@@ -481,20 +453,22 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             }
         });
 
-        assertDocsInIndex(Product.class, "Index must contain " + 5
-                + " documents after indexing (and so does the db)", 5,
-                expectedIndexedAttributesProduct.size(),
+        assertDocsInIndex(Product.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesProduct.size(),
                 expectedIndexedAttributesProduct);
-        assertDocsInIndex(Subscription.class, "Index must contain " + 5
-                + " documents after indexing (and so does the db)", 5,
-                expectedIndexedAttributesSubscription.size(),
+        assertDocsInIndex(Subscription.class,
+                "Index must contain " + 5
+                        + " documents after indexing (and so does the db)",
+                5, expectedIndexedAttributesSubscription.size(),
                 expectedIndexedAttributesSubscription);
     }
 
     /**
      * When deleting a catalog entry we expect that the system requests the
      * respective product to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -533,8 +507,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key expected - ", keys.get(0),
                 Long.valueOf(irm.getKey()));
-        assertEquals("Wrong class - ", Product.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", Product.class.getName(),
+                irm.getObjectClass().getName());
     }
 
     @Test
@@ -590,8 +564,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 List<Product> products = irl
                         .getProductAndCopiesForIndexUpdate(prod);
                 assertEquals(2, products.size());
-                assertTrue("Keys equal.", products.get(0).getKey() != products
-                        .get(1).getKey());
+                assertTrue("Keys equal.",
+                        products.get(0).getKey() != products.get(1).getKey());
                 return null;
             }
         });
@@ -726,8 +700,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
             public Product call() throws Exception {
                 String prodId = "prodId";
                 final Product prod = Products.createProduct(
-                        Scenario.getSupplier(), techProd, true, prodId, "pMId"
-                                + svcCounter, mpGlobal, dm);
+                        Scenario.getSupplier(), techProd, true, prodId,
+                        "pMId" + svcCounter, mpGlobal, dm);
                 pm.setProduct(prod);
                 dm.persist(pm);
                 dm.flush();
@@ -739,8 +713,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         runTX(new Callable<Void>() {
             @Override
             public Void call() throws Exception {
-                Product pd = dm.getReference(Product.class, pm.getProduct()
-                        .getKey());
+                Product pd = dm.getReference(Product.class,
+                        pm.getProduct().getKey());
                 dm.remove(pd);
                 dm.flush();
                 return null;
@@ -772,7 +746,7 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
      * When deleting a technical product tag we expect that the system requests
      * the respective technical product (resulting in this marketable products)
      * to be indexed again.
-     * 
+     *
      * @throws Exception
      */
     @Test
@@ -832,8 +806,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
         assertTrue(message instanceof IndexRequestMessage);
         IndexRequestMessage irm = (IndexRequestMessage) message;
         assertEquals("Wrong key - ", techProd.getKey(), irm.getKey());
-        assertEquals("Wrong class - ", TechnicalProduct.class.getName(), irm
-                .getObjectClass().getName());
+        assertEquals("Wrong class - ", TechnicalProduct.class.getName(),
+                irm.getObjectClass().getName());
     }
 
     private void assertDocsInIndex(final Class<?> clazz, final String comment,
@@ -854,14 +828,16 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                             .open(clazz);
 
                     try {
-                        assertEquals(comment, expectedNumDocs, reader.numDocs());
+                        assertEquals(comment, expectedNumDocs,
+                                reader.numDocs());
                         if (expectedNumDocs > 0) {
-                            final FieldInfos indexedFieldNames = ReaderUtil
+                            final FieldInfos indexedFieldNames = MultiFields
                                     .getMergedFieldInfos(reader);
                             for (String expectedAttr : expectedAttributes) {
-                                assertNotNull("attribute " + expectedAttr
-                                        + " does not exist in index: "
-                                        + indexedFieldNames,
+                                assertNotNull(
+                                        "attribute " + expectedAttr
+                                                + " does not exist in index: "
+                                                + indexedFieldNames,
                                         indexedFieldNames
                                                 .fieldInfo(expectedAttr));
                             }
@@ -954,7 +930,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                     dm.persist(ce);
                     CategoryToCatalogEntry cc = new CategoryToCatalogEntry();
                     cc.setCatalogEntry(ce);
-                    cc.setCategory(dm.getReference(Category.class, categoryKey));
+                    cc.setCategory(
+                            dm.getReference(Category.class, categoryKey));
                     dm.persist(cc);
                     // also store given localized resources for created product
                     for (LocalizedObjectTypes type : localizedAttributes) {
@@ -1013,8 +990,8 @@ public class IndexRequestMasterListenerIT extends EJBTestBase {
                 prod.setProductId(srcProductId);
                 prod.setVendor(Scenario.getSupplier());
                 prod = (Product) dm.getReferenceByBusinessKey(prod);
-                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE) ? Scenario
-                        .getCustomer() : null;
+                Organization customer = (serviceType == ServiceType.CUSTOMER_TEMPLATE)
+                        ? Scenario.getCustomer() : null;
                 Product copy = prod.copyForCustomer(customer);
                 copy.setStatus(serviceStatus);
                 copy.setType(serviceType);

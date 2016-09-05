@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- Copyright FUJITSU LIMITED 2016-->
- 
-<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
-        http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
-  version="2.0">
+
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+  http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/persistence_2_1.xsd">
+
 
   <persistence-unit name="oscm-domainobjects">
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
     <jta-data-source>BSSDS</jta-data-source>
     <class>org.oscm.domobjects.BillingAdapter</class>
@@ -202,15 +203,18 @@
 
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="validate" />
-      <property name="hibernate.jdbc.batch_size" value="0" />
+      <property name="hibernate.jdbc.batch_size" value="100" />
       <property name="hibernate.ejb.event.post-insert" value="org.oscm.dataservice.bean.HibernateEventListener"/>
       <property name="hibernate.ejb.event.post-update" value="org.oscm.dataservice.bean.HibernateEventListener"/>
       <property name="hibernate.ejb.event.post-delete" value="org.oscm.dataservice.bean.HibernateEventListener"/>
-      <property name="hibernate.show_sql" value="false" />
-      <property name="hibernate.format_sql" value="false" />
+      <property name="hibernate.show_sql" value="true" />
+      <property name="hibernate.format_sql" value="true" />
       <property name="hibernate.jdbc.use_streams_for_binary" value="false" />
-      <property name="hibernate.search.lucene_version" value="LUCENE_36" />
+      <property name="hibernate.search.lucene_version" value="LUCENE_5_3_1" />
       <property name="javax.persistence.sharedCache.mode" value="ALL"/>
+      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+      <property name="hibernate.id.new_generator_mappings" value="false"/>
+      <property name="hibernate.transaction.jta.platform" value="org.hibernate.service.jta.platform.internal.SunOneJtaPlatform"/>
     </properties>
 
   </persistence-unit>

@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc"/>
 	<classpathentry kind="lib" path="/libraries/junit/javalib/junit-4.5.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-webservices-client"/>
@@ -16,13 +16,11 @@
 	<classpathentry kind="lib" path="/libraries/bouncycastle/javalib/bcprov-jdk15-145.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-accountmgmt-unittests"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-unittests-base"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/appserv-rt.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-converter"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-domainobjects"/>
 	<classpathentry kind="src" path="/oscm-apiversioning-client-handler"/>
 	<classpathentry kind="src" path="/oscm-psp-extsvc"/>
+	<classpathentry kind="lib" path="/libraries/jboss-richfaces/javalib/guava-18.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

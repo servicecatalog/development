@@ -52,14 +52,14 @@ import org.oscm.domobjects.annotations.BusinessKey;
                 "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
                 "WHERE ce.marketplace.key=:marketplaceKey " +
                 "AND ce.product.key = p.key " +
-                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
+                "AND p.dataContainer.status IN (org.oscm.internal.types.enumtypes.ServiceStatus.SUSPENDED, org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE) " +
                 "AND EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key AND u2i.forallusers='false') " +
                 "AND ug.key=:userGroupKey"),
         @NamedQuery(name = "UserGroup.findAccessibleServices", query =
                 "SELECT p FROM Product p, CatalogEntry ce, UserGroup ug " +
                 "WHERE ce.marketplace.key=:marketplaceKey " +
                 "AND ce.product.key = p.key " +
-                "AND p.dataContainer.status IN ('SUSPENDED', 'ACTIVE') " +
+                "AND p.dataContainer.status IN (org.oscm.internal.types.enumtypes.ServiceStatus.SUSPENDED, org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE) " +
                 "AND NOT EXISTS (SELECT 1 FROM UserGroupToInvisibleProduct u2i WHERE u2i.usergroup_tkey=:userGroupKey AND u2i.product_tkey=p.key )" +
                 "AND ug.key=:userGroupKey")
 })

@@ -21,18 +21,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
-import javax.ws.rs.core.Response.Status;
 
 import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.types.enumtypes.AuthenticationMode;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.types.constants.Configuration;
 
-import com.sun.enterprise.security.auth.login.common.LoginException;
-import com.sun.jersey.core.util.Base64;
 import com.sun.web.security.WebProgrammaticLoginImpl;
 
 /**
@@ -61,8 +53,8 @@ public class BasicAuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response,
             FilterChain chain) throws IOException, ServletException {
-
-        HttpServletRequest rq = (HttpServletRequest) request;
+        //TODO glassfish upgrade
+        /*HttpServletRequest rq = (HttpServletRequest) request;
         HttpServletResponse rs = (HttpServletResponse) response;
 
         String header = rq.getHeader(CommonParams.HEADER_AUTH);
@@ -97,7 +89,7 @@ public class BasicAuthFilter implements Filter {
             }
 
         }
-
+*/
         chain.doFilter(request, response);
     }
 

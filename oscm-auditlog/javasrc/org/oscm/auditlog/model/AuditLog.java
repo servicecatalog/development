@@ -11,7 +11,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.TableGenerator;
 
 @NamedQueries({
         @NamedQuery(name = "AuditLog.findByDateRange", query = "SELECT o FROM AuditLog o  WHERE creationTime >= :startTime AND creationTime < :endTime ORDER BY creationTime"),
@@ -23,7 +23,7 @@ public class AuditLog implements AuditLogEntry {
     @Id
     @Column(name = "tkey")
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "auditlog_seq")
-    @SequenceGenerator(name = "auditlog_seq", allocationSize = 100)
+    @TableGenerator(table = "hibernate_sequences", name = "auditlog_seq", allocationSize = 100)
     private long key;
 
     @Column(nullable = false)

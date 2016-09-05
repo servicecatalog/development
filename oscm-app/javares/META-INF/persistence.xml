@@ -7,7 +7,7 @@
   version="1.0">
 
   <persistence-unit name="oscm-app">
-    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
     <jta-data-source>BSSAppDS</jta-data-source>
     <class>org.oscm.app.domain.ServiceInstance</class>
     <class>org.oscm.app.domain.ConfigurationSetting</class>

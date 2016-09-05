@@ -34,10 +34,10 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.apache.solr.analysis.LowerCaseFilterFactory;
-import org.apache.solr.analysis.SnowballPorterFilterFactory;
-import org.apache.solr.analysis.WhitespaceTokenizerFactory;
-import org.apache.solr.analysis.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
+import org.apache.lucene.analysis.core.WhitespaceTokenizerFactory;
+import org.apache.lucene.analysis.miscellaneous.WordDelimiterFilterFactory;
+import org.apache.lucene.analysis.snowball.SnowballPorterFilterFactory;
 import org.hibernate.search.annotations.Analyzer;
 import org.hibernate.search.annotations.AnalyzerDef;
 import org.hibernate.search.annotations.ClassBridge;
@@ -75,7 +75,7 @@ import org.oscm.types.exceptions.UserNotAssignedException;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "subscriptionId",
         "organizationKey" }))
 @NamedQueries({
-        @NamedQuery(name = "Subscription.hasSubscriptionsBasedOnOnBehalfServicesForTp", query = "SELECT COUNT(su) FROM Subscription su, TechnicalProduct tp, Product p WHERE tp.organizationKey=:tpOrgKey and tp.dataContainer.allowingOnBehalfActing=true and su.dataContainer.status='ACTIVE' and su.product.key=p.key and p.technicalProduct.key=tp.key)"),
+        @NamedQuery(name = "Subscription.hasSubscriptionsBasedOnOnBehalfServicesForTp", query = "SELECT COUNT(su) FROM Subscription su, TechnicalProduct tp, Product p WHERE tp.organizationKey=:tpOrgKey and tp.dataContainer.allowingOnBehalfActing=true and su.dataContainer.status=org.oscm.internal.types.enumtypes.SubscriptionStatus.ACTIVE and su.product.key=p.key and p.technicalProduct.key=tp.key)"),
         @NamedQuery(name = "Subscription.findByBusinessKey", query = "select obj from Subscription obj where obj.dataContainer.subscriptionId=:subscriptionId and obj.organizationKey=:organizationKey"),
         @NamedQuery(name = "Subscription.getByStatus", query = "select obj from Subscription obj where obj.dataContainer.status = :status"),
         @NamedQuery(name = "Subscription.getForProduct", query = "SELECT s FROM Subscription s WHERE s.dataContainer.status IN (:status)"
@@ -85,9 +85,9 @@ import org.oscm.types.exceptions.UserNotAssignedException;
                 + " and s.product = p and p.technicalProduct = :technicalProduct"),
         @NamedQuery(name = "Subscription.getSubscriptionIdsForMyCustomers", query = "SELECT DISTINCT s.dataContainer.subscriptionId FROM Subscription s WHERE s.product.vendor = :offerer AND s.dataContainer.status IN (:states) ORDER BY s.dataContainer.subscriptionId ASC"),
         @NamedQuery(name = "Subscription.hasCurrentUserSubscriptions", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.dataContainer.status IN (:status) AND EXISTS (SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub)"),
-        @NamedQuery(name = "Subscription.organizationsWithMoreThanOneVisibleSubscription", query = "SELECT COUNT(organization) FROM Organization organization WHERE organization.key=(SELECT sub.organizationKey FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED' GROUP BY sub.organizationKey HAVING COUNT(sub)>1)"),
+        @NamedQuery(name = "Subscription.organizationsWithMoreThanOneVisibleSubscription", query = "SELECT COUNT(organization) FROM Organization organization WHERE organization.key=(SELECT sub.organizationKey FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.INVALID AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.DEACTIVATED GROUP BY sub.organizationKey HAVING COUNT(sub)>1)"),
         @NamedQuery(name = "Subscription.numberOfSubscriptionsForProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product=:product"),
-        @NamedQuery(name = "Subscription.numberOfVisibleSubscriptionsForTechnicalProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
+        @NamedQuery(name = "Subscription.numberOfVisibleSubscriptionsForTechnicalProduct", query = "SELECT COUNT(*) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.INVALID AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.DEACTIVATED"),
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptions", query = "SELECT sub FROM Subscription sub WHERE sub.dataContainer.status IN (:status) AND EXISTS (SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub)"),
         @NamedQuery(name = "Subscription.getCurrentUserSubscriptionsByKeys", query = ""
                 + "SELECT sub FROM Subscription sub "
@@ -95,9 +95,9 @@ import org.oscm.types.exceptions.UserNotAssignedException;
                 + "AND EXISTS "
                 + "(SELECT lic FROM UsageLicense lic WHERE lic.user.key = :userKey AND lic.subscription = sub) "
                 + "AND sub.key in :keys"),
-        @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>'INVALID' AND sub.dataContainer.status<>'DEACTIVATED'"),
+        @NamedQuery(name = "Subscription.numberOfVisibleSubscriptions", query = "SELECT count(sub) FROM Subscription sub WHERE sub.product.technicalProduct.key=:productKey AND sub.organizationKey=:orgKey AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.INVALID AND sub.dataContainer.status<>org.oscm.internal.types.enumtypes.SubscriptionStatus.DEACTIVATED"),
         @NamedQuery(name = "Subscription.getForMarketplace", query = "SELECT sub FROM Subscription sub WHERE sub.marketplace=:marketplace"),
-        @NamedQuery(name = "Subscription.getUsableSubscriptionsForMplAndOrg", query = "SELECT sub FROM Subscription sub WHERE sub.organization=:organization AND sub.marketplace=:marketplace AND sub.dataContainer.status <> 'SUSPENDED'"),
+        @NamedQuery(name = "Subscription.getUsableSubscriptionsForMplAndOrg", query = "SELECT sub FROM Subscription sub WHERE sub.organization=:organization AND sub.marketplace=:marketplace AND sub.dataContainer.status <> org.oscm.internal.types.enumtypes.SubscriptionStatus.SUSPENDED"),
         @NamedQuery(name = "Subscription.instanceIdsForSuppliers", query = "SELECT sub.dataContainer.productInstanceId FROM Subscription sub, Product p, TechnicalProduct tp, Organization sup WHERE sup.dataContainer.organizationId IN (:supplierIds) AND tp.organizationKey=:providerKey AND sub.product.key=p.key AND sub.dataContainer.status IN (:status) AND p.technicalProduct.key=tp.key AND p.vendor.key = sup.key"),
         @NamedQuery(name = "Subscription.getForOrgFetchRoles", query = "SELECT DISTINCT sub, role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.dataContainer.status IN (:status) AND sub.organizationKey =:orgKey ORDER by sub.key ASC"),
         @NamedQuery(name = "Subscription.getSubRoles", query = "SELECT DISTINCT role FROM Subscription sub, Product prod, TechnicalProduct tp LEFT JOIN tp.roleDefinitions role WHERE sub.product = prod AND prod.technicalProduct = tp AND sub.organizationKey =:orgKey AND sub.dataContainer.subscriptionId=:subId ORDER by role.dataContainer.roleId ASC"),
@@ -105,21 +105,21 @@ import org.oscm.types.exceptions.UserNotAssignedException;
         @NamedQuery(name = "Subscription.findUsageLicense", query = "SELECT lic FROM UsageLicense lic WHERE lic.user.dataContainer.userId = :userId AND lic.subscription.key = :subscriptionKey"),
         @NamedQuery(name = "Subscription.getSubscriptionsForMyCustomers", query = "SELECT DISTINCT s FROM Subscription s WHERE s.product.vendor = :offerer AND s.dataContainer.status IN (:states) ORDER BY s.dataContainer.subscriptionId ASC"),
         @NamedQuery(name = "Subscription.getSubscriptionsForMyBrokerCustomers", query = "SELECT DISTINCT sub FROM Subscription sub, Product prod, Product prodTemplate, Product resaleCopyTemplate, Organization organization, OrganizationToRole otr, OrganizationRole orgRole"
-                + " WHERE sub.dataContainer.status IN ('ACTIVE', 'PENDING')"
+                + " WHERE sub.dataContainer.status IN (org.oscm.internal.types.enumtypes.SubscriptionStatus.ACTIVE, org.oscm.internal.types.enumtypes.SubscriptionStatus.PENDING)"
                 + " AND sub.product.key =  prod.key"
-                + " AND prod.dataContainer.type = 'PARTNER_SUBSCRIPTION'"
+                + " AND prod.dataContainer.type = org.oscm.internal.types.enumtypes.ServiceType.PARTNER_SUBSCRIPTION"
                 + " AND prod.template = resaleCopyTemplate"
                 + " AND resaleCopyTemplate.template = prodTemplate"
                 + " AND prodTemplate.vendor = :offerer"
                 + " AND prod.vendor.key= organization.key"
                 + " AND otr.organization.key = organization.key"
                 + " AND otr.organizationRole.key= orgRole.key"
-                + " AND orgRole.dataContainer.roleName= 'BROKER'"
+                + " AND orgRole.dataContainer.roleName= org.oscm.internal.types.enumtypes.OrganizationRoleType.BROKER"
                 + " ORDER BY sub.dataContainer.subscriptionId ASC"),
         @NamedQuery(name = "Subscription.numberOfUsableSubscriptionsForUser", query = "SELECT count(*) FROM Subscription sub"
                 + " WHERE sub.dataContainer.status IN (:status)"
                 + " AND sub.product.template =  :prodTemplate"
-                + " AND (EXISTS (SELECT lic FROM UsageLicense lic WHERE sub.key=lic.subscription.key AND lic.user.key = :userKey) OR EXISTS(SELECT pu FROM PlatformUser pu, RoleAssignment ra WHERE pu.key=:userKey and ra.user.key=pu.key and ra.userRole.dataContainer.roleName='ORGANIZATION_ADMIN'))"),
+                + " AND (EXISTS (SELECT lic FROM UsageLicense lic WHERE sub.key=lic.subscription.key AND lic.user.key = :userKey) OR EXISTS(SELECT pu FROM PlatformUser pu, RoleAssignment ra WHERE pu.key=:userKey and ra.user.key=pu.key and ra.userRole.dataContainer.roleName=org.oscm.internal.types.enumtypes.UserRoleType.ORGANIZATION_ADMIN))"),
         @NamedQuery(name = "Subscription.isNotTerminatedSubscriptionAssignedToUnit", query = "SELECT sub FROM Subscription sub WHERE sub.userGroup.key = :unitKey AND sub.dataContainer.status != (:subscriptionStatus)") })
 @BusinessKey(attributes = { "subscriptionId", "organizationKey" })
 public class Subscription extends DomainObjectWithHistory<SubscriptionData> {

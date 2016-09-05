@@ -20,8 +20,6 @@ import org.junit.Test;
 import org.oscm.test.setup.PropertiesReader;
 import org.oscm.app.ror.data.LPlatformConfiguration;
 import org.oscm.app.ror.data.LPlatformDescriptorConfiguration;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * @author kulle
@@ -37,14 +35,14 @@ public class RorStubClientIT extends RorClientIT {
         IAAS_API_URI = properties.getProperty("iaas.api.uri");
     }
 
-    @Test
-    public void testRsCall() {
-        Client client = Client.create();
-        WebResource webResource = client.resource(IAAS_API_URI
-                + "?Action=ListLPlatform");
-        String result = webResource.get(String.class);
-        System.out.println(result);
-    }
+//    @Test
+//    public void testRsCall() {
+//        Client client = Client.create();
+//        WebResource webResource = client.resource(IAAS_API_URI
+//                + "?Action=ListLPlatform");
+//        String result = webResource.get(String.class);
+//        System.out.println(result);
+//    }
 
     @Test
     public void createLPlatform() throws Exception {

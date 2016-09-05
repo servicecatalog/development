@@ -8,14 +8,7 @@
 
 package org.oscm.rest.mock;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import javax.ws.rs.ApplicationPath;
-
-import com.sun.jersey.api.core.ResourceConfig;
 
 /**
  * Rest Resource Config for Mock endpoints
@@ -23,9 +16,10 @@ import com.sun.jersey.api.core.ResourceConfig;
  * @author miethaner
  */
 @ApplicationPath("/mock")
-public class MockResourceConfig extends ResourceConfig {
+public class MockResourceConfig { //extends ResourceConfig {
 
-    @Override
+    //TODO glassfish upgrade
+    /*@Override
     public Set<Class<?>> getRootResourceClasses() {
         Set<Class<?>> resource = new HashSet<Class<?>>();
 
@@ -57,6 +51,6 @@ public class MockResourceConfig extends ResourceConfig {
     @Override
     public Object getProperty(String arg0) {
         return null;
-    }
+    }*/
 
 }

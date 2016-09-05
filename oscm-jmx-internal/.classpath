@@ -2,10 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="javasrc"/>
 	<classpathentry kind="src" path="javares"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/appserv-rt.jar"/><classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/gf-client.jar"/><classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/><classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/jndi-properties.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
+	<classpathentry kind="lib" path="/libraries/glassfish4/javalib/javaee.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
-	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/websecurity.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-configservice-intsvc"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-billing"/>

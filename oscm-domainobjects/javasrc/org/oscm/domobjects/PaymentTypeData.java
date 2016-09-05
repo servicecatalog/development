@@ -4,11 +4,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.PaymentCollectionTypeConverter;
+import org.oscm.domobjects.converters.UserAccountStatusConverter;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
 
 /**
@@ -29,7 +28,7 @@ public class PaymentTypeData extends DomainDataContainer {
     /**
      * The collection type for this payment type
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = PaymentCollectionTypeConverter.class)
     @Column(nullable = false)
     private PaymentCollectionType collectionType;
 

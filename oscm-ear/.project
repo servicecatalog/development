@@ -3,7 +3,6 @@
 	<name>oscm-ear</name>
 	<comment></comment>
 	<projects>
-		<project>apache-csv</project>
 		<project>oscm-accountmgmt</project>
 		<project>oscm-accountmgmt-intsvc</project>
 		<project>oscm-apiversioning-soapmgmt</project>

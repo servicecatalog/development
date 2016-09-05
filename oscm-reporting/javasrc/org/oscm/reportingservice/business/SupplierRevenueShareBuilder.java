@@ -93,7 +93,7 @@ class SupplierRevenueShareBuilder {
         priceConverter = new PriceConverter(locale);
         idGen = new RdoIdGenerator();
 
-        if (null == this.serviceIdMap) {
+        if (null == serviceIdMap) {
             this.serviceIdMap = serviceIdMap;
         } else {
             this.serviceIdMap = new HashMap<String, String>();
@@ -101,7 +101,7 @@ class SupplierRevenueShareBuilder {
 
         this.marketplaceNameMap = new MarketplaceMap(marketplaceNameMap);
 
-        if (null == this.serviceNameMap) {
+        if (null == serviceNameMap) {
             this.serviceNameMap = serviceNameMap;
         } else {
             this.serviceNameMap = new HashMap<String, String>();

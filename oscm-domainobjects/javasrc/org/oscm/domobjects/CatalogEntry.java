@@ -35,8 +35,8 @@ import javax.persistence.OneToOne;
 @NamedQueries({
         @NamedQuery(name = "CatalogEntry.findByService", query = "SELECT ce FROM CatalogEntry ce WHERE ce.product=:service"),
         @NamedQuery(name = "CatalogEntry.findByTechnicalService", query = "SELECT ce FROM CatalogEntry ce WHERE ce.product.technicalProduct.key=:technicalProductKey"),
-        @NamedQuery(name = "CatalogEntry.countActiveServices", query = "SELECT COUNT(*) FROM CatalogEntry ce WHERE ce.marketplace=:marketplace AND (ce.product.dataContainer.status = 'ACTIVE' OR EXISTS(SELECT p FROM Product p WHERE p.template = ce.product AND p.targetCustomer IS NOT NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p)))"),
-        @NamedQuery(name = "CatalogEntry.countActiveServicesByVendor", query = "SELECT COUNT(*) FROM CatalogEntry ce WHERE ce.marketplace=:marketplace AND ce.product.vendor=:vendor AND (ce.product.dataContainer.status = 'ACTIVE' OR EXISTS(SELECT p FROM Product p WHERE p.template = ce.product AND p.targetCustomer IS NOT NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p)))") })
+        @NamedQuery(name = "CatalogEntry.countActiveServices", query = "SELECT COUNT(*) FROM CatalogEntry ce WHERE ce.marketplace=:marketplace AND (ce.product.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE OR EXISTS(SELECT p FROM Product p WHERE p.template = ce.product AND p.targetCustomer IS NOT NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p)))"),
+        @NamedQuery(name = "CatalogEntry.countActiveServicesByVendor", query = "SELECT COUNT(*) FROM CatalogEntry ce WHERE ce.marketplace=:marketplace AND ce.product.vendor=:vendor AND (ce.product.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE OR EXISTS(SELECT p FROM Product p WHERE p.template = ce.product AND p.targetCustomer IS NOT NULL AND NOT EXISTS (SELECT sub FROM Subscription sub WHERE sub.product = p)))") })
 public class CatalogEntry extends DomainObjectWithHistory<CatalogEntryData> {
 
     private static final long serialVersionUID = -2892684970632621444L;

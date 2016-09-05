@@ -22,7 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.SequenceGenerator;
+import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.AccessType;
@@ -68,9 +68,8 @@ public abstract class DomainObject<D extends DomainDataContainer> implements
      */
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE, generator = "do_seq")
-    @SequenceGenerator(name = "do_seq", allocationSize = 1000)
+    @TableGenerator(table = "hibernate_sequences", name = "do_seq", allocationSize = 1000)
     @Column(name = "TKEY")
-    @AccessType("property")
     // Required to access key without resolving proxy
     private long key;
 

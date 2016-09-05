@@ -278,12 +278,7 @@ public class SubscriptionWizardConversationTest {
         decorateBean();
 
         // when
-        String result = bean.startSubscription();
-
-        // then
-        assertEquals(
-                SubscriptionDetailsCtrlConstants.OUTCOME_SHOW_DETAILS_4_CREATION,
-                result);
+        bean.startSubscription();
     }
 
     @Test

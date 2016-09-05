@@ -11,7 +11,6 @@ package org.oscm.intf;
 import java.util.List;
 import java.util.Set;
 
-import javax.ejb.EJBException;
 import javax.ejb.Remote;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;

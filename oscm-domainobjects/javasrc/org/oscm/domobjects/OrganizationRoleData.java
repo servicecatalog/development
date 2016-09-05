@@ -9,10 +9,10 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.domobjects.converters.ORTConverter;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 
 /**
@@ -37,7 +37,7 @@ public class OrganizationRoleData extends DomainDataContainer {
     /**
      * Stores the string representation of the current role.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = ORTConverter.class)
     @Column(nullable = false, unique = true)
     private OrganizationRoleType roleName;
 

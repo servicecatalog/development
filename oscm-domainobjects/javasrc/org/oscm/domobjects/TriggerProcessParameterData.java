@@ -16,36 +16,18 @@ import java.beans.XMLDecoder;
 import java.io.ByteArrayInputStream;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.oscm.converter.XMLSerializer;
+import org.oscm.domobjects.converters.TPPNConverter;
+import org.oscm.domobjects.handling.XmlStringCleaner;
+import org.oscm.internal.types.enumtypes.*;
+import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
-import org.oscm.converter.XMLSerializer;
-import org.oscm.domobjects.handling.XmlStringCleaner;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.types.enumtypes.TriggerProcessParameterName;
-import org.oscm.internal.types.enumtypes.EventType;
-import org.oscm.internal.types.enumtypes.OfferingType;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.ParameterModificationType;
-import org.oscm.internal.types.enumtypes.ParameterType;
-import org.oscm.internal.types.enumtypes.ParameterValueType;
-import org.oscm.internal.types.enumtypes.PaymentCollectionType;
-import org.oscm.internal.types.enumtypes.PricingPeriod;
-import org.oscm.internal.types.enumtypes.Salutation;
-import org.oscm.internal.types.enumtypes.ServiceAccessType;
-import org.oscm.internal.types.enumtypes.ServiceStatus;
-import org.oscm.internal.types.enumtypes.SessionType;
-import org.oscm.internal.types.enumtypes.SettingType;
-import org.oscm.internal.types.enumtypes.SubscriptionStatus;
-import org.oscm.internal.types.enumtypes.TriggerProcessStatus;
-import org.oscm.internal.types.enumtypes.TriggerType;
-import org.oscm.internal.types.enumtypes.UdaConfigurationType;
-import org.oscm.internal.types.enumtypes.UserAccountStatus;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.SaaSSystemException;
 
 /**
  * JPA managed entity representing the trigger process parameter data.
@@ -147,7 +129,7 @@ public class TriggerProcessParameterData extends DomainDataContainer {
     /**
      * The name of the parameter.
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = TPPNConverter.class)
     @Column(nullable = false)
     private TriggerProcessParameterName name;
 

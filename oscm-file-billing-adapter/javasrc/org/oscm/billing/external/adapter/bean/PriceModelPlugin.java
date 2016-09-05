@@ -17,6 +17,7 @@ import javax.ejb.Remote;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+import javax.ws.rs.client.WebTarget;
 
 import org.oscm.billing.external.context.ContextKey;
 import org.oscm.billing.external.context.ContextValue;
@@ -24,7 +25,6 @@ import org.oscm.billing.external.exception.BillingException;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
 import org.oscm.billing.external.pricemodel.service.PriceModelPluginService;
-import com.sun.jersey.api.client.WebResource;
 
 /**
  * The implementation of the price model interface
@@ -51,7 +51,7 @@ public class PriceModelPlugin implements PriceModelPluginService {
         queryParams.add(locales);
         queryParams.add(context);
 
-        WebResource webResource = restDao.createMultiValueWebResource(
+        WebTarget webResource = restDao.createMultiValueWebResource(
                 properties.getConfigProperty(PRICEMODEL_URL), queryParams);
         List<String> priceModelData = restDao.getPriceModelData(webResource);
 
@@ -123,7 +123,7 @@ public class PriceModelPlugin implements PriceModelPluginService {
 
         Map<String, String> queryParams = new HashMap<String, String>();
         queryParams.put(FILENAME_PARAMETER, fileName);
-        WebResource webResource = restDao.createWebResource(
+        WebTarget webResource = restDao.createWebResource(
                 properties.getConfigProperty(PRICEMODEL_FILE_URL), queryParams);
         return restDao.getFileResponse(webResource);
     }

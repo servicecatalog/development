@@ -28,7 +28,7 @@ import org.oscm.billing.external.context.ContextValueParameterMap;
 import org.oscm.billing.external.context.ContextValueString;
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.billing.external.pricemodel.service.PriceModelContent;
-import com.sun.jersey.api.client.WebResource;
+import javax.ws.rs.client.WebTarget;
 
 public class PriceModelPluginTest {
 
@@ -76,7 +76,7 @@ public class PriceModelPluginTest {
                 .when(properties)
                 .getConfigProperty(PriceModelPlugin.PRICEMODEL_URL);
         Mockito.doReturn(Arrays.asList(PRICE_MODEL_DATA)).when(restDao)
-                .getPriceModelData(Mockito.any(WebResource.class));
+                .getPriceModelData(Mockito.any(WebTarget.class));
         Mockito.doReturn(PM_FILE_EN).when(priceModelPlugin)
                 .getPriceModelFile(PM_FILE_NAME_EN);
         Mockito.doReturn(PM_FILE_DE).when(priceModelPlugin)
@@ -151,7 +151,7 @@ public class PriceModelPluginTest {
                 .when(properties)
                 .getConfigProperty(PriceModelPlugin.PRICEMODEL_URL);
         Mockito.doReturn(null).when(restDao)
-                .getPriceModelData(Mockito.any(WebResource.class));
+                .getPriceModelData(Mockito.any(WebTarget.class));
 
         // when
         PriceModel priceModel = priceModelPlugin.getPriceModel(

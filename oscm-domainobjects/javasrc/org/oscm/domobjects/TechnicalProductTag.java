@@ -37,7 +37,7 @@ import javax.persistence.UniqueConstraint;
                 + "  AND ce.marketplace = mp"
                 + "  AND mp.dataContainer.marketplaceId= :marketplaceId "
                 + "  AND ce.dataContainer.visibleInCatalog = TRUE "
-                + "  AND p.dataContainer.status = 'ACTIVE' "
+                + "  AND p.dataContainer.status = org.oscm.internal.types.enumtypes.ServiceStatus.ACTIVE "
                 + "  AND obj.tag.dataContainer.locale = :locale "
                 + "GROUP BY obj.tag.dataContainer.value "
                 + "HAVING COUNT(*) >= :tagMinScore "

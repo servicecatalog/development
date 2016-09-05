@@ -8,6 +8,8 @@
 
 package org.oscm.subscriptionservice.bean;
 
+import static org.oscm.domobjects.bridge.SubscriptionClassBridge.NAME_SUBSCRIPTION_ID;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -18,11 +20,9 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.queryParser.MultiFieldQueryParser;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.queryParser.QueryParser.Operator;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.Subscription;
@@ -100,12 +100,12 @@ public class SubscriptionSearchServiceBean implements SubscriptionSearchService 
 
     public MultiFieldQueryParser getParser(Analyzer analyzer) {
         MultiFieldQueryParser parser = new MultiFieldQueryParser(
-                Version.LUCENE_36, new String[] {
-                        SubscriptionClassBridge.NAME_SUBSCRIPTION_ID,
+                new String[] {
+                        NAME_SUBSCRIPTION_ID,
                         SubscriptionClassBridge.NAME_REFERENCE,
                         SubscriptionClassBridge.NAME_PARAMETER_VALUE,
                         SubscriptionClassBridge.NAME_UDA_VALUE }, analyzer);
-        parser.setDefaultOperator(Operator.AND);
+        parser.setDefaultOperator(QueryParser.Operator.AND);
 
         return parser;
     }

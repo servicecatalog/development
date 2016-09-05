@@ -12,11 +12,10 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.DHOConverter;
+import org.oscm.domobjects.converters.ETConverter;
 import org.oscm.internal.types.enumtypes.EventType;
 
 /**
@@ -39,8 +38,8 @@ public class EventData extends DomainDataContainer {
     /**
      * The type of the event.
      */
-    @Column(nullable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, updatable = false, columnDefinition = "varchar")
+    @Convert( converter=ETConverter.class )
     private EventType eventType;
 
     public String getEventIdentifier() {

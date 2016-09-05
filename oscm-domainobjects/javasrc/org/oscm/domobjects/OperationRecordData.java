@@ -10,11 +10,9 @@ package org.oscm.domobjects;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.OSConverter;
 import org.oscm.internal.types.enumtypes.OperationStatus;
 
 /**
@@ -29,7 +27,7 @@ public class OperationRecordData extends DomainDataContainer {
     /**
      * The state of the Operation (RUNNING, FINISHED, ERROR).
      */
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = OSConverter.class)
     @Column(nullable = false)
     private OperationStatus status;
 

@@ -12,8 +12,7 @@
 
 package org.oscm.serviceprovisioningservice.bean;
 
-import org.apache.lucene.queryParser.QueryParser;
-
+import org.apache.solr.parser.QueryParser;
 import org.oscm.converter.WhiteSpaceConverter;
 import org.oscm.domobjects.bridge.ProductClassBridge;
 import org.oscm.internal.types.exception.IllegalArgumentException;

@@ -8,11 +8,9 @@
 
 package org.oscm.domobjects;
 
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.*;
 
+import org.oscm.domobjects.converters.METConverter;
 import org.oscm.domobjects.enums.ModifiedEntityType;
 
 /**
@@ -29,7 +27,7 @@ public class ModifiedEntityData extends DomainDataContainer {
 
     private String value;
 
-    @Enumerated(EnumType.STRING)
+    @Convert( converter=METConverter.class )
     @Column(nullable = false)
     private ModifiedEntityType targetObjectType;
 

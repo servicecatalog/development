@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.naming.InitialContext;
 
@@ -42,6 +43,28 @@ public class IndexRequestListenerTest {
                             public Connection createConnection()
                                     throws JMSException {
                                 return conn;
+                            }
+
+                            @Override
+                            public JMSContext createContext() {
+                                return null;
+                            }
+
+                            @Override
+                            public JMSContext createContext(int arg0) {
+                                return null;
+                            }
+
+                            @Override
+                            public JMSContext createContext(String arg0,
+                                    String arg1) {
+                                return null;
+                            }
+
+                            @Override
+                            public JMSContext createContext(String arg0,
+                                    String arg1, int arg2) {
+                                return null;
                             }
                         };
                     }

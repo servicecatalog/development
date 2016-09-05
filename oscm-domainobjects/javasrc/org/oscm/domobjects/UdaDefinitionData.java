@@ -13,10 +13,13 @@
 package org.oscm.domobjects;
 
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embeddable;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 
+import org.hibernate.search.annotations.Analyzer;
+import org.hibernate.search.annotations.Field;
+import org.oscm.domobjects.converters.UCTConverter;
+import org.oscm.domobjects.converters.UTTConverter;
 import org.oscm.internal.types.enumtypes.UdaConfigurationType;
 import org.oscm.types.enumtypes.UdaTargetType;
 
@@ -41,14 +44,14 @@ public class UdaDefinitionData extends DomainDataContainer {
      * The target type of the UDA.
      */
     @Column(nullable = false, updatable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UTTConverter.class)
     private UdaTargetType targetType;
 
     /**
      * The configuration type of the UDA.
      */
     @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Convert(converter = UCTConverter.class)
     private UdaConfigurationType configurationType;
 
     public String getUdaId() {

@@ -9,9 +9,10 @@
 package org.oscm.rest.common;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
 
-import com.sun.jersey.spi.container.ContainerRequest;
-import com.sun.jersey.spi.container.ContainerRequestFilter;
+import java.io.IOException;
 
 /**
  * Request filter for checking the security context.
@@ -23,6 +24,8 @@ public class SecurityFilter implements ContainerRequestFilter {
     /**
      * Check if the connection is secure and the user authenticated.
      */
+    //TODO glassfish upgrade
+    /*
     @Override
     public ContainerRequest filter(ContainerRequest request)
             throws WebApplicationException {
@@ -38,5 +41,10 @@ public class SecurityFilter implements ContainerRequestFilter {
         }
 
         return request;
+    }*/
+
+    @Override
+    public void filter(ContainerRequestContext containerRequestContext) throws IOException {
+
     }
 }
