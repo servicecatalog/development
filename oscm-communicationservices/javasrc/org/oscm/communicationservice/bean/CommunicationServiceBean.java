@@ -269,7 +269,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
             url.append(getBaseUrl());
             if (tenantId != null && tenantId.trim().length() > 0) {
                 removeTrailingSlashes(url);
-                url.append("?tenantId=");
+                url.append("?tenantID=");
                 url.append(URLEncoder.encode(tenantId.trim(), "UTF-8"));
             }
             return url.toString();

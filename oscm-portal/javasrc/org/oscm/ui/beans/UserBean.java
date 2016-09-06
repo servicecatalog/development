@@ -39,8 +39,22 @@ import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.*;
+import org.oscm.internal.types.exception.LoginToClosedMarketplaceException;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OperationPendingException;
+import org.oscm.internal.types.exception.OrganizationRemovedException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.types.exception.SaaSApplicationException;
+import org.oscm.internal.types.exception.SaaSSystemException;
+import org.oscm.internal.types.exception.SecurityCheckException;
+import org.oscm.internal.types.exception.UserRoleAssignmentException;
+import org.oscm.internal.types.exception.ValidationException;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
@@ -1133,8 +1147,18 @@ public class UserBean extends BaseBean implements Serializable {
 
     public String getAdminPortalAddress() {
         if (!getAuthenticationSettings().isInternal()) {
-            //TODO tenantID
-            return appBean.getServerBaseUrl() + "tenantId";
+            String base = appBean.getServerBaseUrl() + "?";
+            String tenantIDFromCookie = JSFUtils.getCookieValue(getRequest(), "tenantID");
+            if (tenantIDFromCookie == null || tenantIDFromCookie.trim().length() == 0) {
+                VOTenant voTenant = tenantService.getMyTenant();
+                if (voTenant != null) {
+                    return base + voTenant.getKey();
+                }
+            } else {
+                // No need to add tenantID param when present in cookie
+                return base;
+            }
+
         }
         return appBean.getServerBaseUrl();
     }

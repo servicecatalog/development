@@ -41,4 +41,6 @@ public interface TenantService {
 
     VOTenant findByTkey(String tkey) throws ObjectNotFoundException;
 
+    VOTenant getMyTenant();
+
 }
