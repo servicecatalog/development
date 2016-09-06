@@ -58,7 +58,6 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
     public Tenant getTenantByKey(long tkey) throws ObjectNotFoundException {
         return dataManager.getReference(Tenant.class, tkey);
     }
