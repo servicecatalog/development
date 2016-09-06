@@ -53,11 +53,13 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void addTenant(VOTenant voTenant) throws NonUniqueBusinessKeyException {
         tenantServiceLocal.saveTenant(TenantAssembler.toTenant(voTenant));
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void updateTenant(VOTenant voTenant)
         throws NonUniqueBusinessKeyException, ObjectNotFoundException, ConcurrentModificationException {
         Tenant tenantToUpdate = tenantServiceLocal.getTenantByKey(voTenant.getKey());
@@ -66,12 +68,14 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void removeTenant(VOTenant voTenant) throws ObjectNotFoundException {
         Tenant tenantToRemove = tenantServiceLocal.getTenantByKey(voTenant.getKey());
         tenantServiceLocal.removeTenant(tenantToRemove);
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException {
         removeTenantIdpProperties(voTenant.getKey());
@@ -81,6 +85,7 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void removeTenantIdpProperties(long key) throws ObjectNotFoundException {
         Tenant tenant = new Tenant();
         tenant.setKey(key);
@@ -94,6 +99,7 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public List<VOTenantSetting> getSettingsForTenant(long key) {
         Tenant tenant = new Tenant();
         tenant.setKey(key);
@@ -116,10 +122,12 @@ public class TenantServiceBean implements TenantService {
     }
 
     @Override
-
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public VOTenant findByTkey(String tkey) throws ObjectNotFoundException {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByKey(Long.parseLong(tkey)));
     }
 
+    public void setTenantServiceLocal(TenantServiceLocal tenantServiceLocal) {
+        this.tenantServiceLocal = tenantServiceLocal;
+    }
 }
