@@ -17,6 +17,10 @@ public class NotExistentTenantException extends SaaSApplicationException {
         super(String.valueOf(reason));
     }
 
+    public NotExistentTenantException(String message) {
+        super(message);
+    }
+
     public enum Reason {
         MISSING_TENANT_PARAM,
         TENANT_NOT_FOUND
