@@ -60,6 +60,8 @@ where information_id='SSO_SIGNING_KEYSTORE_PASS';
 insert into tenantsetting select 7,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_SIGNING_KEYSTORE';
 
+delete from configurationsetting where information_id in ('SSO_IDP_URL', 'SSO_ISSUER_ID', 'SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD', 'SSO_LOGOUT_URL', 'SSO_SIGNING_KEY_ALIAS', 'SSO_SIGNING_KEYSTORE_PASS', 'SSO_SIGNING_KEYSTORE')
+
 
 INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SELECT 'TenantSetting', COALESCE(
     (MAX(tkey)/1000),0)+10 FROM "tenantsetting";
