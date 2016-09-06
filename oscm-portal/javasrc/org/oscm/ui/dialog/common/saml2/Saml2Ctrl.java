@@ -28,6 +28,7 @@ import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
+import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.filter.AuthenticationSettings;
 
 /**
@@ -105,7 +106,7 @@ public class Saml2Ctrl extends BaseBean {
         setSessionAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID, requestId);
     }
     URL getAcsUrl() throws MalformedURLException, NotExistentTenantException {
-        String acsURL = getAuthenticationSettings().getIdentityProviderURL(sessionBean.getTenantID());
+        String acsURL = getAuthenticationSettings().getIdentityProviderURL(JSFUtils.getCookieValue(getRequest(), "tenantID"));
         return new URL(acsURL);
     }
 
@@ -124,7 +125,7 @@ public class Saml2Ctrl extends BaseBean {
     }
 
     String getIssuer() throws SAML2AuthnRequestException, NotExistentTenantException {
-        String issuer = getAuthenticationSettings().getIssuer(sessionBean.getTenantID());
+        String issuer = getAuthenticationSettings().getIssuer(JSFUtils.getCookieValue(getRequest(), "tenantID"));
         if (ADMStringUtils.isBlank(issuer)) {
             throw new SAML2AuthnRequestException(
                     "No issuer set in the configuration settings",

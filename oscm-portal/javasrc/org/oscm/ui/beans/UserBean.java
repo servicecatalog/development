@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import org.oscm.internal.intf.ConfigurationService;
@@ -1094,7 +1095,16 @@ public class UserBean extends BaseBean implements Serializable {
 
     protected AuthenticationHandler getAuthenticationHandler() {
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings(), sessionBean.getTenantID());
+                getAuthenticationSettings(), getTenantID(getRequest(), getResponse()));
+    }
+
+    private String getTenantID(HttpServletRequest request, HttpServletResponse response) {
+        String tenantID = JSFUtils.getCookieValue(request, "tenantID");
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = "1";
+        }
+        JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
+        return tenantID;
     }
 
     public UploadedFile getUserImport() {

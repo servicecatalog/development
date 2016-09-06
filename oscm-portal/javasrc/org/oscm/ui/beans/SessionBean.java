@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ejb.EJB;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 import javax.faces.context.ExternalContext;
@@ -28,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.billing.external.pricemodel.service.PriceModel;
 import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.logging.Log4jLogger;
@@ -552,7 +550,4 @@ public class SessionBean implements Serializable {
         return (String) new UiDelegate().getSession().getAttribute("LOGOUT_REQUEST");
     }
 
-    public String getTenantID() {
-        return JSFUtils.getCookieValue(getRequest(), "tenantID");
-    }
 }
