@@ -40,24 +40,24 @@ ALTER TABLE "tenantsetting" ADD CONSTRAINT "tenantsetting_tenant_fk" FOREIGN KEY
 INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SELECT 'Tenant', COALESCE((MAX(tkey)
     /1000),0)+10 FROM "tenant";
 
-INSERT INTO tenant(tkey, version, tenantid, description) VALUES (0, 1, 'default', 'platform tenant');
+INSERT INTO tenant(tkey, version, tenantid, description) VALUES (1, 1, 'default', 'platform tenant');
 update organization set tenant_tkey=1;
 update marketplace set tenant_tkey=1;
-update platform_user set tenant_tkey=1;
+update platformuser set tenant_tkey=1;
 
-insert into bssuser.tenantsetting select 1,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 1,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_IDP_URL';
-insert into bssuser.tenantsetting select 2,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 2,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_ISSUER_ID';
-insert into bssuser.tenantsetting select 3,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 3,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD';
-insert into bssuser.tenantsetting select 4,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 4,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_LOGOUT_URL';
-insert into bssuser.tenantsetting select 5,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 5,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_SIGNING_KEY_ALIAS';
-insert into bssuser.tenantsetting select 6,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 6,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_SIGNING_KEYSTORE_PASS';
-insert into bssuser.tenantsetting select 7,1,information_id,env_value, 1 from bssuser.configurationsetting
+insert into tenantsetting select 7,1,information_id,env_value, 1 from configurationsetting
 where information_id='SSO_SIGNING_KEYSTORE';
 
 

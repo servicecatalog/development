@@ -424,7 +424,7 @@ public abstract class BaseBesFilter implements Filter {
             tenantID = JSFUtils.getCookieValue(request, "tenantID");
         }
         if (StringUtils.isBlank(tenantID)) {
-            tenantID = "0";
+            tenantID = "1";
         }
         JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
         return tenantID;
