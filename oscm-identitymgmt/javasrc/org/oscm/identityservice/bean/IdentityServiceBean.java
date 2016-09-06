@@ -1895,22 +1895,10 @@ public class IdentityServiceBean implements IdentityService,
 
             } else {
                 if (cs.isServiceProvider()) {
-                    if (marketplaceId == null) {
-                        cm.sendMail(
-                                pu,
-                                EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(),
-                                        cm.getBaseUrlWithTenant(tenantId) },
-                                marketplace);
-                    } else {
-                        cm.sendMail(
-                                pu,
-                                EmailType.USER_CREATED_SAML_SP,
-                                new Object[]{pu.getUserId(),
-                                        cm.getMarketplaceUrl(marketplaceId)},
-                                marketplace);
-                    }
-
+                    cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
+                            new Object[] { pu.getUserId(),
+                                    cm.getMarketplaceUrl(marketplaceId) },
+                            marketplace);
                 } else {
                     cm.sendMail(
                             pu,
