@@ -13,6 +13,10 @@ package org.oscm.internal.types.exception;
  */
 public class NotExistentTenantException extends SaaSApplicationException {
 
+    public NotExistentTenantException() {
+        super();
+    }
+
     public NotExistentTenantException(Reason reason) {
         super(String.valueOf(reason));
     }
