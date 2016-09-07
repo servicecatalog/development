@@ -88,7 +88,9 @@ public class MarketplaceServiceManagePartnerBean implements
             newMarketplace.setBrokerPriceModel(PricingServiceBean
                     .toRevenueShareModel(partnerPriceModel
                             .getRevenueShareBrokerModel()));
-
+            
+            mpServiceLocal.updateTenant(mp, marketplace.getTenantId());
+            
             boolean ownerAssignmentUpdated = mpServiceLocal
                     .updateMarketplace(mp, newMarketplace, marketplace
                             .getName(), marketplace.getOwningOrganizationId(),
@@ -97,7 +99,8 @@ public class MarketplaceServiceManagePartnerBean implements
                                     .getRevenueShareResellerModel()
                                     .getVersion(), partnerPriceModel
                                     .getRevenueShareBrokerModel().getVersion());
-
+            
+            
             // build the response
             LocalizerFacade facade = new LocalizerFacade(localizer, dm
                     .getCurrentUser().getLocale());

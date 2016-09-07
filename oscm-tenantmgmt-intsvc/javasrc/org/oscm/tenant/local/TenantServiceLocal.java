@@ -17,9 +17,6 @@ import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
-import org.oscm.domobjects.Tenant;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-
 @Local
 public interface TenantServiceLocal {
 
@@ -41,7 +38,6 @@ public interface TenantServiceLocal {
 
     List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant);
 
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Tenant> getTenantsByIdPattern(String tenantIdPattern);
 
     Tenant getMyTenant();

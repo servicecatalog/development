@@ -105,4 +105,13 @@ public class ManageTenantServiceBean implements ManageTenantService {
     public void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException {
         tenantService.removeTenantIdpProperties(tenantKey);
     }
+    
+    @Override
+    public List<POTenant> getTenantsByIdPattern(String tenantIdPattern) {
+        List<POTenant> poTenants = new ArrayList<>();
+        for (VOTenant voTenant : tenantService.getTenantsByIdPattern(tenantIdPattern)) {
+            poTenants.add(new POTenant(voTenant));
+        }
+        return poTenants;
+    }
 }

@@ -74,7 +74,8 @@
       <h:panelGroup id="tenantSelection" rendered="#{not newMarketplaceBean.menuBean.applicationBean.internalAuthMode}">
         <adm:outputStep value="#{msg['marketplace.create.selectTenant']}" />
         <adm:panelGrid>
-          <adm:selectTenant context="#{newMarketplaceBean.model.tenantId}" />
+          <adm:selectTenant context="#{newMarketplaceBean.model.tenantId}"
+            suggestionsList="#{newMarketplaceBean.getSuggestionsForTenants}" />
         </adm:panelGrid>
       </h:panelGroup>
 

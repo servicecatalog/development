@@ -34,4 +34,6 @@ public interface ManageTenantService {
     Properties getTenantIdpSettings(long tenantKey);
 
     void removeTenantIdpSettings(long tenantKey) throws ObjectNotFoundException;
+    
+    List<POTenant> getTenantsByIdPattern(String tenantIdPattern);
 }
