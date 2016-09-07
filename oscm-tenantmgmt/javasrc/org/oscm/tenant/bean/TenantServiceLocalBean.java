@@ -53,6 +53,7 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void saveTenant(Tenant tenant) throws NonUniqueBusinessKeyException {
         dataManager.persist(tenant);
     }
