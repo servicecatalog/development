@@ -11,6 +11,7 @@ package org.oscm.ui.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -19,12 +20,13 @@ import static org.mockito.Mockito.verify;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.oscm.internal.intf.TenantService;
-import org.oscm.types.constants.Configuration;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
+import org.oscm.types.constants.Configuration;
 
 /**
  * @author stavreva
@@ -44,10 +46,16 @@ public class AuthenticationSettingsTest {
     private AuthenticationSettings authSettings;
     private ConfigurationService cfgMock;
     private TenantService tenantService;
+    private VOTenant mockTenant;
 
     @Before
     public void setup() throws Exception {
         tenantService = mock(TenantService.class);
+        mockTenant = mock(VOTenant.class);
+        doReturn(ISSUER).when(mockTenant).getIssuer();
+        doReturn(IDP).when(mockTenant).getIDPURL();
+        doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
+        doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.BASE_URL,
@@ -110,13 +118,6 @@ public class AuthenticationSettingsTest {
                 ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT);
         verify(cfgMock, times(1)).getVOConfigurationSetting(
                 ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_URL, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_ISSUER_ID, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                Configuration.GLOBAL_CONTEXT);
         verify(cfgMock, times(1)).getVOConfigurationSetting(
                 ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
                 Configuration.GLOBAL_CONTEXT);
