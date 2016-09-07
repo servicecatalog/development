@@ -39,8 +39,6 @@ public class AuthenticationSettingsTest {
     private static final String IDP_UPPERCASE = IDP.toUpperCase();
     private static final String IDP_CONTEXT_ROOT = "http://idp.de:9080/openam";
     private static final String IDP_HTTP_METHOD = "POST";
-    private static final String KEYSTORE_PATH = "/openam/keystore.jks";
-    private static final String KEYSTORE_PASSWORD = "changeit";
     private static final String BASE_URL = "http://www.example.de";
 
     private AuthenticationSettings authSettings;
@@ -57,40 +55,6 @@ public class AuthenticationSettingsTest {
         doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
         doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT, BASE_URL)).when(cfgMock)
-                .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
-                        Configuration.GLOBAL_CONTEXT);
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
-                        Configuration.GLOBAL_CONTEXT, ISSUER)).when(cfgMock)
-                .getVOConfigurationSetting(ConfigurationKey.SSO_ISSUER_ID,
-                        Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                        Configuration.GLOBAL_CONTEXT, KEYSTORE_PATH)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE,
-                Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(
-                        ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                        Configuration.GLOBAL_CONTEXT, KEYSTORE_PASSWORD)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                Configuration.GLOBAL_CONTEXT);
-
-        doReturn(
-                new VOConfigurationSetting(
-                        ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
-                        Configuration.GLOBAL_CONTEXT, IDP_HTTP_METHOD)).when(
-                cfgMock).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_AUTHENTICATION_REQUEST_HTTP_METHOD,
-                Configuration.GLOBAL_CONTEXT);
-
     }
 
     private void givenMock(AuthenticationMode authMode, String idpUrl) {
@@ -104,6 +68,11 @@ public class AuthenticationSettingsTest {
                         Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
                 .getVOConfigurationSetting(ConfigurationKey.SSO_IDP_URL,
                         Configuration.GLOBAL_CONTEXT);
+        doReturn(
+                new VOConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT, idpUrl)).when(cfgMock)
+                .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
+                        Configuration.GLOBAL_CONTEXT);
         authSettings = new AuthenticationSettings(tenantService, cfgMock);
     }
 
@@ -116,11 +85,6 @@ public class AuthenticationSettingsTest {
         // then
         verify(cfgMock, times(1)).getVOConfigurationSetting(
                 ConfigurationKey.AUTH_MODE, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.BASE_URL, Configuration.GLOBAL_CONTEXT);
-        verify(cfgMock, times(1)).getVOConfigurationSetting(
-                ConfigurationKey.SSO_IDP_TRUSTSTORE_PASSWORD,
-                Configuration.GLOBAL_CONTEXT);
     }
 
     @Test
