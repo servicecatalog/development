@@ -163,6 +163,14 @@ public class UpdateMarketplaceBean extends BaseBean {
         return OUTCOME_SUCCESS;
     }
 
+    public ManageTenantService getManageTenantService() {
+        return manageTenantService;
+    }
+
+    public void setManageTenantService(ManageTenantService manageTenantService) {
+        this.manageTenantService = manageTenantService;
+    }
+
     /**
      * Updates the label of the {@link SelectItem} matching the passed
      * {@link VOMarketplace}.

@@ -41,7 +41,8 @@ public class NewMarketplaceBean extends BaseBean {
     
     @EJB
     private ManageTenantService manageTenantService;
-    
+   
+
     /**
      * @return the menuBean
      */
@@ -56,7 +57,15 @@ public class NewMarketplaceBean extends BaseBean {
     public void setMenuBean(MenuBean menuBean) {
         this.menuBean = menuBean;
     }
+    
+    public ManageTenantService getManageTenantService() {
+        return manageTenantService;
+    }
 
+    public void setManageTenantService(ManageTenantService manageTenantService) {
+        this.manageTenantService = manageTenantService;
+    }
+    
     /**
      * Returns the model to use for creating a new marketplace. If no model is
      * set, it will be initialized with the default values.

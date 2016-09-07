@@ -27,10 +27,10 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import org.oscm.ui.model.NewMarketplace;
 import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.tenant.ManageTenantService;
 import org.oscm.internal.vo.VOMarketplace;
+import org.oscm.ui.model.NewMarketplace;
 
 @SuppressWarnings("boxing")
 public class NewMarketplaceBeanTest {
@@ -38,13 +38,16 @@ public class NewMarketplaceBeanTest {
     NewMarketplaceBean nmpb;
     private MenuBean mb;
     private MarketplaceService mps;
+    private ManageTenantService mts;
 
     @Before
     public void setup() throws Exception {
         nmpb = spy(new NewMarketplaceBean());
         mb = mock(MenuBean.class);
         mps = mock(MarketplaceService.class);
+        mts = mock(ManageTenantService.class);
 
+        nmpb.setManageTenantService(mts);
         doReturn(mps).when(nmpb).getMarketplaceService();
         doNothing().when(nmpb).addMessage(anyString(), any(Severity.class),
                 anyString(), anyString());
@@ -134,5 +137,18 @@ public class NewMarketplaceBeanTest {
 
         nmpb.createMarketplace();
         verifyNoMoreInteractions(mps, mb);
+    }
+
+    @Test
+    public void getSuggestionsForTenant() throws Exception {
+
+        // given
+        String tenantId = "testId";
+
+        // when
+        nmpb.getSuggestionsForTenants(tenantId);
+
+        // then
+        verify(mts, times(1)).getTenantsByIdPattern(tenantId+"%");
     }
 }
