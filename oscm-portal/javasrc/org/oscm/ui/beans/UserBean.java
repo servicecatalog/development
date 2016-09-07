@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
 import org.oscm.internal.intf.ConfigurationService;
@@ -107,6 +109,7 @@ public class UserBean extends BaseBean implements Serializable {
     private List<User> users;
     private String requestedRedirect;
     private String confirmedRedirect;
+    private String tenantID;
     private String serviceLoginType = Constants.REQ_ATTR_LOGIN_TYPE_NO_MPL;
     private AuthenticationSettings authenticationSettings;
 
@@ -124,6 +127,11 @@ public class UserBean extends BaseBean implements Serializable {
 
     private UploadedFile userImport;
     transient ApplicationBean appBean;
+
+    @PostConstruct
+    public void init() {
+        tenantID = getRequest().getParameter("tenantID");
+    }
 
     public MenuBean getMenuBean() {
         return menuBean;
@@ -1108,7 +1116,18 @@ public class UserBean extends BaseBean implements Serializable {
 
     protected AuthenticationHandler getAuthenticationHandler() {
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings(), sessionBean.getTenantID());
+                getAuthenticationSettings(), getTenantID(getRequest(), getResponse()));
+    }
+
+    private String getTenantID(HttpServletRequest request, HttpServletResponse response) {
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = JSFUtils.getCookieValue(request, "tenantID");
+        }
+        if (StringUtils.isBlank(tenantID)) {
+            tenantID = "1";
+        }
+        JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
+        return tenantID;
     }
 
     public UploadedFile getUserImport() {

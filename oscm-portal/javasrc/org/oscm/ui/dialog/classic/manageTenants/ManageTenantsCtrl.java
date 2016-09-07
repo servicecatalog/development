@@ -101,7 +101,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
     private POTenant getSelectedTenant() {
         POTenant poTenant = null;
         try {
-            poTenant = manageTenantService.getTenantByTenantId(model.getSelectedTenantId());
+            poTenant = getManageTenantService().getTenantByTenantId(model.getSelectedTenantId());
         } catch (SaaSApplicationException e) {
             ui.handleException(e);
         }
@@ -131,7 +131,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
-    private void handleSuccessMessage(String message, String tenantId) {
+    public void handleSuccessMessage(String message, String tenantId) {
         ui.handle(new Response(), message, tenantId);
     }
 
@@ -179,14 +179,13 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
 
     public String importSettings() throws SaaSApplicationException {
 
-        Properties propsToStore = new Properties();
         UploadedFile file = model.getFile();
         if (file == null) {
             ui.handleError(null, ERROR_NO_FILE_WITH_IDP_SETTINGS);
             return OUTCOME_ERROR;
         }
         try {
-            propsToStore = PropertiesLoader.loadProperties(file
+            Properties propsToStore = PropertiesLoader.loadProperties(file
                 .getInputStream());
             manageTenantService.setIdpSettingsForTenant(propsToStore, model.getSelectedTenantId());
             refreshModel();
@@ -213,7 +212,7 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         return OUTCOME_SUCCESS;
     }
 
-    private void writeSettings(byte[] content) throws IOException {
+    public void writeSettings(byte[] content) throws IOException {
         super.writeContentToResponse(content, EXPORT_FILE_NAME,
             "text/plain");
     }
@@ -227,5 +226,13 @@ public class ManageTenantsCtrl extends BaseBean implements Serializable {
         }
         addMessage(null, FacesMessage.SEVERITY_INFO, INFO_IDP_SETTINGS_CLEAR);
         return OUTCOME_SUCCESS;
+    }
+
+    public void setManageTenantService(ManageTenantService manageTenantService) {
+        this.manageTenantService = manageTenantService;
+    }
+
+    public ManageTenantService getManageTenantService() {
+        return this.manageTenantService;
     }
 }

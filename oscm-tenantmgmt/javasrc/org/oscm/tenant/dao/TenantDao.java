@@ -34,7 +34,7 @@ public class TenantDao {
 
     public Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         Tenant tenant = new Tenant();
-        tenant.getDataContainer().setTenantId(tenantId);
+        tenant.setTenantId(tenantId);
         return (Tenant) dataManager.getReferenceByBusinessKey(tenant);
     }
 

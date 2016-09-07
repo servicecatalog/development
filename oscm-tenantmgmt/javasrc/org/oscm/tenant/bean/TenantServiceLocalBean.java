@@ -52,6 +52,8 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     public void saveTenant(Tenant tenant) throws NonUniqueBusinessKeyException {
         dataManager.persist(tenant);
     }
@@ -62,21 +64,25 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void removeTenant(Tenant tenant) {
         dataManager.remove(tenant);
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void saveTenantSetting(TenantSetting tenantSetting) throws NonUniqueBusinessKeyException {
         dataManager.persist(tenantSetting);
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public void removeTenantSetting(TenantSetting tenantSetting) throws ObjectNotFoundException {
         dataManager.remove(tenantSetting);
     }
 
     @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
     public List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant) {
         return tenantDao.getAllTenantSettingsForTenant(tenant);
     }
@@ -92,4 +98,11 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
         return tenantDao.getMyTenant();
     }
 
+    public void setDataManager(DataService dataManager) {
+        this.dataManager = dataManager;
+    }
+
+    public void setTenantDao(TenantDao tenantDao) {
+        this.tenantDao = tenantDao;
+    }
 }
