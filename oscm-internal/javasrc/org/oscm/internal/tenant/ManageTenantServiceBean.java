@@ -81,6 +81,7 @@ public class ManageTenantServiceBean implements ManageTenantService {
                     Log4jLogger.SYSTEM_LOG,
                     LogMessageIdentifier.WARN_IGNORE_ILLEGAL_PLATFORM_SETTING,
                     key);
+                continue;
             }
             String value = properties.getProperty(key);
             VOTenantSetting voTenantSetting = new VOTenantSetting();

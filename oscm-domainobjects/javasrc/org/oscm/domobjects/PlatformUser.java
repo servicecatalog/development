@@ -99,7 +99,7 @@ public class PlatformUser extends DomainObjectWithHistory<PlatformUserData> {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Collection<UsageLicense> licenses;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_tkey")
     private Tenant tenant;
 

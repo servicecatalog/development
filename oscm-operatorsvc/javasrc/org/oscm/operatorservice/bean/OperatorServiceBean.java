@@ -44,23 +44,7 @@ import org.oscm.converter.ParameterizedTypes;
 import org.oscm.converter.PriceConverter;
 import org.oscm.converter.XMLConverter;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.BillingResult;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.ImageResource;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationRefToPaymentType;
-import org.oscm.domobjects.OrganizationReference;
-import org.oscm.domobjects.OrganizationRole;
-import org.oscm.domobjects.OrganizationToRole;
-import org.oscm.domobjects.PSP;
-import org.oscm.domobjects.PSPAccount;
-import org.oscm.domobjects.PSPSetting;
-import org.oscm.domobjects.PaymentType;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RevenueShareModel;
-import org.oscm.domobjects.SupportedCountry;
-import org.oscm.domobjects.SupportedCurrency;
+import org.oscm.domobjects.*;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.OrganizationReferenceType;
 import org.oscm.domobjects.enums.RevenueShareModelType;
@@ -183,9 +167,9 @@ public class OperatorServiceBean implements OperatorService {
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
     public VOOrganization registerOrganization(VOOrganization organization,
-            VOImageResource voImageResource, VOUserDetails orgInitialUser,
-            LdapProperties organizationProperties, String marketplaceID,
-            OrganizationRoleType... rolesToGrant)
+        VOImageResource voImageResource, VOUserDetails orgInitialUser,
+        LdapProperties organizationProperties, String marketplaceID,
+        OrganizationRoleType... rolesToGrant)
                     throws NonUniqueBusinessKeyException, ValidationException,
                     OrganizationAuthorityException, IncompatibleRolesException,
                     MailOperationException, OrganizationAuthoritiesException,
@@ -237,7 +221,10 @@ public class OperatorServiceBean implements OperatorService {
                 organizationToCreate = OrganizationAssembler
                         .toCustomer(organization);
             }
-
+            if (organization.getTenantKey() != 0) {
+                Tenant tenant = dm.getReference(Tenant.class, organization.getTenantKey());
+                organizationToCreate.setTenant(tenant);
+            }
             if (organization.getOperatorRevenueShare() != null) {
                 createOperatorPriceModel(organizationToCreate,
                         organization.getOperatorRevenueShare());

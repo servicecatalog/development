@@ -1256,4 +1256,18 @@ public class MarketplaceServiceBean implements MarketplaceService {
     public void clearCachedMarketplaceConfiguration(String marketplaceId) {
         marketplaceCache.resetConfiguration(marketplaceId);
     }
+
+    @Override
+    @RolesAllowed("PLATFORM_OPERATOR")
+    public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
+        List<Marketplace> marketplaces = marketplaceServiceLocal
+            .getAllMarketplacesForTenant(tenantKey);
+        List<VOMarketplace> result = new ArrayList<>();
+        LocalizerFacade facade = new LocalizerFacade(localizer, dm
+            .getCurrentUser().getLocale());
+        for (Marketplace mp : marketplaces) {
+            result.add(MarketplaceAssembler.toVOMarketplace(mp, facade));
+        }
+        return result;
+    }
 }

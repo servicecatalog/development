@@ -32,13 +32,13 @@ public class Tenant extends DomainObjectWithVersioning<TenantData> {
         dataContainer = new TenantData();
     }
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY)
     private Collection<Organization> organizations;
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY)
     private Collection<Marketplace> marketplaces;
 
-    @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "tenant", fetch = FetchType.LAZY)
     private Collection<PlatformUser> platformUsers;
 
     @OneToMany(mappedBy = "tenant", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)

@@ -204,7 +204,7 @@ public class Organization extends DomainObjectWithHistory<OrganizationData> {
     @OrderBy
     private List<MarketplaceAccess> marketplaceAccesses = new ArrayList<MarketplaceAccess>();
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "tenant_tkey")
     private Tenant tenant;
 

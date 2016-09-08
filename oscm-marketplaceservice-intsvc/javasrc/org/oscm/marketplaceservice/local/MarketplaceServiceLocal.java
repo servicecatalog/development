@@ -53,7 +53,7 @@ public interface MarketplaceServiceLocal {
      * 
      * @return the list of marketplaces
      */
-    public List<Marketplace> getAllMarketplaces();
+    List<Marketplace> getAllMarketplaces();
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
     List<Marketplace> getAllAccessibleMarketplacesForOrganization(
@@ -68,7 +68,7 @@ public interface MarketplaceServiceLocal {
      * @return the list of marketplaces where a supplier or a partner can
      *         publish to
      */
-    public List<Marketplace> getMarketplacesForSupplier();
+    List<Marketplace> getMarketplacesForSupplier();
 
     /**
      * Creates the broker, reseller and marketplace price models with the
@@ -87,7 +87,7 @@ public interface MarketplaceServiceLocal {
      * @param marketplaceRevenueShare
      *            the revenue share value for the marketplace
      */
-    public void createRevenueModels(Marketplace mp,
+    void createRevenueModels(Marketplace mp,
             BigDecimal brokerRevenueShare, BigDecimal resellerRevenueShare,
             BigDecimal marketplaceRevenueShare);
 
@@ -118,7 +118,7 @@ public interface MarketplaceServiceLocal {
      *             or broker cannot be retrieved or does not have the required
      *             role
      */
-    public boolean updateOwningOrganization(Marketplace marketplace,
+    boolean updateOwningOrganization(Marketplace marketplace,
             final String newOwningOrganizationId, boolean forCreate)
             throws OperationNotPermittedException, ObjectNotFoundException;
 
@@ -130,7 +130,7 @@ public interface MarketplaceServiceLocal {
      * @param organizaiton
      *            the organization to remove the role for
      */
-    public void removeOwnerRole(Organization organizaiton);
+    void removeOwnerRole(Organization organizaiton);
 
     /**
      * Removes all user roles of type MARKETPLACE_OWNER of users belonging to
@@ -140,7 +140,7 @@ public interface MarketplaceServiceLocal {
      *            the identifier of the organization to remove the user role for
      * @throws ObjectNotFoundException
      */
-    public void removeUserRoles(String organizationId)
+    void removeUserRoles(String organizationId)
             throws ObjectNotFoundException;
 
     /**
@@ -150,7 +150,7 @@ public interface MarketplaceServiceLocal {
      * @throws ObjectNotFoundException
      *             thrown when no marketplace with the given id exists
      */
-    public RevenueShareModel loadMarketplaceRevenueShare(String marketplaceId)
+    RevenueShareModel loadMarketplaceRevenueShare(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -166,7 +166,7 @@ public interface MarketplaceServiceLocal {
      *             if the new marketplace name needs to be saved and the current
      *             user is no marketplace owner.
      */
-    public void updateMarketplaceName(Marketplace marketplace,
+    void updateMarketplaceName(Marketplace marketplace,
             String marketplaceName) throws OperationNotPermittedException;
 
     /**
@@ -180,7 +180,7 @@ public interface MarketplaceServiceLocal {
      * @param organizationKey
      *            the key of the organization to inform the administrators for
      */
-    public void sendNotification(EmailType type, Marketplace marketplace,
+    void sendNotification(EmailType type, Marketplace marketplace,
             long organizationKey);
 
     /**
@@ -195,7 +195,7 @@ public interface MarketplaceServiceLocal {
      *            a list of the owning organization administrators to be
      *            informed
      */
-    public void sendNotification(EmailType type, Marketplace marketplace,
+    void sendNotification(EmailType type, Marketplace marketplace,
             List<PlatformUser> admins);
 
     /**
@@ -214,7 +214,7 @@ public interface MarketplaceServiceLocal {
      * @throws ConcurrentModificationException
      *             thrown if the revenue share model was updated in the meantime
      */
-    public RevenueShareModel updateRevenueShare(
+    RevenueShareModel updateRevenueShare(
             RevenueShareModel revenueShareModel, int version)
             throws ObjectNotFoundException, ValidationException,
             ConcurrentModificationException;
@@ -246,7 +246,7 @@ public interface MarketplaceServiceLocal {
      * @throws UserRoleAssignmentException
      *             if a problem occurs in the user role assignment
      */
-    public boolean updateMarketplace(Marketplace marketplace,
+    boolean updateMarketplace(Marketplace marketplace,
             String marketplaceName, String owningOrganizationId)
             throws ObjectNotFoundException, OperationNotPermittedException,
             ValidationException, UserRoleAssignmentException;
@@ -258,7 +258,7 @@ public interface MarketplaceServiceLocal {
      * @param mp
      *            the marketplace to ensure publishing rights for
      */
-    public void grantPublishingRights(Marketplace mp);
+    void grantPublishingRights(Marketplace mp);
 
     /**
      * Retrieves the marketplace domain object for the specified marketplace
@@ -270,7 +270,7 @@ public interface MarketplaceServiceLocal {
      * @throws ObjectNotFoundException
      *             if the marketplace is not found by its identifier
      */
-    public Marketplace getMarketplace(String marketplaceId)
+    Marketplace getMarketplace(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -318,7 +318,7 @@ public interface MarketplaceServiceLocal {
      * @throws UserRoleAssignmentException
      *             if a problem occurs in the user role assignment
      */
-    public boolean updateMarketplace(Marketplace marketplace,
+    boolean updateMarketplace(Marketplace marketplace,
             Marketplace newMarketplace, String marketplaceName,
             String owningOrganizationId, int marketplaceRevenueShareVersion,
             int resellerRevenueShareVersion, int brokerRevenueShareVersion)
@@ -343,7 +343,7 @@ public interface MarketplaceServiceLocal {
      *             if the marketplace trackingcode is changed by another user in
      *             the time between reading and writing it
      */
-    public void updateMarketplaceTrackingCode(String marketplaceId,
+    void updateMarketplaceTrackingCode(String marketplaceId,
             int marketplaceVersion, String trackingCode)
             throws ObjectNotFoundException, ConcurrentModificationException;
 
@@ -356,7 +356,7 @@ public interface MarketplaceServiceLocal {
      * @throws ObjectNotFoundException
      *             if the marketplace is not found by its ID
      */
-    public String getTrackingCodeFromMarketplace(String marketplaceId)
+    String getTrackingCodeFromMarketplace(String marketplaceId)
             throws ObjectNotFoundException;
 
     /**
@@ -399,7 +399,7 @@ public interface MarketplaceServiceLocal {
      *             if the calling user's organization is neither the supplier of
      *             the service nor an authorized broker or reseller
      */
-    public Product publishService(long serviceKey, CatalogEntry catalogEntry,
+    Product publishService(long serviceKey, CatalogEntry catalogEntry,
             List<VOCategory> categories) throws ObjectNotFoundException,
             ValidationException, NonUniqueBusinessKeyException,
             OperationNotPermittedException;
@@ -516,7 +516,7 @@ public interface MarketplaceServiceLocal {
      *            key of the Organization
      * @return list of marketplaces
      */
-    public List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
+    List<Marketplace> getMarketplacesForOrganizationWithRestrictedAccess(
             long orgKey);
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
@@ -534,7 +534,7 @@ public interface MarketplaceServiceLocal {
      *         owned subscriptions on given marketplace
      * @throws ObjectNotFoundException
      */
-    public List<Object[]> getOrganizationsWithMarketplaceAccess(
+    List<Object[]> getOrganizationsWithMarketplaceAccess(
             String marketplaceId) throws ObjectNotFoundException;
 
     /**
@@ -545,7 +545,7 @@ public interface MarketplaceServiceLocal {
      *            the key of the marketplace
      * @return list of organizations or empty list if not restricted
      */
-    public List<Organization> getAllOrganizationsWithAccessToMarketplace(
+    List<Organization> getAllOrganizationsWithAccessToMarketplace(
             long marketplaceKey);
     
     /**
@@ -560,6 +560,17 @@ public interface MarketplaceServiceLocal {
      *         organization
      * @throws ObjectNotFoundException
      */
-    public boolean updateTenant(Marketplace marketplace, final String tenantId)
+    boolean updateTenant(Marketplace marketplace, final String tenantId)
             throws ObjectNotFoundException;
+
+    /**
+     * Retrives all marketplaces assigned to the given tenant
+     *
+     * @param tenantKey - tenant technical key
+     * @return the list of marketplaces or empty list if no marketplace can be found
+     * @throws ObjectNotFoundException
+     */
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    List<Marketplace> getAllMarketplacesForTenant(
+        long tenantKey) throws ObjectNotFoundException;
 }

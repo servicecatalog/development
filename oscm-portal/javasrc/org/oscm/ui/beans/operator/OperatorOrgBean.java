@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -30,8 +31,11 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 
+import org.oscm.internal.tenant.ManageTenantService;
+import org.oscm.internal.tenant.POTenant;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.PropertiesLoader;
@@ -104,8 +108,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     private VOPSP selectedPSP = null;
     private Long selectedPspAccountKey = null;
     private String pspAccountPaymentTypesAsString = null;
-    private List<SelectItem> selectableMarketplaces;
+    private List<SelectItem> selectableMarketplaces = new ArrayList<>();
     private String selectedMarketplace;
+    private String selectedTenant;
 
     private ImageUploader imageUploader = new ImageUploader(
             ImageType.ORGANIZATION_IMAGE);
@@ -117,6 +122,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
     transient ApplicationBean appBean;
     private Long selectedPaymentTypeKey;
+
+    @EJB
+    ManageTenantService manageTenantService;
 
     /**
      * Registers the newly created organization.
@@ -149,6 +157,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
                 && null != newOrganization.getOperatorRevenueShare()) {
             newOrganization.setOperatorRevenueShare(null);
         }
+        if (StringUtils.isNotBlank(getSelectedTenant())) {
+            newOrganization.setTenantKey(Long.valueOf(getSelectedTenant()));
+        }
         newVoOrganization = getOperatorService().registerOrganization(
                 newOrganization, getImageUploader().getVOImageResource(),
                 newAdministrator, ldapProperties, selectedMarketplace,
@@ -163,6 +174,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         newRoles.clear();
         organizationProperties = null;
         selectedMarketplace = null;
+        selectedTenant = null;
 
         return OUTCOME_SUCCESS;
     }
@@ -176,23 +188,47 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
      *         publish
      */
     public List<SelectItem> getSelectableMarketplaces() {
-        if (selectableMarketplaces == null) {
-            List<VOMarketplace> marketplaces = null;
-
-            if (isLoggedInAndPlatformOperator())
-                marketplaces = getMarketplaceService()
-                        .getAccessibleMarketplacesForOperator();
-
-            List<SelectItem> result = new ArrayList<SelectItem>();
-            // create the selection model based on the read data
-            if (marketplaces != null)
-                for (VOMarketplace vMp : marketplaces) {
-                    result.add(new SelectItem(vMp.getMarketplaceId(),
-                            getLabel(vMp)));
-                }
-            selectableMarketplaces = result;
+        if (!isLoggedInAndPlatformOperator()) {
+            return selectableMarketplaces;
         }
+        List<VOMarketplace> marketplaces = new ArrayList<>();
+        if (getSelectedTenant() != null) {
+            try {
+                marketplaces = getMarketplaceService().getAllMarketplacesForTenant(Long.valueOf(this.selectedTenant));
+            } catch (ObjectNotFoundException e) {
+                selectableMarketplaces = new ArrayList<>();
+                return selectableMarketplaces;
+            }
+        } else {
+            marketplaces = getMarketplaceService()
+                .getAccessibleMarketplacesForOperator();
+        }
+        selectableMarketplaces = toMarketplacesList(marketplaces);
         return selectableMarketplaces;
+    }
+
+    private List<SelectItem> toMarketplacesList(List<VOMarketplace> marketplaces) {
+        List<SelectItem> result = new ArrayList<SelectItem>();
+        if (marketplaces == null) {
+            return result;
+        }
+        for (VOMarketplace vMp : marketplaces) {
+            result.add(new SelectItem(vMp.getMarketplaceId(),
+                getLabel(vMp)));
+        }
+        return result;
+    }
+
+    public List<SelectItem> getSelectableTenants() {
+        if (!isLoggedInAndPlatformOperator()) {
+            return null;
+        }
+        List<POTenant> tenants = manageTenantService.getAllTenants();
+        List<SelectItem> result = new ArrayList<SelectItem>();
+        for (POTenant poTenant : tenants) {
+            result.add(new SelectItem(poTenant.getKey(), poTenant.getTenantId()));
+        }
+        return result;
     }
 
     /**
@@ -1189,4 +1225,19 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         this.ldapSettingVisible = ldapSettingVisible;
     }
 
+    public String getSelectedTenant() {
+        return selectedTenant;
+    }
+
+    public void setSelectedTenant(String selectedTenant) {
+        this.selectedTenant = selectedTenant;
+    }
+
+    public void processValueChange(ValueChangeEvent e){
+        if (e.getNewValue() == null || e.getNewValue().equals("")) {
+            setSelectedTenant(e.getNewValue().toString());
+            return;
+        }
+        setSelectedTenant(null);
+    }
 }

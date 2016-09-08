@@ -1191,4 +1191,18 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
 
         return false;
     }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public List<Marketplace> getAllMarketplacesForTenant(
+        long tenantKey) throws ObjectNotFoundException {
+
+        Tenant tenant = ds.getReference(Tenant.class, tenantKey);
+        Query query = ds.createNamedQuery("Marketplace.getAllForTenant");
+        query.setParameter("tenant", tenant);
+        List<Marketplace> marketplaceList = ParameterizedTypes.list(
+            query.getResultList(), Marketplace.class);
+
+        return marketplaceList;
+    }
 }

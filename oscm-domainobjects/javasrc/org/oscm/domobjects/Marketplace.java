@@ -41,7 +41,9 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
                 + "AND mto.organization_tkey=:organization_tkey AND mto.dataContainer.publishingAccess=:publishingAccessGranted)) "
                 + "OR (mp.dataContainer.open = TRUE AND NOT EXISTS (SELECT mto FROM MarketplaceToOrganization mto "
                 + "WHERE mp.key = mto.marketplace_tkey AND mto.organization_tkey=:organization_tkey "
-                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied)) )") })
+                + "AND mto.dataContainer.publishingAccess=:publishingAccessDenied)) )"),
+        @NamedQuery(name = "Marketplace.getAllForTenant", query = "SELECT mp FROM Marketplace mp WHERE mp"
+                + ".tenant = :tenant") })
 @Entity
 public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
 
@@ -99,7 +101,7 @@ public class Marketplace extends DomainObjectWithHistory<MarketplaceData> {
     @OneToOne(optional = false, cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private RevenueShareModel resellerPriceModel;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "tenant_tkey")
     private Tenant tenant;
 
