@@ -13,7 +13,9 @@
   <c:if test="#{empty disabled}">
     <c:set var="disabled" value="false" />
   </c:if>
-
+  
+  <c:set var="suggestions" value="#{suggestionsList}" />
+  
   <adm:outputLabel value="#{msg['dataTable.header.tenantId']}" required="true"/>
   
   <h:panelGroup>
@@ -40,7 +42,7 @@
             fetchValue="#{tenant.tenantId}"
             var="tenant"
             autofill="false"
-            autocompleteMethod="#{suggestionsList}"
+            autocompleteMethod="#{bean.getSuggestionsForTenants}"
             popupClass="tenant-popup"
             onclick="AdmUtils.removeNonPrintedChars(#{rich:component('tenantId')});"
             oncomplete="AdmUtils.addNothingLabel(#{rich:component('tenantId')}, 'tenant-popup', '#{msg['tenant.noMatch']}');">
