@@ -8,12 +8,9 @@
 
 package org.oscm.ui.dialog.classic.operator;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.spy;
-import static org.oscm.test.matchers.JavaMatchers.hasItems;
-import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -23,6 +20,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.oscm.test.matchers.JavaMatchers.hasItems;
+import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,22 @@ import javax.faces.context.FacesContext;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.intf.AccountService;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.UserAccountStatus;
+import org.oscm.internal.types.exception.MailOperationException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.OperationNotPermittedException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.usermanagement.POUserAndOrganization;
+import org.oscm.internal.usermanagement.UserManagementService;
+import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOUser;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
@@ -43,21 +57,6 @@ import org.oscm.ui.beans.MarketplaceBean;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
 import org.oscm.ui.model.Marketplace;
-import org.oscm.internal.intf.AccountService;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.OperatorService;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.exception.MailOperationException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
-import org.oscm.internal.types.exception.OperationNotPermittedException;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.usermanagement.UserManagementService;
-import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOUser;
-import org.oscm.internal.vo.VOUserDetails;
-import org.oscm.ui.model.User;
 
 /**
  * @author ZhouMin
@@ -449,6 +448,48 @@ public class OperatorManageUsersCtrlTest {
             }
         }
         assertTrue(hasFirst && hasSecond);
+    }
+
+    @Test
+    public void getDataTableHeaders() {
+        //given
+        List<String> expectedHeaders = new ArrayList<>();
+        expectedHeaders.add("userId");
+        expectedHeaders.add("email");
+        expectedHeaders.add("organizationName");
+        expectedHeaders.add("organizationId");
+        //when
+        final List<String> dataTableHeaders = bean.getDataTableHeaders();
+        //then
+        for (String header : expectedHeaders) {
+            assertTrue(dataTableHeaders.contains(header));
+        }
+    }
+
+    @Test
+    public void lockUser() throws Exception {
+        //given
+        VOUser voUser = mock(VOUser.class);
+        OperatorManageUsersModel mockModel = mock(OperatorManageUsersModel.class);
+        bean.setModel(mockModel);
+        doReturn(voUser).when(mockModel).getUser();
+        //when
+        bean.lockUser();
+        //then
+        verify(operatorService, times(1)).setUserAccountStatus(any(VOUser.class), any(UserAccountStatus.class));
+    }
+
+    @Test
+    public void unlockUser() throws Exception {
+        //given
+        VOUser voUser = mock(VOUser.class);
+        OperatorManageUsersModel mockModel = mock(OperatorManageUsersModel.class);
+        bean.setModel(mockModel);
+        doReturn(voUser).when(mockModel).getUser();
+        //when
+        bean.unlockUser();
+        //then
+        verify(operatorService, times(1)).setUserAccountStatus(any(VOUser.class), any(UserAccountStatus.class));
     }
 
     private void prepareLdapUser() throws ObjectNotFoundException {
