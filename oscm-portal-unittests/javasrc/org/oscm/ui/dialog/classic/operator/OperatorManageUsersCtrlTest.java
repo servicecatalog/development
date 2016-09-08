@@ -8,6 +8,8 @@
 
 package org.oscm.ui.dialog.classic.operator;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.spy;
 import static org.oscm.test.matchers.JavaMatchers.hasItems;
 import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 import static org.junit.Assert.assertEquals;
@@ -27,10 +29,13 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
@@ -52,12 +57,14 @@ import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.ui.model.User;
 
 /**
  * @author ZhouMin
- * 
+ *
  */
 public class OperatorManageUsersCtrlTest {
+
     private VOUser user;
     private ServiceLocator sl;
     private OperatorManageUsersCtrl bean;
@@ -144,7 +151,7 @@ public class OperatorManageUsersCtrlTest {
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
         availableMarketplaces(123, 1234);
         bean.model.setInitialized(false);
-        
+
         // when
         bean.getInitialize();
 
@@ -159,7 +166,7 @@ public class OperatorManageUsersCtrlTest {
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
         bean.model.setInitialized(true);
         availableMarketplaces(123, 1234, 11);
-        
+
         // when
         bean.getInitialize();
 
@@ -378,7 +385,74 @@ public class OperatorManageUsersCtrlTest {
         verify(bean.ui, times(0)).handle(anyString(), anyString());
     }
 
+    @Test
+    public void updateSelectedUserTest() throws Exception {
+        //given
+        String id = "someUser";
+        bean.setSelectedUserId(id);
+        VOUser mockUser = mock(VOUser.class);
+        when(idService.getUser(any(VOUser.class))).thenReturn(mockUser);
+        when(mockUser.getUserId()).thenReturn(id);
+        //when
+        bean.updateSelectedUser();
+        //then
+        assertTrue(bean.model.getUser().getUserId().equals(id));
+    }
+
+    @Test
+    public void suggestTest() {
+        //given
+        //when
+        FacesContext mockFacesContext = mock(FacesContext.class);
+        UIComponent mockUIComponent = mock(UIComponent.class);
+        bean.suggest(mockFacesContext, mockUIComponent, "userId");
+        //then no exceptions
+    }
+
+    @Test
+    public void getUsersList() throws OrganizationAuthoritiesException {
+        // given
+        VOUserDetails user1 = new VOUserDetails();
+        user1.setUserId("user1ID");
+        user1.setEMail("user1Email");
+        user1.setOrganizationName("user1OrgName");
+        user1.setOrganizationId("user1OrgID");
+
+        VOUserDetails user2 = new VOUserDetails();
+        user2.setUserId("user2ID");
+        user2.setEMail("user2Email");
+        user2.setOrganizationName("user2OrgName");
+        user2.setOrganizationId("user2OrgID");
+
+        List<VOUserDetails> usersListVO = new ArrayList<>();
+        usersListVO.add(user1);
+        usersListVO.add(user2);
+
+        when(operatorService.getUsers(any(String.class))).thenReturn(usersListVO);
+        // when
+        final List<POUserAndOrganization> resultList = bean.getUsersList();
+        // then
+        boolean hasFirst = false;
+        boolean hasSecond = false;
+        for (POUserAndOrganization obj : resultList) {
+            if (obj.getUserId().equals("user1ID")
+                    && obj.getEmail().equals("user1Email")
+                    && obj.getOrganizationId().equals("user1OrgID")
+                    && obj.getOrganizationName().equals("user1OrgName")) {
+                hasFirst = true;
+            }
+            if (obj.getUserId().equals("user2ID")
+                    && obj.getEmail().equals("user2Email")
+                    && obj.getOrganizationId().equals("user2OrgID")
+                    && obj.getOrganizationName().equals("user2OrgName")) {
+                hasSecond = true;
+            }
+        }
+        assertTrue(hasFirst && hasSecond);
+    }
+
     private void prepareLdapUser() throws ObjectNotFoundException {
+
         VOUser voUser = new VOUser();
         voUser.setOrganizationId("organizationId");
         bean.getModel().setUser(voUser);
