@@ -25,6 +25,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.interceptor.Interceptors;
 import javax.persistence.Query;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.categorizationService.local.CategorizationServiceLocal;
 import org.oscm.communicationservice.local.CommunicationServiceLocal;
@@ -1173,7 +1174,7 @@ public class MarketplaceServiceLocalBean implements MarketplaceServiceLocal {
     public boolean updateTenant(Marketplace marketplace, String tenantId)
             throws ObjectNotFoundException {
         
-        if(tenantId==null){
+        if(StringUtils.isBlank(tenantId)){
             return false;
         }
         
