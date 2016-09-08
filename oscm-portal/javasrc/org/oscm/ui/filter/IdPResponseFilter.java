@@ -8,15 +8,12 @@
 
 package org.oscm.ui.filter;
 
-import static org.oscm.internal.types.exception.NotExistentTenantException.Reason.MISSING_TENANT_PARAM;
-
 import java.io.IOException;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.NotExistentTenantException;
@@ -155,9 +152,6 @@ public class IdPResponseFilter implements Filter {
                 .getSessionIndex(samlResponse);
         String nameID = getSamlResponseExtractor().getUserId(samlResponse);
         String tenantID = JSFUtils.getCookieValue(request, "tenantID");
-        if (StringUtils.isBlank(tenantID)) {
-            throw new NotExistentTenantException(MISSING_TENANT_PARAM);
-        }
         String logoutRequest = logoutRequestGenerator.generateLogoutRequest(
                 samlSessionId, nameID, getLogoutURL(tenantID),
                 getKeystorePath(tenantID), getIssuer(tenantID),

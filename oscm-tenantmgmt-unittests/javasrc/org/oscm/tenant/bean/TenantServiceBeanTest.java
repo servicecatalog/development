@@ -159,6 +159,52 @@ public class TenantServiceBeanTest {
         //then
         assertEquals(voTenantsettings.size(), 1);
     }
+    
+    @Test
+    public void testTenantByIdPattern() {
+        
+        //given
+        ArrayList<Tenant> tenants = new ArrayList<Tenant>();
+        tenants.add(prepareTenant());
+        when(tenantServiceLocal.getTenantsByIdPattern(anyString())).thenReturn(tenants);
+
+        //when
+        List<VOTenant> voTenants = tenantServiceBean.getTenantsByIdPattern("tenant Id");
+
+        //then
+        assertEquals(voTenants.size(), 1);
+        assertEquals("tenant Id", tenants.get(0).getTenantId());
+    }
+    
+    @Test
+    public void testGetMyTenant() {
+        
+        //given
+        Tenant tenant = prepareTenant();
+        when(tenantServiceLocal.getMyTenant()).thenReturn(tenant);
+
+        //when
+        VOTenant voTenant = tenantServiceBean.getMyTenant();
+
+        //then
+        assertEquals("tenant Id", voTenant.getTenantId());
+        assertEquals(1L, voTenant.getKey());
+    }
+    
+    @Test
+    public void testfindByTKey() throws ObjectNotFoundException {
+        
+        //given
+        Tenant tenant = prepareTenant();
+        when(tenantServiceLocal.getTenantByKey(1L)).thenReturn(tenant);
+
+        //when
+        VOTenant voTenant = tenantServiceBean.findByTkey("1");
+
+        //then
+        assertEquals("tenant Id", voTenant.getTenantId());
+        assertEquals(1L, voTenant.getKey());
+    }
 
     private Tenant prepareTenant() {
         Tenant tenant = new Tenant();

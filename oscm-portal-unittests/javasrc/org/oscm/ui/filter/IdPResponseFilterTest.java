@@ -160,7 +160,7 @@ public class IdPResponseFilterTest {
         doReturn("").when(mockExtractor).getUserId("someSamlResponse");
         idpFilter.init(filterConfig);
         idpFilter.setRedirector(mockRedirector);
-
+        doNothing().when(idpFilter).buildSAMLLogoutRequestAndStoreInSession(any(HttpServletRequest.class), any(String.class));
         // when
         idpFilter.doFilter(mockRequest, mockResponse, mockChain);
         // then

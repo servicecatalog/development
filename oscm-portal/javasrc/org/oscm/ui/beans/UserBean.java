@@ -33,7 +33,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
 import org.oscm.internal.intf.MarketplaceService;
@@ -43,6 +42,7 @@ import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
@@ -51,11 +51,7 @@ import org.oscm.resolver.IPResolver;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
-import org.oscm.ui.common.SessionListener;
+import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.ui.dialog.state.TableState;
 import org.oscm.ui.filter.AuthenticationSettings;
@@ -1109,9 +1105,6 @@ public class UserBean extends BaseBean implements Serializable {
         if (StringUtils.isBlank(tenantID)) {
             tenantID = JSFUtils.getCookieValue(request, "tenantID");
         }
-        if (StringUtils.isBlank(tenantID)) {
-            tenantID = "1";
-        }
         JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
         return tenantID;
     }
@@ -1148,6 +1141,24 @@ public class UserBean extends BaseBean implements Serializable {
         } catch (IOException ex) {
             throw new SaaSSystemException(ex);
         }
+    }
+
+    public String getAdminPortalAddress() {
+        if (!getAuthenticationSettings().isInternal()) {
+            String base = appBean.getServerBaseUrl() + "?";
+            String tenantIDFromCookie = JSFUtils.getCookieValue(getRequest(), "tenantID");
+            if (tenantIDFromCookie == null || tenantIDFromCookie.trim().length() == 0) {
+                VOTenant voTenant = tenantService.getMyTenant();
+                if (voTenant != null) {
+                    return base + voTenant.getKey();
+                }
+            } else {
+                // No need to add tenantID param when present in cookie
+                return base;
+            }
+
+        }
+        return appBean.getServerBaseUrl();
     }
 
 }

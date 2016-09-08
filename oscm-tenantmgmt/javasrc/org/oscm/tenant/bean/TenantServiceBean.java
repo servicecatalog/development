@@ -127,6 +127,12 @@ public class TenantServiceBean implements TenantService {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByKey(Long.parseLong(tkey)));
     }
 
+    @Override
+    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
+    public VOTenant getMyTenant() {
+        return TenantAssembler.toVOTenant(tenantServiceLocal.getMyTenant());
+    }
+
     public void setTenantServiceLocal(TenantServiceLocal tenantServiceLocal) {
         this.tenantServiceLocal = tenantServiceLocal;
     }

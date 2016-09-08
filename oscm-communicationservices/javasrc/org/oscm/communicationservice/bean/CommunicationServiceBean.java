@@ -263,6 +263,25 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
         return sendMailStatus;
     }
 
+    public String getBaseUrlWithTenant(String tenantId) throws MailOperationException {
+        StringBuffer url = new StringBuffer();
+        try {
+            url.append(getBaseUrl());
+            if (tenantId != null && tenantId.trim().length() > 0) {
+                removeTrailingSlashes(url);
+                url.append("?tenantID=");
+                url.append(URLEncoder.encode(tenantId.trim(), "UTF-8"));
+            }
+            return url.toString();
+        } catch (UnsupportedEncodingException e) {
+            logger.logError(Log4jLogger.SYSTEM_LOG, e,
+                    LogMessageIdentifier.ERROR_ENCODE_ORGANIZATION_ID_FAILED);
+            MailOperationException mof = new MailOperationException(
+                    "Tenant URL creation failed!", e);
+            throw mof;
+        }
+    }
+
     public String getMarketplaceUrl(String marketplaceId)
             throws MailOperationException {
         // send acknowledge e-mail
@@ -430,7 +449,7 @@ public class CommunicationServiceBean implements CommunicationServiceLocal {
      *            access the resource bundle
      * @param key
      *            the key for the desired string.
-     * @param arguments
+     * @param params
      *            an array of objects to be formatted and substituted.
      */
     private String getText(String localeString, String key, Object[] params,

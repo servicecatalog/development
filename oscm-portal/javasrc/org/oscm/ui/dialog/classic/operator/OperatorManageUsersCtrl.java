@@ -11,6 +11,7 @@ package org.oscm.ui.dialog.classic.operator;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,16 +22,6 @@ import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
-import org.oscm.types.constants.Configuration;
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceBean;
-import org.oscm.ui.beans.operator.BaseOperatorBean;
-import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.User;
-import org.oscm.validation.ArgumentValidator;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.exception.MailOperationException;
@@ -41,14 +32,27 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
+import org.oscm.internal.usermanagement.POUser;
+import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.types.constants.Configuration;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.MarketplaceBean;
+import org.oscm.ui.beans.operator.BaseOperatorBean;
+import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
+import org.oscm.ui.common.DataTableHandler;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.model.Marketplace;
+import org.oscm.ui.model.User;
+import org.oscm.validation.ArgumentValidator;
 
 /**
  * Controller for operator manage users.
- * 
+ *
  * @author afschar
  */
 @ManagedBean(name="operatorManageUsersCtrl")
@@ -57,13 +61,15 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         Serializable {
 
     /**
-     * 
+     *
      */
     private static final String NO_SELECTION = "0";
     public static final String APPLICATION_BEAN = "appBean";
     private static final long serialVersionUID = -9126265695343363133L;
 
     transient ApplicationBean appBean;
+    private String selectedUserId;
+    private List<String> dataTableHeaders = new ArrayList<>();
 
     @ManagedProperty(value = "#{operatorManageUsersModel}")
     OperatorManageUsersModel model;
@@ -125,6 +131,48 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             ExceptionHandler.execute(e);
         }
         return null;
+    }
+
+    public List<POUserAndOrganization> getUsersList() {
+        Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
+            @Override
+            public User createModel(final VOUserDetails vo) {
+                return new User(vo);
+            }
+        };
+        try {
+            final List<User> map = mapper.map(getOperatorService().getUsers("%"));
+            List<POUserAndOrganization> resultList = new ArrayList<>();
+            for (User user : map) {
+                POUserAndOrganization userAndOrganization = new POUserAndOrganization();
+                userAndOrganization.setUserId(user.getUserId());
+                userAndOrganization.setEmail(user.getEmail());
+                userAndOrganization.setOrganizationName(user.getOrganizationName());
+                userAndOrganization.setOrganizationId(user.getOrganizationId());
+                resultList.add(userAndOrganization);
+            }
+            return resultList;
+
+        } catch (OrganizationAuthoritiesException e) {
+            ExceptionHandler.execute(e);
+        }
+        return null;
+    }
+
+    public List<String> getDataTableHeaders() {
+        if (dataTableHeaders == null || dataTableHeaders.isEmpty()) {
+            try {
+                dataTableHeaders = DataTableHandler
+                        .getTableHeaders(POUserAndOrganization.class.getName());
+            } catch (Exception e) {
+                throw new SaaSSystemException(e);
+            }
+        }
+        return dataTableHeaders;
+    }
+
+    public int getUsersListSize() {
+        return getUsersList().size();
     }
 
     public boolean isCheckResetPasswordSupported() {
@@ -191,6 +239,12 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return (user != null) ? getOutcome(true) : OUTCOME_ERROR;
     }
 
+    public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
+        VOUser selectedUser = new VOUser();
+        selectedUser.setUserId(selectedUserId);
+        model.setUser(getIdService().getUser(selectedUser));
+    }
+
     public OperatorManageUsersModel getModel() {
         return model;
     }
@@ -218,6 +272,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             throw new SaaSSystemException(ex);
         }
         return OUTCOME_SUCCESS;
+    }
+
+    public void setSelectedUserId(String userId) {
+        this.selectedUserId = userId;
+    }
+
+    public String getSelectedUserId() {
+        return selectedUserId;
     }
 
     String getSelectedMarketplace() {

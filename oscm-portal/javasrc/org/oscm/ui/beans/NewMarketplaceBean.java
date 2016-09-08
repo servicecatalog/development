@@ -16,12 +16,12 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
-import org.oscm.ui.common.ExceptionActionListener;
-import org.oscm.ui.model.NewMarketplace;
-import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.tenant.ManageTenantService;
+import org.oscm.internal.tenant.POTenant;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOTenant;
+import org.oscm.ui.common.ExceptionActionListener;
+import org.oscm.ui.model.NewMarketplace;
 
 /**
  * The bean responsible for providing model and action for creating a new
@@ -40,8 +40,9 @@ public class NewMarketplaceBean extends BaseBean {
     MenuBean menuBean;
     
     @EJB
-    TenantService tenantService;
-    
+    private ManageTenantService manageTenantService;
+   
+
     /**
      * @return the menuBean
      */
@@ -56,7 +57,15 @@ public class NewMarketplaceBean extends BaseBean {
     public void setMenuBean(MenuBean menuBean) {
         this.menuBean = menuBean;
     }
+    
+    public ManageTenantService getManageTenantService() {
+        return manageTenantService;
+    }
 
+    public void setManageTenantService(ManageTenantService manageTenantService) {
+        this.manageTenantService = manageTenantService;
+    }
+    
     /**
      * Returns the model to use for creating a new marketplace. If no model is
      * set, it will be initialized with the default values.
@@ -120,12 +129,12 @@ public class NewMarketplaceBean extends BaseBean {
         return null;
     }
     
-    public List<VOTenant> getSuggestionsForTenants(String tenantId) {
+    public List<POTenant> getSuggestionsForTenants(String tenantId) {
 
         tenantId = tenantId.replaceAll("\\p{C}", "");
         String pattern = tenantId + "%";
 
-        List<VOTenant> tenants = tenantService.getTenantsByIdPattern(pattern);
+        List<POTenant> tenants = manageTenantService.getTenantsByIdPattern(pattern);
 
         return tenants;
     }

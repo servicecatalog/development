@@ -8,7 +8,14 @@
 package org.oscm.tenant.bean;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 
@@ -120,5 +127,44 @@ public class TenantServiceLocalBeanTest {
 
         //then
         verify(dataService, times(1)).remove(any(TenantSetting.class));
+    }
+    
+    @Test
+    public void testGetTenantsByIdPattern() throws ObjectNotFoundException {
+        
+        //given
+        when(tenantDao.getTenantsByIdPattern("tenantId")).thenReturn(new ArrayList<Tenant>());
+
+        //when
+        tenantServiceLocalBean.getTenantsByIdPattern("tenantId");
+
+        //then
+        verify(tenantDao, times(1)).getTenantsByIdPattern("tenantId");
+    }
+    
+    @Test
+    public void testGetMyTenant(){
+        
+        //given
+        when(tenantDao.getMyTenant()).thenReturn(new Tenant());
+        
+        //when
+        tenantServiceLocalBean.getMyTenant();
+
+        //then
+        verify(tenantDao, times(1)).getMyTenant();
+    }
+    
+    @Test
+    public void testGetAllTenantSettingsForTenant(){
+        
+        //given
+        when(tenantDao.getAllTenantSettingsForTenant(any(Tenant.class))).thenReturn(new ArrayList<TenantSetting>());
+        
+        //when
+        tenantServiceLocalBean.getAllTenantSettingsForTenant(new Tenant());
+
+        //then
+        verify(tenantDao, times(1)).getAllTenantSettingsForTenant(any(Tenant.class));
     }
 }

@@ -65,6 +65,7 @@ import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.RoleAssignment;
 import org.oscm.domobjects.Session;
 import org.oscm.domobjects.Subscription;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.TriggerDefinition;
 import org.oscm.domobjects.TriggerProcess;
 import org.oscm.domobjects.UnitUserRole;
@@ -1840,6 +1841,7 @@ public class IdentityServiceBean implements IdentityService,
     public void sendMailToCreatedUser(String password, boolean userLocalLdap,
             Marketplace marketplace, PlatformUser pu)
             throws MailOperationException {
+        String tenantId = getTenantIdForEmail(pu);
         if (!SendMailControl.isSendMail()) {
             // keep password for later sending
             SendMailControl.setMailData(password, marketplace);
@@ -1881,7 +1883,7 @@ public class IdentityServiceBean implements IdentityService,
                         cm.sendMail(
                                 pu,
                                 EmailType.USER_CREATED_SAML_SP,
-                                new Object[] { pu.getUserId(), cm.getBaseUrl() },
+                                new Object[] { pu.getUserId(), cm.getBaseUrlWithTenant(tenantId) },
                                 marketplace);
                     } else {
                         cm.sendMail(pu, EmailType.USER_CREATED, new Object[] {
@@ -1893,13 +1895,10 @@ public class IdentityServiceBean implements IdentityService,
 
             } else {
                 if (cs.isServiceProvider()) {
-                    cm.sendMail(
-                            pu,
-                            EmailType.USER_CREATED_SAML_SP,
+                    cm.sendMail(pu, EmailType.USER_CREATED_SAML_SP,
                             new Object[] { pu.getUserId(),
                                     cm.getMarketplaceUrl(marketplaceId) },
                             marketplace);
-
                 } else {
                     cm.sendMail(
                             pu,
@@ -1911,7 +1910,6 @@ public class IdentityServiceBean implements IdentityService,
 
             }
         } else {
-
             if (pu.hasManagerRole()) {
                 if (marketplaceId != null) {
                     cm.sendMail(
@@ -1936,6 +1934,15 @@ public class IdentityServiceBean implements IdentityService,
                                 String.valueOf(pu.getKey()) }, marketplace);
             }
         }
+    }
+
+    private String getTenantIdForEmail(PlatformUser user) {
+        final Tenant tenant = user.getOrganization().getTenant();
+        String tenantId = null;
+        if (tenant != null) {
+            tenantId = String.valueOf(tenant.getKey());
+        }
+        return tenantId;
     }
 
     /**

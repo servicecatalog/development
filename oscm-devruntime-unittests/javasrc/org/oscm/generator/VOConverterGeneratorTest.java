@@ -226,25 +226,32 @@ public class VOConverterGeneratorTest {
         voList.add(tmp1);
 
         VOPropertyDescription tmp2 = new VOPropertyDescription();
-        tmp2.setName("userId");
+        tmp2.setName("organizationName");
         tmp2.setGenericType("class java.lang.String");
         tmp2.setType("class");
         tmp2.setTypeParameter("java.lang.String");
         voList.add(tmp2);
 
         VOPropertyDescription tmp3 = new VOPropertyDescription();
-        tmp3.setName("status");
-        tmp3.setGenericType("class org.oscm.types.enumtypes.UserAccountStatus");
+        tmp3.setName("userId");
+        tmp3.setGenericType("class java.lang.String");
         tmp3.setType("class");
-        tmp3.setTypeParameter("org.oscm.types.enumtypes.UserAccountStatus");
+        tmp3.setTypeParameter("java.lang.String");
         voList.add(tmp3);
 
         VOPropertyDescription tmp4 = new VOPropertyDescription();
-        tmp4.setName("organizationRoles");
-        tmp4.setGenericType("java.util.Set<org.oscm.types.enumtypes.OrganizationRoleType>");
-        tmp4.setType("java.util.Set");
-        tmp4.setTypeParameter("org.oscm.types.enumtypes.OrganizationRoleType");
+        tmp4.setName("status");
+        tmp4.setGenericType("class org.oscm.types.enumtypes.UserAccountStatus");
+        tmp4.setType("class");
+        tmp4.setTypeParameter("org.oscm.types.enumtypes.UserAccountStatus");
         voList.add(tmp4);
+
+        VOPropertyDescription tmp5 = new VOPropertyDescription();
+        tmp5.setName("organizationRoles");
+        tmp5.setGenericType("java.util.Set<org.oscm.types.enumtypes.OrganizationRoleType>");
+        tmp5.setType("java.util.Set");
+        tmp5.setTypeParameter("org.oscm.types.enumtypes.OrganizationRoleType");
+        voList.add(tmp5);
 
         for (int i = 0; i < 4; i++) {
             String expected = voList.get(i).getName();

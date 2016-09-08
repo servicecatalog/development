@@ -559,7 +559,7 @@ public class MenuBeanTest {
         assertTrue(operatorGroup.isVisible());
 
         List<MenuItem> visibleMenuItems = getVisibleMenuItems(operatorGroup);
-        assertEquals(14, visibleMenuItems.size());
+        assertEquals(15, visibleMenuItems.size());
 
         assertEquals(HiddenUIConstants.MENU_ITEM_OPERATOR_MANAGE_USERS,
                 visibleMenuItems.get(0).getId());

@@ -24,6 +24,7 @@ public class VOUser extends BaseVO {
     private static final long serialVersionUID = -8698185138206496238L;
 
     private String organizationId;
+    private String organizationName;
     private String userId;
     private UserAccountStatus status;
     private Set<OrganizationRoleType> organizationRoles = new HashSet<OrganizationRoleType>();
@@ -155,4 +156,22 @@ public class VOUser extends BaseVO {
         this.organizationRoles = organizationRoles;
     }
 
+    /**
+     * Retrieves the organization name of the user's organization.
+     *
+     * @return the organization name
+     */
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    /**
+     * Sets the organization name of the user's organization.
+     *
+     * @param organizationName
+     *            the organization roles
+     */
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 }

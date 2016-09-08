@@ -13,42 +13,33 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
+import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
 import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
+import org.oscm.internal.types.enumtypes.PerformanceHint;
+import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
+import org.oscm.internal.types.exception.SAML2AuthnRequestException;
+import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.types.constants.Configuration;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.MenuBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.EJBServiceAccess;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
+import org.oscm.ui.common.*;
 import org.oscm.ui.dialog.common.saml2.AuthenticationHandler;
 import org.oscm.validator.ADMValidator;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
-import org.oscm.internal.types.enumtypes.ConfigurationKey;
-import org.oscm.internal.types.enumtypes.OrganizationRoleType;
-import org.oscm.internal.types.enumtypes.PerformanceHint;
-import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.types.exception.SAML2AuthnRequestException;
-import org.oscm.internal.vo.VOUserDetails;
 
 /**
  * @author groch
@@ -422,9 +413,6 @@ public abstract class BaseBesFilter implements Filter {
         String tenantID = request.getParameter("tenantID");
         if (StringUtils.isBlank(tenantID)) {
             tenantID = JSFUtils.getCookieValue(request, "tenantID");
-        }
-        if (StringUtils.isBlank(tenantID)) {
-            tenantID = "1";
         }
         JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
         return tenantID;

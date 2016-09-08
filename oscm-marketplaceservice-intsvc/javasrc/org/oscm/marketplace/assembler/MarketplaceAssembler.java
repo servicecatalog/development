@@ -12,6 +12,7 @@ import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.Tenant;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerFacade;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
@@ -69,6 +70,12 @@ public class MarketplaceAssembler extends BaseAssembler {
             // FIXME what is "<empty>" good for?
             voResult.setOwningOrganizationName(name != null ? name : "<empty>");
         }
+        
+        Tenant tenant = domObj.getTenant();
+        if (tenant != null) {
+            voResult.setTenantId(tenant.getTenantId());
+        }
+        
         return voResult;
     }
 

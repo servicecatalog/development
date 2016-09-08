@@ -13,8 +13,8 @@
   <c:if test="#{empty disabled}">
     <c:set var="disabled" value="false" />
   </c:if>
-
-  <adm:outputLabel value="#{msg['dataTable.header.tenantId']}" required="true"/>
+  
+  <adm:outputLabel value="#{msg['dataTable.header.tenantId']}"/>
   
   <h:panelGroup>
     <rich:autocomplete
@@ -25,22 +25,13 @@
             label="#{msg['dataTable.header.tenantId']}"
             value="#{context}"
             onfocus="this.select();"
-            onkeydown="
-                AdmUtils.removeNonPrintedChars(#{rich:component('tenantId')});
-                var e = event?event:window.event;
-                var k = e.keyCode?e.keyCode:e.which;
-                if ((k == 13) &amp;&amp; this.value.length == 0) {
-                	submitForm();
-                	return false;
-                }"
-            required="true"
             maxlength="#{appBean.idLen}"
             minChars="3"
             disabled="#{disabled}"
             fetchValue="#{tenant.tenantId}"
             var="tenant"
             autofill="false"
-            autocompleteMethod="#{newMarketplaceBean.getSuggestionsForTenants}"
+            autocompleteMethod="#{bean.getSuggestionsForTenants}"
             popupClass="tenant-popup"
             onclick="AdmUtils.removeNonPrintedChars(#{rich:component('tenantId')});"
             oncomplete="AdmUtils.addNothingLabel(#{rich:component('tenantId')}, 'tenant-popup', '#{msg['tenant.noMatch']}');">
@@ -59,8 +50,7 @@
     </script>
 
     <h:graphicImage id="tenantSuggestionImage" value="/img/transparentPixel.png" styleClass="suggestion-box-marker"
-      onclick="searchTenant();"
-      alt=""/>
+      onclick="searchTenant();" alt=""/>
 
   </h:panelGroup>
 

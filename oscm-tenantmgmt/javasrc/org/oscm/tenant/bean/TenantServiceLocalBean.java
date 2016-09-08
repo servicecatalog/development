@@ -87,10 +87,14 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
         return tenantDao.getAllTenantSettingsForTenant(tenant);
     }
 
-    @TransactionAttribute(TransactionAttributeType.MANDATORY)
     @Override
     public List<Tenant> getTenantsByIdPattern(String tenantIdPattern) {
         return tenantDao.getTenantsByIdPattern(tenantIdPattern);
+    }
+
+    @Override
+    public Tenant getMyTenant() {
+        return tenantDao.getMyTenant();
     }
 
     public void setDataManager(DataService dataManager) {
