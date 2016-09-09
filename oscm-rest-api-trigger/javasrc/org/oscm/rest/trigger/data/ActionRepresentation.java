@@ -29,7 +29,7 @@ public class ActionRepresentation extends Representation {
     }
 
     public ActionRepresentation(Long id, Action description) {
-        super(id);
+        this.setId(id);
         this.description = description;
     }
 
