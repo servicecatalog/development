@@ -229,8 +229,7 @@ public class OperatorOrgBeanTest {
         setupMarketplaces();
         List<SelectItem> list1 = oob.getSelectableMarketplaces();
         List<SelectItem> list2 = oob.getSelectableMarketplaces();
-        verify(msmock, times(1)).getAccessibleMarketplacesForOperator();
-        assertSame(list1, list2);
+        verify(msmock, times(2)).getAccessibleMarketplacesForOperator();
     }
 
     @Test

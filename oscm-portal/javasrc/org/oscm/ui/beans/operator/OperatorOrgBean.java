@@ -13,15 +13,7 @@ package org.oscm.ui.beans.operator;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -33,20 +25,11 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
-
-import org.oscm.internal.tenant.ManageTenantService;
-import org.oscm.internal.tenant.POTenant;
-import org.oscm.logging.Log4jLogger;
-import org.oscm.logging.LoggerFactory;
 import org.oscm.converter.PropertiesLoader;
-import org.oscm.string.Strings;
-import org.oscm.types.enumtypes.LogMessageIdentifier;
-import org.oscm.ui.beans.ApplicationBean;
-import org.oscm.ui.common.ExceptionHandler;
-import org.oscm.ui.common.ImageUploader;
-import org.oscm.ui.model.PSPSettingRow;
 import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.OperatorService;
+import org.oscm.internal.tenant.ManageTenantService;
+import org.oscm.internal.tenant.POTenant;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PaymentCollectionType;
@@ -55,15 +38,15 @@ import org.oscm.internal.types.exception.ImageException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
-import org.oscm.internal.vo.LdapProperties;
-import org.oscm.internal.vo.VOMarketplace;
-import org.oscm.internal.vo.VOOperatorOrganization;
-import org.oscm.internal.vo.VOOrganization;
-import org.oscm.internal.vo.VOPSP;
-import org.oscm.internal.vo.VOPSPAccount;
-import org.oscm.internal.vo.VOPSPSetting;
-import org.oscm.internal.vo.VOPaymentType;
-import org.oscm.internal.vo.VOUserDetails;
+import org.oscm.internal.vo.*;
+import org.oscm.logging.Log4jLogger;
+import org.oscm.logging.LoggerFactory;
+import org.oscm.string.Strings;
+import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.common.ExceptionHandler;
+import org.oscm.ui.common.ImageUploader;
+import org.oscm.ui.model.PSPSettingRow;
 
 /**
  * This class is responsible to provide the functionality to create and manage
@@ -191,7 +174,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
         if (!isLoggedInAndPlatformOperator()) {
             return selectableMarketplaces;
         }
-        List<VOMarketplace> marketplaces = new ArrayList<>();
+        List<VOMarketplace> marketplaces;
         if (getSelectedTenant() != null) {
             try {
                 marketplaces = getMarketplaceService().getAllMarketplacesForTenant(Long.valueOf(this.selectedTenant));
