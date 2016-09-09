@@ -31,7 +31,7 @@
       <adm:outputStep value="#{msg['operator.selectUser']}" />
       <a4j:outputPanel layout="block" styleClass="tablePanel table_padding">
         <ui:include src="manageUsersTable.xhtml">
-          <ui:param name="users" value="#{operatorManageUsersCtrl.usersList}" />
+          <ui:param name="users" value="#{operatorManageUsersCtrl.userAndOrganizations}" />
           <ui:param name ="tableId" value="manageUsersListTable"/>
           <ui:param name="size" value="#{operatorManageUsersCtrl.usersListSize}" />
           <ui:param name="headers" value="#{operatorManageUsersCtrl.dataTableHeaders}"/>

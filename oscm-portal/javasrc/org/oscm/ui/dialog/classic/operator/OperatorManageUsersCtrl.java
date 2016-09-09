@@ -19,6 +19,7 @@ import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 
@@ -55,8 +56,8 @@ import org.oscm.validation.ArgumentValidator;
  *
  * @author afschar
  */
-@ManagedBean(name="operatorManageUsersCtrl")
-@RequestScoped
+@ManagedBean(name = "operatorManageUsersCtrl")
+@ViewScoped
 public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         Serializable {
 
@@ -70,12 +71,18 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     transient ApplicationBean appBean;
     private String selectedUserId;
     private List<String> dataTableHeaders = new ArrayList<>();
+    private List<POUserAndOrganization> userAndOrganizations = new ArrayList<>();
+    private List<Marketplace> marketplaces = new ArrayList<>();
+    private boolean isInternalAuthMode;
 
     @ManagedProperty(value = "#{operatorManageUsersModel}")
     OperatorManageUsersModel model;
 
     public String getInitialize() {
-        initModel();
+        if (!model.isInitialized()) {
+            isInternalAuthMode = getApplicationBean().isInternalAuthMode();
+            initModel();
+        }
         return "";
     }
 
@@ -115,25 +122,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return appBean;
     }
 
-    @SuppressWarnings("unused")
-    public List<User> suggest(FacesContext context, UIComponent component, String userId) {
-		userId = userId.replaceAll("\\p{C}", "");
-        Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
-            @Override
-            public User createModel(final VOUserDetails vo) {
-                return new User(vo);
-            }
-        };
-        try {
-            String pattern = userId + "%";
-            return mapper.map(getOperatorService().getUsers(pattern));
-        } catch (SaaSApplicationException e) {
-            ExceptionHandler.execute(e);
-        }
-        return null;
-    }
-
-    public List<POUserAndOrganization> getUsersList() {
+    List<POUserAndOrganization> getUsersList() {
         Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
             @Override
             public User createModel(final VOUserDetails vo) {
@@ -176,7 +165,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public boolean isCheckResetPasswordSupported() {
-        final boolean b = getApplicationBean().isInternalAuthMode();
+        final boolean b = isInternalAuthMode;
         if (model.isUserIdChanged()) {
             try {
                 reinitUser();
@@ -297,8 +286,10 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
 
     List<Marketplace> getSelectableMarketplaces() {
         if (isLoggedInAndPlatformOperator()) {
-            List<Marketplace> marketplaces = ((MarketplaceBean) ui
-                    .findBean("marketplaceBean")).getMarketplacesForOperator();
+            if (marketplaces.isEmpty()) {
+                marketplaces = ((MarketplaceBean) ui
+                        .findBean("marketplaceBean")).getMarketplacesForOperator();
+            }
             if (marketplaces != null) {
                 return marketplaces;
             }
@@ -320,5 +311,24 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
             return true;
         }
         return false;
+    }
+
+    public List<POUserAndOrganization> getUserAndOrganizations() {
+        if (userAndOrganizations.isEmpty()) {
+            userAndOrganizations = getUsersList();
+        }
+        return userAndOrganizations;
+    }
+
+    public void setUserAndOrganizations(List<POUserAndOrganization> userAndOrganizations) {
+        this.userAndOrganizations = userAndOrganizations;
+    }
+
+    public boolean isInternalAuthMode() {
+        return isInternalAuthMode;
+    }
+
+    public void setInternalAuthMode(boolean internalAuthMode) {
+        isInternalAuthMode = internalAuthMode;
     }
 }

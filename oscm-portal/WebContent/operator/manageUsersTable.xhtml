@@ -10,7 +10,7 @@
 		oncomplete="jQuery('body').removeClass('hourglass');"
 		onsubmit="jQuery('body').addClass('hourglass');" />
 	<adm:dataTableCustomizedOnColumns tableId="#{tableId}" value="#{users}"
-		styleClass="sortable" rows="20" headerClass="rowTitle sortable"
+		styleClass="sortable" rows="10" headerClass="rowTitle sortable"
 		rowClasses="rowOdd,rowEven"
 		columnClasses="smallCell,smallCell,smallCell,smallCell,smallCell"
 		onRowClick="updateSelectedUser('#{rowItem.userId}');AdmUtils.selectRow(this);selectItem('#{rowItem.userId}');"

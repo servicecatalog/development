@@ -17,6 +17,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,9 +29,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
+import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -170,18 +170,18 @@ public class OperatorManageUsersCtrlTest {
         bean.getInitialize();
 
         // then
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
         assertThat(bean.getSelectableMarketplaces(), hasItems(3));
     }
 
     @Test
     public void reinitUser() throws Exception {
         // when
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        when(model.getUserId()).thenReturn("userID");
+        bean.setModel(model);
         bean.reinitUser();
-
         // then
-        assertEquals(Boolean.valueOf(true),
-                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+        verify(model, times(2)).setUser(any(VOUser.class));
     }
 
     @Test
@@ -199,33 +199,84 @@ public class OperatorManageUsersCtrlTest {
     @Test
     public void reinitUser_UserIdNull() throws Exception {
         // given
-        bean.getModel().setUserId(null);
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
         // when
         bean.reinitUser();
         // then
         verify(sl, never()).findService(UserManagementService.class);
         verify(bean.appBean, never()).isInternalAuthMode();
-        assertEquals(Boolean.valueOf(true),
-                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+        verify(model, times(1)).setUser(any(VOUser.class));
     }
 
     @Test
     public void isResetPasswordSupported() throws Exception {
         // when
+        bean.setInternalAuthMode(true);
         bean.isCheckResetPasswordSupported();
         // then
         assertEquals(Boolean.valueOf(true),
+                Boolean.valueOf(bean.isCheckResetPasswordSupported()));
+    }
+
+    @Test
+    public void userListSize() {
+        //given
+        bean = spy(bean);
+        final List<POUserAndOrganization> usersList = new ArrayList<>();
+        usersList.add(0, new POUserAndOrganization());
+        usersList.add(1, new POUserAndOrganization());
+        doReturn(usersList).when(bean).getUsersList();
+        //then
+        assertTrue(bean.getUsersListSize() == 2);
+    }
+
+    @Test
+    public void getSelectedMarketplace_null() {
+        //given
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
+        doReturn("0").when(model).getSelectedMarketplace();
+        //when
+        final String selectedMarketplace = bean.getSelectedMarketplace();
+        //then
+        assertTrue(selectedMarketplace == null);
+    }
+
+    @Test
+    public void getSelectedMarketplace() {
+        //given
+        OperatorManageUsersModel model = mock(OperatorManageUsersModel.class);
+        doReturn(null).when(model).getUserId();
+        bean.setModel(model);
+        doReturn("someID").when(model).getSelectedMarketplace();
+        //when
+        final String selectedMarketplace = bean.getSelectedMarketplace();
+        //then
+        assertTrue(selectedMarketplace == "someID");
+    }
+
+    @Test
+    public void isResetPasswordSupported_SAML() throws Exception {
+        //given
+        bean.setInternalAuthMode(false);
+        // when
+        bean.isCheckResetPasswordSupported();
+        // then
+        assertEquals(Boolean.valueOf(false),
                 Boolean.valueOf(bean.isCheckResetPasswordSupported()));
     }
 
     @Test
     public void isResetPasswordSupported_userIdChanged() throws Exception {
         // given
+        bean.setInternalAuthMode(true);
         bean.getModel().setUserId("userId1");
         // when
         bean.isCheckResetPasswordSupported();
         // then
-        verify(bean.appBean, times(1)).isInternalAuthMode();
         assertEquals(Boolean.valueOf(true),
                 Boolean.valueOf(bean.isCheckResetPasswordSupported()));
     }
@@ -396,16 +447,6 @@ public class OperatorManageUsersCtrlTest {
         bean.updateSelectedUser();
         //then
         assertTrue(bean.model.getUser().getUserId().equals(id));
-    }
-
-    @Test
-    public void suggestTest() {
-        //given
-        //when
-        FacesContext mockFacesContext = mock(FacesContext.class);
-        UIComponent mockUIComponent = mock(UIComponent.class);
-        bean.suggest(mockFacesContext, mockUIComponent, "userId");
-        //then no exceptions
     }
 
     @Test

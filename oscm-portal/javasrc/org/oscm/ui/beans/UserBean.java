@@ -1145,18 +1145,14 @@ public class UserBean extends BaseBean implements Serializable {
 
     public String getAdminPortalAddress() {
         if (!getAuthenticationSettings().isInternal()) {
-            String base = appBean.getServerBaseUrl() + "?";
-            String tenantIDFromCookie = JSFUtils.getCookieValue(getRequest(), "tenantID");
-            if (tenantIDFromCookie == null || tenantIDFromCookie.trim().length() == 0) {
-                VOTenant voTenant = tenantService.getMyTenant();
-                if (voTenant != null) {
-                    return base + voTenant.getKey();
-                }
+            VOTenant voTenant = tenantService.getMyTenant();
+            String tenantId;
+            if (voTenant != null) {
+                tenantId = String.valueOf(voTenant.getKey());
             } else {
-                // No need to add tenantID param when present in cookie
-                return base;
+                tenantId = JSFUtils.getCookieValue(getRequest(), "tenantID");
             }
-
+            return appBean.getServerBaseUrl() + "?tenantID=" + tenantId;
         }
         return appBean.getServerBaseUrl();
     }
