@@ -1238,6 +1238,6 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     }
 
     public boolean isTenantSelectionAvailable() {
-        return !menuBean.getApplicationBean().isInternalAuthMode();
+        return menuBean.getApplicationBean().isSamlSpAuthMode();
     }
 }

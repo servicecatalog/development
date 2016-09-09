@@ -543,6 +543,24 @@ public class ApplicationBean implements Serializable {
     }
 
     /**
+     * Checks if the {@link ConfigurationKey#AUTH_MODE} is set to INTERNAL.
+     *
+     * @return <code>true</code> if AUTH_MODE is set to INTERNAL otherwise
+     *         <code>false</code>.
+     */
+    public boolean isSamlSpAuthMode() {
+        if (internalAuthMode == null) {
+            lookupConfigurationService();
+            VOConfigurationSetting authMode = configurationService
+                .getVOConfigurationSetting(ConfigurationKey.AUTH_MODE,
+                    Configuration.GLOBAL_CONTEXT);
+            internalAuthMode = Boolean.valueOf(authMode.getValue().equals(
+                AuthenticationMode.SAML_SP.name()));
+        }
+        return internalAuthMode.booleanValue();
+    }
+
+    /**
      * Setter for configuration service. Use it for JUnit for stubbing the EJB.
      * 
      * @param configurationService
