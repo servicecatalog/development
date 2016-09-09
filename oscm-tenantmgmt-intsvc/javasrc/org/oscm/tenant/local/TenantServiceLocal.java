@@ -42,4 +42,7 @@ public interface TenantServiceLocal {
 
     Tenant getMyTenant();
 
+    boolean doesOrganizationAssignedToTenantExist(Tenant tenant);
+
+    boolean doesMarketplaceAssignedToTenantExist(Tenant tenant);
 }

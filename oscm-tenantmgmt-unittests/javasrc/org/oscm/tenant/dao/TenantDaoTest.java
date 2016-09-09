@@ -97,5 +97,29 @@ public class TenantDaoTest {
         
         //then
         verify(dataManager, times(1)).find(Tenant.class, tenantId); 
-    }   
+    }
+
+    @Test
+    public void testdoesOrganizationForTenantExist() {
+        //given
+        doReturn(1L).when(query).getSingleResult();
+
+        //when
+        tenantDao.doesOrganizationForTenantExist(new Tenant());
+
+        //then
+        verify(dataManager, times(1)).createNamedQuery("Tenant.checkOrganization");
+    }
+
+    @Test
+    public void testdoesMarketplaceForTenantExist() {
+        //given
+        doReturn(1L).when(query).getSingleResult();
+
+        //when
+        tenantDao.doesMarketplaceAssignedToTenantExist(new Tenant());
+
+        //then
+        verify(dataManager, times(1)).createNamedQuery("Tenant.checkMarketplace");
+    }
 }

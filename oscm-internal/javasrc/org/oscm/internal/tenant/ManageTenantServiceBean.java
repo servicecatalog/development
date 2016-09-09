@@ -22,6 +22,7 @@ import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.logging.Log4jLogger;
@@ -65,7 +66,7 @@ public class ManageTenantServiceBean implements ManageTenantService {
     }
 
     @Override
-    public void removeTenant(POTenant poTenant) throws ObjectNotFoundException {
+    public void removeTenant(POTenant poTenant) throws ObjectNotFoundException, TenantDeletionConstraintException {
         tenantService.removeTenant(poTenant.toVOTenanat());
     }
 

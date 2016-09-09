@@ -10,6 +10,7 @@ package org.oscm.internal.tenant;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 
 import javax.ejb.Remote;
 import java.util.List;
@@ -26,7 +27,7 @@ public interface ManageTenantService {
     void updateTenant(POTenant poTenant)
         throws ConcurrentModificationException, ObjectNotFoundException, NonUniqueBusinessKeyException;
 
-    void removeTenant(POTenant poTenant) throws ObjectNotFoundException;
+    void removeTenant(POTenant poTenant) throws ObjectNotFoundException, TenantDeletionConstraintException;
 
     void setIdpSettingsForTenant(Properties properties, String tenantId)
         throws ObjectNotFoundException, NonUniqueBusinessKeyException;

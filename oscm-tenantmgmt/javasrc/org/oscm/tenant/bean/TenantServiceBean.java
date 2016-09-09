@@ -19,10 +19,12 @@ import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.tenant.assembler.TenantAssembler;
 import org.oscm.tenant.local.TenantServiceLocal;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException.Reason;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +71,14 @@ public class TenantServiceBean implements TenantService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public void removeTenant(VOTenant voTenant) throws ObjectNotFoundException {
+    public void removeTenant(VOTenant voTenant) throws ObjectNotFoundException, TenantDeletionConstraintException {
         Tenant tenantToRemove = tenantServiceLocal.getTenantByKey(voTenant.getKey());
+        if (tenantServiceLocal.doesOrganizationAssignedToTenantExist(tenantToRemove)) {
+            throw new TenantDeletionConstraintException("org", Reason.RELATED_ORGANIZATION_EXISTS);
+        }
+        if (tenantServiceLocal.doesMarketplaceAssignedToTenantExist(tenantToRemove)) {
+            throw new TenantDeletionConstraintException("mark", Reason.RELATED_MARKETPLACE_EXISTS);
+        }
         tenantServiceLocal.removeTenant(tenantToRemove);
     }
 

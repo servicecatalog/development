@@ -10,6 +10,7 @@ package org.oscm.internal.intf;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 
@@ -28,7 +29,7 @@ public interface TenantService {
     void updateTenant(VOTenant voTenant)
         throws NonUniqueBusinessKeyException, ObjectNotFoundException, ConcurrentModificationException;
 
-    void removeTenant(VOTenant voTenant) throws ObjectNotFoundException;
+    void removeTenant(VOTenant voTenant) throws ObjectNotFoundException, TenantDeletionConstraintException;
 
     void addTenantSettings(List<VOTenantSetting> tenantSettings, VOTenant voTenant) throws
         NonUniqueBusinessKeyException, ObjectNotFoundException;

@@ -97,6 +97,16 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
         return tenantDao.getMyTenant();
     }
 
+    @Override
+    public boolean doesOrganizationAssignedToTenantExist(Tenant tenant) {
+        return tenantDao.doesOrganizationForTenantExist(tenant) > 0L;
+    }
+
+    @Override
+    public boolean doesMarketplaceAssignedToTenantExist(Tenant tenant) {
+        return tenantDao.doesMarketplaceAssignedToTenantExist(tenant) > 0L;
+    }
+
     public void setDataManager(DataService dataManager) {
         this.dataManager = dataManager;
     }
