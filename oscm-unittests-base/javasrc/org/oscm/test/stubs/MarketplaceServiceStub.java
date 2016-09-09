@@ -222,7 +222,7 @@ public class MarketplaceServiceStub implements MarketplaceService {
 
     @Override
     public List<VOMarketplace> getAllMarketplacesForTenant(long tenantKey) throws ObjectNotFoundException {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 }
