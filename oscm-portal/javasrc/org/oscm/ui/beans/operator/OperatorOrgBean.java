@@ -1219,6 +1219,7 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
     public void processValueChange(ValueChangeEvent e){
         if (e.getNewValue() == null || e.getNewValue().equals("")) {
             setSelectedTenant(e.getNewValue().toString());
+            selectedMarketplace = null;
             return;
         }
         setSelectedTenant(null);
