@@ -19,6 +19,7 @@ import javax.faces.bean.ViewScoped;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.vo.VOMarketplace;
 
 @ViewScoped
@@ -29,7 +30,7 @@ public class GotoMarketplaceBean extends BaseBean implements Serializable {
 
     private List<SelectItem> cachedMarketplaces;
     private String selectedMarketplace;
-
+    
     public String getSelectedMarketplace() {
         return selectedMarketplace;
     }
@@ -51,38 +52,62 @@ public class GotoMarketplaceBean extends BaseBean implements Serializable {
     }
 
     Set<VOMarketplace> loadMarketplaces() {
+        
+        String tenantId= getIdService().getCurrentUserDetails().getTenantId();
 
         Set<VOMarketplace> marketplaces = new HashSet<VOMarketplace>();
-        List<VOMarketplace> restrictedMarketplaces = getMarketplaceService()
-                .getRestrictedMarketplaces();
 
         if (isLoggedInAndMarketplaceOwner()) {
             List<VOMarketplace> marketplacesOwned = getMarketplaceService()
                     .getMarketplacesOwned();
 
-            for (VOMarketplace marketplace : marketplacesOwned) {
-                if (!marketplace.isRestricted()) {
-                    marketplaces.add(marketplace);
-                } else if (restrictedMarketplaces.contains(marketplace)) {
-                    marketplaces.add(marketplace);
-                }
-            }
+            prepareMarketplaces(marketplaces, marketplacesOwned, tenantId);
         }
 
         if (isLoggedInAndVendorManager()) {
             List<VOMarketplace> marketplacesForOrganization = getMarketplaceService()
                     .getMarketplacesForOrganization();
 
-            for (VOMarketplace marketplace : marketplacesForOrganization) {
-                if (!marketplace.isRestricted()) {
-                    marketplaces.add(marketplace);
-                } else if (restrictedMarketplaces.contains(marketplace)) {
-                    marketplaces.add(marketplace);
-                }
-            }
+            prepareMarketplaces(marketplaces, marketplacesForOrganization, tenantId);
         }
 
         return marketplaces;
+    }
+    
+    void prepareMarketplaces(Set<VOMarketplace> marketplacesToDisplay,
+            List<VOMarketplace> marketplaces, String tenantId) {
+
+        List<VOMarketplace> restrictedMarketplaces = getMarketplaceService()
+                .getRestrictedMarketplaces();
+
+        for (VOMarketplace marketplace : marketplaces) {
+            
+            if(!validateMarketplaceTenant(marketplace, tenantId)){
+                continue;
+            }          
+            if (!marketplace.isRestricted()) {
+                marketplacesToDisplay.add(marketplace);
+            } else if (restrictedMarketplaces.contains(marketplace)) {
+                marketplacesToDisplay.add(marketplace);
+            }
+        }
+    }
+    
+    boolean validateMarketplaceTenant(VOMarketplace marketplace,
+            String tenantId) {
+
+        String mplTenantId = marketplace.getTenantId();
+
+        if (StringUtils.isNotBlank(mplTenantId)) {
+
+            if (mplTenantId.equals(tenantId)) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+        
+        
     }
 
     private List<SelectItem> convertToUIModel(Set<VOMarketplace> marketplaces) {
