@@ -44,6 +44,7 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.string.Strings;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.ApplicationBean;
+import org.oscm.ui.beans.MenuBean;
 import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.common.ImageUploader;
 import org.oscm.ui.model.PSPSettingRow;
@@ -108,6 +109,9 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
 
     @EJB
     ManageTenantService manageTenantService;
+
+    @ManagedProperty(value="#{menuBean}")
+    MenuBean menuBean;
 
     /**
      * Registers the newly created organization.
@@ -1223,5 +1227,17 @@ public class OperatorOrgBean extends BaseOperatorBean implements Serializable {
             return;
         }
         setSelectedTenant(null);
+    }
+
+    public MenuBean getMenuBean() {
+        return menuBean;
+    }
+
+    public void setMenuBean(MenuBean menuBean) {
+        this.menuBean = menuBean;
+    }
+
+    public boolean isTenantSelectionAvailable() {
+        return !menuBean.getApplicationBean().isInternalAuthMode();
     }
 }
