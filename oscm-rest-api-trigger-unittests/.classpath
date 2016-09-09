@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-core.jar"/>
 	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/modules/jersey-gf-server.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/oscm-extsvc-internal"/>
+	<classpathentry kind="lib" path="/libraries/sun-glassfish-rt31/javalib/javaee.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
