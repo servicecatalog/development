@@ -13,6 +13,7 @@ import javax.ws.rs.WebApplicationException;
 import org.oscm.rest.common.CommonParams;
 import org.oscm.rest.common.Representation;
 import org.oscm.rest.common.WebException;
+import org.oscm.rest.trigger.config.TriggerCommonParams;
 
 /**
  * Representation class of trigger processes.
@@ -26,11 +27,6 @@ public class ProcessRepresentation extends Representation {
     public ProcessRepresentation() {
     }
 
-    public ProcessRepresentation(Long id, String comment) {
-        super(id);
-        this.comment = comment;
-    }
-
     public String getComment() {
         return comment;
     }
@@ -42,9 +38,15 @@ public class ProcessRepresentation extends Representation {
     @Override
     public void validateContent() throws WebApplicationException {
 
-        if (comment != null && !comment.matches(CommonParams.PATTERN_STRING)) {
-            throw WebException.badRequest().property("comment")
-                    .message("property does not match allowed pattern").build();
+        if (comment == null) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_COMMENT)
+                    .message(CommonParams.ERROR_MANDATORY_PROPERTIES).build();
+
+        } else if (!comment.matches(CommonParams.PATTERN_STRING)) {
+            throw WebException.badRequest()
+                    .property(TriggerCommonParams.PROPERTY_COMMENT)
+                    .message(CommonParams.ERROR_BAD_PROPERTY).build();
         }
     }
 

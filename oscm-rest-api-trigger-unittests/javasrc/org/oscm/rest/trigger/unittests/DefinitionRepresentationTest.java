@@ -29,14 +29,25 @@ public class DefinitionRepresentationTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
         trigger.setTargetURL("http://abc.de/asdf");
         trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
+        DefinitionRepresentation.Owner owner = new DefinitionRepresentation.Owner();
+        owner.setId(new Long(1L));
+        owner.setName("abc");
+        trigger.setOwner(owner);
+        trigger.setOwnerId(new Long(1L));
+
         trigger.validateContent();
+        assertEquals(new Long(1L), trigger.getOwnerId());
+        assertEquals(new Long(1L), trigger.getOwner().getId());
+
     }
 
     @Test
-    public void testValidationNegative() throws Exception {
+    public void testValidationNegativeDescription() throws Exception {
 
         StringBuilder sb = new StringBuilder();
 
@@ -46,6 +57,10 @@ public class DefinitionRepresentationTest {
 
         DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setDescription(sb.toString());
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
         try {
             trigger.validateContent();
@@ -56,7 +71,29 @@ public class DefinitionRepresentationTest {
         }
 
         trigger = new DefinitionRepresentation();
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testValidationNegativeURL() throws Exception {
+
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setTargetURL("<http://");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
 
         try {
             trigger.validateContent();
@@ -67,7 +104,95 @@ public class DefinitionRepresentationTest {
         }
 
         trigger = new DefinitionRepresentation();
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testValidationNegativeSuspend() throws Exception {
+
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+        trigger.setTargetURL("<http://");
+        trigger.setDescription("abc");
+        trigger.setType("REST_SERVICE");
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testValidationNegativeAction() throws Exception {
+
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
         trigger.setAction("SUB");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        trigger = new DefinitionRepresentation();
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_SERVICE");
+        trigger.setTargetURL("http://abc.de/asdf");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+    }
+
+    @Test
+    public void testValidationNegativeType() throws Exception {
+
+        DefinitionRepresentation trigger = new DefinitionRepresentation();
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setType("REST_");
+        trigger.setTargetURL("http://abc.de/asdf");
+
+        try {
+            trigger.validateContent();
+            fail();
+        } catch (WebApplicationException e) {
+            assertEquals(Status.BAD_REQUEST.getStatusCode(), e.getResponse()
+                    .getStatus());
+        }
+
+        trigger = new DefinitionRepresentation();
+        trigger.setAction("SUBSCRIBE_TO_SERVICE");
+        trigger.setDescription("abc");
+        trigger.setSuspending(Boolean.TRUE);
+        trigger.setTargetURL("http://abc.de/asdf");
 
         try {
             trigger.validateContent();

@@ -30,6 +30,8 @@ public abstract class RequestParameters {
     @HeaderParam(CommonParams.PARAM_NONE_MATCH)
     private String noneMatch;
 
+    private Long etag;
+
     public int getVersion() {
         return version;
     }
@@ -62,6 +64,14 @@ public abstract class RequestParameters {
         this.noneMatch = noneMatch;
     }
 
+    public Long getETag() {
+        return etag;
+    }
+
+    public void setETag(Long etag) {
+        this.etag = etag;
+    }
+
     /**
      * Validates the id string if it matches basic UUID format. Throws
      * NotFoundException if not valid.
@@ -82,29 +92,22 @@ public abstract class RequestParameters {
      * 
      * @throws WebApplicationException
      */
-    public void validateTag() throws WebApplicationException {
+    public void validateETag() throws WebApplicationException {
 
-        if (match != null) {
-            validateTag(match);
-        }
+        etag = null;
 
-        if (noneMatch != null) {
-            validateTag(noneMatch);
-        }
-    }
-
-    /**
-     * Validates the given string for tag format if not null. Throws a
-     * BadRequestException if not valid.
-     * 
-     * @param tag
-     *            the given tag string
-     * @throws WebApplicationException
-     */
-    public static void validateTag(String tag) throws WebApplicationException {
-        if (tag != null && !"*".equals(tag)) {
+        if (noneMatch != null && !CommonParams.ETAG_WILDCARD.equals(noneMatch)) {
             try {
-                Long.parseLong(tag);
+                etag = new Long(Long.parseLong(noneMatch));
+            } catch (NumberFormatException e) {
+                throw WebException.badRequest()
+                        .message(CommonParams.ERROR_INVALID_TAG).build();
+            }
+        }
+
+        if (match != null && !CommonParams.ETAG_WILDCARD.equals(match)) {
+            try {
+                etag = new Long(Long.parseLong(match));
             } catch (NumberFormatException e) {
                 throw WebException.badRequest()
                         .message(CommonParams.ERROR_INVALID_TAG).build();

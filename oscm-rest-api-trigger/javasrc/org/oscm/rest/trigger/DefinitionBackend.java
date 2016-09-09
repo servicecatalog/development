@@ -157,7 +157,7 @@ public class DefinitionBackend {
 
                     VOTriggerDefinition definition = tranferToVO(content);
 
-                    if (content.getTag() == null) {
+                    if (content.getETag() == null) {
                         definition.setVersion(service.getTriggerDefinition(
                                 params.getId()).getVersion());
                     }
@@ -233,8 +233,8 @@ public class DefinitionBackend {
             definition.setKey(rep.getId().longValue());
         }
 
-        if (rep.getTag() != null) {
-            definition.setVersion(Integer.parseInt(rep.getTag()));
+        if (rep.getETag() != null) {
+            definition.setVersion(rep.getETag().intValue());
         }
 
         if (rep.getDescription() != null) {
