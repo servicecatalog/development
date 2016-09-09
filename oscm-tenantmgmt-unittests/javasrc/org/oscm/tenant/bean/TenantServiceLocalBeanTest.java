@@ -8,14 +8,11 @@
 package org.oscm.tenant.bean;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 
@@ -166,5 +163,53 @@ public class TenantServiceLocalBeanTest {
 
         //then
         verify(tenantDao, times(1)).getAllTenantSettingsForTenant(any(Tenant.class));
+    }
+
+    @Test
+    public void testDoesOrganizationAssignedToTenantExist() {
+        //given
+        doReturn(2L).when(tenantDao).doesOrganizationForTenantExist(any(Tenant.class));
+
+        //when
+        boolean result  = tenantServiceLocalBean.doesOrganizationAssignedToTenantExist(new Tenant());
+
+        //then
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDoesMarketplaceAssignedToTenantExist() {
+        //given
+        doReturn(2L).when(tenantDao).doesMarketplaceAssignedToTenantExist(any(Tenant.class));
+
+        //when
+        boolean result  = tenantServiceLocalBean.doesMarketplaceAssignedToTenantExist(new Tenant());
+
+        //then
+        assertTrue(result);
+    }
+
+    @Test
+    public void testDoesOrganizationAssignedToTenantExist_notExists() {
+        //given
+        doReturn(0L).when(tenantDao).doesOrganizationForTenantExist(any(Tenant.class));
+
+        //when
+        boolean result  = tenantServiceLocalBean.doesOrganizationAssignedToTenantExist(new Tenant());
+
+        //then
+        assertFalse(result);
+    }
+
+    @Test
+    public void testDoesMarketplaceAssignedToTenantExist_notExists() {
+        //given
+        doReturn(0L).when(tenantDao).doesMarketplaceAssignedToTenantExist(any(Tenant.class));
+
+        //when
+        boolean result  = tenantServiceLocalBean.doesMarketplaceAssignedToTenantExist(new Tenant());
+
+        //then
+        assertFalse(result);
     }
 }

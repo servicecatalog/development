@@ -23,7 +23,12 @@ import java.util.Collection;
     @NamedQuery(name = "Tenant.getAll", query = "SELECT t FROM Tenant t"),
     @NamedQuery(name = "Tenant.findByBusinessKey", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId = "
         + ":tenantId"),
-    @NamedQuery(name = "Tenant.getTenantsByIdPattern", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId LIKE :tenantIdPattern") })
+    @NamedQuery(name = "Tenant.getTenantsByIdPattern", query = "SELECT t FROM Tenant t WHERE t.dataContainer.tenantId"
+        + " LIKE :tenantIdPattern"),
+    @NamedQuery(name = "Tenant.checkOrganization", query = "SELECT count(o) FROM Organization o WHERE o.tenant = "
+        + ":tenant"),
+    @NamedQuery(name = "Tenant.checkMarketplace", query = "SELECT count(o) FROM Marketplace o WHERE o.tenant = "
+        + ":tenant")})
 @BusinessKey(attributes = { "tenantId" })
 public class Tenant extends DomainObjectWithVersioning<TenantData> {
 

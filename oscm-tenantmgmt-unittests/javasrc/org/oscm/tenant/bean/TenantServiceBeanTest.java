@@ -18,6 +18,7 @@ import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.tenant.assembler.TenantAssembler;
@@ -94,7 +95,7 @@ public class TenantServiceBeanTest {
     }
 
     @Test
-    public void testRemoveTenant() throws ObjectNotFoundException {
+    public void testRemoveTenant() throws ObjectNotFoundException, TenantDeletionConstraintException {
         //given
         VOTenant voTenant = TenantAssembler.toVOTenant(prepareTenant());
         when(tenantServiceLocal.getTenantByKey(anyLong())).thenReturn(prepareTenant());
@@ -105,6 +106,30 @@ public class TenantServiceBeanTest {
 
         //then
         verify(tenantServiceLocal, times(1)).removeTenant(any(Tenant.class));
+    }
+
+    @Test(expected = TenantDeletionConstraintException.class)
+    public void testRemoveTenant_exceptionExpected() throws ObjectNotFoundException, TenantDeletionConstraintException {
+        //given
+        VOTenant voTenant = TenantAssembler.toVOTenant(prepareTenant());
+        when(tenantServiceLocal.getTenantByKey(anyLong())).thenReturn(prepareTenant());
+        doNothing().when(tenantServiceLocal).removeTenant(any(Tenant.class));
+        doReturn(true).when(tenantServiceLocal).doesOrganizationAssignedToTenantExist(any(Tenant.class));
+        //when
+        tenantServiceBean.removeTenant(voTenant);
+    }
+
+    @Test(expected = TenantDeletionConstraintException.class)
+    public void testRemoveTenant_exceptionExpectedMarketplace() throws ObjectNotFoundException,
+        TenantDeletionConstraintException {
+        //given
+        VOTenant voTenant = TenantAssembler.toVOTenant(prepareTenant());
+        when(tenantServiceLocal.getTenantByKey(anyLong())).thenReturn(prepareTenant());
+        doNothing().when(tenantServiceLocal).removeTenant(any(Tenant.class));
+        doReturn(false).when(tenantServiceLocal).doesOrganizationAssignedToTenantExist(any(Tenant.class));
+        doReturn(true).when(tenantServiceLocal).doesMarketplaceAssignedToTenantExist(any(Tenant.class));
+        //when
+        tenantServiceBean.removeTenant(voTenant);
     }
 
     @Test
@@ -205,6 +230,7 @@ public class TenantServiceBeanTest {
         assertEquals("tenant Id", voTenant.getTenantId());
         assertEquals(1L, voTenant.getKey());
     }
+
 
     private Tenant prepareTenant() {
         Tenant tenant = new Tenant();

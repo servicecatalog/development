@@ -57,4 +57,16 @@ public class TenantDao {
     public Tenant getMyTenant() {
         return dataManager.getCurrentUser().getOrganization().getTenant();
     }
+
+    public long doesOrganizationForTenantExist(Tenant tenant) {
+        Query query = dataManager.createNamedQuery("Tenant.checkOrganization");
+        query.setParameter("tenant", tenant);
+        return (long) query.getSingleResult();
+    }
+
+    public long doesMarketplaceAssignedToTenantExist(Tenant tenant) {
+        Query query = dataManager.createNamedQuery("Tenant.checkMarketplace");
+        query.setParameter("tenant", tenant);
+        return (long) query.getSingleResult();
+    }
 }
