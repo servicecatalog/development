@@ -8,22 +8,18 @@
 
 package org.oscm.ui.filter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
+import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.constants.Configuration;
@@ -39,6 +35,7 @@ public class AuthenticationSettingsTest {
     private static final String IDP_UPPERCASE = IDP.toUpperCase();
     private static final String IDP_CONTEXT_ROOT = "http://idp.de:9080/openam";
     private static final String IDP_HTTP_METHOD = "POST";
+    private static final String IDP_KEYSTORE_PASS = "changeit";
     private static final String BASE_URL = "http://www.example.de";
 
     private AuthenticationSettings authSettings;
@@ -53,6 +50,10 @@ public class AuthenticationSettingsTest {
         doReturn(ISSUER).when(mockTenant).getIssuer();
         doReturn(IDP).when(mockTenant).getIDPURL();
         doReturn(IDP_HTTP_METHOD).when(mockTenant).getIdpHttpMethod();
+        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystorePass();
+        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystore();
+        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
+        doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
         doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
     }
@@ -222,6 +223,73 @@ public class AuthenticationSettingsTest {
         // then
         assertEquals(IDP_HTTP_METHOD,
                 authSettings.getIdentityProviderHttpMethod("tenantID"));
+    }
+
+    @Test
+    public void getSigningKeystorePass() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystorePass("tenantID"));
+    }
+
+    @Test
+    public void getSigningKeystore() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystore("tenantID"));
+    }
+
+    @Test
+    public void getSigningKeyAlias() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeyAlias("tenantID"));
+    }
+
+    @Test
+    public void getLogoutURL() throws Exception {
+
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getLogoutURL("tenantID"));
+    }
+
+    @Test
+    public void getTenantBlank() throws Exception {
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+        authSettings = spy(authSettings);
+        doReturn(IDP_KEYSTORE_PASS).when(authSettings).
+                getConfigurationSetting(cfgMock, ConfigurationKey.SSO_SIGNING_KEYSTORE_PASS);
+
+        // then
+        assertEquals(IDP_KEYSTORE_PASS,
+                authSettings.getSigningKeystorePass(null));
+    }
+
+    @Test(expected = NotExistentTenantException.class)
+    public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException {
+        // given
+        givenMock(AuthenticationMode.SAML_SP, IDP);
+        doThrow(new ObjectNotFoundException()).when(tenantService).findByTkey(anyString());
+
+        // then
+        authSettings.getSigningKeystorePass("asdf");
     }
 
 }
