@@ -26,17 +26,18 @@ import static org.oscm.test.matchers.JavaMatchers.hasNoItems;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
 
-import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.OperatorService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -45,9 +46,9 @@ import org.oscm.internal.types.exception.MailOperationException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OperationNotPermittedException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
-import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
@@ -72,6 +73,7 @@ public class OperatorManageUsersCtrlTest {
     private final IdentityService idService = mock(IdentityService.class);
     private final AccountService accountingService = mock(AccountService.class);
     private final ConfigurationService configurationService = mock(ConfigurationService.class);
+    private final MarketplaceService marketplaceService = mock(MarketplaceService.class);
     private MarketplaceBean marketplaceBean;
     private UiDelegate ui;
     private final OperatorService operatorService = mock(OperatorService.class);
@@ -105,6 +107,11 @@ public class OperatorManageUsersCtrlTest {
             @Override
             protected ConfigurationService getConfigurationService() {
                 return configurationService;
+            }
+
+            @Override
+            protected MarketplaceService getMarketplaceService() {
+                return marketplaceService;
             }
         };
 
@@ -148,15 +155,15 @@ public class OperatorManageUsersCtrlTest {
     public void getInitialize() throws Exception {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces(123, 1234);
+        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
         bean.model.setInitialized(false);
 
         // when
         bean.getInitialize();
 
         // then
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
-        assertThat(bean.getSelectableMarketplaces(), hasItems(2));
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
+        assertThat(bean.model.getMarketplaces(), hasItems(2));
     }
 
     @Test
@@ -164,13 +171,12 @@ public class OperatorManageUsersCtrlTest {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
         bean.model.setInitialized(true);
-        availableMarketplaces(123, 1234, 11);
 
         // when
         bean.getInitialize();
 
         // then
-        assertThat(bean.getSelectableMarketplaces(), hasItems(3));
+        verify(marketplaceService, times(0)).getMarketplacesForOperator();
     }
 
     @Test
@@ -224,9 +230,9 @@ public class OperatorManageUsersCtrlTest {
     public void userListSize() {
         //given
         bean = spy(bean);
-        final List<POUserAndOrganization> usersList = new ArrayList<>();
-        usersList.add(0, new POUserAndOrganization());
-        usersList.add(1, new POUserAndOrganization());
+        final List<VOUserDetails> usersList = new ArrayList<>();
+        usersList.add(0, new VOUserDetails());
+        usersList.add(1, new VOUserDetails());
         doReturn(usersList).when(bean).getUsersList();
         //then
         assertTrue(bean.getUsersListSize() == 2);
@@ -290,13 +296,13 @@ public class OperatorManageUsersCtrlTest {
     public void getSelectableMarketplaces() {
         // given
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces(123, 1234);
+        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
 
         // when
         List<Marketplace> result = bean.getSelectableMarketplaces();
 
         // than
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
         assertThat(result, hasItems(2));
     }
 
@@ -325,16 +331,30 @@ public class OperatorManageUsersCtrlTest {
      * empty list.
      */
     @Test
+    public void AAAAAAAAAAAA() throws Exception {
+        // given
+        currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
+        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
+        bean.model.setInitialized(false);
+
+        // when
+        bean.getInitialize();
+
+        // then
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
+        assertThat(bean.model.getMarketplaces(), hasItems(2));
+    }
+    @Test
     public void getSelectableMarketplaces_No_Marketplaces() {
         // given no existing marketplaces
         currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        availableMarketplaces();
+        doReturn(mockVOMarketplaces()).when(marketplaceService).getMarketplacesForOperator();
 
         // when
         List<Marketplace> result = bean.getSelectableMarketplaces();
 
         // than
-        verify(marketplaceBean, times(1)).getMarketplacesForOperator();
+        verify(marketplaceService, times(1)).getMarketplacesForOperator();
         assertThat(result, hasNoItems());
     }
 
@@ -468,21 +488,21 @@ public class OperatorManageUsersCtrlTest {
         usersListVO.add(user1);
         usersListVO.add(user2);
 
-        when(operatorService.getUsers(any(String.class))).thenReturn(usersListVO);
+        when(operatorService.getUsers()).thenReturn(usersListVO);
         // when
-        final List<POUserAndOrganization> resultList = bean.getUsersList();
+        final List<VOUserDetails> resultList = bean.getUsersList();
         // then
         boolean hasFirst = false;
         boolean hasSecond = false;
-        for (POUserAndOrganization obj : resultList) {
+        for (VOUserDetails obj : resultList) {
             if (obj.getUserId().equals("user1ID")
-                    && obj.getEmail().equals("user1Email")
+                    && obj.getEMail().equals("user1Email")
                     && obj.getOrganizationId().equals("user1OrgID")
                     && obj.getOrganizationName().equals("user1OrgName")) {
                 hasFirst = true;
             }
             if (obj.getUserId().equals("user2ID")
-                    && obj.getEmail().equals("user2Email")
+                    && obj.getEMail().equals("user2Email")
                     && obj.getOrganizationId().equals("user2OrgID")
                     && obj.getOrganizationName().equals("user2OrgName")) {
                 hasSecond = true;
@@ -496,7 +516,7 @@ public class OperatorManageUsersCtrlTest {
         //given
         List<String> expectedHeaders = new ArrayList<>();
         expectedHeaders.add("userId");
-        expectedHeaders.add("email");
+        expectedHeaders.add("EMail");
         expectedHeaders.add("organizationName");
         expectedHeaders.add("organizationId");
         //when
@@ -574,6 +594,25 @@ public class OperatorManageUsersCtrlTest {
         } else {
             when(marketplaceBean.getMarketplacesForOperator()).thenReturn(
                     marketplaces);
+        }
+    }
+
+    private List<VOMarketplace> mockVOMarketplaces(long... mIds) {
+        ArrayList<VOMarketplace> marketplaces = new ArrayList<>();
+        for (int i = 0; i < mIds.length; i++) {
+            VOMarketplace mp = new VOMarketplace();
+            long mKey = mIds[i];
+            mp.setKey(mKey);
+            mp.setVersion(i + 1);
+            mp.setMarketplaceId(String.valueOf(mKey) + "_id");
+            mp.setName(String.valueOf(mKey) + "_name");
+            mp.setOwningOrganizationId(String.valueOf(mKey) + "_org");
+            marketplaces.add(mp);
+        }
+        if (marketplaces.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            return marketplaces;
         }
     }
 

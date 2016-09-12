@@ -12,16 +12,14 @@ package org.oscm.ui.dialog.classic.operator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.bean.ViewScoped;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
 
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
@@ -33,23 +31,20 @@ import org.oscm.internal.types.exception.OrganizationRemovedException;
 import org.oscm.internal.types.exception.SaaSApplicationException;
 import org.oscm.internal.types.exception.SaaSSystemException;
 import org.oscm.internal.types.exception.ValidationException;
-import org.oscm.internal.usermanagement.POUser;
-import org.oscm.internal.usermanagement.POUserAndOrganization;
 import org.oscm.internal.usermanagement.UserManagementService;
 import org.oscm.internal.vo.VOConfigurationSetting;
+import org.oscm.internal.vo.VOMarketplace;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.Configuration;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.beans.MarketplaceBean;
 import org.oscm.ui.beans.operator.BaseOperatorBean;
 import org.oscm.ui.beans.operator.OperatorSelectOrgBean;
-import org.oscm.ui.common.DataTableHandler;
 import org.oscm.ui.common.ExceptionHandler;
 import org.oscm.ui.model.Marketplace;
-import org.oscm.ui.model.User;
 import org.oscm.validation.ArgumentValidator;
+
 
 /**
  * Controller for operator manage users.
@@ -71,9 +66,10 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     transient ApplicationBean appBean;
     private String selectedUserId;
     private List<String> dataTableHeaders = new ArrayList<>();
-    private List<POUserAndOrganization> userAndOrganizations = new ArrayList<>();
+    private List<VOUserDetails> userAndOrganizations = new ArrayList<>();
     private List<Marketplace> marketplaces = new ArrayList<>();
     private boolean isInternalAuthMode;
+    private Long maxRegisteredUsersCount;
 
     @ManagedProperty(value = "#{operatorManageUsersModel}")
     OperatorManageUsersModel model;
@@ -87,13 +83,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     long getMaxRegisteredUsersCount() {
-        VOConfigurationSetting configurationSetting = getConfigurationService()
-                .getVOConfigurationSetting(
-                        ConfigurationKey.MAX_NUMBER_ALLOWED_USERS,
-                        Configuration.GLOBAL_CONTEXT);
-        Long maxRegisteredUsersCount = Long.valueOf(configurationSetting
-                .getValue());
-
+        if (maxRegisteredUsersCount == null) {
+            VOConfigurationSetting configurationSetting = getConfigurationService()
+                    .getVOConfigurationSetting(
+                            ConfigurationKey.MAX_NUMBER_ALLOWED_USERS,
+                            Configuration.GLOBAL_CONTEXT);
+            maxRegisteredUsersCount = Long.valueOf(configurationSetting
+                    .getValue());
+        }
         return maxRegisteredUsersCount.longValue();
     }
 
@@ -122,37 +119,20 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return appBean;
     }
 
-    List<POUserAndOrganization> getUsersList() {
-        Vo2ModelMapper<VOUserDetails, User> mapper = new Vo2ModelMapper<VOUserDetails, User>() {
-            @Override
-            public User createModel(final VOUserDetails vo) {
-                return new User(vo);
-            }
-        };
+    List<VOUserDetails> getUsersList() {
         try {
-            final List<User> map = mapper.map(getOperatorService().getUsers("%"));
-            List<POUserAndOrganization> resultList = new ArrayList<>();
-            for (User user : map) {
-                POUserAndOrganization userAndOrganization = new POUserAndOrganization();
-                userAndOrganization.setUserId(user.getUserId());
-                userAndOrganization.setEmail(user.getEmail());
-                userAndOrganization.setOrganizationName(user.getOrganizationName());
-                userAndOrganization.setOrganizationId(user.getOrganizationId());
-                resultList.add(userAndOrganization);
-            }
-            return resultList;
+            return getOperatorService().getUsers();
 
         } catch (OrganizationAuthoritiesException e) {
             ExceptionHandler.execute(e);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     public List<String> getDataTableHeaders() {
         if (dataTableHeaders == null || dataTableHeaders.isEmpty()) {
             try {
-                dataTableHeaders = DataTableHandler
-                        .getTableHeaders(POUserAndOrganization.class.getName());
+                dataTableHeaders = Arrays.asList("userId", "EMail", "organizationName", "organizationId");
             } catch (Exception e) {
                 throw new SaaSSystemException(e);
             }
@@ -229,6 +209,7 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     }
 
     public void updateSelectedUser() throws OperationNotPermittedException, ObjectNotFoundException, OrganizationRemovedException {
+        System.out.println("Cyc");
         VOUser selectedUser = new VOUser();
         selectedUser.setUserId(selectedUserId);
         model.setUser(getIdService().getUser(selectedUser));
@@ -287,14 +268,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
     List<Marketplace> getSelectableMarketplaces() {
         if (isLoggedInAndPlatformOperator()) {
             if (marketplaces.isEmpty()) {
-                marketplaces = ((MarketplaceBean) ui
-                        .findBean("marketplaceBean")).getMarketplacesForOperator();
-            }
-            if (marketplaces != null) {
+                marketplaces = new ArrayList<>();
+                for (VOMarketplace mp : getMarketplaceService()
+                        .getMarketplacesForOperator()) {
+                    marketplaces.add(new Marketplace(mp));
+                }
                 return marketplaces;
             }
         }
-
         return Collections.emptyList();
     }
 
@@ -313,14 +294,14 @@ public class OperatorManageUsersCtrl extends BaseOperatorBean implements
         return false;
     }
 
-    public List<POUserAndOrganization> getUserAndOrganizations() {
+    public List<VOUserDetails> getUserAndOrganizations() {
         if (userAndOrganizations.isEmpty()) {
             userAndOrganizations = getUsersList();
         }
         return userAndOrganizations;
     }
 
-    public void setUserAndOrganizations(List<POUserAndOrganization> userAndOrganizations) {
+    public void setUserAndOrganizations(List<VOUserDetails> userAndOrganizations) {
         this.userAndOrganizations = userAndOrganizations;
     }
 

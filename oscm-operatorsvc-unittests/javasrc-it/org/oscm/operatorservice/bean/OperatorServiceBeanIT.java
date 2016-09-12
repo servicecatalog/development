@@ -1402,7 +1402,7 @@ public class OperatorServiceBeanIT extends EJBTestBase {
         container.login("1", ROLE_PLATFORM_OPERATOR);
         callerRolles.add(OrganizationRoleType.PLATFORM_OPERATOR);
 
-        List<VOUserDetails> result = operatorService.getUsersWithLimit("", 1);
+        List<VOUserDetails> result = operatorService.getUsers();
 
         assertTrue(queryLimit);
         assertEquals(list.size(), result.size());

@@ -875,8 +875,6 @@ public class OperatorServiceBean implements OperatorService {
     /**
      * Returns true if an image is defined for the product with the given key.
      * 
-     * @param product
-     *            The product.
      * @return true if an image is defined for the product with the given key.
      */
     public boolean isImageDefined(Organization organization) {
@@ -901,31 +899,11 @@ public class OperatorServiceBean implements OperatorService {
                     NonUniqueBusinessKeyException {
         try {
             return updateOrganizationIntern(voOrganization, voImageResource);
-        } catch (ObjectNotFoundException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ValidationException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ConcurrentModificationException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (DistinguishedNameException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (OrganizationAuthorityException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (IncompatibleRolesException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (PSPIdentifierForSellerException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (PaymentDataException e) {
-            sessionCtx.setRollbackOnly();
-            throw e;
-        } catch (ImageException e) {
+        } catch (ObjectNotFoundException | OrganizationAuthorityException
+                | DistinguishedNameException | ConcurrentModificationException
+                | ValidationException | ImageException | PaymentDataException
+                | PSPIdentifierForSellerException
+                | IncompatibleRolesException e) {
             sessionCtx.setRollbackOnly();
             throw e;
         }
@@ -1104,26 +1082,21 @@ public class OperatorServiceBean implements OperatorService {
 
     @Override
     @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOUserDetails> getUsers(String userIdPattern)
+    public List<VOUserDetails> getUsers()
             throws OrganizationAuthoritiesException {
-        return getUsersWithLimit(userIdPattern, DB_SEARCH_LIMIT);
-    }
-
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public List<VOUserDetails> getUsersWithLimit(String userIdPattern,
-            Integer queryLimit) throws OrganizationAuthoritiesException {
-
-        Query query = dm.createNamedQuery("PlatformUser.findByIdPattern");
-        query.setMaxResults(queryLimit.intValue());
-        query.setParameter("userId", userIdPattern);
+        Query query = dm.createQuery("select pu.dataContainer.userId, pu.dataContainer.email,o.dataContainer.name, o.dataContainer.organizationId from PlatformUser pu left join pu.organization o");
 
         List<VOUserDetails> result = new ArrayList<>();
-        for (PlatformUser user : ParameterizedTypes
-                .iterable(query.getResultList(), PlatformUser.class)) {
-            result.add(UserDataAssembler.toVOUserDetails(user));
+        final List resultList = query.getResultList();
+        for (Object o : resultList) {
+            Object[] row = (Object[]) o;
+            final VOUserDetails userDetails = new VOUserDetails();
+            userDetails.setEMail((String) row[0]);
+            userDetails.setUserId((String) row[1]);
+            userDetails.setOrganizationName((String) row[2]);
+            userDetails.setOrganizationId((String) row[3]);
+            result.add(userDetails);
         }
-
         return result;
     }
 
@@ -1197,14 +1170,6 @@ public class OperatorServiceBean implements OperatorService {
         boolean result = payProc.chargeForOutstandingBills();
 
         return result;
-    }
-
-    @Override
-    @RolesAllowed("PLATFORM_OPERATOR")
-    public void initIndexForFulltextSearch(boolean force) {
-
-        searchService.initIndexForFulltextSearch(force);
-
     }
 
     @Override
