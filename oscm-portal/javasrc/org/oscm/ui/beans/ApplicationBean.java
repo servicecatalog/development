@@ -122,6 +122,8 @@ public class ApplicationBean implements Serializable {
      */
     private Long interval = null;
 
+    private Boolean samlSpAuthMode = null;
+
     /**
      * Read the build id and date from the ear manifest.
      */
@@ -160,6 +162,10 @@ public class ApplicationBean implements Serializable {
                     LogMessageIdentifier.ERROR_FORMATTING_BUILD_DATE);
         }
 
+    }
+
+    public void setSamlSpAuthMode(Boolean samlSpAuthMode) {
+        this.samlSpAuthMode = samlSpAuthMode;
     }
 
     /**
@@ -549,15 +555,15 @@ public class ApplicationBean implements Serializable {
      *         <code>false</code>.
      */
     public boolean isSamlSpAuthMode() {
-        if (internalAuthMode == null) {
+        if (samlSpAuthMode == null) {
             lookupConfigurationService();
             VOConfigurationSetting authMode = configurationService
                 .getVOConfigurationSetting(ConfigurationKey.AUTH_MODE,
                     Configuration.GLOBAL_CONTEXT);
-            internalAuthMode = Boolean.valueOf(authMode.getValue().equals(
+            samlSpAuthMode = Boolean.valueOf(authMode.getValue().equals(
                 AuthenticationMode.SAML_SP.name()));
         }
-        return internalAuthMode.booleanValue();
+        return samlSpAuthMode.booleanValue();
     }
 
     /**

@@ -117,4 +117,6 @@ public class Constants {
 
     public static final String RADIO_UNSELECTED = "false";
 
+    public static final String REQ_PARAM_TENANT_ID = "tenantID";
+
 }

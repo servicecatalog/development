@@ -409,12 +409,12 @@ public abstract class BaseBesFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    private String getTenantID(HttpServletRequest request, HttpServletResponse response) {
-        String tenantID = request.getParameter("tenantID");
+    protected String getTenantID(HttpServletRequest request, HttpServletResponse response) {
+        String tenantID = request.getParameter(Constants.REQ_PARAM_TENANT_ID);
         if (StringUtils.isBlank(tenantID)) {
-            tenantID = JSFUtils.getCookieValue(request, "tenantID");
+            tenantID = JSFUtils.getCookieValue(request, Constants.REQ_PARAM_TENANT_ID);
         }
-        JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
+        JSFUtils.setCookieValue(request, response, Constants.REQ_PARAM_TENANT_ID, tenantID, -1);
         return tenantID;
     }
 
