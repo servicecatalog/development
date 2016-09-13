@@ -14,7 +14,6 @@ import java.util.Set;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
-import org.oscm.internal.vo.BaseVO;
 
 /**
  * Represents a user registered in the platform.
@@ -29,6 +28,7 @@ public class VOUser extends BaseVO {
     private UserAccountStatus status;
     private Set<OrganizationRoleType> organizationRoles = new HashSet<OrganizationRoleType>();
     private Set<UserRoleType> userRoles = new HashSet<UserRoleType>();
+    private String tenantId;
 
     /**
      * Default constructor.
@@ -173,5 +173,21 @@ public class VOUser extends BaseVO {
      */
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    /**
+     * Sets tenant to which user belongs
+     * @return
+     */
+    public void setTenantId(String tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    /**
+     * Gets tenant to which user belongs
+     * @return
+     */
+    public String getTenantId() {
+        return tenantId;
     }
 }
