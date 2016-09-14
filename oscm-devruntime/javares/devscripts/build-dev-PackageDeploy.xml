@@ -45,6 +45,13 @@
       <property name="projects" value="oscm-install-pack" />
     </ant>
   </target>
+
+  <target name="SecurityJar.BUILD"
+    description="Builds oscm-security.jar">
+    <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
+      <property name="projects" value="oscm-security" />
+    </ant>
+  </target>
   <target name="EclipseBirt.BUILD"
     description="Builds the master indexer application, the build result can be found in oscm-build/result/package/oscm-search">
     <ant dir="${adm.ue.buildscript.dir}" antfile="${adm.ue.buildscript.file}" target="package">
