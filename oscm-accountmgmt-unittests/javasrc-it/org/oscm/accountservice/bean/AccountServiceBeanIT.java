@@ -541,7 +541,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        registerSupplier("admin");
+        registerSupplierAndCustomer("admin", false);
 
         Organization organization = runTX(new Callable<Organization>() {
             @Override
@@ -664,7 +664,8 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertNull(sendedMails.get(index).getParams());
     }
 
-    private void registerSupplier(String adminUserId) throws Exception {
+    private void registerSupplierAndCustomer(String adminUserId,
+            boolean isRestrictedMarketplace) throws Exception {
         // Create supplier for later registration
         final Organization supplier = runTX(new Callable<Organization>() {
             @Override
@@ -709,6 +710,10 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(marketplaceId);
                 if (mgr.find(mp) == null) {
+                    Marketplaces
+                            .createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(
+                                    supplier, marketplaceId + "_restricted",
+                                    mgr, Arrays.asList(supplier));
                     Marketplaces.createMarketplace(supplier, marketplaceId,
                             false, mgr);
                 }
@@ -716,8 +721,15 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         new LocalizerFacade(localizer, "en"));
             }
         });
-        organization = accountMgmt.registerCustomer(organization, admin,
-                "admin", null, marketplaceId, supplier.getOrganizationId());
+        if (isRestrictedMarketplace) {
+            organization = accountMgmt.registerCustomer(organization, admin,
+                    "admin", null, marketplaceId + "_restricted",
+                    supplier.getOrganizationId());
+        } else {
+            organization = accountMgmt.registerCustomer(organization, admin,
+                    "admin", null, marketplaceId, supplier.getOrganizationId());
+
+        }
         organizationId = organization.getOrganizationId();
 
         VOUser user = idManagement.getUser(admin);
@@ -2005,7 +2017,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testRemoveOverdueOrganizationsRemoveOneUser() throws Exception {
-        registerSupplier("admin");
+        registerSupplierAndCustomer("admin", false);
         List<PlatformUser> platformUsers = runTX(new Callable<List<PlatformUser>>() {
             @Override
             public List<PlatformUser> call() throws Exception {
@@ -2071,9 +2083,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testRemoveOverdueOrganizationsRemoveTwoUsersOneOpFails()
             throws Exception {
-        registerSupplier("admin");
+        registerSupplierAndCustomer("admin", false);
         final String firstCustumerId = organizationId;
-        registerSupplier("admin");
+        registerSupplierAndCustomer("admin", false);
         final String secondCustumerId = organizationId;
 
         // the only way to cause a failure during deletion is that the
@@ -6391,6 +6403,11 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertFalse(instanceActivated);
         assertTrue(instanceDeactivated);
         assertEquals(SubscriptionStatus.ACTIVE, getSubStatus(subReseller));
+    }
+
+    @Test
+    public void registerCustomerWithRestrictedMarketplace() throws Exception {
+        registerSupplierAndCustomer("admin", true);
     }
 
     private Product setupSupplierAndReseller(final OrganizationRoleType role,
