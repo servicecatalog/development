@@ -22,6 +22,7 @@ import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
+import org.oscm.tenant.bean.TenantServiceBean;
 import org.oscm.types.constants.Configuration;
 
 /**
@@ -45,7 +46,8 @@ public class AuthenticationSettingsTest {
 
     @Before
     public void setup() throws Exception {
-        tenantService = mock(TenantService.class);
+        tenantService = spy(new TenantServiceBean() {
+        });
         mockTenant = mock(VOTenant.class);
         doReturn(ISSUER).when(mockTenant).getIssuer();
         doReturn(IDP).when(mockTenant).getIDPURL();
@@ -55,6 +57,7 @@ public class AuthenticationSettingsTest {
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
         doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
+        doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
     }
 
@@ -286,7 +289,7 @@ public class AuthenticationSettingsTest {
     public void findByTKey() throws ObjectNotFoundException, NotExistentTenantException {
         // given
         givenMock(AuthenticationMode.SAML_SP, IDP);
-        doThrow(new ObjectNotFoundException()).when(tenantService).getTenantByTenantId(anyString());
+        doThrow(new ObjectNotFoundException()).when(tenantService).findByTkey(anyString());
 
         // then
         authSettings.getSigningKeystorePass("asdf");
