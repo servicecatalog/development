@@ -202,21 +202,6 @@ public class TenantServiceBeanTest {
     }
     
     @Test
-    public void testGetMyTenant() {
-        
-        //given
-        Tenant tenant = prepareTenant();
-        when(tenantServiceLocal.getMyTenant()).thenReturn(tenant);
-
-        //when
-        VOTenant voTenant = tenantServiceBean.getMyTenant();
-
-        //then
-        assertEquals("tenant Id", voTenant.getTenantId());
-        assertEquals(1L, voTenant.getKey());
-    }
-    
-    @Test
     public void testfindByTKey() throws ObjectNotFoundException {
         
         //given
@@ -230,7 +215,6 @@ public class TenantServiceBeanTest {
         assertEquals("tenant Id", voTenant.getTenantId());
         assertEquals(1L, voTenant.getKey());
     }
-
 
     private Tenant prepareTenant() {
         Tenant tenant = new Tenant();
