@@ -325,25 +325,6 @@ public class OperatorManageUsersCtrlTest {
         assertThat(result, hasNoItems());
     }
 
-    /**
-     * Test the retrieving of available marketplaces. This operation is allowed
-     * only to the PLATFORM_OPERATOR. All other organization roles will recieve
-     * empty list.
-     */
-    @Test
-    public void AAAAAAAAAAAA() throws Exception {
-        // given
-        currentUser(OrganizationRoleType.PLATFORM_OPERATOR);
-        doReturn(mockVOMarketplaces(123, 1234)).when(marketplaceService).getMarketplacesForOperator();
-        bean.model.setInitialized(false);
-
-        // when
-        bean.getInitialize();
-
-        // then
-        verify(marketplaceService, times(1)).getMarketplacesForOperator();
-        assertThat(bean.model.getMarketplaces(), hasItems(2));
-    }
     @Test
     public void getSelectableMarketplaces_No_Marketplaces() {
         // given no existing marketplaces
