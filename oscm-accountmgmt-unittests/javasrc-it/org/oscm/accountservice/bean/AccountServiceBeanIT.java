@@ -115,7 +115,6 @@ import org.oscm.identityservice.local.LdapSettingsManagementServiceLocal;
 import org.oscm.interceptor.DateFactory;
 import org.oscm.internal.intf.AccountService;
 import org.oscm.internal.intf.IdentityService;
-import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.ImageType;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
@@ -162,6 +161,8 @@ import org.oscm.internal.vo.VOServicePaymentConfiguration;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.marketplace.assembler.MarketplaceAssembler;
+import org.oscm.marketplace.bean.MarketplaceServiceBean;
+import org.oscm.marketplace.bean.MarketplaceServiceLocalBean;
 import org.oscm.reviewservice.bean.ReviewServiceLocalBean;
 import org.oscm.reviewservice.dao.ProductReviewDao;
 import org.oscm.serviceprovisioningservice.assembler.ProductAssembler;
@@ -271,9 +272,6 @@ public class AccountServiceBeanIT extends EJBTestBase {
     private UserGroupServiceLocalBean userGroupServiceLocal;
     private UserGroupDao userGroupDao;
 
-    private MarketplaceService mplService;
-    private VOMarketplace mpl;
-
     @Captor
     ArgumentCaptor<Properties> storedProps;
 
@@ -346,8 +344,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
         userGroupServiceLocal = mock(UserGroupServiceLocalBean.class);
         container.addBean(userGroupServiceLocal);
         container.addBean(new UserGroupUsersDao());
-        mplService = mock(MarketplaceService.class);
-        container.addBean(mplService);
+        container.addBean(new MarketplaceServiceLocalBean());
+        container.addBean(new MarketplaceServiceBean());
+
         container.addBean(new ImageResourceServiceStub() {
             ImageResource saved;
 
@@ -541,7 +540,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
                 return null;
             }
         });
-        registerSupplierAndCustomer("admin", false);
+        registerSupplier("admin");
 
         Organization organization = runTX(new Callable<Organization>() {
             @Override
@@ -588,7 +587,6 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
         supplierIds.add(organization.getOrganizationId());
 
-        when(mplService.getMarketplaceById(anyString())).thenReturn(mpl);
     }
 
     @Test
@@ -664,8 +662,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
         assertNull(sendedMails.get(index).getParams());
     }
 
-    private void registerSupplierAndCustomer(String adminUserId,
-            boolean isRestrictedMarketplace) throws Exception {
+    private Organization registerSupplier(String adminUserId) throws Exception {
         // Create supplier for later registration
         final Organization supplier = runTX(new Callable<Organization>() {
             @Override
@@ -704,16 +701,12 @@ public class AccountServiceBeanIT extends EJBTestBase {
         });
         container.login(String.valueOf(tmp.getKey()), ROLE_ORGANIZATION_ADMIN);
 
-        mpl = runTX(new Callable<VOMarketplace>() {
+        runTX(new Callable<VOMarketplace>() {
             @Override
             public VOMarketplace call() throws Exception {
                 Marketplace mp = new Marketplace();
                 mp.setMarketplaceId(marketplaceId);
                 if (mgr.find(mp) == null) {
-                    Marketplaces
-                            .createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(
-                                    supplier, marketplaceId + "_restricted",
-                                    mgr, Arrays.asList(supplier));
                     Marketplaces.createMarketplace(supplier, marketplaceId,
                             false, mgr);
                 }
@@ -721,19 +714,14 @@ public class AccountServiceBeanIT extends EJBTestBase {
                         new LocalizerFacade(localizer, "en"));
             }
         });
-        if (isRestrictedMarketplace) {
-            organization = accountMgmt.registerCustomer(organization, admin,
-                    "admin", null, marketplaceId + "_restricted",
-                    supplier.getOrganizationId());
-        } else {
-            organization = accountMgmt.registerCustomer(organization, admin,
-                    "admin", null, marketplaceId, supplier.getOrganizationId());
-
-        }
+        organization = accountMgmt.registerCustomer(organization, admin,
+                "admin", null, marketplaceId, supplier.getOrganizationId());
         organizationId = organization.getOrganizationId();
 
         VOUser user = idManagement.getUser(admin);
         container.login(String.valueOf(user.getKey()), ROLE_ORGANIZATION_ADMIN);
+
+        return supplier;
     }
 
     /**
@@ -2017,7 +2005,7 @@ public class AccountServiceBeanIT extends EJBTestBase {
 
     @Test
     public void testRemoveOverdueOrganizationsRemoveOneUser() throws Exception {
-        registerSupplierAndCustomer("admin", false);
+        registerSupplier("admin");
         List<PlatformUser> platformUsers = runTX(new Callable<List<PlatformUser>>() {
             @Override
             public List<PlatformUser> call() throws Exception {
@@ -2083,9 +2071,9 @@ public class AccountServiceBeanIT extends EJBTestBase {
     @Test
     public void testRemoveOverdueOrganizationsRemoveTwoUsersOneOpFails()
             throws Exception {
-        registerSupplierAndCustomer("admin", false);
+        registerSupplier("admin");
         final String firstCustumerId = organizationId;
-        registerSupplierAndCustomer("admin", false);
+        registerSupplier("admin");
         final String secondCustumerId = organizationId;
 
         // the only way to cause a failure during deletion is that the
@@ -6406,8 +6394,41 @@ public class AccountServiceBeanIT extends EJBTestBase {
     }
 
     @Test
-    public void registerCustomerWithRestrictedMarketplace() throws Exception {
-        registerSupplierAndCustomer("admin", true);
+    public void registerKnownCustomerWithRestrictedMarketplace()
+            throws Exception {
+
+        final Organization supplier = registerSupplier("admin");
+        runTX(new Callable<VOMarketplace>() {
+            @Override
+            public VOMarketplace call() throws Exception {
+                Marketplace mpRestricted = new Marketplace();
+                mpRestricted.setMarketplaceId(marketplaceId + "_restricted");
+                if (mgr.find(mpRestricted) == null) {
+
+                    Organization platformOperator = Organizations
+                            .findOrganization(mgr, "PLATFORM_OPERATOR");
+                    mpRestricted = Marketplaces
+                            .createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(
+                                    platformOperator, marketplaceId
+                                            + "_restricted", mgr,
+                                    Arrays.asList(supplier));
+                }
+                return MarketplaceAssembler.toVOMarketplace(mpRestricted,
+                        new LocalizerFacade(localizer, "en"));
+            }
+        });
+
+        container.login(String.valueOf(supplier1User.getKey()),
+                ROLE_SERVICE_MANAGER);
+        VOOrganization org = new VOOrganization();
+        org.setLocale(Locale.ENGLISH.toString());
+        org.setDomicileCountry(Locale.GERMANY.getCountry());
+        VOUserDetails user = new VOUserDetails();
+        user.setLocale(org.getLocale());
+        user.setEMail(TEST_MAIL_ADDRESS);
+        user.setUserId("testuser");
+        accountMgmt.registerKnownCustomer(org, user, null, marketplaceId
+                + "_restricted");
     }
 
     private Product setupSupplierAndReseller(final OrganizationRoleType role,
