@@ -1163,20 +1163,6 @@ public class BaseBean {
         return marketplaceId;
     }
 
-    public static String getTenantId() {
-        HttpServletRequest request = getRequestStatic();
-        String tenantId = (String) request
-            .getAttribute(Constants.REQ_PARAM_TENANT_ID);
-        if (isBlank(tenantId)) {
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                tenantId = (String) session
-                    .getAttribute(Constants.REQ_PARAM_TENANT_ID);
-            }
-        }
-        return tenantId;
-    }
-
     protected boolean isMarketplaceSet() {
         String marketplaceId = getMarketplaceId();
         return marketplaceId != null && marketplaceId.trim().length() > 0;

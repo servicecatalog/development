@@ -10,11 +10,7 @@ package org.oscm.tenant.bean;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.EJB;
-import javax.ejb.Local;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
+import javax.ejb.*;
 import javax.interceptor.Interceptors;
 
 import org.oscm.dataservice.local.DataService;
@@ -45,7 +41,6 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @TransactionAttribute(TransactionAttributeType.MANDATORY)
-    @RolesAllowed("PLATFORM_OPERATOR")
     @Override
     public Tenant getTenantByTenantId(String tenantId) throws ObjectNotFoundException {
         return tenantDao.getTenantByTenantId(tenantId);

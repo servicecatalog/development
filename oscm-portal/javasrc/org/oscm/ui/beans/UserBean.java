@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -42,7 +41,6 @@ import org.oscm.internal.types.enumtypes.UserAccountStatus;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.*;
 import org.oscm.internal.vo.VOConfigurationSetting;
-import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOUser;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.logging.Log4jLogger;
@@ -109,11 +107,6 @@ public class UserBean extends BaseBean implements Serializable {
 
     private UploadedFile userImport;
     transient ApplicationBean appBean;
-
-    @PostConstruct
-    public void init() {
-        tenantID = getRequest().getParameter("tenantID");
-    }
 
     public MenuBean getMenuBean() {
         return menuBean;
@@ -1081,11 +1074,12 @@ public class UserBean extends BaseBean implements Serializable {
                     session);
         } catch (SAML2AuthnRequestException e) {
             ui.handleError(null, BaseBean.ERROR_GENERATE_AUTHNREQUEST);
-            return OUTCOME_MARKETPLACE_ERROR_PAGE;
         } catch (NotExistentTenantException e) {
-            //ain't gonna happen
-            return null;
+            ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
+        } catch (ObjectNotFoundException e) {
+            ui.handleError(null, BaseBean.ERROR_MISSING_TENANTID);
         }
+        return OUTCOME_MARKETPLACE_ERROR_PAGE;
     }
 
     protected AuthenticationSettings getAuthenticationSettings() {
@@ -1096,16 +1090,19 @@ public class UserBean extends BaseBean implements Serializable {
         return authenticationSettings;
     }
 
-    protected AuthenticationHandler getAuthenticationHandler() {
+    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException {
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings(), getTenantID(getRequest(), getResponse()));
+                getAuthenticationSettings(), getTenantID());
     }
 
-    private String getTenantID(HttpServletRequest request, HttpServletResponse response) {
+    private String getTenantID() {
         if (StringUtils.isBlank(tenantID)) {
-            tenantID = JSFUtils.getCookieValue(request, "tenantID");
+            try {
+                tenantID = getMarketplaceService().getMarketplaceById(getMarketplaceId()).getTenantTkey();
+            } catch (ObjectNotFoundException e) {
+                tenantID = null;
+            }
         }
-        JSFUtils.setCookieValue(request, response, "tenantID", tenantID, -1);
         return tenantID;
     }
 
@@ -1144,16 +1141,6 @@ public class UserBean extends BaseBean implements Serializable {
     }
 
     public String getAdminPortalAddress() {
-        if (!getAuthenticationSettings().isInternal()) {
-            VOTenant voTenant = tenantService.getMyTenant();
-            String tenantId;
-            if (voTenant != null) {
-                tenantId = String.valueOf(voTenant.getKey());
-            } else {
-                tenantId = JSFUtils.getCookieValue(getRequest(), "tenantID");
-            }
-            return appBean.getServerBaseUrl() + "?tenantID=" + tenantId;
-        }
         return appBean.getServerBaseUrl();
     }
 

@@ -7,15 +7,16 @@
  *******************************************************************************/
 package org.oscm.internal.intf;
 
+import java.util.List;
+
+import javax.ejb.Remote;
+
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TenantDeletionConstraintException;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
-
-import javax.ejb.Remote;
-import java.util.List;
 
 @Remote
 public interface TenantService {
@@ -41,7 +42,4 @@ public interface TenantService {
     List<VOTenant> getTenantsByIdPattern(String tenantIdPattern);
 
     VOTenant findByTkey(String tkey) throws ObjectNotFoundException;
-
-    VOTenant getMyTenant();
-
 }

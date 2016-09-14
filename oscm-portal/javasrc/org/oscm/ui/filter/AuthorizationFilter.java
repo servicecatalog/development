@@ -198,7 +198,7 @@ public class AuthorizationFilter extends BaseBesFilter {
                 rdo.setUserId(userId);
                 rdo.setPassword(httpRequest.getParameter(PARAM_LOGIN_PASSWORD));
                 VOUser voUser = readTechnicalUserFromDb(identityService,
-                        rdo.getUserId());
+                        rdo);
                 serviceAccess.login(voUser, rdo.getPassword(), httpRequest,
                         httpResponse);
                 httpRequest.getSession().setAttribute(Constants.SESS_ATTR_USER,
@@ -333,7 +333,7 @@ public class AuthorizationFilter extends BaseBesFilter {
             VOUser voUser;
             try {
                 voUser = readTechnicalUserFromDb(identityService,
-                        rdo.getUserId());
+                        rdo);
             } catch (ObjectNotFoundException e) {
                 handleUserNotRegistered(chain, httpRequest, httpResponse, rdo);
                 return;
@@ -731,11 +731,12 @@ public class AuthorizationFilter extends BaseBesFilter {
         return false;
     }
 
-    VOUser readTechnicalUserFromDb(IdentityService service, String userId)
+    VOUser readTechnicalUserFromDb(IdentityService service, AuthorizationRequestData ard)
             throws ObjectNotFoundException, OperationNotPermittedException,
             OrganizationRemovedException {
         VOUser voUser = new VOUser();
-        voUser.setUserId(userId);
+        voUser.setUserId(ard.getUserId());
+        voUser.setTenantId(ard.getTenantID());
         voUser = service.getUser(voUser);
         return voUser;
     }

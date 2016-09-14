@@ -8,6 +8,8 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 
 import javax.servlet.*;
@@ -28,7 +30,6 @@ import org.oscm.types.enumtypes.LogMessageIdentifier;
 import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.delegates.ServiceLocator;
 
@@ -115,7 +116,7 @@ public class IdPResponseFilter implements Filter {
                 } catch (NotExistentTenantException e) {
                     LOGGER.logError(Log4jLogger.SYSTEM_LOG, e,
                             LogMessageIdentifier.ERROR_TENANT_NOT_FOUND,
-                            JSFUtils.getCookieValue(httpRequest, "tenantID"));
+                            (String) ((HttpServletRequest) request).getSession().getAttribute(REQ_PARAM_TENANT_ID));
                     httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                             BaseBean.ERROR_MISSING_TENANTID);
                 } catch (SessionIndexNotFoundException e) {
@@ -151,12 +152,18 @@ public class IdPResponseFilter implements Filter {
         String samlSessionId = getSamlResponseExtractor()
                 .getSessionIndex(samlResponse);
         String nameID = getSamlResponseExtractor().getUserId(samlResponse);
-        String tenantID = JSFUtils.getCookieValue(request, "tenantID");
-        String logoutRequest = logoutRequestGenerator.generateLogoutRequest(
-                samlSessionId, nameID, getLogoutURL(tenantID),
-                getKeystorePath(tenantID), getIssuer(tenantID),
-                getKeyAlias(tenantID), getKeystorePass(tenantID));
+        String tenantID = getSamlResponseExtractor().getTenantID(samlResponse);
+        String logoutRequest = null;
+        try {
+            logoutRequest = logoutRequestGenerator.generateLogoutRequest(
+                    samlSessionId, nameID, getLogoutURL(tenantID),
+                    getKeystorePath(tenantID), getIssuer(tenantID),
+                    getKeyAlias(tenantID), getKeystorePass(tenantID));
+        } catch (Exception exc) {
+            LOGGER.logError(Log4jLogger.SYSTEM_LOG, exc, LogMessageIdentifier.ERROR_BUILD_SAML_LOGOUT_REQUEST_FAILED, tenantID);
+        }
         request.getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
+        request.getSession().setAttribute("TENANT_ID", tenantID);
     }
 
     String getForwardUrl(HttpServletRequest httpRequest, String relayState) {

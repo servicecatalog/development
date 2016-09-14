@@ -17,6 +17,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
@@ -28,7 +29,6 @@ import org.oscm.ui.beans.BaseBean;
 import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.ADMStringUtils;
 import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.JSFUtils;
 import org.oscm.ui.filter.AuthenticationSettings;
 
 /**
@@ -51,6 +51,7 @@ public class Saml2Ctrl extends BaseBean {
     private TenantService tenantService;
 
     private AuthenticationSettings authenticationSettings;
+    private String tenantID;
 
     public String initModelAndCheckForErrors() {
 
@@ -106,7 +107,7 @@ public class Saml2Ctrl extends BaseBean {
         setSessionAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID, requestId);
     }
     URL getAcsUrl() throws MalformedURLException, NotExistentTenantException {
-        String acsURL = getAuthenticationSettings().getIdentityProviderURL(JSFUtils.getCookieValue(getRequest(), "tenantID"));
+        String acsURL = getAuthenticationSettings().getIdentityProviderURL(getTenantId());
         return new URL(acsURL);
     }
 
@@ -125,13 +126,24 @@ public class Saml2Ctrl extends BaseBean {
     }
 
     String getIssuer() throws SAML2AuthnRequestException, NotExistentTenantException {
-        String issuer = getAuthenticationSettings().getIssuer(JSFUtils.getCookieValue(getRequest(), "tenantID"));
+        String issuer = getAuthenticationSettings().getIssuer(getTenantId());
         if (ADMStringUtils.isBlank(issuer)) {
             throw new SAML2AuthnRequestException(
                     "No issuer set in the configuration settings",
                     SAML2AuthnRequestException.ReasonEnum.MISSING_ISSUER);
         }
         return issuer;
+    }
+
+    private String getTenantId() {
+        if(StringUtils.isBlank(tenantID)) {
+            try {
+                tenantID = getMarketplaceService().getMarketplaceById(getMarketplaceId()).getTenantTkey();
+            } catch (Exception e) {
+                tenantID = null;
+            }
+        }
+        return tenantID;
     }
 
     Log4jLogger getLogger() {

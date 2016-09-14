@@ -26,7 +26,6 @@ public class NotExistentTenantException extends SaaSApplicationException {
     }
 
     public enum Reason {
-        MISSING_TENANT_PARAM,
         TENANT_NOT_FOUND
     }
 }

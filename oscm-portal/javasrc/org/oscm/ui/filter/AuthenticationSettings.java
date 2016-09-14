@@ -95,7 +95,7 @@ public class AuthenticationSettings {
     }
 
     private void init(String tenantID) throws NotExistentTenantException {
-        VOTenant tenant = getTenantWIthSettings(tenantID);
+        VOTenant tenant = getTenantWithSettings(tenantID);
         issuer = tenant.getIssuer();
         identityProviderURL = tenant.getIDPURL();
         identityProviderHttpMethod = tenant.getIdpHttpMethod();
@@ -106,7 +106,7 @@ public class AuthenticationSettings {
         logoutURL = tenant.getLogoutURL();
     }
 
-    private VOTenant getTenantWIthSettings(String tenantID) throws NotExistentTenantException {
+    private VOTenant getTenantWithSettings(String tenantID) throws NotExistentTenantException {
         VOTenant tenant;
         if (StringUtils.isBlank(tenantID)) {
             tenant = getTenantFromConfigSettings();

@@ -19,7 +19,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
-import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
 import org.oscm.internal.intf.TenantService;
@@ -187,7 +186,7 @@ public abstract class BaseBesFilter implements Filter {
                 .getAttribute(Constants.SESS_ATTR_USER));
 
         ard.setLandingPage(BesServletRequestReader.isLandingPage(httpRequest));
-
+        ard.setTenantID((String) httpRequest.getSession().getAttribute("TENANT_ID"));
         return ard;
     }
 
@@ -410,12 +409,7 @@ public abstract class BaseBesFilter implements Filter {
     }
 
     protected String getTenantID(HttpServletRequest request, HttpServletResponse response) {
-        String tenantID = request.getParameter(Constants.REQ_PARAM_TENANT_ID);
-        if (StringUtils.isBlank(tenantID)) {
-            tenantID = JSFUtils.getCookieValue(request, Constants.REQ_PARAM_TENANT_ID);
-        }
-        JSFUtils.setCookieValue(request, response, Constants.REQ_PARAM_TENANT_ID, tenantID, -1);
-        return tenantID;
+        return request.getParameter(Constants.REQ_PARAM_TENANT_ID);
     }
 
     ConfigurationService getConfigurationService(HttpServletRequest request) {

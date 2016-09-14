@@ -7,6 +7,9 @@
  *******************************************************************************/
 package org.oscm.tenant.bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.*;
 import javax.interceptor.Interceptors;
@@ -20,14 +23,11 @@ import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
 import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.TenantDeletionConstraintException;
+import org.oscm.internal.types.exception.TenantDeletionConstraintException.Reason;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.internal.vo.VOTenantSetting;
 import org.oscm.tenant.assembler.TenantAssembler;
 import org.oscm.tenant.local.TenantServiceLocal;
-import org.oscm.internal.types.exception.TenantDeletionConstraintException.Reason;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Stateless
 @Remote(TenantService.class)
@@ -133,12 +133,6 @@ public class TenantServiceBean implements TenantService {
     @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
     public VOTenant findByTkey(String tkey) throws ObjectNotFoundException {
         return TenantAssembler.toVOTenant(tenantServiceLocal.getTenantByKey(Long.parseLong(tkey)));
-    }
-
-    @Override
-    @TransactionAttribute(value = TransactionAttributeType.REQUIRES_NEW)
-    public VOTenant getMyTenant() {
-        return TenantAssembler.toVOTenant(tenantServiceLocal.getMyTenant());
     }
 
     public void setTenantServiceLocal(TenantServiceLocal tenantServiceLocal) {

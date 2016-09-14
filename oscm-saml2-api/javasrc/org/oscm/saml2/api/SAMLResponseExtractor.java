@@ -20,11 +20,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.codec.binary.Base64;
-
 import org.oscm.converter.XMLConverter;
 import org.oscm.internal.types.exception.SessionIndexNotFoundException;
 import org.oscm.internal.types.exception.UserIdNotFoundException;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -44,6 +42,11 @@ public class SAMLResponseExtractor {
     private static final String USER_SAML2_ATTRIBUTE_USERID_XPATH_EXPR = "//*[local-name()='Assertion']" //
             + "//*[local-name()='AttributeStatement']" //
             + "//*[local-name()='Attribute'][@Name='userid']" //
+            + "/*[local-name()='AttributeValue']";
+
+    private static final String USER_SAML2_ATTRIBUTE_TENANTID_XPATH_EXPR = "//*[local-name()='Assertion']" //
+            + "//*[local-name()='AttributeStatement']" //
+            + "//*[local-name()='Attribute'][@Name='tenantID']" //
             + "/*[local-name()='AttributeValue']";
 
     private static final String USER_SAML2_ATTRIBUTE_NAME_XPATH_EXPR = "//*[local-name()='Assertion']" //
@@ -93,6 +96,26 @@ public class SAMLResponseExtractor {
         }
 
         return userId;
+    }
+    /**
+     * Retrieves the userid from an encoded saml:Response String.
+     *
+     * @param encodedSamlResponse
+     *            the encoded saml response
+     * @return the userid as a String
+     * @throws UnsupportedEncodingException
+     */
+    public String getTenantID(String encodedSamlResponse) {
+
+        String tenantID = null;
+
+        try {
+            tenantID = getTenantIdDecoded(new String(decode(encodedSamlResponse)));
+        } catch (UnsupportedEncodingException exception) {
+            //do nothing. Default tenatn will be used.
+        }
+
+        return tenantID;
     }
 
     /**
@@ -184,6 +207,21 @@ public class SAMLResponseExtractor {
         return userid;
     }
 
+    private String getTenantIdDecoded(String samlResponse) {
+        String tenantID = null;
+
+        try {
+            Document document = XMLConverter.convertToDocument(samlResponse,
+                    true);
+
+            tenantID = extractTenantId(document);
+        } catch (XPathExpressionException | ParserConfigurationException
+                | SAXException | IOException exception) {
+            //do nothing. Default tenant will be used.
+        }
+        return tenantID;
+    }
+
     String extractUserId(Document samlResponse) throws XPathExpressionException {
         String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML2_ATTRIBUTE_USERID_XPATH_EXPR);
@@ -205,6 +243,12 @@ public class SAMLResponseExtractor {
 
         userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
                 USER_SAML1_ATTRIBUTE_NAME_XPATH_EXPR);
+        return userId;
+    }
+
+    String extractTenantId(Document samlResponse) throws XPathExpressionException {
+        String userId = XMLConverter.getNodeTextContentByXPath(samlResponse,
+                USER_SAML2_ATTRIBUTE_TENANTID_XPATH_EXPR);
         return userId;
     }
 
