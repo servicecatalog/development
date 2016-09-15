@@ -22,10 +22,7 @@ import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import org.apache.commons.lang3.StringUtils;
-import org.oscm.internal.intf.ConfigurationService;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
-import org.oscm.internal.intf.TenantService;
+import org.oscm.internal.intf.*;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
@@ -75,6 +72,7 @@ public abstract class BaseBesFilter implements Filter {
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(BaseBesFilter.class);
     private MarketplaceService mkpService;
+    private MarketplaceCacheService mkpServiceCache;
 
     /**
      * Read the parameter from filter configuration. Called by the web container
@@ -205,19 +203,31 @@ public abstract class BaseBesFilter implements Filter {
         String tenantID = getTenantIDFromSession(httpRequest, REQ_PARAM_TENANT_ID);
         if(StringUtils.isBlank(tenantID)) {
             if (ard.isMarketplace()) {
-                String marketplaceId =  ard.getMarketplaceId();
-                if (StringUtils.isNotBlank(marketplaceId)) {
-                    try {
-                        tenantID = getMarketplaceService(httpRequest).getMarketplaceById(marketplaceId).getTenantTkey();
-                    } catch (ObjectNotFoundException e) {
-                        //TODO: hanlde somehow?
-                    }
-                }
+                tenantID = getTenantIDFromMarketplace(httpRequest, ard);
             } else {
                 tenantID = getTenantIDFromRequest(httpRequest);
             }
         }
         httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
+        return tenantID;
+    }
+
+    private String getTenantIDFromMarketplace(HttpServletRequest httpRequest,
+            AuthorizationRequestData ard) {
+        String marketplaceId = ard.getMarketplaceId();
+        String tenantID = null;
+        if (StringUtils.isNotBlank(marketplaceId)) {
+            tenantID = getMarketplaceServiceCache(httpRequest)
+                    .getConfiguration(marketplaceId).getTenantTkey();
+            if (StringUtils.isBlank(tenantID)) {
+                try {
+                    tenantID = getMarketplaceService(httpRequest)
+                            .getMarketplaceById(marketplaceId).getTenantTkey();
+                } catch (ObjectNotFoundException e) {
+                    // TODO: hanlde somehow?
+                }
+            }
+        }
         return tenantID;
     }
 
@@ -462,6 +472,16 @@ public abstract class BaseBesFilter implements Filter {
                     .getService(MarketplaceService.class);
         }
         return mkpService;
+    }
+
+    MarketplaceCacheService getMarketplaceServiceCache(HttpServletRequest request) {
+        ServiceAccess serviceAccess = ServiceAccess
+                .getServiceAcccessFor(request.getSession());
+        if (mkpServiceCache == null) {
+            mkpServiceCache = serviceAccess
+                    .getService(MarketplaceCacheService.class);
+        }
+        return mkpServiceCache;
     }
 
     private boolean isLoginPage(String relativePath, String actualLoginPage) {
