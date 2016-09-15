@@ -145,6 +145,7 @@ public class SessionBean implements Serializable {
 
     private PriceModel selectedExternalPriceModel;
     private String samlLogoutRequest;
+    private String tenantID;
 
     public boolean isMyOperationsOnly() {
         return myOperationsOnly;
@@ -550,11 +551,17 @@ public class SessionBean implements Serializable {
     }
 
     public String getSamlLogoutRequest() {
-        return (String) new UiDelegate().getSession().getAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST);
+        if(samlLogoutRequest == null) {
+            samlLogoutRequest = (String) new UiDelegate().getSession().getAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST);
+        }
+        return samlLogoutRequest;
     }
 
     public String getTenantID() {
-        return (String) new UiDelegate().getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        if(tenantID == null) {
+            tenantID = (String) new UiDelegate().getSession().getAttribute(REQ_PARAM_TENANT_ID);
+        }
+        return tenantID;
     }
 
 }
