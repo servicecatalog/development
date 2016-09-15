@@ -71,6 +71,7 @@ public class MarketplaceServiceBeanCRUDTest {
                 .createDefaultLandingpage();
         mpSrv.dm = mock(DataService.class);
         MarketplaceServiceLocalBean mpSrvL = spy(new MarketplaceServiceLocalBean());
+        mpSrvL.marketplaceCache = mock(MarketplaceCacheService.class);
         mpSrv.marketplaceServiceLocal = mpSrvL;
         DataService dml = mock(DataService.class);
         ((MarketplaceServiceLocalBean) mpSrv.marketplaceServiceLocal).ds = dml;

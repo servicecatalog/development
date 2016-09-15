@@ -22,7 +22,6 @@ import java.util.concurrent.Callable;
 import javax.persistence.Query;
 
 import org.junit.Test;
-
 import org.oscm.dataservice.bean.DataServiceBean;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
@@ -37,6 +36,7 @@ import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.i18nservice.bean.LocalizerServiceBean;
 import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.landingpageService.local.LandingpageServiceLocal;
+import org.oscm.marketplace.cache.MarketplaceCacheServiceBean;
 import org.oscm.test.EJBTestBase;
 import org.oscm.test.data.Marketplaces;
 import org.oscm.test.data.Organizations;
@@ -382,6 +382,7 @@ public class LandingpageServiceBeanVisIT extends EJBTestBase {
         // container
         container.enableInterfaceMocking(true);
         container.addBean(new DataServiceBean());
+        container.addBean(new MarketplaceCacheServiceBean());
         container.addBean(new LandingpageServiceBean());
         container.addBean(new LocalizerServiceBean());
 

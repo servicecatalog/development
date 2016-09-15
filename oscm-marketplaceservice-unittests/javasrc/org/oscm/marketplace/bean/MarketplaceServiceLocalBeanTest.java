@@ -9,7 +9,6 @@
 package org.oscm.marketplace.bean;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
@@ -19,6 +18,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -52,6 +52,7 @@ import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.domobjects.enums.RevenueShareModelType;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.pricing.POOrganization;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.resalepermissions.POServiceDetails;
@@ -102,9 +103,12 @@ public class MarketplaceServiceLocalBeanTest {
             }
         };
         service.marketplaceAccessDao = mock(MarketplaceAccessDao.class);
+        service.marketplaceCache = mock(MarketplaceCacheService.class);
 
         user = new PlatformUser();
         doReturn(user).when(service.ds).getCurrentUser();
+        doNothing().when(service.marketplaceCache).resetConfiguration(
+                anyString());
         doReturn(Boolean.TRUE).when(service).updateMarketplace(
                 any(Marketplace.class), anyString(), anyString());
     }
@@ -170,34 +174,12 @@ public class MarketplaceServiceLocalBeanTest {
     }
 
     @Test
-    public void updateMarketplace() throws Exception {
-        // when
-        boolean ownerAssignmentUpdated = service.updateMarketplace(
-                any(Marketplace.class), any(Marketplace.class), anyString(),
-                anyString(), anyInt(), anyInt(), anyInt());
-
-        // then
-        assertTrue(ownerAssignmentUpdated);
-    }
-
-    @Test
-    public void updateMarketplace_OwnerNotChanged() throws Exception {
-        doReturn(Boolean.FALSE).when(service).updateMarketplace(
-                any(Marketplace.class), anyString(), anyString());
-        // when
-        boolean ownerAssignmentUpdated = service.updateMarketplace(
-                any(Marketplace.class), any(Marketplace.class), anyString(),
-                anyString(), anyInt(), anyInt(), anyInt());
-        // then
-        assertFalse(ownerAssignmentUpdated);
-    }
-
-    @Test
     public void updateMarketplace_RevenueSharesNotUpdated() throws Exception {
         // when
-        service.updateMarketplace(any(Marketplace.class),
-                any(Marketplace.class), anyString(), anyString(), anyInt(),
-                anyInt(), anyInt());
+        Marketplace mp = new Marketplace();
+        mp.setMarketplaceId("MP");
+
+        service.updateMarketplace(mp, mp, "any", "any", 100, 100, 100);
 
         // then
         verify(service, times(0)).updateRevenueShare(
