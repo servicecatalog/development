@@ -216,7 +216,6 @@ public class TenantServiceBeanTest {
         assertEquals(1L, voTenant.getKey());
     }
 
-
     private Tenant prepareTenant() {
         Tenant tenant = new Tenant();
         tenant.setKey(1L);

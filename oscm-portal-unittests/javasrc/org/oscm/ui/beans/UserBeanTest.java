@@ -413,11 +413,11 @@ public class UserBeanTest {
         // when
         AuthenticationSettings result = userBean.getAuthenticationSettings();
         // then
-        assertEquals(authSettings.getIssuer("tenantID"), result.getIssuer("tenantID"));
-        assertEquals(authSettings.getIdentityProviderURL("tenantID"),
-                result.getIdentityProviderURL("tenantID"));
-        assertEquals(authSettings.getIdentityProviderURLContextRoot("tenantID"),
-                result.getIdentityProviderURLContextRoot("tenantID"));
+        assertEquals(authSettings.getIssuer(), result.getIssuer());
+        assertEquals(authSettings.getIdentityProviderURL(),
+                result.getIdentityProviderURL());
+        assertEquals(authSettings.getIdentityProviderURLContextRoot(),
+                result.getIdentityProviderURLContextRoot());
     }
 
     @Test

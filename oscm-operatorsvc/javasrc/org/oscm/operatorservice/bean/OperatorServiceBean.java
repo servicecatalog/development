@@ -1091,8 +1091,8 @@ public class OperatorServiceBean implements OperatorService {
         for (Object o : resultList) {
             Object[] row = (Object[]) o;
             final VOUserDetails userDetails = new VOUserDetails();
-            userDetails.setEMail((String) row[0]);
-            userDetails.setUserId((String) row[1]);
+            userDetails.setUserId((String) row[0]);
+            userDetails.setEMail((String) row[1]);
             userDetails.setOrganizationName((String) row[2]);
             userDetails.setOrganizationId((String) row[3]);
             result.add(userDetails);

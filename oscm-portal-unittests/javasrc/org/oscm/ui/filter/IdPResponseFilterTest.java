@@ -8,9 +8,9 @@
 
 package org.oscm.ui.filter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.*;
 
 import javax.servlet.FilterChain;
@@ -149,11 +149,11 @@ public class IdPResponseFilterTest {
                 "someRelayState");
         SAMLResponseExtractor mockExtractor = mock(SAMLResponseExtractor.class);
         doReturn(mockExtractor).when(idpFilter).getSamlResponseExtractor();
-        doReturn("").when(idpFilter).getLogoutURL("tenantID");
-        doReturn("").when(idpFilter).getKeyAlias("tenantID");
-        doReturn("").when(idpFilter).getKeystorePath("tenantID");
-        doReturn("").when(idpFilter).getKeystorePass("tenantID");
-        doReturn("").when(idpFilter).getIssuer("tenantID");
+        doReturn("").when(idpFilter).getLogoutURL();
+        doReturn("").when(idpFilter).getKeyAlias();
+        doReturn("").when(idpFilter).getKeystorePath();
+        doReturn("").when(idpFilter).getKeystorePass();
+        doReturn("").when(idpFilter).getIssuer();
         doReturn("someSAMLSessionId").when(mockExtractor)
                 .getSessionIndex("someSamlResponse");
         doReturn(true).when(mockExtractor).isFromLogin("someSamlResponse");

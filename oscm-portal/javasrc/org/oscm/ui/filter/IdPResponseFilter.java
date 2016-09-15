@@ -9,6 +9,7 @@
 package org.oscm.ui.filter;
 
 import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
 
 import java.io.IOException;
 
@@ -153,17 +154,18 @@ public class IdPResponseFilter implements Filter {
                 .getSessionIndex(samlResponse);
         String nameID = getSamlResponseExtractor().getUserId(samlResponse);
         String tenantID = getSamlResponseExtractor().getTenantID(samlResponse);
+        authSettings.init(tenantID);
         String logoutRequest = null;
         try {
             logoutRequest = logoutRequestGenerator.generateLogoutRequest(
-                    samlSessionId, nameID, getLogoutURL(tenantID),
-                    getKeystorePath(tenantID), getIssuer(tenantID),
-                    getKeyAlias(tenantID), getKeystorePass(tenantID));
+                    samlSessionId, nameID, getLogoutURL(),
+                    getKeystorePath(), getIssuer(),
+                    getKeyAlias(), getKeystorePass());
         } catch (Exception exc) {
             LOGGER.logError(Log4jLogger.SYSTEM_LOG, exc, LogMessageIdentifier.ERROR_BUILD_SAML_LOGOUT_REQUEST_FAILED, tenantID);
         }
-        request.getSession().setAttribute("LOGOUT_REQUEST", logoutRequest);
-        request.getSession().setAttribute("TENANT_ID", tenantID);
+        request.getSession().setAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST, logoutRequest);
+        request.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
     }
 
     String getForwardUrl(HttpServletRequest httpRequest, String relayState) {
@@ -261,27 +263,23 @@ public class IdPResponseFilter implements Filter {
         this.authSettings = authSettings;
     }
 
-    public String getKeystorePass(String tenantID)
-            throws NotExistentTenantException {
-        return authSettings.getSigningKeystorePass(tenantID);
+    public String getKeystorePass() {
+        return authSettings.getSigningKeystorePass();
     }
 
-    public String getKeyAlias(String tenantID)
-            throws NotExistentTenantException {
-        return authSettings.getSigningKeyAlias(tenantID);
+    public String getKeyAlias() {
+        return authSettings.getSigningKeyAlias();
     }
 
-    public String getIssuer(String tenantID) throws NotExistentTenantException {
-        return authSettings.getIssuer(tenantID);
+    public String getIssuer() {
+        return authSettings.getIssuer();
     }
 
-    public String getKeystorePath(String tenantID)
-            throws NotExistentTenantException {
-        return authSettings.getSigningKeystore(tenantID);
+    public String getKeystorePath() {
+        return authSettings.getSigningKeystore();
     }
 
-    public String getLogoutURL(String tenantID)
-            throws NotExistentTenantException {
-        return authSettings.getLogoutURL(tenantID);
+    public String getLogoutURL() {
+        return authSettings.getLogoutURL();
     }
 }

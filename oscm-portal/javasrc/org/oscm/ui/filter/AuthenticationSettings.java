@@ -21,7 +21,6 @@ import org.oscm.internal.types.enumtypes.AuthenticationMode;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.IdpSettingType;
 import org.oscm.internal.types.exception.NotExistentTenantException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.vo.VOConfigurationSetting;
 import org.oscm.internal.vo.VOTenant;
 import org.oscm.types.constants.Configuration;
@@ -87,14 +86,11 @@ public class AuthenticationSettings {
         return AuthenticationMode.INTERNAL.name().equals(authenticationMode);
     }
 
-    public String getIssuer(String tenantID) throws NotExistentTenantException {
-        if (issuer == null) {
-            init(tenantID);
-        }
+    public String getIssuer() {
         return issuer;
     }
 
-    private void init(String tenantID) throws NotExistentTenantException {
+    public void init(String tenantID) throws NotExistentTenantException {
         VOTenant tenant = getTenantWithSettings(tenantID);
         issuer = tenant.getIssuer();
         identityProviderURL = tenant.getIDPURL();
@@ -113,7 +109,7 @@ public class AuthenticationSettings {
         } else {
             try {
                 tenant = tenantService.findByTkey(tenantID);
-            } catch (ObjectNotFoundException e) {
+            } catch (Exception e) {
                 throw new NotExistentTenantException(TENANT_NOT_FOUND);
             }
         }
@@ -136,52 +132,31 @@ public class AuthenticationSettings {
         return tenant;
     }
 
-    public String getIdentityProviderURL(String tenantID) throws NotExistentTenantException {
-        if (identityProviderURL == null) {
-            init(tenantID);
-        }
+    public String getIdentityProviderURL() {
         return identityProviderURL;
     }
 
-    public String getIdentityProviderURLContextRoot(String tenantID) throws NotExistentTenantException {
-        if (identityProviderURLContextRoot == null) {
-            init(tenantID);
-        }
+    public String getIdentityProviderURLContextRoot() {
         return identityProviderURLContextRoot;
     }
 
-    public String getIdentityProviderHttpMethod(String tenantID) throws NotExistentTenantException {
-        if (identityProviderHttpMethod == null) {
-            init(tenantID);
-        }
+    public String getIdentityProviderHttpMethod() {
         return identityProviderHttpMethod;
     }
 
-    public String getSigningKeystorePass(String tenantID) throws NotExistentTenantException {
-        if (signingKeystorePass == null) {
-            init(tenantID);
-        }
+    public String getSigningKeystorePass() {
         return signingKeystorePass;
     }
 
-    public String getSigningKeyAlias(String tenantID) throws NotExistentTenantException {
-        if (signingKeyAlias == null) {
-            init(tenantID);
-        }
+    public String getSigningKeyAlias() {
         return signingKeyAlias;
     }
 
-    public String getSigningKeystore(String tenantID) throws NotExistentTenantException {
-        if (signingKeystore == null) {
-            init(tenantID);
-        }
+    public String getSigningKeystore() {
         return signingKeystore;
     }
 
-    public String getLogoutURL(String tenantID) throws NotExistentTenantException {
-        if (logoutURL == null) {
-            init(tenantID);
-        }
+    public String getLogoutURL() {
         return logoutURL;
     }
 }

@@ -8,6 +8,8 @@
 
 package org.oscm.ui.beans;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -30,7 +32,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.myfaces.custom.fileupload.UploadedFile;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.IdentityService;
@@ -1090,20 +1091,11 @@ public class UserBean extends BaseBean implements Serializable {
         return authenticationSettings;
     }
 
-    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException {
+    protected AuthenticationHandler getAuthenticationHandler() throws ObjectNotFoundException, NotExistentTenantException {
+        AuthenticationSettings authenticationSettings = getAuthenticationSettings();
+        authenticationSettings.init((String) getRequest().getSession().getAttribute(REQ_PARAM_TENANT_ID));
         return new AuthenticationHandler(getRequest(), getResponse(),
-                getAuthenticationSettings(), getTenantID());
-    }
-
-    private String getTenantID() {
-        if (StringUtils.isBlank(tenantID)) {
-            try {
-                tenantID = getMarketplaceService().getMarketplaceById(getMarketplaceId()).getTenantTkey();
-            } catch (ObjectNotFoundException e) {
-                tenantID = null;
-            }
-        }
-        return tenantID;
+                authenticationSettings);
     }
 
     public UploadedFile getUserImport() {
