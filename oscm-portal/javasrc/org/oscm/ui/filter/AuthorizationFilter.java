@@ -714,7 +714,7 @@ public class AuthorizationFilter extends BaseBesFilter {
             OrganizationRemovedException {
         VOUser voUser = new VOUser();
         voUser.setUserId(ard.getUserId());
-        voUser.setTenantId(ard.getTenantID());
+        voUser.setTenantKey(ard.getTenantID());
         voUser = service.getUser(voUser);
         return voUser;
     }

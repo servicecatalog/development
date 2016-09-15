@@ -339,9 +339,9 @@ public class IdentityServiceBean implements IdentityService,
     /**
      * Bug 9324 Trigger should not be fired if user exists
      */
-    private void checkIfUserExists(String userId)
+    private void checkIfUserExists(String userId, Tenant tenant)
             throws NonUniqueBusinessKeyException {
-        PlatformUser dbUser = loadUser(userId);
+        PlatformUser dbUser = loadUser(userId, tenant);
         if (dbUser != null) {
             throw new NonUniqueBusinessKeyException(ClassEnum.USER, userId);
         }
@@ -354,12 +354,18 @@ public class IdentityServiceBean implements IdentityService,
      *            user id
      * @return the user otherwise null if the user does not exist.
      */
-    PlatformUser loadUser(String userId) {
+    PlatformUser loadUser(String userId, Tenant tenant) {
         try {
-            PlatformUser user = new PlatformUser();
-            user.setUserId(userId);
-            return (PlatformUser) dm.getReferenceByBusinessKey(user);
-        } catch (ObjectNotFoundException e) {
+            if (tenant == null) {
+                PlatformUser user = new PlatformUser();
+                user.setUserId(userId);
+                return (PlatformUser) dm.getReferenceByBusinessKey(user);
+            }
+            Query q = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+            q.setParameter("userId", userId);
+            q.setParameter("tenant", tenant);
+            return (PlatformUser) q.getSingleResult();
+        } catch (ObjectNotFoundException | NoResultException e) {
             return null;
         }
     }
@@ -1131,7 +1137,12 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         PlatformUser pUser = null;
         try {
-            pUser = getPlatformUser(user.getUserId(), false);
+            if (user.getTenantKey() != null && !user.getTenantKey().equals("")) {
+                pUser = getPlatformUser(user.getUserId(), user.getTenantKey(), false);
+            } else {
+                pUser = getPlatformUser(user.getUserId(), false);
+            }
+
             if (pUser.getOrganization().getDeregistrationDate() != null) {
                 OperationNotPermittedException onp = new OperationNotPermittedException(
                         "The user doesn't belong to a active organization.");
@@ -1613,6 +1624,36 @@ public class IdentityServiceBean implements IdentityService,
         }
 
         return pUser;
+    }
+
+    @Override
+    @TransactionAttribute(TransactionAttributeType.MANDATORY)
+    public PlatformUser getPlatformUser(String userId, String tenantKey,
+        boolean validateOrganization) throws ObjectNotFoundException,
+        OperationNotPermittedException {
+
+        Tenant tenant = dm.getReference(Tenant.class, Long.valueOf(tenantKey));
+        Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
+        query.setParameter("userId", userId);
+        query.setParameter("tenant", tenant);
+        PlatformUser platformUser = (PlatformUser) query.getSingleResult();
+
+        if (platformUser == null) {
+            ObjectNotFoundException onf = new ObjectNotFoundException(
+                ObjectNotFoundException.ClassEnum.USER, userId);
+            logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,
+                LogMessageIdentifier.WARN_USER_NOT_FOUND);
+            throw onf;
+        }
+
+        if (validateOrganization) {
+            // Validate whether the calling user belongs to the same
+            // organization as the requested user. Otherwise an exception will
+            // be thrown.
+            PermissionCheck.sameOrg(dm.getCurrentUser(), platformUser, logger);
+        }
+
+        return platformUser;
     }
 
     @Override
@@ -2683,7 +2724,17 @@ public class IdentityServiceBean implements IdentityService,
         ArgumentValidator.notNull("user", user);
         ArgumentValidator.notNull("roles", roles);
 
-        checkIfUserExists(user.getUserId());
+        Marketplace m = new Marketplace();
+        m.setMarketplaceId(marketplaceId);
+        Tenant tenant = null;
+        try {
+            Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
+            tenant = mp.getTenant();
+        } catch (ObjectNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        checkIfUserExists(user.getUserId(), tenant);
 
         TriggerProcessValidator validator = new TriggerProcessValidator(dm);
         if (validator.isRegisterOwnUserPending(user.getUserId())) {
