@@ -17,13 +17,6 @@ ALTER TABLE "organization" ADD COLUMN "tenant_tkey" BIGINT;
 ALTER TABLE "organization" ADD CONSTRAINT "organization_tenant_fk" FOREIGN KEY ("tenant_tkey")
   REFERENCES "tenant" ("tkey");
 
-ALTER TABLE "platformuser" ADD COLUMN "tenant_tkey" BIGINT;
-
-ALTER TABLE "platformuser" ADD CONSTRAINT "platformuser_tenant_fk" FOREIGN KEY ("tenant_tkey")
-    REFERENCES "tenant" ("tkey");
-
-ALTER TABLE "platformuser" ADD CONSTRAINT "pl_userid_tenantkey_uk" UNIQUE ("userid", "tenant_tkey");
-
 CREATE TABLE "tenantsetting"
 (
   "tkey" BIGINT NOT NULL,
