@@ -8,6 +8,8 @@
 
 package org.oscm.ui.beans;
 
+import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
@@ -547,7 +549,7 @@ public class SessionBean implements Serializable {
     }
 
     public String getSamlLogoutRequest() {
-        return (String) new UiDelegate().getSession().getAttribute("LOGOUT_REQUEST");
+        return (String) new UiDelegate().getSession().getAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST);
     }
 
 }

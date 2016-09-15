@@ -56,12 +56,12 @@ public class AuthenticationSettingsTest {
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeystore();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
-        doReturn(mockTenant).when(tenantService).getTenantByTenantId(any(String.class));
+        doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
     }
 
-    private void givenMock(AuthenticationMode authMode, String idpUrl) {
+    private void givenMock(AuthenticationMode authMode, String idpUrl) throws NotExistentTenantException {
         doReturn(
                 new VOConfigurationSetting(ConfigurationKey.AUTH_MODE,
                         Configuration.GLOBAL_CONTEXT, authMode.name())).when(
@@ -78,6 +78,7 @@ public class AuthenticationSettingsTest {
                 .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
                         Configuration.GLOBAL_CONTEXT);
         authSettings = new AuthenticationSettings(tenantService, cfgMock);
+        authSettings.init("");
     }
 
     @Test
@@ -118,7 +119,7 @@ public class AuthenticationSettingsTest {
         givenMock(AuthenticationMode.SAML_SP, IDP);
 
         // then
-        assertEquals(ISSUER, authSettings.getIssuer("tenantID"));
+        assertEquals(ISSUER, authSettings.getIssuer());
     }
 
     @Test
@@ -128,7 +129,7 @@ public class AuthenticationSettingsTest {
         givenMock(AuthenticationMode.SAML_SP, IDP);
 
         // then
-        assertEquals(IDP, authSettings.getIdentityProviderURL("tenantID"));
+        assertEquals(IDP, authSettings.getIdentityProviderURL());
     }
 
     @Test
@@ -139,7 +140,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_CONTEXT_ROOT,
-                authSettings.getIdentityProviderURLContextRoot("tenantID"));
+                authSettings.getIdentityProviderURLContextRoot());
     }
 
     @Test
@@ -150,7 +151,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_CONTEXT_ROOT,
-                authSettings.getIdentityProviderURLContextRoot("tenantID"));
+                authSettings.getIdentityProviderURLContextRoot());
     }
 
     @Test
@@ -225,7 +226,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_HTTP_METHOD,
-                authSettings.getIdentityProviderHttpMethod("tenantID"));
+                authSettings.getIdentityProviderHttpMethod());
     }
 
     @Test
@@ -236,7 +237,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_KEYSTORE_PASS,
-                authSettings.getSigningKeystorePass("tenantID"));
+                authSettings.getSigningKeystorePass());
     }
 
     @Test
@@ -247,7 +248,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_KEYSTORE_PASS,
-                authSettings.getSigningKeystore("tenantID"));
+                authSettings.getSigningKeystore());
     }
 
     @Test
@@ -258,7 +259,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_KEYSTORE_PASS,
-                authSettings.getSigningKeyAlias("tenantID"));
+                authSettings.getSigningKeyAlias());
     }
 
     @Test
@@ -269,7 +270,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_KEYSTORE_PASS,
-                authSettings.getLogoutURL("tenantID"));
+                authSettings.getLogoutURL());
     }
 
     @Test
@@ -282,7 +283,7 @@ public class AuthenticationSettingsTest {
 
         // then
         assertEquals(IDP_KEYSTORE_PASS,
-                authSettings.getSigningKeystorePass(null));
+                authSettings.getSigningKeystorePass());
     }
 
     @Test(expected = NotExistentTenantException.class)
@@ -292,7 +293,7 @@ public class AuthenticationSettingsTest {
         doThrow(new ObjectNotFoundException()).when(tenantService).findByTkey(anyString());
 
         // then
-        authSettings.getSigningKeystorePass("asdf");
+        authSettings.getSigningKeystorePass();
     }
 
 }

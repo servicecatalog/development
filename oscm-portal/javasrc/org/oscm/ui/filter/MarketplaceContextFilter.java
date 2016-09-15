@@ -25,17 +25,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.intf.MarketplaceService;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.logging.Log4jLogger;
 import org.oscm.logging.LoggerFactory;
 import org.oscm.ui.beans.BaseBean;
-import org.oscm.ui.common.ADMStringUtils;
-import org.oscm.ui.common.Constants;
-import org.oscm.ui.common.IgnoreCharacterEncodingHttpRequestWrapper;
-import org.oscm.ui.common.JSFUtils;
-import org.oscm.ui.common.ServiceAccess;
-import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
+import org.oscm.ui.common.*;
 
 /**
  * Filter which establishes the marketplace context.
@@ -89,12 +84,8 @@ public class MarketplaceContextFilter extends BaseBesFilter {
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
         if (rdo.isRequiredToChangePwd()
                 && !BesServletRequestReader.hasPasswordChangeToken(httpRequest)) {
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e) {
-                //ain't gonna happen
-            }
+            forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
+                    httpResponse, chain);
             return;
         }
 

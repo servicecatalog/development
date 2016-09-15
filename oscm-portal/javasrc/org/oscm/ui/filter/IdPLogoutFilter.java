@@ -39,12 +39,12 @@ public class IdPLogoutFilter implements Filter {
 
     private RequestRedirector redirector;
     private String excludeUrlPattern;
-    private AuthenticationSettings authSettings;
     private SAMLResponseExtractor samlResponseExtractor;
     private SAMLLogoutResponseValidator samlLogoutResponseValidator;
 
     private SessionService ssl;
     private static final Log4jLogger LOGGER = LoggerFactory.getLogger(IdPLogoutFilter.class);
+    private boolean isSaml;
 
     public SessionService getSsl() {
         if (ssl == null) {
@@ -58,11 +58,6 @@ public class IdPLogoutFilter implements Filter {
         redirector = new RequestRedirector(filterConfig);
         excludeUrlPattern = filterConfig
                 .getInitParameter("exclude-url-pattern");
-
-        ServiceAccess serviceAccess = new EJBServiceAccess();
-        ConfigurationService cfgService = serviceAccess
-                .getService(ConfigurationService.class);
-        authSettings = new AuthenticationSettings(null, cfgService);
 
         samlLogoutResponseValidator = new SAMLLogoutResponseValidator();
         samlResponseExtractor = new SAMLResponseExtractor();
@@ -197,7 +192,7 @@ public class IdPLogoutFilter implements Filter {
     }
 
     boolean containsSamlResponse(HttpServletRequest httpRequest) {
-        if (!authSettings.isServiceProvider()) {
+        if (!isServiceProvider()) {
             return false;
         }
 
@@ -207,6 +202,17 @@ public class IdPLogoutFilter implements Filter {
         }
 
         return false;
+    }
+
+    private boolean isServiceProvider() {
+        if (!isSaml) {
+            ServiceAccess serviceAccess = new EJBServiceAccess();
+            ConfigurationService cfgService = serviceAccess
+                    .getService(ConfigurationService.class);
+            AuthenticationSettings authSettings = new AuthenticationSettings(null, cfgService);
+            isSaml = authSettings.isServiceProvider();
+        }
+        return isSaml;
     }
 
     @Override

@@ -8,6 +8,8 @@
 
 package org.oscm.ui.filter;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -19,7 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.xml.datatype.DatatypeConfigurationException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.oscm.internal.intf.ConfigurationService;
+import org.oscm.internal.intf.MarketplaceService;
 import org.oscm.internal.intf.ServiceProvisioningServiceInternal;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
@@ -27,6 +31,7 @@ import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.PerformanceHint;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.NotExistentTenantException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 import org.oscm.internal.types.exception.OrganizationAuthoritiesException;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
 import org.oscm.internal.vo.VOUserDetails;
@@ -69,6 +74,7 @@ public abstract class BaseBesFilter implements Filter {
 
     private static final Log4jLogger logger = LoggerFactory
             .getLogger(BaseBesFilter.class);
+    private MarketplaceService mkpService;
 
     /**
      * Read the parameter from filter configuration. Called by the web container
@@ -81,7 +87,7 @@ public abstract class BaseBesFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         this.filterConfig = filterConfig;
 
-        String value = filterConfig.getInitParameter(PARAM_CONFIRM_PAGE);
+        String value;
         String loginClassName = filterConfig
                 .getInitParameter(PARAM_LOGIN_CLASS);
         if (ADMStringUtils.isBlank(loginClassName)) {
@@ -135,6 +141,11 @@ public abstract class BaseBesFilter implements Filter {
         TenantService tenantService = serviceAccess
                 .getService(TenantService.class);
         authSettings = new AuthenticationSettings(tenantService, cfgService);
+        try {
+            authSettings.init(null);
+        } catch (NotExistentTenantException e) {
+            //ait gonna happen. Configsettins will be used.
+        }
     }
 
     /**
@@ -186,8 +197,36 @@ public abstract class BaseBesFilter implements Filter {
                 .getAttribute(Constants.SESS_ATTR_USER));
 
         ard.setLandingPage(BesServletRequestReader.isLandingPage(httpRequest));
-        ard.setTenantID((String) httpRequest.getSession().getAttribute("TENANT_ID"));
+        ard.setTenantID(getTenantID(httpRequest, ard));
         return ard;
+    }
+
+    private String getTenantID(HttpServletRequest httpRequest, AuthorizationRequestData ard) {
+        String tenantID = getTenantIDFromSession(httpRequest, REQ_PARAM_TENANT_ID);
+        if(StringUtils.isBlank(tenantID)) {
+            if (ard.isMarketplace()) {
+                String marketplaceId =  ard.getMarketplaceId();
+                if (StringUtils.isNotBlank(marketplaceId)) {
+                    try {
+                        tenantID = getMarketplaceService(httpRequest).getMarketplaceById(marketplaceId).getTenantTkey();
+                    } catch (ObjectNotFoundException e) {
+                        //TODO: hanlde somehow?
+                    }
+                }
+            } else {
+                tenantID = getTenantIDFromRequest(httpRequest);
+            }
+        }
+        httpRequest.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
+        return tenantID;
+    }
+
+    private String getTenantIDFromRequest(HttpServletRequest request) {
+        return request.getParameter(REQ_PARAM_TENANT_ID);
+    }
+
+    private String getTenantIDFromSession(HttpServletRequest httpRequest, String tenant_id_from_marketplace) {
+        return (String) httpRequest.getSession().getAttribute(tenant_id_from_marketplace);
     }
 
     /**
@@ -362,8 +401,8 @@ public abstract class BaseBesFilter implements Filter {
      * @throws Exception
      */
     protected void forwardToLoginPage(String relativePath, boolean save,
-            HttpServletRequest request, HttpServletResponse response,
-            FilterChain chain) throws IOException, ServletException, NotExistentTenantException {
+                                      HttpServletRequest request, HttpServletResponse response,
+                                      FilterChain chain) throws IOException, ServletException {
 
         String actualLoginPage = getActualLoginPage(request, loginPage,
                 authSettings);
@@ -377,9 +416,8 @@ public abstract class BaseBesFilter implements Filter {
 
             storeRelayStateInSession(relativePath, request);
             try {
-                String tenantID = getTenantID(request, response);
                 AuthenticationHandler ah = new AuthenticationHandler(request,
-                        response, authSettings, tenantID);
+                        response, authSettings);
                 ah.handleAuthentication(false, request.getSession());
                 return;
             } catch (SAML2AuthnRequestException e) {
@@ -408,16 +446,22 @@ public abstract class BaseBesFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    protected String getTenantID(HttpServletRequest request, HttpServletResponse response) {
-        return request.getParameter(Constants.REQ_PARAM_TENANT_ID);
-    }
-
     ConfigurationService getConfigurationService(HttpServletRequest request) {
         ServiceAccess serviceAccess = ServiceAccess
                 .getServiceAcccessFor(request.getSession());
         ConfigurationService cfgService = serviceAccess
                 .getService(ConfigurationService.class);
         return cfgService;
+    }
+
+    MarketplaceService getMarketplaceService(HttpServletRequest request) {
+        ServiceAccess serviceAccess = ServiceAccess
+                .getServiceAcccessFor(request.getSession());
+        if (mkpService == null) {
+            mkpService = serviceAccess
+                    .getService(MarketplaceService.class);
+        }
+        return mkpService;
     }
 
     private boolean isLoginPage(String relativePath, String actualLoginPage) {

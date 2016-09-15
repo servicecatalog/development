@@ -13,20 +13,13 @@ import static org.oscm.ui.beans.BaseBean.ERROR_PAGE;
 import java.io.IOException;
 
 import javax.ejb.EJB;
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.oscm.internal.cache.MarketplaceConfiguration;
 import org.oscm.internal.intf.ConfigurationService;
 import org.oscm.internal.intf.MarketplaceService;
-import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.types.constants.marketplace.Marketplace;
 import org.oscm.ui.beans.BaseBean;
@@ -46,6 +39,8 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
 
     @EJB
     private MarketplaceService marketplaceService;
+
+    private boolean isSaml;
 
     public MarketplaceConfiguration getConfig(String marketplaceId) {
         return marketplaceService
@@ -116,12 +111,13 @@ public class ClosedMarketplaceFilter extends BaseBesFilter implements Filter {
     }
 
     boolean isSAMLAuthentication() {
-        ConfigurationService cfgService = getServiceAccess().getService(
-                ConfigurationService.class);
-        TenantService tenantService = getServiceAccess().getService(
-                TenantService.class);
-        authSettings = new AuthenticationSettings(tenantService, cfgService);
-        return authSettings.isServiceProvider();
+        if (!isSaml) {
+            ConfigurationService cfgService = getServiceAccess()
+                    .getService(ConfigurationService.class);
+            authSettings = new AuthenticationSettings(null, cfgService);
+            isSaml = authSettings.isServiceProvider();
+        }
+        return isSaml;
     }
 
     private ServiceAccess getServiceAccess() {

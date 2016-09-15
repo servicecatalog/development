@@ -8,6 +8,8 @@
 
 package org.oscm.ui.dialog.common.saml2;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -17,7 +19,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.StringUtils;
+import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.intf.TenantService;
 import org.oscm.internal.types.exception.NotExistentTenantException;
 import org.oscm.internal.types.exception.SAML2AuthnRequestException;
@@ -49,6 +51,9 @@ public class Saml2Ctrl extends BaseBean {
 
     @EJB
     private TenantService tenantService;
+
+    @EJB
+    private MarketplaceCacheService mkpServiceCache;
 
     private AuthenticationSettings authenticationSettings;
     private String tenantID;
@@ -107,16 +112,21 @@ public class Saml2Ctrl extends BaseBean {
         setSessionAttribute(Constants.SESS_ATTR_IDP_REQUEST_ID, requestId);
     }
     URL getAcsUrl() throws MalformedURLException, NotExistentTenantException {
-        String acsURL = getAuthenticationSettings().getIdentityProviderURL(getTenantId());
+        String acsURL = getAuthenticationSettings().getIdentityProviderURL();
         return new URL(acsURL);
     }
 
-    protected AuthenticationSettings getAuthenticationSettings() {
+    protected AuthenticationSettings getAuthenticationSettings() throws NotExistentTenantException {
         if (authenticationSettings == null) {
             authenticationSettings = new AuthenticationSettings(
                     tenantService, getConfigurationService());
+            authenticationSettings.init(getTenantID());
         }
         return authenticationSettings;
+    }
+
+    private String getTenantID() {
+        return (String) getRequest().getSession().getAttribute(REQ_PARAM_TENANT_ID);
     }
 
     AuthnRequestGenerator getAuthnRequestGenerator()
@@ -126,24 +136,13 @@ public class Saml2Ctrl extends BaseBean {
     }
 
     String getIssuer() throws SAML2AuthnRequestException, NotExistentTenantException {
-        String issuer = getAuthenticationSettings().getIssuer(getTenantId());
+        String issuer = getAuthenticationSettings().getIssuer();
         if (ADMStringUtils.isBlank(issuer)) {
             throw new SAML2AuthnRequestException(
                     "No issuer set in the configuration settings",
                     SAML2AuthnRequestException.ReasonEnum.MISSING_ISSUER);
         }
         return issuer;
-    }
-
-    private String getTenantId() {
-        if(StringUtils.isBlank(tenantID)) {
-            try {
-                tenantID = getMarketplaceService().getMarketplaceById(getMarketplaceId()).getTenantTkey();
-            } catch (Exception e) {
-                tenantID = null;
-            }
-        }
-        return tenantID;
     }
 
     Log4jLogger getLogger() {

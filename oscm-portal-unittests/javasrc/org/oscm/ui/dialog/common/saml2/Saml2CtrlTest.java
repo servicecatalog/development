@@ -98,8 +98,8 @@ public class Saml2CtrlTest {
         doReturn(DUMMY_REQID).when(authnReqGenMock).getRequestId();
         doNothing().when(saml2Ctrl).storeRequestIdInSession(anyString());
         doReturn(authSett).when(saml2Ctrl).getAuthenticationSettings();
-        doReturn("https://some.different.acs.url.de").when(authSett).getIdentityProviderURL(anyString());
-        doReturn("some_issuerid").when(authSett).getIssuer(anyString());
+        doReturn("https://some.different.acs.url.de").when(authSett).getIdentityProviderURL();
+        doReturn("some_issuerid").when(authSett).getIssuer();
     }
 
     @Test
@@ -208,7 +208,7 @@ public class Saml2CtrlTest {
     @Test(expected = MalformedURLException.class)
     public void getAcsUrl_UIError() throws Exception {
         // given
-        doReturn("nope").when(authSett).getIdentityProviderURL(anyString());
+        doReturn("nope").when(authSett).getIdentityProviderURL();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
 
         // when
@@ -220,7 +220,7 @@ public class Saml2CtrlTest {
     @Test(expected = MalformedURLException.class)
     public void getAcsUrl_UIErrorNull() throws Exception {
         // given
-        doReturn(null).when(authSett).getIdentityProviderURL(anyString());
+        doReturn(null).when(authSett).getIdentityProviderURL();
         doCallRealMethod().when(saml2Ctrl).getAcsUrl();
 
         // when
@@ -245,7 +245,7 @@ public class Saml2CtrlTest {
     public void getIssuer_Error() throws Exception {
         // given
 
-        doReturn(null).when(authSett).getIssuer(anyString());
+        doReturn(null).when(authSett).getIssuer();
 
         // when
         saml2Ctrl.getIssuer();

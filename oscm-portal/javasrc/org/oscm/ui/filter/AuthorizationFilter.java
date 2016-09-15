@@ -386,8 +386,6 @@ public class AuthorizationFilter extends BaseBesFilter {
                     rdo);
         } catch (ServletException e) {
             handleServletException(httpRequest, httpResponse, e);
-        } catch(NotExistentTenantException exc) {
-            handleNonExistentTenatnException(httpRequest, httpResponse);
         }
     }
 
@@ -430,12 +428,8 @@ public class AuthorizationFilter extends BaseBesFilter {
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                     BaseBean.ERROR_LOGIN);
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e1) {
-                handleNonExistentTenatnException(httpRequest, httpResponse);
-            }
+            forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
+                    httpResponse, chain);
         }
     }
 
@@ -447,12 +441,8 @@ public class AuthorizationFilter extends BaseBesFilter {
         if (authSettings.isServiceProvider()) {
             forward(errorPage, httpRequest, httpResponse);
         } else {
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e1) {
-                handleNonExistentTenatnException(httpRequest, httpResponse);
-            }
+            forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
+                    httpResponse, chain);
         }
     }
 
@@ -489,12 +479,8 @@ public class AuthorizationFilter extends BaseBesFilter {
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                     BaseBean.ERROR_LOGIN);
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e1) {
-                handleNonExistentTenatnException(httpRequest, httpResponse);
-            }
+            forwardToLoginPage(rdo.getRelativePath(), true, httpRequest,
+                    httpResponse, chain);
         }
     }
 
@@ -515,12 +501,8 @@ public class AuthorizationFilter extends BaseBesFilter {
         } else {
             httpRequest.setAttribute(Constants.REQ_ATTR_ERROR_KEY,
                     BaseBean.ERROR_LOGIN);
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e1) {
-                handleNonExistentTenatnException(httpRequest, httpResponse);
-            }
+            forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
+                    httpResponse, chain);
         }
     }
 
@@ -618,12 +600,8 @@ public class AuthorizationFilter extends BaseBesFilter {
                     BaseBean.ERROR_SUBSCRIPTION_NOT_FOUND);
             forward(errorPage, httpRequest, httpResponse);
         } else {
-            try {
-                forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
-                        httpResponse, chain);
-            } catch (NotExistentTenantException e1) {
-                handleNonExistentTenatnException(httpRequest, httpResponse);
-            }
+            forwardToLoginPage(rdo.getRelativePath(), false, httpRequest,
+                    httpResponse, chain);
         }
     }
 
