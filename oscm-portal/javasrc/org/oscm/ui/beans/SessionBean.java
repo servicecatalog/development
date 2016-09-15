@@ -564,4 +564,8 @@ public class SessionBean implements Serializable {
         return tenantID;
     }
 
+    public void setTenantID(String tenantId) {
+        this.tenantID = tenantId;
+    }
+
 }

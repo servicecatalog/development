@@ -46,15 +46,7 @@ import org.oscm.communicationservice.local.CommunicationServiceLocal;
 import org.oscm.configurationservice.local.ConfigurationServiceLocal;
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
-import org.oscm.domobjects.ConfigurationSetting;
-import org.oscm.domobjects.DomainObject;
-import org.oscm.domobjects.Marketplace;
-import org.oscm.domobjects.Organization;
-import org.oscm.domobjects.OrganizationSetting;
-import org.oscm.domobjects.PlatformUser;
-import org.oscm.domobjects.RoleAssignment;
-import org.oscm.domobjects.TriggerProcess;
-import org.oscm.domobjects.UserRole;
+import org.oscm.domobjects.*;
 import org.oscm.identityservice.control.SendMailControl;
 import org.oscm.internal.types.enumtypes.ConfigurationKey;
 import org.oscm.internal.types.enumtypes.SettingType;
@@ -125,7 +117,7 @@ public class IdentityServiceBeanMailSendingTest {
                     }
                 });
 
-        doReturn(null).when(idSrv).loadUser(anyString());
+        doReturn(null).when(idSrv).loadUser(anyString(), any(Tenant.class));
         Query triggerQuery = mock(Query.class);
         when(triggerQuery.getSingleResult()).thenReturn(Long.valueOf(0));
         when(dm.createNamedQuery(contains("TriggerProcessIdentifier")))

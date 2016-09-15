@@ -73,6 +73,7 @@ import org.oscm.internal.vo.VOUserDetails;
 import org.oscm.paginator.Pagination;
 import org.oscm.ui.beans.ApplicationBean;
 import org.oscm.ui.beans.BaseBean;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.common.Constants;
 import org.oscm.ui.common.UiDelegate;
 import org.oscm.ui.dialog.mp.createuser.Subscription;
@@ -108,6 +109,7 @@ public class UpdateUserCtrlTest {
     private TableState ts;
     private User user;
     private Response response;
+    private SessionBean sessionBean = new SessionBean();
 
     @Before
     public void setup() throws Exception {
@@ -177,6 +179,8 @@ public class UpdateUserCtrlTest {
         // when(ctrl.getAllSubscriptions(anyListOf(Subscription.class))).thenReturn(prepareSubscriptions());
         doNothing().when(ctrl).addMessage(any(FacesMessage.Severity.class),
                 anyString());
+        sessionBean.setTenantID("1");
+        ctrl.setSessionBean(sessionBean);
     }
 
     @Test

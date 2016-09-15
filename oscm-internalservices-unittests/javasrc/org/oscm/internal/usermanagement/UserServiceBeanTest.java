@@ -94,6 +94,7 @@ public class UserServiceBeanTest {
     private static final String ROLENAME = "rolename";
     private static final String GROUPNAME = "groupname";
     private static final long GROUPKEY = 11223l;
+    private static final String TENANT_ID = "1";
 
     private UserServiceBean usb;
 
@@ -136,6 +137,7 @@ public class UserServiceBeanTest {
 
         when(usb.isl.getOrganizationUsers()).thenReturn(Arrays.asList(pu));
         when(usb.isl.getPlatformUser(anyString(), anyBoolean())).thenReturn(pu);
+        when(usb.isl.getPlatformUser(anyString(), anyString(), anyBoolean())).thenReturn(pu);
         when(usb.isl.getAvailableUserRolesForUser(any(PlatformUser.class)))
                 .thenReturn(new HashSet<UserRoleType>());
 
@@ -212,9 +214,9 @@ public class UserServiceBeanTest {
     @Test
     public void getUserDetails() throws Exception {
         String userId = "userId";
-        POUserDetails user = usb.getUserDetails(userId);
+        POUserDetails user = usb.getUserDetails(userId, TENANT_ID);
 
-        verify(usb.isl, times(1)).getPlatformUser(eq(userId), eq(true));
+        verify(usb.isl, times(1)).getPlatformUser(eq(userId), anyString(), eq(true));
         verify(usb.isl, times(1)).getAvailableUserRolesForUser(eq(pu));
         verify(usb.lsmsl, times(1)).getMappedAttributes();
         verify(usb.dc, times(1)).toPOUserDetails(eq(pu),
@@ -254,12 +256,12 @@ public class UserServiceBeanTest {
     public void deleteUser() throws Exception {
         POUser user = createPOUser(pu);
         String marketplaceId = "marketplaceId";
-        when(usb.isl.getPlatformUser(eq(user.getUserId()), eq(true)))
+        when(usb.isl.getPlatformUser(eq(user.getUserId()), anyString(), eq(true)))
                 .thenReturn(pu);
 
-        usb.deleteUser(user, marketplaceId);
+        usb.deleteUser(user, marketplaceId, TENANT_ID);
 
-        verify(usb.isl, times(1)).getPlatformUser(eq(user.getUserId()),
+        verify(usb.isl, times(1)).getPlatformUser(eq(user.getUserId()), anyString(),
                 eq(true));
         verify(usb.userGroupService, times(1))
                 .addLogEntryWhenDeleteUser(eq(pu));
@@ -269,14 +271,14 @@ public class UserServiceBeanTest {
 
     @Test
     public void deleteUser_NotFound() throws Exception {
-        when(usb.isl.getPlatformUser(anyString(), anyBoolean())).thenThrow(
+        when(usb.isl.getPlatformUser(anyString(), anyString(), anyBoolean())).thenThrow(
                 new ObjectNotFoundException());
         POUser user = createPOUser(pu);
         String marketplaceId = "marketplaceId";
 
-        usb.deleteUser(user, marketplaceId);
+        usb.deleteUser(user, marketplaceId, TENANT_ID);
 
-        verify(usb.isl, times(1)).getPlatformUser(eq(user.getUserId()),
+        verify(usb.isl, times(1)).getPlatformUser(eq(user.getUserId()), anyString(),
                 eq(true));
         verifyNoMoreInteractions(usb.isl);
         verifyZeroInteractions(usb.sc);
@@ -284,13 +286,13 @@ public class UserServiceBeanTest {
 
     @Test(expected = OperationNotPermittedException.class)
     public void deleteUser_Rollback() throws Exception {
-        when(usb.isl.getPlatformUser(anyString(), anyBoolean())).thenThrow(
+        when(usb.isl.getPlatformUser(anyString(), anyString(), anyBoolean())).thenThrow(
                 new OperationNotPermittedException());
         POUser user = createPOUser(pu);
         String marketplaceId = "marketplaceId";
 
         try {
-            usb.deleteUser(user, marketplaceId);
+            usb.deleteUser(user, marketplaceId, TENANT_ID);
         } finally {
             verify(usb.sc, times(1)).setRollbackOnly();
         }
@@ -480,7 +482,7 @@ public class UserServiceBeanTest {
         String userId = "userId";
 
         POUserAndSubscriptions result = usb
-                .getUserAndSubscriptionDetails(userId);
+                .getUserAndSubscriptionDetails(userId, TENANT_ID);
 
         assertNotNull(result);
         verify(usb.lsmsl, times(1)).getMappedAttributes();
@@ -489,7 +491,7 @@ public class UserServiceBeanTest {
                 anySetOf(UserRoleType.class), anyListOf(UsageLicense.class),
                 any(LocalizerFacade.class), same(mappedAttributes));
 
-        verify(usb.isl, times(1)).getPlatformUser(eq(userId), eq(true));
+        verify(usb.isl, times(1)).getPlatformUser(eq(userId), anyString(), eq(true));
         verify(usb.isl, times(1)).getAvailableUserRolesForUser(eq(pu));
 
         // pre-fetch of role names

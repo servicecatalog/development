@@ -142,7 +142,7 @@ public class ManageUsersCtrlTest {
             }
         };
         sessionBean.setSelectedUserId(ud.getUserId());
-        doReturn("1").when(sessionBean).getTenantID();
+        sessionBean.setTenantID("1");
         ctrl.setSessionBean(sessionBean);
         ctrl.setServiceLocator(sl);
     }
