@@ -1636,9 +1636,11 @@ public class IdentityServiceBean implements IdentityService,
         Query query = dm.createNamedQuery("PlatformUser.findByUserIdAndTenant");
         query.setParameter("userId", userId);
         query.setParameter("tenant", tenant);
-        PlatformUser platformUser = (PlatformUser) query.getSingleResult();
 
-        if (platformUser == null) {
+        PlatformUser platformUser;
+        try {
+            platformUser = (PlatformUser) query.getSingleResult();
+        } catch (NoResultException e) {
             ObjectNotFoundException onf = new ObjectNotFoundException(
                 ObjectNotFoundException.ClassEnum.USER, userId);
             logger.logWarn(Log4jLogger.SYSTEM_LOG, onf,

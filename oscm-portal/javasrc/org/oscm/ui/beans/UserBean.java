@@ -398,7 +398,7 @@ public class UserBean extends BaseBean implements Serializable {
 
     public String showDetails(String userId) {
         try {
-            getUserService().getUserAndSubscriptionDetails(userId);
+            getUserService().getUserAndSubscriptionDetails(userId, sessionBean.getTenantID());
             return BaseBean.OUTCOME_SHOW_DETAILS;
         } catch (ObjectNotFoundException e) {
             JSFUtils.addMessage(null, FacesMessage.SEVERITY_ERROR,

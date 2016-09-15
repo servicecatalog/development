@@ -114,10 +114,10 @@ public class UpdateUserCtrl {
         try {
             Long subscriptionsNumber = getUserService()
                     .getUserAssignableSubscriptionsNumber(new Pagination(),
-                            userId);
+                            userId, sessionBean.getTenantID());
             model.setAssignableSubscriptionsNumber(subscriptionsNumber);
 
-            POUserDetails user = getUserService().getUserDetails(userId);
+            POUserDetails user = getUserService().getUserDetails(userId, sessionBean.getTenantID());
 
             model.setUser(new User(new VOUserDetails()));
             model.getUser().setUserId(userId);
@@ -270,7 +270,7 @@ public class UpdateUserCtrl {
         POUser user = toPOUser();
         try {
             Response r = getUserService().deleteUser(user,
-                    ui.getMarketplaceId());
+                    ui.getMarketplaceId(), sessionBean.getTenantID());
             ui.handle(r, BaseBean.INFO_USER_DELETED, user.getUserId());
         } catch (TechnicalServiceNotAliveException
                 | TechnicalServiceOperationException e) {

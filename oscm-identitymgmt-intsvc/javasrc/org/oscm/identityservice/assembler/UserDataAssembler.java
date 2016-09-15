@@ -80,6 +80,7 @@ public class UserDataAssembler extends BaseAssembler {
         voUser.setOrganizationName(platformUser.getOrganization().getName());
         voUser.setUserId(platformUser.getUserId());
         voUser.setStatus(platformUser.getStatus());
+        voUser.setTenantKey(String.valueOf(platformUser.getOrganization().getTenant().getKey()));
         updateOrganizationRoles(platformUser, voUser);
         updateUserRoles(platformUser, voUser);
         updateValueObject(voUser, platformUser);

@@ -34,3 +34,5 @@ INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SE
     /1000),0)+10 FROM "tenant";
 INSERT INTO "hibernate_sequences" ("sequence_name", "sequence_next_hi_value") SELECT 'TenantSetting', COALESCE(
     (MAX(tkey)/1000),0)+10 FROM "tenantsetting";
+
+DROP INDEX platformuser_bk_idx;
