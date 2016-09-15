@@ -8,6 +8,7 @@
 
 package org.oscm.ui.beans;
 
+import static org.oscm.ui.common.Constants.REQ_PARAM_TENANT_ID;
 import static org.oscm.ui.common.Constants.SESSION_PARAM_SAML_LOGOUT_REQUEST;
 
 import java.io.IOException;
@@ -550,6 +551,10 @@ public class SessionBean implements Serializable {
 
     public String getSamlLogoutRequest() {
         return (String) new UiDelegate().getSession().getAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST);
+    }
+
+    public String getTenantID() {
+        return (String) new UiDelegate().getSession().getAttribute(REQ_PARAM_TENANT_ID);
     }
 
 }

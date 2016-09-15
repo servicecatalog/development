@@ -7,9 +7,7 @@
  *******************************************************************************/
 package org.oscm.tenant.bean;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -137,19 +135,6 @@ public class TenantServiceLocalBeanTest {
 
         //then
         verify(tenantDao, times(1)).getTenantsByIdPattern("tenantId");
-    }
-    
-    @Test
-    public void testGetMyTenant(){
-        
-        //given
-        when(tenantDao.getMyTenant()).thenReturn(new Tenant());
-        
-        //when
-        tenantServiceLocalBean.getMyTenant();
-
-        //then
-        verify(tenantDao, times(1)).getMyTenant();
     }
     
     @Test

@@ -54,10 +54,6 @@ public class TenantDao {
         return dataManager.find(Tenant.class, tenantID);
     }
 
-    public Tenant getMyTenant() {
-        return dataManager.getCurrentUser().getOrganization().getTenant();
-    }
-
     public long doesOrganizationForTenantExist(Tenant tenant) {
         Query query = dataManager.createNamedQuery("Tenant.checkOrganization");
         query.setParameter("tenant", tenant);

@@ -57,7 +57,6 @@ public class AuthenticationSettingsTest {
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getSigningKeyAlias();
         doReturn(IDP_KEYSTORE_PASS).when(mockTenant).getLogoutURL();
         doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
-        doReturn(mockTenant).when(tenantService).findByTkey(any(String.class));
         cfgMock = mock(ConfigurationService.class);
     }
 
@@ -78,7 +77,7 @@ public class AuthenticationSettingsTest {
                 .getVOConfigurationSetting(ConfigurationKey.BASE_URL,
                         Configuration.GLOBAL_CONTEXT);
         authSettings = new AuthenticationSettings(tenantService, cfgMock);
-        authSettings.init("");
+        authSettings.init("tenantID");
     }
 
     @Test
@@ -293,7 +292,7 @@ public class AuthenticationSettingsTest {
         doThrow(new ObjectNotFoundException()).when(tenantService).findByTkey(anyString());
 
         // then
-        authSettings.getSigningKeystorePass();
+        authSettings.init("te");
     }
 
 }
