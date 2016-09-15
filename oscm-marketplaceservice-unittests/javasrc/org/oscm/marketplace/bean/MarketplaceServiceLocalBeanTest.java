@@ -184,6 +184,8 @@ public class MarketplaceServiceLocalBeanTest {
         // then
         verify(service, times(0)).updateRevenueShare(
                 any(RevenueShareModel.class), anyInt());
+        verify(service.marketplaceCache, times(1)).resetConfiguration(
+                anyString());
     }
 
     @Test
@@ -644,6 +646,8 @@ public class MarketplaceServiceLocalBeanTest {
 
         // then
         verify(service.ds, times(0)).persist(any(Marketplace.class));
+        verify(service.marketplaceCache, times(0)).resetConfiguration(
+                anyString());
     }
 
     @Test
@@ -663,6 +667,8 @@ public class MarketplaceServiceLocalBeanTest {
         // then
         assertTrue(marketplace.isRestricted());
         verify(service.ds, times(1)).persist(any(Marketplace.class));
+        verify(service.marketplaceCache, times(1)).resetConfiguration(
+                anyString());
     }
 
     @Test
