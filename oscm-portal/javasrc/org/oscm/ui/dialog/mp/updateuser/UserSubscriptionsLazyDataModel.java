@@ -28,6 +28,7 @@ import org.oscm.logging.LoggerFactory;
 import org.oscm.paginator.PaginationSubForUser;
 import org.oscm.paginator.TableColumns;
 import org.oscm.types.enumtypes.LogMessageIdentifier;
+import org.oscm.ui.beans.SessionBean;
 import org.oscm.ui.dialog.mp.createuser.Subscription;
 import org.oscm.ui.model.RichLazyDataModel;
 import org.richfaces.component.SortOrder;
@@ -47,6 +48,9 @@ public class UserSubscriptionsLazyDataModel extends
 
     @EJB
     private UserService userService;
+
+    @EJB
+    private SessionBean sessionBean;
 
     @ManagedProperty(value = "#{updateUserModel}")
     private UpdateUserModel model;
@@ -193,7 +197,7 @@ public class UserSubscriptionsLazyDataModel extends
             decorateWithChangedData(pagination);
 
             Long totalCount = userService.getUserAssignableSubscriptionsNumber(
-                    pagination, userId);
+                    pagination, userId, sessionBean.getTenantID());
 
             setTotalCount(totalCount.intValue());
 
@@ -229,5 +233,13 @@ public class UserSubscriptionsLazyDataModel extends
 
     public void setModel(UpdateUserModel model) {
         this.model = model;
+    }
+
+    public SessionBean getSessionBean() {
+        return sessionBean;
+    }
+
+    public void setSessionBean(SessionBean sessionBean) {
+        this.sessionBean = sessionBean;
     }
 }
