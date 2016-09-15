@@ -155,15 +155,10 @@ public class IdPResponseFilter implements Filter {
         String nameID = getSamlResponseExtractor().getUserId(samlResponse);
         String tenantID = getSamlResponseExtractor().getTenantID(samlResponse);
         authSettings.init(tenantID);
-        String logoutRequest = null;
-        try {
-            logoutRequest = logoutRequestGenerator.generateLogoutRequest(
+        String logoutRequest = logoutRequestGenerator.generateLogoutRequest(
                     samlSessionId, nameID, getLogoutURL(),
                     getKeystorePath(), getIssuer(),
                     getKeyAlias(), getKeystorePass());
-        } catch (Exception exc) {
-            LOGGER.logError(Log4jLogger.SYSTEM_LOG, exc, LogMessageIdentifier.ERROR_BUILD_SAML_LOGOUT_REQUEST_FAILED, tenantID);
-        }
         request.getSession().setAttribute(SESSION_PARAM_SAML_LOGOUT_REQUEST, logoutRequest);
         request.getSession().setAttribute(REQ_PARAM_TENANT_ID, tenantID);
     }
