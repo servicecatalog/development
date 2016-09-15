@@ -88,11 +88,6 @@ public class TenantServiceLocalBean implements TenantServiceLocal {
     }
 
     @Override
-    public Tenant getMyTenant() {
-        return tenantDao.getMyTenant();
-    }
-
-    @Override
     public boolean doesOrganizationAssignedToTenantExist(Tenant tenant) {
         return tenantDao.doesOrganizationForTenantExist(tenant) > 0L;
     }

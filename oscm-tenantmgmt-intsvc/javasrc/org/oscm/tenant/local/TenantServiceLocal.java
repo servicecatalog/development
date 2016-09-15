@@ -7,15 +7,16 @@
  *******************************************************************************/
 package org.oscm.tenant.local;
 
-import org.oscm.domobjects.Tenant;
-import org.oscm.domobjects.TenantSetting;
-import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
-import org.oscm.internal.types.exception.ObjectNotFoundException;
 import java.util.List;
 
 import javax.ejb.Local;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
+
+import org.oscm.domobjects.Tenant;
+import org.oscm.domobjects.TenantSetting;
+import org.oscm.internal.types.exception.NonUniqueBusinessKeyException;
+import org.oscm.internal.types.exception.ObjectNotFoundException;
 
 @Local
 public interface TenantServiceLocal {
@@ -39,8 +40,6 @@ public interface TenantServiceLocal {
     List<TenantSetting> getAllTenantSettingsForTenant(Tenant tenant);
 
     List<Tenant> getTenantsByIdPattern(String tenantIdPattern);
-
-    Tenant getMyTenant();
 
     boolean doesOrganizationAssignedToTenantExist(Tenant tenant);
 
