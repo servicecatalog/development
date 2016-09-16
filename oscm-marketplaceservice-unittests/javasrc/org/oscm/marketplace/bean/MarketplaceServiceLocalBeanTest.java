@@ -822,7 +822,19 @@ public class MarketplaceServiceLocalBeanTest {
     }
 
     @Test
-    void grantAccessToMarketplaceToOrganization_MpCache() {
+    public void grantAccessToMarketplaceToOrganization_MpCache()
+            throws NonUniqueBusinessKeyException {
+        // given
+        Marketplace mp = new Marketplace();
+        mp.setMarketplaceId("MP1");
+        mp.setKey(100L);
+        mp.setOrganization(mpOwnerOrg);
 
+        // when
+        service.grantAccessToMarketPlaceToOrganization(mp, mpOwnerOrg);
+
+        // then
+        verify(service.marketplaceCache, atLeastOnce()).resetConfiguration(
+                mp.getMarketplaceId());
     }
 }
