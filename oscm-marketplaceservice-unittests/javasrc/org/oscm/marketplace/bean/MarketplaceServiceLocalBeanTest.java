@@ -18,6 +18,7 @@ import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -38,12 +39,15 @@ import javax.ejb.SessionContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.oscm.accountservice.local.AccountServiceLocal;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.MarketplaceAccess;
 import org.oscm.domobjects.MarketplaceToOrganization;
 import org.oscm.domobjects.Organization;
+import org.oscm.domobjects.OrganizationRole;
+import org.oscm.domobjects.OrganizationToRole;
 import org.oscm.domobjects.PlatformUser;
 import org.oscm.domobjects.Product;
 import org.oscm.domobjects.RevenueShareModel;
@@ -52,11 +56,13 @@ import org.oscm.domobjects.UserRole;
 import org.oscm.domobjects.enums.LocalizedObjectTypes;
 import org.oscm.domobjects.enums.PublishingAccess;
 import org.oscm.domobjects.enums.RevenueShareModelType;
+import org.oscm.i18nservice.local.LocalizerServiceLocal;
 import org.oscm.internal.intf.MarketplaceCacheService;
 import org.oscm.internal.pricing.POOrganization;
 import org.oscm.internal.resalepermissions.POResalePermissionDetails;
 import org.oscm.internal.resalepermissions.POServiceDetails;
 import org.oscm.internal.types.enumtypes.OfferingType;
+import org.oscm.internal.types.enumtypes.OrganizationRoleType;
 import org.oscm.internal.types.enumtypes.UserRoleType;
 import org.oscm.internal.types.exception.ConcurrentModificationException;
 import org.oscm.internal.types.exception.IllegalArgumentException;
@@ -69,12 +75,12 @@ import org.oscm.internal.vo.VOCategory;
 import org.oscm.marketplace.auditlog.MarketplaceAuditLogCollector;
 import org.oscm.marketplace.dao.MarketplaceAccessDao;
 import org.oscm.serviceprovisioningservice.local.ServiceProvisioningPartnerServiceLocal;
-import org.oscm.test.stubs.LocalizerServiceStub;
 
 public class MarketplaceServiceLocalBeanTest {
 
     private MarketplaceServiceLocalBean service;
     private PlatformUser user;
+    private Organization mpOwnerOrg;
     private final static String TrackcodeExpected = "<script>alert('hello world')</script>";
     private final static String TrackcodeChanged = "<script>alert('hello script')</script>";
     private Product product;
@@ -95,22 +101,34 @@ public class MarketplaceServiceLocalBeanTest {
         service.categorizationService = mock(CategorizationServiceBean.class);
         service.landingpageService = mock(LandingpageServiceBean.class);
         service.partnerSrvProv = mock(ServiceProvisioningPartnerServiceLocal.class);
-        service.localizer = new LocalizerServiceStub() {
-            @Override
-            public String getLocalizedTextFromDatabase(String localeString,
-                    long objectKey, LocalizedObjectTypes objectType) {
-                return "localizedText";
-            }
-        };
+        service.localizer = mock(LocalizerServiceLocal.class);
         service.marketplaceAccessDao = mock(MarketplaceAccessDao.class);
         service.marketplaceCache = mock(MarketplaceCacheService.class);
+        service.accountService = mock(AccountServiceLocal.class);
 
         user = new PlatformUser();
+        mpOwnerOrg = new Organization();
+        mpOwnerOrg.setOrganizationId("org");
+        OrganizationRole orgRole = new OrganizationRole();
+        orgRole.setRoleName(OrganizationRoleType.MARKETPLACE_OWNER);
+        OrganizationToRole orgToRole = new OrganizationToRole();
+        orgToRole.setOrganizationRole(orgRole);
+        orgToRole.setOrganization(mpOwnerOrg);
+        mpOwnerOrg.getGrantedRoles().add(orgToRole);
+        user.setOrganization(mpOwnerOrg);
         doReturn(user).when(service.ds).getCurrentUser();
+        doReturn(mpOwnerOrg).when(service.ds).getReferenceByBusinessKey(
+                any(Organization.class));
         doNothing().when(service.marketplaceCache).resetConfiguration(
                 anyString());
-        doReturn(Boolean.TRUE).when(service).updateMarketplace(
-                any(Marketplace.class), anyString(), anyString());
+        doReturn(Boolean.TRUE).when(service.localizer).storeLocalizedResource(
+                anyString(), anyLong(), any(LocalizedObjectTypes.class),
+                anyString());
+        doReturn("localizedText").when(service.localizer)
+                .getLocalizedTextFromDatabase(anyString(), anyLong(),
+                        any(LocalizedObjectTypes.class));
+        doReturn(Collections.EMPTY_LIST).when(service.accountService)
+                .getOrganizationAdmins(anyLong());
     }
 
     @Test(expected = ConcurrentModificationException.class)
@@ -174,17 +192,41 @@ public class MarketplaceServiceLocalBeanTest {
     }
 
     @Test
-    public void updateMarketplace_RevenueSharesNotUpdated() throws Exception {
-        // when
+    public void updateMarketplace_MpCache() throws Exception {
+        // given
+        addUserRole(UserRoleType.PLATFORM_OPERATOR);
+        addUserRole(UserRoleType.MARKETPLACE_OWNER);
         Marketplace mp = new Marketplace();
         mp.setMarketplaceId("MP");
+        user.getOrganization().getMarketplaces().add(mp);
+        doReturn(Boolean.FALSE).when(service).updateOwningOrganization(
+                any(Marketplace.class), anyString(), anyBoolean());
 
-        service.updateMarketplace(mp, mp, "any", "any", 100, 100, 100);
+        // when
+        service.updateMarketplace(mp, "MP", "ORG");
+
+        // then
+        verify(service.marketplaceCache, atLeastOnce()).resetConfiguration(
+                anyString());
+    }
+
+    @Test
+    public void updateMarketplace_RevenueSharesNotUpdated() throws Exception {
+        // when
+        // addUserRole(UserRoleType.PLATFORM_OPERATOR);
+        addUserRole(UserRoleType.MARKETPLACE_OWNER);
+        Marketplace mp = new Marketplace();
+        mp.setMarketplaceId("MP");
+        mp.setOrganization(mpOwnerOrg);
+        mpOwnerOrg.getMarketplaces().add(mp);
+
+        service.updateMarketplace(mp, mp, mp.getMarketplaceId(), user
+                .getOrganization().getOrganizationId(), 100, 100, 100);
 
         // then
         verify(service, times(0)).updateRevenueShare(
                 any(RevenueShareModel.class), anyInt());
-        verify(service.marketplaceCache, times(1)).resetConfiguration(
+        verify(service.marketplaceCache, atLeastOnce()).resetConfiguration(
                 anyString());
     }
 
@@ -192,13 +234,15 @@ public class MarketplaceServiceLocalBeanTest {
     public void updateMarketplace_RevenueSharesUpdated() throws Exception {
         // given
         addUserRole(UserRoleType.PLATFORM_OPERATOR);
+        addUserRole(UserRoleType.MARKETPLACE_OWNER);
         doReturn(null).when(service).updateRevenueShare(
                 any(RevenueShareModel.class), anyInt());
         Marketplace newMarketplace = givenMarketplace();
+        mpOwnerOrg.getMarketplaces().add(newMarketplace);
 
         // when
-        service.updateMarketplace(new Marketplace(), newMarketplace, "name",
-                "id", 1, 2, 3);
+        service.updateMarketplace(newMarketplace, newMarketplace, "name", "id",
+                1, 2, 3);
 
         // then
         verify(service, times(1)).updateRevenueShare(
@@ -523,7 +567,8 @@ public class MarketplaceServiceLocalBeanTest {
         r.setRoleName(userRole);
         RoleAssignment ra = new RoleAssignment();
         ra.setRole(r);
-        user.setAssignedRoles(Collections.singleton(ra));
+        user.getAssignedRoles().addAll(Collections.singleton(ra));
+        // user.setAssignedRoles(Collections.singleton(ra));
     }
 
     @Test
@@ -667,7 +712,7 @@ public class MarketplaceServiceLocalBeanTest {
         // then
         assertTrue(marketplace.isRestricted());
         verify(service.ds, times(1)).persist(any(Marketplace.class));
-        verify(service.marketplaceCache, times(1)).resetConfiguration(
+        verify(service.marketplaceCache, atLeastOnce()).resetConfiguration(
                 anyString());
     }
 
@@ -776,4 +821,8 @@ public class MarketplaceServiceLocalBeanTest {
         assertTrue(result);
     }
 
+    @Test
+    void grantAccessToMarketplaceToOrganization_MpCache() {
+
+    }
 }
