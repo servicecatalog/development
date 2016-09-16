@@ -2731,7 +2731,9 @@ public class IdentityServiceBean implements IdentityService,
         Tenant tenant = null;
         try {
             Marketplace mp = (Marketplace) dm.getReferenceByBusinessKey(m);
-            tenant = mp.getTenant();
+            if (mp != null) {
+                tenant = mp.getTenant();
+            }
         } catch (ObjectNotFoundException e) {
             e.printStackTrace();
         }
