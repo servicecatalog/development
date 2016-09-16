@@ -21,10 +21,10 @@ import java.util.List;
 import javax.persistence.Query;
 
 import org.junit.Assert;
-
 import org.oscm.converter.ParameterizedTypes;
 import org.oscm.dataservice.local.DataService;
 import org.oscm.domobjects.CatalogEntry;
+import org.oscm.domobjects.EnterpriseLandingpage;
 import org.oscm.domobjects.LandingpageProduct;
 import org.oscm.domobjects.Marketplace;
 import org.oscm.domobjects.MarketplaceAccess;
@@ -155,8 +155,17 @@ public class Marketplaces {
      * @return the created marketplace
      * @throws NonUniqueBusinessKeyException
      */
+
     public static Marketplace createMarketplace(Organization owner,
             String marketplaceId, boolean isOpen, DataService ds)
+            throws NonUniqueBusinessKeyException {
+
+        return createMarketplace(owner, marketplaceId, isOpen, ds, false);
+    }
+
+    public static Marketplace createMarketplace(Organization owner,
+            String marketplaceId, boolean isOpen, DataService ds,
+            boolean isEnterpriseLandingpage)
             throws NonUniqueBusinessKeyException {
         Assert.assertNotNull("Marketplace owner not defined", owner);
         Assert.assertNotNull("Marketplace id not defined", marketplaceId);
@@ -165,12 +174,16 @@ public class Marketplaces {
         mp.setMarketplaceId(marketplaceId.trim());
         mp.setOrganization(owner);
         mp.setOpen(isOpen);
-        setDefaultLandingpage(mp);
+        if (isEnterpriseLandingpage) {
+            setEnterpriseLandingpage(mp);
+        } else {
+            setDefaultLandingpage(mp);
+        }
         createRevenueModels(mp, ds);
         ds.persist(mp);
         return mp;
     }
-    
+
     /**
      * Creates a restricted marketplace with accessible organization.
      * 
@@ -183,13 +196,15 @@ public class Marketplaces {
      * @return the created marketplace
      * @throws NonUniqueBusinessKeyException
      */
-    public static Marketplace createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(Organization owner, String marketplaceId, DataService ds, List<Organization> accessibleOrganizations)
+    public static Marketplace createMarketplaceWithRestrictedAccessAndAccessibleOrganizations(
+            Organization owner, String marketplaceId, DataService ds,
+            List<Organization> accessibleOrganizations)
             throws NonUniqueBusinessKeyException {
-        
+
         Assert.assertNotNull("Marketplace owner not defined", owner);
         Assert.assertNotNull("Marketplace id not defined", marketplaceId);
         Assert.assertTrue(marketplaceId.trim().length() > 0);
-        
+
         Marketplace mp = new Marketplace();
         mp.setMarketplaceId(marketplaceId.trim());
         mp.setOrganization(owner);
@@ -200,13 +215,13 @@ public class Marketplaces {
 
         ds.persist(mp);
 
-        for (Organization org:accessibleOrganizations){
+        for (Organization org : accessibleOrganizations) {
             MarketplaceAccess access = new MarketplaceAccess();
             access.setMarketplace(mp);
             access.setOrganization(org);
             ds.persist(access);
         }
-        
+
         return mp;
     }
 
@@ -309,12 +324,21 @@ public class Marketplaces {
      *            a data service
      * @return new created landingpage
      */
-    private static PublicLandingpage setDefaultLandingpage(Marketplace marketplace) {
+    private static PublicLandingpage setDefaultLandingpage(
+            Marketplace marketplace) {
         PublicLandingpage landingpage = new PublicLandingpage();
         landingpage.setNumberServices(6);
         landingpage.setFillinCriterion(FillinCriterion.ACTIVATION_DESCENDING);
         landingpage.setMarketplace(marketplace);
         marketplace.setPublicLandingpage(landingpage);
+        return landingpage;
+    }
+
+    private static EnterpriseLandingpage setEnterpriseLandingpage(
+            Marketplace marketplace) {
+        EnterpriseLandingpage landingpage = new EnterpriseLandingpage();
+        landingpage.setMarketplace(marketplace);
+        marketplace.setEnterpiseLandingpage(landingpage);
         return landingpage;
     }
 
