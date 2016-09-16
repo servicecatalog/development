@@ -435,7 +435,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
+    private UsageLicense getLicense(String subId, List<UsageLicense> assignments) {
 
         UsageLicense result = null;
         for (UsageLicense lic : assignments) {
@@ -448,7 +448,7 @@ public class UserServiceBean implements UserService {
         return result;
     }
 
-    VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
+    private VOUsageLicense convertToLicense(POSubscription s, VOUser u) {
 
         VOUsageLicense lic = new VOUsageLicense();
         lic.setUser(u);
@@ -527,7 +527,7 @@ public class UserServiceBean implements UserService {
         isl.setUserRolesInt(user.getAssignedRoles(), existing);
     }
 
-    void updateUserGroups(Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
+    private void updateUserGroups(Map<UserGroup, UnitUserRole> userGroupsToBeAssigned,
             POUserAndSubscriptions user, PlatformUser existing)
                     throws NonUniqueBusinessKeyException,
                     OperationNotPermittedException, ObjectNotFoundException,

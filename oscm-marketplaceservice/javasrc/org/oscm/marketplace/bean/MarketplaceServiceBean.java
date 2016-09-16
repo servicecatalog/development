@@ -439,8 +439,8 @@ public class MarketplaceServiceBean implements MarketplaceService {
             marketplace.setOwningOrganizationId(ownID);
         }
 
-        VOMarketplace result = null;
-        Marketplace mpNew = null;
+        VOMarketplace result;
+        Marketplace mpNew;
         // Create new MP domain object (and Landingpage) copy from passed VO
         mpNew = createMarketplaceIntern(marketplace);
         List<VOLocalizedText> list = Arrays.asList(new VOLocalizedText(dm
